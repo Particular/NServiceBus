@@ -26,6 +26,8 @@ namespace NServiceBus
         {
             ValidateEndpointName(endpointName);
 
+            Settings.Set(new InstallationComponent.Configuration(Settings));
+
             Settings.Set(new StartupDiagnosticEntries());
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);

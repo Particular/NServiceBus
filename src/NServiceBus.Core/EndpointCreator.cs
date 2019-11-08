@@ -112,9 +112,7 @@ namespace NServiceBus
             queueBindings = settings.Get<QueueBindings>();
             receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
 
-            installationComponent = new InstallationComponent(settings);
-
-            installationComponent.Initialize(concreteTypes, containerComponent, receiveComponent);
+            installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(), concreteTypes, containerComponent, receiveComponent, queueBindings);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
