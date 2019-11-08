@@ -47,6 +47,13 @@
         }
 
         [Test]
+        public void MessageWithDodgyNullable()
+        {
+            var mapper = new MessageMapper();
+            mapper.CreateInstance<WithDodgyNullable.IMyMessage>();
+        }
+
+        [Test]
         public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
         {
             var mapper = new MessageMapper();
