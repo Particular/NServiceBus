@@ -1,9 +1,9 @@
------------ Actively used components (Find ways to stop accessing them)-----------
+----------- Used registrations (Find ways to stop accessing them)-----------
 NServiceBus.StorageInitializer+CallInit - SingleInstance
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
------------ Likely unused components (Remove in next major if possible) -----------
+----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
 NServiceBus.CriticalError - SingleInstance
 NServiceBus.Hosting.HostInformation - SingleInstance
 NServiceBus.InMemorySubscriptionStorage - SingleInstance

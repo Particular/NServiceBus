@@ -37,18 +37,10 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
                 EnableByDefault();
                 Defaults(s =>
                 {
-                    // remove the override so we can check if the default is set, we need to hack it via reflection!
-                    var fieldInfo = s.GetType().GetField("Overrides", BindingFlags.Instance | BindingFlags.NonPublic);
-                    var dictionary = (ConcurrentDictionary<string, object>)fieldInfo.GetValue(s);
-                    dictionary.TryRemove("NServiceBus.HostInformation.HostId", out _);
+                    var fieldInfo = s.GetType().GetField("Defaults", BindingFlags.Instance | BindingFlags.NonPublic);
+                    var defaults = (ConcurrentDictionary<string, object>)fieldInfo.GetValue(s);
 
-                    var context = s.Get<Context>();
-
-                    // If the setting exists that means that the default was applied
-                    context.HostIdDefaultApplied = s.HasSetting("NServiceBus.HostInformation.HostId");
-
-                    // Set host id again so the endpoint won't blow up
-                    s.Set("NServiceBus.HostInformation.HostId", Guid.NewGuid());
+                    s.Get<Context>().HostIdDefaultApplied = defaults.ContainsKey("NServiceBus.HostInformation.HostId");
                 });
             }
 
