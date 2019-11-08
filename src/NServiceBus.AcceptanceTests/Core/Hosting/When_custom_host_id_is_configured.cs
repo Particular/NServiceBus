@@ -9,25 +9,23 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
     using Features;
     using NUnit.Framework;
 
-    public class When_feature_overrides_hostid_from_feature_default : NServiceBusAcceptanceTest
+    public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task MD5_should_not_be_used()
+        public async Task Should_not_apply_default_to_be_FIPS_compliant()
         {
-            var context = await Scenario.Define<Context>(c => { c.CustomIdToApplyInFeature = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<MyEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.False(context.HostIdDefaultPresentWhenFeatureDefaultsAreApplied);
-            Assert.AreEqual(context.CustomIdToApplyInFeature, context.HostIdExposedToFeatureSetup);
+            Assert.False(context.HostIdDefaultApplied);
         }
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {
             public MyEndpoint()
             {
-                //Configuring a value up front prevents the default to be applied, this can be anything, we will override it later
                 EndpointSetup<DefaultServer>(c => c.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(Guid.NewGuid()));
             }
         }
@@ -39,33 +37,29 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
                 EnableByDefault();
                 Defaults(s =>
                 {
-                    // remove the override, we need to hack it via reflection!
+                    // remove the override so we can check if the default is set, we need to hack it via reflection!
                     var fieldInfo = s.GetType().GetField("Overrides", BindingFlags.Instance | BindingFlags.NonPublic);
                     var dictionary = (ConcurrentDictionary<string, object>)fieldInfo.GetValue(s);
                     dictionary.TryRemove("NServiceBus.HostInformation.HostId", out _);
 
-                    // Try to get value, setting should not exist since that means that the default was applied
                     var context = s.Get<Context>();
-                    context.HostIdDefaultPresentWhenFeatureDefaultsAreApplied = s.HasSetting("NServiceBus.HostInformation.HostId");
 
-                    // Set override again so we have something
-                    s.Set("NServiceBus.HostInformation.HostId", context.CustomIdToApplyInFeature);
+                    // If the setting exists that means that the default was applied
+                    context.HostIdDefaultApplied = s.HasSetting("NServiceBus.HostInformation.HostId");
+
+                    // Set host id again so the endpoint won't blow up
+                    s.Set("NServiceBus.HostInformation.HostId", Guid.NewGuid());
                 });
             }
 
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Settings.Get<Context>().HostIdExposedToFeatureSetup = context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId");
             }
         }
 
         public class Context : ScenarioContext
         {
-            public bool HostIdDefaultPresentWhenFeatureDefaultsAreApplied { get; set; }
-
-            public Guid HostIdExposedToFeatureSetup { get; set; }
-
-            public Guid CustomIdToApplyInFeature { get; set; }
+            public bool HostIdDefaultApplied { get; set; }
         }
     }
 }
