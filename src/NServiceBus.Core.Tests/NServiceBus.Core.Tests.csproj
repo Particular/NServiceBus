@@ -32,6 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="WithDodgyNullable">
+      <HintPath>TestDlls\WithDodgyNullable.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="TestDlls/**/*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
