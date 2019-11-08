@@ -79,7 +79,7 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            transportComponent = TransportComponent.Initialize(settings);
+            transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings);
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 

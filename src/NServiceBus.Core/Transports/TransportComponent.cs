@@ -8,21 +8,18 @@
 
     class TransportComponent
     {
-        TransportComponent(TransportInfrastructure transportInfrastructure)
+        protected TransportComponent(TransportInfrastructure transportInfrastructure)
         {
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public static TransportComponent Initialize(SettingsHolder settings)
+        public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings)
         {
-            if (!settings.HasExplicitValue<TransportDefinition>())
-            {
-                throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
-            }
+            var transportDefinition = configuration.TransportDefinition;
+            var connectionString = configuration.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
 
-            var transportDefinition = settings.Get<TransportDefinition>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
+
             settings.Set(transportInfrastructure);
 
             var transportType = transportDefinition.GetType();
@@ -62,5 +59,46 @@
         }
 
         readonly TransportInfrastructure transportInfrastructure;
+
+        public class Configuration
+        {
+            public Configuration(SettingsHolder settings)
+            {
+                this.settings = settings;
+
+                settings.SetDefault(TransportConnectionString.Default);
+            }
+
+            public TransportDefinition TransportDefinition
+            {
+                get
+                {
+                    if (!settings.HasExplicitValue<TransportDefinition>())
+                    {
+                        throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
+                    }
+
+                    return settings.Get<TransportDefinition>();
+                }
+                set
+                {
+                    settings.Set(value);
+                }
+            }
+
+            public TransportConnectionString TransportConnectionString
+            {
+                get
+                {
+                    return settings.Get<TransportConnectionString>();
+                }
+                set
+                {
+                    settings.Set(value);
+                }
+            }
+
+            readonly SettingsHolder settings;
+        }
     }
 }
