@@ -7,7 +7,7 @@ namespace NServiceBus
 
     static class ReceiveConfigurationBuilder
     {
-        public static ReceiveConfiguration Build(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure)
+        public static ReceiveConfiguration Build(ReadOnlySettings settings, TransportComponent transportComponent)
         {
             var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
 
@@ -26,16 +26,16 @@ namespace NServiceBus
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
 
             //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
-            var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
+            var mainInstanceProperties = transportComponent.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
 
             var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
 
-            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
+            var localAddress = transportComponent.ToTransportAddress(logicalAddress);
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
+                instanceSpecificQueue = transportComponent.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
             }
 
             var transactionMode = GetRequiredTransactionMode(settings);
