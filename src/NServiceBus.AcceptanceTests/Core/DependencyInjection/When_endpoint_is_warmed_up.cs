@@ -24,14 +24,14 @@
                     .OrderBy(c => c.Type.FullName)
                 .ToList();
 
-            builder.AppendLine("----------- Actively used components (Find ways to stop accessing them)-----------");
+            builder.AppendLine("----------- Used registrations (Find ways to stop accessing them)-----------");
 
             foreach (var component in coreComponents.Where(c => c.WasResolved))
             {
                 builder.AppendLine(component.ToString());
             }
 
-            builder.AppendLine("----------- Likely unused components (Remove in next major if possible) -----------");
+            builder.AppendLine("----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------");
 
             foreach (var component in coreComponents.Where(c => !c.WasResolved))
             {

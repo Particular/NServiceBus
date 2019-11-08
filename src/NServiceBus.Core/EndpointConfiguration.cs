@@ -27,6 +27,7 @@ namespace NServiceBus
             ValidateEndpointName(endpointName);
 
             Settings.Set(new InstallationComponent.Configuration(Settings));
+            Settings.Set(new HostingComponent.Configuration(Settings));
 
             Settings.Set(new StartupDiagnosticEntries());
 
