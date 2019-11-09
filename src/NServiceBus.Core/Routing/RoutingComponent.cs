@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using Features;
-    using Transport;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -33,7 +32,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(TransportInfrastructure transportInfrastructure, PipelineComponent pipelineComponent, ReceiveConfiguration receiveConfiguration)
+        public void Initialize(TransportComponent transportComponent, PipelineComponent pipelineComponent, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
@@ -52,7 +51,7 @@ namespace NServiceBus
 
             pipelineSettings.Register("UnicastSendRouterConnector", b =>
             {
-                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new SendConnector(router);
             }, "Determines how the message being sent should be routed");
 

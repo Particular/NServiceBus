@@ -4,17 +4,16 @@ namespace NServiceBus
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Settings;
-    using Transport;
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, ContainerComponent containerComponent, FeatureComponent featureComponent, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, PipelineComponent pipelineComponent, RecoverabilityComponent recoverabilityComponent)
+        public StartableEndpoint(SettingsHolder settings, ContainerComponent containerComponent, FeatureComponent featureComponent, TransportComponent transportComponent, ReceiveComponent receiveComponent, CriticalError criticalError, PipelineComponent pipelineComponent, RecoverabilityComponent recoverabilityComponent)
         {
             this.criticalError = criticalError;
             this.settings = settings;
             this.containerComponent = containerComponent;
             this.featureComponent = featureComponent;
-            this.transportInfrastructure = transportInfrastructure;
+            this.transportComponent = transportComponent;
             this.receiveComponent = receiveComponent;
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
@@ -28,7 +27,7 @@ namespace NServiceBus
 
             await receiveComponent.PerformPreStartupChecks().ConfigureAwait(false);
 
-            await transportInfrastructure.Start().ConfigureAwait(false);
+            await transportComponent.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
@@ -36,7 +35,7 @@ namespace NServiceBus
 
             await featureComponent.Start(messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportComponent);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
@@ -51,7 +50,7 @@ namespace NServiceBus
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         SettingsHolder settings;
-        TransportInfrastructure transportInfrastructure;
+        TransportComponent transportComponent;
         ReceiveComponent receiveComponent;
         CriticalError criticalError;
     }

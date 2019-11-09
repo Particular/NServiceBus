@@ -88,7 +88,6 @@ namespace NServiceBus
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
         {
-            settings.SetDefault(TransportConnectionString.Default);
         }
 
         /// <summary>
@@ -97,7 +96,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionString(string connectionString)
         {
             Guard.AgainstNullAndEmpty(nameof(connectionString), connectionString);
-            Settings.Set(new TransportConnectionString(() => connectionString));
+            Settings.Get<TransportComponent.Configuration>().TransportConnectionString = new TransportConnectionString(() => connectionString);
             return this;
         }
 
@@ -113,7 +112,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionStringName(string name)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
-            Settings.Set(new TransportConnectionString(name));
+            Settings.Get<TransportComponent.Configuration>().TransportConnectionString = new TransportConnectionString(name);
             return this;
         }
 #endif
@@ -139,7 +138,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionString(Func<string> connectionString)
         {
             Guard.AgainstNull(nameof(connectionString), connectionString);
-            Settings.Set(new TransportConnectionString(connectionString));
+            Settings.Get<TransportComponent.Configuration>().TransportConnectionString = new TransportConnectionString(connectionString);
             return this;
         }
 

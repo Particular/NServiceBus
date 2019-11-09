@@ -27,7 +27,7 @@ namespace NServiceBus
         }
 
         public static ReceiveComponent Initialize(ReceiveConfiguration receiveConfiguration,
-            TransportInfrastructure transportInfrastructure,
+            TransportComponent transportComponent,
             PipelineComponent pipeline,
             QueueBindings queueBindings,
             EventAggregator eventAggregator,
@@ -35,8 +35,16 @@ namespace NServiceBus
             string errorQueue,
             ReadOnlySettings settings)
         {
+            TransportReceiveInfrastructure transportReceiveInfrastructure = null;
+
+            //don't create the receive infrastructure for send-only endpoints
+            if (receiveConfiguration != null)
+            {
+                transportReceiveInfrastructure = transportComponent.ConfigureReceiveInfrastructure();
+            }
+
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
+                transportReceiveInfrastructure,
                 pipeline,
                 eventAggregator,
                 criticalError,
