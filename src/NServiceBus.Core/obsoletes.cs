@@ -1107,7 +1107,7 @@ namespace NServiceBus.Features
 
 namespace NServiceBus
 {
-    using NServiceBus.Features;
+    using Features;
 
     // Just to make sure we remove it in v8. We keep it around for now just in case some external feature
     // depended on it using `DependsOn(string featureTypeName)`
