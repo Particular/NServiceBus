@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using Settings;
-    using Transport;
 
     class RunningEndpointInstance : IEndpointInstance
     {
