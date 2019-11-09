@@ -8,9 +8,10 @@
 
     class TransportComponent
     {
-        protected TransportComponent(TransportInfrastructure transportInfrastructure)
+        protected TransportComponent(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
         {
             this.transportInfrastructure = transportInfrastructure;
+            QueueBindings = queueBindings;
         }
 
         public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings)
@@ -30,7 +31,7 @@
                 Version = FileVersionRetriever.GetFileVersion(transportType)
             });
 
-            return new TransportComponent(transportInfrastructure);
+            return new TransportComponent(transportInfrastructure, configuration.QueueBindings);
         }
 
         public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
@@ -38,9 +39,9 @@
             return transportInfrastructure.BindToLocalEndpoint(endpointInstance);
         }
 
-        public TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+        public void ConfigureReceiveInfrastructure()
         {
-            return transportInfrastructure.ConfigureReceiveInfrastructure();
+            transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
         }
 
         public string ToTransportAddress(LogicalAddress logicalAddress)
@@ -48,9 +49,38 @@
             return transportInfrastructure.ToTransportAddress(logicalAddress);
         }
 
-        public Task Start()
+        public Task CreateQueuesIfNecessary(string username)
         {
-            return transportInfrastructure.Start();
+            if (transportReceiveInfrastructure == null)
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
+
+            return queueCreator.CreateQueueIfNecessary(QueueBindings, username);
+        }
+
+        public QueueBindings QueueBindings { get; }
+
+        public IPushMessages BuildMessagePump()
+        {
+            return transportReceiveInfrastructure.MessagePumpFactory();
+        }
+
+        public async Task Start()
+        {
+            if (transportReceiveInfrastructure == null)
+            {
+                var result = await transportReceiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+                }
+            }
+
+            await transportInfrastructure.Start().ConfigureAwait(false);
         }
 
         public Task Stop()
@@ -58,7 +88,8 @@
             return transportInfrastructure.Stop();
         }
 
-        readonly TransportInfrastructure transportInfrastructure;
+        TransportInfrastructure transportInfrastructure;
+        TransportReceiveInfrastructure transportReceiveInfrastructure;
 
         public class Configuration
         {
@@ -67,6 +98,7 @@
                 this.settings = settings;
 
                 settings.SetDefault(TransportConnectionString.Default);
+                settings.Set(new QueueBindings());
             }
 
             public TransportDefinition TransportDefinition
@@ -95,6 +127,14 @@
                 set
                 {
                     settings.Set(value);
+                }
+            }
+
+            public QueueBindings QueueBindings
+            {
+                get
+                {
+                    return settings.Get<QueueBindings>();
                 }
             }
 

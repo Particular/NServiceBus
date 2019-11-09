@@ -25,8 +25,6 @@ namespace NServiceBus
 
             var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
-            await receiveComponent.PerformPreStartupChecks().ConfigureAwait(false);
-
             await transportComponent.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);

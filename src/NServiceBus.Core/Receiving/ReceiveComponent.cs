@@ -12,14 +12,14 @@ namespace NServiceBus
     class ReceiveComponent
     {
         ReceiveComponent(ReceiveConfiguration configuration,
-            TransportReceiveInfrastructure receiveInfrastructure,
+            TransportComponent transportComponent,
             PipelineComponent pipeline,
             IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
         {
             this.configuration = configuration;
-            this.receiveInfrastructure = receiveInfrastructure;
+            this.transportComponent = transportComponent;
             this.pipeline = pipeline;
             this.eventAggregator = eventAggregator;
             this.criticalError = criticalError;
@@ -29,28 +29,25 @@ namespace NServiceBus
         public static ReceiveComponent Initialize(ReceiveConfiguration receiveConfiguration,
             TransportComponent transportComponent,
             PipelineComponent pipeline,
-            QueueBindings queueBindings,
             EventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue,
             ReadOnlySettings settings)
         {
-            TransportReceiveInfrastructure transportReceiveInfrastructure = null;
-
             //don't create the receive infrastructure for send-only endpoints
             if (receiveConfiguration != null)
             {
-                transportReceiveInfrastructure = transportComponent.ConfigureReceiveInfrastructure();
+                transportComponent.ConfigureReceiveInfrastructure();
             }
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                transportReceiveInfrastructure,
+                transportComponent,
                 pipeline,
                 eventAggregator,
                 criticalError,
                 errorQueue);
 
-            receiveComponent.BindQueues(queueBindings);
+            receiveComponent.BindQueues(transportComponent.QueueBindings);
 
             if (receiveConfiguration != null)
             {
@@ -134,33 +131,6 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        public Task CreateQueuesIfNecessary(QueueBindings queueBindings, string username)
-        {
-            if (IsSendOnly)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            var queueCreator = receiveInfrastructure.QueueCreatorFactory();
-
-            return queueCreator.CreateQueueIfNecessary(queueBindings, username);
-        }
-
-        public async Task PerformPreStartupChecks()
-        {
-            if (IsSendOnly)
-            {
-                return;
-            }
-
-            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
-
-            if (!result.Succeeded)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-        }
-
         bool IsSendOnly => configuration == null;
 
         void BindQueues(QueueBindings queueBindings)
@@ -213,12 +183,12 @@ namespace NServiceBus
 
         IPushMessages BuildMessagePump()
         {
-            return receiveInfrastructure.MessagePumpFactory();
+            return transportComponent.BuildMessagePump();
         }
 
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
-        TransportReceiveInfrastructure receiveInfrastructure;
+        TransportComponent transportComponent;
         PipelineComponent pipeline;
         IPipelineExecutor mainPipelineExecutor;
         readonly IEventAggregator eventAggregator;
