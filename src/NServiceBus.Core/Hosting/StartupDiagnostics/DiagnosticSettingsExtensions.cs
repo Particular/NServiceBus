@@ -19,7 +19,7 @@
             Guard.AgainstNullAndEmpty(nameof(sectionName), sectionName);
             Guard.AgainstNull(nameof(section), section);
 
-            settings.Get<StartupDiagnosticEntries>().Add(sectionName, section);
+            settings.Get<HostingComponent.Configuration>().StartupDiagnostics.Add(sectionName, section);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
 
             PathChecker.ThrowForBadPath(path, "Diagnostics root path");
 
-            config.GetSettings().Set(DiagnosticsPathKey, path);
+            config.GetSettings().Get<HostingComponent.Configuration>().DiagnosticsPath = path;
         }
 
         /// <summary>
@@ -47,14 +47,7 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(customDiagnosticsWriter), customDiagnosticsWriter);
 
-            config.Settings.Set("HostDiagnosticsWriter", customDiagnosticsWriter);
+            config.Settings.Get<HostingComponent.Configuration>().HostDiagnosticsWriter = customDiagnosticsWriter;
         }
-
-        internal static bool TryGetCustomDiagnosticsWriter(this ReadOnlySettings settings, out Func<string, Task> customDiagnosticsWriter)
-        {
-            return settings.TryGet("HostDiagnosticsWriter", out customDiagnosticsWriter);
-        }
-
-        internal const string DiagnosticsPathKey = "Diagnostics.RootPath";
     }
 }
