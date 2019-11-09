@@ -58,7 +58,7 @@ namespace NServiceBus
 
         PipelineComponent pipelineComponent;
         RecoverabilityComponent recoverabilityComponent;
-        private readonly HostingComponent hostingComponent;
+        HostingComponent hostingComponent;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         SettingsHolder settings;
