@@ -10,7 +10,7 @@ namespace NServiceBus
         public StartableEndpoint(SettingsHolder settings,
             ContainerComponent containerComponent,
             FeatureComponent featureComponent,
-            TransportInfrastructure transportInfrastructure,
+            TransportComponent transportComponent,
             ReceiveComponent receiveComponent,
             CriticalError criticalError,
             PipelineComponent pipelineComponent,

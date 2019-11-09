@@ -149,7 +149,7 @@ namespace NServiceBus
             return new StartableEndpoint(settings,
                 containerComponent,
                 featureComponent,
-                transportInfrastructure,
+                transportComponent,
                 receiveComponent,
                 criticalError,
                 pipelineComponent,
