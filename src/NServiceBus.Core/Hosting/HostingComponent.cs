@@ -12,30 +12,28 @@
 
     class HostingComponent
     {
-        HostingComponent(HostInformation hostInformation, StartupDiagnosticEntries startupDiagnostics, HostStartupDiagnosticsWriter hostStartupDiagnosticsWriter)
+        HostingComponent(Configuration configuration)
         {
-            HostInformation = hostInformation;
-            this.startupDiagnostics = startupDiagnostics;
-            this.hostStartupDiagnosticsWriter = hostStartupDiagnosticsWriter;
+            this.configuration = configuration;
+            HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
         }
 
         public static HostingComponent Initialize(Configuration configuration,
             ContainerComponent containerComponent,
-            PipelineComponent pipelineComponent,
-            string endpointName,
-            ReadOnlySettings settings)
+            PipelineComponent pipelineComponent)
         {
-            var hostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
+            var hostingComponent = new HostingComponent(configuration);
 
-            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostInformation, DependencyLifecycle.SingleInstance);
+            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
 
-            pipelineComponent.PipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostInformation, endpointName), "Adds audit host information");
-            pipelineComponent.PipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostInformation, endpointName), "Adds host info headers to outgoing headers");
+            pipelineComponent.PipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds audit host information");
+            pipelineComponent.PipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds host info headers to outgoing headers");
 
-            settings.AddStartupDiagnosticsSection("Hosting", new
+
+            hostingComponent.AddStartupDiagnosticsSection("Hosting", new
             {
-                hostInformation.HostId,
-                HostDisplayName = hostInformation.DisplayName,
+                hostingComponent.HostInformation.HostId,
+                HostDisplayName = hostingComponent.HostInformation.DisplayName,
                 RuntimeEnvironment.MachineName,
                 OSPlatform = Environment.OSVersion.Platform,
                 OSVersion = Environment.OSVersion.VersionString,
@@ -51,21 +49,24 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
-
-
-            return new HostingComponent(hostInformation, configuration.StartupDiagnostics, hostStartupDiagnosticsWriter);
+            return hostingComponent;
         }
 
         public HostInformation HostInformation { get; }
 
-        public Task Start()
+        public void AddStartupDiagnosticsSection(string sectionName, object section)
         {
-            return hostStartupDiagnosticsWriter.Write(startupDiagnostics.entries);
+            configuration.StartupDiagnostics.Add(sectionName, section);
         }
 
-        readonly StartupDiagnosticEntries startupDiagnostics;
-        private readonly HostStartupDiagnosticsWriter hostStartupDiagnosticsWriter;
+        public Task Start()
+        {
+            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
+
+            return hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries);
+        }
+
+        Configuration configuration;
 
         public class Configuration
         {

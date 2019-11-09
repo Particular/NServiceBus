@@ -100,7 +100,7 @@ namespace NServiceBus
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
-            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent, settings.EndpointName(), settings);
+            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
@@ -121,7 +121,7 @@ namespace NServiceBus
                 eventAggregator,
                 criticalError,
                 settings.ErrorQueueAddress(),
-                settings);
+                hostingComponent);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(), concreteTypes, containerComponent, receiveComponent, queueBindings);
 

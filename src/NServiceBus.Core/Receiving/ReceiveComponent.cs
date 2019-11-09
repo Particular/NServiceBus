@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using Settings;
     using ObjectBuilder;
     using Transport;
 
@@ -33,7 +32,7 @@ namespace NServiceBus
             EventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue,
-            ReadOnlySettings settings)
+            HostingComponent hostingComponent)
         {
             TransportReceiveInfrastructure transportReceiveInfrastructure = null;
 
@@ -54,7 +53,7 @@ namespace NServiceBus
 
             if (receiveConfiguration != null)
             {
-                settings.AddStartupDiagnosticsSection("Receiving", new
+                hostingComponent.AddStartupDiagnosticsSection("Receiving", new
                 {
                     receiveConfiguration.LocalAddress,
                     receiveConfiguration.InstanceSpecificQueue,
