@@ -4,24 +4,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using Logging;
-    using Settings;
 
-    //TODO
-    //class HostStartupDiagnostics : Feature
-    //{
-    //    public HostStartupDiagnostics()
-    //    {
-    //        EnableByDefault();
-    //    }
-
-    //    protected internal override void Setup(FeatureConfigurationContext context)
-    //    {
-    //        var settings = context.Settings;
-
-    //        var diagnosticsWriter = GetDiagnosticsWriter(settings);
-
-    //        context.RegisterStartupTask(diagnosticsWriter);
-    //    }
     class HostStartupDiagnosticsWriterFactory
     {
         public static HostStartupDiagnosticsWriter GetDiagnosticsWriter(HostingComponent.Configuration configuration)
