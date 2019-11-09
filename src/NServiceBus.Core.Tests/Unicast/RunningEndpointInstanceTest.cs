@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
     using NUnit.Framework;
-    using NServiceBus.Settings;
+    using Settings;
 
     [TestFixture]
     public class RunningEndpointInstanceTest

@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transport;
+    using Routing;
+    using Settings;
+    using Transport;
 
     class TransportComponent
     {
