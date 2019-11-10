@@ -39,9 +39,14 @@
             return transportInfrastructure.BindToLocalEndpoint(endpointInstance);
         }
 
-        public void ConfigureReceiveInfrastructure()
+        public Func<IPushMessages> GetMessagePumpFactory()
         {
-            transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+            if (transportReceiveInfrastructure == null)
+            {
+                transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+            }
+
+            return transportReceiveInfrastructure.MessagePumpFactory;
         }
 
         public string ToTransportAddress(LogicalAddress logicalAddress)

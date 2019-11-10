@@ -12,14 +12,14 @@ namespace NServiceBus
     class ReceiveComponent
     {
         ReceiveComponent(ReceiveConfiguration configuration,
-            TransportComponent transportComponent,
+            Func<IPushMessages> messagePumpFactory,
             PipelineComponent pipeline,
             IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
         {
             this.configuration = configuration;
-            this.transportComponent = transportComponent;
+            this.messagePumpFactory = messagePumpFactory;
             this.pipeline = pipeline;
             this.eventAggregator = eventAggregator;
             this.criticalError = criticalError;
@@ -34,14 +34,16 @@ namespace NServiceBus
             string errorQueue,
             ReadOnlySettings settings)
         {
-            //don't create the receive infrastructure for send-only endpoints
+            Func<IPushMessages> messagePumpFactory = null;
+
+            //we don't need the message pump factory for send-only endpoints
             if (receiveConfiguration != null)
             {
-                transportComponent.ConfigureReceiveInfrastructure();
+                messagePumpFactory = transportComponent.GetMessagePumpFactory();
             }
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                transportComponent,
+                messagePumpFactory,
                 pipeline,
                 eventAggregator,
                 criticalError,
@@ -183,12 +185,12 @@ namespace NServiceBus
 
         IPushMessages BuildMessagePump()
         {
-            return transportComponent.BuildMessagePump();
+            return messagePumpFactory();
         }
 
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
-        TransportComponent transportComponent;
+        Func<IPushMessages> messagePumpFactory;
         PipelineComponent pipeline;
         IPipelineExecutor mainPipelineExecutor;
         readonly IEventAggregator eventAggregator;
