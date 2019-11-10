@@ -75,7 +75,7 @@
 
         public async Task Start()
         {
-            if (transportReceiveInfrastructure == null)
+            if (transportReceiveInfrastructure != null)
             {
                 var result = await transportReceiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
 
