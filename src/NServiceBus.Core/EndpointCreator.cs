@@ -11,7 +11,6 @@ namespace NServiceBus
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using Settings;
-    using Transport;
     using Unicast.Messages;
 
     class EndpointCreator
@@ -112,18 +111,18 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
-            queueBindings = settings.Get<QueueBindings>();
-
             receiveComponent = ReceiveComponent.Initialize(receiveConfiguration,
                 transportComponent,
                 pipelineComponent,
-                queueBindings,
                 eventAggregator,
                 criticalError,
                 settings.ErrorQueueAddress(),
                 hostingComponent);
 
-            installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(), concreteTypes, containerComponent, receiveComponent, queueBindings);
+            installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
+                concreteTypes,
+                containerComponent,
+                transportComponent);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
@@ -312,7 +311,6 @@ namespace NServiceBus
         CriticalError criticalError;
         FeatureComponent featureComponent;
         TransportComponent transportComponent;
-        QueueBindings queueBindings;
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
