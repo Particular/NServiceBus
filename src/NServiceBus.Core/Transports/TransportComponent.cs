@@ -21,6 +21,7 @@
 
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
 
+            //for backwards compatibility
             settings.Set(transportInfrastructure);
 
             var transportType = transportDefinition.GetType();
