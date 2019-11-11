@@ -100,7 +100,7 @@ namespace NServiceBus
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent, settings.EndpointName(), settings);
+            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
@@ -121,7 +121,7 @@ namespace NServiceBus
                 eventAggregator,
                 criticalError,
                 settings.ErrorQueueAddress(),
-                settings);
+                hostingComponent);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(), concreteTypes, containerComponent, receiveComponent, queueBindings);
 
@@ -146,7 +146,15 @@ namespace NServiceBus
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
             await installationComponent.Start().ConfigureAwait(false);
 
-            return new StartableEndpoint(settings, containerComponent, featureComponent, transportComponent, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent);
+            return new StartableEndpoint(settings,
+                containerComponent,
+                featureComponent,
+                transportComponent,
+                receiveComponent,
+                criticalError,
+                pipelineComponent,
+                recoverabilityComponent,
+                hostingComponent);
         }
 
         ReceiveConfiguration BuildReceiveConfiguration(TransportComponent transportComponent)
@@ -308,5 +316,6 @@ namespace NServiceBus
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
+        HostingComponent hostingComponent;
     }
 }

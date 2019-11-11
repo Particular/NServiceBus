@@ -1,26 +1,22 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Features;
     using Logging;
-    using Settings;
     using SimpleJson;
 
-    class WriteStartupDiagnostics : FeatureStartupTask
+    class HostStartupDiagnosticsWriter
     {
-        public WriteStartupDiagnostics(Func<string, Task> diagnosticsWriter, ReadOnlySettings settings, bool isCustomWriter)
+        public HostStartupDiagnosticsWriter(Func<string, Task> diagnosticsWriter, bool isCustomWriter)
         {
             this.diagnosticsWriter = diagnosticsWriter;
-            this.settings = settings;
             this.isCustomWriter = isCustomWriter;
         }
 
-        protected override async Task OnStart(IMessageSession session)
+        public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
         {
-            var entries = settings.Get<StartupDiagnosticEntries>().entries;
-
             var duplicateNames = entries.GroupBy(item => item.Name)
                 .Where(group => group.Count() > 1)
                 .Select(group => group.Key)
@@ -62,15 +58,9 @@
             }
         }
 
-        protected override Task OnStop(IMessageSession session)
-        {
-            return TaskEx.CompletedTask;
-        }
-
         Func<string, Task> diagnosticsWriter;
-        ReadOnlySettings settings;
         bool isCustomWriter;
 
-        static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();
+        static ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
     }
 }

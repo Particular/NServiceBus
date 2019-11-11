@@ -59,7 +59,7 @@
 
             recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
-            settings.AddStartupDiagnosticsSection("Recoverability", new
+            hostingComponent.AddStartupDiagnosticsSection("Recoverability", new
             {
                 ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
                 DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
