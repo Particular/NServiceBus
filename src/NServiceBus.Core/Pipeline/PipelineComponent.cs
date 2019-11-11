@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class PipelineComponent
     {
-        public PipelineComponent(PipelineModifications modifications)
+        PipelineComponent(PipelineModifications modifications)
         {
             this.modifications = modifications;
         }
