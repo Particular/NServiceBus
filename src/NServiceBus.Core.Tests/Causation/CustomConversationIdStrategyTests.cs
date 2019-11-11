@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Causation
 {
     using System;
-    using NServiceBus.Features;
+    using NServiceBus.Pipeline.Outgoing;
     using NUnit.Framework;
     using Testing;
 
@@ -37,7 +37,7 @@
 
         string Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)
         {
-            return MessageCausation.WrapUserDefinedInvocation(strategy)(new TestableOutgoingLogicalMessageContext());
+            return SendComponent.WrapUserDefinedInvocation(strategy)(new TestableOutgoingLogicalMessageContext());
         }
     }
 }

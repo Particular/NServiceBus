@@ -9,6 +9,7 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
+    using Pipeline.Outgoing;
     using Settings;
     using Transport;
 
@@ -28,6 +29,7 @@ namespace NServiceBus
 
             Settings.Set(new InstallationComponent.Configuration(Settings));
             Settings.Set(new HostingComponent.Configuration(Settings));
+            Settings.Set(new SendComponent.Configuration());
 
             Settings.Set(new StartupDiagnosticEntries());
 

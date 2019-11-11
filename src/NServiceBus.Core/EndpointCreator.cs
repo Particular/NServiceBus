@@ -10,6 +10,7 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
+    using Pipeline.Outgoing;
     using Settings;
     using Transport;
     using Unicast.Messages;
@@ -104,6 +105,8 @@ namespace NServiceBus
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
+            sendComponent = SendComponent.Initialize(settings.Get<SendComponent.Configuration>(), pipelineComponent);
+
             pipelineComponent.Initialize(containerComponent);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
@@ -146,7 +149,7 @@ namespace NServiceBus
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
             await installationComponent.Start().ConfigureAwait(false);
 
-            return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent);
+            return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent, sendComponent);
         }
 
         TransportInfrastructure InitializeTransportComponent()
@@ -331,5 +334,6 @@ namespace NServiceBus
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
+        SendComponent sendComponent;
     }
 }
