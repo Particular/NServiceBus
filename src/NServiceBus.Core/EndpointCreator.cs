@@ -10,18 +10,17 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
+    using Pipeline;
     using Settings;
     using Unicast.Messages;
 
     class EndpointCreator
     {
         EndpointCreator(SettingsHolder settings,
-            ContainerComponent containerComponent,
-            PipelineComponent pipelineComponent)
+            ContainerComponent containerComponent)
         {
             this.settings = settings;
             this.containerComponent = containerComponent;
-            this.pipelineComponent = pipelineComponent;
         }
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
@@ -30,7 +29,7 @@ namespace NServiceBus
 
             endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
             creator.Initialize();
 
             return new StartableEndpointWithExternallyManagedContainer(creator);
@@ -42,7 +41,7 @@ namespace NServiceBus
 
             endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
             creator.Initialize();
 
             return creator.CreateStartableEndpoint();
@@ -84,31 +83,29 @@ namespace NServiceBus
 
             var routingComponent = new RoutingComponent(settings);
 
-            routingComponent.Initialize(transportComponent, pipelineComponent, receiveConfiguration);
+            var pipelineSettings = settings.Get<PipelineSettings>();
+            routingComponent.Initialize(transportComponent, pipelineSettings, receiveConfiguration);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
-            pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
-
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(containerComponent, featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
-            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent);
+            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineSettings);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
-            pipelineComponent.Initialize(containerComponent);
+            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
+            pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
             receiveComponent = ReceiveComponent.Initialize(receiveConfiguration,

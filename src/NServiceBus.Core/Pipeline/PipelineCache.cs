@@ -8,21 +8,21 @@ namespace NServiceBus
 
     class PipelineCache : IPipelineCache
     {
-        public PipelineCache(IBuilder builder, PipelineModifications pipelineModifications)
+        public PipelineCache(IBuilder rootBuilder, PipelineModifications pipelineModifications)
         {
             this.pipelineModifications = pipelineModifications;
 
-            FromMainPipeline<IAuditContext>(builder);
-            FromMainPipeline<IDispatchContext>(builder);
-            FromMainPipeline<IOutgoingPublishContext>(builder);
-            FromMainPipeline<ISubscribeContext>(builder);
-            FromMainPipeline<IUnsubscribeContext>(builder);
-            FromMainPipeline<IOutgoingSendContext>(builder);
-            FromMainPipeline<IOutgoingReplyContext>(builder);
-            FromMainPipeline<IRoutingContext>(builder);
-            FromMainPipeline<IBatchDispatchContext>(builder);
-            FromMainPipeline<IForwardingContext>(builder);
-            FromMainPipeline<ITransportReceiveContext>(builder);
+            FromMainPipeline<IAuditContext>(rootBuilder);
+            FromMainPipeline<IDispatchContext>(rootBuilder);
+            FromMainPipeline<IOutgoingPublishContext>(rootBuilder);
+            FromMainPipeline<ISubscribeContext>(rootBuilder);
+            FromMainPipeline<IUnsubscribeContext>(rootBuilder);
+            FromMainPipeline<IOutgoingSendContext>(rootBuilder);
+            FromMainPipeline<IOutgoingReplyContext>(rootBuilder);
+            FromMainPipeline<IRoutingContext>(rootBuilder);
+            FromMainPipeline<IBatchDispatchContext>(rootBuilder);
+            FromMainPipeline<IForwardingContext>(rootBuilder);
+            FromMainPipeline<ITransportReceiveContext>(rootBuilder);
         }
 
         public IPipeline<TContext> Pipeline<TContext>()
