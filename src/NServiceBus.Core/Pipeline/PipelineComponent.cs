@@ -29,9 +29,9 @@ namespace NServiceBus
             return new PipelineComponent(modifications);
         }
 
-        public Task Start(IBuilder builder)
+        public Task Start(IBuilder rootBuilder)
         {
-            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(builder, modifications));
+            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(rootBuilder, modifications));
             return Task.FromResult(0);
         }
 
@@ -40,9 +40,9 @@ namespace NServiceBus
             rootContextExtensions.Set(item);
         }
 
-        public RootContext CreateRootContext(IBuilder builder, ContextBag extensions = null)
+        public RootContext CreateRootContext(IBuilder scopedBuilder, ContextBag extensions = null)
         {
-            var context = new RootContext(builder);
+            var context = new RootContext(scopedBuilder);
 
             context.Extensions.Merge(rootContextExtensions);
 
