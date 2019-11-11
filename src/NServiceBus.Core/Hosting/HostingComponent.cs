@@ -7,6 +7,7 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Hosting;
+    using Pipeline;
     using Settings;
     using Support;
 
@@ -20,14 +21,14 @@
 
         public static HostingComponent Initialize(Configuration configuration,
             ContainerComponent containerComponent,
-            PipelineComponent pipelineComponent)
+            PipelineSettings pipelineSettings)
         {
             var hostingComponent = new HostingComponent(configuration);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
 
-            pipelineComponent.PipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds audit host information");
-            pipelineComponent.PipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds host info headers to outgoing headers");
+            pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds audit host information");
+            pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds host info headers to outgoing headers");
 
 
             hostingComponent.AddStartupDiagnosticsSection("Hosting", new

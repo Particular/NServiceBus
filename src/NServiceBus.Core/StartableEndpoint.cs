@@ -30,7 +30,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            await pipelineComponent.Start().ConfigureAwait(false);
+            await pipelineComponent.Start(containerComponent.Builder).ConfigureAwait(false);
 
             var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 

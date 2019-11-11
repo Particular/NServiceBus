@@ -13,9 +13,8 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
         /// </summary>
-        internal PipelineSettings(PipelineModifications modifications, SettingsHolder settings) : base(settings)
+        internal PipelineSettings(SettingsHolder settings) : base(settings)
         {
-            this.modifications = modifications;
         }
 
         /// <summary>
@@ -180,6 +179,6 @@ namespace NServiceBus.Pipeline
             modifications.Additions.Add(registration);
         }
 
-        PipelineModifications modifications;
+        internal PipelineModifications modifications = new PipelineModifications();
     }
 }

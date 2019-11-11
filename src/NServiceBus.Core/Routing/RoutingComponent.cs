@@ -32,7 +32,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(TransportComponent transportComponent, PipelineComponent pipelineComponent, ReceiveConfiguration receiveConfiguration)
+        public void Initialize(TransportComponent transportComponent, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
@@ -46,8 +46,6 @@ namespace NServiceBus
             }
 
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
-
-            var pipelineSettings = pipelineComponent.PipelineSettings;
 
             pipelineSettings.Register("UnicastSendRouterConnector", b =>
             {

@@ -1,22 +1,37 @@
 namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using Extensibility;
     using ObjectBuilder;
     using Pipeline;
-    using Settings;
-    using System.Threading.Tasks;
 
     class PipelineComponent
     {
-        public PipelineComponent(SettingsHolder settings)
+        public PipelineComponent(PipelineModifications modifications)
         {
-            modifications = new PipelineModifications();
-            PipelineSettings = new PipelineSettings(modifications, settings);
+            this.modifications = modifications;
         }
 
-        public Task Start()
+        public static PipelineComponent Initialize(PipelineSettings settings, ContainerComponent containerComponent)
         {
-            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(container.Builder, modifications));
+            var modifications = settings.modifications;
+
+            foreach (var registeredBehavior in modifications.Replacements)
+            {
+                containerComponent.ContainerConfiguration.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
+            }
+
+            foreach (var step in modifications.Additions)
+            {
+                step.ApplyContainerRegistration(containerComponent.ContainerConfiguration);
+            }
+
+            return new PipelineComponent(modifications);
+        }
+
+        public Task Start(IBuilder builder)
+        {
+            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(builder, modifications));
             return Task.FromResult(0);
         }
 
@@ -39,25 +54,7 @@ namespace NServiceBus
             return context;
         }
 
-        public PipelineSettings PipelineSettings { get; }
-
-        public void Initialize(ContainerComponent containerComponent)
-        {
-            container = containerComponent;
-
-            foreach (var registeredBehavior in modifications.Replacements)
-            {
-                container.ContainerConfiguration.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
-            }
-
-            foreach (var step in modifications.Additions)
-            {
-                step.ApplyContainerRegistration(container.ContainerConfiguration);
-            }
-        }
-
         readonly PipelineModifications modifications;
         readonly ContextBag rootContextExtensions = new ContextBag();
-        ContainerComponent container;
     }
 }
