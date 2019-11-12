@@ -25,19 +25,19 @@ namespace NServiceBus
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
-            var containerComponent = endpointConfiguration.ContainerComponent;
-
             FinalizeConfiguration(endpointConfiguration);
 
-            endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
+            var containerComponent = endpointConfiguration.ContainerComponent;
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, containerComponent);
-            creator.Initialize();
+            containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var startableEndpoint =  new StartableEndpointWithExternallyManagedContainer(creator);
+            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, containerComponent);
+            var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
 
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => startableEndpoint.Builder, DependencyLifecycle.SingleInstance);
+
+            endpointCreator.Initialize();
 
             return startableEndpoint;
         }
@@ -46,14 +46,20 @@ namespace NServiceBus
         {
             FinalizeConfiguration(endpointConfiguration);
 
-            endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
+            var containerComponent = endpointConfiguration.ContainerComponent;
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
-            creator.Initialize();
+            containerComponent.InitializeWithInternallyManagedContainer();
 
-            var builder = endpointConfiguration.ContainerComponent.CreateInternalBuilder();
+            var builder = containerComponent.CreateInternalBuilder();
 
-            return creator.CreateStartableEndpoint(builder);
+            //for backwards compatibility we need to make the IBuilder available in the container
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => builder, DependencyLifecycle.SingleInstance);
+
+            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
+
+            endpointCreator.Initialize();
+
+            return endpointCreator.CreateStartableEndpoint(builder);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)

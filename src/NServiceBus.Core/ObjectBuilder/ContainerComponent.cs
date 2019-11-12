@@ -98,9 +98,6 @@
             ContainerConfiguration = internalContainer;
 
             ApplyRegistrations(internalContainer);
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            ContainerConfiguration.ConfigureComponent<IBuilder>(_ => internalContainer, DependencyLifecycle.SingleInstance);
         }
 
         public void Stop()
