@@ -7,6 +7,7 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Hosting;
+    using Pipeline;
     using Settings;
     using Support;
 

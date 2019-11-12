@@ -30,10 +30,11 @@ namespace NServiceBus
             Settings.Set(new HostingComponent.Configuration(Settings));
             Settings.Set(new TransportComponent.Configuration(Settings));
             Settings.Set(new SendComponent.Configuration());
+            Settings.Set(new RoutingComponent.Configuration(Settings));
+            Settings.Set(Pipeline = new PipelineSettings(Settings));
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
-            PipelineComponent = new PipelineComponent(Settings);
             ContainerComponent = new ContainerComponent(Settings);
 
             Settings.SetDefault("Endpoint.SendOnly", false);
@@ -55,7 +56,7 @@ namespace NServiceBus
         /// <summary>
         /// Access to the pipeline configuration.
         /// </summary>
-        public PipelineSettings Pipeline => PipelineComponent.PipelineSettings;
+        public PipelineSettings Pipeline { get; }
 
         /// <summary>
         /// Used to configure components in the container.
@@ -125,7 +126,6 @@ namespace NServiceBus
 
         internal ContainerComponent ContainerComponent;
         internal ConventionsBuilder ConventionsBuilder;
-        internal PipelineComponent PipelineComponent;
         internal List<Type> ScannedTypes;
 
         static void ValidateEndpointName(string endpointName)

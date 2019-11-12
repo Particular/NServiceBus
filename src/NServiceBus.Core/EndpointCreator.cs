@@ -9,20 +9,19 @@ namespace NServiceBus
     using Hosting.Helpers;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using ObjectBuilder;
     using Pipeline.Outgoing;
+    using ObjectBuilder;
+    using Pipeline;
     using Settings;
     using Unicast.Messages;
 
     class EndpointCreator
     {
         EndpointCreator(SettingsHolder settings,
-            ContainerComponent containerComponent,
-            PipelineComponent pipelineComponent)
+            ContainerComponent containerComponent)
         {
             this.settings = settings;
             this.containerComponent = containerComponent;
-            this.pipelineComponent = pipelineComponent;
         }
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
@@ -31,7 +30,7 @@ namespace NServiceBus
 
             endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
             creator.Initialize();
 
             return new StartableEndpointWithExternallyManagedContainer(creator);
@@ -43,7 +42,7 @@ namespace NServiceBus
 
             endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
             creator.Initialize();
 
             return creator.CreateStartableEndpoint();
@@ -63,6 +62,8 @@ namespace NServiceBus
 
         void Initialize()
         {
+            var pipelineSettings = settings.Get<PipelineSettings>();
+
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
             RegisterCriticalErrorHandler();
@@ -83,18 +84,14 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
-            var routingComponent = new RoutingComponent(settings);
-
-            routingComponent.Initialize(transportComponent, pipelineComponent, receiveConfiguration);
+            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, pipelineSettings, receiveConfiguration, settings.Get<Conventions>());
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
-            pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
-
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration,  pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(containerComponent, featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
@@ -104,14 +101,13 @@ namespace NServiceBus
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
-            sendComponent = SendComponent.Initialize(settings.Get<SendComponent.Configuration>(), pipelineComponent, hostingComponent);
+            SendComponent.Initialize(settings.Get<SendComponent.Configuration>(), pipelineSettings, hostingComponent);
 
-            pipelineComponent.Initialize(containerComponent);
+            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
+            pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
             receiveComponent = ReceiveComponent.Initialize(receiveConfiguration,
@@ -156,8 +152,7 @@ namespace NServiceBus
                 criticalError,
                 pipelineComponent,
                 recoverabilityComponent,
-                hostingComponent,
-                sendComponent);
+                hostingComponent);
         }
 
         ReceiveConfiguration BuildReceiveConfiguration(TransportComponent transportComponent)
@@ -319,6 +314,5 @@ namespace NServiceBus
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
         HostingComponent hostingComponent;
-        SendComponent sendComponent;
     }
 }

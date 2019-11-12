@@ -1,20 +1,16 @@
 ﻿namespace NServiceBus.Pipeline.Outgoing
 {
     using System;
-    using ObjectBuilder;
     using Transport;
 
     class SendComponent
     {
-        SendComponent(PipelineComponent pipelineComponent)
+        SendComponent()
         {
-            this.pipelineComponent = pipelineComponent;
         }
 
-        public static SendComponent Initialize(Configuration configuration, PipelineComponent pipelineComponent, HostingComponent hostingComponent)
+        public static SendComponent Initialize(Configuration configuration, PipelineSettings pipelineSettings, HostingComponent hostingComponent)
         {
-            var pipelineSettings = pipelineComponent.PipelineSettings;
-
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
 
             var newIdGenerator = GetIdStrategy(configuration);
@@ -32,13 +28,7 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.Build<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            return new SendComponent(pipelineComponent);
-        }
-
-        public IMessageSession CreateMessageSession(IBuilder builder)
-        {
-            messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
-            return messageSession;
+            return new SendComponent();
         }
 
         static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(Configuration configuration)
@@ -74,9 +64,6 @@
                 return customConversationId.Value;
             };
         }
-
-        PipelineComponent pipelineComponent;
-        IMessageSession messageSession;
 
         internal class Configuration
         {

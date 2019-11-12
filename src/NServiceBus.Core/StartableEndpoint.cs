@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Pipeline.Outgoing;
     using Settings;
 
     class StartableEndpoint : IStartableEndpoint
@@ -16,8 +15,7 @@ namespace NServiceBus
             CriticalError criticalError,
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
-            HostingComponent hostingComponent,
-            SendComponent sendComponent)
+            HostingComponent hostingComponent)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -28,14 +26,13 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
-            this.sendComponent = sendComponent;
         }
 
         public async Task<IEndpointInstance> Start()
         {
-            await pipelineComponent.Start().ConfigureAwait(false);
+            await pipelineComponent.Start(containerComponent.Builder).ConfigureAwait(false);
 
-            var messageSession = sendComponent.CreateMessageSession(containerComponent.Builder);
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
             await transportComponent.Start().ConfigureAwait(false);
 
@@ -60,7 +57,6 @@ namespace NServiceBus
         PipelineComponent pipelineComponent;
         RecoverabilityComponent recoverabilityComponent;
         HostingComponent hostingComponent;
-        readonly SendComponent sendComponent;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         SettingsHolder settings;
