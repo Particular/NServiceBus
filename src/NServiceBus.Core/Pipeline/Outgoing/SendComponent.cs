@@ -11,7 +11,7 @@
             this.pipelineComponent = pipelineComponent;
         }
 
-        public static SendComponent Initialize(Configuration configuration, PipelineComponent pipelineComponent)
+        public static SendComponent Initialize(Configuration configuration, PipelineComponent pipelineComponent, HostingComponent hostingComponent)
         {
             var pipelineSettings = pipelineComponent.PipelineSettings;
 
@@ -19,6 +19,8 @@
 
             var newIdGenerator = GetIdStrategy(configuration);
             pipelineSettings.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
+            pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds audit host information");
+            pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds host info headers to outgoing headers");
 
             if (configuration.StaticHeaders != null)
             {
