@@ -25,14 +25,21 @@ namespace NServiceBus
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
+            var containerComponent = endpointConfiguration.ContainerComponent;
+
             FinalizeConfiguration(endpointConfiguration);
 
             endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
+            var creator = new EndpointCreator(endpointConfiguration.Settings, containerComponent);
             creator.Initialize();
 
-            return new StartableEndpointWithExternallyManagedContainer(creator);
+            var startableEndpoint =  new StartableEndpointWithExternallyManagedContainer(creator);
+
+            //for backwards compatibility we need to make the IBuilder available in the container
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => startableEndpoint.Builder, DependencyLifecycle.SingleInstance);
+
+            return startableEndpoint;
         }
 
         public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
