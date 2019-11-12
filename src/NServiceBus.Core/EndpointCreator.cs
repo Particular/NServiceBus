@@ -61,6 +61,8 @@ namespace NServiceBus
 
         void Initialize()
         {
+            var pipelineSettings = settings.Get<PipelineSettings>();
+
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
             RegisterCriticalErrorHandler();
@@ -81,17 +83,14 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
-            var routingComponent = new RoutingComponent(settings);
-
-            var pipelineSettings = settings.Get<PipelineSettings>();
-            routingComponent.Initialize(transportComponent, pipelineSettings, receiveConfiguration);
+            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, pipelineSettings, receiveConfiguration, settings.Get<Conventions>());
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration,  pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(containerComponent, featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.

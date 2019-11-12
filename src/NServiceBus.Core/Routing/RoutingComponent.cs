@@ -9,17 +9,13 @@ namespace NServiceBus
 
     class RoutingComponent
     {
-        public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
-
-        public RoutingComponent(SettingsHolder settings)
+        RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers, bool enforceBestPractices)
         {
-            this.settings = settings;
-
-            // use GetOrCreate to use of instances already created during EndpointConfiguration.
-            UnicastRoutingTable = settings.GetOrCreate<UnicastRoutingTable>();
-            DistributionPolicy = settings.GetOrCreate<DistributionPolicy>();
-            EndpointInstances = settings.GetOrCreate<EndpointInstances>();
-            Publishers = settings.GetOrCreate<Publishers>();
+            UnicastRoutingTable = unicastRoutingTable;
+            DistributionPolicy = distributionPolicy;
+            EndpointInstances = endpointInstances;
+            Publishers = publishers;
+            EnforceBestPractices = enforceBestPractices;
         }
 
         public UnicastRoutingTable UnicastRoutingTable { get; }
@@ -30,47 +26,39 @@ namespace NServiceBus
 
         public Publishers Publishers { get; }
 
-        public bool EnforceBestPractices { get; private set; }
+        public bool EnforceBestPractices { get; }
 
-        public void Initialize(TransportComponent transportComponent, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
+        public static RoutingComponent Initialize(Configuration configuration, TransportComponent transportComponent, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration, Conventions conventions)
         {
-            var conventions = settings.Get<Conventions>();
-            var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
-
-            if (settings.TryGet(out List<DistributionStrategy> distributionStrategies))
+            var distributionPolicy = configuration.DistributionPolicy;
+            foreach (var distributionStrategy in configuration.DistributionStrategies)
             {
-                foreach (var distributionStrategy in distributionStrategies)
-                {
-                    DistributionPolicy.SetDistributionStrategy(distributionStrategy);
-                }
+                distributionPolicy.SetDistributionStrategy(distributionStrategy);
             }
 
-            configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
+            var unicastRoutingTable = configuration.UnicastRoutingTable;
+            configuration.ConfiguredUnicastRoutes?.Apply(unicastRoutingTable, conventions);
 
+            var endpointInstances = configuration.EndpointInstances;
             pipelineSettings.Register("UnicastSendRouterConnector", b =>
             {
-                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, distributionPolicy, unicastRoutingTable, endpointInstances, i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new SendConnector(router);
             }, "Determines how the message being sent should be routed");
 
             pipelineSettings.Register("UnicastReplyRouterConnector", new ReplyConnector(), "Determines how replies should be routed");
 
-            EnforceBestPractices = ShouldEnforceBestPractices(settings);
-            if (EnforceBestPractices)
+            if (configuration.EnforceBestPractices)
             {
                 EnableBestPracticeEnforcement(conventions, pipelineSettings);
             }
-        }
 
-        static bool ShouldEnforceBestPractices(ReadOnlySettings settings)
-        {
-            if (settings.TryGet(EnforceBestPracticesSettingsKey, out bool enforceBestPractices))
-            {
-                return enforceBestPractices;
-            }
-
-            // enable best practice enforcement by default
-            return true;
+            return new RoutingComponent(
+                unicastRoutingTable,
+                distributionPolicy,
+                endpointInstances,
+                configuration.Publishers,
+                configuration.EnforceBestPractices);
         }
 
         static void EnableBestPracticeEnforcement(Conventions conventions, PipelineSettings pipeline)
@@ -103,6 +91,45 @@ namespace NServiceBus
                 "Enforces unsubscribe messaging best practices");
         }
 
-        SettingsHolder settings;
+        public class Configuration
+        {
+            public Configuration(SettingsHolder settings)
+            {
+                this.settings = settings;
+            }
+
+            public ConfiguredUnicastRoutes ConfiguredUnicastRoutes => settings.GetOrCreate<ConfiguredUnicastRoutes>();
+
+            // Used by NServiceBus.Transport.Msmq/MsmqConfigurationExtensions.cs
+            public List<DistributionStrategy> DistributionStrategies =>
+                settings.GetOrDefault<List<DistributionStrategy>>() ?? new List<DistributionStrategy>(0);
+
+            public UnicastRoutingTable UnicastRoutingTable => settings.GetOrCreate<UnicastRoutingTable>();
+
+            public DistributionPolicy DistributionPolicy => settings.GetOrCreate<DistributionPolicy>();
+
+            public EndpointInstances EndpointInstances => settings.GetOrCreate<EndpointInstances>();
+
+            public Publishers Publishers => settings.GetOrCreate<Publishers>();
+
+            public bool EnforceBestPractices
+            {
+                get
+                {
+                    if (settings.TryGet(EnforceBestPracticesSettingsKey, out bool enforceBestPractices))
+                    {
+                        return enforceBestPractices;
+                    }
+
+                    // enable best practice enforcement by default
+                    return true;
+                }
+                set => settings.Set(EnforceBestPracticesSettingsKey, value);
+            }
+
+            readonly SettingsHolder settings;
+
+            const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+        }
     }
 }
