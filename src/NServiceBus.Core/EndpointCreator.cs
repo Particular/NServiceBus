@@ -126,7 +126,9 @@ namespace NServiceBus
                 eventAggregator,
                 criticalError,
                 settings.ErrorQueueAddress(),
-                hostingComponent);
+                hostingComponent,
+                pipelineSettings,
+                containerComponent.ContainerConfiguration);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 concreteTypes,

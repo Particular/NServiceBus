@@ -4,9 +4,14 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Features;
     using Logging;
     using ObjectBuilder;
+    using Outbox;
+    using Persistence;
+    using Pipeline;
     using Transport;
+    using Unicast;
 
     class ReceiveComponent
     {
@@ -31,7 +36,10 @@ namespace NServiceBus
             EventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue,
-            HostingComponent hostingComponent)
+            HostingComponent hostingComponent,
+            PipelineSettings pipelineSettings,
+            IConfigureComponents container)
+            
         {
             Func<IPushMessages> messagePumpFactory = null;
 
@@ -49,6 +57,24 @@ namespace NServiceBus
                 errorQueue);
 
             receiveComponent.BindQueues(transportComponent.QueueBindings);
+
+            pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
+            {
+                var storage = container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
+                return new TransportReceiveToPhysicalMessageConnector(storage);
+            }, "Allows to abort processing the message");
+
+            pipelineSettings.Register("LoadHandlersConnector", b =>
+            {
+                var adapter = container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
+                var syncStorage = container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+
+                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
+            }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+
+            pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
+
+            pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
             if (receiveConfiguration != null)
             {
