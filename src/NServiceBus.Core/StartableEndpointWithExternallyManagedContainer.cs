@@ -24,9 +24,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start(IBuilder builder)
         {
-            endpointCreator.UseExternallyManagedBuilder(builder);
-
-            var startableEndpoint = await endpointCreator.CreateStartableEndpoint().ConfigureAwait(false);
+            var startableEndpoint = await endpointCreator.CreateStartableEndpoint(builder).ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
 
             messageSession = endpointInstance;

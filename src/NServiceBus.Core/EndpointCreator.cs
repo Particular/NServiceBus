@@ -44,7 +44,9 @@ namespace NServiceBus
             var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
             creator.Initialize();
 
-            return creator.CreateStartableEndpoint();
+            var builder = endpointConfiguration.ContainerComponent.CreateInternalBuilder();
+
+            return creator.CreateStartableEndpoint(builder);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
@@ -93,7 +95,7 @@ namespace NServiceBus
 
             var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
 
-            featureComponent.Initalize(containerComponent, featureConfigurationContext);
+            featureComponent.Initalize(featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
@@ -131,16 +133,11 @@ namespace NServiceBus
             );
         }
 
-        public void UseExternallyManagedBuilder(IBuilder builder)
-        {
-            containerComponent.UseExternallyManagedBuilder(builder);
-        }
-
-        public async Task<IStartableEndpoint> CreateStartableEndpoint()
+        public async Task<IStartableEndpoint> CreateStartableEndpoint(IBuilder builder)
         {
             // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-            await installationComponent.Start().ConfigureAwait(false);
+            await installationComponent.Start(builder).ConfigureAwait(false);
 
             return new StartableEndpoint(settings,
                 containerComponent,
@@ -150,7 +147,8 @@ namespace NServiceBus
                 criticalError,
                 pipelineComponent,
                 recoverabilityComponent,
-                hostingComponent);
+                hostingComponent,
+                builder);
         }
 
         ReceiveConfiguration BuildReceiveConfiguration(TransportComponent transportComponent)

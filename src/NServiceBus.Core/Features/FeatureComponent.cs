@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Features;
+    using ObjectBuilder;
     using Settings;
 
     class FeatureComponent
@@ -24,18 +25,16 @@
             }
         }
 
-        public void Initalize(ContainerComponent containerComponent, FeatureConfigurationContext featureConfigurationContext)
+        public void Initalize(FeatureConfigurationContext featureConfigurationContext)
         {
-            container = containerComponent;
-
             var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
 
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }
 
-        public Task Start(IMessageSession messageSession)
+        public Task Start(IBuilder builder, IMessageSession messageSession)
         {
-            return featureActivator.StartFeatures(container.Builder, messageSession);
+            return featureActivator.StartFeatures(builder, messageSession);
         }
 
         public Task Stop()
@@ -50,6 +49,5 @@
 
         SettingsHolder settings;
         FeatureActivator featureActivator;
-        ContainerComponent container;
     }
 }

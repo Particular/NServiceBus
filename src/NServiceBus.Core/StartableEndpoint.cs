@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Security.Principal;
     using System.Threading.Tasks;
+    using ObjectBuilder;
     using Settings;
 
     class StartableEndpoint : IStartableEndpoint
@@ -15,7 +16,8 @@ namespace NServiceBus
             CriticalError criticalError,
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
-            HostingComponent hostingComponent)
+            HostingComponent hostingComponent,
+            IBuilder builder)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -26,21 +28,22 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
+            this.builder = builder;
         }
 
         public async Task<IEndpointInstance> Start()
         {
-            await pipelineComponent.Start(containerComponent.Builder).ConfigureAwait(false);
+            await pipelineComponent.Start(builder).ConfigureAwait(false);
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
 
             await transportComponent.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(containerComponent, recoverabilityComponent).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent).ConfigureAwait(false);
 
-            await featureComponent.Start(messageSession).ConfigureAwait(false);
+            await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportComponent);
 
@@ -57,6 +60,7 @@ namespace NServiceBus
         PipelineComponent pipelineComponent;
         RecoverabilityComponent recoverabilityComponent;
         HostingComponent hostingComponent;
+        IBuilder builder;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         SettingsHolder settings;

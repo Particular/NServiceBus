@@ -5,20 +5,20 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Installation;
+    using ObjectBuilder;
     using Settings;
 
     class InstallationComponent
     {
-        InstallationComponent(Configuration configuration, ContainerComponent containerComponent, TransportComponent transportComponent)
+        InstallationComponent(Configuration configuration, TransportComponent transportComponent)
         {
             this.configuration = configuration;
-            this.containerComponent = containerComponent;
             this.transportComponent = transportComponent;
         }
 
         public static InstallationComponent Initialize(Configuration configuration, List<Type> concreteTypes, ContainerComponent containerComponent, TransportComponent transportComponent)
         {
-            var component = new InstallationComponent(configuration, containerComponent, transportComponent);
+            var component = new InstallationComponent(configuration, transportComponent);
 
             if (!configuration.ShouldRunInstallers)
             {
@@ -33,7 +33,7 @@
             return component;
         }
 
-        public async Task Start()
+        public async Task Start(IBuilder builder)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -47,7 +47,7 @@
                 await transportComponent.CreateQueuesIfNecessary(installationUserName).ConfigureAwait(false);
             }
 
-            foreach (var installer in containerComponent.Builder.BuildAll<INeedToInstallSomething>())
+            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
             {
                 await installer.Install(installationUserName).ConfigureAwait(false);
             }
@@ -69,7 +69,6 @@
         }
 
         Configuration configuration;
-        ContainerComponent containerComponent;
         TransportComponent transportComponent;
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
