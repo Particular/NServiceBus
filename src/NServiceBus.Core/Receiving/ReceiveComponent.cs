@@ -29,7 +29,6 @@ namespace NServiceBus
             TransportComponent transportComponent,
             PipelineComponent pipeline,
             EventAggregator eventAggregator,
-            CriticalError criticalError,
             string errorQueue,
             HostingComponent hostingComponent)
         {
@@ -45,7 +44,7 @@ namespace NServiceBus
                 messagePumpFactory,
                 pipeline,
                 eventAggregator,
-                criticalError,
+                hostingComponent.CriticalError,
                 errorQueue);
 
             receiveComponent.BindQueues(transportComponent.QueueBindings);
