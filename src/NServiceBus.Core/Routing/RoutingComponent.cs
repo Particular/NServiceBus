@@ -26,26 +26,20 @@ namespace NServiceBus
 
         public Publishers Publishers { get; }
 
-        public bool EnforceBestPractices { get; private set; }
+        public bool EnforceBestPractices { get; }
 
-        public static RoutingComponent Initialize(SettingsHolder settings, TransportComponent transportComponent, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
+        public static RoutingComponent Initialize(Configuration configuration, TransportComponent transportComponent, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration, Conventions conventions)
         {
-            var conventions = settings.Get<Conventions>();
-            var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
-
-            var distributionPolicy = settings.GetOrCreate<DistributionPolicy>();
-            if (settings.TryGet(out List<DistributionStrategy> distributionStrategies))
+            var distributionPolicy = configuration.DistributionPolicy;
+            foreach (var distributionStrategy in configuration.DistributionStrategies)
             {
-                foreach (var distributionStrategy in distributionStrategies)
-                {
-                    distributionPolicy.SetDistributionStrategy(distributionStrategy);
-                }
+                distributionPolicy.SetDistributionStrategy(distributionStrategy);
             }
 
-            var unicastRoutingTable = settings.GetOrCreate<UnicastRoutingTable>();
-            configuredUnicastRoutes?.Apply(unicastRoutingTable, conventions);
+            var unicastRoutingTable = configuration.UnicastRoutingTable;
+            configuration.ConfiguredUnicastRoutes?.Apply(unicastRoutingTable, conventions);
 
-            var endpointInstances = settings.GetOrCreate<EndpointInstances>();
+            var endpointInstances = configuration.EndpointInstances;
             pipelineSettings.Register("UnicastSendRouterConnector", b =>
             {
                 var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, distributionPolicy, unicastRoutingTable, endpointInstances, i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
@@ -54,25 +48,17 @@ namespace NServiceBus
 
             pipelineSettings.Register("UnicastReplyRouterConnector", new ReplyConnector(), "Determines how replies should be routed");
 
-            var enforceBestPractices = ShouldEnforceBestPractices(settings);
-            if (enforceBestPractices)
+            if (configuration.EnforceBestPractices)
             {
                 EnableBestPracticeEnforcement(conventions, pipelineSettings);
             }
 
-            var publishers = settings.GetOrCreate<Publishers>();
-            return new RoutingComponent(unicastRoutingTable, distributionPolicy, endpointInstances, publishers, enforceBestPractices);
-        }
-
-        static bool ShouldEnforceBestPractices(ReadOnlySettings settings)
-        {
-            if (settings.TryGet(EnforceBestPracticesSettingsKey, out bool enforceBestPractices))
-            {
-                return enforceBestPractices;
-            }
-
-            // enable best practice enforcement by default
-            return true;
+            return new RoutingComponent(
+                unicastRoutingTable,
+                distributionPolicy,
+                endpointInstances,
+                configuration.Publishers,
+                configuration.EnforceBestPractices);
         }
 
         static void EnableBestPracticeEnforcement(Conventions conventions, PipelineSettings pipeline)
@@ -105,6 +91,45 @@ namespace NServiceBus
                 "Enforces unsubscribe messaging best practices");
         }
 
-        public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+        public class Configuration
+        {
+            public Configuration(SettingsHolder settings)
+            {
+                this.settings = settings;
+            }
+
+            public ConfiguredUnicastRoutes ConfiguredUnicastRoutes => settings.GetOrCreate<ConfiguredUnicastRoutes>();
+
+            // Used by NServiceBus.Transport.Msmq/MsmqConfigurationExtensions.cs
+            public List<DistributionStrategy> DistributionStrategies =>
+                settings.GetOrDefault<List<DistributionStrategy>>() ?? new List<DistributionStrategy>(0);
+
+            public UnicastRoutingTable UnicastRoutingTable => settings.GetOrCreate<UnicastRoutingTable>();
+
+            public DistributionPolicy DistributionPolicy => settings.GetOrCreate<DistributionPolicy>();
+
+            public EndpointInstances EndpointInstances => settings.GetOrCreate<EndpointInstances>();
+
+            public Publishers Publishers => settings.GetOrCreate<Publishers>();
+
+            public bool EnforceBestPractices
+            {
+                get
+                {
+                    if (settings.TryGet(EnforceBestPracticesSettingsKey, out bool enforceBestPractices))
+                    {
+                        return enforceBestPractices;
+                    }
+
+                    // enable best practice enforcement by default
+                    return true;
+                }
+                set => settings.Set(EnforceBestPracticesSettingsKey, value);
+            }
+
+            readonly SettingsHolder settings;
+
+            const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+        }
     }
 }
