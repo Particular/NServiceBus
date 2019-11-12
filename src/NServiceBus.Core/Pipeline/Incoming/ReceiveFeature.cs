@@ -1,11 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
-    using System.Threading.Tasks;
-    using Extensibility;
-    using Janitor;
     using NServiceBus.Outbox;
     using Persistence;
-    using Transport;
     using Unicast;
 
     class ReceiveFeature : Feature
@@ -19,13 +15,13 @@
         {
             context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
-                var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
+                var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
             context.Pipeline.Register("LoadHandlersConnector", b =>
             {
-                var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdapter();
+                var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
                 var syncStorage = context.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
@@ -34,81 +30,6 @@
             context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
 
             context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
-        }
-
-        class NoOpSynchronizedStorage : ISynchronizedStorage
-        {
-            public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
-            {
-                return NoOpAdapter.EmptyResult;
-            }
-        }
-
-        class NoOpAdapter : ISynchronizedStorageAdapter
-        {
-            public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
-            {
-                return EmptyResult;
-            }
-
-            public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context)
-            {
-                return EmptyResult;
-            }
-
-            internal static readonly Task<CompletableSynchronizedStorageSession> EmptyResult = Task.FromResult<CompletableSynchronizedStorageSession>(new NoOpCompletableSynchronizedStorageSession());
-        }
-
-        // Do not allow Fody to weave the IDisposable for us so that other threads can still access the instance of this class
-        // even after it has been disposed.
-        [SkipWeaving]
-        class NoOpCompletableSynchronizedStorageSession : CompletableSynchronizedStorageSession
-        {
-            public Task CompleteAsync()
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            public void Dispose()
-            {
-            }
-        }
-
-        class NoOpOutbox : IOutboxStorage
-        {
-            public Task<OutboxMessage> Get(string messageId, ContextBag options)
-            {
-                return NoOutboxMessageTask;
-            }
-
-            public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            public Task SetAsDispatched(string messageId, ContextBag options)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            public Task<OutboxTransaction> BeginTransaction(ContextBag context)
-            {
-                return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
-            }
-
-            static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null);
-        }
-
-        class NoOpOutboxTransaction : OutboxTransaction
-        {
-            public void Dispose()
-            {
-            }
-
-            public Task Commit()
-            {
-                return TaskEx.CompletedTask;
-            }
         }
     }
 }
