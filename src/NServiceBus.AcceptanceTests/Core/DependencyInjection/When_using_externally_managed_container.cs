@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using ObjectBuilder;
     using NUnit.Framework;
 
     public class When_using_externally_managed_container : NServiceBusAcceptanceTest
@@ -31,8 +32,10 @@
                         },
                         configured => configured.Start(new ResolutionPhaseAdapter(container))
                     )
-                    .When(e =>
+                    .When((e,c) =>
                     {
+                        c.BuilderWasResolvable = container.Build(typeof(IBuilder)) != null;
+
                         //use the session provided by configure to make sure its properly populated
                         return configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage());
                     });
@@ -41,12 +44,14 @@
             .Run();
 
             Assert.AreEqual(result.Message, myComponent.Message);
+            Assert.True(result.BuilderWasResolvable, "IBuilder should be resolvable in the container");
             Assert.False(container.WasDisposed, "Externally managed containers should not be disposed");
         }
 
         class Context : ScenarioContext
         {
             public string Message { get; set; }
+            public bool BuilderWasResolvable { get; set; }
         }
 
         public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
@@ -64,7 +69,6 @@
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     TestContext.Message = MyComponent.Message;
-
                     return Task.FromResult(0);
                 }
             }

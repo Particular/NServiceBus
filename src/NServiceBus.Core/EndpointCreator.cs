@@ -35,8 +35,7 @@ namespace NServiceBus
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            //TODO: will reeable once we see that tests fail
-            //containerComponent.ContainerConfiguration.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
 
             endpointCreator.Initialize();
 
@@ -52,8 +51,7 @@ namespace NServiceBus
             var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            //TODO: will reeable once we see that tests fail
-            //containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
             var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
 
