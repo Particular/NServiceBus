@@ -11,7 +11,6 @@ namespace NServiceBus
     using Pipeline;
     using Pipeline.Outgoing;
     using Settings;
-    using Transport;
 
     /// <summary>
     /// Configuration used to create an endpoint instance.
@@ -29,16 +28,13 @@ namespace NServiceBus
 
             Settings.Set(new InstallationComponent.Configuration(Settings));
             Settings.Set(new HostingComponent.Configuration(Settings));
+            Settings.Set(new TransportComponent.Configuration(Settings));
             Settings.Set(new SendComponent.Configuration());
-
-            Settings.Set(new StartupDiagnosticEntries());
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             PipelineComponent = new PipelineComponent(Settings);
             ContainerComponent = new ContainerComponent(Settings);
-
-            Settings.Set(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);

@@ -5,35 +5,35 @@
     using System.Diagnostics;
     using System.Net;
     using System.Runtime;
+    using System.Threading.Tasks;
     using Hosting;
     using Settings;
     using Support;
 
     class HostingComponent
     {
-        HostingComponent(HostInformation hostInformation)
+        HostingComponent(Configuration configuration)
         {
-            HostInformation = hostInformation;
+            this.configuration = configuration;
+            HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
         }
 
         public static HostingComponent Initialize(Configuration configuration,
             ContainerComponent containerComponent,
-            PipelineComponent pipelineComponent,
-            string endpointName,
-            ReadOnlySettings settings)
+            PipelineComponent pipelineComponent)
         {
-            var hostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
+            var hostingComponent = new HostingComponent(configuration);
 
-            //for backwards compatibility, can be removed in v8
-            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostInformation, DependencyLifecycle.SingleInstance);
+            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
 
-            pipelineComponent.PipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostInformation, endpointName), "Adds audit host information");
-            pipelineComponent.PipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostInformation, endpointName), "Adds host info headers to outgoing headers");
+            pipelineComponent.PipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds audit host information");
+            pipelineComponent.PipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds host info headers to outgoing headers");
 
-            settings.AddStartupDiagnosticsSection("Hosting", new
+
+            hostingComponent.AddStartupDiagnosticsSection("Hosting", new
             {
-                hostInformation.HostId,
-                HostDisplayName = hostInformation.DisplayName,
+                hostingComponent.HostInformation.HostId,
+                HostDisplayName = hostingComponent.HostInformation.DisplayName,
                 RuntimeEnvironment.MachineName,
                 OSPlatform = Environment.OSVersion.Platform,
                 OSVersion = Environment.OSVersion.VersionString,
@@ -49,10 +49,24 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            return new HostingComponent(hostInformation);
+            return hostingComponent;
         }
 
         public HostInformation HostInformation { get; }
+
+        public void AddStartupDiagnosticsSection(string sectionName, object section)
+        {
+            configuration.StartupDiagnostics.Add(sectionName, section);
+        }
+
+        public Task Start()
+        {
+            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
+
+            return hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries);
+        }
+
+        Configuration configuration;
 
         public class Configuration
         {
@@ -70,6 +84,8 @@
                     {"UserName", Environment.UserName},
                     {"PathToExecutable", fullPathToStartingExe}
                 });
+
+                settings.Set(new StartupDiagnosticEntries());
             }
 
             public Guid HostId
@@ -96,6 +112,14 @@
                 }
             }
 
+            public string EndpointName
+            {
+                get
+                {
+                    return settings.EndpointName();
+                }
+            }
+
             public Dictionary<string, string> Properties
             {
                 get
@@ -105,6 +129,42 @@
                 set
                 {
                     settings.Set(PropertiesSettingsKey, value);
+                }
+            }
+
+            public StartupDiagnosticEntries StartupDiagnostics
+            {
+                get
+                {
+                    return settings.Get<StartupDiagnosticEntries>();
+                }
+                set
+                {
+                    settings.Set(value);
+                }
+            }
+
+            public string DiagnosticsPath
+            {
+                get
+                {
+                    return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey);
+                }
+                set
+                {
+                    settings.Set(DiagnosticsPathSettingsKey, value);
+                }
+            }
+
+            public Func<string, Task> HostDiagnosticsWriter
+            {
+                get
+                {
+                    return settings.GetOrDefault<Func<string, Task>>(HostDiagnosticsWriterSettingsKey);
+                }
+                set
+                {
+                    settings.Set(HostDiagnosticsWriterSettingsKey, value);
                 }
             }
 
@@ -129,6 +189,8 @@
             const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
             const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";
             const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
+            const string DiagnosticsPathSettingsKey = "Diagnostics.RootPath";
+            const string HostDiagnosticsWriterSettingsKey = "HostDiagnosticsWriter";
         }
     }
 }

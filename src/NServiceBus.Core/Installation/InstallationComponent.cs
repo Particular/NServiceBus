@@ -6,21 +6,19 @@
     using System.Threading.Tasks;
     using Installation;
     using Settings;
-    using Transport;
 
     class InstallationComponent
     {
-        InstallationComponent(Configuration configuration, ContainerComponent containerComponent, ReceiveComponent receiveComponent, QueueBindings queueBindings)
+        InstallationComponent(Configuration configuration, ContainerComponent containerComponent, TransportComponent transportComponent)
         {
             this.configuration = configuration;
             this.containerComponent = containerComponent;
-            this.receiveComponent = receiveComponent;
-            this.queueBindings = queueBindings;
+            this.transportComponent = transportComponent;
         }
 
-        public static InstallationComponent Initialize(Configuration configuration, List<Type> concreteTypes, ContainerComponent containerComponent, ReceiveComponent receiveComponent, QueueBindings queueBindings)
+        public static InstallationComponent Initialize(Configuration configuration, List<Type> concreteTypes, ContainerComponent containerComponent, TransportComponent transportComponent)
         {
-            var component = new InstallationComponent(configuration, containerComponent, receiveComponent, queueBindings);
+            var component = new InstallationComponent(configuration, containerComponent, transportComponent);
 
             if (!configuration.ShouldRunInstallers)
             {
@@ -46,7 +44,7 @@
 
             if (configuration.ShouldCreateQueues)
             {
-                await receiveComponent.CreateQueuesIfNecessary(queueBindings, installationUserName).ConfigureAwait(false);
+                await transportComponent.CreateQueuesIfNecessary(installationUserName).ConfigureAwait(false);
             }
 
             foreach (var installer in containerComponent.Builder.BuildAll<INeedToInstallSomething>())
@@ -72,8 +70,7 @@
 
         Configuration configuration;
         ContainerComponent containerComponent;
-        ReceiveComponent receiveComponent;
-        QueueBindings queueBindings;
+        TransportComponent transportComponent;
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 

@@ -5,21 +5,20 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using Settings;
     using ObjectBuilder;
     using Transport;
 
     class ReceiveComponent
     {
         ReceiveComponent(ReceiveConfiguration configuration,
-            TransportReceiveInfrastructure receiveInfrastructure,
+            Func<IPushMessages> messagePumpFactory,
             PipelineComponent pipeline,
             IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
         {
             this.configuration = configuration;
-            this.receiveInfrastructure = receiveInfrastructure;
+            this.messagePumpFactory = messagePumpFactory;
             this.pipeline = pipeline;
             this.eventAggregator = eventAggregator;
             this.criticalError = criticalError;
@@ -27,26 +26,33 @@ namespace NServiceBus
         }
 
         public static ReceiveComponent Initialize(ReceiveConfiguration receiveConfiguration,
-            TransportInfrastructure transportInfrastructure,
+            TransportComponent transportComponent,
             PipelineComponent pipeline,
-            QueueBindings queueBindings,
             EventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue,
-            ReadOnlySettings settings)
+            HostingComponent hostingComponent)
         {
+            Func<IPushMessages> messagePumpFactory = null;
+
+            //we don't need the message pump factory for send-only endpoints
+            if (receiveConfiguration != null)
+            {
+                messagePumpFactory = transportComponent.GetMessagePumpFactory();
+            }
+
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
+                messagePumpFactory,
                 pipeline,
                 eventAggregator,
                 criticalError,
                 errorQueue);
 
-            receiveComponent.BindQueues(queueBindings);
+            receiveComponent.BindQueues(transportComponent.QueueBindings);
 
             if (receiveConfiguration != null)
             {
-                settings.AddStartupDiagnosticsSection("Receiving", new
+                hostingComponent.AddStartupDiagnosticsSection("Receiving", new
                 {
                     receiveConfiguration.LocalAddress,
                     receiveConfiguration.InstanceSpecificQueue,
@@ -126,33 +132,6 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        public Task CreateQueuesIfNecessary(QueueBindings queueBindings, string username)
-        {
-            if (IsSendOnly)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            var queueCreator = receiveInfrastructure.QueueCreatorFactory();
-
-            return queueCreator.CreateQueueIfNecessary(queueBindings, username);
-        }
-
-        public async Task PerformPreStartupChecks()
-        {
-            if (IsSendOnly)
-            {
-                return;
-            }
-
-            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
-
-            if (!result.Succeeded)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-        }
-
         bool IsSendOnly => configuration == null;
 
         void BindQueues(QueueBindings queueBindings)
@@ -205,12 +184,12 @@ namespace NServiceBus
 
         IPushMessages BuildMessagePump()
         {
-            return receiveInfrastructure.MessagePumpFactory();
+            return messagePumpFactory();
         }
 
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
-        TransportReceiveInfrastructure receiveInfrastructure;
+        Func<IPushMessages> messagePumpFactory;
         PipelineComponent pipeline;
         IPipelineExecutor mainPipelineExecutor;
         readonly IEventAggregator eventAggregator;

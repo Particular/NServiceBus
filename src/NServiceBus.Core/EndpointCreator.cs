@@ -12,7 +12,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using Pipeline.Outgoing;
     using Settings;
-    using Transport;
     using Unicast.Messages;
 
     class EndpointCreator
@@ -80,13 +79,13 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            transportInfrastructure = InitializeTransportComponent();
+            transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings);
 
-            var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
+            var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
             var routingComponent = new RoutingComponent(settings);
 
-            routingComponent.Initialize(transportInfrastructure, pipelineComponent, receiveConfiguration);
+            routingComponent.Initialize(transportComponent, pipelineComponent, receiveConfiguration);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
@@ -101,7 +100,7 @@ namespace NServiceBus
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent, settings.EndpointName(), settings);
+            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineComponent);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
@@ -115,18 +114,18 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
-            queueBindings = settings.Get<QueueBindings>();
-
             receiveComponent = ReceiveComponent.Initialize(receiveConfiguration,
-                transportInfrastructure,
+                transportComponent,
                 pipelineComponent,
-                queueBindings,
                 eventAggregator,
                 criticalError,
                 settings.ErrorQueueAddress(),
-                settings);
+                hostingComponent);
 
-            installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(), concreteTypes, containerComponent, receiveComponent, queueBindings);
+            installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
+                concreteTypes,
+                containerComponent,
+                transportComponent);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
@@ -149,35 +148,21 @@ namespace NServiceBus
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
             await installationComponent.Start().ConfigureAwait(false);
 
-            return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent, sendComponent);
+            return new StartableEndpoint(settings,
+                containerComponent,
+                featureComponent,
+                transportComponent,
+                receiveComponent,
+                criticalError,
+                pipelineComponent,
+                recoverabilityComponent,
+                hostingComponent,
+                sendComponent);
         }
 
-        TransportInfrastructure InitializeTransportComponent()
+        ReceiveConfiguration BuildReceiveConfiguration(TransportComponent transportComponent)
         {
-            if (!settings.HasExplicitValue<TransportDefinition>())
-            {
-                throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
-            }
-
-            var transportDefinition = settings.Get<TransportDefinition>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
-            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
-            settings.Set(transportInfrastructure);
-
-            var transportType = transportDefinition.GetType();
-
-            settings.AddStartupDiagnosticsSection("Transport", new
-            {
-                Type = transportType.FullName,
-                Version = FileVersionRetriever.GetFileVersion(transportType)
-            });
-
-            return transportInfrastructure;
-        }
-
-        ReceiveConfiguration BuildReceiveConfiguration(TransportInfrastructure transportInfrastructure)
-        {
-            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportInfrastructure);
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportComponent);
 
             if (receiveConfiguration == null)
             {
@@ -329,11 +314,11 @@ namespace NServiceBus
         ContainerComponent containerComponent;
         CriticalError criticalError;
         FeatureComponent featureComponent;
-        TransportInfrastructure transportInfrastructure;
-        QueueBindings queueBindings;
+        TransportComponent transportComponent;
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
+        HostingComponent hostingComponent;
         SendComponent sendComponent;
     }
 }
