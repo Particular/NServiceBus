@@ -49,7 +49,7 @@ namespace NServiceBus
             finally
             {
                 settings.Clear();
-                containerComponent.Stop();
+                containerComponent.DisposeInternalContainerIfNeeded();
 
                 stopped = true;
                 Log.Info("Shutdown complete.");

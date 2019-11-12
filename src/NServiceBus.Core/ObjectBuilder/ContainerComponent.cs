@@ -57,17 +57,7 @@
             ApplyRegistrations(configureComponents);
         }
 
-        public IBuilder CreateInternalBuilder()
-        {
-            if (!ownsContainer)
-            {
-                throw new InvalidOperationException("An externally managed container has already been configured. It is not possible to use both an internally managed container and an externally managed container.");
-            }
-
-            return internalContainer;
-        }
-
-        public void InitializeWithInternallyManagedContainer()
+        public IBuilder InitializeWithInternallyManagedContainer()
         {
             ownsContainer = true;
 
@@ -98,9 +88,11 @@
             ContainerConfiguration = internalContainer;
 
             ApplyRegistrations(internalContainer);
+
+            return internalContainer;
         }
 
-        public void Stop()
+        public void DisposeInternalContainerIfNeeded()
         {
             if (ownsContainer)
             {
