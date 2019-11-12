@@ -84,7 +84,7 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
-            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, pipelineSettings, receiveConfiguration, settings.Get<Conventions>());
+            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, receiveConfiguration, settings.Get<Conventions>());
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
@@ -101,7 +101,7 @@ namespace NServiceBus
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
-            SendComponent.Initialize(settings.Get<SendComponent.Configuration>(), pipelineSettings, hostingComponent);
+            SendComponent.Initialize(settings.Get<SendComponent.Configuration>(), pipelineSettings, hostingComponent, routingComponent);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);

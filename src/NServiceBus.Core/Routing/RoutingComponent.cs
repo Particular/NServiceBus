@@ -2,20 +2,21 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using Features;
-    using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
 
     class RoutingComponent
     {
-        RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers, bool enforceBestPractices)
+        RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers, UnicastSendRouter unicastSendRouter, bool enforceBestPractices, Validations messageValidator)
         {
             UnicastRoutingTable = unicastRoutingTable;
             DistributionPolicy = distributionPolicy;
             EndpointInstances = endpointInstances;
             Publishers = publishers;
             EnforceBestPractices = enforceBestPractices;
+            MessageValidator = messageValidator;
+            UnicastSendRouter = unicastSendRouter;
         }
 
         public UnicastRoutingTable UnicastRoutingTable { get; }
@@ -28,67 +29,40 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; }
 
-        public static RoutingComponent Initialize(Configuration configuration, TransportComponent transportComponent, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration, Conventions conventions)
+        public UnicastSendRouter UnicastSendRouter { get; }
+
+        public Validations MessageValidator { get; }
+
+        public static RoutingComponent Initialize(Configuration configuration, TransportComponent transportComponent, ReceiveConfiguration receiveConfiguration, Conventions conventions)
         {
             var distributionPolicy = configuration.DistributionPolicy;
+            var unicastRoutingTable = configuration.UnicastRoutingTable;
+            var endpointInstances = configuration.EndpointInstances;
+
             foreach (var distributionStrategy in configuration.DistributionStrategies)
             {
                 distributionPolicy.SetDistributionStrategy(distributionStrategy);
             }
-
-            var unicastRoutingTable = configuration.UnicastRoutingTable;
+            
             configuration.ConfiguredUnicastRoutes?.Apply(unicastRoutingTable, conventions);
 
-            var endpointInstances = configuration.EndpointInstances;
-            pipelineSettings.Register("UnicastSendRouterConnector", b =>
-            {
-                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, distributionPolicy, unicastRoutingTable, endpointInstances, i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-                return new SendConnector(router);
-            }, "Determines how the message being sent should be routed");
-
-            pipelineSettings.Register("UnicastReplyRouterConnector", new ReplyConnector(), "Determines how replies should be routed");
-
-            if (configuration.EnforceBestPractices)
-            {
-                EnableBestPracticeEnforcement(conventions, pipelineSettings);
-            }
+            var sendRouter = new UnicastSendRouter(
+                receiveConfiguration == null, 
+                receiveConfiguration?.QueueNameBase, 
+                receiveConfiguration?.InstanceSpecificQueue, 
+                distributionPolicy, 
+                unicastRoutingTable, 
+                endpointInstances, 
+                i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
             return new RoutingComponent(
                 unicastRoutingTable,
                 distributionPolicy,
                 endpointInstances,
                 configuration.Publishers,
-                configuration.EnforceBestPractices);
-        }
-
-        static void EnableBestPracticeEnforcement(Conventions conventions, PipelineSettings pipeline)
-        {
-            var validations = new Validations(conventions);
-
-            pipeline.Register(
-                "EnforceSendBestPractices",
-                new EnforceSendBestPracticesBehavior(validations),
-                "Enforces send messaging best practices");
-
-            pipeline.Register(
-                "EnforceReplyBestPractices",
-                new EnforceReplyBestPracticesBehavior(validations),
-                "Enforces reply messaging best practices");
-
-            pipeline.Register(
-                "EnforcePublishBestPractices",
-                new EnforcePublishBestPracticesBehavior(validations),
-                "Enforces publish messaging best practices");
-
-            pipeline.Register(
-                "EnforceSubscribeBestPractices",
-                new EnforceSubscribeBestPracticesBehavior(validations),
-                "Enforces subscribe messaging best practices");
-
-            pipeline.Register(
-                "EnforceUnsubscribeBestPractices",
-                new EnforceUnsubscribeBestPracticesBehavior(validations),
-                "Enforces unsubscribe messaging best practices");
+                sendRouter,
+                configuration.EnforceBestPractices,
+                new Validations(conventions));
         }
 
         public class Configuration
