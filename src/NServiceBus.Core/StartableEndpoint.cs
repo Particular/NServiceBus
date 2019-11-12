@@ -35,7 +35,7 @@ namespace NServiceBus
         {
             await pipelineComponent.Start().ConfigureAwait(false);
 
-            await sendComponent.Start(containerComponent.Builder).ConfigureAwait(false);
+            var messageSession = sendComponent.CreateMessageSession(containerComponent.Builder);
 
             await transportComponent.Start().ConfigureAwait(false);
 
@@ -43,9 +43,9 @@ namespace NServiceBus
 
             await receiveComponent.PrepareToStart(containerComponent, recoverabilityComponent).ConfigureAwait(false);
 
-            await featureComponent.Start(sendComponent.MessageSession).ConfigureAwait(false);
+            await featureComponent.Start(messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, sendComponent.MessageSession, transportComponent);
+            var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportComponent);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);

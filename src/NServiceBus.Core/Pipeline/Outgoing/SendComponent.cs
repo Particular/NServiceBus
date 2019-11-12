@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Outgoing
 {
     using System;
-    using System.Threading.Tasks;
     using ObjectBuilder;
     using Transport;
 
@@ -10,19 +9,6 @@
         SendComponent(PipelineComponent pipelineComponent)
         {
             this.pipelineComponent = pipelineComponent;
-        }
-
-        public IMessageSession MessageSession
-        {
-            get
-            {
-                if (messageSession == null)
-                {
-                    throw new Exception("SendComponent hasn't been started yet. The message session is only available after the component has been started.");
-                }
-
-                return messageSession;
-            }
         }
 
         public static SendComponent Initialize(Configuration configuration, PipelineComponent pipelineComponent)
@@ -47,10 +33,10 @@
             return new SendComponent(pipelineComponent);
         }
 
-        public Task Start(IBuilder builder)
+        public IMessageSession CreateMessageSession(IBuilder builder)
         {
             messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
-            return TaskEx.CompletedTask;
+            return messageSession;
         }
 
         static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(Configuration configuration)
