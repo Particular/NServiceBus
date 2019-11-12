@@ -74,21 +74,21 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task PrepareToStart(ContainerComponent containerComponent, RecoverabilityComponent recoverabilityComponent)
+        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent)
         {
             if (IsSendOnly)
             {
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(containerComponent.Builder, pipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline);
 
             if (configuration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(containerComponent.Builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(containerComponent.Builder));
+            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder));
 
             foreach (var receiver in receivers)
             {

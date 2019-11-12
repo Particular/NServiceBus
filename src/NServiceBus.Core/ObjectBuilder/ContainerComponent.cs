@@ -16,8 +16,6 @@
 
         public IConfigureComponents ContainerConfiguration { get; private set; }
 
-        public IBuilder Builder { get; private set; }
-
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             customizations?.Invoke(new ContainerCustomizations(settings));
@@ -33,11 +31,6 @@
         public void UseContainer(IContainer container)
         {
             customContainer = container;
-        }
-
-        public void UseExternallyManagedBuilder(IBuilder builder)
-        {
-            Builder = builder;
         }
 
         public void AddUserRegistration(Action<IConfigureComponents> registration)
@@ -61,10 +54,10 @@
                 Type = "external"
             });
 
-            ApplyRegistrations();
+            ApplyRegistrations(configureComponents);
         }
 
-        public void InitializeWithInternallyManagedContainer()
+        public IBuilder InitializeWithInternallyManagedContainer()
         {
             ownsContainer = true;
 
@@ -90,35 +83,34 @@
                 });
             }
 
-            var commonObjectBuilder = new CommonObjectBuilder(container);
+            internalContainer = new CommonObjectBuilder(container);
 
-            ContainerConfiguration = commonObjectBuilder;
-            Builder = commonObjectBuilder;
+            ContainerConfiguration = internalContainer;
 
-            ApplyRegistrations();
+            ApplyRegistrations(internalContainer);
+
+            return internalContainer;
         }
 
-        public void Stop()
+        public void DisposeInternalContainerIfNeeded()
         {
             if (ownsContainer)
             {
-                Builder.Dispose();
+                internalContainer.Dispose();
             }
         }
 
-        void ApplyRegistrations()
+        void ApplyRegistrations(IConfigureComponents containerConfiguration)
         {
             foreach (var registration in userRegistrations)
             {
-                registration(ContainerConfiguration);
+                registration(containerConfiguration);
             }
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            ContainerConfiguration.ConfigureComponent(_ => Builder, DependencyLifecycle.SingleInstance);
         }
 
         bool ownsContainer;
         IContainer customContainer;
+        CommonObjectBuilder internalContainer;
         List<Action<IConfigureComponents>> userRegistrations = new List<Action<IConfigureComponents>>();
         SettingsHolder settings;
     }

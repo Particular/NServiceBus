@@ -18,15 +18,26 @@ namespace NServiceBus
                 }
                 return messageSession;
             });
+
+            Builder = new Lazy<IBuilder>(() =>
+            {
+                if (objectBuilder == null)
+                {
+                    throw new InvalidOperationException("The builder can only be used after the endpoint is started.");
+                }
+                return objectBuilder;
+            });
         }
 
         public Lazy<IMessageSession> MessageSession { get; private set; }
 
+        internal Lazy<IBuilder> Builder { get; private set; }
+
         public async Task<IEndpointInstance> Start(IBuilder builder)
         {
-            endpointCreator.UseExternallyManagedBuilder(builder);
+            objectBuilder = builder;
 
-            var startableEndpoint = await endpointCreator.CreateStartableEndpoint().ConfigureAwait(false);
+            var startableEndpoint = await endpointCreator.CreateStartableEndpoint(builder).ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
 
             messageSession = endpointInstance;
@@ -36,5 +47,6 @@ namespace NServiceBus
 
         EndpointCreator endpointCreator;
         IMessageSession messageSession;
+        IBuilder objectBuilder;
     }
 }

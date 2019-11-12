@@ -27,24 +27,37 @@ namespace NServiceBus
         {
             FinalizeConfiguration(endpointConfiguration);
 
-            endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
+            var containerComponent = endpointConfiguration.ContainerComponent;
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
-            creator.Initialize();
+            containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            return new StartableEndpointWithExternallyManagedContainer(creator);
+            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, containerComponent);
+            var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
+
+            //for backwards compatibility we need to make the IBuilder available in the container
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
+
+            endpointCreator.Initialize();
+
+            return startableEndpoint;
         }
 
         public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
             FinalizeConfiguration(endpointConfiguration);
 
-            endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
+            var containerComponent = endpointConfiguration.ContainerComponent;
 
-            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
-            creator.Initialize();
+            var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
-            return creator.CreateStartableEndpoint();
+            //for backwards compatibility we need to make the IBuilder available in the container
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
+
+            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
+
+            endpointCreator.Initialize();
+
+            return endpointCreator.CreateStartableEndpoint(internalBuilder);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
@@ -92,7 +105,7 @@ namespace NServiceBus
 
             var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration,  pipelineSettings, routingComponent, receiveConfiguration);
 
-            featureComponent.Initalize(containerComponent, featureConfigurationContext);
+            featureComponent.Initalize(featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
@@ -130,16 +143,11 @@ namespace NServiceBus
             );
         }
 
-        public void UseExternallyManagedBuilder(IBuilder builder)
-        {
-            containerComponent.UseExternallyManagedBuilder(builder);
-        }
-
-        public async Task<IStartableEndpoint> CreateStartableEndpoint()
+        public async Task<IStartableEndpoint> CreateStartableEndpoint(IBuilder builder)
         {
             // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-            await installationComponent.Start().ConfigureAwait(false);
+            await installationComponent.Start(builder).ConfigureAwait(false);
 
             return new StartableEndpoint(settings,
                 containerComponent,
@@ -149,7 +157,8 @@ namespace NServiceBus
                 criticalError,
                 pipelineComponent,
                 recoverabilityComponent,
-                hostingComponent);
+                hostingComponent,
+                builder);
         }
 
         ReceiveConfiguration BuildReceiveConfiguration(TransportComponent transportComponent)
