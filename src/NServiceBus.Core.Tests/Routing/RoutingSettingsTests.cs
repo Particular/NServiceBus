@@ -13,10 +13,19 @@
     [TestFixture]
     public class RoutingSettingsTests
     {
+        SettingsHolder settings;
+
+        [SetUp]
+        public void Setup()
+        {
+            settings = new SettingsHolder();
+            settings.Set(new RoutingComponent.Configuration(settings));
+        }
+
         [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_ShouldThrowException()
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(typeof(MessageWithoutNamespace), "EndpointName@MyHost"));
@@ -26,7 +35,7 @@
         [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssembly_ShouldThrowException()
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
@@ -36,7 +45,7 @@
         [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssemblyAndNamespace_ShouldThrowException()
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "EndpointName@MyHost"));
@@ -46,7 +55,7 @@
         [Test]
         public void WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -59,7 +68,7 @@
         [Test]
         public void WhenRoutingAssemblyToEndpoint_ShouldConfigureAllContainedMessagesInRoutingTable()
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -76,7 +85,7 @@
         [Test]
         public void WhenRoutingAssemblyWithNamespaceToEndpoint_ShouldOnlyConfigureMessagesWithinThatNamespace()
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -95,7 +104,7 @@
         [TestCase("")]
         public void WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace(string emptyNamespace)
         {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
