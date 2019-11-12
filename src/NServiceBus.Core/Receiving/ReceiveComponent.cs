@@ -37,7 +37,7 @@ namespace NServiceBus
             string errorQueue,
             HostingComponent hostingComponent,
             PipelineSettings pipelineSettings,
-            IConfigureComponents container)
+            ContainerComponent container)
             
         {
             Func<IPushMessages> messagePumpFactory = null;
@@ -59,14 +59,14 @@ namespace NServiceBus
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
-                var storage = container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
+                var storage = container.ContainerConfiguration.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var adapter = container.ContainerConfiguration.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
+                var syncStorage = container.ContainerConfiguration.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");

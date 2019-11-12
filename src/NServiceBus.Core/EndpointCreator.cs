@@ -128,7 +128,7 @@ namespace NServiceBus
                 settings.ErrorQueueAddress(),
                 hostingComponent,
                 pipelineSettings,
-                containerComponent.ContainerConfiguration);
+                containerComponent);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 concreteTypes,
