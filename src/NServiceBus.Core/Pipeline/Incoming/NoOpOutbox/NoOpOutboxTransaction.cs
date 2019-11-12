@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Outbox;
+    using Outbox;
 
     class NoOpOutboxTransaction : OutboxTransaction
     {

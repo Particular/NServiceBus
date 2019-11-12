@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Features;
     using Logging;
     using ObjectBuilder;
     using Outbox;

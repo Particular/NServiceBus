@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Janitor;

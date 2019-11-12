@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Outbox;
+    using Outbox;
     using Persistence;
     using Transport;
 
