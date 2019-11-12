@@ -11,10 +11,10 @@
 
         public static SendComponent Initialize(Configuration configuration, PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent)
         {
-            pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
-
             var newIdGenerator = GetIdStrategy(configuration);
             pipelineSettings.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
+
+            pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds audit host information");
             pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds host info headers to outgoing headers");
 
