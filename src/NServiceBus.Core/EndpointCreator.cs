@@ -125,7 +125,9 @@ namespace NServiceBus
                 pipelineComponent,
                 eventAggregator,
                 settings.ErrorQueueAddress(),
-                hostingComponent);
+                hostingComponent,
+                pipelineSettings,
+                containerComponent);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 concreteTypes,
