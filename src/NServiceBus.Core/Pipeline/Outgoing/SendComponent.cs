@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using Pipeline;
     using Transport;
 
@@ -10,16 +9,11 @@
         {
         }
 
-        public static SendComponent Initialize(Configuration configuration, PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds audit host information");
             pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds host info headers to outgoing headers");
-
-            if (configuration.StaticHeaders != null)
-            {
-                pipelineSettings.Register("ApplyStaticHeaders", new ApplyStaticHeadersBehavior(configuration.StaticHeaders), "Applies static headers to outgoing messages");
-            }
 
             pipelineSettings.Register("UnicastSendRouterConnector", new SendConnector(routingComponent.UnicastSendRouter), "Determines how the message being sent should be routed");
             pipelineSettings.Register("UnicastReplyRouterConnector", new ReplyConnector(), "Determines how replies should be routed");
@@ -63,11 +57,6 @@
                 "EnforceUnsubscribeBestPractices",
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
-        }
-
-        internal class Configuration
-        {
-            public CurrentStaticHeaders StaticHeaders { get; set; }
         }
     }
 }

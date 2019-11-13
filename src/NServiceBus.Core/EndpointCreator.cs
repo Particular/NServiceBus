@@ -100,7 +100,7 @@ namespace NServiceBus
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
-            SendComponent.Initialize(settings.Get<SendComponent.Configuration>(), pipelineSettings, hostingComponent, routingComponent);
+            SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
