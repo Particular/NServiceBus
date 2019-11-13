@@ -55,15 +55,15 @@ namespace NServiceBus
             return runningInstance;
         }
 
-        PipelineComponent pipelineComponent;
-        RecoverabilityComponent recoverabilityComponent;
-        HostingComponent hostingComponent;
+        readonly PipelineComponent pipelineComponent;
+        readonly RecoverabilityComponent recoverabilityComponent;
+        readonly HostingComponent hostingComponent;
         readonly SendComponent sendComponent;
-        IBuilder builder;
-        ContainerComponent containerComponent;
-        FeatureComponent featureComponent;
-        SettingsHolder settings;
-        TransportComponent transportComponent;
-        ReceiveComponent receiveComponent;
+        readonly IBuilder builder;
+        readonly ContainerComponent containerComponent;
+        readonly FeatureComponent featureComponent;
+        readonly SettingsHolder settings;
+        readonly TransportComponent transportComponent;
+        readonly ReceiveComponent receiveComponent;
     }
 }
