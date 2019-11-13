@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using Settings;
 
@@ -43,7 +42,7 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, sendComponent).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations).ConfigureAwait(false);
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
