@@ -24,7 +24,7 @@
                 return component;
             }
 
-            foreach (var installerType in hostingComponent.ConcreteTypes.Where(t => IsINeedToInstallSomething(t)))
+            foreach (var installerType in hostingComponent.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }

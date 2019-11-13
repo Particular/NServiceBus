@@ -3,10 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Features;
-    using Hosting.Helpers;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
@@ -29,15 +27,15 @@ namespace NServiceBus
         {
             var settings = endpointConfiguration.Settings;
 
-            var availableTypes = PerformAssemblyScanning(endpointConfiguration);
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
-            FinalizeConfiguration(endpointConfiguration, availableTypes);
+            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, availableTypes);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent.AvailableTypes);
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent, containerComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
@@ -54,15 +52,15 @@ namespace NServiceBus
         {
             var settings = endpointConfiguration.Settings;
 
-            var availableTypes = PerformAssemblyScanning(endpointConfiguration);
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
-            FinalizeConfiguration(endpointConfiguration, availableTypes);
+            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, availableTypes);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent.AvailableTypes);
 
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
@@ -182,7 +180,7 @@ namespace NServiceBus
 
         void ConfigRunBeforeIsFinalized(HostingComponent hostingComponent)
         {
-            foreach (var instanceToInvoke in hostingComponent.ConcreteTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
+            foreach (var instanceToInvoke in hostingComponent.AvailableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
                 .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
             {
                 instanceToInvoke.Run(settings);
@@ -192,70 +190,6 @@ namespace NServiceBus
         static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
         {
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
-
-        static List<Type> PerformAssemblyScanning(EndpointConfiguration endpointConfiguration)
-        {
-            var scannedTypes = endpointConfiguration.ScannedTypes;
-
-            if (scannedTypes == null)
-            {
-                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-
-                scannedTypes = GetAllowedTypes(directoryToScan, endpointConfiguration.Settings);
-            }
-            else
-            {
-                scannedTypes = scannedTypes.Union(GetAllowedCoreTypes(endpointConfiguration.Settings)).ToList();
-            }
-
-            endpointConfiguration.Settings.SetDefault("TypesToScan", scannedTypes);
-
-            return scannedTypes;
-        }
-
-        static List<Type> GetAllowedTypes(string path, SettingsHolder settings)
-        {
-            var assemblyScannerSettings = settings.GetOrCreate<AssemblyScannerConfiguration>();
-            var assemblyScanner = new AssemblyScanner(path)
-            {
-                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
-                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
-                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
-                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
-                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
-            };
-
-            return Scan(assemblyScanner, settings);
-        }
-
-        static List<Type> GetAllowedCoreTypes(SettingsHolder settings)
-        {
-            var assemblyScannerSettings = settings.GetOrCreate<AssemblyScannerConfiguration>();
-            var assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly())
-            {
-                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
-                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
-                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
-                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
-                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
-            };
-
-            return Scan(assemblyScanner, settings);
-        }
-
-        static List<Type> Scan(AssemblyScanner assemblyScanner, SettingsHolder settings)
-        {
-            var results = assemblyScanner.GetScannableAssemblies();
-
-            settings.AddStartupDiagnosticsSection("AssemblyScanning", new
-            {
-                Assemblies = results.Assemblies.Select(a => a.FullName),
-                results.ErrorsThrownDuringScanning,
-                results.SkippedFiles
-            });
-
-            return results.Types;
         }
 
         static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class

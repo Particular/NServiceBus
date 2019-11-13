@@ -13,10 +13,10 @@
 
     class HostingComponent
     {
-        HostingComponent(Configuration configuration, List<Type> concreteTypes)
+        HostingComponent(Configuration configuration, List<Type> availableTypes)
         {
             this.configuration = configuration;
-            ConcreteTypes = concreteTypes;
+            AvailableTypes = availableTypes;
             HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
             CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
@@ -27,15 +27,15 @@
 
         public CriticalError CriticalError { get; }
 
-        public ICollection<Type> ConcreteTypes { get; }
+        public ICollection<Type> AvailableTypes { get; }
 
         public static HostingComponent Initialize(Configuration configuration,
             ContainerComponent containerComponent,
-            List<Type> availableTypes)
+            List<Type> allScannedTypes)
         {
-            var concreteTypes = availableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+            var availableTypes = allScannedTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
-            var hostingComponent = new HostingComponent(configuration, concreteTypes);
+            var hostingComponent = new HostingComponent(configuration, availableTypes);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
@@ -100,7 +100,11 @@
 
             public Guid HostId
             {
-                get { return settings.Get<Guid>(HostIdSettingsKey); }
+                get
+                {
+                    ApplyHostIdDefaultIfNeeded();
+                    return settings.Get<Guid>(HostIdSettingsKey);
+                }
                 set { settings.Set(HostIdSettingsKey, value); }
             }
 

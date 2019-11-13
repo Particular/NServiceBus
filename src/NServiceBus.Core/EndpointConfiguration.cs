@@ -25,6 +25,7 @@ namespace NServiceBus
         {
             ValidateEndpointName(endpointName);
 
+            Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
             Settings.Set(new InstallationComponent.Configuration(Settings));
             Settings.Set(new HostingComponent.Configuration(Settings));
             Settings.Set(new TransportComponent.Configuration(Settings));
@@ -114,17 +115,8 @@ namespace NServiceBus
             ContainerComponent.UseContainer(builder);
         }
 
-        /// <summary>
-        /// Specifies the range of types that NServiceBus scans for handlers etc.
-        /// </summary>
-        internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
-        {
-            ScannedTypes = typesToScan.ToList();
-        }
-
         internal ContainerComponent ContainerComponent;
         internal ConventionsBuilder ConventionsBuilder;
-        internal List<Type> ScannedTypes;
 
         static void ValidateEndpointName(string endpointName)
         {
