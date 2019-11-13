@@ -8,7 +8,7 @@ namespace NServiceBus
         public MessageSession(RootContext context)
         {
             this.context = context;
-            messageOperations = context.Get<MessageOperations>(); //TODO can we make this a property?
+            messageOperations = context.Get<MessageOperations>();
         }
 
         public Task Send(object message, SendOptions options)
