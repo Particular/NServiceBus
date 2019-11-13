@@ -17,6 +17,7 @@ namespace NServiceBus
             FromMainPipeline<IRoutingContext>(rootBuilder);
             FromMainPipeline<IBatchDispatchContext>(rootBuilder);
             FromMainPipeline<IForwardingContext>(rootBuilder);
+            FromMainPipeline<ITransportReceiveContext>(rootBuilder);
         }
 
         public IPipeline<TContext> Pipeline<TContext>()
