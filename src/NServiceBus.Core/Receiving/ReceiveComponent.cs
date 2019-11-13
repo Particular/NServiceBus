@@ -20,7 +20,7 @@ namespace NServiceBus
             PipelineComponent pipeline,
             IEventAggregator eventAggregator,
             CriticalError criticalError,
-            string errorQueue) 
+            string errorQueue)
         {
             this.transportReceiveConfiguration = transportReceiveConfiguration;
             this.messagePumpFactory = messagePumpFactory;
@@ -248,7 +248,7 @@ namespace NServiceBus
             container.RegisterSingleton(handlerRegistry);
         }
 
-        public static bool IsMessageHandler(Type type) // TODO: used in LoadMessageHandlersExtensions.ExecuteTheseHandlersFirst() extension method. Should it be moved elsewhere?
+        public static bool IsMessageHandler(Type type)
         {
             if (type.IsAbstract || type.IsGenericTypeDefinition)
             {
