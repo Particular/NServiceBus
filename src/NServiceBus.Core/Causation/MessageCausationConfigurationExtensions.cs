@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Pipeline.Outgoing;
 
     /// <summary>
     /// Provides configuration options for message causation.

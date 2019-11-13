@@ -9,7 +9,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
-    using Pipeline.Outgoing;
     using Settings;
 
     /// <summary>

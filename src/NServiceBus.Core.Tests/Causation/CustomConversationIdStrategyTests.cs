@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Causation
 {
     using System;
-    using NServiceBus.Pipeline.Outgoing;
     using NUnit.Framework;
     using Testing;
 

@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Pipeline.Outgoing
+﻿namespace NServiceBus
 {
     using System;
+    using Pipeline;
     using Transport;
 
     class SendComponent

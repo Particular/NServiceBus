@@ -9,7 +9,6 @@ namespace NServiceBus
     using Hosting.Helpers;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using Pipeline.Outgoing;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
