@@ -40,9 +40,9 @@ namespace NServiceBus
             rootContextExtensions.Set(item);
         }
 
-        public RootContext CreateRootContext(IBuilder scopedBuilder, ContextBag extensions = null)
+        public RootContext CreateRootContext(IBuilder scopedBuilder, MessageOperations messageOperations, ContextBag extensions = null)
         {
-            var context = new RootContext(scopedBuilder);
+            var context = new RootContext(scopedBuilder, messageOperations);
 
             context.Extensions.Merge(rootContextExtensions);
 

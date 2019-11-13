@@ -33,7 +33,7 @@ namespace NServiceBus
         {
             await pipelineComponent.Start(builder).ConfigureAwait(false);
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, new MessageOperations()));
 
             await transportComponent.Start().ConfigureAwait(false);
 

@@ -22,7 +22,7 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageContext.Extensions);
+                var rootContext = pipelineComponent.CreateRootContext(childBuilder, new MessageOperations(), messageContext.Extensions);
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
                 try

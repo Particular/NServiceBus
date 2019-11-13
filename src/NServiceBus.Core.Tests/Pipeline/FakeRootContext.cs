@@ -2,7 +2,7 @@
 {
     class FakeRootContext : RootContext
     {
-        public FakeRootContext() : base(null)
+        public FakeRootContext() : base(null, null)
         {
         }
     }
