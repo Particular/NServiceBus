@@ -96,7 +96,7 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
-            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, pipelineSettings, receiveConfiguration, settings.Get<Conventions>());
+            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, receiveConfiguration, settings.Get<Conventions>());
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
@@ -109,9 +109,11 @@ namespace NServiceBus
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
-            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, pipelineSettings);
+            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
+
+            SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);

@@ -19,17 +19,16 @@
             HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
         }
 
+        public string EndpointName => configuration.EndpointName;
+
+        public HostInformation HostInformation { get; }
+
         public static HostingComponent Initialize(Configuration configuration,
-            ContainerComponent containerComponent,
-            PipelineSettings pipelineSettings)
+            ContainerComponent containerComponent)
         {
             var hostingComponent = new HostingComponent(configuration);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
-
-            pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds audit host information");
-            pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, configuration.EndpointName), "Adds host info headers to outgoing headers");
-
 
             hostingComponent.AddStartupDiagnosticsSection("Hosting", new
             {
@@ -52,8 +51,6 @@
 
             return hostingComponent;
         }
-
-        public HostInformation HostInformation { get; }
 
         public void AddStartupDiagnosticsSection(string sectionName, object section)
         {
@@ -91,82 +88,43 @@
 
             public Guid HostId
             {
-                get
-                {
-                    return settings.Get<Guid>(HostIdSettingsKey);
-                }
-                set
-                {
-                    settings.Set(HostIdSettingsKey, value);
-                }
+                get { return settings.Get<Guid>(HostIdSettingsKey); }
+                set { settings.Set(HostIdSettingsKey, value); }
             }
 
             public string DisplayName
             {
-                get
-                {
-                    return settings.Get<string>(DisplayNameSettingsKey);
-                }
-                set
-                {
-                    settings.Set(DisplayNameSettingsKey, value);
-                }
+                get { return settings.Get<string>(DisplayNameSettingsKey); }
+                set { settings.Set(DisplayNameSettingsKey, value); }
             }
 
             public string EndpointName
             {
-                get
-                {
-                    return settings.EndpointName();
-                }
+                get { return settings.EndpointName(); }
             }
 
             public Dictionary<string, string> Properties
             {
-                get
-                {
-                    return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey);
-                }
-                set
-                {
-                    settings.Set(PropertiesSettingsKey, value);
-                }
+                get { return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey); }
+                set { settings.Set(PropertiesSettingsKey, value); }
             }
 
             public StartupDiagnosticEntries StartupDiagnostics
             {
-                get
-                {
-                    return settings.Get<StartupDiagnosticEntries>();
-                }
-                set
-                {
-                    settings.Set(value);
-                }
+                get { return settings.Get<StartupDiagnosticEntries>(); }
+                set { settings.Set(value); }
             }
 
             public string DiagnosticsPath
             {
-                get
-                {
-                    return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey);
-                }
-                set
-                {
-                    settings.Set(DiagnosticsPathSettingsKey, value);
-                }
+                get { return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey); }
+                set { settings.Set(DiagnosticsPathSettingsKey, value); }
             }
 
             public Func<string, Task> HostDiagnosticsWriter
             {
-                get
-                {
-                    return settings.GetOrDefault<Func<string, Task>>(HostDiagnosticsWriterSettingsKey);
-                }
-                set
-                {
-                    settings.Set(HostDiagnosticsWriterSettingsKey, value);
-                }
+                get { return settings.GetOrDefault<Func<string, Task>>(HostDiagnosticsWriterSettingsKey); }
+                set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
             }
 
             // Since the host id default is using MD5 which breaks MIPS compliant users we need to delay setting the default until users have a chance to override
