@@ -2,16 +2,18 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using Pipeline;
     using Transport;
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent)
+        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, SendComponent sendComponent)
         {
             this.builder = builder;
             this.pipelineComponent = pipelineComponent;
+            this.sendComponent = sendComponent;
         }
 
         public async Task Invoke(MessageContext messageContext)
@@ -22,7 +24,7 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = pipelineComponent.CreateRootContext(childBuilder, new MessageOperations(), messageContext.Extensions);
+                var rootContext = pipelineComponent.CreateRootContext(childBuilder, sendComponent.CreateMessageOperations(builder, pipelineComponent), messageContext.Extensions);
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
                 try
@@ -46,5 +48,6 @@ namespace NServiceBus
 
         readonly IBuilder builder;
         readonly PipelineComponent pipelineComponent;
+        readonly SendComponent sendComponent;
     }
 }

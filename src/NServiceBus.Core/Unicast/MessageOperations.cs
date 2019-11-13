@@ -9,17 +9,37 @@ namespace NServiceBus
 
     class MessageOperations
     {
+        IMessageMapper messageMapper;
+        readonly IPipeline<IOutgoingPublishContext> publishPipeline;
+        readonly IPipeline<IOutgoingSendContext> sendPipeline;
+        readonly IPipeline<IOutgoingReplyContext> replyPipeline;
+        readonly IPipeline<ISubscribeContext> subscribePipeline;
+        readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
+
+        public MessageOperations(
+            IMessageMapper messageMapper, 
+            IPipeline<IOutgoingPublishContext> publishPipeline, 
+            IPipeline<IOutgoingSendContext> sendPipeline, 
+            IPipeline<IOutgoingReplyContext> replyPipeline, 
+            IPipeline<ISubscribeContext> subscribePipeline, 
+            IPipeline<IUnsubscribeContext> unsubscribePipeline)
+        {
+            this.messageMapper = messageMapper;
+            this.publishPipeline = publishPipeline;
+            this.sendPipeline = sendPipeline;
+            this.replyPipeline = replyPipeline;
+            this.subscribePipeline = subscribePipeline;
+            this.unsubscribePipeline = unsubscribePipeline;
+        }
+
         public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {
-            var mapper = context.Extensions.Get<IMessageMapper>();
-
-            return Publish(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
+            return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
         }
 
         public Task Publish(IBehaviorContext context, object message, PublishOptions options)
         {
-            var mapper = context.Extensions.Get<IMessageMapper>();
-            var messageType = mapper.GetMappedTypeFor(message.GetType());
+            var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
             return Publish(context, messageType, message, options);
         }
@@ -39,7 +59,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return publishContext.InvokePipeline<IOutgoingPublishContext>();
+            return publishPipeline.Invoke(publishContext);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -49,7 +69,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            return subscribeContext.InvokePipeline<ISubscribeContext>();
+            return subscribePipeline.Invoke(subscribeContext);
         }
 
         public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -59,20 +79,17 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            return unsubscribeContext.InvokePipeline<IUnsubscribeContext>();
+            return unsubscribePipeline.Invoke(unsubscribeContext);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
         {
-            var mapper = context.Extensions.Get<IMessageMapper>();
-
-            return SendMessage(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
+            return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
         }
 
         public Task Send(IBehaviorContext context, object message, SendOptions options)
         {
-            var mapper = context.Extensions.Get<IMessageMapper>();
-            var messageType = mapper.GetMappedTypeFor(message.GetType());
+            var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
             return SendMessage(context, messageType, message, options);
         }
@@ -99,22 +116,19 @@ namespace NServiceBus
                 outgoingContext.AddDeliveryConstraint(options.DelayedDeliveryConstraint);
             }
 
-            return outgoingContext.InvokePipeline<IOutgoingSendContext>();
+            return sendPipeline.Invoke(outgoingContext);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
         {
-            var mapper = context.Extensions.Get<IMessageMapper>();
-            var messageType = mapper.GetMappedTypeFor(message.GetType());
+            var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
             return ReplyMessage(context, messageType, message, options);
         }
 
         public Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
         {
-            var mapper = context.Extensions.Get<IMessageMapper>();
-
-            return ReplyMessage(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
+            return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
         }
 
         Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
@@ -132,7 +146,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return outgoingContext.InvokePipeline<IOutgoingReplyContext>();
+            return replyPipeline.Invoke(outgoingContext);
         }
     }
 }

@@ -111,10 +111,9 @@ namespace NServiceBus
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
-            SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent);
+            sendComponent = SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent, messageMapper);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
-            pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
@@ -156,6 +155,7 @@ namespace NServiceBus
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
+                sendComponent,
                 builder);
         }
 
@@ -310,5 +310,6 @@ namespace NServiceBus
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
         HostingComponent hostingComponent;
+        SendComponent sendComponent;
     }
 }

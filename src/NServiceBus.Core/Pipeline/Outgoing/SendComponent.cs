@@ -1,15 +1,20 @@
 ﻿namespace NServiceBus
 {
+    using MessageInterfaces;
+    using ObjectBuilder;
     using Pipeline;
     using Transport;
 
     class SendComponent
     {
-        SendComponent()
+        readonly IMessageMapper messageMapper;
+
+        SendComponent(IMessageMapper messageMapper)
         {
+            this.messageMapper = messageMapper;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent, IMessageMapper messageMapper)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds audit host information");
@@ -28,7 +33,18 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.Build<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            return new SendComponent();
+            return new SendComponent(messageMapper);
+        }
+
+        public MessageOperations CreateMessageOperations(IBuilder builder, PipelineComponent pipelineComponent)
+        {
+            return new MessageOperations(
+                messageMapper,
+                pipelineComponent.CreatePipeline<IOutgoingPublishContext>(builder),
+                pipelineComponent.CreatePipeline<IOutgoingSendContext>(builder),
+                pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
+                pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
+                pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder));
         }
 
         static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)

@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Security.Principal;
     using System.Threading.Tasks;
+    using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using Settings;
 
@@ -16,6 +17,7 @@ namespace NServiceBus
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
+            SendComponent sendComponent,
             IBuilder builder)
         {
             this.settings = settings;
@@ -26,6 +28,7 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
+            this.sendComponent = sendComponent;
             this.builder = builder;
         }
 
@@ -33,13 +36,14 @@ namespace NServiceBus
         {
             await pipelineComponent.Start(builder).ConfigureAwait(false);
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, new MessageOperations()));
+            var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, messageOperations));
 
             await transportComponent.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, sendComponent).ConfigureAwait(false);
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
@@ -55,6 +59,7 @@ namespace NServiceBus
         PipelineComponent pipelineComponent;
         RecoverabilityComponent recoverabilityComponent;
         HostingComponent hostingComponent;
+        readonly SendComponent sendComponent;
         IBuilder builder;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;

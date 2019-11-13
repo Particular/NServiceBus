@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using Transport;
 
@@ -73,14 +74,14 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent)
+        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent, SendComponent sendComponent)
         {
             if (IsSendOnly)
             {
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline, sendComponent);
 
             if (configuration.PurgeOnStartup)
             {

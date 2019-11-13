@@ -29,6 +29,11 @@ namespace NServiceBus
             return new PipelineComponent(modifications);
         }
 
+        public Pipeline<T> CreatePipeline<T>(IBuilder builder) where T : IBehaviorContext
+        {
+            return new Pipeline<T>(builder, modifications);
+        }
+
         public Task Start(IBuilder rootBuilder)
         {
             rootContextExtensions.Set<IPipelineCache>(new PipelineCache(rootBuilder, modifications));
