@@ -17,7 +17,7 @@
         {
             this.configuration = configuration;
             HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
-            CriticalError  = new CriticalError(configuration.CustomCriticalErrorAction);
+            CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
 
         public string EndpointName => configuration.EndpointName;
