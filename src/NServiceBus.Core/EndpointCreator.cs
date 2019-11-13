@@ -125,14 +125,17 @@ namespace NServiceBus
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
-            receiveComponent = ReceiveComponent.Initialize(receiveConfiguration,
+            receiveComponent = ReceiveComponent.Initialize(
+                settings.Get<ReceiveComponent.Configuration>(),
+                receiveConfiguration,
                 transportComponent,
                 pipelineComponent,
                 eventAggregator,
                 settings.ErrorQueueAddress(),
                 hostingComponent,
                 pipelineSettings,
-                containerComponent);
+                containerComponent,
+                concreteTypes);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 hostingComponent,
