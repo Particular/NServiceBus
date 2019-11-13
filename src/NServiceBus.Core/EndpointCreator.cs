@@ -113,6 +113,10 @@ namespace NServiceBus
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
+            // This needs to happen here for backwards compatibility
+            // See the test When_feature_overrides_hostinfo for more details.
+            hostingComponent.CreateHostInformation();
+
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
             SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent);

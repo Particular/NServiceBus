@@ -17,13 +17,23 @@
         {
             this.configuration = configuration;
             AvailableTypes = availableTypes;
-            HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
             CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
 
         public string EndpointName => configuration.EndpointName;
 
-        public HostInformation HostInformation { get; }
+        public HostInformation HostInformation
+        {
+            get
+            {
+                if (hostInformation == null)
+                {
+                    throw new InvalidOperationException("Host information can't be accessed until features have been created for backwards compatibility");
+                }
+
+                return hostInformation;
+            }
+        }
 
         public CriticalError CriticalError { get; }
 
@@ -40,10 +50,26 @@
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
 
-            hostingComponent.AddStartupDiagnosticsSection("Hosting", new
+            return hostingComponent;
+        }
+
+        public void AddStartupDiagnosticsSection(string sectionName, object section)
+        {
+            configuration.StartupDiagnostics.Add(sectionName, section);
+        }
+
+        // We just need to do this to allow host id to be overidden by accessing settings via Feature defaults.
+        // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
+        // See the test When_feature_overrides_hostinfo for more details.
+        [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
+        public void CreateHostInformation()
+        {
+            hostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
+
+            AddStartupDiagnosticsSection("Hosting", new
             {
-                hostingComponent.HostInformation.HostId,
-                HostDisplayName = hostingComponent.HostInformation.DisplayName,
+                hostInformation.HostId,
+                HostDisplayName = hostInformation.DisplayName,
                 RuntimeEnvironment.MachineName,
                 OSPlatform = Environment.OSVersion.Platform,
                 OSVersion = Environment.OSVersion.VersionString,
@@ -58,13 +84,6 @@
                 Environment.UserName,
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
-
-            return hostingComponent;
-        }
-
-        public void AddStartupDiagnosticsSection(string sectionName, object section)
-        {
-            configuration.StartupDiagnostics.Add(sectionName, section);
         }
 
         public Task Start(IEndpointInstance endpointInstance)
@@ -77,6 +96,7 @@
         }
 
         Configuration configuration;
+        HostInformation hostInformation;
 
         public class Configuration
         {
@@ -100,11 +120,7 @@
 
             public Guid HostId
             {
-                get
-                {
-                    ApplyHostIdDefaultIfNeeded();
-                    return settings.Get<Guid>(HostIdSettingsKey);
-                }
+                get { return settings.Get<Guid>(HostIdSettingsKey); }
                 set { settings.Set(HostIdSettingsKey, value); }
             }
 
