@@ -17,7 +17,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(onCriticalError), onCriticalError);
-            endpointConfiguration.Settings.Set("onCriticalErrorAction", onCriticalError);
+            endpointConfiguration.Settings.Get<HostingComponent.Configuration>().CustomCriticalErrorAction = onCriticalError;
         }
     }
 }

@@ -13,13 +13,11 @@ namespace NServiceBus
             FeatureComponent featureComponent,
             TransportComponent transportComponent,
             ReceiveComponent receiveComponent,
-            CriticalError criticalError,
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
             IBuilder builder)
         {
-            this.criticalError = criticalError;
             this.settings = settings;
             this.containerComponent = containerComponent;
             this.featureComponent = featureComponent;
@@ -47,12 +45,9 @@ namespace NServiceBus
 
             var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportComponent);
 
-            // set the started endpoint on CriticalError to pass the endpoint to the critical error action
-            criticalError.SetEndpoint(runningInstance);
-
             await receiveComponent.Start().ConfigureAwait(false);
 
-            await hostingComponent.Start().ConfigureAwait(false);
+            await hostingComponent.Start(runningInstance).ConfigureAwait(false);
 
             return runningInstance;
         }
@@ -66,6 +61,5 @@ namespace NServiceBus
         SettingsHolder settings;
         TransportComponent transportComponent;
         ReceiveComponent receiveComponent;
-        CriticalError criticalError;
     }
 }

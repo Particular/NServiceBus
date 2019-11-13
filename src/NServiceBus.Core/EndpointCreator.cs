@@ -78,8 +78,6 @@ namespace NServiceBus
 
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
-            RegisterCriticalErrorHandler();
-
             var concreteTypes = settings.GetAvailableTypes()
                 .Where(IsConcrete)
                 .ToList();
@@ -126,7 +124,6 @@ namespace NServiceBus
                 transportComponent,
                 pipelineComponent,
                 eventAggregator,
-                criticalError,
                 settings.ErrorQueueAddress(),
                 hostingComponent);
 
@@ -156,7 +153,6 @@ namespace NServiceBus
                 featureComponent,
                 transportComponent,
                 receiveComponent,
-                criticalError,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
@@ -195,13 +191,6 @@ namespace NServiceBus
         static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
         {
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
-
-        void RegisterCriticalErrorHandler()
-        {
-            settings.TryGet("onCriticalErrorAction", out Func<ICriticalErrorContext, Task> errorAction);
-            criticalError = new CriticalError(errorAction);
-            containerComponent.ContainerConfiguration.RegisterSingleton(criticalError);
         }
 
         static List<Type> PerformAssemblyScanning(EndpointConfiguration endpointConfiguration)
@@ -315,7 +304,6 @@ namespace NServiceBus
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
         ContainerComponent containerComponent;
-        CriticalError criticalError;
         FeatureComponent featureComponent;
         TransportComponent transportComponent;
         ReceiveComponent receiveComponent;

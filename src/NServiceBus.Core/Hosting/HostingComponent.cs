@@ -17,11 +17,14 @@
         {
             this.configuration = configuration;
             HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
+            CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
 
         public string EndpointName => configuration.EndpointName;
 
         public HostInformation HostInformation { get; }
+
+        public CriticalError CriticalError { get; }
 
         public static HostingComponent Initialize(Configuration configuration,
             ContainerComponent containerComponent)
@@ -29,6 +32,7 @@
             var hostingComponent = new HostingComponent(configuration);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
+            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
 
             hostingComponent.AddStartupDiagnosticsSection("Hosting", new
             {
@@ -57,8 +61,10 @@
             configuration.StartupDiagnostics.Add(sectionName, section);
         }
 
-        public Task Start()
+        public Task Start(IEndpointInstance endpointInstance)
         {
+            CriticalError.SetEndpoint(endpointInstance);
+
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
             return hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries);
@@ -127,6 +133,18 @@
                 set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
             }
 
+            public Func<ICriticalErrorContext, Task> CustomCriticalErrorAction
+            {
+                get
+                {
+                    return settings.GetOrDefault<Func<ICriticalErrorContext, Task>>(CustomCriticalErrorActionSettingsKey);
+                }
+                set
+                {
+                    settings.Set(CustomCriticalErrorActionSettingsKey, value);
+                }
+            }
+
             // Since the host id default is using MD5 which breaks MIPS compliant users we need to delay setting the default until users have a chance to override
             // via a custom feature to be backwards compatible.
             // For more details see the test: When_feature_overrides_hostid_from_feature_default
@@ -150,6 +168,7 @@
             const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
             const string DiagnosticsPathSettingsKey = "Diagnostics.RootPath";
             const string HostDiagnosticsWriterSettingsKey = "HostDiagnosticsWriter";
+            const string CustomCriticalErrorActionSettingsKey = "onCriticalErrorAction";
         }
     }
 }
