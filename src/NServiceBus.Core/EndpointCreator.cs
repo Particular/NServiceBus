@@ -17,21 +17,27 @@ namespace NServiceBus
     class EndpointCreator
     {
         EndpointCreator(SettingsHolder settings,
+            HostingComponent hostingComponent,
             ContainerComponent containerComponent)
         {
             this.settings = settings;
+            this.hostingComponent = hostingComponent;
             this.containerComponent = containerComponent;
         }
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
+            var settings = endpointConfiguration.Settings;
+
             FinalizeConfiguration(endpointConfiguration);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, containerComponent);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
+
+            var endpointCreator = new EndpointCreator(settings, hostingComponent, containerComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
 
             //for backwards compatibility we need to make the IBuilder available in the container
@@ -44,16 +50,20 @@ namespace NServiceBus
 
         public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
+            var settings = endpointConfiguration.Settings;
+
             FinalizeConfiguration(endpointConfiguration);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
+
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
-            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
+            var endpointCreator = new EndpointCreator(settings, hostingComponent, endpointConfiguration.ContainerComponent);
 
             endpointCreator.Initialize();
 
@@ -101,13 +111,11 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration,  pipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
-
-            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
