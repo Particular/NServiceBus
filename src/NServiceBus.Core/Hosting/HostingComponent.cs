@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Net;
     using System.Runtime;
     using System.Threading.Tasks;
@@ -12,9 +13,10 @@
 
     class HostingComponent
     {
-        HostingComponent(Configuration configuration)
+        HostingComponent(Configuration configuration, List<Type> concreteTypes)
         {
             this.configuration = configuration;
+            ConcreteTypes = concreteTypes;
             HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
             CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
@@ -25,10 +27,15 @@
 
         public CriticalError CriticalError { get; }
 
+        public ICollection<Type> ConcreteTypes { get; }
+
         public static HostingComponent Initialize(Configuration configuration,
-            ContainerComponent containerComponent)
+            ContainerComponent containerComponent,
+            List<Type> availableTypes)
         {
-            var hostingComponent = new HostingComponent(configuration);
+            var concreteTypes = availableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+
+            var hostingComponent = new HostingComponent(configuration, concreteTypes);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);

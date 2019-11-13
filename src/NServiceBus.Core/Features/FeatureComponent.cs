@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Features;
@@ -15,11 +14,11 @@
             this.settings = settings;
         }
 
-        public void RegisterFeatureEnabledStatusInSettings(List<Type> concreteTypes)
+        public void RegisterFeatureEnabledStatusInSettings(HostingComponent hostingComponent)
         {
             featureActivator = new FeatureActivator(settings);
 
-            foreach (var type in concreteTypes.Where(t => IsFeature(t)))
+            foreach (var type in hostingComponent.ConcreteTypes.Where(t => IsFeature(t)))
             {
                 featureActivator.Add(type.Construct<Feature>());
             }

@@ -29,13 +29,15 @@ namespace NServiceBus
         {
             var settings = endpointConfiguration.Settings;
 
-            FinalizeConfiguration(endpointConfiguration);
+            var availableTypes = PerformAssemblyScanning(endpointConfiguration);
+
+            FinalizeConfiguration(endpointConfiguration, availableTypes);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, availableTypes);
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent, containerComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
@@ -52,13 +54,15 @@ namespace NServiceBus
         {
             var settings = endpointConfiguration.Settings;
 
-            FinalizeConfiguration(endpointConfiguration);
+            var availableTypes = PerformAssemblyScanning(endpointConfiguration);
+
+            FinalizeConfiguration(endpointConfiguration, availableTypes);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, availableTypes);
 
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
@@ -70,11 +74,9 @@ namespace NServiceBus
             return endpointCreator.CreateStartableEndpoint(internalBuilder);
         }
 
-        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
+        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
         {
-            var scannedTypes = PerformAssemblyScanning(endpointConfiguration);
-
-            ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(endpointConfiguration));
+            ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(endpointConfiguration));
 
             var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
             endpointConfiguration.Settings.SetDefault(conventions);
@@ -88,17 +90,13 @@ namespace NServiceBus
 
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
-            var concreteTypes = settings.GetAvailableTypes()
-                .Where(IsConcrete)
-                .ToList();
-
             featureComponent = new FeatureComponent(settings);
 
             // This needs to happen here to make sure that features enabled state is present in settings so both
             // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
-            featureComponent.RegisterFeatureEnabledStatusInSettings(concreteTypes);
+            featureComponent.RegisterFeatureEnabledStatusInSettings(hostingComponent);
 
-            ConfigRunBeforeIsFinalized(concreteTypes);
+            ConfigRunBeforeIsFinalized(hostingComponent);
 
             transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings);
 
@@ -136,7 +134,7 @@ namespace NServiceBus
                 hostingComponent);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
-                concreteTypes,
+                hostingComponent,
                 containerComponent,
                 transportComponent);
 
@@ -182,14 +180,9 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        static bool IsConcrete(Type x)
+        void ConfigRunBeforeIsFinalized(HostingComponent hostingComponent)
         {
-            return !x.IsAbstract && !x.IsInterface;
-        }
-
-        void ConfigRunBeforeIsFinalized(IEnumerable<Type> concreteTypes)
-        {
-            foreach (var instanceToInvoke in concreteTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
+            foreach (var instanceToInvoke in hostingComponent.ConcreteTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
                 .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
             {
                 instanceToInvoke.Run(settings);

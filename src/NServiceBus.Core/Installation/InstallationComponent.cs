@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Installation;
@@ -16,7 +15,7 @@
             this.transportComponent = transportComponent;
         }
 
-        public static InstallationComponent Initialize(Configuration configuration, List<Type> concreteTypes, ContainerComponent containerComponent, TransportComponent transportComponent)
+        public static InstallationComponent Initialize(Configuration configuration, HostingComponent hostingComponent, ContainerComponent containerComponent, TransportComponent transportComponent)
         {
             var component = new InstallationComponent(configuration, transportComponent);
 
@@ -25,7 +24,7 @@
                 return component;
             }
 
-            foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
+            foreach (var installerType in hostingComponent.ConcreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
