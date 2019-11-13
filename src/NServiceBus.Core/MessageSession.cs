@@ -5,7 +5,6 @@ namespace NServiceBus
 
     class MessageSession : IMessageSession
     {
-        
         public MessageSession(RootContext context)
         {
             this.context = context;

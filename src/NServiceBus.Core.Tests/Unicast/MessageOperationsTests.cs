@@ -31,7 +31,7 @@
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            messageOperations.Send<IMyMessage>(new TestableMessageHandlerContext(), m => { }, new SendOptions());
+            messageOperations.Send<IMyMessage>(new RootContext(null, messageOperations), m => { }, new SendOptions());
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -42,7 +42,7 @@
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            messageOperations.Send<MyMessage>(new TestableMessageHandlerContext(), m => { }, new SendOptions());
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, new SendOptions());
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -53,7 +53,7 @@
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            messageOperations.Send<MyMessage>(new TestableMessageHandlerContext(), m => { }, new SendOptions());
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, new SendOptions());
 
             var messageId = sendPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -70,7 +70,7 @@
 
             var sendOptions = new SendOptions();
             sendOptions.SetMessageId(expectedMessageID);
-            messageOperations.Send<MyMessage>(new TestableMessageHandlerContext(), m => { }, sendOptions);
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, sendOptions);
 
             Assert.AreEqual(expectedMessageID, sendPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, sendPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -84,7 +84,7 @@
 
             var sendOptions = new SendOptions();
             sendOptions.SetHeader("header1", "header1 value");
-            messageOperations.Send<MyMessage>(new TestableMessageHandlerContext(), m => { }, sendOptions);
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, sendOptions);
             sendPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             sendPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
@@ -99,7 +99,7 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            messageOperations.Reply<IMyMessage>(new TestableMessageHandlerContext(), m => { }, new ReplyOptions());
+            messageOperations.Reply<IMyMessage>(new RootContext(null, messageOperations), m => { }, new ReplyOptions());
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -110,7 +110,7 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            messageOperations.Reply<MyMessage>(new TestableMessageHandlerContext(), m => { }, new ReplyOptions());
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, new ReplyOptions());
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -121,7 +121,7 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            messageOperations.Reply<MyMessage>(new TestableMessageHandlerContext(), m => { }, new ReplyOptions());
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, new ReplyOptions());
 
             var messageId = replyPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -138,7 +138,7 @@
 
             var replyOptions = new ReplyOptions();
             replyOptions.SetMessageId(expectedMessageID);
-            messageOperations.Reply<MyMessage>(new TestableMessageHandlerContext(), m => { }, replyOptions);
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, replyOptions);
 
             Assert.AreEqual(expectedMessageID, replyPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, replyPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -152,7 +152,7 @@
 
             var replyOptions = new ReplyOptions();
             replyOptions.SetHeader("header1", "header1 value");
-            messageOperations.Reply<MyMessage>(new TestableMessageHandlerContext(), m => { }, replyOptions);
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, replyOptions);
             replyPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             replyPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
@@ -167,7 +167,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            messageOperations.Publish<IMyMessage>(new TestableMessageHandlerContext(), m => { }, new PublishOptions());
+            messageOperations.Publish<IMyMessage>(new RootContext(null, messageOperations), m => { }, new PublishOptions());
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -178,7 +178,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            messageOperations.Publish<MyMessage>(new TestableMessageHandlerContext(), m => { }, new PublishOptions());
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, new PublishOptions());
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -189,7 +189,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            messageOperations.Publish<MyMessage>(new TestableMessageHandlerContext(), m => { }, new PublishOptions());
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, new PublishOptions());
 
             var messageId = publishPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -206,7 +206,7 @@
 
             var publishOptions = new PublishOptions();
             publishOptions.SetMessageId(expectedMessageID);
-            messageOperations.Publish<MyMessage>(new TestableMessageHandlerContext(), m => { }, publishOptions);
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, publishOptions);
 
             Assert.AreEqual(expectedMessageID, publishPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, publishPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -220,7 +220,7 @@
 
             var publishOptions = new PublishOptions();
             publishOptions.SetHeader("header1", "header1 value");
-            messageOperations.Publish<MyMessage>(new TestableMessageHandlerContext(), m => { }, publishOptions);
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, publishOptions);
             publishPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             publishPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
