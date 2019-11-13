@@ -12,9 +12,6 @@
 
         public static SendComponent Initialize(Configuration configuration, PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent)
         {
-            var newIdGenerator = GetIdStrategy(configuration);
-            pipelineSettings.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
-
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds audit host information");
             pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds host info headers to outgoing headers");
@@ -38,40 +35,6 @@
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.Build<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
             return new SendComponent();
-        }
-
-        static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(Configuration configuration)
-        {
-            if (configuration.CustomConversationIdStrategy != null)
-            {
-                return WrapUserDefinedInvocation(configuration.CustomConversationIdStrategy);
-            }
-
-            return _ => CombGuid.Generate().ToString();
-        }
-
-        static internal Func<IOutgoingLogicalMessageContext, string> WrapUserDefinedInvocation(Func<ConversationIdStrategyContext, ConversationId> userDefinedIdGenerator)
-        {
-            return context =>
-            {
-                ConversationId customConversationId;
-
-                try
-                {
-                    customConversationId = userDefinedIdGenerator(new ConversationIdStrategyContext(context.Message, context.Headers));
-                }
-                catch (Exception exception)
-                {
-                    throw new Exception($"Failed to execute the custom conversation ID strategy defined using '{nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}'.", exception);
-                }
-
-                if (customConversationId == null)
-                {
-                    throw new Exception($"The custom conversation ID strategy defined using '{nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}' returned null. The custom strategy must return either '{nameof(ConversationId)}.{nameof(ConversationId.Custom)}(customValue)' or '{nameof(ConversationId)}.{nameof(ConversationId.Default)}'");
-                }
-
-                return customConversationId.Value;
-            };
         }
 
         static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)
@@ -104,7 +67,6 @@
 
         internal class Configuration
         {
-            public Func<ConversationIdStrategyContext, ConversationId> CustomConversationIdStrategy { get; set; }
             public CurrentStaticHeaders StaticHeaders { get; set; }
         }
     }

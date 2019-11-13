@@ -16,7 +16,7 @@
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(customStrategy), customStrategy);
 
-            endpointConfiguration.Settings.Get<SendComponent.Configuration>().CustomConversationIdStrategy = customStrategy;
+            endpointConfiguration.Settings.Set("CustomConversationIdStrategy", customStrategy);
         }
     }
 }
