@@ -40,7 +40,6 @@ namespace NServiceBus
             PipelineSettings pipelineSettings,
             ContainerComponent container,
             IList<Type> availableTypes)
-            
         {
             Func<IPushMessages> messagePumpFactory = null;
 
