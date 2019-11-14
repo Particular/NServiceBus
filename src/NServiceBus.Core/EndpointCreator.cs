@@ -110,8 +110,6 @@ namespace NServiceBus
             var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
-            //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
-            settings.PreventChanges();
 
             hostingComponent.CreateHostInformationForV7BackwardsCompatibility();
 
@@ -140,6 +138,10 @@ namespace NServiceBus
                 hostingComponent,
                 containerComponent,
                 transportComponent);
+
+            // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
+            // As well as all the other components have been initialized
+            settings.PreventChanges();
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
