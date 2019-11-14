@@ -10,7 +10,7 @@
     public class ArgumentExceptionTests
     {
         [Test]
-        [Explicit]
+        [Ignore("Run this explicitly")]
         public void WriteAllPublicMembersWithNoArgumentChecking()
         {
             var stringWriter = new StringWriter();

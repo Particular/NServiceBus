@@ -9,7 +9,7 @@
     using Testing;
 
     [TestFixture]
-    [Explicit("Performance Tests")]
+    [Ignore("Performance Tests - run explicitly")]
     public class HandlerInvocationCachePerformanceTests
     {
         [Test]
@@ -186,7 +186,7 @@
         {
         }
     }
-    
+
     static class MessageHandlerRegistryExtension
     {
         public static MessageHandler GetCachedHandlerForMessage<TMessage>(this MessageHandlerRegistry cache)
