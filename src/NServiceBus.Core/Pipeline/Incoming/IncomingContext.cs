@@ -13,16 +13,15 @@ namespace NServiceBus
             MessageId = messageId;
             ReplyToAddress = replyToAddress;
             MessageHeaders = headers;
-            messageOperations = parentContext.Extensions.Get<MessageOperations>();
         }
+
+        MessageOperations messageOperations => Extensions.Get<MessageOperations>();
 
         public string MessageId { get; }
 
         public string ReplyToAddress { get; }
 
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
-
-        MessageOperations messageOperations;
 
         public Task Send(object message, SendOptions options)
         {

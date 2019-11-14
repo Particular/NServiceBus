@@ -35,10 +35,10 @@ namespace NServiceBus
         {
             await pipelineComponent.Start(builder).ConfigureAwait(false);
 
+            await transportComponent.Start().ConfigureAwait(false);
+
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, messageOperations));
-
-            await transportComponent.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 

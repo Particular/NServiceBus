@@ -12,14 +12,13 @@ namespace NServiceBus
         {
             Headers = headers;
             MessageId = messageId;
-            messageOperations = parentContext.Extensions.Get<MessageOperations>();
         }
+
+        MessageOperations messageOperations => Extensions.Get<MessageOperations>();
 
         public string MessageId { get; }
 
         public Dictionary<string, string> Headers { get; }
-
-        MessageOperations messageOperations;
 
         public Task Send(object message, SendOptions options)
         {
