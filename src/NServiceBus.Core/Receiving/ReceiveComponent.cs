@@ -235,7 +235,7 @@ namespace NServiceBus
 
         static void ConfigureMessageHandlersIn(Configuration configuration, IEnumerable<Type> types, IConfigureComponents container)
         {
-            var handlerRegistry = configuration.MessageHandlerRegistry ?? new MessageHandlerRegistry();
+            var handlerRegistry = configuration.MessageHandlerRegistry;
 
             foreach (var t in types.Where(IsMessageHandler))
             {
@@ -268,7 +268,7 @@ namespace NServiceBus
 
             public List<Type> ExecuteTheseHandlersFirst => settings.GetOrCreate<List<Type>>();
 
-            public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrDefault<MessageHandlerRegistry>();
+            public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
 
             readonly SettingsHolder settings;
 
