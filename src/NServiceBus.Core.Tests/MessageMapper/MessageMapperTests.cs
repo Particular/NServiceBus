@@ -163,9 +163,11 @@
         }
 
         [Test]
-        public void Should_handle_properties_with_nullable_attributes()
+        public void Should_handle_interfaces_that_have_attributes_with_nullable_properties()
         {
-            var messageInstance = new MessageMapper().CreateInstance<ClassImplementingIEnumerable<string>>();
+            var mapper = new MessageMapper();
+
+            var messageInstance = mapper.CreateInstance<MessageInterfaceWithNullablePropertyAttribute>();
 
             Assert.IsNotNull(messageInstance);
         }
@@ -244,7 +246,7 @@
 
         public interface MessageInterfaceWithNullablePropertyAttribute
         {
-            [NullablePropertyAttribute(0)]
+            [NullableProperty(0)]
             object Value { get; set; }
         }
 
