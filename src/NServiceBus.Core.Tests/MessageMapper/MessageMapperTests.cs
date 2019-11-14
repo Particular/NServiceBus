@@ -47,6 +47,13 @@
         }
 
         [Test]
+        public void MessageWithDodgyNullable()
+        {
+            var mapper = new MessageMapper();
+            mapper.CreateInstance<WithDodgyNullable.IMyMessage>();
+        }
+
+        [Test]
         public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
         {
             var mapper = new MessageMapper();
@@ -156,15 +163,13 @@
         }
 
         [Test]
-        public void Should_fail_for_interfaces_with_invalid_attributes()
+        public void Should_handle_interfaces_that_have_attributes_with_nullable_properties()
         {
-            var ex = Assert.Throws<ArgumentException>(() => 
-                new MessageMapper().Initialize(new[]
-                {
-                    typeof(MessageInterfaceWithPropertyWithIllegalAttribute)
-                }));
+            var mapper = new MessageMapper();
 
-            StringAssert.Contains("An invalid type was used as a custom attribute constructor argument, field or property.", ex.Message);
+            var messageInstance = mapper.CreateInstance<MessageInterfaceWithNullablePropertyAttribute>();
+
+            Assert.IsNotNull(messageInstance);
         }
 
         public class SampleMessageClass
@@ -229,20 +234,19 @@
         }
 
         [AttributeUsage(AttributeTargets.Property)]
-        public class IllegalAttribute : Attribute
+        public class NullablePropertyAttribute : Attribute
         {
-            // our mapper does not support custom attributes with nullable properties
             public int? IntKey { get; set; }
 
-            public IllegalAttribute(int x)
+            public NullablePropertyAttribute(int x)
             {
                 IntKey = x;
             }
         }
 
-        public interface MessageInterfaceWithPropertyWithIllegalAttribute
+        public interface MessageInterfaceWithNullablePropertyAttribute
         {
-            [Illegal(0)]
+            [NullableProperty(0)]
             object Value { get; set; }
         }
 
