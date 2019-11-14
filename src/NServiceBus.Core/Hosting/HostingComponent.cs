@@ -41,9 +41,9 @@
 
         public static HostingComponent Initialize(Configuration configuration,
             ContainerComponent containerComponent,
-            List<Type> allScannedTypes)
+            AssemblyScanningComponent assemblyScanningComponent)
         {
-            var availableTypes = allScannedTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+            var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
             var hostingComponent = new HostingComponent(configuration, availableTypes);
 

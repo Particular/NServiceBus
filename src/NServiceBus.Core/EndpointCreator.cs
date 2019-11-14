@@ -35,7 +35,7 @@ namespace NServiceBus
 
             containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent.AvailableTypes);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent, containerComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
@@ -60,7 +60,7 @@ namespace NServiceBus
 
             var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent.AvailableTypes);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
 
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
