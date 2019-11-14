@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.Hosting
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -22,7 +21,6 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
         }
 
         static Guid hostId = new Guid("6c0f50de-dac9-4693-b138-6d1033c15ed6");
-        static string instanceName = "Foo";
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {
@@ -40,12 +38,6 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
                 Defaults(s =>
                 {
                     s.SetDefault("NServiceBus.HostInformation.HostId", hostId);
-                    s.SetDefault("NServiceBus.HostInformation.DisplayName", instanceName);
-                    s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
-                    {
-                        {"RoleName", "My role name"},
-                        {"RoleInstanceId", "the role instance id"}
-                    });
                 });
             }
 

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-
     /// <summary>
     /// Contains extension methods to configure the <see cref="AssemblyScanner"/> behavior.
     /// </summary>

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Net;
     using System.Runtime;
     using System.Threading.Tasks;
@@ -12,31 +13,63 @@
 
     class HostingComponent
     {
-        HostingComponent(Configuration configuration)
+        HostingComponent(Configuration configuration, List<Type> availableTypes)
         {
             this.configuration = configuration;
-            HostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
+            AvailableTypes = availableTypes;
             CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
 
         public string EndpointName => configuration.EndpointName;
 
-        public HostInformation HostInformation { get; }
+        public HostInformation HostInformation
+        {
+            get
+            {
+                if (hostInformation == null)
+                {
+                    throw new InvalidOperationException("Host information can't be accessed until features have been created for backwards compatibility");
+                }
+
+                return hostInformation;
+            }
+        }
 
         public CriticalError CriticalError { get; }
 
+        public ICollection<Type> AvailableTypes { get; }
+
         public static HostingComponent Initialize(Configuration configuration,
-            ContainerComponent containerComponent)
+            ContainerComponent containerComponent,
+            AssemblyScanningComponent assemblyScanningComponent)
         {
-            var hostingComponent = new HostingComponent(configuration);
+            var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+
+            var hostingComponent = new HostingComponent(configuration, availableTypes);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
 
-            hostingComponent.AddStartupDiagnosticsSection("Hosting", new
+            return hostingComponent;
+        }
+
+        public void AddStartupDiagnosticsSection(string sectionName, object section)
+        {
+            configuration.StartupDiagnostics.Add(sectionName, section);
+        }
+
+        // We just need to do this to allow host id to be overidden by accessing settings via Feature defaults.
+        // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
+        // See the test When_feature_overrides_hostinfo for more details.
+        [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
+        public void CreateHostInformationForV7BackwardsCompatibility()
+        {
+            hostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
+
+            AddStartupDiagnosticsSection("Hosting", new
             {
-                hostingComponent.HostInformation.HostId,
-                HostDisplayName = hostingComponent.HostInformation.DisplayName,
+                hostInformation.HostId,
+                HostDisplayName = hostInformation.DisplayName,
                 RuntimeEnvironment.MachineName,
                 OSPlatform = Environment.OSVersion.Platform,
                 OSVersion = Environment.OSVersion.VersionString,
@@ -51,13 +84,6 @@
                 Environment.UserName,
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
-
-            return hostingComponent;
-        }
-
-        public void AddStartupDiagnosticsSection(string sectionName, object section)
-        {
-            configuration.StartupDiagnostics.Add(sectionName, section);
         }
 
         public Task Start(IEndpointInstance endpointInstance)
@@ -70,6 +96,7 @@
         }
 
         Configuration configuration;
+        HostInformation hostInformation;
 
         public class Configuration
         {
@@ -149,7 +176,7 @@
             // For more details see the test: When_feature_overrides_hostid_from_feature_default
             // When this is removed in v8 downstreams can no longer rely on the setting to always be there
             [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
-            internal void ApplyHostIdDefaultIfNeeded()
+            internal void ApplyHostIdDefaultIfNeededForV7BackwardsCompatibility()
             {
                 if (settings.HasExplicitValue(HostIdSettingsKey))
                 {

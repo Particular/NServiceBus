@@ -3,10 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Features;
-    using Hosting.Helpers;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
@@ -17,21 +15,29 @@ namespace NServiceBus
     class EndpointCreator
     {
         EndpointCreator(SettingsHolder settings,
+            HostingComponent hostingComponent,
             ContainerComponent containerComponent)
         {
             this.settings = settings;
+            this.hostingComponent = hostingComponent;
             this.containerComponent = containerComponent;
         }
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
-            FinalizeConfiguration(endpointConfiguration);
+            var settings = endpointConfiguration.Settings;
+
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+
+            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, containerComponent);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
+
+            var endpointCreator = new EndpointCreator(settings, hostingComponent, containerComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
 
             //for backwards compatibility we need to make the IBuilder available in the container
@@ -44,27 +50,31 @@ namespace NServiceBus
 
         public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
-            FinalizeConfiguration(endpointConfiguration);
+            var settings = endpointConfiguration.Settings;
+
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+
+            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var containerComponent = endpointConfiguration.ContainerComponent;
 
             var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
 
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
+
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
-            var endpointCreator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent);
+            var endpointCreator = new EndpointCreator(settings, hostingComponent, endpointConfiguration.ContainerComponent);
 
             endpointCreator.Initialize();
 
             return endpointCreator.CreateStartableEndpoint(internalBuilder);
         }
 
-        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
+        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
         {
-            var scannedTypes = PerformAssemblyScanning(endpointConfiguration);
-
-            ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(endpointConfiguration));
+            ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(endpointConfiguration));
 
             var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
             endpointConfiguration.Settings.SetDefault(conventions);
@@ -78,17 +88,13 @@ namespace NServiceBus
 
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
-            var concreteTypes = settings.GetAvailableTypes()
-                .Where(IsConcrete)
-                .ToList();
-
             featureComponent = new FeatureComponent(settings);
 
             // This needs to happen here to make sure that features enabled state is present in settings so both
             // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
-            featureComponent.RegisterFeatureEnabledStatusInSettings(concreteTypes);
+            featureComponent.RegisterFeatureEnabledStatusInSettings(hostingComponent);
 
-            ConfigRunBeforeIsFinalized(concreteTypes);
+            ConfigRunBeforeIsFinalized(hostingComponent);
 
             transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings);
 
@@ -101,13 +107,13 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration,  pipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             settings.PreventChanges();
 
-            hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent);
+            hostingComponent.CreateHostInformationForV7BackwardsCompatibility();
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
@@ -129,7 +135,7 @@ namespace NServiceBus
                 containerComponent);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
-                concreteTypes,
+                hostingComponent,
                 containerComponent,
                 transportComponent);
 
@@ -176,14 +182,9 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        static bool IsConcrete(Type x)
+        void ConfigRunBeforeIsFinalized(HostingComponent hostingComponent)
         {
-            return !x.IsAbstract && !x.IsInterface;
-        }
-
-        void ConfigRunBeforeIsFinalized(IEnumerable<Type> concreteTypes)
-        {
-            foreach (var instanceToInvoke in concreteTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
+            foreach (var instanceToInvoke in hostingComponent.AvailableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
                 .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
             {
                 instanceToInvoke.Run(settings);
@@ -193,70 +194,6 @@ namespace NServiceBus
         static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
         {
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
-
-        static List<Type> PerformAssemblyScanning(EndpointConfiguration endpointConfiguration)
-        {
-            var scannedTypes = endpointConfiguration.ScannedTypes;
-
-            if (scannedTypes == null)
-            {
-                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-
-                scannedTypes = GetAllowedTypes(directoryToScan, endpointConfiguration.Settings);
-            }
-            else
-            {
-                scannedTypes = scannedTypes.Union(GetAllowedCoreTypes(endpointConfiguration.Settings)).ToList();
-            }
-
-            endpointConfiguration.Settings.SetDefault("TypesToScan", scannedTypes);
-
-            return scannedTypes;
-        }
-
-        static List<Type> GetAllowedTypes(string path, SettingsHolder settings)
-        {
-            var assemblyScannerSettings = settings.GetOrCreate<AssemblyScannerConfiguration>();
-            var assemblyScanner = new AssemblyScanner(path)
-            {
-                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
-                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
-                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
-                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
-                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
-            };
-
-            return Scan(assemblyScanner, settings);
-        }
-
-        static List<Type> GetAllowedCoreTypes(SettingsHolder settings)
-        {
-            var assemblyScannerSettings = settings.GetOrCreate<AssemblyScannerConfiguration>();
-            var assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly())
-            {
-                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
-                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
-                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
-                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
-                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
-            };
-
-            return Scan(assemblyScanner, settings);
-        }
-
-        static List<Type> Scan(AssemblyScanner assemblyScanner, SettingsHolder settings)
-        {
-            var results = assemblyScanner.GetScannableAssemblies();
-
-            settings.AddStartupDiagnosticsSection("AssemblyScanning", new
-            {
-                Assemblies = results.Assemblies.Select(a => a.FullName),
-                results.ErrorsThrownDuringScanning,
-                results.SkippedFiles
-            });
-
-            return results.Types;
         }
 
         static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class

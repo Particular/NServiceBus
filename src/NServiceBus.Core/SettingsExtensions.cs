@@ -15,7 +15,7 @@ namespace NServiceBus
         public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<IList<Type>>("TypesToScan");
+            return settings.Get<AssemblyScanningComponent.Configuration>().AvailableTypes;
         }
 
         /// <summary>
