@@ -62,7 +62,7 @@
         // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
         // See the test When_feature_overrides_hostinfo for more details.
         [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
-        public void CreateHostInformation()
+        public void CreateHostInformationForV7BackwardsCompatibility()
         {
             hostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
 
@@ -176,7 +176,7 @@
             // For more details see the test: When_feature_overrides_hostid_from_feature_default
             // When this is removed in v8 downstreams can no longer rely on the setting to always be there
             [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
-            internal void ApplyHostIdDefaultIfNeeded()
+            internal void ApplyHostIdDefaultIfNeededForV7BackwardsCompatibility()
             {
                 if (settings.HasExplicitValue(HostIdSettingsKey))
                 {
