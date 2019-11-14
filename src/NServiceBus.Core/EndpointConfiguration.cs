@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Transactions;
     using Configuration.AdvancedExtensibility;
     using Container;
@@ -111,6 +113,12 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(builder), builder);
 
             ContainerComponent.UseContainer(builder);
+        }
+
+        //This needs to be here since we have downstreams that use reflection to access this property
+        internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
+        {
+            Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = typesToScan.ToList();
         }
 
         internal ContainerComponent ContainerComponent;
