@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
@@ -43,7 +42,7 @@ namespace NServiceBus
                     propertyType,
                     null);
 
-                foreach (var customAttribute in prop.GetCustomAttributes(true))
+                foreach (var customAttribute in prop.GetCustomAttributesData())
                 {
                     AddCustomAttributeToProperty(customAttribute, propBuilder);
                 }
@@ -93,85 +92,31 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Given a custom attribute and property builder, adds an instance of custom attribute
+        /// Given a custom attribute and property builder, adds an instance of the custom attribute
         /// to the property builder
         /// </summary>
-        void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
+        static void AddCustomAttributeToProperty(CustomAttributeData attributeData, PropertyBuilder propBuilder)
         {
-            var customAttributeBuilder = BuildCustomAttribute(customAttribute);
-            if (customAttributeBuilder != null)
-            {
-                propBuilder.SetCustomAttribute(customAttributeBuilder);
-            }
-        }
+            var namedArguments = attributeData.NamedArguments;
 
-        static CustomAttributeBuilder BuildCustomAttribute(object customAttribute)
-        {
-            ConstructorInfo longestCtor = null;
-            // Get constructor with the largest number of parameters
-            foreach (var cInfo in customAttribute.GetType().GetConstructors().
-                Where(cInfo => longestCtor == null || longestCtor.GetParameters().Length < cInfo.GetParameters().Length))
+            if (namedArguments == null)
             {
-                longestCtor = cInfo;
-            }
+                var attributeBuilder = new CustomAttributeBuilder(
+                    attributeData.Constructor,
+                    attributeData.ConstructorArguments.Select(x => x.Value).ToArray());
 
-            if (longestCtor == null)
-            {
-                return null;
+                propBuilder.SetCustomAttribute(attributeBuilder);
             }
+            else
+            {
+                var attributeBuilder = new CustomAttributeBuilder(
+                    attributeData.Constructor,
+                    attributeData.ConstructorArguments.Select(x => x.Value).ToArray(),
+                    namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray(),
+                    namedArguments.Select(x => x.TypedValue.Value).ToArray());
 
-            // For each constructor parameter, get corresponding (by name similarity) property and get its value
-            var args = new object[longestCtor.GetParameters().Length];
-            var position = 0;
-            foreach (var consParamInfo in longestCtor.GetParameters())
-            {
-                var attrPropInfo = customAttribute.GetType().GetProperty(consParamInfo.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                if (attrPropInfo != null)
-                {
-                    args[position] = attrPropInfo.GetValue(customAttribute, null);
-                }
-                else
-                {
-                    args[position] = null;
-                    var attrFieldInfo = customAttribute.GetType().GetField(consParamInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                    if (attrFieldInfo == null)
-                    {
-                        if (consParamInfo.ParameterType.IsValueType)
-                        {
-                            args[position] = Activator.CreateInstance(consParamInfo.ParameterType);
-                        }
-                    }
-                    else
-                    {
-                        args[position] = attrFieldInfo.GetValue(customAttribute);
-                    }
-                }
-                ++position;
+                propBuilder.SetCustomAttribute(attributeBuilder);
             }
-
-            var propList = new List<PropertyInfo>();
-            var propValueList = new List<object>();
-            foreach (var attrPropInfo in customAttribute.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (!attrPropInfo.CanWrite)
-                {
-                    continue;
-                }
-                object defaultValue = null;
-                var defaultValueAttribute = attrPropInfo.GetCustomAttribute<DefaultValueAttribute>(true);
-                if (defaultValueAttribute != null)
-                {
-                    defaultValue = defaultValueAttribute.Value;
-                }
-                var value = attrPropInfo.GetValue(customAttribute, null);
-                if (value == defaultValue)
-                {
-                    continue;
-                }
-                propList.Add(attrPropInfo);
-                propValueList.Add(value);
-            }
-            return new CustomAttributeBuilder(longestCtor, args, propList.ToArray(), propValueList.ToArray());
         }
 
         /// <summary>
