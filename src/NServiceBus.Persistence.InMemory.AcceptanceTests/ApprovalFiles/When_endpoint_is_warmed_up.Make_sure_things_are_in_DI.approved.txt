@@ -3,6 +3,7 @@ NServiceBus.StorageInitializer+CallInit - SingleInstance
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
+NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
 NServiceBus.CriticalError - SingleInstance
 NServiceBus.Hosting.HostInformation - SingleInstance
@@ -15,4 +16,3 @@ NServiceBus.Notifications - SingleInstance
 NServiceBus.ObjectBuilder.IBuilder - SingleInstance
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
 NServiceBus.Settings.ReadOnlySettings - SingleInstance
-NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
