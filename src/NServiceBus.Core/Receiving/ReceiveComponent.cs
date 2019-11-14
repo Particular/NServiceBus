@@ -275,9 +275,9 @@ namespace NServiceBus
 
             public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrDefault<MessageHandlerRegistry>();
 
-            const string ExecuteTheseHandlersFirstSettingKey = "NServiceBus.ExecuteTheseHandlersFirst";
-
             readonly SettingsHolder settings;
+
+            const string ExecuteTheseHandlersFirstSettingKey = "NServiceBus.ExecuteTheseHandlersFirst";
         }
 
         ReceiveConfiguration transportReceiveConfiguration;
