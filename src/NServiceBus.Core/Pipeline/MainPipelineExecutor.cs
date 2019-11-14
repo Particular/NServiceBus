@@ -8,11 +8,12 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, MessageOperations messageOperations)
+        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification)
         {
             this.builder = builder;
             this.pipelineComponent = pipelineComponent;
             this.messageOperations = messageOperations;
+            this.receivePipelineNotification = receivePipelineNotification;
         }
 
         public async Task Invoke(MessageContext messageContext)
@@ -41,12 +42,13 @@ namespace NServiceBus
                     throw;
                 }
 
-                await transportReceiveContext.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
+                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
         }
 
         readonly IBuilder builder;
         readonly PipelineComponent pipelineComponent;
         readonly MessageOperations messageOperations;
+        readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
     }
 }

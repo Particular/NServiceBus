@@ -42,7 +42,15 @@ namespace NServiceBus
 
             var pushRuntimeSettings = GetDequeueLimitations(settings);
 
-            return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup);
+            return new ReceiveConfiguration(
+                logicalAddress, 
+                queueNameBase, 
+                localAddress, 
+                instanceSpecificQueue,
+                transactionMode, 
+                pushRuntimeSettings, 
+                purgeOnStartup, 
+                settings.GetOrDefault<Notification<ReceivePipelineCompleted>>() ?? new Notification<ReceivePipelineCompleted>());
         }
 
         static PushRuntimeSettings GetDequeueLimitations(ReadOnlySettings settings)

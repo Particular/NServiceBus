@@ -14,7 +14,8 @@
             string instanceSpecificQueue,
             TransportTransactionMode transactionMode,
             PushRuntimeSettings pushRuntimeSettings,
-            bool purgeOnStartup)
+            bool purgeOnStartup,
+            Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers)
         {
             LogicalAddress = logicalAddress;
             QueueNameBase = queueNameBase;
@@ -23,6 +24,7 @@
             TransactionMode = transactionMode;
             PushRuntimeSettings = pushRuntimeSettings;
             PurgeOnStartup = purgeOnStartup;
+            PipelineCompletedSubscribers = pipelineCompletedSubscribers;
 
             satelliteDefinitions = new List<SatelliteDefinition>();
         }
@@ -42,6 +44,8 @@
         public IReadOnlyList<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
 
         public bool PurgeOnStartup { get; }
+
+        public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers;
 
         public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {

@@ -18,7 +18,9 @@
         public RecoverabilityComponent(SettingsHolder settings)
         {
             this.settings = settings;
-
+            var configuration = settings.Get<Configuration>();
+            MessageRetryNotification = configuration.MessageRetryNotification;
+            MessageFaultedNotification = configuration.MessageFaultedNotification;
             settings.SetDefault(NumberOfDelayedRetries, DefaultNumberOfRetries);
             settings.SetDefault(DelayedRetriesTimeIncrease, DefaultTimeIncrease);
             settings.SetDefault(NumberOfImmediateRetries, 5);
@@ -74,20 +76,20 @@
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
         {
             var delayedRetriesAvailable = transactionsOn
-                                         && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
+                                          && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
 
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
             {
                 var staticFaultMetadata = new Dictionary<string, string>
-                    {
-                        {FaultsHeaderKeys.FailedQ, localAddress},
-                        {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
-                        {Headers.ProcessingEndpoint, settings.EndpointName()},
-                        {Headers.HostId, hostInformation.HostId.ToString("N")},
-                        {Headers.HostDisplayName, hostInformation.DisplayName}
-                    };
+                {
+                    {FaultsHeaderKeys.FailedQ, localAddress},
+                    {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
+                    {Headers.ProcessingEndpoint, settings.EndpointName()},
+                    {Headers.HostId, hostInformation.HostId.ToString("N")},
+                    {Headers.HostDisplayName, hostInformation.DisplayName}
+                };
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
@@ -120,7 +122,9 @@
                 delayedRetryExecutorFactory,
                 moveToErrorsExecutorFactory,
                 immediateRetriesAvailable,
-                delayedRetriesAvailable);
+                delayedRetriesAvailable,
+                MessageRetryNotification,
+                MessageFaultedNotification);
         }
 
         ImmediateConfig GetImmediateRetryConfig()
@@ -156,9 +160,8 @@
         void WireUpLegacyNotifications()
         {
             var legacyNotifications = settings.Get<Notifications>();
-            var notifications = settings.Get<NotificationSubscriptions>();
 
-            notifications.Subscribe<MessageToBeRetried>(e =>
+            MessageRetryNotification.Subscribe(e =>
             {
                 if (e.IsImmediateRetry)
                 {
@@ -172,12 +175,21 @@
                 return TaskEx.CompletedTask;
             });
 
-            notifications.Subscribe<MessageFaulted>(e =>
+            MessageFaultedNotification.Subscribe(e =>
             {
                 legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception, e.ErrorQueue);
                 return TaskEx.CompletedTask;
             });
         }
+
+        public Notification<MessageToBeRetried> MessageRetryNotification;
+        public Notification<MessageFaulted> MessageFaultedNotification;
+
+        ReadOnlySettings settings;
+        bool transactionsOn;
+        RecoverabilityConfig recoverabilityConfig;
+        RecoverabilityExecutorFactory recoverabilityExecutorFactory;
+        HostInformation hostInformation;
 
         public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
         public const string DelayedRetriesTimeIncrease = "Recoverability.Delayed.DefaultPolicy.Timespan";
@@ -186,14 +198,14 @@
         public const string PolicyOverride = "Recoverability.CustomPolicy";
         public const string UnrecoverableExceptions = "Recoverability.UnrecoverableExceptions";
 
-        ReadOnlySettings settings;
-        bool transactionsOn;
-        RecoverabilityConfig recoverabilityConfig;
-        RecoverabilityExecutorFactory recoverabilityExecutorFactory;
-        HostInformation hostInformation;
-
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
         static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
+
+        public class Configuration
+        {
+            public Notification<MessageToBeRetried> MessageRetryNotification { get; } = new Notification<MessageToBeRetried>();
+            public Notification<MessageFaulted> MessageFaultedNotification { get; } = new Notification<MessageFaulted>();
+        }
     }
 }

@@ -112,7 +112,7 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration, recoverabilityComponent);
 
             featureComponent.Initalize(featureConfigurationContext);
 
@@ -125,15 +125,12 @@ namespace NServiceBus
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-            var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-            pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
             receiveComponent = ReceiveComponent.Initialize(
                 settings.Get<ReceiveComponent.Configuration>(),
                 receiveConfiguration,
                 transportComponent,
                 pipelineComponent,
-                eventAggregator,
                 settings.ErrorQueueAddress(),
                 hostingComponent,
                 pipelineSettings,

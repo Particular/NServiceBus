@@ -18,27 +18,27 @@ namespace NServiceBus
         ReceiveComponent(ReceiveConfiguration transportReceiveConfiguration,
             Func<IPushMessages> messagePumpFactory,
             PipelineComponent pipeline,
-            IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
         {
             this.transportReceiveConfiguration = transportReceiveConfiguration;
             this.messagePumpFactory = messagePumpFactory;
             this.pipeline = pipeline;
-            this.eventAggregator = eventAggregator;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
         }
+
+        bool IsSendOnly => transportReceiveConfiguration == null;
 
         public static ReceiveComponent Initialize(Configuration configuration,
             ReceiveConfiguration transportReceiveConfiguration,
             TransportComponent transportComponent,
             PipelineComponent pipeline,
-            EventAggregator eventAggregator,
             string errorQueue,
             HostingComponent hostingComponent,
             PipelineSettings pipelineSettings,
             ContainerComponent container)
+
         {
             Func<IPushMessages> messagePumpFactory = null;
 
@@ -51,7 +51,6 @@ namespace NServiceBus
             var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
                 messagePumpFactory,
                 pipeline,
-                eventAggregator,
                 hostingComponent.CriticalError,
                 errorQueue);
 
@@ -113,7 +112,7 @@ namespace NServiceBus
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline, messageOperations);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline, messageOperations, transportReceiveConfiguration.PipelineCompletedSubscribers);
 
             if (transportReceiveConfiguration.PurgeOnStartup)
             {
@@ -164,8 +163,6 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        bool IsSendOnly => transportReceiveConfiguration == null;
-
         void BindQueues(QueueBindings queueBindings)
         {
             if (IsSendOnly)
@@ -190,7 +187,7 @@ namespace NServiceBus
         {
             var requiredTransactionSupport = transportReceiveConfiguration.TransactionMode;
 
-            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, transportReceiveConfiguration.LocalAddress);
+            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(transportReceiveConfiguration.LocalAddress);
             var pushSettings = new PushSettings(transportReceiveConfiguration.LocalAddress, errorQueue, transportReceiveConfiguration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = transportReceiveConfiguration.PushRuntimeSettings;
 
@@ -199,7 +196,7 @@ namespace NServiceBus
             if (transportReceiveConfiguration.InstanceSpecificQueue != null)
             {
                 var instanceSpecificQueue = transportReceiveConfiguration.InstanceSpecificQueue;
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, transportReceiveConfiguration.PurgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
@@ -207,7 +204,7 @@ namespace NServiceBus
 
             foreach (var satellitePipeline in transportReceiveConfiguration.SatelliteDefinitions)
             {
-                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
+                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, transportReceiveConfiguration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
                 receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
@@ -259,6 +256,19 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
+        ReceiveConfiguration transportReceiveConfiguration;
+        List<TransportReceiver> receivers = new List<TransportReceiver>();
+        Func<IPushMessages> messagePumpFactory;
+        PipelineComponent pipeline;
+        IPipelineExecutor mainPipelineExecutor;
+        CriticalError criticalError;
+        string errorQueue;
+
+        const string MainReceiverId = "Main";
+
+        static Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+
         public class Configuration
         {
             public Configuration(SettingsHolder settings)
@@ -274,19 +284,5 @@ namespace NServiceBus
 
             const string ExecuteTheseHandlersFirstSettingKey = "NServiceBus.ExecuteTheseHandlersFirst";
         }
-
-        ReceiveConfiguration transportReceiveConfiguration;
-        List<TransportReceiver> receivers = new List<TransportReceiver>();
-        Func<IPushMessages> messagePumpFactory;
-        PipelineComponent pipeline;
-        IPipelineExecutor mainPipelineExecutor;
-        readonly IEventAggregator eventAggregator;
-        CriticalError criticalError;
-        string errorQueue;
-
-        const string MainReceiverId = "Main";
-
-        static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
     }
 }
