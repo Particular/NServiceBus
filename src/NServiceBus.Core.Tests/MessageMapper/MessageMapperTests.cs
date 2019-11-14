@@ -47,7 +47,7 @@
         }
 
         [Test]
-        public void MessageWithDodgyNullable()
+        public void Should_handle_messages_with_nullable_reference_types()
         {
             var mapper = new MessageMapper();
 
