@@ -16,6 +16,12 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
+  <!-- Workaround reference because we can't use nullable reference types yet -->
+  <ItemGroup>
+    <Reference Include="WithDodgyNullable" HintPath="TestDlls\WithDodgyNullable.dll" />
+  </ItemGroup>
+  <!-- End workaround -->
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Mono.Cecil" Version="0.10.4" />
@@ -29,12 +35,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="11.1.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="WithDodgyNullable">
-      <HintPath>TestDlls\WithDodgyNullable.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
