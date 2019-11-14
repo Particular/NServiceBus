@@ -42,7 +42,10 @@ namespace NServiceBus
                     propertyType,
                     null);
 
-                AddCustomAttributeToProperty(prop, propBuilder);
+                foreach (var customAttribute in prop.GetCustomAttributesData())
+                {
+                    AddCustomAttributeToProperty(customAttribute, propBuilder);
+                }
 
                 var getMethodBuilder = typeBuilder.DefineMethod(
                     "get_" + prop.Name,
@@ -89,34 +92,32 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Given a custom attribute and property builder, adds an instance of custom attribute
+        /// Given a custom attribute and property builder, adds an instance of the custom attribute
         /// to the property builder
         /// </summary>
-        static void AddCustomAttributeToProperty(PropertyInfo prop, PropertyBuilder propBuilder)
+        static void AddCustomAttributeToProperty(CustomAttributeData attributeData, PropertyBuilder propBuilder)
         {
-            var customAttributesData = prop.GetCustomAttributesData();
-            foreach (var attributeData in customAttributesData)
+            var namedArguments = attributeData.NamedArguments;
+
+            if (namedArguments == null)
             {
-                var namedArguments = attributeData.NamedArguments;
-                if (namedArguments == null)
-                {
-                    var attributeBuilder = new CustomAttributeBuilder(
-                        attributeData.Constructor,
-                        attributeData.ConstructorArguments.Select(x => x.Value).ToArray());
-                    propBuilder.SetCustomAttribute(attributeBuilder);
-                }
-                else
-                {
-                    var attributeBuilder = new CustomAttributeBuilder(
-                        attributeData.Constructor,
-                        attributeData.ConstructorArguments.Select(x => x.Value).ToArray(),
-                        namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray(),
-                        namedArguments.Select(x => x.TypedValue.Value).ToArray());
-                    propBuilder.SetCustomAttribute(attributeBuilder);
-                }
+                var attributeBuilder = new CustomAttributeBuilder(
+                    attributeData.Constructor,
+                    attributeData.ConstructorArguments.Select(x => x.Value).ToArray());
+
+                propBuilder.SetCustomAttribute(attributeBuilder);
+            }
+            else
+            {
+                var attributeBuilder = new CustomAttributeBuilder(
+                    attributeData.Constructor,
+                    attributeData.ConstructorArguments.Select(x => x.Value).ToArray(),
+                    namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray(),
+                    namedArguments.Select(x => x.TypedValue.Value).ToArray());
+
+                propBuilder.SetCustomAttribute(attributeBuilder);
             }
         }
-
 
         /// <summary>
         /// Returns all properties on the given type, going up the inheritance hierarchy.
