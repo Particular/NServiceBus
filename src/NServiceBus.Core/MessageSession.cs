@@ -8,38 +8,40 @@ namespace NServiceBus
         public MessageSession(RootContext context)
         {
             this.context = context;
+            messageOperations = context.Get<MessageOperations>();
         }
 
         public Task Send(object message, SendOptions options)
         {
-            return MessageOperations.Send(context, message, options);
+            return messageOperations.Send(context, message, options);
         }
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return MessageOperations.Send(context, messageConstructor, options);
+            return messageOperations.Send(context, messageConstructor, options);
         }
 
         public Task Publish(object message, PublishOptions options)
         {
-            return MessageOperations.Publish(context, message, options);
+            return messageOperations.Publish(context, message, options);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return MessageOperations.Publish(context, messageConstructor, publishOptions);
+            return messageOperations.Publish(context, messageConstructor, publishOptions);
         }
 
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return MessageOperations.Subscribe(context, eventType, options);
+            return messageOperations.Subscribe(context, eventType, options);
         }
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return MessageOperations.Unsubscribe(context, eventType, options);
+            return messageOperations.Unsubscribe(context, eventType, options);
         }
 
         RootContext context;
+        MessageOperations messageOperations;
     }
 }

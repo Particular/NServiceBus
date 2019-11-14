@@ -16,6 +16,7 @@ namespace NServiceBus
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
+            SendComponent sendComponent,
             IBuilder builder)
         {
             this.settings = settings;
@@ -26,6 +27,7 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
+            this.sendComponent = sendComponent;
             this.builder = builder;
         }
 
@@ -33,13 +35,14 @@ namespace NServiceBus
         {
             await pipelineComponent.Start(builder).ConfigureAwait(false);
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
+            var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, messageOperations));
 
             await transportComponent.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations).ConfigureAwait(false);
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
@@ -52,14 +55,15 @@ namespace NServiceBus
             return runningInstance;
         }
 
-        PipelineComponent pipelineComponent;
-        RecoverabilityComponent recoverabilityComponent;
-        HostingComponent hostingComponent;
-        IBuilder builder;
-        ContainerComponent containerComponent;
-        FeatureComponent featureComponent;
-        SettingsHolder settings;
-        TransportComponent transportComponent;
-        ReceiveComponent receiveComponent;
+        readonly PipelineComponent pipelineComponent;
+        readonly RecoverabilityComponent recoverabilityComponent;
+        readonly HostingComponent hostingComponent;
+        readonly SendComponent sendComponent;
+        readonly IBuilder builder;
+        readonly ContainerComponent containerComponent;
+        readonly FeatureComponent featureComponent;
+        readonly SettingsHolder settings;
+        readonly TransportComponent transportComponent;
+        readonly ReceiveComponent receiveComponent;
     }
 }

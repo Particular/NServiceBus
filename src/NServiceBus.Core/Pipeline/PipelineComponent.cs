@@ -29,6 +29,11 @@ namespace NServiceBus
             return new PipelineComponent(modifications);
         }
 
+        public Pipeline<T> CreatePipeline<T>(IBuilder builder) where T : IBehaviorContext
+        {
+            return new Pipeline<T>(builder, modifications);
+        }
+
         public Task Start(IBuilder rootBuilder)
         {
             rootContextExtensions.Set<IPipelineCache>(new PipelineCache(rootBuilder, modifications));
@@ -40,9 +45,9 @@ namespace NServiceBus
             rootContextExtensions.Set(item);
         }
 
-        public RootContext CreateRootContext(IBuilder scopedBuilder, ContextBag extensions = null)
+        public RootContext CreateRootContext(IBuilder scopedBuilder, MessageOperations messageOperations, ContextBag extensions = null)
         {
-            var context = new RootContext(scopedBuilder);
+            var context = new RootContext(scopedBuilder, messageOperations);
 
             context.Extensions.Merge(rootContextExtensions);
 

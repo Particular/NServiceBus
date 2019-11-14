@@ -1,9 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
-    using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Pipeline;
@@ -12,13 +9,29 @@
     [TestFixture]
     public class MessageOperationsTests
     {
+        MessageOperations CreateMessageOperations(
+            FakePipeline<IOutgoingPublishContext> publishPipeline = null,
+            FakePipeline<IOutgoingSendContext> sendPipeline = null,
+            FakePipeline<IOutgoingReplyContext> replyPipeline = null,
+            FakePipeline<ISubscribeContext> subscribePipeline = null,
+            FakePipeline<IUnsubscribeContext> subscribeContext = null)
+        {
+            return new MessageOperations(
+                new MessageMapper(),
+                publishPipeline ?? new FakePipeline<IOutgoingPublishContext>(),
+                sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
+                replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
+                subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
+                subscribeContext ?? new FakePipeline<IUnsubscribeContext>());
+        }
+
         [Test]
         public void When_sending_message_interface_should_set_interface_as_message_type()
         {
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
-            var context = CreateContext(sendPipeline);
+            var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            MessageOperations.Send<IMyMessage>(context, m => { }, new SendOptions());
+            messageOperations.Send<IMyMessage>(new RootContext(null, messageOperations), m => { }, new SendOptions());
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -27,9 +40,9 @@
         public void When_sending_message_class_should_set_class_as_message_type()
         {
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
-            var context = CreateContext(sendPipeline);
+            var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            MessageOperations.Send<MyMessage>(context, m => { }, new SendOptions());
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, new SendOptions());
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -38,9 +51,9 @@
         public void When_sending_should_generate_message_id_and_set_message_id_header()
         {
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
-            var context = CreateContext(sendPipeline);
+            var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            MessageOperations.Send<MyMessage>(context, m => { }, new SendOptions());
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, new SendOptions());
 
             var messageId = sendPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -53,11 +66,11 @@
             const string expectedMessageID = "expected message id";
 
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
-            var context = CreateContext(sendPipeline);
+            var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
+
             var sendOptions = new SendOptions();
             sendOptions.SetMessageId(expectedMessageID);
-
-            MessageOperations.Send<MyMessage>(context, m => { }, sendOptions);
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, sendOptions);
 
             Assert.AreEqual(expectedMessageID, sendPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, sendPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -67,11 +80,11 @@
         public void When_sending_should_clone_headers()
         {
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
-            var context = CreateContext(sendPipeline);
+            var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
+
             var sendOptions = new SendOptions();
             sendOptions.SetHeader("header1", "header1 value");
-
-            MessageOperations.Send<MyMessage>(context, m => { }, sendOptions);
+            messageOperations.Send<MyMessage>(new RootContext(null, messageOperations), m => { }, sendOptions);
             sendPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             sendPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
@@ -84,9 +97,9 @@
         public void When_replying_message_interface_should_set_interface_as_message_type()
         {
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
-            var context = CreateContext(replyPipeline);
+            var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            MessageOperations.Reply<IMyMessage>(context, m => { }, new ReplyOptions());
+            messageOperations.Reply<IMyMessage>(new RootContext(null, messageOperations), m => { }, new ReplyOptions());
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -95,9 +108,9 @@
         public void When_replying_message_class_should_set_class_as_message_type()
         {
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
-            var context = CreateContext(replyPipeline);
+            var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            MessageOperations.Reply<MyMessage>(context, m => { }, new ReplyOptions());
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, new ReplyOptions());
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -106,9 +119,9 @@
         public void When_replying_should_generate_message_id_and_set_message_id_header()
         {
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
-            var context = CreateContext(replyPipeline);
+            var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            MessageOperations.Reply<MyMessage>(context, m => { }, new ReplyOptions());
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, new ReplyOptions());
 
             var messageId = replyPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -121,11 +134,11 @@
             const string expectedMessageID = "expected message id";
 
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
-            var context = CreateContext(replyPipeline);
+            var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
+
             var replyOptions = new ReplyOptions();
             replyOptions.SetMessageId(expectedMessageID);
-
-            MessageOperations.Reply<MyMessage>(context, m => { }, replyOptions);
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, replyOptions);
 
             Assert.AreEqual(expectedMessageID, replyPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, replyPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -135,11 +148,11 @@
         public void When_replying_should_clone_headers()
         {
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
-            var context = CreateContext(replyPipeline);
+            var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
+
             var replyOptions = new ReplyOptions();
             replyOptions.SetHeader("header1", "header1 value");
-
-            MessageOperations.Reply<MyMessage>(context, m => { }, replyOptions);
+            messageOperations.Reply<MyMessage>(new RootContext(null, messageOperations), m => { }, replyOptions);
             replyPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             replyPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
@@ -152,9 +165,9 @@
         public void When_publishing_event_interface_should_set_interface_as_message_type()
         {
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
-            var context = CreateContext(publishPipeline);
+            var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            MessageOperations.Publish<IMyMessage>(context, m => { }, new PublishOptions());
+            messageOperations.Publish<IMyMessage>(new RootContext(null, messageOperations), m => { }, new PublishOptions());
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -163,9 +176,9 @@
         public void When_publishing_event_class_should_set_class_as_message_type()
         {
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
-            var context = CreateContext(publishPipeline);
+            var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            MessageOperations.Publish<MyMessage>(context, m => { }, new PublishOptions());
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, new PublishOptions());
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -174,9 +187,9 @@
         public void When_publishing_should_generate_message_id_and_set_message_id_header()
         {
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
-            var context = CreateContext(publishPipeline);
+            var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            MessageOperations.Publish<MyMessage>(context, m => { }, new PublishOptions());
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, new PublishOptions());
 
             var messageId = publishPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -189,11 +202,11 @@
             const string expectedMessageID = "expected message id";
 
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
-            var context = CreateContext(publishPipeline);
+            var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
+
             var publishOptions = new PublishOptions();
             publishOptions.SetMessageId(expectedMessageID);
-
-            MessageOperations.Publish<MyMessage>(context, m => { }, publishOptions);
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, publishOptions);
 
             Assert.AreEqual(expectedMessageID, publishPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, publishPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -203,30 +216,17 @@
         public void When_publishing_should_clone_headers()
         {
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
-            var context = CreateContext(publishPipeline);
+            var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
+
             var publishOptions = new PublishOptions();
             publishOptions.SetHeader("header1", "header1 value");
-
-            MessageOperations.Publish<MyMessage>(context, m => { }, publishOptions);
+            messageOperations.Publish<MyMessage>(new RootContext(null, messageOperations), m => { }, publishOptions);
             publishPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             publishPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
             var optionsHeaders = publishOptions.GetHeaders();
             Assert.AreEqual(1, optionsHeaders.Count);
             Assert.AreEqual("header1 value", optionsHeaders["header1"]);
-        }
-
-        IBehaviorContext CreateContext<TContext>(IPipeline<TContext> pipeline) where TContext : IBehaviorContext
-        {
-            var pipelineCache = new FakePipelineCache();
-            pipelineCache.RegisterPipeline(pipeline);
-
-            var context = new TestableMessageHandlerContext();
-
-            context.Extensions.Set<IMessageMapper>(new MessageMapper());
-            context.Extensions.Set<IPipelineCache>(pipelineCache);
-
-            return context;
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -236,21 +236,6 @@
 
         class MyMessage
         {
-        }
-
-        class FakePipelineCache : IPipelineCache
-        {
-            Dictionary<Type, object> pipelines = new Dictionary<Type, object>();
-
-            public void RegisterPipeline<TContext>(IPipeline<TContext> pipeline) where TContext : IBehaviorContext
-            {
-                pipelines.Add(typeof(TContext), pipeline);
-            }
-
-            public IPipeline<TContext> Pipeline<TContext>() where TContext : IBehaviorContext
-            {
-                return pipelines[typeof(TContext)] as IPipeline<TContext>;
-            }
         }
 
         class FakePipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext

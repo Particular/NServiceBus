@@ -4,8 +4,9 @@ namespace NServiceBus
 
     class RootContext : BehaviorContext
     {
-        public RootContext(IBuilder builder) : base(null)
+        public RootContext(IBuilder builder, MessageOperations messageOperations) : base(null)
         {
+            Set(messageOperations);
             Set(builder);
         }
     }

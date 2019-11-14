@@ -13,6 +13,7 @@ namespace NServiceBus
             MessageId = messageId;
             ReplyToAddress = replyToAddress;
             MessageHeaders = headers;
+            messageOperations = parentContext.Extensions.Get<MessageOperations>();
         }
 
         public string MessageId { get; }
@@ -21,34 +22,36 @@ namespace NServiceBus
 
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
 
+        MessageOperations messageOperations;
+
         public Task Send(object message, SendOptions options)
         {
-            return MessageOperations.Send(this, message, options);
+            return messageOperations.Send(this, message, options);
         }
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return MessageOperations.Send(this, messageConstructor, options);
+            return messageOperations.Send(this, messageConstructor, options);
         }
 
         public Task Publish(object message, PublishOptions options)
         {
-            return MessageOperations.Publish(this, message, options);
+            return messageOperations.Publish(this, message, options);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return MessageOperations.Publish(this, messageConstructor, publishOptions);
+            return messageOperations.Publish(this, messageConstructor, publishOptions);
         }
 
         public Task Reply(object message, ReplyOptions options)
         {
-            return MessageOperations.Reply(this, message, options);
+            return messageOperations.Reply(this, message, options);
         }
 
         public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
-            return MessageOperations.Reply(this, messageConstructor, options);
+            return messageOperations.Reply(this, messageConstructor, options);
         }
 
         public Task ForwardCurrentMessageTo(string destination)
@@ -58,12 +61,12 @@ namespace NServiceBus
 
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return MessageOperations.Subscribe(this, eventType, options);
+            return messageOperations.Subscribe(this, eventType, options);
         }
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return MessageOperations.Unsubscribe(this, eventType, options);
+            return messageOperations.Unsubscribe(this, eventType, options);
         }
     }
 }

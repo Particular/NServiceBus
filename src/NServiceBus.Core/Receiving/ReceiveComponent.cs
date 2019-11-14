@@ -98,14 +98,14 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent)
+        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent, MessageOperations messageOperations)
         {
             if (IsSendOnly)
             {
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline, messageOperations);
 
             if (configuration.PurgeOnStartup)
             {

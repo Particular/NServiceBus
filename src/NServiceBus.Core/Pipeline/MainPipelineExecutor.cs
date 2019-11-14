@@ -8,10 +8,11 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent)
+        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, MessageOperations messageOperations)
         {
             this.builder = builder;
             this.pipelineComponent = pipelineComponent;
+            this.messageOperations = messageOperations;
         }
 
         public async Task Invoke(MessageContext messageContext)
@@ -22,7 +23,7 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageContext.Extensions);
+                var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageOperations, messageContext.Extensions);
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
                 try
@@ -46,5 +47,6 @@ namespace NServiceBus
 
         readonly IBuilder builder;
         readonly PipelineComponent pipelineComponent;
+        readonly MessageOperations messageOperations;
     }
 }
