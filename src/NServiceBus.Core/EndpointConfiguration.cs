@@ -30,6 +30,7 @@ namespace NServiceBus
             Settings.Set(new HostingComponent.Configuration(Settings));
             Settings.Set(new TransportComponent.Configuration(Settings));
             Settings.Set(new RoutingComponent.Configuration(Settings));
+            Settings.Set(new ReceiveComponent.Configuration(Settings));
             Settings.Set(Pipeline = new PipelineSettings(Settings));
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);

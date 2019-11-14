@@ -9,19 +9,20 @@ namespace NServiceBus
     using Outbox;
     using Persistence;
     using Pipeline;
+    using Settings;
     using Transport;
     using Unicast;
 
     class ReceiveComponent
     {
-        ReceiveComponent(ReceiveConfiguration configuration,
+        ReceiveComponent(ReceiveConfiguration transportReceiveConfiguration,
             Func<IPushMessages> messagePumpFactory,
             PipelineComponent pipeline,
             IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
         {
-            this.configuration = configuration;
+            this.transportReceiveConfiguration = transportReceiveConfiguration;
             this.messagePumpFactory = messagePumpFactory;
             this.pipeline = pipeline;
             this.eventAggregator = eventAggregator;
@@ -29,7 +30,8 @@ namespace NServiceBus
             this.errorQueue = errorQueue;
         }
 
-        public static ReceiveComponent Initialize(ReceiveConfiguration receiveConfiguration,
+        public static ReceiveComponent Initialize(Configuration configuration,
+            ReceiveConfiguration transportReceiveConfiguration,
             TransportComponent transportComponent,
             PipelineComponent pipeline,
             EventAggregator eventAggregator,
@@ -37,17 +39,16 @@ namespace NServiceBus
             HostingComponent hostingComponent,
             PipelineSettings pipelineSettings,
             ContainerComponent container)
-            
         {
             Func<IPushMessages> messagePumpFactory = null;
 
             //we don't need the message pump factory for send-only endpoints
-            if (receiveConfiguration != null)
+            if (transportReceiveConfiguration != null)
             {
                 messagePumpFactory = transportComponent.GetMessagePumpFactory();
             }
 
-            var receiveComponent = new ReceiveComponent(receiveConfiguration,
+            var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
                 messagePumpFactory,
                 pipeline,
                 eventAggregator,
@@ -74,18 +75,25 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            if (receiveConfiguration != null)
+            if (!container.ContainerConfiguration.HasComponent<MessageHandlerRegistry>())
+            {
+                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
+
+                LoadMessageHandlers(configuration, orderedHandlers, container.ContainerConfiguration, hostingComponent.AvailableTypes);
+            }
+
+            if (transportReceiveConfiguration != null)
             {
                 hostingComponent.AddStartupDiagnosticsSection("Receiving", new
                 {
-                    receiveConfiguration.LocalAddress,
-                    receiveConfiguration.InstanceSpecificQueue,
-                    receiveConfiguration.LogicalAddress,
-                    receiveConfiguration.PurgeOnStartup,
-                    receiveConfiguration.QueueNameBase,
-                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
-                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
-                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
+                    transportReceiveConfiguration.LocalAddress,
+                    transportReceiveConfiguration.InstanceSpecificQueue,
+                    transportReceiveConfiguration.LogicalAddress,
+                    transportReceiveConfiguration.PurgeOnStartup,
+                    transportReceiveConfiguration.QueueNameBase,
+                    TransactionMode = transportReceiveConfiguration.TransactionMode.ToString("G"),
+                    transportReceiveConfiguration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = transportReceiveConfiguration.SatelliteDefinitions.Select(s => new
                     {
                         s.Name,
                         s.ReceiveAddress,
@@ -107,7 +115,7 @@ namespace NServiceBus
 
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline, messageOperations);
 
-            if (configuration.PurgeOnStartup)
+            if (transportReceiveConfiguration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
@@ -156,7 +164,7 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        bool IsSendOnly => configuration == null;
+        bool IsSendOnly => transportReceiveConfiguration == null;
 
         void BindQueues(QueueBindings queueBindings)
         {
@@ -165,14 +173,14 @@ namespace NServiceBus
                 return;
             }
 
-            queueBindings.BindReceiving(configuration.LocalAddress);
+            queueBindings.BindReceiving(transportReceiveConfiguration.LocalAddress);
 
-            if (configuration.InstanceSpecificQueue != null)
+            if (transportReceiveConfiguration.InstanceSpecificQueue != null)
             {
-                queueBindings.BindReceiving(configuration.InstanceSpecificQueue);
+                queueBindings.BindReceiving(transportReceiveConfiguration.InstanceSpecificQueue);
             }
 
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
+            foreach (var satellitePipeline in transportReceiveConfiguration.SatelliteDefinitions)
             {
                 queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
             }
@@ -180,27 +188,27 @@ namespace NServiceBus
 
         void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
         {
-            var requiredTransactionSupport = configuration.TransactionMode;
+            var requiredTransactionSupport = transportReceiveConfiguration.TransactionMode;
 
-            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, configuration.LocalAddress);
-            var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
-            var dequeueLimitations = configuration.PushRuntimeSettings;
+            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, transportReceiveConfiguration.LocalAddress);
+            var pushSettings = new PushSettings(transportReceiveConfiguration.LocalAddress, errorQueue, transportReceiveConfiguration.PurgeOnStartup, requiredTransactionSupport);
+            var dequeueLimitations = transportReceiveConfiguration.PushRuntimeSettings;
 
             receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
 
-            if (configuration.InstanceSpecificQueue != null)
+            if (transportReceiveConfiguration.InstanceSpecificQueue != null)
             {
-                var instanceSpecificQueue = configuration.InstanceSpecificQueue;
+                var instanceSpecificQueue = transportReceiveConfiguration.InstanceSpecificQueue;
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
-                var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
+                var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, transportReceiveConfiguration.PurgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }
 
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
+            foreach (var satellitePipeline in transportReceiveConfiguration.SatelliteDefinitions)
             {
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, transportReceiveConfiguration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
                 receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
@@ -211,7 +219,63 @@ namespace NServiceBus
             return messagePumpFactory();
         }
 
-        ReceiveConfiguration configuration;
+        static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
+        {
+            var types = new List<Type>(availableTypes);
+
+            foreach (var t in orderedTypes)
+            {
+                types.Remove(t);
+            }
+
+            types.InsertRange(0, orderedTypes);
+
+            ConfigureMessageHandlersIn(configuration, types, container);
+        }
+
+        static void ConfigureMessageHandlersIn(Configuration configuration, IEnumerable<Type> types, IConfigureComponents container)
+        {
+            var handlerRegistry = configuration.MessageHandlerRegistry;
+
+            foreach (var t in types.Where(IsMessageHandler))
+            {
+                container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
+                handlerRegistry.RegisterHandler(t);
+            }
+
+            container.RegisterSingleton(handlerRegistry);
+        }
+
+        public static bool IsMessageHandler(Type type)
+        {
+            if (type.IsAbstract || type.IsGenericTypeDefinition)
+            {
+                return false;
+            }
+
+            return type.GetInterfaces()
+                .Where(@interface => @interface.IsGenericType)
+                .Select(@interface => @interface.GetGenericTypeDefinition())
+                .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
+        }
+
+        public class Configuration
+        {
+            public Configuration(SettingsHolder settings)
+            {
+                this.settings = settings;
+            }
+
+            public List<Type> ExecuteTheseHandlersFirst => settings.GetOrCreate<List<Type>>();
+
+            public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
+
+            readonly SettingsHolder settings;
+
+            const string ExecuteTheseHandlersFirstSettingKey = "NServiceBus.ExecuteTheseHandlersFirst";
+        }
+
+        ReceiveConfiguration transportReceiveConfiguration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         Func<IPushMessages> messagePumpFactory;
         PipelineComponent pipeline;
@@ -222,6 +286,7 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
 
+        static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
     }
 }
