@@ -163,15 +163,11 @@
         }
 
         [Test]
-        public void Should_fail_for_interfaces_with_invalid_attributes()
+        public void Should_handle_properties_with_nullable_attributes()
         {
-            var ex = Assert.Throws<ArgumentException>(() => 
-                new MessageMapper().Initialize(new[]
-                {
-                    typeof(MessageInterfaceWithPropertyWithIllegalAttribute)
-                }));
+            var messageInstance = new MessageMapper().CreateInstance<ClassImplementingIEnumerable<string>>();
 
-            StringAssert.Contains("An invalid type was used as a custom attribute constructor argument, field or property.", ex.Message);
+            Assert.IsNotNull(messageInstance);
         }
 
         public class SampleMessageClass
@@ -236,20 +232,19 @@
         }
 
         [AttributeUsage(AttributeTargets.Property)]
-        public class IllegalAttribute : Attribute
+        public class NullablePropertyAttribute : Attribute
         {
-            // our mapper does not support custom attributes with nullable properties
             public int? IntKey { get; set; }
 
-            public IllegalAttribute(int x)
+            public NullablePropertyAttribute(int x)
             {
                 IntKey = x;
             }
         }
 
-        public interface MessageInterfaceWithPropertyWithIllegalAttribute
+        public interface MessageInterfaceWithNullablePropertyAttribute
         {
-            [Illegal(0)]
+            [NullablePropertyAttribute(0)]
             object Value { get; set; }
         }
 
