@@ -38,8 +38,7 @@ namespace NServiceBus
             string errorQueue,
             HostingComponent hostingComponent,
             PipelineSettings pipelineSettings,
-            ContainerComponent container,
-            IList<Type> availableTypes)
+            ContainerComponent container)
         {
             Func<IPushMessages> messagePumpFactory = null;
 
@@ -80,7 +79,7 @@ namespace NServiceBus
             {
                 var orderedHandlers = configuration.ExecuteTheseHandlersFirst ?? new List<Type>(0);
 
-                LoadMessageHandlers(configuration, orderedHandlers, container.ContainerConfiguration, availableTypes);
+                LoadMessageHandlers(configuration, orderedHandlers, container.ContainerConfiguration, hostingComponent.AvailableTypes);
             }
 
             if (transportReceiveConfiguration != null)
@@ -220,7 +219,7 @@ namespace NServiceBus
             return messagePumpFactory();
         }
 
-        static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, IList<Type> availableTypes)
+        static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
