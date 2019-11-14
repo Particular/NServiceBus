@@ -77,7 +77,7 @@ namespace NServiceBus
 
             if (!container.ContainerConfiguration.HasComponent<MessageHandlerRegistry>())
             {
-                var orderedHandlers = configuration.ExecuteTheseHandlersFirst ?? new List<Type>(0);
+                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
 
                 LoadMessageHandlers(configuration, orderedHandlers, container.ContainerConfiguration, hostingComponent.AvailableTypes);
             }
@@ -266,11 +266,7 @@ namespace NServiceBus
                 this.settings = settings;
             }
 
-            public List<Type> ExecuteTheseHandlersFirst
-            {
-                get => settings.GetOrDefault<List<Type>>(ExecuteTheseHandlersFirstSettingKey);
-                set => settings.Set(ExecuteTheseHandlersFirstSettingKey, value);
-            }
+            public List<Type> ExecuteTheseHandlersFirst => settings.GetOrCreate<List<Type>>();
 
             public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrDefault<MessageHandlerRegistry>();
 
