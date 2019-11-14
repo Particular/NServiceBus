@@ -4,7 +4,6 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Pipeline;
-    using Testing;
 
     [TestFixture]
     public class MessageOperationsTests
