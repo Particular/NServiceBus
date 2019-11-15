@@ -35,7 +35,7 @@ namespace NServiceBus
 
             await transportComponent.Start().ConfigureAwait(false);
             // This is a hack to maintain the current order of transport infrastructure initialization
-            transportComponent.ConfigureSendInfrastructure();
+            transportComponent.ConfigureSendInfrastructureForBackwardsCompatibility();
 
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, messageOperations));
@@ -45,7 +45,7 @@ namespace NServiceBus
             await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations).ConfigureAwait(false);
             
             // This is a hack to maintain the current order of transport infrastructure initialization
-            await transportComponent.SendPreStartupChecks().ConfigureAwait(false);
+            await transportComponent.InvokeSendPreStartupChecksForBackwardsCompatibility().ConfigureAwait(false);
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 

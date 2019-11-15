@@ -44,7 +44,7 @@
         [ObsoleteEx(
             Message = "Change transport infrastructure to configure the send infrastructure at component initialization time",
             RemoveInVersion = "8")]
-        public void ConfigureSendInfrastructure()
+        public void ConfigureSendInfrastructureForBackwardsCompatibility()
         {
             transportSendInfrastructure = transportInfrastructure.ConfigureSendInfrastructure();
         }
@@ -52,7 +52,7 @@
         [ObsoleteEx(
             Message = "Change transport infrastructure to run send pre-startup checks on component.Start",
             RemoveInVersion = "8")]
-        public async Task SendPreStartupChecks()
+        public async Task InvokeSendPreStartupChecksForBackwardsCompatibility()
         {
             var sendResult = await transportSendInfrastructure.PreStartupCheck().ConfigureAwait(false);
             if (!sendResult.Succeeded)
