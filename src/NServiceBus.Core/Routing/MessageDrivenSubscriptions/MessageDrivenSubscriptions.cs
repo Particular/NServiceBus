@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
     using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -89,6 +90,26 @@ namespace NServiceBus.Features
             {
                 context.Pipeline.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
+            }
+
+            context.Container.ConfigureComponent<CallInit>(DependencyLifecycle.SingleInstance);
+
+            context.RegisterStartupTask(b => b.Build<CallInit>());
+        }
+
+        class CallInit : FeatureStartupTask
+        {
+            public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
+
+            protected override Task OnStart(IMessageSession session)
+            {
+                SubscriptionStorage?.Init();
+                return TaskEx.CompletedTask;
+            }
+
+            protected override Task OnStop(IMessageSession session)
+            {
+                return TaskEx.CompletedTask;
             }
         }
     }
