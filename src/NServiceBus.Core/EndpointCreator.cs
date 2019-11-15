@@ -100,7 +100,12 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
-            var routingComponent = RoutingComponent.Initialize(settings.Get<RoutingComponent.Configuration>(), transportComponent, receiveConfiguration, settings.Get<Conventions>());
+            var routingComponent = RoutingComponent.Initialize(
+                settings.Get<RoutingComponent.Configuration>(),
+                transportComponent,
+                receiveConfiguration,
+                settings.Get<Conventions>(),
+                pipelineSettings);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);

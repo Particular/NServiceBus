@@ -10,14 +10,14 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
-
-            context.Pipeline.Register(
-                new ApplyReplyToAddressBehavior(
-                    context.Receiving.LocalAddress,
-                    context.Receiving.InstanceSpecificQueue,
-                    publicReturnAddress),
-                "Applies the public reply to address to outgoing messages");
+//            var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
+//
+//            context.Pipeline.Register(
+//                new ApplyReplyToAddressBehavior(
+//                    context.Receiving.LocalAddress,
+//                    context.Receiving.InstanceSpecificQueue,
+//                    publicReturnAddress),
+//                "Applies the public reply to address to outgoing messages");
         }
     }
 }
