@@ -36,8 +36,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
-            var subscriptions = Settings.Get<NotificationSubscriptions>();
-            subscriptions.Subscribe<MessageFaulted>(faulted =>
+            var subscriptions = Settings.Get<RecoverabilityComponent.Configuration>();
+            subscriptions.MessageFaultedNotification.Subscribe(faulted =>
             {
                 var headerCopy = new Dictionary<string, string>(faulted.Message.Headers);
                 var bodyCopy = faulted.Message.Body.Copy();

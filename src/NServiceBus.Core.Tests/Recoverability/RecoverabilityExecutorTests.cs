@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -14,7 +15,6 @@
         public void SetUp()
         {
             dispatcher = new FakeDispatcher();
-            eventAggregator = new FakeEventAggregator();
         }
 
         [Test]
@@ -34,8 +34,8 @@
             await executor.Invoke(errorContext); //force delayed retry
             await executor.Invoke(errorContext); //force move to errors
 
-            Assert.IsNull(eventAggregator.GetNotification<MessageFaulted>());
-            Assert.IsNull(eventAggregator.GetNotification<MessageToBeRetried>());
+            Assert.IsEmpty(messageRetriedNotifications);
+            Assert.IsEmpty(messageFaultedNotifications);
         }
 
         [Test]
@@ -46,7 +46,7 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
+            var failure = messageRetriedNotifications.Single();
 
             Assert.AreEqual(0, failure.Attempt);
             Assert.IsTrue(failure.IsImmediateRetry);
@@ -62,7 +62,7 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
+            var failure = messageRetriedNotifications.Single();
 
             Assert.AreEqual(1, failure.Attempt);
             Assert.IsFalse(failure.IsImmediateRetry);
@@ -78,7 +78,7 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = messageFaultedNotifications.Single();
 
             Assert.AreEqual("test", failure.Exception.Message);
             Assert.AreEqual("message-id", failure.Message.MessageId);
@@ -94,9 +94,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = messageFaultedNotifications.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(messageRetriedNotifications);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
@@ -110,9 +110,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = messageFaultedNotifications.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(messageRetriedNotifications);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
@@ -125,9 +125,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = messageFaultedNotifications.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(messageRetriedNotifications);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
         
@@ -141,7 +141,8 @@
             var result = await recoverabilityExecutor.Invoke(errorContext);
 
             Assert.AreEqual(ErrorHandleResult.Handled, result);
-            Assert.AreEqual(0, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(messageRetriedNotifications);
+            Assert.IsEmpty(messageFaultedNotifications);
         }
 
         [Test]
@@ -153,9 +154,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = messageFaultedNotifications.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(messageRetriedNotifications);
             Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
         }
 
@@ -166,19 +167,38 @@
 
         RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool immediateRetriesSupported = true, bool raiseNotifications = true)
         {
+            messageRetriedNotifications = new List<MessageToBeRetried>();
+            var messageRetryNotification = new Notification<MessageToBeRetried>();
+            messageRetryNotification.Subscribe(e =>
+            {
+                messageRetriedNotifications.Add(e);
+                return Task.FromResult(0);
+            });
+
+            messageFaultedNotifications = new List<MessageFaulted>();
+            var messageFaultedNotification = new Notification<MessageFaulted>();
+            messageFaultedNotification.Subscribe(e =>
+            {
+                messageFaultedNotifications.Add(e);
+                return Task.FromResult(0);
+            });
+
             return new RecoverabilityExecutor(
                 raiseNotifications,
                 immediateRetriesSupported,
                 delayedRetriesSupported,
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
-                new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }));
+                new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }),
+                messageRetryNotification,
+                messageFaultedNotification);
         }
 
         FakeDispatcher dispatcher;
-        FakeEventAggregator eventAggregator;
+
+        List<MessageToBeRetried> messageRetriedNotifications;
+        List<MessageFaulted> messageFaultedNotifications;
 
         static string ErrorQueueAddress = "error-queue";
         static string InputQueueAddress = "input-queue";

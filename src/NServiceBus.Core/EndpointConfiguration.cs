@@ -31,6 +31,7 @@ namespace NServiceBus
             Settings.Set(new TransportComponent.Configuration(Settings));
             Settings.Set(new RoutingComponent.Configuration(Settings));
             Settings.Set(new ReceiveComponent.Configuration(Settings));
+            Settings.Set(new RecoverabilityComponent.Configuration());
             Settings.Set(Pipeline = new PipelineSettings(Settings));
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
@@ -43,7 +44,6 @@ namespace NServiceBus
 
             Notifications = new Notifications();
             Settings.Set(Notifications);
-            Settings.Set(new NotificationSubscriptions());
 
             ConventionsBuilder = new ConventionsBuilder(Settings);
         }
