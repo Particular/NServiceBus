@@ -29,17 +29,23 @@ namespace NServiceBus
 
             FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
-            var containerComponent = endpointConfiguration.ContainerComponent;
+            if (settings.Get<HostingComponent.Configuration>().CustomContainer != null)
+            {
+                throw new InvalidOperationException("An internally managed container has already been configured using 'EndpointConfiguration.UseContainer'. It is not possible to use both an internally managed container and an externally managed container.");
+            }
 
-            containerComponent.InitializeWithExternallyManagedContainer(configureComponents);
+            settings.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = "external"
+            });
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), assemblyScanningComponent, configureComponents);
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            containerComponent.ContainerConfiguration.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
+            configureComponents.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
 
             endpointCreator.Initialize();
 
@@ -54,20 +60,20 @@ namespace NServiceBus
 
             FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
-            var containerComponent = endpointConfiguration.ContainerComponent;
-
-            var internalBuilder = containerComponent.InitializeWithInternallyManagedContainer();
-
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
+            var hostingConfiguration = settings.Get<HostingComponent.Configuration>();
+            var container = hostingConfiguration.CustomContainer ?? new LightInjectObjectBuilder();
+            var internalContainer = new CommonObjectBuilder(container);
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
+            internalContainer.ConfigureComponent<IBuilder>(_ => internalContainer, DependencyLifecycle.SingleInstance);
+
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), assemblyScanningComponent, internalContainer);
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent);
 
             endpointCreator.Initialize();
 
-            return endpointCreator.CreateStartableEndpoint(internalBuilder);
+            return endpointCreator.CreateStartableEndpoint(internalContainer);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)

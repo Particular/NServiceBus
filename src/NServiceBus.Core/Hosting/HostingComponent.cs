@@ -9,16 +9,23 @@
     using System.Threading.Tasks;
     using Hosting;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.ObjectBuilder.Common;
     using Settings;
     using Support;
 
     class HostingComponent
     {
-        HostingComponent(Configuration configuration, List<Type> availableTypes, ContainerComponent containerComponent)
+        HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container)
+            : this(configuration, availableTypes,container,null)
+        {
+        }
+
+        HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container, IBuilder internalBuilder)
         {
             this.configuration = configuration;
+            this.internalBuilder = internalBuilder;
             AvailableTypes = availableTypes;
-            this.containerComponent = containerComponent;
+            Container = container;
             CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
 
@@ -39,20 +46,56 @@
 
         public CriticalError CriticalError { get; }
 
-        public IConfigureComponents Container { get { return containerComponent.ContainerConfiguration; } }
+        public IConfigureComponents Container { get; private set; }
 
         public ICollection<Type> AvailableTypes { get; }
 
         public static HostingComponent Initialize(Configuration configuration,
-            ContainerComponent containerComponent,
-            AssemblyScanningComponent assemblyScanningComponent)
+            AssemblyScanningComponent assemblyScanningComponent,
+            IConfigureComponents container)
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
-            var hostingComponent = new HostingComponent(configuration, availableTypes, containerComponent);
+            var hostingComponent = new HostingComponent(configuration, availableTypes, container);
 
-            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
-            containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
+            ApplyRegistrations(configuration, hostingComponent);
+
+            hostingComponent.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = "external"
+            });
+
+            return hostingComponent;
+        }
+
+        public static HostingComponent Initialize(Configuration configuration,
+            AssemblyScanningComponent assemblyScanningComponent,
+            CommonObjectBuilder internalContainer)
+        {
+            var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+
+            var hostingComponent = new HostingComponent(configuration, availableTypes, internalContainer);
+
+            ApplyRegistrations(configuration, hostingComponent);
+
+            if (configuration.CustomContainer == null)
+            {
+                hostingComponent.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = "internal"
+                });
+            }
+            else
+            {
+                var containerType = internalContainer.GetType();
+
+                hostingComponent.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = containerType.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(containerType)
+                });
+            }
+
 
             return hostingComponent;
         }
@@ -101,14 +144,25 @@
 
         public Task Stop()
         {
-            containerComponent.DisposeInternalContainerIfNeeded();
+            internalBuilder.Dispose();
 
             return Task.FromResult(0);
         }
 
+        static void ApplyRegistrations(Configuration configuration, HostingComponent hostingComponent)
+        {
+            hostingComponent.Container.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
+            hostingComponent.Container.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
+
+            foreach (var registration in configuration.UserRegistrations)
+            {
+                registration(hostingComponent.Container);
+            }
+        }
+
         Configuration configuration;
         HostInformation hostInformation;
-        ContainerComponent containerComponent;
+        IBuilder internalBuilder;
 
         public class Configuration
         {
@@ -182,6 +236,10 @@
                     settings.Set(CustomCriticalErrorActionSettingsKey, value);
                 }
             }
+
+            public List<Action<IConfigureComponents>> UserRegistrations { get; } = new List<Action<IConfigureComponents>>();
+
+            public IContainer CustomContainer { get; set; }
 
             // Since the host id default is using MD5 which breaks MIPS compliant users we need to delay setting the default until users have a chance to override
             // via a custom feature to be backwards compatible.

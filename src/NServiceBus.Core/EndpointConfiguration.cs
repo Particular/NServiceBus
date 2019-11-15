@@ -25,6 +25,12 @@ namespace NServiceBus
         {
             ValidateEndpointName(endpointName);
 
+            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
+
+            Settings.SetDefault("Endpoint.SendOnly", false);
+            Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+
             Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
             Settings.Set(new InstallationComponent.Configuration(Settings));
             Settings.Set(new HostingComponent.Configuration(Settings));
@@ -33,14 +39,6 @@ namespace NServiceBus
             Settings.Set(new ReceiveComponent.Configuration(Settings));
             Settings.Set(new RecoverabilityComponent.Configuration());
             Settings.Set(Pipeline = new PipelineSettings(Settings));
-
-            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
-
-            ContainerComponent = new ContainerComponent(Settings);
-
-            Settings.SetDefault("Endpoint.SendOnly", false);
-            Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-            Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
             Notifications = new Notifications();
             Settings.Set(Notifications);
@@ -65,7 +63,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(registration), registration);
 
-            ContainerComponent.AddUserRegistration(registration);
+            Settings.Get<HostingComponent.Configuration>().UserRegistrations.Add(registration);
         }
 
         /// <summary>
@@ -90,7 +88,9 @@ namespace NServiceBus
         /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition" />.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
-            ContainerComponent.UseContainer<T>(customizations);
+            customizations?.Invoke(new ContainerCustomizations(Settings));
+
+            UseContainer(typeof(T));
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(definitionType), definitionType);
             Guard.TypeHasDefaultConstructor(definitionType, nameof(definitionType));
 
-            ContainerComponent.UseContainer(definitionType);
+            Settings.Get<HostingComponent.Configuration>().CustomContainer = definitionType.Construct<ContainerDefinition>().CreateContainer(Settings);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(builder), builder);
 
-            ContainerComponent.UseContainer(builder);
+            Settings.Get<HostingComponent.Configuration>().CustomContainer = builder;
         }
 
         //This needs to be here since we have downstreams that use reflection to access this property
@@ -122,7 +122,6 @@ namespace NServiceBus
             Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = typesToScan.ToList();
         }
 
-        internal ContainerComponent ContainerComponent;
         internal ConventionsBuilder ConventionsBuilder;
 
         static void ValidateEndpointName(string endpointName)
