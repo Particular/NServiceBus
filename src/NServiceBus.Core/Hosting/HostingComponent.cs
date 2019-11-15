@@ -144,7 +144,7 @@
 
         public Task Stop()
         {
-            internalBuilder.Dispose();
+            internalBuilder?.Dispose();
 
             return Task.FromResult(0);
         }
