@@ -1188,4 +1188,24 @@ namespace NServiceBus.Features
         }
     }
 }
+
+namespace NServiceBus.Features
+{
+    // Just to make sure we remove it in v8. We keep it around for now just in case some external feature
+    // depended on it using `DependsOn(string featureTypeName)`
+    [ObsoleteEx(
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    class ReplyAddressFeature : Feature
+    {
+        public ReplyAddressFeature()
+        {
+            EnableByDefault();
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+        }
+    }
+}
 #pragma warning restore 1591
