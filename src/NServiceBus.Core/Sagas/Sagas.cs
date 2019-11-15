@@ -37,6 +37,9 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            context.Pipeline.Register("PopulateAutoCorrelationHeadersForReplies", new PopulateAutoCorrelationHeadersForRepliesBehavior(),
+                "Copies existing saga headers from incoming message to outgoing message to facilitate the auto correlation in the saga, when replying to a message that was sent by a saga.");
+
             if (!PersistenceStartup.HasSupportFor<StorageType.Sagas>(context.Settings))
             {
                 throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
