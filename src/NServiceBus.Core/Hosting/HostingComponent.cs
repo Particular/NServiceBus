@@ -16,7 +16,7 @@
     class HostingComponent
     {
         HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container)
-            : this(configuration, availableTypes,container,null)
+            : this(configuration, availableTypes, container, null)
         {
         }
 
