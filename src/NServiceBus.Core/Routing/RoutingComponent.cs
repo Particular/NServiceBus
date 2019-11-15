@@ -2,13 +2,20 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using Features;
+    using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
 
     class RoutingComponent
     {
-        RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers, UnicastSendRouter unicastSendRouter, bool enforceBestPractices, Validations messageValidator)
+        RoutingComponent(UnicastRoutingTable unicastRoutingTable,
+            DistributionPolicy distributionPolicy,
+            EndpointInstances endpointInstances,
+            Publishers publishers,
+            UnicastSendRouter unicastSendRouter,
+            bool enforceBestPractices,
+            Validations messageValidator)
         {
             UnicastRoutingTable = unicastRoutingTable;
             DistributionPolicy = distributionPolicy;
@@ -33,7 +40,11 @@ namespace NServiceBus
 
         public Validations MessageValidator { get; }
 
-        public static RoutingComponent Initialize(Configuration configuration, TransportComponent transportComponent, ReceiveConfiguration receiveConfiguration, Conventions conventions)
+        public static RoutingComponent Initialize(Configuration configuration,
+            TransportComponent transportComponent,
+            ReceiveConfiguration receiveConfiguration,
+            Conventions conventions,
+            PipelineSettings pipelineSettings)
         {
             var distributionPolicy = configuration.DistributionPolicy;
             var unicastRoutingTable = configuration.UnicastRoutingTable;
@@ -43,16 +54,26 @@ namespace NServiceBus
             {
                 distributionPolicy.SetDistributionStrategy(distributionStrategy);
             }
-            
+
             configuration.ConfiguredUnicastRoutes?.Apply(unicastRoutingTable, conventions);
 
+            var isSendOnlyEndpoint = receiveConfiguration == null;
+            if (isSendOnlyEndpoint == false)
+            {
+                pipelineSettings.Register(new ApplyReplyToAddressBehavior(
+                        receiveConfiguration.LocalAddress,
+                        receiveConfiguration.InstanceSpecificQueue,
+                        configuration.PublicReturnAddress),
+                    "Applies the public reply to address to outgoing messages");
+            }
+
             var sendRouter = new UnicastSendRouter(
-                receiveConfiguration == null, 
-                receiveConfiguration?.QueueNameBase, 
-                receiveConfiguration?.InstanceSpecificQueue, 
-                distributionPolicy, 
-                unicastRoutingTable, 
-                endpointInstances, 
+                isSendOnlyEndpoint,
+                receiveConfiguration?.QueueNameBase,
+                receiveConfiguration?.InstanceSpecificQueue,
+                distributionPolicy,
+                unicastRoutingTable,
+                endpointInstances,
                 i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
             return new RoutingComponent(
@@ -101,9 +122,12 @@ namespace NServiceBus
                 set => settings.Set(EnforceBestPracticesSettingsKey, value);
             }
 
+            public string PublicReturnAddress => settings.GetOrDefault<string>(PublicReturnAddressSettingsKey);
+
             readonly SettingsHolder settings;
 
             const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+            const string PublicReturnAddressSettingsKey = "PublicReturnAddress";
         }
     }
 }
