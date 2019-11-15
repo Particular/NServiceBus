@@ -15,12 +15,10 @@ namespace NServiceBus
     class EndpointCreator
     {
         EndpointCreator(SettingsHolder settings,
-            HostingComponent hostingComponent,
-            ContainerComponent containerComponent)
+            HostingComponent hostingComponent)
         {
             this.settings = settings;
             this.hostingComponent = hostingComponent;
-            this.containerComponent = containerComponent;
         }
 
         public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
@@ -37,7 +35,7 @@ namespace NServiceBus
 
             var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), containerComponent, assemblyScanningComponent);
 
-            var endpointCreator = new EndpointCreator(settings, hostingComponent, containerComponent);
+            var endpointCreator = new EndpointCreator(settings, hostingComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
 
             //for backwards compatibility we need to make the IBuilder available in the container
@@ -65,7 +63,7 @@ namespace NServiceBus
             //for backwards compatibility we need to make the IBuilder available in the container
             containerComponent.ContainerConfiguration.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
-            var endpointCreator = new EndpointCreator(settings, hostingComponent, endpointConfiguration.ContainerComponent);
+            var endpointCreator = new EndpointCreator(settings, hostingComponent);
 
             endpointCreator.Initialize();
 
@@ -86,7 +84,7 @@ namespace NServiceBus
         {
             var pipelineSettings = settings.Get<PipelineSettings>();
 
-            containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
+            hostingComponent.Container.RegisterSingleton<ReadOnlySettings>(settings);
 
             featureComponent = new FeatureComponent(settings);
 
@@ -112,7 +110,7 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineSettings, routingComponent, receiveConfiguration, recoverabilityComponent);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingComponent.Container, pipelineSettings, routingComponent, receiveConfiguration, recoverabilityComponent);
 
             featureComponent.Initalize(featureConfigurationContext);
 
@@ -122,9 +120,9 @@ namespace NServiceBus
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent, messageMapper);
 
-            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, containerComponent);
+            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingComponent);
 
-            containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+            hostingComponent.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             receiveComponent = ReceiveComponent.Initialize(
                 settings.Get<ReceiveComponent.Configuration>(),
@@ -133,12 +131,10 @@ namespace NServiceBus
                 pipelineComponent,
                 settings.ErrorQueueAddress(),
                 hostingComponent,
-                pipelineSettings,
-                containerComponent);
+                pipelineSettings);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 hostingComponent,
-                containerComponent,
                 transportComponent);
 
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
@@ -162,7 +158,6 @@ namespace NServiceBus
             await installationComponent.Start(builder).ConfigureAwait(false);
 
             return new StartableEndpoint(settings,
-                containerComponent,
                 featureComponent,
                 transportComponent,
                 receiveComponent,
@@ -248,7 +243,6 @@ namespace NServiceBus
 
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
-        ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         TransportComponent transportComponent;
         ReceiveComponent receiveComponent;

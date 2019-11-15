@@ -8,15 +8,17 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Hosting;
+    using NServiceBus.ObjectBuilder;
     using Settings;
     using Support;
 
     class HostingComponent
     {
-        HostingComponent(Configuration configuration, List<Type> availableTypes)
+        HostingComponent(Configuration configuration, List<Type> availableTypes, ContainerComponent containerComponent)
         {
             this.configuration = configuration;
             AvailableTypes = availableTypes;
+            this.containerComponent = containerComponent;
             CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
         }
 
@@ -37,6 +39,8 @@
 
         public CriticalError CriticalError { get; }
 
+        public IConfigureComponents Container { get { return containerComponent.ContainerConfiguration; } }
+
         public ICollection<Type> AvailableTypes { get; }
 
         public static HostingComponent Initialize(Configuration configuration,
@@ -45,7 +49,7 @@
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
-            var hostingComponent = new HostingComponent(configuration, availableTypes);
+            var hostingComponent = new HostingComponent(configuration, availableTypes, containerComponent);
 
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
             containerComponent.ContainerConfiguration.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
@@ -95,8 +99,16 @@
             return hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries);
         }
 
+        public Task Stop()
+        {
+            containerComponent.DisposeInternalContainerIfNeeded();
+
+            return Task.FromResult(0);
+        }
+
         Configuration configuration;
         HostInformation hostInformation;
+        ContainerComponent containerComponent;
 
         public class Configuration
         {

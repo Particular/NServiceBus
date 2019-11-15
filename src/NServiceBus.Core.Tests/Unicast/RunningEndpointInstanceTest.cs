@@ -14,7 +14,6 @@
 
             var testee = new RunningEndpointInstance(
                 settings,
-                new ContainerComponent(settings),
                 null,
                 new FeatureComponent(settings),
                 new MessageSession(new FakeRootContext()),

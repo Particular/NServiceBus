@@ -9,7 +9,6 @@ namespace NServiceBus
     class StartableEndpoint : IStartableEndpoint
     {
         public StartableEndpoint(SettingsHolder settings,
-            ContainerComponent containerComponent,
             FeatureComponent featureComponent,
             TransportComponent transportComponent,
             ReceiveComponent receiveComponent,
@@ -20,7 +19,6 @@ namespace NServiceBus
             IBuilder builder)
         {
             this.settings = settings;
-            this.containerComponent = containerComponent;
             this.featureComponent = featureComponent;
             this.transportComponent = transportComponent;
             this.receiveComponent = receiveComponent;
@@ -46,7 +44,7 @@ namespace NServiceBus
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportComponent);
+            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportComponent);
 
             await receiveComponent.Start().ConfigureAwait(false);
 
@@ -60,7 +58,6 @@ namespace NServiceBus
         readonly HostingComponent hostingComponent;
         readonly SendComponent sendComponent;
         readonly IBuilder builder;
-        readonly ContainerComponent containerComponent;
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
         readonly TransportComponent transportComponent;
