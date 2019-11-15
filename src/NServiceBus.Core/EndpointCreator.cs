@@ -124,7 +124,7 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(hostingComponent);
 
-            transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings);
+            transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings, containerComponent);
 
             var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
 
