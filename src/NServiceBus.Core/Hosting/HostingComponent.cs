@@ -15,12 +15,7 @@
 
     class HostingComponent
     {
-        HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container)
-            : this(configuration, availableTypes, container, null)
-        {
-        }
-
-        HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container, IBuilder internalBuilder)
+        public HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container, IBuilder internalBuilder)
         {
             this.configuration = configuration;
             this.internalBuilder = internalBuilder;
@@ -52,50 +47,14 @@
 
         public static HostingComponent Initialize(Configuration configuration,
             AssemblyScanningComponent assemblyScanningComponent,
-            IConfigureComponents container)
+            IConfigureComponents internalContainer,
+            IBuilder internalBuilder)
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
-            var hostingComponent = new HostingComponent(configuration, availableTypes, container);
+            var hostingComponent = new HostingComponent(configuration, availableTypes, internalContainer, internalBuilder);
 
             ApplyRegistrations(configuration, hostingComponent);
-
-            hostingComponent.AddStartupDiagnosticsSection("Container", new
-            {
-                Type = "external"
-            });
-
-            return hostingComponent;
-        }
-
-        public static HostingComponent Initialize(Configuration configuration,
-            AssemblyScanningComponent assemblyScanningComponent,
-            CommonObjectBuilder internalContainer)
-        {
-            var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-
-            var hostingComponent = new HostingComponent(configuration, availableTypes, internalContainer);
-
-            ApplyRegistrations(configuration, hostingComponent);
-
-            if (configuration.CustomContainer == null)
-            {
-                hostingComponent.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = "internal"
-                });
-            }
-            else
-            {
-                var containerType = internalContainer.GetType();
-
-                hostingComponent.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = containerType.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(containerType)
-                });
-            }
-
 
             return hostingComponent;
         }

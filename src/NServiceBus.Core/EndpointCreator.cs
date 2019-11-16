@@ -14,8 +14,7 @@ namespace NServiceBus
 
     class EndpointCreator
     {
-        EndpointCreator(SettingsHolder settings,
-            HostingComponent hostingComponent)
+        EndpointCreator(SettingsHolder settings, HostingComponent hostingComponent)
         {
             this.settings = settings;
             this.hostingComponent = hostingComponent;
@@ -29,17 +28,19 @@ namespace NServiceBus
 
             FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
-            if (settings.Get<HostingComponent.Configuration>().CustomContainer != null)
+            var hostingConfiguration = settings.Get<HostingComponent.Configuration>();
+
+            if (hostingConfiguration.CustomContainer != null)
             {
                 throw new InvalidOperationException("An internally managed container has already been configured using 'EndpointConfiguration.UseContainer'. It is not possible to use both an internally managed container and an externally managed container.");
             }
 
-            settings.AddStartupDiagnosticsSection("Container", new
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, assemblyScanningComponent, configureComponents, null);
+
+            hostingComponent.AddStartupDiagnosticsSection("Container", new
             {
                 Type = "external"
             });
-
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), assemblyScanningComponent, configureComponents);
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent);
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
@@ -61,19 +62,42 @@ namespace NServiceBus
             FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var hostingConfiguration = settings.Get<HostingComponent.Configuration>();
-            var container = hostingConfiguration.CustomContainer ?? new LightInjectObjectBuilder();
-            var internalContainer = new CommonObjectBuilder(container);
+            var useDefaultBuilder = hostingConfiguration.CustomContainer == null;
+            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingConfiguration.CustomContainer;
+
+            var commonObjectBuilder = new CommonObjectBuilder(container);
+
+            IConfigureComponents internalContainer = commonObjectBuilder;
+            IBuilder internalBuilder = commonObjectBuilder;
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            internalContainer.ConfigureComponent<IBuilder>(_ => internalContainer, DependencyLifecycle.SingleInstance);
+            internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), assemblyScanningComponent, internalContainer);
+            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), assemblyScanningComponent, internalContainer, internalBuilder);
+
+            if (useDefaultBuilder)
+            {
+                hostingComponent.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = "internal"
+                });
+            }
+            else
+            {
+                var containerType = internalContainer.GetType();
+
+                hostingComponent.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = containerType.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(containerType)
+                });
+            }
 
             var endpointCreator = new EndpointCreator(settings, hostingComponent);
 
             endpointCreator.Initialize();
 
-            return endpointCreator.CreateStartableEndpoint(internalContainer);
+            return endpointCreator.CreateStartableEndpoint(internalBuilder);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
