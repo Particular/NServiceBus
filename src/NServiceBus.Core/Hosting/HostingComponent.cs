@@ -8,8 +8,8 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Hosting;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder;
+    using ObjectBuilder.Common;
     using Settings;
     using Support;
 
