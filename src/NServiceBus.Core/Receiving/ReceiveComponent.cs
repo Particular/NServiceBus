@@ -36,8 +36,7 @@ namespace NServiceBus
             PipelineComponent pipeline,
             string errorQueue,
             HostingComponent hostingComponent,
-            PipelineSettings pipelineSettings,
-            ContainerComponent container)
+            PipelineSettings pipelineSettings)
 
         {
             Func<IPushMessages> messagePumpFactory = null;
@@ -58,14 +57,14 @@ namespace NServiceBus
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
-                var storage = container.ContainerConfiguration.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
+                var storage = hostingComponent.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = container.ContainerConfiguration.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = container.ContainerConfiguration.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var adapter = hostingComponent.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
+                var syncStorage = hostingComponent.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
@@ -74,11 +73,11 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            if (!container.ContainerConfiguration.HasComponent<MessageHandlerRegistry>())
+            if (!hostingComponent.Container.HasComponent<MessageHandlerRegistry>())
             {
                 var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
 
-                LoadMessageHandlers(configuration, orderedHandlers, container.ContainerConfiguration, hostingComponent.AvailableTypes);
+                LoadMessageHandlers(configuration, orderedHandlers, hostingComponent.Container, hostingComponent.AvailableTypes);
             }
 
             if (transportReceiveConfiguration != null)

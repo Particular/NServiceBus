@@ -8,10 +8,10 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, ContainerComponent containerComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportComponent transportComponent)
+        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportComponent transportComponent)
         {
             this.settings = settings;
-            this.containerComponent = containerComponent;
+            this.hostingComponent = hostingComponent;
             this.receiveComponent = receiveComponent;
             this.featureComponent = featureComponent;
             this.messageSession = messageSession;
@@ -49,7 +49,7 @@ namespace NServiceBus
             finally
             {
                 settings.Clear();
-                containerComponent.DisposeInternalContainerIfNeeded();
+                await hostingComponent.Stop().ConfigureAwait(false);
 
                 stopped = true;
                 Log.Info("Shutdown complete.");
@@ -88,7 +88,7 @@ namespace NServiceBus
             return messageSession.Unsubscribe(eventType, options);
         }
 
-        ContainerComponent containerComponent;
+        HostingComponent hostingComponent;
         ReceiveComponent receiveComponent;
         FeatureComponent featureComponent;
         IMessageSession messageSession;

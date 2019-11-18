@@ -15,7 +15,7 @@
             this.transportComponent = transportComponent;
         }
 
-        public static InstallationComponent Initialize(Configuration configuration, HostingComponent hostingComponent, ContainerComponent containerComponent, TransportComponent transportComponent)
+        public static InstallationComponent Initialize(Configuration configuration, HostingComponent hostingComponent, TransportComponent transportComponent)
         {
             var component = new InstallationComponent(configuration, transportComponent);
 
@@ -26,7 +26,7 @@
 
             foreach (var installerType in hostingComponent.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                hostingComponent.Container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
 
             return component;
