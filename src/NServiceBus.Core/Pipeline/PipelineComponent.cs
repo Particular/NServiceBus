@@ -40,11 +40,6 @@ namespace NServiceBus
             return Task.FromResult(0);
         }
 
-        public void AddRootContextItem<T>(T item)
-        {
-            rootContextExtensions.Set(item);
-        }
-
         public RootContext CreateRootContext(IBuilder scopedBuilder, MessageOperations messageOperations, ContextBag extensions = null)
         {
             var context = new RootContext(scopedBuilder, messageOperations);
