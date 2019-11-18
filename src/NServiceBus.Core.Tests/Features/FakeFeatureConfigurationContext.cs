@@ -4,7 +4,7 @@
 
     public class FakeFeatureConfigurationContext : FeatureConfigurationContext
     {
-        public FakeFeatureConfigurationContext() : base(null, null, null, null, null, null)
+        public FakeFeatureConfigurationContext() : base(null, null, null, null, null)
         {
         }
     }
