@@ -16,7 +16,7 @@
 
         public QueueBindings QueueBindings { get; }
 
-        public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings, ContainerComponent containerComponent)
+        public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings, HostingComponent hostingComponent)
         {
             var transportDefinition = configuration.TransportDefinition;
             var connectionString = configuration.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
@@ -30,7 +30,7 @@
 
             var transportComponent = new TransportComponent(transportInfrastructure, configuration.QueueBindings);
 
-            containerComponent.ContainerConfiguration.ConfigureComponent(() => transportComponent.GetOrCreateDispatcher(), DependencyLifecycle.SingleInstance);
+            hostingComponent.Container.ConfigureComponent(() => transportComponent.GetOrCreateDispatcher(), DependencyLifecycle.SingleInstance);
 
             settings.AddStartupDiagnosticsSection("Transport", new
             {
