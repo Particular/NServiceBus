@@ -14,7 +14,9 @@
             QueueBindings = queueBindings;
         }
 
-        public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings)
+        public QueueBindings QueueBindings { get; }
+
+        public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings, HostingComponent hostingComponent)
         {
             var transportDefinition = configuration.TransportDefinition;
             var connectionString = configuration.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
@@ -26,13 +28,42 @@
 
             var transportType = transportDefinition.GetType();
 
+            var transportComponent = new TransportComponent(transportInfrastructure, configuration.QueueBindings);
+
+            hostingComponent.Container.ConfigureComponent(() => transportComponent.GetOrCreateDispatcher(), DependencyLifecycle.SingleInstance);
+
             settings.AddStartupDiagnosticsSection("Transport", new
             {
                 Type = transportType.FullName,
                 Version = FileVersionRetriever.GetFileVersion(transportType)
             });
 
-            return new TransportComponent(transportInfrastructure, configuration.QueueBindings);
+            return transportComponent;
+        }
+
+        [ObsoleteEx(
+            Message = "Change transport infrastructure to configure the send infrastructure at component initialization time",
+            RemoveInVersion = "8")]
+        public void ConfigureSendInfrastructureForBackwardsCompatibility()
+        {
+            transportSendInfrastructure = transportInfrastructure.ConfigureSendInfrastructure();
+        }
+
+        [ObsoleteEx(
+            Message = "Change transport infrastructure to run send pre-startup checks on component.Start",
+            RemoveInVersion = "8")]
+        public async Task InvokeSendPreStartupChecksForBackwardsCompatibility()
+        {
+            var sendResult = await transportSendInfrastructure.PreStartupCheck().ConfigureAwait(false);
+            if (!sendResult.Succeeded)
+            {
+                throw new Exception($"Pre start-up check failed: {sendResult.ErrorMessage}");
+            }
+        }
+
+        public IDispatchMessages GetOrCreateDispatcher()
+        {
+            return dispatcher ?? (dispatcher = transportSendInfrastructure.DispatcherFactory());
         }
 
         public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
@@ -67,13 +98,6 @@
             return queueCreator.CreateQueueIfNecessary(QueueBindings, username);
         }
 
-        public QueueBindings QueueBindings { get; }
-
-        public IPushMessages BuildMessagePump()
-        {
-            return transportReceiveInfrastructure.MessagePumpFactory();
-        }
-
         public async Task Start()
         {
             if (transportReceiveInfrastructure != null)
@@ -93,6 +117,9 @@
         {
             return transportInfrastructure.Stop();
         }
+
+        TransportSendInfrastructure transportSendInfrastructure;
+        IDispatchMessages dispatcher;
 
         TransportInfrastructure transportInfrastructure;
         TransportReceiveInfrastructure transportReceiveInfrastructure;
@@ -118,30 +145,18 @@
 
                     return settings.Get<TransportDefinition>();
                 }
-                set
-                {
-                    settings.Set(value);
-                }
+                set { settings.Set(value); }
             }
 
             public TransportConnectionString TransportConnectionString
             {
-                get
-                {
-                    return settings.Get<TransportConnectionString>();
-                }
-                set
-                {
-                    settings.Set(value);
-                }
+                get { return settings.Get<TransportConnectionString>(); }
+                set { settings.Set(value); }
             }
 
             public QueueBindings QueueBindings
             {
-                get
-                {
-                    return settings.Get<QueueBindings>();
-                }
+                get { return settings.Get<QueueBindings>(); }
             }
 
             readonly SettingsHolder settings;
