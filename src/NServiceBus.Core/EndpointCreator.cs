@@ -140,7 +140,7 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingComponent.Container, pipelineSettings, routingComponent, receiveConfiguration, recoverabilityComponent);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingComponent.Container, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
 

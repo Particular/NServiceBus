@@ -50,7 +50,7 @@
             var persistenceSettings = new PersistenceExtensions<InMemoryPersistence>(settings);
             persistenceSettings.GatewayDeduplicationCacheSize(42);
 
-            feature.Setup(new FeatureConfigurationContext(settings, container, null, null, null, null));
+            feature.Setup(new FeatureConfigurationContext(settings, container, null, null, null));
 
             var implementation = (InMemoryGatewayDeduplication)container.Build<IDeduplicateMessages>();
             Assert.AreEqual(42, implementation.maxSize);

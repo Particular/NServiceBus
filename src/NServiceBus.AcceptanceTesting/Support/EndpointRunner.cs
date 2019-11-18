@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
+    using Faults;
     using Logging;
     using NServiceBus.Support;
     using Transport;
@@ -21,7 +22,6 @@
         IEndpointInstance endpointInstance;
         EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
-        EndpointConfiguration endpointConfiguration;
 
         public EndpointRunner(Func<EndpointConfiguration, Task<object>> createCallback, Func<object, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
         {
@@ -52,8 +52,9 @@
                 {
                     throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
                 }
-                endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
-                RegisterInheritanceHierarchyOfContextInSettings(scenarioContext);
+                var endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
+                RegisterInheritanceHierarchyOfContextInSettings(scenarioContext, endpointConfiguration);
+                TrackFailingMessages(endpointName, endpointConfiguration);
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
@@ -69,7 +70,32 @@
             }
         }
 
-        void RegisterInheritanceHierarchyOfContextInSettings(ScenarioContext context)
+        void TrackFailingMessages(string endpointName, EndpointConfiguration endpointConfiguration)
+        {
+            endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(m =>
+            {
+                scenarioContext.FailedMessages.AddOrUpdate(
+                    endpointName,
+                    new[]
+                    {
+                        new FailedMessage(m.MessageId, new Dictionary<string, string>(m.Headers), m.Body, m.Exception, m.ErrorQueue)
+                    },
+                    (i, failed) =>
+                    {
+                        var result = failed.ToList();
+                        result.Add(new FailedMessage(m.MessageId, new Dictionary<string, string>(m.Headers), m.Body, m.Exception, m.ErrorQueue));
+                        return result;
+                    });
+
+                //We need to set the error flag to false as we want to reset all processing exceptions caused by immediate retries
+                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.MessageId, id => false, (id, value) => false);
+
+                return Task.FromResult(0);
+            }));
+            endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
+        }
+
+        void RegisterInheritanceHierarchyOfContextInSettings(ScenarioContext context, EndpointConfiguration endpointConfiguration)
         {
             var type = context.GetType();
             while (type != typeof(object))
