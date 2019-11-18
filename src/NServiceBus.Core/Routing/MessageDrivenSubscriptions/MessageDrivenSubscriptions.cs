@@ -92,12 +92,12 @@ namespace NServiceBus.Features
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
 
-            context.Container.ConfigureComponent<CallInit>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<InitializableSubscriptionStorage>(DependencyLifecycle.SingleInstance);
 
-            context.RegisterStartupTask(b => b.Build<CallInit>());
+            context.RegisterStartupTask(b => b.Build<InitializableSubscriptionStorage>());
         }
 
-        class CallInit : FeatureStartupTask
+        internal class InitializableSubscriptionStorage : FeatureStartupTask
         {
             public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
