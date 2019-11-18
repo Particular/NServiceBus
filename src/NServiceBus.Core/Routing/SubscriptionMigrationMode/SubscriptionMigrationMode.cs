@@ -55,6 +55,10 @@
                 context.Container.RegisterSingleton(authorizer);
                 context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
             }
+
+            context.Container.ConfigureComponent<MessageDrivenSubscriptions.InitializableSubscriptionStorage>(DependencyLifecycle.SingleInstance);
+
+            context.RegisterStartupTask(b => b.Build<MessageDrivenSubscriptions.InitializableSubscriptionStorage>());
         }
 
         public static bool IsMigrationModeEnabled(ReadOnlySettings settings)

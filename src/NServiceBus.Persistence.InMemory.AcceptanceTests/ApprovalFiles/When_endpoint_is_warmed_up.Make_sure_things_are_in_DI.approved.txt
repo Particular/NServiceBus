@@ -1,5 +1,5 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
-NServiceBus.StorageInitializer+CallInit - SingleInstance
+NServiceBus.Features.MessageDrivenSubscriptions+InitializableSubscriptionStorage - SingleInstance
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
