@@ -140,6 +140,15 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
+            receiveComponent = ReceiveComponent.Initialize(
+                settings.Get<ReceiveComponent.Configuration>(),
+                receiveConfiguration,
+                transportComponent,
+                pipelineComponent,
+                settings.ErrorQueueAddress(),
+                hostingComponent,
+                pipelineSettings);
+
             var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingComponent.Container, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
@@ -153,15 +162,6 @@ namespace NServiceBus
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingComponent);
 
             hostingComponent.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-
-            receiveComponent = ReceiveComponent.Initialize(
-                settings.Get<ReceiveComponent.Configuration>(),
-                receiveConfiguration,
-                transportComponent,
-                pipelineComponent,
-                settings.ErrorQueueAddress(),
-                hostingComponent,
-                pipelineSettings);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 hostingComponent,
