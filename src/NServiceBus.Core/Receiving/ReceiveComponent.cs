@@ -104,7 +104,7 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent, MessageOperations messageOperations)
+        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent, MessageOperations messageOperations, IPipelineCache pipelineCache)
         {
             if (IsSendOnly)
             {
@@ -112,7 +112,7 @@ namespace NServiceBus
             }
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineComponent, messageOperations, transportReceiveConfiguration.PipelineCompletedSubscribers, receivePipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, transportReceiveConfiguration.PipelineCompletedSubscribers, receivePipeline);
 
             if (transportReceiveConfiguration.PurgeOnStartup)
             {
@@ -259,7 +259,7 @@ namespace NServiceBus
         ReceiveConfiguration transportReceiveConfiguration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         Func<IPushMessages> messagePumpFactory;
-        PipelineComponent pipelineComponent;
+        readonly PipelineComponent pipelineComponent;
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;

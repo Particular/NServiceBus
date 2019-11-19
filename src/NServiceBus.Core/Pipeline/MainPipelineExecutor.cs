@@ -8,10 +8,10 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
+        public MainPipelineExecutor(IBuilder rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
-            this.builder = builder;
-            this.pipelineComponent = pipelineComponent;
+            this.rootBuilder = rootBuilder;
+            this.pipelineCache = pipelineCache;
             this.messageOperations = messageOperations;
             this.receivePipelineNotification = receivePipelineNotification;
             this.receivePipeline = receivePipeline;
@@ -21,11 +21,13 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
-            using (var childBuilder = builder.CreateChildBuilder())
+            using (var childBuilder = rootBuilder.CreateChildBuilder())
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageOperations, messageContext.Extensions);
+                var rootContext = new RootContext(childBuilder, messageOperations, pipelineCache);
+                rootContext.Extensions.Merge(messageContext.Extensions);
+
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
                 try
@@ -47,8 +49,8 @@ namespace NServiceBus
             }
         }
 
-        readonly IBuilder builder;
-        readonly PipelineComponent pipelineComponent;
+        readonly IBuilder rootBuilder;
+        readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
         readonly Pipeline<ITransportReceiveContext> receivePipeline;

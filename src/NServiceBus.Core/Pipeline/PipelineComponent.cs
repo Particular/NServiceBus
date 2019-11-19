@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using System.Threading.Tasks;
-    using Extensibility;
     using ObjectBuilder;
     using Pipeline;
 
@@ -34,27 +32,11 @@ namespace NServiceBus
             return new Pipeline<T>(builder, modifications);
         }
 
-        public Task Start(IBuilder rootBuilder)
+        public PipelineCache BuildPipelineCache(IBuilder rootBuilder)
         {
-            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(rootBuilder, modifications));
-            return Task.FromResult(0);
-        }
-
-        public RootContext CreateRootContext(IBuilder scopedBuilder, MessageOperations messageOperations, ContextBag extensions = null)
-        {
-            var context = new RootContext(scopedBuilder, messageOperations);
-
-            context.Extensions.Merge(rootContextExtensions);
-
-            if (extensions != null)
-            {
-                context.Extensions.Merge(extensions);
-            }
-
-            return context;
+            return new PipelineCache(rootBuilder, modifications);
         }
 
         readonly PipelineModifications modifications;
-        readonly ContextBag rootContextExtensions = new ContextBag();
     }
 }
