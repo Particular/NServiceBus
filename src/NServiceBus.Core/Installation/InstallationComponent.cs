@@ -9,15 +9,14 @@
 
     class InstallationComponent
     {
-        InstallationComponent(Configuration configuration, TransportComponent transportComponent)
+        InstallationComponent(Configuration configuration)
         {
             this.configuration = configuration;
-            this.transportComponent = transportComponent;
         }
 
-        public static InstallationComponent Initialize(Configuration configuration, HostingComponent hostingComponent, TransportComponent transportComponent)
+        public static InstallationComponent Initialize(Configuration configuration, HostingComponent hostingComponent)
         {
-            var component = new InstallationComponent(configuration, transportComponent);
+            var component = new InstallationComponent(configuration);
 
             if (!configuration.ShouldRunInstallers)
             {
@@ -32,7 +31,7 @@
             return component;
         }
 
-        public async Task Start(IBuilder builder)
+        public async Task Start(IBuilder builder, TransportComponent transportComponent)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -68,7 +67,6 @@
         }
 
         Configuration configuration;
-        TransportComponent transportComponent;
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
