@@ -40,7 +40,7 @@
 
         public void Initialize(ReceiveComponent.Configuration receiveConfiguration, HostingComponent.Configuration hostingConfiguration)
         {
-            if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            if (receiveConfiguration.IsSendOnlyEndpoint)
             {
                 //Message recoverability is only relevant for endpoints receiving messages.
                 return;
