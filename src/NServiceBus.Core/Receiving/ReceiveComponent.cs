@@ -17,13 +17,13 @@ namespace NServiceBus
     {
         ReceiveComponent(ReceiveConfiguration transportReceiveConfiguration,
             Func<IPushMessages> messagePumpFactory,
-            PipelineComponent pipeline,
+            PipelineComponent pipelineComponent,
             CriticalError criticalError,
             string errorQueue)
         {
             this.transportReceiveConfiguration = transportReceiveConfiguration;
             this.messagePumpFactory = messagePumpFactory;
-            this.pipeline = pipeline;
+            this.pipelineComponent = pipelineComponent;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
         }
@@ -33,7 +33,7 @@ namespace NServiceBus
         public static ReceiveComponent Initialize(Configuration configuration,
             ReceiveConfiguration transportReceiveConfiguration,
             TransportComponent transportComponent,
-            PipelineComponent pipeline,
+            PipelineComponent pipelineComponent,
             string errorQueue,
             HostingComponent hostingComponent,
             PipelineSettings pipelineSettings)
@@ -49,7 +49,7 @@ namespace NServiceBus
 
             var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
                 messagePumpFactory,
-                pipeline,
+                pipelineComponent,
                 hostingComponent.CriticalError,
                 errorQueue);
 
@@ -111,7 +111,8 @@ namespace NServiceBus
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline, messageOperations, transportReceiveConfiguration.PipelineCompletedSubscribers);
+            var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineComponent, messageOperations, transportReceiveConfiguration.PipelineCompletedSubscribers, receivePipeline);
 
             if (transportReceiveConfiguration.PurgeOnStartup)
             {
@@ -258,7 +259,7 @@ namespace NServiceBus
         ReceiveConfiguration transportReceiveConfiguration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         Func<IPushMessages> messagePumpFactory;
-        PipelineComponent pipeline;
+        PipelineComponent pipelineComponent;
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;

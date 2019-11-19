@@ -8,12 +8,13 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification)
+        public MainPipelineExecutor(IBuilder builder, PipelineComponent pipelineComponent, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.builder = builder;
             this.pipelineComponent = pipelineComponent;
             this.messageOperations = messageOperations;
             this.receivePipelineNotification = receivePipelineNotification;
+            this.receivePipeline = receivePipeline;
         }
 
         public async Task Invoke(MessageContext messageContext)
@@ -29,7 +30,7 @@ namespace NServiceBus
 
                 try
                 {
-                    await transportReceiveContext.InvokePipeline<ITransportReceiveContext>().ConfigureAwait(false);
+                    await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -50,5 +51,6 @@ namespace NServiceBus
         readonly PipelineComponent pipelineComponent;
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
+        readonly Pipeline<ITransportReceiveContext> receivePipeline;
     }
 }
