@@ -129,7 +129,9 @@ namespace NServiceBus
 
             var transportConfiguration = TransportComponent.PrepareConfiguration(settings.Get<TransportComponent.Settings>());
 
-            var receiveConfiguration = BuildReceiveConfiguration(transportConfiguration);
+            var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
+                settings.Get<ReceiveComponent.Settings>(),
+                transportConfiguration);
 
             var routingComponent = RoutingComponent.Initialize(
                 settings.Get<RoutingComponent.Configuration>(),
@@ -200,21 +202,6 @@ namespace NServiceBus
                 hostingComponent,
                 sendComponent,
                 builder);
-        }
-
-        ReceiveConfiguration BuildReceiveConfiguration(TransportComponent.Configuration transportConfiguration)
-        {
-            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportConfiguration);
-
-            if (receiveConfiguration == null)
-            {
-                return null;
-            }
-
-            //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
-            settings.Set(receiveConfiguration);
-
-            return receiveConfiguration;
         }
 
         void ConfigRunBeforeIsFinalized(HostingComponent.Configuration hostingConfiguration)

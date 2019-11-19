@@ -38,7 +38,7 @@
             return recoverabilityExecutorFactory;
         }
 
-        public void Initialize(ReceiveConfiguration receiveConfiguration, HostingComponent.Configuration hostingConfiguration)
+        public void Initialize(ReceiveComponent.ReceiveConfiguration receiveConfiguration, HostingComponent.Configuration hostingConfiguration)
         {
             if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {

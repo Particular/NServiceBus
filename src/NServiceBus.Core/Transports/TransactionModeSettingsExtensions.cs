@@ -13,9 +13,12 @@ namespace NServiceBus.ConsistencyGuarantees
         /// </summary>
         public static TransportTransactionMode GetRequiredTransactionModeForReceives(this ReadOnlySettings settings)
         {
+            // TODO: add a test
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
+            var receiveConfiguration = settings.Get<ReceiveComponent.ReceiveConfiguration>();
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
             {
                 throw new InvalidOperationException("Receive transaction mode isn't available since this endpoint is configured to run in send-only mode.");
             }

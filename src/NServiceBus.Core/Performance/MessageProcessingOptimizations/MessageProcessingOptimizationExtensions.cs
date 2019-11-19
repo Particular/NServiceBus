@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using Transport;
+
     /// <summary>
     /// Configuration class for durable messaging.
     /// </summary>
@@ -15,10 +17,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNegativeAndZero(nameof(maxConcurrency), maxConcurrency);
 
-            config.Settings.Set(new ConcurrencyLimit
-            {
-                MaxValue = maxConcurrency
-            });
+            config.Settings.Get<ReceiveComponent.Settings>().PushRuntimeSettings = new PushRuntimeSettings(maxConcurrency);
         }
 
         internal class ConcurrencyLimit
