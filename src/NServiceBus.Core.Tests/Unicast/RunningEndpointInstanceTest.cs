@@ -14,7 +14,7 @@
 
             var testee = new RunningEndpointInstance(
                 settings,
-                HostingComponent.Initialize(null, null),
+                new HostingComponent(null, null),
                 null,
                 new FeatureComponent(settings),
                 new MessageSession(new FakeRootContext()),
