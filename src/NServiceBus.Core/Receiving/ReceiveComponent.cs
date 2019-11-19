@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Installation;
     using Logging;
     using ObjectBuilder;
     using Outbox;
@@ -13,36 +14,70 @@ namespace NServiceBus
     using Transport;
     using Unicast;
 
+    class CreateQueuesInstaller : INeedToInstallSomething
+    {
+        readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
+        readonly QueueBindings queueBindings;
+
+        public CreateQueuesInstaller(TransportReceiveInfrastructure transportReceiveInfrastructure, QueueBindings queueBindings)
+        {
+            this.transportReceiveInfrastructure = transportReceiveInfrastructure;
+            this.queueBindings = queueBindings;
+        }
+
+        public Task Install(string identity)
+        {
+            var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
+            return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
+        }
+    }
+
     class ReceiveComponent
     {
         ReceiveComponent(ReceiveConfiguration transportReceiveConfiguration,
             PipelineComponent pipelineComponent,
             CriticalError criticalError,
-            string errorQueue)
+            string errorQueue,
+            TransportReceiveInfrastructure transportReceiveInfrastructure,
+            QueueBindings queueBindings)
         {
             this.transportReceiveConfiguration = transportReceiveConfiguration;
             this.pipelineComponent = pipelineComponent;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
+            this.transportReceiveInfrastructure = transportReceiveInfrastructure;
         }
 
         bool IsSendOnly => transportReceiveConfiguration == null;
 
         public static ReceiveComponent Initialize(Configuration configuration,
             ReceiveConfiguration transportReceiveConfiguration,
-            TransportComponent.Configuration transportConfiguration,
+            TransportInfrastructure transportInfrastructure,
             PipelineComponent pipelineComponent,
             string errorQueue,
             HostingComponent hostingComponent,
-            PipelineSettings pipelineSettings)
-
+            PipelineSettings pipelineSettings,
+            QueueBindings queueBindings)
         {
+            TransportReceiveInfrastructure transportReceiveInfrastructure = null;
+            if (transportReceiveConfiguration != null)
+            {
+                transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+
+                if (configuration.ShouldCreateQueues)
+                {
+                    hostingComponent.Container.RegisterSingleton(new CreateQueuesInstaller(transportReceiveInfrastructure, queueBindings));
+                }
+            }
+
             var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
                 pipelineComponent,
                 hostingComponent.CriticalError,
-                errorQueue);
+                errorQueue, 
+                transportReceiveInfrastructure,
+                queueBindings);
 
-            receiveComponent.BindQueues(transportConfiguration.QueueBindings);
+            receiveComponent.BindQueues(queueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -96,8 +131,7 @@ namespace NServiceBus
         public async Task PrepareToStart(IBuilder builder, 
         RecoverabilityComponent recoverabilityComponent, 
         MessageOperations messageOperations, 
-        IPipelineCache pipelineCache,
-        TransportComponent transportComponent)
+        IPipelineCache pipelineCache)
         {
             if (IsSendOnly)
             {
@@ -112,7 +146,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportComponent.GetMessagePumpFactory());
+            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory);
 
             foreach (var receiver in receivers)
             {
@@ -124,6 +158,19 @@ namespace NServiceBus
                 {
                     Logger.Fatal($"Receiver {receiver.Id} failed to initialize.", ex);
                     throw;
+                }
+            }
+        }
+
+        public async Task ReceivePreStartupChecks()
+        {
+            if (transportReceiveInfrastructure != null)
+            {
+                var result = await transportReceiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
                 }
             }
         }
@@ -250,6 +297,7 @@ namespace NServiceBus
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;
+        readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
 
         const string MainReceiverId = "Main";
 
@@ -266,6 +314,18 @@ namespace NServiceBus
             public List<Type> ExecuteTheseHandlersFirst => settings.GetOrCreate<List<Type>>();
 
             public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
+
+            public bool ShouldCreateQueues
+            {
+                get
+                {
+                    return settings.Get<bool>("Transport.CreateQueues");
+                }
+                set
+                {
+                    settings.Set("Transport.CreateQueues", value);
+                }
+            }
 
             readonly SettingsHolder settings;
 

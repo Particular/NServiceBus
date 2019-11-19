@@ -10,6 +10,7 @@ namespace NServiceBus
     using ObjectBuilder;
     using Pipeline;
     using Settings;
+    using Transport;
     using Unicast.Messages;
 
     class EndpointCreator
@@ -124,13 +125,18 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(hostingComponent);
 
-            var transportConfiguration = TransportComponent.PrepareConfiguration(settings.Get<TransportComponent.Settings>());
+            var transportSettings = settings.Get<TransportSettings>();
+            var transportDefinition = transportSettings.TransportDefinition;
+            var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
+            transportInfrastructure = transportDefinition.Initialize(transportSettings.RawSettings, connectionString);
+            //RegisterTransportInfrastructureForBackwardsCompatibility
+            settings.Set(transportInfrastructure);
 
-            var receiveConfiguration = BuildReceiveConfiguration(transportConfiguration);
+            var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
             var routingComponent = RoutingComponent.Initialize(
                 settings.Get<RoutingComponent.Configuration>(),
-                transportConfiguration,
+                transportInfrastructure,
                 receiveConfiguration,
                 settings.Get<Conventions>(),
                 pipelineSettings);
@@ -148,7 +154,7 @@ namespace NServiceBus
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
 
-            sendComponent = SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent, messageMapper);
+            sendComponent = SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent, messageMapper, transportInfrastructure);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingComponent);
 
@@ -157,11 +163,12 @@ namespace NServiceBus
             receiveComponent = ReceiveComponent.Initialize(
                 settings.Get<ReceiveComponent.Configuration>(),
                 receiveConfiguration,
-                transportConfiguration,
+                transportInfrastructure,
                 pipelineComponent,
                 settings.ErrorQueueAddress(),
                 hostingComponent,
-                pipelineSettings);
+                pipelineSettings,
+                transportSettings.QueueBindings);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 hostingComponent);
@@ -170,7 +177,11 @@ namespace NServiceBus
             // As well as all the other components have been initialized
             settings.PreventChanges();
 
-            transportComponent = TransportComponent.Initialize(transportConfiguration, hostingComponent);
+            hostingComponent.AddStartupDiagnosticsSection("Transport", new
+            {
+                Type = transportInfrastructure.GetType().FullName,
+                Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
+            });
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
@@ -186,12 +197,12 @@ namespace NServiceBus
         {
             // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-            await installationComponent.Start(builder, transportComponent).ConfigureAwait(false);
+            await installationComponent.Start(builder).ConfigureAwait(false);
 
             return new StartableEndpoint(settings,
                 featureComponent,
-                transportComponent,
                 receiveComponent,
+                transportInfrastructure,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
@@ -199,9 +210,9 @@ namespace NServiceBus
                 builder);
         }
 
-        ReceiveConfiguration BuildReceiveConfiguration(TransportComponent.Configuration transportConfiguration)
+        ReceiveConfiguration BuildReceiveConfiguration(TransportInfrastructure transportInfrastructure)
         {
-            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportConfiguration);
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportInfrastructure);
 
             if (receiveConfiguration == null)
             {
@@ -275,11 +286,11 @@ namespace NServiceBus
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
         FeatureComponent featureComponent;
-        TransportComponent transportComponent;
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
         HostingComponent hostingComponent;
         SendComponent sendComponent;
+        TransportInfrastructure transportInfrastructure;
     }
 }

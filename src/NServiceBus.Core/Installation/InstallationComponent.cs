@@ -31,7 +31,7 @@
             return component;
         }
 
-        public async Task Start(IBuilder builder, TransportComponent transportComponent)
+        public async Task Start(IBuilder builder)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -39,11 +39,6 @@
             }
 
             var installationUserName = GetInstallationUserName();
-
-            if (configuration.ShouldCreateQueues)
-            {
-                await transportComponent.CreateQueuesIfNecessary(installationUserName).ConfigureAwait(false);
-            }
 
             foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
             {
@@ -100,18 +95,6 @@
                 set
                 {
                     settings.Set("Installers.Enable", value);
-                }
-            }
-
-            public bool ShouldCreateQueues
-            {
-                get
-                {
-                    return settings.Get<bool>("Transport.CreateQueues");
-                }
-                set
-                {
-                    settings.Set("Transport.CreateQueues", value);
                 }
             }
 

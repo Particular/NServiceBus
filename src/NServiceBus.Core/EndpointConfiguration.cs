@@ -34,7 +34,7 @@ namespace NServiceBus
             Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
             Settings.Set(new InstallationComponent.Configuration(Settings));
             Settings.Set(new HostingComponent.Configuration(Settings));
-            Settings.Set(new TransportComponent.Settings(Settings));
+            Settings.Set(new TransportSettings(Settings));
             Settings.Set(new RoutingComponent.Configuration(Settings));
             Settings.Set(new ReceiveComponent.Configuration(Settings));
             Settings.Set(new RecoverabilityComponent.Configuration());

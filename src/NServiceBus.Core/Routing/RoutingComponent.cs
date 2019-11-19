@@ -6,6 +6,7 @@ namespace NServiceBus
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
+    using Transport;
 
     class RoutingComponent
     {
@@ -41,7 +42,7 @@ namespace NServiceBus
         public Validations MessageValidator { get; }
 
         public static RoutingComponent Initialize(Configuration configuration,
-            TransportComponent.Configuration transportConfiguration,
+            TransportInfrastructure transportInfrastructure,
             ReceiveConfiguration receiveConfiguration,
             Conventions conventions,
             PipelineSettings pipelineSettings)
@@ -74,7 +75,7 @@ namespace NServiceBus
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,
-                i => transportConfiguration.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
             return new RoutingComponent(
                 unicastRoutingTable,

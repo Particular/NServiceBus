@@ -5,13 +5,14 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using ObjectBuilder;
     using Settings;
+    using Transport;
 
     class StartableEndpoint : IStartableEndpoint
     {
         public StartableEndpoint(SettingsHolder settings,
             FeatureComponent featureComponent,
-            TransportComponent transportComponent,
             ReceiveComponent receiveComponent,
+            TransportInfrastructure transportInfrastructure,
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
@@ -20,8 +21,8 @@ namespace NServiceBus
         {
             this.settings = settings;
             this.featureComponent = featureComponent;
-            this.transportComponent = transportComponent;
             this.receiveComponent = receiveComponent;
+            this.transportInfrastructure = transportInfrastructure;
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
@@ -31,9 +32,11 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            await transportComponent.Start().ConfigureAwait(false);
+            await receiveComponent.ReceivePreStartupChecks().ConfigureAwait(false);
+
+            await transportInfrastructure.Start().ConfigureAwait(false);
             // This is a hack to maintain the current order of transport infrastructure initialization
-            transportComponent.ConfigureSendInfrastructureForBackwardsCompatibility();
+            sendComponent.ConfigureSendInfrastructureForBackwardsCompatibility();
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
@@ -42,14 +45,14 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineCache, transportComponent).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineCache).ConfigureAwait(false);
 
             // This is a hack to maintain the current order of transport infrastructure initialization
-            await transportComponent.InvokeSendPreStartupChecksForBackwardsCompatibility().ConfigureAwait(false);
+            await sendComponent.InvokeSendPreStartupChecksForBackwardsCompatibility().ConfigureAwait(false);
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportComponent);
+            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
             await receiveComponent.Start().ConfigureAwait(false);
 
@@ -65,7 +68,7 @@ namespace NServiceBus
         readonly IBuilder builder;
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
-        readonly TransportComponent transportComponent;
         readonly ReceiveComponent receiveComponent;
+        readonly TransportInfrastructure transportInfrastructure;
     }
 }
