@@ -41,10 +41,29 @@
 
         public static HostingComponent Initialize(Configuration configuration, IBuilder internalBuilder)
         {
+            configuration.AddStartupDiagnosticsSection("Hosting", new
+            {
+                configuration.HostInformation.HostId,
+                HostDisplayName = configuration.HostInformation.DisplayName,
+                RuntimeEnvironment.MachineName,
+                OSPlatform = Environment.OSVersion.Platform,
+                OSVersion = Environment.OSVersion.VersionString,
+                GCSettings.IsServerGC,
+                GCLatencyMode = GCSettings.LatencyMode,
+                Environment.ProcessorCount,
+                Environment.Is64BitProcess,
+                CLRVersion = Environment.Version,
+                Environment.WorkingSet,
+                Environment.SystemPageSize,
+                HostName = Dns.GetHostName(),
+                Environment.UserName,
+                PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
+            });
+
             return new HostingComponent(configuration, internalBuilder);
         }
 
-        protected HostingComponent(Configuration configuration, IBuilder internalBuilder)
+        public HostingComponent(Configuration configuration, IBuilder internalBuilder)
         {
             this.configuration = configuration;
             this.internalBuilder = internalBuilder;
@@ -130,25 +149,6 @@
             public void CreateHostInformationForV7BackwardsCompatibility()
             {
                 hostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
-
-                AddStartupDiagnosticsSection("Hosting", new
-                {
-                    hostInformation.HostId,
-                    HostDisplayName = hostInformation.DisplayName,
-                    RuntimeEnvironment.MachineName,
-                    OSPlatform = Environment.OSVersion.Platform,
-                    OSVersion = Environment.OSVersion.VersionString,
-                    GCSettings.IsServerGC,
-                    GCLatencyMode = GCSettings.LatencyMode,
-                    Environment.ProcessorCount,
-                    Environment.Is64BitProcess,
-                    CLRVersion = Environment.Version,
-                    Environment.WorkingSet,
-                    Environment.SystemPageSize,
-                    HostName = Dns.GetHostName(),
-                    Environment.UserName,
-                    PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
-                });
             }
 
             HostInformation hostInformation;
