@@ -20,7 +20,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(handlerTypes), handlerTypes);
 
-            var list = config.Settings.Get<ReceiveComponent.Configuration>().ExecuteTheseHandlersFirst;
+            var list = config.Settings.Get<ReceiveComponent.Settings>().ExecuteTheseHandlersFirst;
 
             foreach (var handlerType in handlerTypes)
             {

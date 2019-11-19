@@ -28,7 +28,7 @@ namespace NServiceBus
 
         bool IsSendOnly => transportReceiveConfiguration == null;
 
-        public static ReceiveComponent Initialize(Configuration configuration,
+        public static ReceiveComponent Initialize(Settings settings,
             ReceiveConfiguration transportReceiveConfiguration,
             TransportComponent.Configuration transportConfiguration,
             PipelineComponent pipelineComponent,
@@ -64,9 +64,9 @@ namespace NServiceBus
 
             if (!hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>())
             {
-                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
+                var orderedHandlers = settings.ExecuteTheseHandlersFirst;
 
-                LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+                LoadMessageHandlers(settings, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
             if (transportReceiveConfiguration != null)
@@ -204,7 +204,7 @@ namespace NServiceBus
             }
         }
 
-        static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
+        static void LoadMessageHandlers(Settings settings, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -215,12 +215,12 @@ namespace NServiceBus
 
             types.InsertRange(0, orderedTypes);
 
-            ConfigureMessageHandlersIn(configuration, types, container);
+            ConfigureMessageHandlersIn(settings, types, container);
         }
 
-        static void ConfigureMessageHandlersIn(Configuration configuration, IEnumerable<Type> types, IConfigureComponents container)
+        static void ConfigureMessageHandlersIn(Settings settings, IEnumerable<Type> types, IConfigureComponents container)
         {
-            var handlerRegistry = configuration.MessageHandlerRegistry;
+            var handlerRegistry = settings.MessageHandlerRegistry;
 
             foreach (var t in types.Where(IsMessageHandler))
             {
@@ -256,9 +256,9 @@ namespace NServiceBus
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
 
-        public class Configuration
+        public class Settings
         {
-            public Configuration(SettingsHolder settings)
+            public Settings(SettingsHolder settings)
             {
                 this.settings = settings;
             }
