@@ -163,14 +163,14 @@ namespace NServiceBus
                 hostingComponent,
                 pipelineSettings);
 
-            transportComponent = TransportComponent.Initialize(transportConfiguration, hostingComponent);
-
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
                 hostingComponent);
 
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             // As well as all the other components have been initialized
             settings.PreventChanges();
+
+            transportComponent = TransportComponent.Initialize(transportConfiguration, hostingComponent);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new

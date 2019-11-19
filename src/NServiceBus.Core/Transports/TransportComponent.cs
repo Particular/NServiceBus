@@ -22,7 +22,7 @@
 
         public static TransportComponent Initialize(Configuration configuration, HostingComponent hostingComponent)
         {
-            var transportComponent = new TransportComponent(configuration.TransportInfrastructure, configuration.QueueBindings);
+            var transportComponent = new TransportComponent(configuration.transportInfrastructure, configuration.QueueBindings);
 
             if (configuration.ReceivingEnabled)
             {
@@ -48,7 +48,7 @@
             transportSendInfrastructure = transportInfrastructure.ConfigureSendInfrastructure();
         }
 
-        public void ConfigureReceiveInfrastructure()
+        void ConfigureReceiveInfrastructure()
         {
             transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
         }
@@ -69,8 +69,6 @@
         {
             return dispatcher ?? (dispatcher = transportSendInfrastructure.DispatcherFactory());
         }
-
-
 
         public Func<IPushMessages> GetMessagePumpFactory()
         {
@@ -125,28 +123,29 @@
         {
             public Configuration(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings, bool receivingEnabled)
             {
-                TransportInfrastructure = transportInfrastructure;
+                this.transportInfrastructure = transportInfrastructure;
                 QueueBindings = queueBindings;
                 ReceivingEnabled = receivingEnabled;
+                TransportType = transportInfrastructure.GetType();
             }
 
             public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
             {
-                return TransportInfrastructure.BindToLocalEndpoint(endpointInstance);
+                return transportInfrastructure.BindToLocalEndpoint(endpointInstance);
             }
 
             public string ToTransportAddress(LogicalAddress logicalAddress)
             {
-                return TransportInfrastructure.ToTransportAddress(logicalAddress);
+                return transportInfrastructure.ToTransportAddress(logicalAddress);
             }
 
-            public QueueBindings QueueBindings { get; private set; }
+            public QueueBindings QueueBindings { get; }
 
-            public Type TransportType { get { return TransportInfrastructure.GetType(); } }
+            public Type TransportType { get; }
 
-            public TransportInfrastructure TransportInfrastructure { get; private set; }
+            public bool ReceivingEnabled { get; }
 
-            public bool ReceivingEnabled { get; private set; }
+            public readonly TransportInfrastructure transportInfrastructure;
         }
 
         public class Settings
