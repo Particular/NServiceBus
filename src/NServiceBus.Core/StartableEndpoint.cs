@@ -31,18 +31,18 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            await pipelineComponent.Start(builder).ConfigureAwait(false);
-
             await transportComponent.Start().ConfigureAwait(false);
             // This is a hack to maintain the current order of transport infrastructure initialization
             transportComponent.ConfigureSendInfrastructureForBackwardsCompatibility();
 
+            var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder, messageOperations));
+            var rootContext = new RootContext(builder, messageOperations, pipelineCache);
+            var messageSession = new MessageSession(rootContext);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineCache).ConfigureAwait(false);
             
             // This is a hack to maintain the current order of transport infrastructure initialization
             await transportComponent.InvokeSendPreStartupChecksForBackwardsCompatibility().ConfigureAwait(false);

@@ -4,10 +4,11 @@ namespace NServiceBus
 
     class RootContext : BehaviorContext
     {
-        public RootContext(IBuilder builder, MessageOperations messageOperations) : base(null)
+        public RootContext(IBuilder builder, MessageOperations messageOperations, IPipelineCache pipelineCache) : base(null)
         {
             Set(messageOperations);
             Set(builder);
+            Set(pipelineCache);
         }
     }
 }
