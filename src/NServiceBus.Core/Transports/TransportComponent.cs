@@ -8,34 +8,33 @@
 
     class TransportComponent
     {
-        protected TransportComponent(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        public static Configuration PrepareConfiguration(Settings settings)
         {
-            this.transportInfrastructure = transportInfrastructure;
-            QueueBindings = queueBindings;
+            var transportDefinition = settings.TransportDefinition;
+            var connectionString = settings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
+
+            var transportInfrastructure = transportDefinition.Initialize(settings.RawSettings, connectionString);
+
+            settings.RegisterTransportInfrastructureForBackwardsCompatibility(transportInfrastructure);
+
+            return new Configuration(transportInfrastructure, settings.QueueBindings, settings.ReceivingEnabled);
         }
 
-        public QueueBindings QueueBindings { get; }
-
-        public static TransportComponent Initialize(Configuration configuration, SettingsHolder settings, HostingComponent hostingComponent)
+        public static TransportComponent Initialize(Configuration configuration, HostingComponent hostingComponent)
         {
-            var transportDefinition = configuration.TransportDefinition;
-            var connectionString = configuration.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
+            var transportComponent = new TransportComponent(configuration.transportInfrastructure, configuration.QueueBindings);
 
-            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
-
-            //for backwards compatibility
-            settings.Set(transportInfrastructure);
-
-            var transportType = transportDefinition.GetType();
-
-            var transportComponent = new TransportComponent(transportInfrastructure, configuration.QueueBindings);
+            if (configuration.ReceivingEnabled)
+            {
+                transportComponent.ConfigureReceiveInfrastructure();
+            }
 
             hostingComponent.Container.ConfigureComponent(() => transportComponent.GetOrCreateDispatcher(), DependencyLifecycle.SingleInstance);
 
-            settings.AddStartupDiagnosticsSection("Transport", new
+            hostingComponent.AddStartupDiagnosticsSection("Transport", new
             {
-                Type = transportType.FullName,
-                Version = FileVersionRetriever.GetFileVersion(transportType)
+                Type = configuration.TransportType.FullName,
+                Version = FileVersionRetriever.GetFileVersion(configuration.TransportType)
             });
 
             return transportComponent;
@@ -47,6 +46,11 @@
         public void ConfigureSendInfrastructureForBackwardsCompatibility()
         {
             transportSendInfrastructure = transportInfrastructure.ConfigureSendInfrastructure();
+        }
+
+        void ConfigureReceiveInfrastructure()
+        {
+            transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
         }
 
         [ObsoleteEx(
@@ -66,24 +70,9 @@
             return dispatcher ?? (dispatcher = transportSendInfrastructure.DispatcherFactory());
         }
 
-        public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
-        {
-            return transportInfrastructure.BindToLocalEndpoint(endpointInstance);
-        }
-
         public Func<IPushMessages> GetMessagePumpFactory()
         {
-            if (transportReceiveInfrastructure == null)
-            {
-                transportReceiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
-            }
-
             return transportReceiveInfrastructure.MessagePumpFactory;
-        }
-
-        public string ToTransportAddress(LogicalAddress logicalAddress)
-        {
-            return transportInfrastructure.ToTransportAddress(logicalAddress);
         }
 
         public Task CreateQueuesIfNecessary(string username)
@@ -95,7 +84,7 @@
 
             var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
 
-            return queueCreator.CreateQueueIfNecessary(QueueBindings, username);
+            return queueCreator.CreateQueueIfNecessary(queueBindings, username);
         }
 
         public async Task Start()
@@ -118,15 +107,50 @@
             return transportInfrastructure.Stop();
         }
 
-        TransportSendInfrastructure transportSendInfrastructure;
-        IDispatchMessages dispatcher;
+        protected TransportComponent(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        {
+            this.transportInfrastructure = transportInfrastructure;
+            this.queueBindings = queueBindings;
+        }
 
         TransportInfrastructure transportInfrastructure;
+        TransportSendInfrastructure transportSendInfrastructure;
         TransportReceiveInfrastructure transportReceiveInfrastructure;
+        QueueBindings queueBindings;
+        IDispatchMessages dispatcher;
 
         public class Configuration
         {
-            public Configuration(SettingsHolder settings)
+            public Configuration(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings, bool receivingEnabled)
+            {
+                this.transportInfrastructure = transportInfrastructure;
+                QueueBindings = queueBindings;
+                ReceivingEnabled = receivingEnabled;
+                TransportType = transportInfrastructure.GetType();
+            }
+
+            public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
+            {
+                return transportInfrastructure.BindToLocalEndpoint(endpointInstance);
+            }
+
+            public string ToTransportAddress(LogicalAddress logicalAddress)
+            {
+                return transportInfrastructure.ToTransportAddress(logicalAddress);
+            }
+
+            public QueueBindings QueueBindings { get; }
+
+            public Type TransportType { get; }
+
+            public bool ReceivingEnabled { get; }
+
+            public readonly TransportInfrastructure transportInfrastructure;
+        }
+
+        public class Settings
+        {
+            public Settings(SettingsHolder settings)
             {
                 this.settings = settings;
 
@@ -158,6 +182,15 @@
             {
                 get { return settings.Get<QueueBindings>(); }
             }
+
+            public void RegisterTransportInfrastructureForBackwardsCompatibility(TransportInfrastructure transportInfrastructure)
+            {
+                settings.Set(transportInfrastructure);
+            }
+
+            public SettingsHolder RawSettings { get { return settings; } }
+
+            public bool ReceivingEnabled { get { return !settings.Get<bool>("Endpoint.SendOnly"); } }
 
             readonly SettingsHolder settings;
         }

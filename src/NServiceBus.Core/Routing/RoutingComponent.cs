@@ -41,7 +41,7 @@ namespace NServiceBus
         public Validations MessageValidator { get; }
 
         public static RoutingComponent Initialize(Configuration configuration,
-            TransportComponent transportComponent,
+            TransportComponent.Configuration transportConfiguration,
             ReceiveConfiguration receiveConfiguration,
             Conventions conventions,
             PipelineSettings pipelineSettings)
@@ -74,7 +74,7 @@ namespace NServiceBus
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,
-                i => transportComponent.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                i => transportConfiguration.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
             return new RoutingComponent(
                 unicastRoutingTable,

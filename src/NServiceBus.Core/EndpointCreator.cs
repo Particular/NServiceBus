@@ -124,13 +124,13 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(hostingComponent);
 
-            transportComponent = TransportComponent.Initialize(settings.Get<TransportComponent.Configuration>(), settings, hostingComponent);
+            var transportConfiguration = TransportComponent.PrepareConfiguration(settings.Get<TransportComponent.Settings>());
 
-            var receiveConfiguration = BuildReceiveConfiguration(transportComponent);
+            var receiveConfiguration = BuildReceiveConfiguration(transportConfiguration);
 
             var routingComponent = RoutingComponent.Initialize(
                 settings.Get<RoutingComponent.Configuration>(),
-                transportComponent,
+                transportConfiguration,
                 receiveConfiguration,
                 settings.Get<Conventions>(),
                 pipelineSettings);
@@ -157,19 +157,20 @@ namespace NServiceBus
             receiveComponent = ReceiveComponent.Initialize(
                 settings.Get<ReceiveComponent.Configuration>(),
                 receiveConfiguration,
-                transportComponent,
+                transportConfiguration,
                 pipelineComponent,
                 settings.ErrorQueueAddress(),
                 hostingComponent,
                 pipelineSettings);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
-                hostingComponent,
-                transportComponent);
+                hostingComponent);
 
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             // As well as all the other components have been initialized
             settings.PreventChanges();
+
+            transportComponent = TransportComponent.Initialize(transportConfiguration, hostingComponent);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
@@ -185,7 +186,7 @@ namespace NServiceBus
         {
             // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-            await installationComponent.Start(builder).ConfigureAwait(false);
+            await installationComponent.Start(builder, transportComponent).ConfigureAwait(false);
 
             return new StartableEndpoint(settings,
                 featureComponent,
@@ -198,9 +199,9 @@ namespace NServiceBus
                 builder);
         }
 
-        ReceiveConfiguration BuildReceiveConfiguration(TransportComponent transportComponent)
+        ReceiveConfiguration BuildReceiveConfiguration(TransportComponent.Configuration transportConfiguration)
         {
-            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportComponent);
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportConfiguration);
 
             if (receiveConfiguration == null)
             {

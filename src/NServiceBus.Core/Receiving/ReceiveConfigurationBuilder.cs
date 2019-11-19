@@ -7,7 +7,7 @@ namespace NServiceBus
 
     static class ReceiveConfigurationBuilder
     {
-        public static ReceiveConfiguration Build(ReadOnlySettings settings, TransportComponent transportComponent)
+        public static ReceiveConfiguration Build(ReadOnlySettings settings, TransportComponent.Configuration transportConfiguration)
         {
             var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
 
@@ -26,16 +26,16 @@ namespace NServiceBus
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
 
             //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
-            var mainInstanceProperties = transportComponent.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
+            var mainInstanceProperties = transportConfiguration.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
 
             var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
 
-            var localAddress = transportComponent.ToTransportAddress(logicalAddress);
+            var localAddress = transportConfiguration.ToTransportAddress(logicalAddress);
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportComponent.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
+                instanceSpecificQueue = transportConfiguration.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
             }
 
             var transactionMode = GetRequiredTransactionMode(settings);
@@ -43,13 +43,13 @@ namespace NServiceBus
             var pushRuntimeSettings = GetDequeueLimitations(settings);
 
             return new ReceiveConfiguration(
-                logicalAddress, 
-                queueNameBase, 
-                localAddress, 
+                logicalAddress,
+                queueNameBase,
+                localAddress,
                 instanceSpecificQueue,
-                transactionMode, 
-                pushRuntimeSettings, 
-                purgeOnStartup, 
+                transactionMode,
+                pushRuntimeSettings,
+                purgeOnStartup,
                 settings.GetOrDefault<Notification<ReceivePipelineCompleted>>() ?? new Notification<ReceivePipelineCompleted>());
         }
 

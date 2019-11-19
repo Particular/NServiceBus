@@ -16,13 +16,11 @@ namespace NServiceBus
     class ReceiveComponent
     {
         ReceiveComponent(ReceiveConfiguration transportReceiveConfiguration,
-            Func<IPushMessages> messagePumpFactory,
             PipelineComponent pipelineComponent,
             CriticalError criticalError,
             string errorQueue)
         {
             this.transportReceiveConfiguration = transportReceiveConfiguration;
-            this.messagePumpFactory = messagePumpFactory;
             this.pipelineComponent = pipelineComponent;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
@@ -32,28 +30,19 @@ namespace NServiceBus
 
         public static ReceiveComponent Initialize(Configuration configuration,
             ReceiveConfiguration transportReceiveConfiguration,
-            TransportComponent transportComponent,
+            TransportComponent.Configuration transportConfiguration,
             PipelineComponent pipelineComponent,
             string errorQueue,
             HostingComponent hostingComponent,
             PipelineSettings pipelineSettings)
 
         {
-            Func<IPushMessages> messagePumpFactory = null;
-
-            //we don't need the message pump factory for send-only endpoints
-            if (transportReceiveConfiguration != null)
-            {
-                messagePumpFactory = transportComponent.GetMessagePumpFactory();
-            }
-
             var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
-                messagePumpFactory,
                 pipelineComponent,
                 hostingComponent.CriticalError,
                 errorQueue);
 
-            receiveComponent.BindQueues(transportComponent.QueueBindings);
+            receiveComponent.BindQueues(transportConfiguration.QueueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -104,7 +93,11 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task PrepareToStart(IBuilder builder, RecoverabilityComponent recoverabilityComponent, MessageOperations messageOperations, IPipelineCache pipelineCache)
+        public async Task PrepareToStart(IBuilder builder, 
+        RecoverabilityComponent recoverabilityComponent, 
+        MessageOperations messageOperations, 
+        IPipelineCache pipelineCache,
+        TransportComponent transportComponent)
         {
             if (IsSendOnly)
             {
@@ -119,7 +112,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder));
+            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportComponent.GetMessagePumpFactory());
 
             foreach (var receiver in receivers)
             {
@@ -183,7 +176,7 @@ namespace NServiceBus
             }
         }
 
-        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
+        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
         {
             var requiredTransactionSupport = transportReceiveConfiguration.TransactionMode;
 
@@ -191,7 +184,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(transportReceiveConfiguration.LocalAddress, errorQueue, transportReceiveConfiguration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = transportReceiveConfiguration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
 
             if (transportReceiveConfiguration.InstanceSpecificQueue != null)
             {
@@ -199,7 +192,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, transportReceiveConfiguration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }
 
             foreach (var satellitePipeline in transportReceiveConfiguration.SatelliteDefinitions)
@@ -207,13 +200,8 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, transportReceiveConfiguration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
-        }
-
-        IPushMessages BuildMessagePump()
-        {
-            return messagePumpFactory();
         }
 
         static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
@@ -258,7 +246,6 @@ namespace NServiceBus
 
         ReceiveConfiguration transportReceiveConfiguration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
-        Func<IPushMessages> messagePumpFactory;
         readonly PipelineComponent pipelineComponent;
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
