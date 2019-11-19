@@ -38,7 +38,7 @@ namespace NServiceBus
         {
             objectBuilder = builder;
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, builder);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, null);
 
             var startableEndpoint = await endpointCreator.CreateStartableEndpoint(builder, hostingComponent).ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
