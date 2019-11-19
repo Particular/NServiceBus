@@ -10,18 +10,18 @@ namespace NServiceBus
             this.modifications = modifications;
         }
 
-        public static PipelineComponent Initialize(PipelineSettings settings, HostingComponent hostingComponent)
+        public static PipelineComponent Initialize(PipelineSettings settings, HostingComponent.Configuration hostingConfiguration)
         {
             var modifications = settings.modifications;
 
             foreach (var registeredBehavior in modifications.Replacements)
             {
-                hostingComponent.Container.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
+                hostingConfiguration.Container.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
             }
 
             foreach (var step in modifications.Additions)
             {
-                step.ApplyContainerRegistration(hostingComponent.Container);
+                step.ApplyContainerRegistration(hostingConfiguration.Container);
             }
 
             return new PipelineComponent(modifications);

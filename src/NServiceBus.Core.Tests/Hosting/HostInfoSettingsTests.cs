@@ -14,7 +14,7 @@
 
             busConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(requestedId);
 
-            var configuredId = busConfig.Settings.Get<HostingComponent.Configuration>().HostId;
+            var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
             Assert.AreEqual(requestedId, configuredId);
         }
 
@@ -25,7 +25,7 @@
 
             busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance","Host");
 
-            var configuredId = busConfig.Settings.Get<HostingComponent.Configuration>().HostId;
+            var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
             Assert.AreEqual(DeterministicGuid.Create("Instance", "Host"), configuredId);
         }
     }

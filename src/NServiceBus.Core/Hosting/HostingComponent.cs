@@ -15,86 +15,44 @@
 
     class HostingComponent
     {
-        public HostingComponent(Configuration configuration, List<Type> availableTypes, IConfigureComponents container, IBuilder internalBuilder)
-        {
-            this.configuration = configuration;
-            this.internalBuilder = internalBuilder;
-            AvailableTypes = availableTypes;
-            Container = container;
-            CriticalError = new CriticalError(configuration.CustomCriticalErrorAction);
-        }
-
-        public string EndpointName => configuration.EndpointName;
-
-        public HostInformation HostInformation
-        {
-            get
-            {
-                if (hostInformation == null)
-                {
-                    throw new InvalidOperationException("Host information can't be accessed until features have been created for backwards compatibility");
-                }
-
-                return hostInformation;
-            }
-        }
-
-        public CriticalError CriticalError { get; }
-
-        public IConfigureComponents Container { get; private set; }
-
-        public ICollection<Type> AvailableTypes { get; }
-
-        public static HostingComponent Initialize(Configuration configuration,
-            AssemblyScanningComponent assemblyScanningComponent,
-            IConfigureComponents internalContainer,
-            IBuilder internalBuilder)
+        public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IConfigureComponents container)
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
-            var hostingComponent = new HostingComponent(configuration, availableTypes, internalContainer, internalBuilder);
+            var configuration = new Configuration(settings,
+                availableTypes,
+                new CriticalError(settings.CustomCriticalErrorAction),
+                settings.StartupDiagnostics,
+                settings.DiagnosticsPath,
+                settings.HostDiagnosticsWriter,
+                settings.EndpointName,
+                container);
 
-            ApplyRegistrations(configuration, hostingComponent);
+            container.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
+            container.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
 
-            return hostingComponent;
-        }
-
-        public void AddStartupDiagnosticsSection(string sectionName, object section)
-        {
-            configuration.StartupDiagnostics.Add(sectionName, section);
-        }
-
-        // We just need to do this to allow host id to be overidden by accessing settings via Feature defaults.
-        // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
-        // See the test When_feature_overrides_hostinfo for more details.
-        [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
-        public void CreateHostInformationForV7BackwardsCompatibility()
-        {
-            hostInformation = new HostInformation(configuration.HostId, configuration.DisplayName, configuration.Properties);
-
-            AddStartupDiagnosticsSection("Hosting", new
+            foreach (var registration in settings.UserRegistrations)
             {
-                hostInformation.HostId,
-                HostDisplayName = hostInformation.DisplayName,
-                RuntimeEnvironment.MachineName,
-                OSPlatform = Environment.OSVersion.Platform,
-                OSVersion = Environment.OSVersion.VersionString,
-                GCSettings.IsServerGC,
-                GCLatencyMode = GCSettings.LatencyMode,
-                Environment.ProcessorCount,
-                Environment.Is64BitProcess,
-                CLRVersion = Environment.Version,
-                Environment.WorkingSet,
-                Environment.SystemPageSize,
-                HostName = Dns.GetHostName(),
-                Environment.UserName,
-                PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
-            });
+                registration(container);
+            }
+
+            return configuration;
+        }
+
+        public static HostingComponent Initialize(Configuration configuration, IBuilder internalBuilder)
+        {
+            return new HostingComponent(configuration, internalBuilder);
+        }
+
+        protected HostingComponent(Configuration configuration, IBuilder internalBuilder)
+        {
+            this.configuration = configuration;
+            this.internalBuilder = internalBuilder;
         }
 
         public Task Start(IEndpointInstance endpointInstance)
         {
-            CriticalError.SetEndpoint(endpointInstance);
+            configuration.CriticalError.SetEndpoint(endpointInstance);
 
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
@@ -108,24 +66,98 @@
             return Task.FromResult(0);
         }
 
-        static void ApplyRegistrations(Configuration configuration, HostingComponent hostingComponent)
-        {
-            hostingComponent.Container.ConfigureComponent(() => hostingComponent.HostInformation, DependencyLifecycle.SingleInstance);
-            hostingComponent.Container.ConfigureComponent(() => hostingComponent.CriticalError, DependencyLifecycle.SingleInstance);
-
-            foreach (var registration in configuration.UserRegistrations)
-            {
-                registration(hostingComponent.Container);
-            }
-        }
 
         Configuration configuration;
-        HostInformation hostInformation;
         IBuilder internalBuilder;
 
         public class Configuration
         {
-            public Configuration(SettingsHolder settings)
+            public Configuration(Settings settings,
+                List<Type> availableTypes,
+                CriticalError criticalError,
+                StartupDiagnosticEntries startupDiagnostics,
+                string diagnosticsPath,
+                Func<string, Task> hostDiagnosticsWriter,
+                string endpointName,
+                IConfigureComponents container)
+            {
+                this.settings = settings;
+                AvailableTypes = availableTypes;
+                CriticalError = criticalError;
+                StartupDiagnostics = startupDiagnostics;
+                DiagnosticsPath = diagnosticsPath;
+                HostDiagnosticsWriter = hostDiagnosticsWriter;
+                EndpointName = endpointName;
+                Container = container;
+            }
+
+            public ICollection<Type> AvailableTypes { get; }
+
+            public CriticalError CriticalError { get; }
+
+            public StartupDiagnosticEntries StartupDiagnostics { get; }
+
+            public Func<string, Task> HostDiagnosticsWriter { get; }
+
+            public string EndpointName { get; }
+
+            public IConfigureComponents Container { get; }
+
+            public string DiagnosticsPath { get; }
+
+            public void AddStartupDiagnosticsSection(string sectionName, object section)
+            {
+                StartupDiagnostics.Add(sectionName, section);
+            }
+
+            public HostInformation HostInformation
+            {
+                get
+                {
+                    if (hostInformation == null)
+                    {
+                        throw new InvalidOperationException("Host information can't be accessed until features have been created for backwards compatibility");
+                    }
+
+                    return hostInformation;
+                }
+            }
+
+            // We just need to do this to allow host id to be overidden by accessing settings via Feature defaults.
+            // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
+            // See the test When_feature_overrides_hostinfo for more details.
+            [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
+            public void CreateHostInformationForV7BackwardsCompatibility()
+            {
+                hostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
+
+                AddStartupDiagnosticsSection("Hosting", new
+                {
+                    hostInformation.HostId,
+                    HostDisplayName = hostInformation.DisplayName,
+                    RuntimeEnvironment.MachineName,
+                    OSPlatform = Environment.OSVersion.Platform,
+                    OSVersion = Environment.OSVersion.VersionString,
+                    GCSettings.IsServerGC,
+                    GCLatencyMode = GCSettings.LatencyMode,
+                    Environment.ProcessorCount,
+                    Environment.Is64BitProcess,
+                    CLRVersion = Environment.Version,
+                    Environment.WorkingSet,
+                    Environment.SystemPageSize,
+                    HostName = Dns.GetHostName(),
+                    Environment.UserName,
+                    PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
+                });
+            }
+
+            HostInformation hostInformation;
+            readonly Settings settings;
+        }
+
+        public class Settings
+        {
+            public Settings(SettingsHolder settings)
             {
                 this.settings = settings;
 
@@ -198,7 +230,7 @@
 
             public List<Action<IConfigureComponents>> UserRegistrations { get; } = new List<Action<IConfigureComponents>>();
 
-            public IContainer CustomContainer { get; set; }
+            public IContainer CustomObjectBuilder { get; set; }
 
             // Since the host id default is using MD5 which breaks MIPS compliant users we need to delay setting the default until users have a chance to override
             // via a custom feature to be backwards compatible.

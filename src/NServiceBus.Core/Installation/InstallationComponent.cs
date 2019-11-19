@@ -14,7 +14,7 @@
             this.configuration = configuration;
         }
 
-        public static InstallationComponent Initialize(Configuration configuration, HostingComponent hostingComponent)
+        public static InstallationComponent Initialize(Configuration configuration, HostingComponent.Configuration hostingConfiguration)
         {
             var component = new InstallationComponent(configuration);
 
@@ -23,9 +23,9 @@
                 return component;
             }
 
-            foreach (var installerType in hostingComponent.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
+            foreach (var installerType in hostingConfiguration.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                hostingComponent.Container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                hostingConfiguration.Container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
 
             return component;
