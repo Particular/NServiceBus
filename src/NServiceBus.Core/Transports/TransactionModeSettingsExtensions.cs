@@ -16,7 +16,7 @@ namespace NServiceBus.ConsistencyGuarantees
             // TODO: add a test
             Guard.AgainstNull(nameof(settings), settings);
 
-            var receiveConfiguration = settings.Get<ReceiveComponent.ReceiveConfiguration>();
+            var receiveConfiguration = settings.Get<ReceiveComponent.Configuration>();
 
             if (receiveConfiguration.IsSendOnlyEndpoint)
             {

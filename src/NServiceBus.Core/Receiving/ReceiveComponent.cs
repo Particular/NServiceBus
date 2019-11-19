@@ -16,7 +16,7 @@ namespace NServiceBus
 
     class ReceiveComponent
     {
-        protected ReceiveComponent(ReceiveConfiguration configuration,
+        ReceiveComponent(Configuration configuration,
             PipelineComponent pipelineComponent,
             CriticalError criticalError,
             string errorQueue)
@@ -27,7 +27,7 @@ namespace NServiceBus
             this.errorQueue = errorQueue;
         }
 
-        public static ReceiveConfiguration PrepareConfiguration(Settings settings, TransportComponent.Configuration transportConfiguration)
+        public static Configuration PrepareConfiguration(Settings settings, TransportComponent.Configuration transportConfiguration)
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
@@ -58,7 +58,7 @@ namespace NServiceBus
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
-            var retValue = new ReceiveConfiguration(
+            var receiveConfiguration = new Configuration(
                 logicalAddress,
                 queueNameBase,
                 localAddress,
@@ -69,9 +69,9 @@ namespace NServiceBus
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
                 isSendOnlyEndpoint);
 
-            settings.RegisterReceiveConfigurationForBackwardsCompatibility(retValue);
+            settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
-            return retValue;
+            return receiveConfiguration;
         }
 
         static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportComponent.Configuration transportConfiguration)
@@ -95,7 +95,7 @@ namespace NServiceBus
         }
 
         public static ReceiveComponent Initialize(Settings settings,
-            ReceiveConfiguration transportReceiveConfiguration,
+            Configuration receiveConfiguration,
             TransportComponent.Configuration transportConfiguration,
             PipelineComponent pipelineComponent,
             string errorQueue,
@@ -103,7 +103,7 @@ namespace NServiceBus
             PipelineSettings pipelineSettings)
 
         {
-            var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
+            var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 pipelineComponent,
                 hostingConfiguration.CriticalError,
                 errorQueue);
@@ -135,18 +135,18 @@ namespace NServiceBus
                 LoadMessageHandlers(settings, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
-            if (transportReceiveConfiguration != null)
+            if (receiveConfiguration != null)
             {
                 hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
-                    transportReceiveConfiguration.LocalAddress,
-                    transportReceiveConfiguration.InstanceSpecificQueue,
-                    transportReceiveConfiguration.LogicalAddress,
-                    transportReceiveConfiguration.PurgeOnStartup,
-                    transportReceiveConfiguration.QueueNameBase,
-                    TransactionMode = transportReceiveConfiguration.TransactionMode.ToString("G"),
-                    transportReceiveConfiguration.PushRuntimeSettings.MaxConcurrency,
-                    Satellites = transportReceiveConfiguration.SatelliteDefinitions.Select(s => new
+                    receiveConfiguration.LocalAddress,
+                    receiveConfiguration.InstanceSpecificQueue,
+                    receiveConfiguration.LogicalAddress,
+                    receiveConfiguration.PurgeOnStartup,
+                    receiveConfiguration.QueueNameBase,
+                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
+                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
                     {
                         s.Name,
                         s.ReceiveAddress,
@@ -310,7 +310,7 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
-        ReceiveConfiguration configuration;
+        Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         readonly PipelineComponent pipelineComponent;
         IPipelineExecutor mainPipelineExecutor;
@@ -375,16 +375,16 @@ namespace NServiceBus
             const string TransportPurgeOnStartupSettingsKey = "Transport.PurgeOnStartup";
             const string EndpointSendOnlySettingKey = "Endpoint.SendOnly";
 
-            public void RegisterReceiveConfigurationForBackwardsCompatibility(ReceiveConfiguration receiveConfiguration)
+            public void RegisterReceiveConfigurationForBackwardsCompatibility(Configuration configuration)
             {
                 //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
-                settings.Set(receiveConfiguration);
+                settings.Set(configuration);
             }
         }
 
-        public class ReceiveConfiguration
+        public class Configuration
         {
-            public ReceiveConfiguration(LogicalAddress logicalAddress,
+            public Configuration(LogicalAddress logicalAddress,
                 string queueNameBase,
                 string localAddress,
                 string instanceSpecificQueue,
