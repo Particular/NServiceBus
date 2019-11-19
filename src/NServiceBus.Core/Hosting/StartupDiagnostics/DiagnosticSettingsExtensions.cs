@@ -19,7 +19,7 @@
             Guard.AgainstNullAndEmpty(nameof(sectionName), sectionName);
             Guard.AgainstNull(nameof(section), section);
 
-            settings.Get<HostingComponent.Configuration>().StartupDiagnostics.Add(sectionName, section);
+            settings.Get<HostingComponent.Settings>().StartupDiagnostics.Add(sectionName, section);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
 
             PathChecker.ThrowForBadPath(path, "Diagnostics root path");
 
-            config.GetSettings().Get<HostingComponent.Configuration>().DiagnosticsPath = path;
+            config.GetSettings().Get<HostingComponent.Settings>().DiagnosticsPath = path;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(customDiagnosticsWriter), customDiagnosticsWriter);
 
-            config.Settings.Get<HostingComponent.Configuration>().HostDiagnosticsWriter = customDiagnosticsWriter;
+            config.Settings.Get<HostingComponent.Settings>().HostDiagnosticsWriter = customDiagnosticsWriter;
         }
     }
 }

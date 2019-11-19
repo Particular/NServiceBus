@@ -20,7 +20,7 @@
             return new Configuration(transportInfrastructure, settings.QueueBindings, settings.ReceivingEnabled);
         }
 
-        public static TransportComponent Initialize(Configuration configuration, HostingComponent hostingComponent)
+        public static TransportComponent Initialize(Configuration configuration, HostingComponent.Configuration hostingConfiguration)
         {
             var transportComponent = new TransportComponent(configuration.transportInfrastructure, configuration.QueueBindings);
 
@@ -29,9 +29,9 @@
                 transportComponent.ConfigureReceiveInfrastructure();
             }
 
-            hostingComponent.Container.ConfigureComponent(() => transportComponent.GetOrCreateDispatcher(), DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Container.ConfigureComponent(() => transportComponent.GetOrCreateDispatcher(), DependencyLifecycle.SingleInstance);
 
-            hostingComponent.AddStartupDiagnosticsSection("Transport", new
+            hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
             {
                 Type = configuration.TransportType.FullName,
                 Version = FileVersionRetriever.GetFileVersion(configuration.TransportType)

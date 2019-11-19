@@ -1096,7 +1096,7 @@ namespace NServiceBus.Features
 
             // To allow users to avoid MD5 to be used by adding a hostid in a Feature default this have to stay here to maintain comaptibility.
             //For more details see the test: When_feature_overrides_hostid_from_feature_default
-            Defaults(settings => settings.Get<HostingComponent.Configuration>().ApplyHostIdDefaultIfNeededForV7BackwardsCompatibility());
+            Defaults(settings => settings.Get<HostingComponent.Settings>().ApplyHostIdDefaultIfNeededForV7BackwardsCompatibility());
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

@@ -33,27 +33,27 @@ namespace NServiceBus
             TransportComponent.Configuration transportConfiguration,
             PipelineComponent pipelineComponent,
             string errorQueue,
-            HostingComponent hostingComponent,
+            HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
 
         {
             var receiveComponent = new ReceiveComponent(transportReceiveConfiguration,
                 pipelineComponent,
-                hostingComponent.CriticalError,
+                hostingConfiguration.CriticalError,
                 errorQueue);
 
             receiveComponent.BindQueues(transportConfiguration.QueueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
-                var storage = hostingComponent.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
+                var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = hostingComponent.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = hostingComponent.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
+                var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
@@ -62,16 +62,16 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            if (!hostingComponent.Container.HasComponent<MessageHandlerRegistry>())
+            if (!hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>())
             {
                 var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
 
-                LoadMessageHandlers(configuration, orderedHandlers, hostingComponent.Container, hostingComponent.AvailableTypes);
+                LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
             if (transportReceiveConfiguration != null)
             {
-                hostingComponent.AddStartupDiagnosticsSection("Receiving", new
+                hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
                     transportReceiveConfiguration.LocalAddress,
                     transportReceiveConfiguration.InstanceSpecificQueue,

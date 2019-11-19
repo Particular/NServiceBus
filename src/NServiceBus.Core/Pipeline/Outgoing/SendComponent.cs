@@ -14,11 +14,11 @@
             this.messageMapper = messageMapper;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent hostingComponent, RoutingComponent routingComponent, IMessageMapper messageMapper)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
-            pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds audit host information");
-            pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingComponent.HostInformation, hostingComponent.EndpointName), "Adds host info headers to outgoing headers");
+            pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
+            pipelineSettings.Register("AddHostInfoHeaders", new AddHostInfoHeadersBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds host info headers to outgoing headers");
 
             pipelineSettings.Register("UnicastSendRouterConnector", new SendConnector(routingComponent.UnicastSendRouter), "Determines how the message being sent should be routed");
             pipelineSettings.Register("UnicastReplyRouterConnector", new ReplyConnector(), "Determines how replies should be routed");

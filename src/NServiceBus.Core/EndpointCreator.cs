@@ -14,13 +14,13 @@ namespace NServiceBus
 
     class EndpointCreator
     {
-        EndpointCreator(SettingsHolder settings, HostingComponent hostingComponent)
+        EndpointCreator(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration)
         {
             this.settings = settings;
-            this.hostingComponent = hostingComponent;
+            this.hostingConfiguration = hostingConfiguration;
         }
 
-        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
+        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -28,27 +28,28 @@ namespace NServiceBus
 
             FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
-            var hostingConfiguration = settings.Get<HostingComponent.Configuration>();
+            var hostingSettings = settings.Get<HostingComponent.Settings>();
 
-            if (hostingConfiguration.CustomContainer != null)
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(hostingSettings, assemblyScanningComponent, externalContainer);
+
+            if (hostingSettings.CustomObjectBuilder != null)
             {
                 throw new InvalidOperationException("An internally managed container has already been configured using 'EndpointConfiguration.UseContainer'. It is not possible to use both an internally managed container and an externally managed container.");
             }
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, assemblyScanningComponent, configureComponents, null);
-
-            hostingComponent.AddStartupDiagnosticsSection("Container", new
+            hostingConfiguration.AddStartupDiagnosticsSection("Container", new
             {
                 Type = "external"
             });
 
-            var endpointCreator = new EndpointCreator(settings, hostingComponent);
-            var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator);
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            configureComponents.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
+            var endpointCreator = new EndpointCreator(settings, hostingConfiguration);
 
             endpointCreator.Initialize();
+
+            var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator, hostingConfiguration);
+
+            //for backwards compatibility we need to make the IBuilder available in the container
+            externalContainer.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
 
             return startableEndpoint;
         }
@@ -61,9 +62,9 @@ namespace NServiceBus
 
             FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
-            var hostingConfiguration = settings.Get<HostingComponent.Configuration>();
-            var useDefaultBuilder = hostingConfiguration.CustomContainer == null;
-            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingConfiguration.CustomContainer;
+            var hostingSettting = settings.Get<HostingComponent.Settings>();
+            var useDefaultBuilder = hostingSettting.CustomObjectBuilder == null;
+            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingSettting.CustomObjectBuilder;
 
             var commonObjectBuilder = new CommonObjectBuilder(container);
 
@@ -73,11 +74,11 @@ namespace NServiceBus
             //for backwards compatibility we need to make the IBuilder available in the container
             internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
-            var hostingComponent = HostingComponent.Initialize(settings.Get<HostingComponent.Configuration>(), assemblyScanningComponent, internalContainer, internalBuilder);
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, internalContainer);
 
             if (useDefaultBuilder)
             {
-                hostingComponent.AddStartupDiagnosticsSection("Container", new
+                hostingConfiguration.AddStartupDiagnosticsSection("Container", new
                 {
                     Type = "internal"
                 });
@@ -86,18 +87,20 @@ namespace NServiceBus
             {
                 var containerType = internalContainer.GetType();
 
-                hostingComponent.AddStartupDiagnosticsSection("Container", new
+                hostingConfiguration.AddStartupDiagnosticsSection("Container", new
                 {
                     Type = containerType.FullName,
                     Version = FileVersionRetriever.GetFileVersion(containerType)
                 });
             }
 
-            var endpointCreator = new EndpointCreator(settings, hostingComponent);
+            var endpointCreator = new EndpointCreator(settings, hostingConfiguration);
 
             endpointCreator.Initialize();
 
-            return endpointCreator.CreateStartableEndpoint(internalBuilder);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration,internalBuilder);
+
+            return endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
@@ -114,15 +117,15 @@ namespace NServiceBus
         {
             var pipelineSettings = settings.Get<PipelineSettings>();
 
-            hostingComponent.Container.RegisterSingleton<ReadOnlySettings>(settings);
+            hostingConfiguration.Container.RegisterSingleton<ReadOnlySettings>(settings);
 
             featureComponent = new FeatureComponent(settings);
 
             // This needs to happen here to make sure that features enabled state is present in settings so both
             // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
-            featureComponent.RegisterFeatureEnabledStatusInSettings(hostingComponent);
+            featureComponent.RegisterFeatureEnabledStatusInSettings(hostingConfiguration);
 
-            ConfigRunBeforeIsFinalized(hostingComponent);
+            ConfigRunBeforeIsFinalized(hostingConfiguration);
 
             var transportConfiguration = TransportComponent.PrepareConfiguration(settings.Get<TransportComponent.Settings>());
 
@@ -140,19 +143,19 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingComponent.Container, pipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Container, pipelineSettings, routingComponent, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
 
-            hostingComponent.CreateHostInformationForV7BackwardsCompatibility();
+            hostingConfiguration.CreateHostInformationForV7BackwardsCompatibility();
 
-            recoverabilityComponent.Initialize(receiveConfiguration, hostingComponent);
+            recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration);
 
-            sendComponent = SendComponent.Initialize(pipelineSettings, hostingComponent, routingComponent, messageMapper);
+            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
-            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingComponent);
+            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 
-            hostingComponent.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             receiveComponent = ReceiveComponent.Initialize(
                 settings.Get<ReceiveComponent.Configuration>(),
@@ -160,17 +163,17 @@ namespace NServiceBus
                 transportConfiguration,
                 pipelineComponent,
                 settings.ErrorQueueAddress(),
-                hostingComponent,
+                hostingConfiguration,
                 pipelineSettings);
 
             installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
-                hostingComponent);
+                hostingConfiguration);
 
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             // As well as all the other components have been initialized
             settings.PreventChanges();
 
-            transportComponent = TransportComponent.Initialize(transportConfiguration, hostingComponent);
+            transportComponent = TransportComponent.Initialize(transportConfiguration, hostingConfiguration);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
@@ -182,7 +185,7 @@ namespace NServiceBus
             );
         }
 
-        public async Task<IStartableEndpoint> CreateStartableEndpoint(IBuilder builder)
+        public async Task<IStartableEndpoint> CreateStartableEndpoint(IBuilder builder, HostingComponent hostingComponent)
         {
             // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
             // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
@@ -214,9 +217,9 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        void ConfigRunBeforeIsFinalized(HostingComponent hostingComponent)
+        void ConfigRunBeforeIsFinalized(HostingComponent.Configuration hostingConfiguration)
         {
-            foreach (var instanceToInvoke in hostingComponent.AvailableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
+            foreach (var instanceToInvoke in hostingConfiguration.AvailableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
                 .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
             {
                 instanceToInvoke.Run(settings);
@@ -279,7 +282,7 @@ namespace NServiceBus
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
         InstallationComponent installationComponent;
-        HostingComponent hostingComponent;
+        HostingComponent.Configuration hostingConfiguration;
         SendComponent sendComponent;
     }
 }
