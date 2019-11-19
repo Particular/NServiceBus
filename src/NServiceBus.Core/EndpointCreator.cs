@@ -20,7 +20,7 @@ namespace NServiceBus
             this.hostingConfiguration = hostingConfiguration;
         }
 
-        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
+        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -30,7 +30,7 @@ namespace NServiceBus
 
             var hostingSettings = settings.Get<HostingComponent.Settings>();
 
-            var hostingConfiguration = HostingComponent.PrepareConfiguration(hostingSettings, assemblyScanningComponent, configureComponents);
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(hostingSettings, assemblyScanningComponent, externalContainer);
 
             if (hostingSettings.CustomObjectBuilder != null)
             {
@@ -49,7 +49,7 @@ namespace NServiceBus
             var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator, hostingConfiguration);
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            configureComponents.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
+            externalContainer.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
 
             return startableEndpoint;
         }
