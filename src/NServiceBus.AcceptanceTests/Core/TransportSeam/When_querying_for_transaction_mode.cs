@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.ConsistencyGuarantees;
     using NUnit.Framework;
 
     public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest
@@ -11,7 +12,7 @@
         [Test]
         public async Task Should_retrieve_value_set_for_transport_transaction_mode()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(c => c.CustomConfig(ec =>
                 {
                     ec.EnableFeature<Endpoint.FeatureEnabledByUser>();
@@ -20,10 +21,13 @@
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
+
+            Assert.AreEqual(TransportTransactionMode.ReceiveOnly, context.TransactionModeFromSettingsExtensions, "Transport transaction mode for the endpoint did not match the expected value.");
         }
 
         class Context : ScenarioContext
         {
+            public TransportTransactionMode TransactionModeFromSettingsExtensions { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -35,10 +39,11 @@
 
             public class FeatureEnabledByUser : Feature
             {
+                public Context TestContext { get; set; }
+
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    var endpointTransactionMode = ConsistencyGuarantees.TransactionModeSettingsExtensions.GetRequiredTransactionModeForReceives(context.Settings);
-                    Assert.AreEqual(TransportTransactionMode.ReceiveOnly, endpointTransactionMode, "Transport transaction mode for the endpoint did not match the expected value.");
+                    context.Settings.Get<Context>().TransactionModeFromSettingsExtensions = context.Settings.GetRequiredTransactionModeForReceives();
                 }
             }
         }
