@@ -4,7 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.ConsistencyGuarantees;
+    using ConsistencyGuarantees;
     using NUnit.Framework;
 
     public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest

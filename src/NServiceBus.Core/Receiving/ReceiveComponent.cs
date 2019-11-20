@@ -68,7 +68,8 @@ namespace NServiceBus
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
                 isSendOnlyEndpoint,
-                settings.ExecuteTheseHandlersFirst);
+                settings.ExecuteTheseHandlersFirst,
+                settings.MessageHandlerRegistry);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
@@ -399,7 +400,8 @@ namespace NServiceBus
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
                 bool isSendOnlyEndpoint,
-                List<Type> executeTheseHandlersFirst)
+                List<Type> executeTheseHandlersFirst,
+                MessageHandlerRegistry messageHandlerRegistry)
             {
                 LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
@@ -412,6 +414,7 @@ namespace NServiceBus
                 PipelineCompletedSubscribers = pipelineCompletedSubscribers;
                 ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
                 satelliteDefinitions = new List<SatelliteDefinition>();
+                this.messageHandlerRegistry = messageHandlerRegistry;
             }
 
             public LogicalAddress LogicalAddress { get; }
