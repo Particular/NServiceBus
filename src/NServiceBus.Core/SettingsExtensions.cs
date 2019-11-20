@@ -62,7 +62,6 @@ namespace NServiceBus
         /// </summary>
         public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
-            // TODO: add a test
             Guard.AgainstNull(nameof(settings), settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
