@@ -160,7 +160,7 @@ namespace NServiceBus
                 LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
-            if (!configuration.IsSendOnlyEndpoint)
+            if (configuration.IsSendOnlyEndpoint == false)
             {
                 hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
