@@ -135,33 +135,33 @@ namespace NServiceBus
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
-            pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
-            {
-                var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
-                return new TransportReceiveToPhysicalMessageConnector(storage);
-            }, "Allows to abort processing the message");
-
-            pipelineSettings.Register("LoadHandlersConnector", b =>
-            {
-                var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
-
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
-            }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
-
-            pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
-
-            pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
-
-            if (!hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>())
-            {
-                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
-
-                LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
-            }
-
             if (configuration.IsSendOnlyEndpoint == false)
             {
+                pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
+                {
+                    var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
+                    return new TransportReceiveToPhysicalMessageConnector(storage);
+                }, "Allows to abort processing the message");
+
+                pipelineSettings.Register("LoadHandlersConnector", b =>
+                {
+                    var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
+                    var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+
+                    return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
+                }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+
+                pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
+
+                pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
+
+                if (!hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>())
+                {
+                    var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
+
+                    LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+                }
+
                 hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
                     configuration.LocalAddress,
