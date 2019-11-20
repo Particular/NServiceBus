@@ -129,7 +129,7 @@ namespace NServiceBus
             ConfigRunBeforeIsFinalized(hostingConfiguration);
 
             var transportSettings = settings.Get<TransportSeam.Settings>();
-            transportInfrastructure = TransportSeam.Create(transportSettings);
+            transportInfrastructure = TransportSeam.Create(transportSettings, hostingConfiguration);
 
             var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
                 settings.Get<ReceiveComponent.Settings>(),
@@ -176,12 +176,6 @@ namespace NServiceBus
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             // As well as all the other components have been initialized
             settings.PreventChanges();
-
-            hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
-            {
-                Type = transportInfrastructure.GetType().FullName,
-                Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
-            });
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new

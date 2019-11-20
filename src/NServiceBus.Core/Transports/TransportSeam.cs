@@ -6,7 +6,7 @@
 
     class TransportSeam
     {
-        public static TransportInfrastructure Create(Settings transportSettings)
+        public static TransportInfrastructure Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
         {
             var transportDefinition = transportSettings.TransportDefinition;
             var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
@@ -15,6 +15,12 @@
 
             //RegisterTransportInfrastructureForBackwardsCompatibility
             transportSettings.settings.Set(transportInfrastructure);
+
+            hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
+            {
+                Type = transportInfrastructure.GetType().FullName,
+                Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
+            });
 
             return transportInfrastructure;
         }
