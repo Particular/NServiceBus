@@ -19,10 +19,5 @@ namespace NServiceBus
 
             config.Settings.Get<ReceiveComponent.Settings>().PushRuntimeSettings = new PushRuntimeSettings(maxConcurrency);
         }
-
-        internal class ConcurrencyLimit
-        {
-            public int MaxValue { get; set; }
-        }
     }
 }

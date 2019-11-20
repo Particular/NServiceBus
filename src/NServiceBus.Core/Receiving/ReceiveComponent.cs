@@ -380,6 +380,11 @@ namespace NServiceBus
                 //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
                 settings.Set(configuration);
             }
+
+            public void SetDefaultPushRuntimeSettings(PushRuntimeSettings pushRuntimeSettings)
+            {
+                settings.SetDefault(pushRuntimeSettings);
+            }
         }
 
         public class Configuration
