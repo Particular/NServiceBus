@@ -13,12 +13,7 @@
         public async Task Should_retrieve_value_set_for_transport_transaction_mode()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(c => c.CustomConfig(ec =>
-                {
-                    ec.EnableFeature<Endpoint.FeatureEnabledByUser>();
-                    var transport = ec.UseTransport<LearningTransport>();
-                    transport.Transactions(TransportTransactionMode.ReceiveOnly);
-                }))
+                .WithEndpoint<Endpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
@@ -34,7 +29,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<FeatureEnabledByUser>();
+                    c.ConfigureTransport().Transactions(TransportTransactionMode.ReceiveOnly);
+                });
             }
 
             public class FeatureEnabledByUser : Feature
