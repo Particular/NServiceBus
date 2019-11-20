@@ -21,10 +21,10 @@
                 storagePath = FindStoragePath();
             }
 
-            settings.SetDefault(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
+            if (settings.TryGet<ReceiveComponent.Settings>(out var receiveSettings))
             {
-                MaxValue = 1
-            });
+                receiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
+            }
 
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");

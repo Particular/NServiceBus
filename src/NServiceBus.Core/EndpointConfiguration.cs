@@ -33,10 +33,10 @@ namespace NServiceBus
 
             Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
             Settings.Set(new InstallationComponent.Configuration(Settings));
-            Settings.Set(new HostingComponent.Configuration(Settings));
+            Settings.Set(new HostingComponent.Settings(Settings));
             Settings.Set(new TransportSettings(Settings));
             Settings.Set(new RoutingComponent.Configuration(Settings));
-            Settings.Set(new ReceiveComponent.Configuration(Settings));
+            Settings.Set(new ReceiveComponent.Settings(Settings));
             Settings.Set(new RecoverabilityComponent.Configuration());
             Settings.Set(Pipeline = new PipelineSettings(Settings));
 
@@ -63,7 +63,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(registration), registration);
 
-            Settings.Get<HostingComponent.Configuration>().UserRegistrations.Add(registration);
+            Settings.Get<HostingComponent.Settings>().UserRegistrations.Add(registration);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(definitionType), definitionType);
             Guard.TypeHasDefaultConstructor(definitionType, nameof(definitionType));
 
-            Settings.Get<HostingComponent.Configuration>().CustomContainer = definitionType.Construct<ContainerDefinition>().CreateContainer(Settings);
+            Settings.Get<HostingComponent.Settings>().CustomObjectBuilder = definitionType.Construct<ContainerDefinition>().CreateContainer(Settings);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(builder), builder);
 
-            Settings.Get<HostingComponent.Configuration>().CustomContainer = builder;
+            Settings.Get<HostingComponent.Settings>().CustomObjectBuilder = builder;
         }
 
         //This needs to be here since we have downstreams that use reflection to access this property

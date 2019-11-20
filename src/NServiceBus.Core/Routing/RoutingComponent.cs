@@ -43,7 +43,7 @@ namespace NServiceBus
 
         public static RoutingComponent Initialize(Configuration configuration,
             TransportInfrastructure transportInfrastructure,
-            ReceiveConfiguration receiveConfiguration,
+            ReceiveComponent.Configuration receiveConfiguration,
             Conventions conventions,
             PipelineSettings pipelineSettings)
         {

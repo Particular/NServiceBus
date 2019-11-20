@@ -38,15 +38,15 @@
             return recoverabilityExecutorFactory;
         }
 
-        public void Initialize(ReceiveConfiguration receiveConfiguration, HostingComponent hostingComponent)
+        public void Initialize(ReceiveComponent.Configuration receiveConfiguration, HostingComponent.Configuration hostingConfiguration)
         {
-            if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            if (receiveConfiguration.IsSendOnlyEndpoint)
             {
                 //Message recoverability is only relevant for endpoints receiving messages.
                 return;
             }
 
-            hostInformation = hostingComponent.HostInformation;
+            hostInformation = hostingConfiguration.HostInformation;
 
             transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
 
@@ -61,7 +61,7 @@
 
             recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
-            hostingComponent.AddStartupDiagnosticsSection("Recoverability", new
+            hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
             {
                 ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
                 DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,

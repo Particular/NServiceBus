@@ -14,11 +14,11 @@
             this.settings = settings;
         }
 
-        public void RegisterFeatureEnabledStatusInSettings(HostingComponent hostingComponent)
+        public void RegisterFeatureEnabledStatusInSettings(HostingComponent.Configuration hostingConfiguration)
         {
             featureActivator = new FeatureActivator(settings);
 
-            foreach (var type in hostingComponent.AvailableTypes.Where(t => IsFeature(t)))
+            foreach (var type in hostingConfiguration.AvailableTypes.Where(t => IsFeature(t)))
             {
                 featureActivator.Add(type.Construct<Feature>());
             }

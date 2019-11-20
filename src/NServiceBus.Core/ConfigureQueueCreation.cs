@@ -14,7 +14,7 @@ namespace NServiceBus
         public static void DoNotCreateQueues(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.Get<ReceiveComponent.Configuration>().ShouldCreateQueues = false;
+            config.Settings.Get<ReceiveComponent.Settings>().ShouldCreateQueues = false;
         }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace NServiceBus
         public static bool CreateQueues(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveComponent.Configuration>().ShouldCreateQueues;
+            return settings.Get<ReceiveComponent.Configuration>().CreateQueues;
         }
     }
 }
