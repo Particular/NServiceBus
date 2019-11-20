@@ -495,7 +495,6 @@ namespace NServiceBus
 
             public List<Type> ExecuteTheseHandlersFirst { get; }
 
-            //TODO
             public bool CreateQueues { get; }
 
             public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
