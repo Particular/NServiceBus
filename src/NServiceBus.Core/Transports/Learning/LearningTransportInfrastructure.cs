@@ -21,7 +21,10 @@
                 storagePath = FindStoragePath();
             }
 
-            settings.Get<ReceiveComponent.Settings>().SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
+            if (settings.TryGet<ReceiveComponent.Settings>(out var receiveSettings))
+            {
+                receiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
+            }
 
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
