@@ -128,12 +128,8 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(hostingConfiguration);
 
-            var transportSettings = settings.Get<TransportSettings>();
-            var transportDefinition = transportSettings.TransportDefinition;
-            var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
-            transportInfrastructure = transportDefinition.Initialize(transportSettings.RawSettings, connectionString);
-            //RegisterTransportInfrastructureForBackwardsCompatibility
-            settings.Set(transportInfrastructure);
+            var transportSettings = settings.Get<TransportSeam.Settings>();
+            transportInfrastructure = TransportSeam.Create(transportSettings);
 
             var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
                 settings.Get<ReceiveComponent.Settings>(),
@@ -165,16 +161,17 @@ namespace NServiceBus
 
             hostingConfiguration.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
+            var installerConfiguration = settings.Get<InstallationComponent.Configuration>();
             receiveComponent = ReceiveComponent.Initialize(
                 receiveConfiguration,
                 pipelineComponent,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
                 pipelineSettings,
+                installerConfiguration,
                 transportSettings.QueueBindings);
 
-            installationComponent = InstallationComponent.Initialize(settings.Get<InstallationComponent.Configuration>(),
-                hostingConfiguration);
+            installationComponent = InstallationComponent.Initialize(installerConfiguration, hostingConfiguration);
 
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             // As well as all the other components have been initialized

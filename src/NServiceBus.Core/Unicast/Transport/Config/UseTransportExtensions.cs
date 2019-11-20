@@ -38,7 +38,7 @@ namespace NServiceBus
 
         static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
         {
-            endpointConfiguration.Settings.Get<TransportSettings>().TransportDefinition = transportDefinition;
+            endpointConfiguration.Settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
         }
     }
 }
