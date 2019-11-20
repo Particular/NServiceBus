@@ -13,13 +13,18 @@
     /// </summary>
     public partial class FeatureConfigurationContext
     {
-        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiving)
+        internal FeatureConfigurationContext(
+            ReadOnlySettings settings,
+            IConfigureComponents container,
+            PipelineSettings pipelineSettings,
+            RoutingComponent routing,
+            ReceiveComponent.Configuration receiveConfiguration)
         {
             Settings = settings;
             Container = container;
             Pipeline = pipelineSettings;
             Routing = routing;
-            this.receiving = receiving;
+            this.receiveConfiguration = receiveConfiguration;
 
             TaskControllers = new List<FeatureStartupTaskController>();
         }
@@ -41,7 +46,7 @@
 
         internal RoutingComponent Routing { get; }
 
-        internal ReceiveConfiguration Receiving => receiving ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
+        internal ReceiveComponent.Configuration Receiving => receiveConfiguration ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
@@ -95,6 +100,6 @@
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
 
-        ReceiveConfiguration receiving;
+        ReceiveComponent.Configuration receiveConfiguration;
     }
 }

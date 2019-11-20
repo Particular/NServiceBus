@@ -127,6 +127,7 @@
                 QueueBindings = queueBindings;
                 ReceivingEnabled = receivingEnabled;
                 TransportType = transportInfrastructure.GetType();
+                SupportedTransactionMode = transportInfrastructure.TransactionMode;
             }
 
             public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
@@ -145,6 +146,9 @@
 
             public bool ReceivingEnabled { get; }
 
+            public TransportTransactionMode SupportedTransactionMode { get; }
+
+            // This should only be used by the receive component it self
             public readonly TransportInfrastructure transportInfrastructure;
         }
 

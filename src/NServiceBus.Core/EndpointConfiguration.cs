@@ -36,7 +36,7 @@ namespace NServiceBus
             Settings.Set(new HostingComponent.Settings(Settings));
             Settings.Set(new TransportComponent.Settings(Settings));
             Settings.Set(new RoutingComponent.Configuration(Settings));
-            Settings.Set(new ReceiveComponent.Configuration(Settings));
+            Settings.Set(new ReceiveComponent.Settings(Settings));
             Settings.Set(new RecoverabilityComponent.Configuration());
             Settings.Set(Pipeline = new PipelineSettings(Settings));
 

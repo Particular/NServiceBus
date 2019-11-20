@@ -16,7 +16,7 @@ namespace NServiceBus
         public static void PurgeOnStartup(this EndpointConfiguration config, bool value)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.Set("Transport.PurgeOnStartup", value);
+            config.Settings.Get<ReceiveComponent.Settings>().PurgeOnStartup = value;
         }
     }
 }
