@@ -22,7 +22,7 @@
 
         public static TransportComponent Initialize(Configuration configuration, HostingComponent.Configuration hostingConfiguration)
         {
-            var transportComponent = new TransportComponent(configuration.TransportInfrastructure, configuration.QueueBindings);
+            var transportComponent = new TransportComponent(configuration.transportInfrastructure, configuration.QueueBindings);
 
             if (configuration.ReceivingEnabled)
             {
@@ -123,7 +123,7 @@
         {
             public Configuration(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings, bool receivingEnabled)
             {
-                this.TransportInfrastructure = transportInfrastructure;
+                this.transportInfrastructure = transportInfrastructure;
                 QueueBindings = queueBindings;
                 ReceivingEnabled = receivingEnabled;
                 TransportType = transportInfrastructure.GetType();
@@ -131,12 +131,12 @@
 
             public EndpointInstance BindToLocalEndpoint(EndpointInstance endpointInstance)
             {
-                return TransportInfrastructure.BindToLocalEndpoint(endpointInstance);
+                return transportInfrastructure.BindToLocalEndpoint(endpointInstance);
             }
 
             public string ToTransportAddress(LogicalAddress logicalAddress)
             {
-                return TransportInfrastructure.ToTransportAddress(logicalAddress);
+                return transportInfrastructure.ToTransportAddress(logicalAddress);
             }
 
             public QueueBindings QueueBindings { get; }
@@ -145,7 +145,7 @@
 
             public bool ReceivingEnabled { get; }
 
-            public readonly TransportInfrastructure TransportInfrastructure;
+            public readonly TransportInfrastructure transportInfrastructure;
         }
 
         public class Settings
