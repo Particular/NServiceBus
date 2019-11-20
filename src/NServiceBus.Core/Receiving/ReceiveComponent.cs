@@ -78,7 +78,7 @@ namespace NServiceBus
 
         static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportComponent.Configuration transportConfiguration)
         {
-            var transportTransactionSupport = transportConfiguration.transportInfrastructure.TransactionMode;
+            var transportTransactionSupport = transportConfiguration.SupportedTransactionMode;
 
             //if user haven't asked for a explicit level use what the transport supports
             if (!settings.UserHasProvidedTransportTransactionMode)
