@@ -160,7 +160,6 @@ namespace NServiceBus
             hostingConfiguration.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             receiveComponent = ReceiveComponent.Initialize(
-                settings.Get<ReceiveComponent.Settings>(),
                 receiveConfiguration,
                 transportConfiguration,
                 pipelineComponent,

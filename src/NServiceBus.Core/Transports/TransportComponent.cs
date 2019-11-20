@@ -145,6 +145,7 @@
 
             public bool ReceivingEnabled { get; }
 
+            //This should only be used by the receive component it self
             public readonly TransportInfrastructure transportInfrastructure;
         }
 

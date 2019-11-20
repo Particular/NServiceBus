@@ -67,7 +67,8 @@ namespace NServiceBus
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
-                isSendOnlyEndpoint);
+                isSendOnlyEndpoint,
+                settings.ExecuteTheseHandlersFirst);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
@@ -94,8 +95,8 @@ namespace NServiceBus
             return requestedTransportTransactionMode;
         }
 
-        public static ReceiveComponent Initialize(Settings settings,
-            Configuration receiveConfiguration,
+        public static ReceiveComponent Initialize(
+            Configuration configuration,
             TransportComponent.Configuration transportConfiguration,
             PipelineComponent pipelineComponent,
             string errorQueue,
@@ -103,7 +104,7 @@ namespace NServiceBus
             PipelineSettings pipelineSettings)
 
         {
-            var receiveComponent = new ReceiveComponent(receiveConfiguration,
+            var receiveComponent = new ReceiveComponent(configuration,
                 pipelineComponent,
                 hostingConfiguration.CriticalError,
                 errorQueue);
@@ -130,23 +131,23 @@ namespace NServiceBus
 
             if (!hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>())
             {
-                var orderedHandlers = settings.ExecuteTheseHandlersFirst;
+                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
 
-                LoadMessageHandlers(settings, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+                LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
-            if (receiveConfiguration != null)
+            if (configuration != null)
             {
                 hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
-                    receiveConfiguration.LocalAddress,
-                    receiveConfiguration.InstanceSpecificQueue,
-                    receiveConfiguration.LogicalAddress,
-                    receiveConfiguration.PurgeOnStartup,
-                    receiveConfiguration.QueueNameBase,
-                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
-                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
-                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
+                    configuration.LocalAddress,
+                    configuration.InstanceSpecificQueue,
+                    configuration.LogicalAddress,
+                    configuration.PurgeOnStartup,
+                    configuration.QueueNameBase,
+                    TransactionMode = configuration.TransactionMode.ToString("G"),
+                    configuration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = configuration.SatelliteDefinitions.Select(s => new
                     {
                         s.Name,
                         s.ReceiveAddress,
@@ -270,7 +271,7 @@ namespace NServiceBus
             }
         }
 
-        static void LoadMessageHandlers(Settings settings, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
+        static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -281,12 +282,12 @@ namespace NServiceBus
 
             types.InsertRange(0, orderedTypes);
 
-            ConfigureMessageHandlersIn(settings, types, container);
+            ConfigureMessageHandlersIn(configuration, types, container);
         }
 
-        static void ConfigureMessageHandlersIn(Settings settings, IEnumerable<Type> types, IConfigureComponents container)
+        static void ConfigureMessageHandlersIn(Configuration configuration, IEnumerable<Type> types, IConfigureComponents container)
         {
-            var handlerRegistry = settings.MessageHandlerRegistry;
+            var handlerRegistry = configuration.messageHandlerRegistry;
 
             foreach (var t in types.Where(IsMessageHandler))
             {
@@ -397,7 +398,8 @@ namespace NServiceBus
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
-                bool isSendOnlyEndpoint)
+                bool isSendOnlyEndpoint,
+                List<Type> executeTheseHandlersFirst)
             {
                 LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
@@ -408,7 +410,7 @@ namespace NServiceBus
                 PurgeOnStartup = purgeOnStartup;
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
                 PipelineCompletedSubscribers = pipelineCompletedSubscribers;
-
+                ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
                 satelliteDefinitions = new List<SatelliteDefinition>();
             }
 
@@ -432,6 +434,8 @@ namespace NServiceBus
 
             public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers;
 
+            public List<Type> ExecuteTheseHandlersFirst { get; }
+
             public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
@@ -440,6 +444,9 @@ namespace NServiceBus
             }
 
             List<SatelliteDefinition> satelliteDefinitions;
+
+            //This should only be used by the receive component it self
+            internal readonly MessageHandlerRegistry messageHandlerRegistry;
         }
     }
 }
