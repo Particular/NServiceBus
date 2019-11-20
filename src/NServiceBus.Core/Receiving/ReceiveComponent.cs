@@ -173,23 +173,26 @@ namespace NServiceBus
                 LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
-            hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
+            if (!configuration.IsSendOnlyEndpoint)
             {
-                configuration.LocalAddress,
-                configuration.InstanceSpecificQueue,
-                configuration.LogicalAddress,
-                configuration.PurgeOnStartup,
-                configuration.QueueNameBase,
-                TransactionMode = configuration.TransactionMode.ToString("G"),
-                configuration.PushRuntimeSettings.MaxConcurrency,
-                Satellites = configuration.SatelliteDefinitions.Select(s => new
+                hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
-                    s.Name,
-                    s.ReceiveAddress,
-                    TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
-                    s.RuntimeSettings.MaxConcurrency
-                }).ToArray()
-            });
+                    configuration.LocalAddress,
+                    configuration.InstanceSpecificQueue,
+                    configuration.LogicalAddress,
+                    configuration.PurgeOnStartup,
+                    configuration.QueueNameBase,
+                    TransactionMode = configuration.TransactionMode.ToString("G"),
+                    configuration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = configuration.SatelliteDefinitions.Select(s => new
+                    {
+                        s.Name,
+                        s.ReceiveAddress,
+                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
+                        s.RuntimeSettings.MaxConcurrency
+                    }).ToArray()
+                });
+            }
 
             return receiveComponent;
         }
