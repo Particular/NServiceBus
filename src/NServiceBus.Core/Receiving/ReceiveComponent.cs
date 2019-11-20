@@ -355,9 +355,9 @@ namespace NServiceBus
             {
                 get
                 {
-                    if (settings.TryGet(out MessageProcessingOptimizationExtensions.ConcurrencyLimit value))
+                    if (settings.TryGet(out PushRuntimeSettings value))
                     {
-                        return new PushRuntimeSettings(value.MaxValue);
+                        return value;
                     }
 
                     return PushRuntimeSettings.Default;
