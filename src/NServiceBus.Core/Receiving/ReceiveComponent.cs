@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Installation;
     using Logging;
     using ObjectBuilder;
     using Outbox;
@@ -14,24 +13,6 @@ namespace NServiceBus
     using Settings;
     using Transport;
     using Unicast;
-
-    class CreateQueuesInstaller : INeedToInstallSomething
-    {
-        readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
-        readonly QueueBindings queueBindings;
-
-        public CreateQueuesInstaller(TransportReceiveInfrastructure transportReceiveInfrastructure, QueueBindings queueBindings)
-        {
-            this.transportReceiveInfrastructure = transportReceiveInfrastructure;
-            this.queueBindings = queueBindings;
-        }
-
-        public Task Install(string identity)
-        {
-            var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
-            return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
-        }
-    }
 
     class ReceiveComponent
     {
@@ -125,6 +106,7 @@ namespace NServiceBus
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings,
+            InstallationComponent.Configuration installerConfiguration,
             QueueBindings queueBindings)
         {
             TransportReceiveInfrastructure transportReceiveInfrastructure = null;
@@ -134,8 +116,11 @@ namespace NServiceBus
 
                 if (configuration.CreateQueues)
                 {
-                    //TODO are installers always picked up?
-                    hostingConfiguration.Container.RegisterSingleton(new CreateQueuesInstaller(transportReceiveInfrastructure, queueBindings));
+                    installerConfiguration.AddInstaller(identity =>
+                    {
+                        var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
+                        return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
+                    });
                 }
             }
 
