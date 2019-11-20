@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Installation;
@@ -40,6 +41,11 @@
 
             var installationUserName = GetInstallationUserName();
 
+            foreach (var internalInstaller in configuration.internalInstallers)
+            {
+                await internalInstaller(installationUserName).ConfigureAwait(false);
+            }
+
             foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
             {
                 await installer.Install(installationUserName).ConfigureAwait(false);
@@ -76,29 +82,23 @@
 
             public string InstallationUserName
             {
-                get
-                {
-                    return settings.GetOrDefault<string>("Installers.UserName");
-                }
-                set
-                {
-                    settings.Set("Installers.UserName", value);
-                }
+                get => settings.GetOrDefault<string>("Installers.UserName");
+                set => settings.Set("Installers.UserName", value);
             }
 
             public bool ShouldRunInstallers
             {
-                get
-                {
-                    return settings.GetOrDefault<bool>("Installers.Enable");
-                }
-                set
-                {
-                    settings.Set("Installers.Enable", value);
-                }
+                get => settings.GetOrDefault<bool>("Installers.Enable");
+                set => settings.Set("Installers.Enable", value);
+            }
+
+            public void AddInstaller(Func<string, Task> installer)
+            {
+                internalInstallers.Add(installer);
             }
 
             SettingsHolder settings;
+            internal List<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
         }
     }
 }
