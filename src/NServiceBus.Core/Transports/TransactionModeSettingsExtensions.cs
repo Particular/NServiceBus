@@ -13,7 +13,6 @@ namespace NServiceBus.ConsistencyGuarantees
         /// </summary>
         public static TransportTransactionMode GetRequiredTransactionModeForReceives(this ReadOnlySettings settings)
         {
-            // TODO: add a test
             Guard.AgainstNull(nameof(settings), settings);
 
             var receiveConfiguration = settings.Get<ReceiveComponent.Configuration>();
