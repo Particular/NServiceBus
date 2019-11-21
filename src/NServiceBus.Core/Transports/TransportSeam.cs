@@ -6,7 +6,13 @@
 
     class TransportSeam
     {
-        public static TransportInfrastructure Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
+        protected TransportSeam(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        {
+            TransportInfrastructure = transportInfrastructure;
+            QueueBindings = queueBindings;
+        }
+
+        public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
         {
             var transportDefinition = transportSettings.TransportDefinition;
             var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
@@ -22,8 +28,12 @@
                 Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
             });
 
-            return transportInfrastructure;
+            return new TransportSeam(transportInfrastructure, transportSettings.QueueBindings);
         }
+
+        public TransportInfrastructure TransportInfrastructure { get; }
+
+        public QueueBindings QueueBindings { get; }
 
         public class Settings
         {

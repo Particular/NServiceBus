@@ -10,7 +10,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using Pipeline;
     using Settings;
-    using Transport;
     using Unicast.Messages;
 
     class EndpointCreator
@@ -99,7 +98,7 @@ namespace NServiceBus
 
             endpointCreator.Initialize();
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration,internalBuilder);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, internalBuilder);
 
             return endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
         }
@@ -128,16 +127,15 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(hostingConfiguration);
 
-            var transportSettings = settings.Get<TransportSeam.Settings>();
-            transportInfrastructure = TransportSeam.Create(transportSettings, hostingConfiguration);
+            transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
             var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
                 settings.Get<ReceiveComponent.Settings>(),
-                transportInfrastructure);
+                transportSeam);
 
             var routingComponent = RoutingComponent.Initialize(
                 settings.Get<RoutingComponent.Configuration>(),
-                transportInfrastructure,
+                transportSeam,
                 receiveConfiguration,
                 settings.Get<Conventions>(),
                 pipelineSettings);
@@ -153,9 +151,9 @@ namespace NServiceBus
 
             hostingConfiguration.CreateHostInformationForV7BackwardsCompatibility();
 
-            recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration);
+            recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration, transportSeam);
 
-            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportInfrastructure);
+            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 
@@ -168,8 +166,7 @@ namespace NServiceBus
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
                 pipelineSettings,
-                installerConfiguration,
-                transportSettings.QueueBindings);
+                installerConfiguration);
 
             installationComponent = InstallationComponent.Initialize(installerConfiguration, hostingConfiguration);
 
@@ -196,7 +193,7 @@ namespace NServiceBus
             return new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
-                transportInfrastructure,
+                transportSeam.TransportInfrastructure,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
@@ -270,6 +267,6 @@ namespace NServiceBus
         InstallationComponent installationComponent;
         HostingComponent.Configuration hostingConfiguration;
         SendComponent sendComponent;
-        TransportInfrastructure transportInfrastructure;
+        TransportSeam transportSeam;
     }
 }
