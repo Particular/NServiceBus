@@ -167,7 +167,6 @@ namespace NServiceBus
                 pipelineComponent,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
-                pipelineSettings,
                 installerConfiguration);
 
             installationComponent = InstallationComponent.Initialize(installerConfiguration, hostingConfiguration);

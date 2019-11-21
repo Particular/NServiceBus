@@ -1,13 +1,14 @@
 namespace NServiceBus
 {
+    using System;
     using ObjectBuilder;
     using Pipeline;
 
     class PipelineComponent
     {
-        PipelineComponent(PipelineModifications modifications)
+        PipelineComponent(PipelineSettings pipelineSettings)
         {
-            this.modifications = modifications;
+            this.pipelineSettings = pipelineSettings;
         }
 
         public static PipelineComponent Initialize(PipelineSettings settings, HostingComponent.Configuration hostingConfiguration)
@@ -24,19 +25,31 @@ namespace NServiceBus
                 step.ApplyContainerRegistration(hostingConfiguration.Container);
             }
 
-            return new PipelineComponent(modifications);
+            return new PipelineComponent(settings);
         }
 
         public Pipeline<T> CreatePipeline<T>(IBuilder builder) where T : IBehaviorContext
         {
-            return new Pipeline<T>(builder, modifications);
+            return new Pipeline<T>(builder, pipelineSettings.modifications);
         }
 
         public PipelineCache BuildPipelineCache(IBuilder rootBuilder)
         {
-            return new PipelineCache(rootBuilder, modifications);
+            return new PipelineCache(rootBuilder, pipelineSettings.modifications);
         }
 
-        readonly PipelineModifications modifications;
+        public void RegisterBehavior<T>(string stepId, Func<IBuilder, T> factoryMethod, string description)
+            where T : IBehavior
+        {
+            pipelineSettings.Register(stepId, factoryMethod, description);
+        }
+
+        public void RegisterBehavior<T>(string stepId, T behavior, string description)
+            where T : IBehavior
+        {
+            pipelineSettings.Register(stepId, behavior, description);
+        }
+
+        readonly PipelineSettings pipelineSettings;
     }
 }
