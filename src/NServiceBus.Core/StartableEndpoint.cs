@@ -56,8 +56,6 @@ namespace NServiceBus
 
             await receiveComponent.Start().ConfigureAwait(false);
 
-            await hostingComponent.Start(runningInstance).ConfigureAwait(false);
-
             return runningInstance;
         }
 

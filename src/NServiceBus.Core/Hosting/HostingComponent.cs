@@ -69,13 +69,17 @@
             this.internalBuilder = internalBuilder;
         }
 
-        public Task Start(IEndpointInstance endpointInstance)
+        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint)
         {
-            configuration.CriticalError.SetEndpoint(endpointInstance);
-
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
-            return hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries);
+            await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries).ConfigureAwait(false);
+
+            var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+
+            configuration.CriticalError.SetEndpoint(endpointInstance);
+
+            return endpointInstance;
         }
 
         public Task Stop()
@@ -84,7 +88,6 @@
 
             return Task.FromResult(0);
         }
-
 
         Configuration configuration;
         IBuilder internalBuilder;
