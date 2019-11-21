@@ -41,7 +41,12 @@ namespace NServiceBus
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration, null);
 
             var startableEndpoint = await endpointCreator.CreateStartableEndpoint(builder, hostingComponent).ConfigureAwait(false);
+
+            await hostingComponent.Start().ConfigureAwait(false);
+
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+
+            hostingComponent.AttachRunningEndpoint(endpointInstance);
 
             messageSession = endpointInstance;
 

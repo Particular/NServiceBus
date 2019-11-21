@@ -54,7 +54,7 @@ namespace NServiceBus
             return startableEndpoint;
         }
 
-        public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
+        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -100,7 +100,9 @@ namespace NServiceBus
 
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration, internalBuilder);
 
-            return endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
+            var startableEndpoint = await endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent).ConfigureAwait(false);
+
+            return new StartableEndpointWithInternallyManagedContainer(startableEndpoint, hostingComponent);
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
