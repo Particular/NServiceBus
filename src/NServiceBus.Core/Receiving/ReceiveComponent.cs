@@ -17,13 +17,11 @@ namespace NServiceBus
     class ReceiveComponent
     {
         ReceiveComponent(Configuration configuration,
-            PipelineComponent pipelineComponent,
             CriticalError criticalError,
             string errorQueue,
             TransportReceiveInfrastructure transportReceiveInfrastructure)
         {
             this.configuration = configuration;
-            this.pipelineComponent = pipelineComponent;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
             this.transportReceiveInfrastructure = transportReceiveInfrastructure;
@@ -104,7 +102,6 @@ namespace NServiceBus
 
         public static ReceiveComponent Initialize(
             Configuration configuration,
-            PipelineComponent pipelineComponent,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings,
@@ -128,7 +125,6 @@ namespace NServiceBus
 
             var receiveComponent = new ReceiveComponent(
                 configuration,
-                pipelineComponent,
                 hostingConfiguration.CriticalError,
                 errorQueue,
                 transportReceiveInfrastructure);
@@ -187,7 +183,8 @@ namespace NServiceBus
         public async Task PrepareToStart(IBuilder builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
-        IPipelineCache pipelineCache)
+            PipelineComponent pipelineComponent,
+            IPipelineCache pipelineCache)
         {
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -349,7 +346,6 @@ namespace NServiceBus
 
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
-        readonly PipelineComponent pipelineComponent;
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;
