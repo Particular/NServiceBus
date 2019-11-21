@@ -12,7 +12,7 @@
 
         public Task<IEndpointInstance> Start()
         {
-            return hostingComponent.Start(startableEndpoint;
+            return hostingComponent.Start(startableEndpoint);
         }
 
         readonly IStartableEndpoint startableEndpoint;
