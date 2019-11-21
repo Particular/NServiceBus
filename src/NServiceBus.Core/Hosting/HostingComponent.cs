@@ -69,16 +69,17 @@
             this.internalBuilder = internalBuilder;
         }
 
-        public Task Start()
+        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint)
         {
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
-            return hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries);
-        }
+            await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries).ConfigureAwait(false);
 
-        public void AttachRunningEndpoint(IEndpointInstance endpointInstance)
-        {
+            var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+
             configuration.CriticalError.SetEndpoint(endpointInstance);
+
+            return endpointInstance;
         }
 
         public Task Stop()

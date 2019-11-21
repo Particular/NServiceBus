@@ -10,15 +10,9 @@
             this.hostingComponent = hostingComponent;
         }
 
-        public async Task<IEndpointInstance> Start()
+        public Task<IEndpointInstance> Start()
         {
-            await hostingComponent.Start().ConfigureAwait(false);
-
-            var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
-
-            hostingComponent.AttachRunningEndpoint(endpointInstance);
-
-            return endpointInstance;
+            return hostingComponent.Start(startableEndpoint;
         }
 
         readonly IStartableEndpoint startableEndpoint;
