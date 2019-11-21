@@ -133,10 +133,10 @@ namespace NServiceBus
                 errorQueue,
                 transportReceiveInfrastructure);
 
-            receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
-
             if (configuration.IsSendOnlyEndpoint == false)
             {
+                receiveComponent.BindQueues(queueBindings);
+
                 pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
                 {
                     var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
