@@ -76,8 +76,6 @@
             public Configuration(SettingsHolder settings)
             {
                 this.settings = settings;
-
-                settings.SetDefault("Transport.CreateQueues", true);
             }
 
             public string InstallationUserName

@@ -365,6 +365,7 @@ namespace NServiceBus
             {
                 this.settings = settings;
                 ExecuteTheseHandlersFirst = new List<Type>(0);
+                ShouldCreateQueues = true;
             }
 
             public List<Type> ExecuteTheseHandlersFirst
