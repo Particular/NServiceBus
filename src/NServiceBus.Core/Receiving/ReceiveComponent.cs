@@ -19,15 +19,17 @@ namespace NServiceBus
         ReceiveComponent(Configuration configuration,
             PipelineComponent pipelineComponent,
             CriticalError criticalError,
-            string errorQueue)
+            string errorQueue,
+            TransportReceiveInfrastructure transportReceiveInfrastructure)
         {
             this.configuration = configuration;
             this.pipelineComponent = pipelineComponent;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
+            this.transportReceiveInfrastructure = transportReceiveInfrastructure;
         }
 
-        public static Configuration PrepareConfiguration(Settings settings, TransportComponent.Configuration transportConfiguration)
+        public static Configuration PrepareConfiguration(Settings settings, TransportInfrastructure transportInfrastructure)
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
@@ -42,19 +44,19 @@ namespace NServiceBus
             var purgeOnStartup = settings.PurgeOnStartup;
 
             //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
-            var mainInstanceProperties = transportConfiguration.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
+            var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
 
             var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
 
-            var localAddress = transportConfiguration.ToTransportAddress(logicalAddress);
+            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportConfiguration.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
+                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
             }
 
-            var transactionMode = GetRequiredTransactionMode(settings, transportConfiguration);
+            var transactionMode = GetRequiredTransactionMode(settings, transportInfrastructure);
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
@@ -69,16 +71,18 @@ namespace NServiceBus
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
                 isSendOnlyEndpoint,
                 settings.ExecuteTheseHandlersFirst,
-                settings.MessageHandlerRegistry);
+                settings.MessageHandlerRegistry,
+                transportInfrastructure,
+                settings.ShouldCreateQueues);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
             return receiveConfiguration;
         }
 
-        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportComponent.Configuration transportConfiguration)
+        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportInfrastructure transportInfrastructure)
         {
-            var transportTransactionSupport = transportConfiguration.SupportedTransactionMode;
+            var transportTransactionSupport = transportInfrastructure.TransactionMode;
 
             //if user haven't asked for a explicit level use what the transport supports
             if (!settings.UserHasProvidedTransportTransactionMode)
@@ -98,19 +102,37 @@ namespace NServiceBus
 
         public static ReceiveComponent Initialize(
             Configuration configuration,
-            TransportComponent.Configuration transportConfiguration,
             PipelineComponent pipelineComponent,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
-            PipelineSettings pipelineSettings)
-
+            PipelineSettings pipelineSettings,
+            InstallationComponent.Configuration installerConfiguration,
+            QueueBindings queueBindings)
         {
-            var receiveComponent = new ReceiveComponent(configuration,
+            TransportReceiveInfrastructure transportReceiveInfrastructure = null;
+
+            if (!configuration.IsSendOnlyEndpoint)
+            {
+                transportReceiveInfrastructure = configuration.transportInfrastructure.ConfigureReceiveInfrastructure();
+
+                if (configuration.CreateQueues)
+                {
+                    installerConfiguration.AddInstaller(identity =>
+                    {
+                        var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
+                        return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
+                    });
+                }
+            }
+
+            var receiveComponent = new ReceiveComponent(
+                configuration,
                 pipelineComponent,
                 hostingConfiguration.CriticalError,
-                errorQueue);
+                errorQueue,
+                transportReceiveInfrastructure);
 
-            receiveComponent.BindQueues(transportConfiguration.QueueBindings);
+            receiveComponent.BindQueues(queueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -137,7 +159,7 @@ namespace NServiceBus
                 LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
             }
 
-            if (configuration != null)
+            if (!configuration.IsSendOnlyEndpoint)
             {
                 hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
                 {
@@ -164,8 +186,7 @@ namespace NServiceBus
         public async Task PrepareToStart(IBuilder builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
-            IPipelineCache pipelineCache,
-            TransportComponent transportComponent)
+        IPipelineCache pipelineCache)
         {
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -180,7 +201,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportComponent.GetMessagePumpFactory());
+            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory);
 
             foreach (var receiver in receivers)
             {
@@ -192,6 +213,19 @@ namespace NServiceBus
                 {
                     Logger.Fatal($"Receiver {receiver.Id} failed to initialize.", ex);
                     throw;
+                }
+            }
+        }
+
+        public async Task ReceivePreStartupChecks()
+        {
+            if (transportReceiveInfrastructure != null)
+            {
+                var result = await transportReceiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
                 }
             }
         }
@@ -318,6 +352,7 @@ namespace NServiceBus
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;
+        readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
 
         const string MainReceiverId = "Main";
 
@@ -334,6 +369,12 @@ namespace NServiceBus
             public List<Type> ExecuteTheseHandlersFirst => settings.GetOrCreate<List<Type>>();
 
             public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
+
+            public bool ShouldCreateQueues
+            {
+                get => settings.Get<bool>("Transport.CreateQueues");
+                set => settings.Set("Transport.CreateQueues", value);
+            }
 
             public bool CustomLocalAddressProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomLocalAddressKey);
 
@@ -401,7 +442,9 @@ namespace NServiceBus
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
-                MessageHandlerRegistry messageHandlerRegistry)
+                MessageHandlerRegistry messageHandlerRegistry,
+                TransportInfrastructure transportInfrastructure,
+                bool createQueues)
             {
                 LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
@@ -415,6 +458,8 @@ namespace NServiceBus
                 ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
                 satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
+                this.transportInfrastructure = transportInfrastructure;
+                this.CreateQueues = createQueues;
             }
 
             public LogicalAddress LogicalAddress { get; }
@@ -439,6 +484,8 @@ namespace NServiceBus
 
             public List<Type> ExecuteTheseHandlersFirst { get; }
 
+            public bool CreateQueues { get; }
+
             public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
@@ -450,6 +497,7 @@ namespace NServiceBus
 
             //This should only be used by the receive component it self
             internal readonly MessageHandlerRegistry messageHandlerRegistry;
+            internal readonly TransportInfrastructure transportInfrastructure;
         }
     }
 }

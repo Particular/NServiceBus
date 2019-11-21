@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Installation;
@@ -31,7 +32,7 @@
             return component;
         }
 
-        public async Task Start(IBuilder builder, TransportComponent transportComponent)
+        public async Task Start(IBuilder builder)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -40,9 +41,9 @@
 
             var installationUserName = GetInstallationUserName();
 
-            if (configuration.ShouldCreateQueues)
+            foreach (var internalInstaller in configuration.internalInstallers)
             {
-                await transportComponent.CreateQueuesIfNecessary(installationUserName).ConfigureAwait(false);
+                await internalInstaller(installationUserName).ConfigureAwait(false);
             }
 
             foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
@@ -81,41 +82,23 @@
 
             public string InstallationUserName
             {
-                get
-                {
-                    return settings.GetOrDefault<string>("Installers.UserName");
-                }
-                set
-                {
-                    settings.Set("Installers.UserName", value);
-                }
+                get => settings.GetOrDefault<string>("Installers.UserName");
+                set => settings.Set("Installers.UserName", value);
             }
 
             public bool ShouldRunInstallers
             {
-                get
-                {
-                    return settings.GetOrDefault<bool>("Installers.Enable");
-                }
-                set
-                {
-                    settings.Set("Installers.Enable", value);
-                }
+                get => settings.GetOrDefault<bool>("Installers.Enable");
+                set => settings.Set("Installers.Enable", value);
             }
 
-            public bool ShouldCreateQueues
+            public void AddInstaller(Func<string, Task> installer)
             {
-                get
-                {
-                    return settings.Get<bool>("Transport.CreateQueues");
-                }
-                set
-                {
-                    settings.Set("Transport.CreateQueues", value);
-                }
+                internalInstallers.Add(installer);
             }
 
             SettingsHolder settings;
+            internal List<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
         }
     }
 }

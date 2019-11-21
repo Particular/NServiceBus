@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+    using System.Threading.Tasks;
     using MessageInterfaces;
     using ObjectBuilder;
     using Pipeline;
@@ -7,14 +9,13 @@
 
     class SendComponent
     {
-        readonly IMessageMapper messageMapper;
-
-        SendComponent(IMessageMapper messageMapper)
+        SendComponent(IMessageMapper messageMapper, TransportInfrastructure transportInfrastructure)
         {
             this.messageMapper = messageMapper;
+            this.transportInfrastructure = transportInfrastructure;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, TransportInfrastructure transportInfrastructure)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
@@ -33,7 +34,31 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.Build<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            return new SendComponent(messageMapper);
+            var sendComponent = new SendComponent(messageMapper, transportInfrastructure);
+
+            hostingConfiguration.Container.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
+
+            return sendComponent;
+        }
+
+        [ObsoleteEx(
+            Message = "Change transport infrastructure to configure the send infrastructure at component initialization time",
+            RemoveInVersion = "8")]
+        public void ConfigureSendInfrastructureForBackwardsCompatibility()
+        {
+            transportSendInfrastructure = transportInfrastructure.ConfigureSendInfrastructure();
+        }
+
+        [ObsoleteEx(
+            Message = "Change transport infrastructure to run send pre-startup checks on component.Start",
+            RemoveInVersion = "8")]
+        public async Task InvokeSendPreStartupChecksForBackwardsCompatibility()
+        {
+            var sendResult = await transportSendInfrastructure.PreStartupCheck().ConfigureAwait(false);
+            if (!sendResult.Succeeded)
+            {
+                throw new Exception($"Pre start-up check failed: {sendResult.ErrorMessage}");
+            }
         }
 
         public MessageOperations CreateMessageOperations(IBuilder builder, PipelineComponent pipelineComponent)
@@ -45,6 +70,11 @@
                 pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
                 pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
                 pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder));
+        }
+
+        IDispatchMessages GetDispatcher()
+        {
+            return this.transportSendInfrastructure.DispatcherFactory();
         }
 
         static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)
@@ -74,5 +104,9 @@
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
         }
+
+        TransportSendInfrastructure transportSendInfrastructure;
+        readonly IMessageMapper messageMapper;
+        readonly TransportInfrastructure transportInfrastructure;
     }
 }

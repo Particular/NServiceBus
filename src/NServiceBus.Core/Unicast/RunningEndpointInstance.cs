@@ -5,17 +5,18 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using Settings;
+    using Transport;
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportComponent transportComponent)
+        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.hostingComponent = hostingComponent;
             this.receiveComponent = receiveComponent;
             this.featureComponent = featureComponent;
             this.messageSession = messageSession;
-            this.transportComponent = transportComponent;
+            this.transportInfrastructure = transportInfrastructure;
         }
 
         public async Task Stop()
@@ -40,7 +41,7 @@ namespace NServiceBus
                 await receiveComponent.Stop().ConfigureAwait(false);
                 await featureComponent.Stop().ConfigureAwait(false);
                 // Can throw
-                await transportComponent.Stop().ConfigureAwait(false);
+                await transportInfrastructure.Stop().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -92,7 +93,7 @@ namespace NServiceBus
         ReceiveComponent receiveComponent;
         FeatureComponent featureComponent;
         IMessageSession messageSession;
-        TransportComponent transportComponent;
+        readonly TransportInfrastructure transportInfrastructure;
 
         SettingsHolder settings;
 
