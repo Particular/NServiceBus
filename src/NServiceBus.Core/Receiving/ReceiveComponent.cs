@@ -138,7 +138,7 @@ namespace NServiceBus
                 return receiveComponent;
             }
 
-            receiveComponent.BindQueues(queueBindings);
+            receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
