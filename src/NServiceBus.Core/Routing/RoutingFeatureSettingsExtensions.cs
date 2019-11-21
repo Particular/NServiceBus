@@ -13,7 +13,7 @@
         public static void OverridePublicReturnAddress(this EndpointConfiguration configuration, string address)
         {
             Guard.AgainstNullAndEmpty(nameof(address), address);
-            configuration.Settings.SetDefault("PublicReturnAddress", address);
+            configuration.Settings.Get<RoutingComponent.Settings>().PublicReturnAddress = address;
         }
     }
 }

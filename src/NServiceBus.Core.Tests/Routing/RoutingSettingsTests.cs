@@ -19,7 +19,7 @@
         public void Setup()
         {
             settings = new SettingsHolder();
-            settings.Set(new RoutingComponent.Configuration(settings));
+            settings.Set(new RoutingComponent.Settings(settings));
         }
 
         [Test]

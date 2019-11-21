@@ -17,7 +17,7 @@
             ReadOnlySettings settings,
             IConfigureComponents container,
             PipelineSettings pipelineSettings,
-            RoutingComponent routing,
+            RoutingComponent.Configuration routing,
             ReceiveComponent.Configuration receiveConfiguration)
         {
             Settings = settings;
@@ -44,7 +44,7 @@
         /// </summary>
         public PipelineSettings Pipeline { get; }
 
-        internal RoutingComponent Routing { get; }
+        internal RoutingComponent.Configuration Routing { get; }
 
         internal ReceiveComponent.Configuration Receiving => receiveConfiguration ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 

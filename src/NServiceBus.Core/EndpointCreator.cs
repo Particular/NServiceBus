@@ -133,25 +133,27 @@ namespace NServiceBus
                 settings.Get<ReceiveComponent.Settings>(),
                 transportSeam);
 
-            var routingComponent = RoutingComponent.Initialize(
-                settings.Get<RoutingComponent.Configuration>(),
-                transportSeam,
-                receiveConfiguration,
-                settings.Get<Conventions>(),
-                pipelineSettings);
+            var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Container, pipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Container, pipelineSettings, routingConfiguration, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
 
             hostingConfiguration.CreateHostInformationForV7BackwardsCompatibility();
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration, transportSeam);
+
+            var routingComponent = RoutingComponent.Initialize(
+                routingConfiguration,
+                transportSeam,
+                receiveConfiguration,
+                settings.Get<Conventions>(),
+                pipelineSettings);
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
 
