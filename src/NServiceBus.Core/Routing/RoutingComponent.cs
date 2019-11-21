@@ -27,6 +27,7 @@ namespace NServiceBus
                 settings.DistributionPolicy,
                 settings.ConfiguredUnicastRoutes,
                 settings.DistributionStrategies ?? new List<DistributionStrategy>(0),
+                settings.EndpointInstances,
                 settings.EnforceBestPractices,
                 settings.PublicReturnAddress);
         }
@@ -145,7 +146,14 @@ namespace NServiceBus
 
         public class Configuration
         {
-            public Configuration(UnicastRoutingTable unicastRoutingTable, Publishers publishers, DistributionPolicy distributionPolicy, ConfiguredUnicastRoutes configuredUnicastRoutes, IReadOnlyList<DistributionStrategy> customDistributionStrategies, bool enforceBestPractices, string returnAddressOverride)
+            public Configuration(UnicastRoutingTable unicastRoutingTable,
+                Publishers publishers,
+                DistributionPolicy distributionPolicy,
+                ConfiguredUnicastRoutes configuredUnicastRoutes,
+                IReadOnlyList<DistributionStrategy> customDistributionStrategies,
+                EndpointInstances settingsEndpointInstances,
+                bool enforceBestPractices,
+                string returnAddressOverride)
             {
                 UnicastRoutingTable = unicastRoutingTable;
                 Publishers = publishers;
@@ -154,6 +162,7 @@ namespace NServiceBus
                 ConfiguredUnicastRoutes = configuredUnicastRoutes;
                 EnforceBestPractices = enforceBestPractices;
                 PublicReturnAddress = returnAddressOverride;
+                EndpointInstances = settingsEndpointInstances;
             }
 
             public ConfiguredUnicastRoutes ConfiguredUnicastRoutes { get; }
