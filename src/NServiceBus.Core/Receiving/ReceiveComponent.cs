@@ -74,7 +74,8 @@ namespace NServiceBus
                 isSendOnlyEndpoint,
                 settings.ExecuteTheseHandlersFirst,
                 settings.MessageHandlerRegistry,
-                settings.ShouldCreateQueues);
+                settings.ShouldCreateQueues,
+                transportSeam);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
@@ -107,21 +108,20 @@ namespace NServiceBus
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings,
-            InstallationComponent.Configuration installerConfiguration,
-            TransportSeam transportSeam)
+            InstallationComponent.Configuration installerConfiguration)
         {
             TransportReceiveInfrastructure transportReceiveInfrastructure = null;
 
             if (!configuration.IsSendOnlyEndpoint)
             {
-                transportReceiveInfrastructure = transportSeam.TransportInfrastructure.ConfigureReceiveInfrastructure();
+                transportReceiveInfrastructure = configuration.transportSeam.TransportInfrastructure.ConfigureReceiveInfrastructure();
 
                 if (configuration.CreateQueues)
                 {
                     installerConfiguration.AddInstaller(identity =>
                     {
                         var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
-                        return queueCreator.CreateQueueIfNecessary(transportSeam.QueueBindings, identity);
+                        return queueCreator.CreateQueueIfNecessary(configuration.transportSeam.QueueBindings, identity);
                     });
                 }
             }
@@ -133,7 +133,7 @@ namespace NServiceBus
                 errorQueue,
                 transportReceiveInfrastructure);
 
-            receiveComponent.BindQueues(transportSeam.QueueBindings);
+            receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -444,7 +444,7 @@ namespace NServiceBus
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
                 MessageHandlerRegistry messageHandlerRegistry,
-                bool createQueues)
+                bool createQueues, TransportSeam transportSeam)
             {
                 LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
@@ -459,6 +459,7 @@ namespace NServiceBus
                 satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
                 this.CreateQueues = createQueues;
+                this.transportSeam = transportSeam;
             }
 
             public LogicalAddress LogicalAddress { get; }
@@ -496,6 +497,7 @@ namespace NServiceBus
 
             //This should only be used by the receive component it self
             internal readonly MessageHandlerRegistry messageHandlerRegistry;
+            internal readonly TransportSeam transportSeam;
         }
     }
 }
