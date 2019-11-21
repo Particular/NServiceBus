@@ -150,7 +150,7 @@ namespace NServiceBus
 
             var routingComponent = RoutingComponent.Initialize(
                 routingConfiguration,
-                transportInfrastructure,
+                transportSeam,
                 receiveConfiguration,
                 settings.Get<Conventions>(),
                 pipelineSettings);
