@@ -110,6 +110,7 @@ namespace NServiceBus
             QueueBindings queueBindings)
         {
             TransportReceiveInfrastructure transportReceiveInfrastructure = null;
+
             if (!configuration.IsSendOnlyEndpoint)
             {
                 transportReceiveInfrastructure = configuration.transportInfrastructure.ConfigureReceiveInfrastructure();
@@ -128,7 +129,7 @@ namespace NServiceBus
                 configuration,
                 pipelineComponent,
                 hostingConfiguration.CriticalError,
-                errorQueue, 
+                errorQueue,
                 transportReceiveInfrastructure);
 
             receiveComponent.BindQueues(queueBindings);
@@ -441,7 +442,7 @@ namespace NServiceBus
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
-                MessageHandlerRegistry messageHandlerRegistry, 
+                MessageHandlerRegistry messageHandlerRegistry,
                 TransportInfrastructure transportInfrastructure,
                 bool createQueues)
             {

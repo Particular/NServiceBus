@@ -9,10 +9,6 @@
 
     class SendComponent
     {
-        readonly IMessageMapper messageMapper;
-        readonly TransportInfrastructure transportInfrastructure;
-        TransportSendInfrastructure transportSendInfrastructure;
-
         SendComponent(IMessageMapper messageMapper, TransportInfrastructure transportInfrastructure)
         {
             this.messageMapper = messageMapper;
@@ -65,11 +61,6 @@
             }
         }
 
-        private IDispatchMessages GetDispatcher()
-        {
-            return this.transportSendInfrastructure.DispatcherFactory();
-        }
-
         public MessageOperations CreateMessageOperations(IBuilder builder, PipelineComponent pipelineComponent)
         {
             return new MessageOperations(
@@ -79,6 +70,11 @@
                 pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
                 pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
                 pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder));
+        }
+
+        IDispatchMessages GetDispatcher()
+        {
+            return this.transportSendInfrastructure.DispatcherFactory();
         }
 
         static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)
@@ -108,5 +104,9 @@
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
         }
+
+        TransportSendInfrastructure transportSendInfrastructure;
+        readonly IMessageMapper messageMapper;
+        readonly TransportInfrastructure transportInfrastructure;
     }
 }
