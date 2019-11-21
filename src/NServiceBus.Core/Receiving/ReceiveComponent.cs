@@ -364,9 +364,14 @@ namespace NServiceBus
             public Settings(SettingsHolder settings)
             {
                 this.settings = settings;
+                ExecuteTheseHandlersFirst = new List<Type>(0);
             }
 
-            public List<Type> ExecuteTheseHandlersFirst => settings.GetOrCreate<List<Type>>();
+            public List<Type> ExecuteTheseHandlersFirst
+            {
+                get => settings.Get<List<Type>>("NServiceBus.ExecuteTheseHandlersFirst");
+                set => settings.Set("NServiceBus.ExecuteTheseHandlersFirst", value);
+            }
 
             public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
 
