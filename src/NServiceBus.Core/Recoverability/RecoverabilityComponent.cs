@@ -38,7 +38,7 @@
             return recoverabilityExecutorFactory;
         }
 
-        public void Initialize(ReceiveComponent.Configuration receiveConfiguration, HostingComponent.Configuration hostingConfiguration)
+        public void Initialize(ReceiveComponent.Configuration receiveConfiguration, HostingComponent.Configuration hostingConfiguration, TransportSeam transportSeam)
         {
             if (receiveConfiguration.IsSendOnlyEndpoint)
             {
@@ -51,7 +51,7 @@
             transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
 
             var errorQueue = settings.ErrorQueueAddress();
-            settings.Get<QueueBindings>().BindSending(errorQueue);
+            transportSeam.QueueBindings.BindSending(errorQueue);
 
             var delayedRetryConfig = GetDelayedRetryConfig();
 

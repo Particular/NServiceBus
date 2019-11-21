@@ -98,7 +98,7 @@ namespace NServiceBus
 
             endpointCreator.Initialize();
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration,internalBuilder);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, internalBuilder);
 
             return endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
         }
@@ -151,7 +151,7 @@ namespace NServiceBus
 
             hostingConfiguration.CreateHostInformationForV7BackwardsCompatibility();
 
-            recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration);
+            recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration, transportSeam);
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
 
