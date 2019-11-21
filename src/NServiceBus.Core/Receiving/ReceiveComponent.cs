@@ -11,8 +11,8 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
     using Settings;
-    using Transport;
     using Unicast;
+    using Transport;
 
     class ReceiveComponent
     {
@@ -29,7 +29,7 @@ namespace NServiceBus
             this.transportReceiveInfrastructure = transportReceiveInfrastructure;
         }
 
-        public static Configuration PrepareConfiguration(Settings settings, TransportInfrastructure transportInfrastructure)
+        public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
@@ -42,6 +42,8 @@ namespace NServiceBus
             var discriminator = settings.EndpointInstanceDiscriminator;
             var queueNameBase = settings.CustomLocalAddress ?? endpointName;
             var purgeOnStartup = settings.PurgeOnStartup;
+
+            var transportInfrastructure = transportSeam.TransportInfrastructure;
 
             //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
             var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
@@ -72,7 +74,6 @@ namespace NServiceBus
                 isSendOnlyEndpoint,
                 settings.ExecuteTheseHandlersFirst,
                 settings.MessageHandlerRegistry,
-                transportInfrastructure,
                 settings.ShouldCreateQueues);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
@@ -107,20 +108,20 @@ namespace NServiceBus
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings,
             InstallationComponent.Configuration installerConfiguration,
-            QueueBindings queueBindings)
+            TransportSeam transportSeam)
         {
             TransportReceiveInfrastructure transportReceiveInfrastructure = null;
 
             if (!configuration.IsSendOnlyEndpoint)
             {
-                transportReceiveInfrastructure = configuration.transportInfrastructure.ConfigureReceiveInfrastructure();
+                transportReceiveInfrastructure = transportSeam.TransportInfrastructure.ConfigureReceiveInfrastructure();
 
                 if (configuration.CreateQueues)
                 {
                     installerConfiguration.AddInstaller(identity =>
                     {
                         var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
-                        return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
+                        return queueCreator.CreateQueueIfNecessary(transportSeam.QueueBindings, identity);
                     });
                 }
             }
@@ -132,7 +133,7 @@ namespace NServiceBus
                 errorQueue,
                 transportReceiveInfrastructure);
 
-            receiveComponent.BindQueues(queueBindings);
+            receiveComponent.BindQueues(transportSeam.QueueBindings);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -443,7 +444,6 @@ namespace NServiceBus
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
                 MessageHandlerRegistry messageHandlerRegistry,
-                TransportInfrastructure transportInfrastructure,
                 bool createQueues)
             {
                 LogicalAddress = logicalAddress;
@@ -458,7 +458,6 @@ namespace NServiceBus
                 ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
                 satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
-                this.transportInfrastructure = transportInfrastructure;
                 this.CreateQueues = createQueues;
             }
 
@@ -497,7 +496,6 @@ namespace NServiceBus
 
             //This should only be used by the receive component it self
             internal readonly MessageHandlerRegistry messageHandlerRegistry;
-            internal readonly TransportInfrastructure transportInfrastructure;
         }
     }
 }

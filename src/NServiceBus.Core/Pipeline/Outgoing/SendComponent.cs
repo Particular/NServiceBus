@@ -15,7 +15,7 @@
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, TransportInfrastructure transportInfrastructure)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, TransportSeam transportSeam)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
@@ -34,7 +34,7 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.Build<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            var sendComponent = new SendComponent(messageMapper, transportInfrastructure);
+            var sendComponent = new SendComponent(messageMapper, transportSeam.TransportInfrastructure);
 
             hostingConfiguration.Container.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
 
