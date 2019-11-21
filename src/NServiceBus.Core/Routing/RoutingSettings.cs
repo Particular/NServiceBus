@@ -31,7 +31,7 @@
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
             ThrowOnAddress(destination);
 
-            Settings.Get<RoutingComponent.Configuration>().ConfiguredUnicastRoutes.Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
+            Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -46,7 +46,7 @@
 
             ThrowOnAddress(destination);
 
-            Settings.Get<RoutingComponent.Configuration>().ConfiguredUnicastRoutes.Add(new AssemblyRouteSource(assembly, UnicastRoute.CreateFromEndpointName(destination)));
+            Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new AssemblyRouteSource(assembly, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
 
-            Settings.Get<RoutingComponent.Configuration>().ConfiguredUnicastRoutes.Add(new NamespaceRouteSource(assembly, @namespace, UnicastRoute.CreateFromEndpointName(destination)));
+            Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new NamespaceRouteSource(assembly, @namespace, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -73,7 +73,7 @@
         /// </summary>
         public void DoNotEnforceBestPractices()
         {
-            Settings.Get<RoutingComponent.Configuration>().EnforceBestPractices = false;
+            Settings.Get<RoutingComponent.Settings>().EnforceBestPractices = false;
         }
 
         static void ThrowOnAddress(string destination)
