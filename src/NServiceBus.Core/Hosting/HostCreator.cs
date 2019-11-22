@@ -8,13 +8,13 @@
 
     class HostCreator
     {
-        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
+        public static ExternallyManagedContainerHost CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
         {
             var settings = endpointConfiguration.Settings;
 
             var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
-            var conventions = FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
+            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var hostingSettings = settings.Get<HostingComponent.Settings>();
 
@@ -32,12 +32,12 @@
 
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration, conventions);
 
-            var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator, hostingConfiguration);
+            var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingConfiguration);
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            externalContainer.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
+            externalContainer.ConfigureComponent(_ => externallyManagedContainerHost.Builder.Value, DependencyLifecycle.SingleInstance);
 
-            return startableEndpoint;
+            return externallyManagedContainerHost;
         }
 
         public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
@@ -46,7 +46,7 @@
 
             var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
-            var conventions = FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
+            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
 
             var hostingSetting = settings.Get<HostingComponent.Settings>();
             var useDefaultBuilder = hostingSetting.CustomObjectBuilder == null;
@@ -80,7 +80,7 @@
                 });
             }
 
-            var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration, conventions);
+            var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
 
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
 
@@ -90,17 +90,21 @@
 
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 
-            return new StartableEndpointWithInternallyManagedContainer(startableEndpoint, hostingComponent);
+            return new InternallyManagedContainerHost(startableEndpoint, hostingComponent);
         }
 
-        static Conventions FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
+        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
         {
             ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(endpointConfiguration));
 
             var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
             endpointConfiguration.Settings.SetDefault(conventions);
 
-            return conventions;
+            foreach (var instanceToInvoke in availableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
+                .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
+            {
+                instanceToInvoke.Run(endpointConfiguration.Settings);
+            }
         }
 
         static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
@@ -127,6 +131,11 @@
                 action(type);
             }
             // ReSharper restore HeapView.SlowDelegateCreation
+        }
+
+        static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
+        {
+            return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
         }
     }
 }

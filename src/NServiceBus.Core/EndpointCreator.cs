@@ -16,19 +16,19 @@ namespace NServiceBus
         {
             this.settings = settings;
             this.hostingConfiguration = hostingConfiguration;
-            this.conventions = conventions;
+            this.conventions = settings.Get<Conventions>();
         }
 
         public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration, Conventions conventions)
         {
             var endpointCreator = new EndpointCreator(settings, hostingConfiguration, conventions);
 
-            endpointCreator.Initialize(conventions);
+            endpointCreator.Initialize();
 
             return endpointCreator;
         }
 
-        void Initialize(Conventions conventions)
+        void Initialize()
         {
             ConfigureMessageTypes();
 
@@ -127,20 +127,6 @@ namespace NServiceBus
                 hostingComponent,
                 sendComponent,
                 builder);
-        }
-
-        void ConfigRunBeforeIsFinalized(HostingComponent.Configuration hostingConfiguration)
-        {
-            foreach (var instanceToInvoke in hostingConfiguration.AvailableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
-                .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
-            {
-                instanceToInvoke.Run(settings);
-            }
-        }
-
-        static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
-        {
-            return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
         }
 
         PipelineComponent pipelineComponent;

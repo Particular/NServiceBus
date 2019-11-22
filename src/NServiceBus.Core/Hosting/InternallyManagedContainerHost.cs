@@ -2,9 +2,9 @@
 {
     using System.Threading.Tasks;
 
-    class StartableEndpointWithInternallyManagedContainer : IStartableEndpoint
+    class InternallyManagedContainerHost : IStartableEndpoint
     {
-        public StartableEndpointWithInternallyManagedContainer(IStartableEndpoint startableEndpoint, HostingComponent hostingComponent)
+        public InternallyManagedContainerHost(IStartableEndpoint startableEndpoint, HostingComponent hostingComponent)
         {
             this.startableEndpoint = startableEndpoint;
             this.hostingComponent = hostingComponent;
