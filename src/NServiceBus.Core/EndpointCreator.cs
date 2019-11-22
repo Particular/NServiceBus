@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Features;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -53,7 +54,7 @@ namespace NServiceBus
             return startableEndpoint;
         }
 
-        public static StartableEndpointWithInternallyManagedContainer CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
+        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -102,6 +103,8 @@ namespace NServiceBus
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
 
             hostingComponent.RegisterBuilder(internalBuilder, true);
+
+            await hostingComponent.RunInstallers().ConfigureAwait(false);
 
             return new StartableEndpointWithInternallyManagedContainer(startableEndpoint, hostingComponent);
         }
