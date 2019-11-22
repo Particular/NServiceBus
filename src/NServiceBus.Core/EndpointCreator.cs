@@ -1,9 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
     using Features;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -14,113 +12,26 @@ namespace NServiceBus
 
     class EndpointCreator
     {
-        EndpointCreator(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration)
+        EndpointCreator(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration, Conventions conventions)
         {
             this.settings = settings;
             this.hostingConfiguration = hostingConfiguration;
+            this.conventions = conventions;
         }
 
-        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
+        public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration, Conventions conventions)
         {
-            var settings = endpointConfiguration.Settings;
+            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, conventions);
 
-            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+            endpointCreator.Initialize(conventions);
 
-            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
-
-            var hostingSettings = settings.Get<HostingComponent.Settings>();
-
-            var hostingConfiguration = HostingComponent.PrepareConfiguration(hostingSettings, assemblyScanningComponent, externalContainer);
-
-            if (hostingSettings.CustomObjectBuilder != null)
-            {
-                throw new InvalidOperationException("An internally managed container has already been configured using 'EndpointConfiguration.UseContainer'. It is not possible to use both an internally managed container and an externally managed container.");
-            }
-
-            hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-            {
-                Type = "external"
-            });
-
-            var endpointCreator = new EndpointCreator(settings, hostingConfiguration);
-
-            endpointCreator.Initialize();
-
-            var startableEndpoint = new StartableEndpointWithExternallyManagedContainer(endpointCreator, hostingConfiguration);
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            externalContainer.ConfigureComponent(_ => startableEndpoint.Builder.Value, DependencyLifecycle.SingleInstance);
-
-            return startableEndpoint;
+            return endpointCreator;
         }
 
-        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
+        void Initialize(Conventions conventions)
         {
-            var settings = endpointConfiguration.Settings;
+            ConfigureMessageTypes();
 
-            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
-
-            FinalizeConfiguration(endpointConfiguration, assemblyScanningComponent.AvailableTypes);
-
-            var hostingSettting = settings.Get<HostingComponent.Settings>();
-            var useDefaultBuilder = hostingSettting.CustomObjectBuilder == null;
-            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingSettting.CustomObjectBuilder;
-
-            var commonObjectBuilder = new CommonObjectBuilder(container);
-
-            IConfigureComponents internalContainer = commonObjectBuilder;
-            IBuilder internalBuilder = commonObjectBuilder;
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
-
-            var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, internalContainer);
-
-            if (useDefaultBuilder)
-            {
-                hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = "internal"
-                });
-            }
-            else
-            {
-                var containerType = internalContainer.GetType();
-
-                hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = containerType.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(containerType)
-                });
-            }
-
-            var endpointCreator = new EndpointCreator(settings, hostingConfiguration);
-
-            endpointCreator.Initialize();
-
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
-
-            var startableEndpoint = endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
-
-            hostingComponent.RegisterBuilder(internalBuilder, true);
-
-            await hostingComponent.RunInstallers().ConfigureAwait(false);
-
-            return new StartableEndpointWithInternallyManagedContainer(startableEndpoint, hostingComponent);
-        }
-
-        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration, List<Type> availableTypes)
-        {
-            ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(endpointConfiguration));
-
-            var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
-            endpointConfiguration.Settings.SetDefault(conventions);
-
-            ConfigureMessageTypes(conventions, endpointConfiguration.Settings);
-        }
-
-        void Initialize()
-        {
             var pipelineSettings = settings.Get<PipelineSettings>();
 
             hostingConfiguration.Container.RegisterSingleton<ReadOnlySettings>(settings);
@@ -187,6 +98,24 @@ namespace NServiceBus
             );
         }
 
+        void ConfigureMessageTypes()
+        {
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
+
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
+
+            settings.Set(messageMetadataRegistry);
+
+            var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
+
+            settings.AddStartupDiagnosticsSection("Messages", new
+            {
+                CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
+                NumberOfMessagesFoundAtStartup = foundMessages.Count,
+                Messages = foundMessages.Select(m => m.MessageType.FullName)
+            });
+        }
+
         public IStartableEndpoint CreateStartableEndpoint(IBuilder builder, HostingComponent hostingComponent)
         {
             return new StartableEndpoint(settings,
@@ -214,57 +143,15 @@ namespace NServiceBus
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
         }
 
-        static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
-        {
-            ForAllTypes<T>(types, t =>
-            {
-                if (!HasDefaultConstructor(t))
-                {
-                    throw new Exception($"Unable to create the type '{t.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
-                }
-
-                var instanceToInvoke = (T)Activator.CreateInstance(t);
-                action(instanceToInvoke);
-            });
-        }
-
-        static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
-        {
-            // ReSharper disable HeapView.SlowDelegateCreation
-            foreach (var type in types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
-            {
-                action(type);
-            }
-            // ReSharper restore HeapView.SlowDelegateCreation
-        }
-
-        static void ConfigureMessageTypes(Conventions conventions, SettingsHolder settings)
-        {
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
-
-            messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
-
-            settings.Set(messageMetadataRegistry);
-
-            var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
-
-            settings.AddStartupDiagnosticsSection("Messages", new
-            {
-                CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
-                NumberOfMessagesFoundAtStartup = foundMessages.Count,
-                Messages = foundMessages.Select(m => m.MessageType.FullName)
-            });
-        }
-
-        static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
-
         PipelineComponent pipelineComponent;
-        SettingsHolder settings;
         FeatureComponent featureComponent;
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
-        HostingComponent.Configuration hostingConfiguration;
         SendComponent sendComponent;
         TransportSeam transportSeam;
+
+        readonly SettingsHolder settings;
+        readonly HostingComponent.Configuration hostingConfiguration;
+        readonly Conventions conventions;
     }
 }
