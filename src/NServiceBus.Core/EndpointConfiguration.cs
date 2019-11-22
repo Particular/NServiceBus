@@ -123,15 +123,10 @@ namespace NServiceBus
 
         internal void FinalizeConfiguration(List<Type> availableTypes)
         {
-            ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
-
             Settings.SetDefault(ConventionsBuilder.Conventions);
 
-            foreach (var instanceToInvoke in availableTypes.Where(IsIWantToRunBeforeConfigurationIsFinalized)
-                .Select(type => (IWantToRunBeforeConfigurationIsFinalized)Activator.CreateInstance(type)))
-            {
-                instanceToInvoke.Run(Settings);
-            }
+            ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
+            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
         }
 
         internal ConventionsBuilder ConventionsBuilder;
