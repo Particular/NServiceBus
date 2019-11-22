@@ -98,9 +98,13 @@ namespace NServiceBus
 
             endpointCreator.Initialize();
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, internalBuilder);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
 
-            var startableEndpoint = await endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent).ConfigureAwait(false);
+            var startableEndpoint = endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
+
+            hostingComponent.RegisterBuilder(internalBuilder, true);
+
+            await hostingComponent.RunInstallers().ConfigureAwait(false);
 
             return new StartableEndpointWithInternallyManagedContainer(startableEndpoint, hostingComponent);
         }
@@ -161,15 +165,11 @@ namespace NServiceBus
 
             hostingConfiguration.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            var installerConfiguration = settings.Get<InstallationComponent.Configuration>();
             receiveComponent = ReceiveComponent.Initialize(
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
-                pipelineSettings,
-                installerConfiguration);
-
-            installationComponent = InstallationComponent.Initialize(installerConfiguration, hostingConfiguration);
+                pipelineSettings);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 
@@ -187,12 +187,8 @@ namespace NServiceBus
             );
         }
 
-        public async Task<IStartableEndpoint> CreateStartableEndpoint(IBuilder builder, HostingComponent hostingComponent)
+        public IStartableEndpoint CreateStartableEndpoint(IBuilder builder, HostingComponent hostingComponent)
         {
-            // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
-            // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-            await installationComponent.Start(builder).ConfigureAwait(false);
-
             return new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
@@ -267,7 +263,6 @@ namespace NServiceBus
         FeatureComponent featureComponent;
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
-        InstallationComponent installationComponent;
         HostingComponent.Configuration hostingConfiguration;
         SendComponent sendComponent;
         TransportSeam transportSeam;

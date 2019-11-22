@@ -34,13 +34,17 @@ namespace NServiceBus
 
         internal Lazy<IBuilder> Builder { get; private set; }
 
-        public async Task<IEndpointInstance> Start(IBuilder builder)
+        public async Task<IEndpointInstance> Start(IBuilder externalBuilder)
         {
-            objectBuilder = builder;
+            objectBuilder = externalBuilder;
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, null);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
 
-            var startableEndpoint = await endpointCreator.CreateStartableEndpoint(builder, hostingComponent).ConfigureAwait(false);
+            var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, hostingComponent);
+
+            hostingComponent.RegisterBuilder(externalBuilder, false);
+
+            await hostingComponent.RunInstallers().ConfigureAwait(false);
 
             var endpointInstance = await hostingComponent.Start(startableEndpoint).ConfigureAwait(false);
 
