@@ -4,9 +4,9 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using ObjectBuilder;
 
-    class StartableEndpointWithExternallyManagedContainer : IStartableEndpointWithExternallyManagedContainer
+    class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedContainer
     {
-        public StartableEndpointWithExternallyManagedContainer(EndpointCreator endpointCreator, HostingComponent.Configuration hostingConfiguration)
+        public ExternallyManagedContainerHost(EndpointCreator endpointCreator, HostingComponent.Configuration hostingConfiguration)
         {
             this.endpointCreator = endpointCreator;
             this.hostingConfiguration = hostingConfiguration;

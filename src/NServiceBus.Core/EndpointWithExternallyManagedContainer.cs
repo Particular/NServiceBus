@@ -17,7 +17,7 @@
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            return EndpointCreator
+            return HostCreator
                 .CreateWithExternallyManagedContainer(configuration, configureComponents);
         }
     }

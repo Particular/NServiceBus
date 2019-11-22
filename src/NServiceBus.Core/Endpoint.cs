@@ -15,7 +15,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            return EndpointCreator.CreateWithInternallyManagedContainer(configuration);
+            return HostCreator.CreateWithInternallyManagedContainer(configuration);
         }
 
         /// <summary>
