@@ -16,12 +16,12 @@ namespace NServiceBus
         {
             this.settings = settings;
             this.hostingConfiguration = hostingConfiguration;
-            this.conventions = settings.Get<Conventions>();
+            this.conventions = conventions;
         }
 
-        public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration, Conventions conventions)
+        public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration)
         {
-            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, conventions);
+            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
 
             endpointCreator.Initialize();
 
