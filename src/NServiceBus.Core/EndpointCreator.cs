@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Linq;
     using Features;
     using MessageInterfaces;
@@ -41,8 +40,6 @@ namespace NServiceBus
             // This needs to happen here to make sure that features enabled state is present in settings so both
             // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
             featureComponent.RegisterFeatureEnabledStatusInSettings(hostingConfiguration);
-
-            ConfigRunBeforeIsFinalized(hostingConfiguration);
 
             transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
