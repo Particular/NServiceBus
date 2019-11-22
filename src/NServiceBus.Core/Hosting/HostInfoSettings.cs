@@ -64,7 +64,6 @@ namespace NServiceBus
         public HostInfoSettings UsingCustomDisplayName(string displayName)
         {
             Guard.AgainstNullAndEmpty(nameof(displayName), displayName);
-            config.Settings.Set("NServiceBus.HostInformation.DisplayName", displayName);
             config.Settings.Get<HostingComponent.Settings>().DisplayName = displayName;
             return this;
         }
