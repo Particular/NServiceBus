@@ -179,6 +179,5 @@ namespace NServiceBus
         {
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
         }
-
     }
 }
