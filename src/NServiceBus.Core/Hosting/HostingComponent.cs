@@ -8,6 +8,7 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Hosting;
+    using Installation;
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Settings;
@@ -26,10 +27,17 @@
                 settings.DiagnosticsPath,
                 settings.HostDiagnosticsWriter,
                 settings.EndpointName,
-                container);
+                container,
+                settings.InstallationUserName,
+                settings.ShouldRunInstallers);
 
             container.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
             container.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
+
+            foreach (var installerType in availableTypes.Where(t => IsINeedToInstallSomething(t)))
+            {
+                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+            }
 
             foreach (var registration in settings.UserRegistrations)
             {
@@ -39,7 +47,7 @@
             return configuration;
         }
 
-        public static HostingComponent Initialize(Configuration configuration, IBuilder internalBuilder)
+        public static HostingComponent Initialize(Configuration configuration)
         {
             configuration.AddStartupDiagnosticsSection("Hosting", new
             {
@@ -60,13 +68,40 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            return new HostingComponent(configuration, internalBuilder);
+            return new HostingComponent(configuration);
         }
 
-        public HostingComponent(Configuration configuration, IBuilder internalBuilder)
+        public HostingComponent(Configuration configuration)
         {
             this.configuration = configuration;
-            this.internalBuilder = internalBuilder;
+        }
+
+        public void RegisterBuilder(IBuilder objectBuilder, bool isInternalBuilder)
+        {
+            builder = objectBuilder;
+            shouldDisposeBuilder = isInternalBuilder;
+        }
+
+        // This can't happent at start due to an old "feature" that allowed users to
+        // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
+        public async Task RunInstallers()
+        {
+            if (!configuration.ShouldRunInstallers)
+            {
+                return;
+            }
+
+            var installationUserName = GetInstallationUserName();
+
+            foreach (var internalInstaller in configuration.internalInstallers)
+            {
+                await internalInstaller(installationUserName).ConfigureAwait(false);
+            }
+
+            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+            {
+                await installer.Install(installationUserName).ConfigureAwait(false);
+            }
         }
 
         public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint)
@@ -84,13 +119,34 @@
 
         public Task Stop()
         {
-            internalBuilder?.Dispose();
+            if (shouldDisposeBuilder)
+            {
+                builder.Dispose();
+            }
 
             return Task.FromResult(0);
         }
 
-        Configuration configuration;
-        IBuilder internalBuilder;
+        string GetInstallationUserName()
+        {
+            if (configuration.InstallationUserName != null)
+            {
+                return configuration.InstallationUserName;
+            }
+
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                return $"{Environment.UserDomainName}\\{Environment.UserName}";
+            }
+
+            return Environment.UserName;
+        }
+
+        readonly Configuration configuration;
+        bool shouldDisposeBuilder;
+        IBuilder builder;
+
+        static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
         public class Configuration
         {
@@ -101,9 +157,12 @@
                 string diagnosticsPath,
                 Func<string, Task> hostDiagnosticsWriter,
                 string endpointName,
-                IConfigureComponents container)
+                IConfigureComponents container,
+                string installationUserName,
+                bool shouldRunInstallers)
             {
                 this.settings = settings;
+
                 AvailableTypes = availableTypes;
                 CriticalError = criticalError;
                 StartupDiagnostics = startupDiagnostics;
@@ -111,6 +170,8 @@
                 HostDiagnosticsWriter = hostDiagnosticsWriter;
                 EndpointName = endpointName;
                 Container = container;
+                InstallationUserName = installationUserName;
+                ShouldRunInstallers = shouldRunInstallers;
             }
 
             public ICollection<Type> AvailableTypes { get; }
@@ -120,6 +181,11 @@
             public StartupDiagnosticEntries StartupDiagnostics { get; }
 
             public Func<string, Task> HostDiagnosticsWriter { get; }
+
+            public void AddInstaller(Func<string, Task> installer)
+            {
+                internalInstallers.Add(installer);
+            }
 
             public string EndpointName { get; }
 
@@ -145,6 +211,10 @@
                 }
             }
 
+            public bool ShouldRunInstallers { get; }
+
+            public string InstallationUserName { get; }
+
             // We just need to do this to allow host id to be overidden by accessing settings via Feature defaults.
             // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
             // See the test When_feature_overrides_hostinfo for more details.
@@ -154,6 +224,7 @@
                 hostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
             }
 
+            internal ICollection<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
             HostInformation hostInformation;
             readonly Settings settings;
         }
@@ -234,6 +305,18 @@
             public List<Action<IConfigureComponents>> UserRegistrations { get; } = new List<Action<IConfigureComponents>>();
 
             public IContainer CustomObjectBuilder { get; set; }
+
+            public string InstallationUserName
+            {
+                get => settings.GetOrDefault<string>("Installers.UserName");
+                set => settings.Set("Installers.UserName", value);
+            }
+
+            public bool ShouldRunInstallers
+            {
+                get => settings.GetOrDefault<bool>("Installers.Enable");
+                set => settings.Set("Installers.Enable", value);
+            }
 
             // Since the host id default is using MD5 which breaks MIPS compliant users we need to delay setting the default until users have a chance to override
             // via a custom feature to be backwards compatible.

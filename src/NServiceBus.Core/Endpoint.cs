@@ -11,12 +11,15 @@ namespace NServiceBus
         /// Creates a new startable endpoint based on the provided configuration.
         /// </summary>
         /// <param name="configuration">Configuration.</param>
-        public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
+        public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            return EndpointCreator
-                .CreateWithInternallyManagedContainer(configuration);
+            var startableEndpoint = EndpointCreator.CreateWithInternallyManagedContainer(configuration);
+
+            await startableEndpoint.RunInstallers().ConfigureAwait(false);
+
+            return startableEndpoint;
         }
 
         /// <summary>

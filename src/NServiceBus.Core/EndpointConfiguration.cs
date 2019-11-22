@@ -32,7 +32,6 @@ namespace NServiceBus
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
             Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
-            Settings.Set(new InstallationComponent.Configuration(Settings));
             Settings.Set(new HostingComponent.Settings(Settings));
             Settings.Set(new TransportSeam.Settings(Settings));
             Settings.Set(new RoutingComponent.Settings(Settings));

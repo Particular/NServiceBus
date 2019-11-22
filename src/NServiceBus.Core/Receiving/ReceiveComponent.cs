@@ -107,8 +107,7 @@ namespace NServiceBus
             PipelineComponent pipelineComponent,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
-            PipelineSettings pipelineSettings,
-            InstallationComponent.Configuration installerConfiguration)
+            PipelineSettings pipelineSettings)
         {
             TransportReceiveInfrastructure transportReceiveInfrastructure = null;
 
@@ -118,7 +117,7 @@ namespace NServiceBus
 
                 if (configuration.CreateQueues)
                 {
-                    installerConfiguration.AddInstaller(identity =>
+                    hostingConfiguration.AddInstaller(identity =>
                     {
                         var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
                         return queueCreator.CreateQueueIfNecessary(configuration.transportSeam.QueueBindings, identity);

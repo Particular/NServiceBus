@@ -10,6 +10,11 @@
             this.hostingComponent = hostingComponent;
         }
 
+        public Task RunInstallers()
+        {
+            return hostingComponent.RunInstallers();
+        }
+
         public Task<IEndpointInstance> Start()
         {
             return hostingComponent.Start(startableEndpoint);
