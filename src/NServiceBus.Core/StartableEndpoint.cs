@@ -45,7 +45,7 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineCache).ConfigureAwait(false);
+            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
 
             // This is a hack to maintain the current order of transport infrastructure initialization
             await sendComponent.InvokeSendPreStartupChecksForBackwardsCompatibility().ConfigureAwait(false);

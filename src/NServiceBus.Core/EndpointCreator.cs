@@ -159,20 +159,19 @@ namespace NServiceBus
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
 
-            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
-
             hostingConfiguration.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var installerConfiguration = settings.Get<InstallationComponent.Configuration>();
             receiveComponent = ReceiveComponent.Initialize(
                 receiveConfiguration,
-                pipelineComponent,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
                 pipelineSettings,
                 installerConfiguration);
 
             installationComponent = InstallationComponent.Initialize(installerConfiguration, hostingConfiguration);
+
+            pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 
             // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
             // As well as all the other components have been initialized
