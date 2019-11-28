@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
     using Logging;
     using Pipeline;
     using Routing;
@@ -11,17 +10,16 @@
     using Unicast.Queuing;
     using Unicast.Transport;
 
-    class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
+    class MessageDrivenSubscribeConnector : StageConnector<ISubscribeContext, IDispatchContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IDispatchMessages dispatcher)
+        public MessageDrivenSubscribeConnector (SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
             this.subscriberEndpoint = subscriberEndpoint;
-            this.dispatcher = dispatcher;
         }
 
-        protected override Task Terminate(ISubscribeContext context)
+        public override Task Invoke(ISubscribeContext context, Func<IDispatchContext, Task> stage)
         {
             var eventType = context.EventType;
 
@@ -45,26 +43,25 @@
                 subscriptionMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
 
-                subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context, stage));
             }
             return Task.WhenAll(subscribeTasks);
         }
 
-        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ISubscribeContext context, Func<IDispatchContext, Task> stage, int retriesCount = 0)
         {
-            var state = context.GetOrCreate<Settings>();
+            var state = context.Extensions.GetOrCreate<Settings>();
             try
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
-                var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await stage(this.CreateDispatchContext(new[] { transportOperation }, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < state.MaxRetries)
                 {
                     await Task.Delay(state.RetryDelay).ConfigureAwait(false);
-                    await SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
+                    await SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, stage, ++retriesCount).ConfigureAwait(false);
                 }
                 else
                 {
@@ -74,13 +71,12 @@
                 }
             }
         }
-
-        readonly IDispatchMessages dispatcher;
+        
         readonly string subscriberAddress;
         readonly string subscriberEndpoint;
         readonly SubscriptionRouter subscriptionRouter;
 
-        static readonly ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeTerminator>();
+        static readonly ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeConnector>();
 
         public class Settings
         {

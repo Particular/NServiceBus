@@ -56,7 +56,7 @@
 
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
-            var state = context.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.GetOrCreate<MessageDrivenSubscribeConnector.Settings>();
             try
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
