@@ -58,7 +58,7 @@
 
             if (subscriptionStorage == null)
             {
-                var warning = $"Subscription message from {subscriberAddress} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage or using the AsA_Publisher role.";
+                var warning = $"Subscription message from {subscriberAddress} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage.";
                 Logger.WarnFormat(warning);
 
                 if (Debugger.IsAttached) // only under debug, so that we don't expose ourselves to a denial of service
