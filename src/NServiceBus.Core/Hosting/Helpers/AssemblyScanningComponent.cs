@@ -47,7 +47,11 @@
             {
                 settings.AddStartupDiagnosticsSection("AssemblyScanning", new
                 {
-                    Assemblies = scannableAssemblies.Assemblies.Select(a => a.FullName),
+                    Assemblies = scannableAssemblies.Assemblies.Select(a => new
+                    {
+                        a.FullName,
+                        FileVersion = FileVersionRetriever.GetFileVersion(a)
+                    }),
                     scannableAssemblies.ErrorsThrownDuringScanning,
                     scannableAssemblies.SkippedFiles
                 });
