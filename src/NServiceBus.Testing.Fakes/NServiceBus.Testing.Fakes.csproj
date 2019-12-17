@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Particular.Packaging" Version="0.3.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.5.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
