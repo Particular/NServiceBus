@@ -7,4 +7,5 @@ branches:
     increment: Minor
     tracks-release-branches: true
   release:
+    increment: Patch
     tag: ''
