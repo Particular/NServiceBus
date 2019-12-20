@@ -86,6 +86,23 @@
 
             Assert.AreSame(behaviorContext.MessageBeingHandled, receivedMessage);
         }
+        
+        [Test]
+        public void Should_rethrow_exception_with_additional_data()
+        {
+            var thrownException = new InvalidOperationException();
+            var terminator = new InvokeHandlerTerminator();
+            var messageHandler = CreateMessageHandler((i, m, ctx) => throw thrownException, new FakeMessageHandler());
+            var behaviorContext = CreateBehaviorContext(messageHandler);
+
+            var caughtException = Assert.ThrowsAsync<InvalidOperationException>(async () => await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask));
+            
+            Assert.AreSame(thrownException, caughtException);
+            Assert.AreEqual("System.Object", caughtException.Data["Message type"]);
+            Assert.AreEqual("NServiceBus.Core.Tests.Pipeline.Incoming.InvokeHandlerTerminatorTest+FakeMessageHandler", caughtException.Data["Handler type"]);
+            Assert.That(DateTimeExtensions.ToUtcDateTime((string)caughtException.Data["Handler start time"]), Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(5)));
+            Assert.That(DateTimeExtensions.ToUtcDateTime((string)caughtException.Data["Handler failure time"]), Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(5)));
+        }
 
         [Test]
         public void Should_throw_friendly_exception_if_handler_returns_null()
