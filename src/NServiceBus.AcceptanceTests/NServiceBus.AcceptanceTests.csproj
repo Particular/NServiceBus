@@ -1,404 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Particular.CodeRules.0.2.1\build\Particular.CodeRules.props" Condition="Exists('..\packages\Particular.CodeRules.0.2.1\build\Particular.CodeRules.props')" />
-  <Import Project="..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" />
-  <Import Project="..\packages\NUnit.3.11.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6A9E04E7-6229-4A3E-B94A-DA168E962B5A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.AcceptanceTests</RootNamespace>
-    <AssemblyName>NServiceBus.AcceptanceTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <CreateDeploymentPackage>False</CreateDeploymentPackage>
+    <TargetFramework>net452</TargetFramework>
+    <NoWarn>$(NoWarn);PCR0001</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Prefer32Bit>false</Prefer32Bit>
-    <NoWarn>PCR0001</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Prefer32Bit>false</Prefer32Bit>
-    <NoWarn>PCR0001</NoWarn>
-  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj" />
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="ConfigureEndpointLearningTransport.cs" />
-    <Compile Include="ConfigureEndpointLearningPersistence.cs" />
-    <Compile Include="Core\AutomaticSubscriptions\When_excluding_event_type_from_autosubscribe.cs" />
-    <Compile Include="Core\CriticalError\When_raising_critical_error_at_startup.cs" />
-    <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
-    <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
-    <Compile Include="Core\Installers\When_installers_disabled.cs" />
-    <Compile Include="Core\Installers\When_installers_enabled.cs" />
-    <Compile Include="Core\Installers\When_installer_behavior_not_specified.cs" />
-    <Compile Include="Core\LearningTransport\When_disabling_payload_restrictions.cs" />
-    <Compile Include="Core\Pipeline\When_handling_current_message_later.cs" />
-    <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
-    <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />
-    <Compile Include="Core\Config\When_multiple_configuration_providers.cs" />
-    <Compile Include="Core\CoreTestSuiteConstraints.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
-    <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
-    <Compile Include="Core\Outbox\When_outbox_double_optin_found.cs" />
-    <Compile Include="Core\Pipeline\When_overwriting_conversation_id.cs" />
-    <Compile Include="Core\Pipeline\When_using_custom_conversation_id.cs" />
-    <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
-    <Compile Include="Core\Recoverability\When_failing_mutated_message.cs" />
-    <Compile Include="Core\Routing\When_extending_command_routing_with_thisinstance.cs" />
-    <Compile Include="Core\Routing\When_replying_with_pre_created_interface.cs" />
-    <Compile Include="Core\Routing\When_routing_interface_message.cs" />
-    <Compile Include="Core\Stopping\When_feature_startup_task_throws_on_stop.cs" />
-    <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
-    <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
-    <Compile Include="Core\Pipeline\When_reusing_sendoptions.cs" />
-    <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
-    <Compile Include="Core\Conventions\When_sending_interface_message_with_conventions.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
-    <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
-    <Compile Include="EndpointTemplates\Requires.cs" />
-    <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
-    <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
-    <Compile Include="Core\Pipeline\When_subscribed_to_ReceivePipelineCompleted.cs" />
-    <Compile Include="Routing\NativePublishSubscribe\When_publishing_from_sendonly.cs" />
-    <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_base_event.cs" />
-    <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_derived_event.cs" />
-    <Compile Include="Routing\When_publishing_pre_created_interface.cs" />
-    <Compile Include="Sagas\When_correlating_on_special_characters.cs" />
-    <Compile Include="SelfVerification\When_using_custom_components.cs" />
-    <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
-    <Compile Include="Serialization\When_receiving_interface_message_where_child_is_excluded.cs" />
-    <Compile Include="Recoverability\When_receiveonly_message_is_moved_to_error_queue.cs" />
-    <Compile Include="Recoverability\When_non_transactional_message_is_moved_to_error_queue.cs" />
-    <Compile Include="Recoverability\When_cross_q_transactional_message_is_moved_to_error_queue.cs" />
-    <Compile Include="TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
-    <Compile Include="Core\Recoverability\When_custom_policy_provided.cs" />
-    <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
-    <Compile Include="Core\Recoverability\When_message_is_moved_to_error_queue_with_header_customizations.cs" />
-    <Compile Include="Core\Routing\AutomaticSubscriptions\When_handling_local_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_unsubscribing_from_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_unsubscribing_to_scaled_out_publisher.cs" />
-    <Compile Include="Routing\NativePublishSubscribe\When_unsubscribing_from_event.cs" />
-    <Compile Include="Routing\When_configure_routes_for_unobtrusive_messages.cs" />
-    <Compile Include="Routing\When_routing_reply_to_any_instance.cs" />
-    <Compile Include="Routing\When_routing_reply_to_specific_address.cs" />
-    <Compile Include="Routing\When_routing_reply_to_specific_instance.cs" />
-    <Compile Include="Routing\When_using_custom_routing_strategy.cs" />
-    <Compile Include="Routing\When_extending_command_routing.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_extending_event_routing.cs" />
-    <Compile Include="Routing\When_registering_publishers_unobtrusive_messages_config.cs" />
-    <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_type.cs" />
-    <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_assembly.cs" />
-    <Compile Include="Routing\When_sending_non_message_with_routing_configured_via_mappings.cs" />
-    <Compile Include="Routing\When_registering_publishers_unobtrusive_messages_code.cs" />
-    <Compile Include="Routing\When_publishing_an_interface_with_unobtrusive.cs" />
-    <Compile Include="Routing\When_replying_to_message_with_interface_and_unobtrusive.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event.cs" />
-    <Compile Include="Routing\When_sending_a_base_command.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_event_with_routes_to_base_and_specific_events.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_a_route_for_a_derived_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_derived_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_multiple_publishers.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_scaled_out_publisher.cs" />
-    <Compile Include="Sagas\When_a_base_class_mapped_is_handled_by_a_saga.cs" />
-    <Compile Include="Sagas\When_a_base_class_message_starts_a_saga.cs" />
-    <Compile Include="Core\Sagas\When_finder_cant_find_saga_instance.cs" />
-    <Compile Include="Sagas\When_finder_returns_existing_saga.cs" />
-    <Compile Include="Sagas\When_sagas_share_timeout_messages.cs" />
-    <Compile Include="Core\Sagas\When_overriding_saga_id_creation.cs" />
-    <Compile Include="Sagas\When_saga_started_concurrently.cs" />
-    <Compile Include="Satellites\When_satellite_txmode_does_not_match_endpoints_txmode.cs" />
-    <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
-    <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
-    <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
-    <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
-    <Compile Include="Serialization\When_no_content_type.cs" />
-    <Compile Include="Core\Pipeline\When_registering_handlers_explicitly.cs" />
-    <Compile Include="Pipeline\When_a_message_is_faulted.cs" />
-    <Compile Include="Pipeline\When_a_message_is_audited.cs" />
-    <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />
-    <Compile Include="Core\BestPractices\When_injecting_message_session_into_handlers.cs" />
-    <Compile Include="ConventionEnforcementTests.cs" />
-    <Compile Include="Correlation\When_replying_to_received_message_without_correlationid.cs" />
-    <Compile Include="DelayedDelivery\When_deferring_a_message_to_the_past.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_TXScopes.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_timeout_storage_fails.cs" />
-    <Compile Include="EndpointTemplates\EndpointCustomizationConfigurationExtensions.cs" />
-    <Compile Include="EndpointTemplates\ServerWithNoDefaultPersistenceDefinitions.cs" />
-    <Compile Include="Core\FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
-    <Compile Include="Core\FakeTransport\FakeDispatcher.cs" />
-    <Compile Include="Core\FakeTransport\FakeQueueCreator.cs" />
-    <Compile Include="Core\FakeTransport\FakeReceiver.cs" />
-    <Compile Include="Core\FakeTransport\FakeTransport.cs" />
-    <Compile Include="Core\FakeTransport\FakeTransportInfrastructure.cs" />
-    <Compile Include="Core\FakeTransport\FakeTransportSetingsExtensions.cs" />
-    <Compile Include="Core\FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
-    <Compile Include="Core\Feature\When_depending_on_typed_feature.cs" />
-    <Compile Include="Core\Diagnostics\When_overriding_input_queue_name.cs" />
-    <Compile Include="Core\Diagnostics\When_a_message_is_faulted.cs" />
-    <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
-    <Compile Include="MessageId\When_message_has_no_id_header.cs" />
-    <Compile Include="Core\CriticalError\When_raising_critical_error_from_a_handler.cs" />
-    <Compile Include="DelayedDelivery\When_deferring_to_non_local.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_TimeoutManager_is_disabled.cs" />
-    <Compile Include="Core\Mutators\When_incoming_mutator_changes_message_type.cs" />
-    <Compile Include="Core\Mutators\When_mutating.cs" />
-    <Compile Include="Core\BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
-    <Compile Include="Core\BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
-    <Compile Include="Core\BestPractices\When_sending_events_bestpractices_disabled.cs" />
-    <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
-    <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="Core\Mutators\When_using_outgoing_tm_mutator.cs" />
-    <Compile Include="Core\MessageDurability\When_disabling_durable_messages_on_durable_transport.cs" />
-    <Compile Include="Core\MessageDurability\When_using_non_durable_messages_on_durable_only_transport.cs" />
-    <Compile Include="Core\Diagnostics\When_message_is_faulted.cs" />
-    <Compile Include="Core\Persistence\When_a_persistence_does_not_support_outbox.cs" />
-    <Compile Include="Core\Persistence\When_a_persistence_does_not_support_saga.cs" />
-    <Compile Include="Core\Persistence\When_a_persistence_does_not_support_subscriptions.cs" />
-    <Compile Include="Core\Persistence\When_a_persistence_does_not_support_timeouts.cs" />
-    <Compile Include="Core\Pipeline\When_using_per_uow_component_in_the_pipeline.cs" />
-    <Compile Include="Core\Pipeline\When_replacing_behavior.cs" />
-    <Compile Include="Core\Persistence\When_a_persistence_does_not_provide_ISynchronizationContext.cs" />
-    <Compile Include="Recoverability\When_message_is_deferred_by_delayed_retries_using_dtc.cs" />
-    <Compile Include="Recoverability\When_message_fails_retries.cs" />
-    <Compile Include="Recoverability\When_delayed_retries_with_immediate_retries_disabled.cs" />
-    <Compile Include="Recoverability\When_transactionscope_message_is_moved_to_error_queue.cs" />
-    <Compile Include="Recoverability\When_message_is_moved_to_error_queue_using_dtc.cs" />
-    <Compile Include="Core\Recoverability\When_custom_policy_executed.cs" />
-    <Compile Include="Recoverability\When_custom_policy_does_single_delayed_retry_before_move_to_error.cs" />
-    <Compile Include="Recoverability\When_custom_policy_always_moves_to_error.cs" />
-    <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
-    <Compile Include="Core\BestPractices\When_publishing_command_bestpractices_disabled.cs" />
-    <Compile Include="Core\BestPractices\When_unsubscribing_to_command.cs" />
-    <Compile Include="Core\BestPractices\When_subscribing_to_command.cs" />
-    <Compile Include="Core\BestPractices\When_publishing_command.cs" />
-    <Compile Include="Core\BestPractices\When_sending_event.cs" />
-    <Compile Include="Pipeline\When_a_message_is_sent.cs" />
-    <Compile Include="Core\Diagnostics\When_license_expired.cs" />
-    <Compile Include="Recoverability\When_message_with_TimeToBeReceived_fails.cs" />
-    <Compile Include="Audit\When_auditing_message_with_TimeToBeReceived.cs" />
-    <Compile Include="Forwarding\When_forwarding_is_configured_for_endpoint.cs" />
-    <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
-    <Compile Include="Core\Diagnostics\When_message_is_audited.cs" />
-    <Compile Include="Core\Pipeline\When_receiving_with_catch_all_handlers_registered.cs" />
-    <Compile Include="Core\Pipeline\When_handling_message_with_several_messagehandlers.cs" />
-    <Compile Include="Serialization\When_registering_custom_serializer.cs" />
-    <Compile Include="Core\Pipeline\When_extending_sendoptions.cs" />
-    <Compile Include="Core\Conventions\When_sending_with_conventions.cs" />
-    <Compile Include="Core\Pipeline\When_sending_from_a_send_only.cs" />
-    <Compile Include="Core\Conventions\When_using_a_greedy_convention.cs" />
-    <Compile Include="Core\Diagnostics\When_sending_ensure_proper_headers.cs" />
-    <Compile Include="Core\Diagnostics\When_a_message_is_audited.cs" />
-    <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_expired_convention.cs" />
-    <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_not_expired.cs" />
-    <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_expired.cs" />
-    <Compile Include="DelayedDelivery\When_deferring_a_message.cs" />
-    <Compile Include="ConfigureEndpointMsmqTransport.cs" />
-    <Compile Include="Core\Diagnostics\When_feature_overrides_hostid.cs" />
-    <Compile Include="Outbox\When_dispatching_forwarded_messages.cs" />
-    <Compile Include="Outbox\When_a_message_is_audited.cs" />
-    <Compile Include="Core\Outbox\When_clearing_saga_timeouts.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_deferring_a_message.cs" />
-    <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
-    <Compile Include="Outbox\When_a_duplicate_message_arrives.cs" />
-    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
-    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
-    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
-    <Compile Include="Sagas\When_saga_handles_unmapped_message.cs" />
-    <Compile Include="Satellites\When_a_message_is_available.cs" />
-    <Compile Include="Serialization\When_registering_deserializers_with_settings.cs" />
-    <Compile Include="Serialization\When_sanitizing_xml_messages.cs" />
-    <Compile Include="Serialization\When_serializing_a_message.cs" />
-    <Compile Include="Serialization\When_skip_wrapping_xml.cs" />
-    <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
-    <Compile Include="Serialization\When_xml_serializer_used_with_unobtrusive_mode.cs" />
-    <Compile Include="Routing\NativePublishSubscribe\When_multi_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_autosubscribe_with_missing_routing_information.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers.cs" />
-    <Compile Include="Routing\NativePublishSubscribe\When_publishing_to_scaled_out_subscribers.cs" />
-    <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_assembly_level_message_mapping_for_pub_sub.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_legacy_routing_configuration.cs" />
-    <Compile Include="Routing\When_publishing_an_interface.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_from_sendonly.cs" />
-    <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
-    <Compile Include="Core\Pipeline\When_extending_the_publish_api.cs" />
-    <Compile Include="Routing\When_replying_to_message.cs" />
-    <Compile Include="Sagas\When_forgetting_to_set_a_corr_property.cs" />
-    <Compile Include="Sagas\When_auto_correlated_property_is_changed.cs" />
-    <Compile Include="Sagas\When_updating_existing_correlation_property.cs" />
-    <Compile Include="Core\Sagas\When_adding_state_to_context.cs" />
-    <Compile Include="Core\Recoverability\When_delayed_retries_with_regular_exception.cs" />
-    <Compile Include="Sagas\When_doing_request_response_between_sagas_first_handler_responding.cs" />
-    <Compile Include="Sagas\When_doing_request_response_between_sagas_response_from_noninitiating.cs" />
-    <Compile Include="Sagas\When_doing_request_response_between_sagas_with_timeout.cs" />
-    <Compile Include="Sagas\When_receiving_that_should_start_a_saga_without_interception.cs" />
-    <Compile Include="Sagas\When_receiving_that_should_start_a_saga_with_interception.cs" />
-    <Compile Include="Sagas\When_sagas_cant_be_found.cs" />
-    <Compile Include="Sagas\When_using_ReplyToOriginator.cs" />
-    <Compile Include="Routing\When_using_instance_ids.cs" />
-    <Compile Include="Core\Config\When_startup_is_complete.cs" />
-    <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
-    <Compile Include="DeterministicGuid.cs" />
-    <Compile Include="Core\Diagnostics\When_feature_overrides_hostinfo.cs" />
-    <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
-    <Compile Include="Core\Recoverability\When_Subscribing_to_errors.cs" />
-    <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />
-    <Compile Include="Sagas\When_saga_id_changed.cs" />
-    <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
-    <Compile Include="SelfVerification\When_running_saga_tests.cs" />
-    <Compile Include="Timeout\CyclingOutageTimeoutPersister.cs" />
-    <Compile Include="Timeout\When_timeout_storage_is_unavailable_temporarily.cs" />
-    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_using_scope_suppress.cs" />
-    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_least_once.cs" />
-    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_exactly_once.cs" />
-    <Compile Include="Tx\Issue_2481.cs" />
-    <Compile Include="Tx\When_receiving_with_native_multi_queue_transaction.cs" />
-    <Compile Include="Core\UnitOfWork\TransactionScope\When_transactionscope_enabled.cs" />
-    <Compile Include="Core\UnitOfWork\TransactionScope\When_used_with_default_transaction_mode.cs" />
-    <Compile Include="Core\UnitOfWork\TransactionScope\When_using_timeout_greater_than_machine_max.cs" />
-    <Compile Include="Core\UnitOfWork\TransactionScope\When_used_with_transport_scopes.cs" />
-    <Compile Include="Core\UnitOfWork\When_a_subscription_message_arrives.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_multikey.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_custom.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_config.cs" />
-    <Compile Include="Core\Mutators\When_outgoing_mutator_replaces_instance.cs" />
-    <Compile Include="Core\Mutators\When_defining_outgoing_message_mutators.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_slow_with_CriticalTime_enabled.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_CriticalTime_enabled.cs" />
-    <Compile Include="Core\PerfMon\SLA\When_sending_slow_with_SLA_enabled.cs" />
-    <Compile Include="Core\PerfMon\SLA\When_sending_with_SLA_enabled.cs" />
-    <Compile Include="Routing\When_publishing_using_root_type.cs" />
-    <Compile Include="Recoverability\When_immediate_retries_with_dtc_on.cs" />
-    <Compile Include="Recoverability\When_immediate_retries_with_native_transactions.cs" />
-    <Compile Include="Sagas\When_replies_to_message_published_by_a_saga.cs" />
-    <Compile Include="Sagas\When_started_by_base_event_from_other_saga.cs" />
-    <Compile Include="Outbox\When_blowing_up_just_after_dispatch.cs" />
-    <Compile Include="Audit\When_auditing.cs" />
-    <Compile Include="Audit\When_a_message_is_audited.cs" />
-    <Compile Include="Correlation\When_sending_with_no_correlation_id.cs" />
-    <Compile Include="Core\Pipeline\When_aborting_the_behavior_chain.cs" />
-    <Compile Include="Pipeline\When_handling_current_message_later.cs" />
-    <Compile Include="Routing\When_multiple_mappings_exists.cs" />
-    <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
-    <Compile Include="Core\Config\When_only_abstract_config_override_is_found.cs" />
-    <Compile Include="Core\Encryption\When_using_encryption_with_custom_service.cs" />
-    <Compile Include="Outbox\When_receiving_a_message.cs" />
-    <Compile Include="NServiceBusAcceptanceTest.cs" />
-    <Compile Include="DataBus\When_sending_databus_properties.cs" />
-    <Compile Include="Routing\SubscriptionBehavior.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_multi_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="Routing\When_publishing_with_overridden_local_address.cs" />
-    <Compile Include="Routing\When_publishing_with_only_local_messagehandlers.cs" />
-    <Compile Include="Routing\SubscriptionEventArgs.cs" />
-    <Compile Include="Routing\When_base_event_from_2_publishers.cs" />
-    <Compile Include="Routing\When_publishing.cs" />
-    <Compile Include="Recoverability\When_immediate_retries_fail.cs" />
-    <Compile Include="Recoverability\When_immediate_retries_disabled.cs" />
-    <Compile Include="Recoverability\When_transactions_off.cs" />
-    <Compile Include="Sagas\when_reply_from_saga_not_found_handler.cs" />
-    <Compile Include="Sagas\when_receiving_multiple_timeouts.cs" />
-    <Compile Include="Sagas\When_saga_is_mapped_to_complex_expression.cs" />
-    <Compile Include="Sagas\When_saga_has_a_non_empty_constructor.cs" />
-    <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
-    <Compile Include="Sagas\When_sending_from_a_saga_handle.cs" />
-    <Compile Include="Sagas\When_an_endpoint_replies_to_a_saga.cs" />
-    <Compile Include="Sagas\When_started_by_event_from_another_saga.cs" />
-    <Compile Include="Sagas\When_saga_exists_for_start_message.cs" />
-    <Compile Include="Sagas\When_two_sagas_subscribe_to_the_same_event.cs" />
-    <Compile Include="Sagas\When_handling_message_with_handler_and_timeout_handler.cs" />
-    <Compile Include="Sagas\When_receiving_that_completes_the_saga.cs" />
-    <Compile Include="Sagas\When_receiving_that_should_start_a_saga.cs" />
-    <Compile Include="Sagas\When_saga_message_goes_through_delayed_retries.cs" />
-    <Compile Include="Sagas\When_using_contain_saga_data.cs" />
-    <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
-    <Compile Include="Tx\FakePromotableResourceManager.cs" />
-    <Compile Include="Tx\When_receiving_with_dtc_enabled.cs" />
-    <Compile Include="Tx\When_receiving_with_the_default_settings.cs" />
-    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
-    <Compile Include="Tx\ImmediateDispatch\When_sending_inside_ambient_tx.cs" />
-    <Compile Include="Tx\When_sending_within_an_ambient_transaction.cs" />
-    <Compile Include="Pipeline\When_sending_to_another_endpoint.cs" />
-    <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
-    <Compile Include="Routing\When_overriding_local_address.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" PrivateAssets="All" />
+    <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.5.0" PrivateAssets="All" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>NServiceBus.AcceptanceTests.Sources</PackageId>
+    <Description>Acceptance tests for NServiceBus core functionality</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
   <ItemGroup>
-    <None Include="..\..\packaging\nuget\nservicebus.acceptancetests.nuspec">
-      <Link>nservicebus.acceptancetests.nuspec</Link>
-    </None>
-    <None Include="packages.config" />
+    <Compile Update="**\*.cs" Pack="true" PackagePath="content\App_Packages\NSB.AcceptanceTests\;contentFiles\cs\any\NSB.AcceptanceTests\" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
-      <Name>NServiceBus.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
-      <Project>{05ee6885-bab9-442b-8e25-840e4a3ac6c1}</Project>
-      <Name>NServiceBus.AcceptanceTesting</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\Particular.CodeRules.0.2.1\analyzers\dotnet\cs\Particular.CodeRules.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
-    <Error Condition="!Exists('..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets'))" />
-    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props'))" />
-    <Error Condition="!Exists('..\packages\Particular.CodeRules.0.2.1\build\Particular.CodeRules.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Particular.CodeRules.0.2.1\build\Particular.CodeRules.props'))" />
-    <Error Condition="!Exists('..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets'))" />
+
+  <!-- Workaround for https://github.com/nunit/nunit3-vs-adapter/issues/697 -->
+  <Target Name="RemoveNUnit3TestAdapterFromPackage" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <Content Remove="@(Content)" Condition="'%(Extension)' == '.dll'"/>
+      <Content Remove="@(Content)" Condition="'%(Extension)' == '.pdb'"/>
+    </ItemGroup>
   </Target>
-  <Import Project="..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets')" />
-  <Import Project="..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets')" />
+  <!-- End Workaround -->
+
 </Project>
