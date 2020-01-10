@@ -378,7 +378,7 @@
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
-      <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
+      <Project>{05ee6885-bab9-442b-8e25-840e4a3ac6c1}</Project>
       <Name>NServiceBus.AcceptanceTesting</Name>
     </ProjectReference>
   </ItemGroup>
