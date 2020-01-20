@@ -5,11 +5,13 @@
     <PackageTargetFallback>portable-net45+win8</PackageTargetFallback>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
+    <PackageReference Include="Particular.Packaging" Version="0.5.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
