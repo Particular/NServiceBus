@@ -39,8 +39,8 @@
   <!-- Workaround for https://github.com/nunit/nunit3-vs-adapter/issues/697 -->
   <Target Name="RemoveNUnit3TestAdapterFromPackage" BeforeTargets="_GetPackageFiles">
     <ItemGroup>
-      <Content Remove="@(Content)" Condition="'%(Extension)' == '.dll'"/>
-      <Content Remove="@(Content)" Condition="'%(Extension)' == '.pdb'"/>
+      <Content Remove="@(Content)" Condition="'%(Extension)' == '.dll'" />
+      <Content Remove="@(Content)" Condition="'%(Extension)' == '.pdb'" />
     </ItemGroup>
   </Target>
   <!-- End Workaround -->
