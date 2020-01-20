@@ -5,6 +5,7 @@
     <RootNamespace>NServiceBus</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
