@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Compile Update="**\*.cs" Pack="true" PackagePath="content\App_Packages\NSB.AcceptanceTests\;contentFiles\cs\any\NSB.AcceptanceTests\" />
+    <Compile Update="\**\src\NServiceBus.AcceptanceTests\Core\**\*.cs" Pack="false" />
   </ItemGroup>
 
   <!-- Workaround for https://github.com/nunit/nunit3-vs-adapter/issues/697 -->
