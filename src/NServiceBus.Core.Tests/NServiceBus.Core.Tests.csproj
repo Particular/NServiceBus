@@ -5,6 +5,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);CS0618</NoWarn>
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
