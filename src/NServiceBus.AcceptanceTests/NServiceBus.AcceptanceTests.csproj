@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
-    <NoWarn>$(NoWarn);PCR0001</NoWarn>
+    <NoWarn>$(NoWarn);PCR0001;NU5123</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
