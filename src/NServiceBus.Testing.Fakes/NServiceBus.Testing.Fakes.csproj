@@ -1,114 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{80105366-8EF9-494D-A296-E100E82224CF}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net452</TargetFramework>
     <RootNamespace>NServiceBus.Testing</RootNamespace>
-    <AssemblyName>NServiceBus.Testing.Fakes</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>..\..\binaries\NServiceBus.Testing.Fakes.xml</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="DefaultTestingLoggerFactory.cs" />
-    <Compile Include="FakeBuilder.cs" />
-    <Compile Include="NamedLogger.cs" />
-    <Compile Include="OutgoingMessage.cs" />
-    <Compile Include="OutgoingMessageExtensions.cs" />
-    <Compile Include="PublishedMessage.cs" />
-    <Compile Include="RepliedMessage.cs" />
-    <Compile Include="SentMessage.cs" />
-    <Compile Include="Subscription.cs" />
-    <Compile Include="TestableAuditContext.cs" />
-    <Compile Include="TestableBatchDispatchContext.cs" />
-    <Compile Include="TestableBehaviorContext.cs" />
-    <Compile Include="TestableDispatchContext.cs" />
-    <Compile Include="TestableEndpointInstance.cs" />
-    <Compile Include="TestableForwardingContext.cs" />
-    <Compile Include="TestableIncomingContext.cs" />
-    <Compile Include="TestableIncomingLogicalMessageContext.cs" />
-    <Compile Include="TestableIncomingPhysicalMessageContext.cs" />
-    <Compile Include="TestableInvokeHandlerContext.cs" />
-    <Compile Include="TestableMessageHandlerContext.cs" />
-    <Compile Include="TestableMessageProcessingContext.cs" />
-    <Compile Include="TestableMessageSession.cs" />
-    <Compile Include="TestableOutgoingContext.cs" />
-    <Compile Include="TestableOutgoingLogicalMessageContext.cs" />
-    <Compile Include="TestableOutgoingPhysicalMessageContext.cs" />
-    <Compile Include="TestableOutgoingPublishContext.cs" />
-    <Compile Include="TestableOutgoingReplyContext.cs" />
-    <Compile Include="TestableOutgoingSendContext.cs" />
-    <Compile Include="TestablePipelineContext.cs" />
-    <Compile Include="TestableRoutingContext.cs" />
-    <Compile Include="TestableSubscribeContext.cs" />
-    <Compile Include="TestableTransportReceiveContext.cs" />
-    <Compile Include="TestableUnsubscribeContext.cs" />
-    <Compile Include="TestingLoggerFactory.cs" />
-    <Compile Include="TextWriterLogger.cs" />
-    <Compile Include="Unsubscription.cs" />
+    <PackageReference Include="Particular.Packaging" Version="0.5.0" PrivateAssets="All" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>NServiceBus.Testing.Fakes.Sources</PackageId>
+    <Description>Unit testing fakes and helpers for NServiceBus core functionality</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
-      <Name>NServiceBus.Core</Name>
-    </ProjectReference>
+    <Compile Update="**\*.cs" Pack="true" PackagePath="content\App_Packages\NSB.Testing.Fakes\;contentFiles\cs\any\NSB.Testing.Fakes\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\packaging\nuget\nservicebus.testing.fakes.nuspec">
-      <Link>nservicebus.testing.fakes.nuspec</Link>
-    </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="..\Test.snk">
-      <Link>Test.snk</Link>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets'))" />
-    <Error Condition="!Exists('..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets'))" />
-  </Target>
-  <Import Project="..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.5\build\NuGetPackager.targets')" />
-  <Import Project="..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.4.0.0-beta0013\build\GitVersionTask.targets')" />
+
 </Project>

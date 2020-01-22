@@ -801,11 +801,11 @@ namespace NServiceBus
     }
     public class static JsonSerializerConfigurationExtensions
     {
-        public static void Encoding(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
         [System.ObsoleteAttribute("Use `Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encod" +
             "ing)` instead. The member currently throws a NotImplementedException. Will be re" +
             "moved in version 7.0.0.", true)]
         public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
+        public static void Encoding(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static LearningSagaPersisterConfigurationExtensions
@@ -1107,7 +1107,6 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
-        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message) { }
         [System.ObsoleteAttribute("Use `ReplyToOriginator(IMessageHandlerContext, object)` instead. The member curre" +
             "ntly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         protected void ReplyToOriginator(object message) { }
@@ -1115,12 +1114,7 @@ namespace NServiceBus
             "tor(IMessageHandlerContext, object)` instead. The member currently throws a NotI" +
             "mplementedException. Will be removed in version 7.0.0.", true)]
         protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor) { }
-        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at)
-            where TTimeoutMessageType : new() { }
-        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at, TTimeoutMessageType timeoutMessage) { }
-        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within)
-            where TTimeoutMessageType : new() { }
-        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message) { }
         [System.ObsoleteAttribute("Use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime)` inste" +
             "ad. The member currently throws a NotImplementedException. Will be removed in ve" +
             "rsion 7.0.0.", true)]
@@ -1144,6 +1138,12 @@ namespace NServiceBus
             "utMessageType)` instead. The member currently throws a NotImplementedException. " +
             "Will be removed in version 7.0.0.", true)]
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at)
+            where TTimeoutMessageType : new() { }
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at, TTimeoutMessageType timeoutMessage) { }
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within)
+            where TTimeoutMessageType : new() { }
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData : NServiceBus.IContainSagaData, new ()
@@ -1221,14 +1221,14 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> AddDeserializer<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
-        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
-            where T : NServiceBus.Serialization.SerializationDefinition { }
         [System.ObsoleteAttribute("To use a custom serializer derive from SerializationDefinition and provide a fact" +
             "ory method for creating the serializer instance. The member currently throws a N" +
             "otImplementedException. Will be removed in version 7.0.0.", true)]
         public static void UseSerialization(this NServiceBus.EndpointConfiguration config, System.Type serializerType) { }
+        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
+            where T : NServiceBus.Serialization.SerializationDefinition, new () { }
+        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
+            where T : NServiceBus.Serialization.SerializationDefinition { }
     }
     public class static SerializationContextExtensions
     {
@@ -1406,21 +1406,21 @@ namespace NServiceBus
     }
     public class static XmlSerializationExtensions
     {
-        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
         [System.ObsoleteAttribute("Use `DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)` instead." +
             " The member currently throws a NotImplementedException. Will be removed in versi" +
             "on 7.0.0.", true)]
         public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
-        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
         [System.ObsoleteAttribute("Use `Namespace(this SerializationExtensions<XmlSerializer> config, string namespa" +
             "ceToUse)` instead. The member currently throws a NotImplementedException. Will b" +
             "e removed in version 7.0.0.", true)]
         public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
-        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
         [System.ObsoleteAttribute("Use `SanitizeInput(this SerializationExtensions<XmlSerializer> config)` instead. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
             "n 7.0.0.", true)]
         public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
     }
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -2616,19 +2616,19 @@ namespace NServiceBus.Pipeline
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
-        public void Remove(string stepId) { }
         [System.ObsoleteAttribute("Use `Remove(string stepId)` instead. The member currently throws a NotImplemented" +
             "Exception. Will be removed in version 7.0.0.", true)]
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
+        public void Remove(string stepId) { }
+        [System.ObsoleteAttribute("Use `Replace(string stepId, Type newBehavior, string description)` instead. The m" +
+            "ember currently throws a NotImplementedException. Will be removed in version 7.0" +
+            ".0.", true)]
+        public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Replace<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
-        [System.ObsoleteAttribute("Use `Replace(string stepId, Type newBehavior, string description)` instead. The m" +
-            "ember currently throws a NotImplementedException. Will be removed in version 7.0" +
-            ".0.", true)]
-        public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>
         where T : NServiceBus.Pipeline.IBehaviorContext
@@ -2646,26 +2646,26 @@ namespace NServiceBus.Pipeline
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
-        public void InsertAfter(string id) { }
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
             " extension documentation for more information. The member currently throws a Not" +
             "ImplementedException. Will be removed in version 7.0.0.", true)]
         public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
-        public void InsertAfterIfExists(string id) { }
+        public void InsertAfter(string id) { }
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
             " extension documentation for more information. The member currently throws a Not" +
             "ImplementedException. Will be removed in version 7.0.0.", true)]
         public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
-        public void InsertBefore(string id) { }
+        public void InsertAfterIfExists(string id) { }
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
             " extension documentation for more information. The member currently throws a Not" +
             "ImplementedException. Will be removed in version 7.0.0.", true)]
         public void InsertBefore(NServiceBus.Pipeline.WellKnownStep step) { }
-        public void InsertBeforeIfExists(string id) { }
+        public void InsertBefore(string id) { }
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
             " extension documentation for more information. The member currently throws a Not" +
             "ImplementedException. Will be removed in version 7.0.0.", true)]
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
+        public void InsertBeforeIfExists(string id) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
