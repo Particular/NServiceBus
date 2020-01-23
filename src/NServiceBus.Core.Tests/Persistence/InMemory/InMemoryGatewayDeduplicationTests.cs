@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Extensibility;
     using Features;
     using Gateway.Deduplication;
@@ -18,7 +19,7 @@
 
             await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
             Assert.True(await storage.DeduplicateMessage("B", DateTime.UtcNow, new ContextBag()));
-        }    
+        }
 
         [Test]
         public async Task Should_return_false_on_second_test()
@@ -27,8 +28,8 @@
 
             await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
             Assert.False(await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag()));
-        }    
-        
+        }
+
         [Test]
         public async Task Should_return_true_if_LRU_reaches_limit()
         {
@@ -56,5 +57,34 @@
             Assert.AreEqual(42, implementation.maxSize);
         }
 
+        [Test]
+        public async Task Should_support_transaction_scope_commit()
+        {
+            var storage = new InMemoryGatewayDeduplication(2);
+
+            using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
+
+                scope.Complete();
+            }
+
+            Assert.False(await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag()));
+        }
+
+        [Test]
+        public async Task Should_support_transaction_scope_abort()
+        {
+            var storage = new InMemoryGatewayDeduplication(2);
+
+            using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
+
+                // no commit
+            }
+
+            Assert.True(await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag()));
+        }
     }
 }
