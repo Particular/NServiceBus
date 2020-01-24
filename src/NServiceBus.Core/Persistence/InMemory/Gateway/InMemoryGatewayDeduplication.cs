@@ -1,62 +1,41 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
     using Gateway.Deduplication;
 
-    class InMemoryGatewayDeduplication : IDeduplicateMessages
+    partial class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
-        public InMemoryGatewayDeduplication(int maxSize)
+        public InMemoryGatewayDeduplication(ClientIdStorage clientIdStorage)
         {
-            this.maxSize = maxSize;
+            this.clientIdStorage = clientIdStorage;
         }
 
         public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived, ContextBag context)
         {
-            lock (clientIdSet)
+            if (clientIdStorage.IsDuplicate(clientId))
             {
-                // Return FALSE if item EXISTS, TRUE if ADDED
-                if (clientIdSet.TryGetValue(clientId, out var existingNode)) // O(1)
-                {
-                    clientIdList.Remove(existingNode); // O(1) operation, because we got the node reference
-                    clientIdList.AddLast(existingNode); // O(1) operation
-
-                    return TaskEx.FalseTask;
-                }
-                else
-                {
-                    if (clientIdSet.Count == maxSize)
-                    {
-                        var id = clientIdList.First.Value;
-                        clientIdSet.Remove(id); // O(1)
-                        clientIdList.RemoveFirst(); // O(1)
-                    }
-
-                    var node = clientIdList.AddLast(clientId); // O(1)
-                    clientIdSet.Add(clientId, node); // O(1)
-
-                    if (Transaction.Current != null)
-                    {
-                        Transaction.Current.EnlistVolatile(new EnlistmentNotification(clientIdSet, clientId), EnlistmentOptions.None);
-                    }
-
-                    return TaskEx.TrueTask;
-                }
+                return TaskEx.FalseTask;
             }
+
+            //the current design of the gateway seam will only allow us to safly add in transaction commit
+            if (Transaction.Current != null)
+            {
+                Transaction.Current.EnlistVolatile(new EnlistmentNotification(clientIdStorage, clientId), EnlistmentOptions.None);
+            }
+
+            return TaskEx.TrueTask;
         }
 
-        internal readonly int maxSize;
-        readonly LinkedList<string> clientIdList = new LinkedList<string>();
-        readonly Dictionary<string, LinkedListNode<string>> clientIdSet = new Dictionary<string, LinkedListNode<string>>();
+        readonly ClientIdStorage clientIdStorage;
 
         class EnlistmentNotification : IEnlistmentNotification
         {
-            public EnlistmentNotification(Dictionary<string, LinkedListNode<string>> clientIdSet, string clientId)
+            public EnlistmentNotification(ClientIdStorage clientIdStorage, string clientId)
             {
-                this.clientIdSet = clientIdSet;
+                this.clientIdStorage = clientIdStorage;
                 this.clientId = clientId;
             }
 
@@ -74,15 +53,13 @@
 
             public void Commit(Enlistment enlistment)
             {
+                clientIdStorage.RegisterClientId(clientId);
+
                 enlistment.Done();
             }
 
             public void Rollback(Enlistment enlistment)
             {
-                lock (clientIdSet)
-                {
-                    clientIdSet.Remove(clientId);
-                }
                 enlistment.Done();
             }
 
@@ -91,7 +68,7 @@
                 enlistment.Done();
             }
 
-            readonly Dictionary<string, LinkedListNode<string>> clientIdSet;
+            readonly ClientIdStorage clientIdStorage;
             readonly string clientId;
         }
     }
