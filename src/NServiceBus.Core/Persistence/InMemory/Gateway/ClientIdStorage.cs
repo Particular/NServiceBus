@@ -51,7 +51,7 @@
             }
         }
 
-        internal readonly int maxSize;
+        readonly int maxSize;
         readonly LinkedList<string> clientIdList = new LinkedList<string>();
         readonly Dictionary<string, LinkedListNode<string>> clientIdSet = new Dictionary<string, LinkedListNode<string>>();
     }
