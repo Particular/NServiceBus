@@ -13,7 +13,7 @@
         {
             lock (clientIdSet)
             {
-                // This implementation is not 100% since there is a race condition here where another thread might consider the same message as a non-duplicate.
+                // This implementation is not 100% consistent since there is a race condition here where another thread might consider the same message as a non-duplicate.
                 // We consider this good enough since this is the inmemory persister which will not be consistent when the endpoint is scaled out anyway.
                 if (clientIdSet.TryGetValue(clientId, out var existingNode)) // O(1)
                 {
