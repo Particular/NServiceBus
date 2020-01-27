@@ -6,7 +6,7 @@
     using Extensibility;
     using Gateway.Deduplication;
 
-    partial class InMemoryGatewayDeduplication : IDeduplicateMessages
+    class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
         public InMemoryGatewayDeduplication(ClientIdStorage clientIdStorage)
         {
