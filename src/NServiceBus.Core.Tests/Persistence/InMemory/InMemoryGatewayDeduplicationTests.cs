@@ -53,9 +53,9 @@
         }
 
         [Test]
-        // With this design, it's only safe to deduplicate when there is a tx scope present since we check before
-        // the messages have been pushed to the transport. If we add entries here, we will lose them should there be
-        // a problem with pushing the message.
+        // With the gateway persistence seam v1 design it's only safe to deduplicate when there is a tx scope present since the check happens before
+        // the messages have been pushed to the transport. If we add entries earlier they would be considered duplicate should the something go wrong when sending the message.
+        // Note: The gateway will always wrap the v1 seam invocation in a transaction scope
         public async Task Should_only_deduplicate_when_scope_is_present()
         {
             var storage = CreateInMemoryGatewayDeduplication();

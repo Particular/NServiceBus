@@ -15,15 +15,12 @@
 
         public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived, ContextBag context)
         {
-            // since this storage is best effort given that scaling out will lead to duplicates anyway we decided to not
-            // add any locking here. 2 threads could potentially treat the same ID as a non duplicate but that is unlikely to happen
-            // since transports will most times only allow a single comsumer of a given message
             if (clientIdStorage.IsDuplicate(clientId))
             {
                 return TaskEx.FalseTask;
             }
 
-            // The current design of the gateway seam will only allow us to safly add the id when the scope commits.
+            // The design of the v1 gateway seam will only allow deduplicating scope commits.
             // This is fine since the gateway will always wrap the call in a transaction scope so this should always be true
             if (Transaction.Current != null)
             {
