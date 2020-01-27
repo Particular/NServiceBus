@@ -29,7 +29,7 @@
                 //another thread might already have added the key
                 if (clientIdSet.ContainsKey(clientId))
                 {
-                    //just return, we can't throw since that will loose the message if the receive operation isn't enlisted in the scope
+                    //just return, we can't throw since that will lose the message if the receive operation isn't enlisted in the scope
                     return;
                 }
 
