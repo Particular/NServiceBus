@@ -42,7 +42,7 @@
         {
             var storage = CreateInMemoryGatewayDeduplication();
 
-            using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+            using (new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
             {
                 await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
 
