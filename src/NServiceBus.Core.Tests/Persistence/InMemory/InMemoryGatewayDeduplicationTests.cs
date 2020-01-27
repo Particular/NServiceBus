@@ -82,7 +82,7 @@
 
         [Test]
         // With this design it's only safe to deuplicate when there is a tx scope present since we check before
-        // the message have been pushed to the transport. If we add entries at here we will loose them should there be
+        // the messages have been pushed to the transport. If we add entries here, we will lose them should there be
         // a problem with pushing the message.
         public async Task Should_only_deduplicate_when_scope_is_present()
         {
