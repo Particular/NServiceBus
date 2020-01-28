@@ -47,16 +47,6 @@
         }
 
         [Test]
-        public void Should_handle_messages_with_nullable_reference_types()
-        {
-            var mapper = new MessageMapper();
-
-            // Type defined in separate assembly as a workaround
-            // because we can't use nullable refeference types yet
-            mapper.CreateInstance<WithDodgyNullable.IMyMessage>();
-        }
-
-        [Test]
         public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
         {
             var mapper = new MessageMapper();
