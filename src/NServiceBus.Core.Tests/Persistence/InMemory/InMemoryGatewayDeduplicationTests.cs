@@ -4,24 +4,11 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
-    using Features;
     using NUnit.Framework;
-    using Settings;
 
     [TestFixture]
     class InMemoryGatewayDeduplicationTests
     {
-        [Test]
-        public void Should_have_configured_storage_maxsize()
-        {
-            var settings = new SettingsHolder();
-            var persistenceSettings = new PersistenceExtensions<InMemoryPersistence>(settings);
-
-            persistenceSettings.GatewayDeduplicationCacheSize(42);
-
-            Assert.AreEqual(42, settings.Get<int>(InMemoryGatewayPersistence.MaxSizeKey));
-        }
-
         [Test]
         public async Task Should_add_on_transaction_scope_commit()
         {

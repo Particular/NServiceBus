@@ -25,7 +25,7 @@
             context.Container.RegisterSingleton<IDeduplicateMessages>(new InMemoryGatewayDeduplication(new ClientIdStorage(maxSize)));
         }
 
-        const string MaxSizeKey = "InMemoryGatewayDeduplication.MaxSize";
+        internal const string MaxSizeKey = "InMemoryGatewayDeduplication.MaxSize";
         const int MaxSizeDefault = 10000;
     }
 }
