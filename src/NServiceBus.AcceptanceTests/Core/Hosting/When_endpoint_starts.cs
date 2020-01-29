@@ -3,8 +3,8 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using NServiceBus;
     using NUnit.Framework;
 
     public class When_endpoint_starts : NServiceBusAcceptanceTest
@@ -26,7 +26,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
+            var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MyEndpoint));
             var startupDiagnoticsFileName = $"{endpointName}-configuration.txt";
 
             var pathToFile = Path.Combine(basePath, startupDiagnoticsFileName);
@@ -46,6 +46,19 @@
                 EndpointSetup<DefaultServer>(c => c.SetDiagnosticsPath(basePath))
                    .EnableStartupDiagnostics();
             }
+        }
+
+        class MyMessageHandler : IHandleMessages<MyMessage>
+        {
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        class MyMessage:IMessage
+        {
+
         }
     }
 }
