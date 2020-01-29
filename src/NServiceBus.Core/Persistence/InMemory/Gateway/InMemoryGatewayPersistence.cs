@@ -22,7 +22,7 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var maxSize = context.Settings.Get<int>(MaxSizeKey);
-            context.Container.RegisterSingleton<IDeduplicateMessages>(new InMemoryGatewayDeduplication(maxSize));
+            context.Container.RegisterSingleton<IDeduplicateMessages>(new InMemoryGatewayDeduplication(new ClientIdStorage(maxSize)));
         }
 
         const string MaxSizeKey = "InMemoryGatewayDeduplication.MaxSize";

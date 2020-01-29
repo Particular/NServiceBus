@@ -1,48 +1,76 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Extensibility;
     using Gateway.Deduplication;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
-        public InMemoryGatewayDeduplication(int maxSize)
+        public InMemoryGatewayDeduplication(ClientIdStorage clientIdStorage)
         {
-            this.maxSize = maxSize;
+            this.clientIdStorage = clientIdStorage;
         }
 
         public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived, ContextBag context)
         {
-            lock (clientIdSet)
+            if (clientIdStorage.IsDuplicate(clientId))
             {
-                // Return FALSE if item EXISTS, TRUE if ADDED
-                if (clientIdSet.TryGetValue(clientId, out var existingNode)) // O(1)
-                {
-                    clientIdList.Remove(existingNode); // O(1) operation, because we got the node reference
-                    clientIdList.AddLast(existingNode); // O(1) operation
-                    return TaskEx.FalseTask;
-                }
-                else
-                {
-                    if (clientIdSet.Count == maxSize)
-                    {
-                        var id = clientIdList.First.Value;
-                        clientIdSet.Remove(id); // O(1)
-                        clientIdList.RemoveFirst(); // O(1)
-                    }
-
-                    var node = clientIdList.AddLast(clientId); // O(1)
-                    clientIdSet.Add(clientId, node); // O(1)
-
-                    return TaskEx.TrueTask;
-                }
+                return TaskEx.FalseTask;
             }
+
+            // The design of the v1 gateway seam will only allow deduplicating scope commits.
+            // This is fine since the gateway will always wrap the call in a transaction scope so this should always be true
+            if (Transaction.Current != null)
+            {
+                Transaction.Current.EnlistVolatile(new EnlistmentNotification(clientIdStorage, clientId), EnlistmentOptions.None);
+            }
+
+            return TaskEx.TrueTask;
         }
 
-        readonly int maxSize;
-        readonly LinkedList<string> clientIdList = new LinkedList<string>();
-        readonly Dictionary<string, LinkedListNode<string>> clientIdSet = new Dictionary<string, LinkedListNode<string>>();
+        readonly ClientIdStorage clientIdStorage;
+
+        class EnlistmentNotification : IEnlistmentNotification
+        {
+            public EnlistmentNotification(ClientIdStorage clientIdStorage, string clientId)
+            {
+                this.clientIdStorage = clientIdStorage;
+                this.clientId = clientId;
+            }
+
+            public void Prepare(PreparingEnlistment preparingEnlistment)
+            {
+                try
+                {
+                    preparingEnlistment.Prepared();
+                }
+                catch (Exception ex)
+                {
+                    preparingEnlistment.ForceRollback(ex);
+                }
+            }
+
+            public void Commit(Enlistment enlistment)
+            {
+                clientIdStorage.RegisterClientId(clientId);
+
+                enlistment.Done();
+            }
+
+            public void Rollback(Enlistment enlistment)
+            {
+                enlistment.Done();
+            }
+
+            public void InDoubt(Enlistment enlistment)
+            {
+                enlistment.Done();
+            }
+
+            readonly ClientIdStorage clientIdStorage;
+            readonly string clientId;
+        }
     }
 }
