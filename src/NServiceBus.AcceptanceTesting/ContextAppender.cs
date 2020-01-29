@@ -105,6 +105,12 @@
         void Log(string message, LogLevel messageSeverity)
         {
             var context = ScenarioContext.Current;
+            if (context == null)
+            {
+                // avoid NRE in case something logs outside of a test scenario
+                Console.WriteLine(message);
+                return;
+            }
 
             if (context.LogLevel > messageSeverity)
                 return;
