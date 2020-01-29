@@ -83,9 +83,9 @@ namespace NServiceBus
 
             if (!externalHandlerRegistryUsed)
             {
-                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
+                var messageHandlerRegistry = configuration.messageHandlerRegistry;
 
-                var messageHandlerRegistry = LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
 
                 foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
                 {
@@ -262,7 +262,7 @@ namespace NServiceBus
             }
         }
 
-        static MessageHandlerRegistry LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
+        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -273,15 +273,6 @@ namespace NServiceBus
 
             types.InsertRange(0, orderedTypes);
 
-            var handlerRegistry = configuration.messageHandlerRegistry;
-
-            ConfigureMessageHandlersIn(handlerRegistry, types, container);
-
-            return handlerRegistry;
-        }
-
-        static void ConfigureMessageHandlersIn(MessageHandlerRegistry handlerRegistry, IEnumerable<Type> types, IConfigureComponents container)
-        {
             foreach (var t in types.Where(IsMessageHandler))
             {
                 container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
