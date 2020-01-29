@@ -3,8 +3,8 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using NServiceBus;
     using NUnit.Framework;
 
     public class When_endpoint_starts : NServiceBusAcceptanceTest
@@ -26,7 +26,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MyEndpoint));
+            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
             var startupDiagnoticsFileName = $"{endpointName}-configuration.txt";
 
             var pathToFile = Path.Combine(basePath, startupDiagnoticsFileName);
@@ -56,7 +56,7 @@
             }
         }
 
-        class MyMessage:IMessage
+        class MyMessage : IMessage
         {
 
         }
