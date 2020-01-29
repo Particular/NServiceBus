@@ -78,11 +78,10 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            var externalHandlerRegistry = hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>();
-
+            var externalHandlerRegistryUsed = hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>();
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
-            if (!externalHandlerRegistry)
+            if (!externalHandlerRegistryUsed)
             {
                 var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
 
@@ -112,7 +111,7 @@ namespace NServiceBus
                     TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
                     s.RuntimeSettings.MaxConcurrency
                 }).ToArray(),
-                ExternalHandlerRegistry = externalHandlerRegistry,
+                ExternalHandlerRegistry = externalHandlerRegistryUsed,
                 MessageHandlers = handlerDiagnostics
             });
 
