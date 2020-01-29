@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Extensibility;
     using Features;
-    using Gateway.Deduplication;
     using NUnit.Framework;
     using Settings;
 
@@ -12,49 +12,62 @@
     class InMemoryGatewayDeduplicationTests
     {
         [Test]
-        public async Task Should_return_true_on_first_unique_test()
+        public void Should_have_configured_storage_maxsize()
         {
-            var storage = new InMemoryGatewayDeduplication(2);
+            var settings = new SettingsHolder();
+            var persistenceSettings = new PersistenceExtensions<InMemoryPersistence>(settings);
 
-            await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
-            Assert.True(await storage.DeduplicateMessage("B", DateTime.UtcNow, new ContextBag()));
-        }    
+            persistenceSettings.GatewayDeduplicationCacheSize(42);
+
+            Assert.AreEqual(42, settings.Get<int>(InMemoryGatewayPersistence.MaxSizeKey));
+        }
 
         [Test]
-        public async Task Should_return_false_on_second_test()
+        public async Task Should_add_on_transaction_scope_commit()
         {
-            var storage = new InMemoryGatewayDeduplication(2);
+            var storage = CreateInMemoryGatewayDeduplication();
 
-            await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
+            using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
+
+                scope.Complete();
+            }
+
             Assert.False(await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag()));
-        }    
-        
-        [Test]
-        public async Task Should_return_true_if_LRU_reaches_limit()
-        {
-            var storage = new InMemoryGatewayDeduplication(2);
+        }
 
-            await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
-            await storage.DeduplicateMessage("B", DateTime.UtcNow, new ContextBag());
-            await storage.DeduplicateMessage("C", DateTime.UtcNow, new ContextBag());
+        [Test]
+        public async Task Should_not_add_on_transaction_scope_abort()
+        {
+            var storage = CreateInMemoryGatewayDeduplication();
+
+            using (new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
+
+                // no commit
+            }
+
             Assert.True(await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag()));
         }
 
         [Test]
-        public void Should_have_configured_maxsize()
+        // With the gateway persistence seam v1 design it's only safe to deduplicate when there is a tx scope present since the check happens before
+        // the messages have been pushed to the transport. If we add entries earlier they would be considered duplicate when retrying after something went wrong.
+        // Note: The gateway will always wrap the v1 seam invocation in a transaction scope
+        public async Task Should_only_deduplicate_when_scope_is_present()
         {
-            var feature = new InMemoryGatewayPersistence();
-            var settings = new SettingsHolder();
-            var container = new CommonObjectBuilder(new LightInjectObjectBuilder());
+            var storage = CreateInMemoryGatewayDeduplication();
 
-            var persistenceSettings = new PersistenceExtensions<InMemoryPersistence>(settings);
-            persistenceSettings.GatewayDeduplicationCacheSize(42);
+            await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag());
 
-            feature.Setup(new FeatureConfigurationContext(settings, container, null, null, null));
-
-            var implementation = (InMemoryGatewayDeduplication)container.Build<IDeduplicateMessages>();
-            Assert.AreEqual(42, implementation.maxSize);
+            Assert.True(await storage.DeduplicateMessage("A", DateTime.UtcNow, new ContextBag()));
         }
 
+        InMemoryGatewayDeduplication CreateInMemoryGatewayDeduplication()
+        {
+            return new InMemoryGatewayDeduplication(new ClientIdStorage(10));
+        }
     }
 }
