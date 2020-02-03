@@ -78,11 +78,21 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            if (!hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>())
-            {
-                var orderedHandlers = configuration.ExecuteTheseHandlersFirst;
+            var externalHandlerRegistryUsed = hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>();
+            var handlerDiagnostics = new Dictionary<string, List<string>>();
 
-                LoadMessageHandlers(configuration, orderedHandlers, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+            if (!externalHandlerRegistryUsed)
+            {
+                var messageHandlerRegistry = configuration.messageHandlerRegistry;
+
+                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+
+                foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
+                {
+                    handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
+                        .Select(handler => handler.HandlerType.FullName)
+                        .ToList();
+                }
             }
 
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
@@ -100,7 +110,9 @@ namespace NServiceBus
                     s.ReceiveAddress,
                     TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
                     s.RuntimeSettings.MaxConcurrency
-                }).ToArray()
+                }).ToArray(),
+                ExternalHandlerRegistry = externalHandlerRegistryUsed,
+                MessageHandlers = handlerDiagnostics
             });
 
             return receiveComponent;
@@ -250,7 +262,7 @@ namespace NServiceBus
             }
         }
 
-        static void LoadMessageHandlers(Configuration configuration, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
+        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -260,13 +272,6 @@ namespace NServiceBus
             }
 
             types.InsertRange(0, orderedTypes);
-
-            ConfigureMessageHandlersIn(configuration, types, container);
-        }
-
-        static void ConfigureMessageHandlersIn(Configuration configuration, IEnumerable<Type> types, IConfigureComponents container)
-        {
-            var handlerRegistry = configuration.messageHandlerRegistry;
 
             foreach (var t in types.Where(IsMessageHandler))
             {

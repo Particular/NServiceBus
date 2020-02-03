@@ -47,5 +47,17 @@
                    .EnableStartupDiagnostics();
             }
         }
+
+        class MyMessageHandler : IHandleMessages<MyMessage>
+        {
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        public class MyMessage : IMessage
+        {
+        }
     }
 }
