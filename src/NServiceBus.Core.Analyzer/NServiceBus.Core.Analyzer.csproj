@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="GitVersionTask" Version="5.1.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" />
   </ItemGroup>
 
 </Project>
