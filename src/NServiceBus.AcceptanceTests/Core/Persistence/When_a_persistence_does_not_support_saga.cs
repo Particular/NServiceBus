@@ -27,7 +27,9 @@
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
                     c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
+#pragma warning disable 0618
                     c.UsePersistence<InMemoryPersistence, StorageType.GatewayDeduplication>();
+#pragma warning restore 0618
                     c.UsePersistence<InMemoryPersistence, StorageType.Outbox>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
                 });
