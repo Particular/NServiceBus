@@ -60,6 +60,10 @@
         /// <summary>
         /// Storage for gateway de-duplication.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
         public sealed class GatewayDeduplication : StorageType
         {
             internal GatewayDeduplication() : base("GatewayDeduplication")

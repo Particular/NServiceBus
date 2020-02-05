@@ -5,6 +5,10 @@
     /// <summary>
     /// In-memory Gateway.
     /// </summary>
+    [ObsoleteEx(
+            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
     public class InMemoryGatewayPersistence : Feature
     {
         internal InMemoryGatewayPersistence()

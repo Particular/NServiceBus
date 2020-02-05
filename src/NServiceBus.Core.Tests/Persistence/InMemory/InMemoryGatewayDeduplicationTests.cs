@@ -17,9 +17,11 @@
             var settings = new SettingsHolder();
             var persistenceSettings = new PersistenceExtensions<InMemoryPersistence>(settings);
 
+#pragma warning disable 0618
             persistenceSettings.GatewayDeduplicationCacheSize(42);
 
             Assert.AreEqual(42, settings.Get<int>(InMemoryGatewayPersistence.MaxSizeKey));
+#pragma warning restore 0618
         }
 
         [Test]

@@ -593,6 +593,9 @@ namespace NServiceBus
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
     public class static InMemoryGatewayPersistenceConfigurationExtensions
     {
+        [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
+            "Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0" +
+            ".", false)]
         public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.InMemoryPersistence> persistenceExtensions, int maxSize) { }
     }
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
@@ -964,6 +967,9 @@ namespace NServiceBus
     public abstract class StorageType
     {
         public override string ToString() { }
+        [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
+            "Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0" +
+            ".", false)]
         public sealed class GatewayDeduplication : NServiceBus.StorageType { }
         public sealed class Outbox : NServiceBus.StorageType { }
         public sealed class Sagas : NServiceBus.StorageType { }
@@ -1605,6 +1611,9 @@ namespace NServiceBus.Features
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
+        "Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0" +
+        ".", false)]
     public class InMemoryGatewayPersistence : NServiceBus.Features.Feature
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1669,6 +1678,9 @@ namespace NServiceBus.Features
 }
 namespace NServiceBus.Gateway.Deduplication
 {
+    [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
+        "Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0" +
+        ".", false)]
     public interface IDeduplicateMessages
     {
         System.Threading.Tasks.Task<bool> DeduplicateMessage(string clientId, System.DateTime timeReceived, NServiceBus.Extensibility.ContextBag context);

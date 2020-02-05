@@ -40,8 +40,10 @@
                 new List<Type> { typeof(StorageType.Subscriptions)}));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
                 new List<Type> { typeof(StorageType.Sagas) }));
+#pragma warning disable 0618
             Assert.That(resultedEnabledPersistences[2].SelectedStorages, Is.EquivalentTo(
                 new List<Type> { typeof(StorageType.GatewayDeduplication), typeof(StorageType.Outbox), typeof(StorageType.Timeouts) }));
+#pragma warning restore 0618
         }
 
         class FakePersistence : PersistenceDefinition

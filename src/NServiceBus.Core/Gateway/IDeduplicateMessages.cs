@@ -7,6 +7,10 @@
     /// <summary>
     /// Defines the api for storages that wants to provide storage for gateway deduplication.
     /// </summary>
+    [ObsoleteEx(
+            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
     public interface IDeduplicateMessages
     {
         /// <summary>
