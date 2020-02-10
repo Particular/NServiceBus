@@ -103,12 +103,17 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context TestContext { get; set; }
+                Context testContext;
+
+                public SagaNotFound(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    TestContext.TimesFired++;
-                    TestContext.Done = true;
+                    testContext.TimesFired++;
+                    testContext.Done = true;
                     return Task.FromResult(0);
                 }
             }
@@ -152,12 +157,17 @@
 
             public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
             {
-                public Context Context { get; set; }
+                Context context;
+
+                public ReceiverWithOrderedSagasSaga2(Context context)
+                {
+                    this.context = context;
+                }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
-                    Context.Done = true;
+                    this.context.Done = true;
                     return Task.FromResult(0);
                 }
 
@@ -181,11 +191,16 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context TestContext { get; set; }
+                Context testContext;
+
+                public SagaNotFound(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    TestContext.TimesFired++;
+                    testContext.TimesFired++;
                     return Task.FromResult(0);
                 }
             }

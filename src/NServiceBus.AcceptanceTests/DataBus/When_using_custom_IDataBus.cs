@@ -68,17 +68,21 @@
 
         public class MyDataBus : IDataBus
         {
-            public Context Context { get; set; }
+            Context context;
+            public MyDataBus(Context context)
+            {
+                this.context = context;
+            }
 
             public Task<Stream> Get(string key)
             {
-                var fileStream = new FileStream(Context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+                var fileStream = new FileStream(context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
                 return Task.FromResult((Stream) fileStream);
             }
 
             public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
             {
-                using (var destination = File.OpenWrite(Context.TempPath))
+                using (var destination = File.OpenWrite(context.TempPath))
                 {
                     stream.CopyTo(destination);
                 }
