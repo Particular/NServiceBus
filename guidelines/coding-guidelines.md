@@ -1,5 +1,5 @@
 ## Language Features
-It is acceptable to use language features in C# 7.0 and lower versions.
+It is acceptable to use language features in C# 7.3 and lower versions.
 
 ## Performance related
 
