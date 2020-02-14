@@ -6,6 +6,10 @@ namespace NServiceBus.Container
     /// <summary>
     /// Base class for container definitions.
     /// </summary>
+    [ObsoleteEx(
+           Message = "Support for custom dependency injection containers is provided via the NServiceBus.Extensions.DependencyInjection package.",
+           RemoveInVersion = "9.0.0",
+           TreatAsErrorFromVersion = "8.0.0")]
     public abstract class ContainerDefinition
     {
         /// <summary>

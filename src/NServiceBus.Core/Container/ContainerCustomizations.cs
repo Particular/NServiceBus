@@ -5,6 +5,10 @@ namespace NServiceBus.Container
     /// <summary>
     /// Container customization.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Support for custom dependency injection containers is provided via the NServiceBus.Extensions.DependencyInjection package.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
     public class ContainerCustomizations
     {
         internal ContainerCustomizations(SettingsHolder settings)

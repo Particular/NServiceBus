@@ -85,6 +85,10 @@ namespace NServiceBus
         /// Defines a custom builder to use.
         /// </summary>
         /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition" />.</typeparam>
+        [ObsoleteEx(
+          Message = "Support for custom dependency injection containers is provided via the NServiceBus.Extensions.DependencyInjection package.",
+          RemoveInVersion = "9.0.0",
+          TreatAsErrorFromVersion = "8.0.0")]
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             customizations?.Invoke(new ContainerCustomizations(Settings));
@@ -96,6 +100,10 @@ namespace NServiceBus
         /// Defines a custom builder to use.
         /// </summary>
         /// <param name="definitionType">The type of the <see cref="ContainerDefinition" />.</param>
+        [ObsoleteEx(
+           Message = "Support for custom dependency injection containers is provided via the NServiceBus.Extensions.DependencyInjection package.",
+           RemoveInVersion = "9.0.0",
+           TreatAsErrorFromVersion = "8.0.0")]
         public void UseContainer(Type definitionType)
         {
             Guard.AgainstNull(nameof(definitionType), definitionType);
