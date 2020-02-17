@@ -1,6 +1,9 @@
 namespace NServiceBus
 {
     using System;
+#if NETSTANDARD
+    using System.Runtime.InteropServices;
+#endif
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Features;
@@ -27,8 +30,14 @@ namespace NServiceBus
 
             await transportInfrastructure.Start().ConfigureAwait(false);
 
+#if NETSTANDARD
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+            }
+#else
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
-
+#endif
             await receiveComponent.Initialize().ConfigureAwait(false);
 
             var featureRunner = await StartFeatures().ConfigureAwait(false);
