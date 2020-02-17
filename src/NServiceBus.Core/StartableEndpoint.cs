@@ -1,6 +1,9 @@
 namespace NServiceBus
 {
     using System;
+#if NETSTANDARD
+    using System.Runtime.InteropServices;
+#endif
     using System.Security.Principal;
     using System.Threading.Tasks;
     using ObjectBuilder;
@@ -43,8 +46,14 @@ namespace NServiceBus
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);
             var messageSession = new MessageSession(rootContext);
 
+#if NETSTANDARD
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+            }
+#else
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
-
+#endif
             await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
 
             // This is a hack to maintain the current order of transport infrastructure initialization
