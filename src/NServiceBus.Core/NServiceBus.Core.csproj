@@ -53,4 +53,8 @@
   </PropertyGroup>
   <!-- End Workaround -->
 
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>NServiceBus.Core.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
 </Project>
