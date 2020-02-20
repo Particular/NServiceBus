@@ -204,3 +204,6 @@ dotnet_diagnostic.SA1005.severity = none
 
 # SA1513: Closing brace should be followed by blank line
 dotnet_diagnostic.SA1513.severity = none
+
+# SA1311: Static readonly fields should begin with upper-case letter
+dotnet_diagnostic.SA1311.severity = none
