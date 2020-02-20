@@ -20,20 +20,20 @@ namespace NServiceBus
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
             result = ActiveLicense.Find("NServiceBus", licenseSources);
-            developerLicenseUrl = CreateDeveloperLicenseUrl();
+            var developerLicenseUrl = CreateDeveloperLicenseUrl();
 
             LogFindResults(result);
 
             var licenseStatus = result.License.GetLicenseStatus();
-            LogLicenseStatus(licenseStatus, Logger, result.License);
+            LogLicenseStatus(licenseStatus, Logger, result.License, developerLicenseUrl);
 
             if (licenseStatus == LicenseStatus.InvalidDueToExpiredTrial)
             {
-                OpenDeveloperLicensePage();
+                OpenDeveloperLicensePage(developerLicenseUrl);
             }
         }
 
-        internal void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license)
+        internal void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
         {
             var whenLicenseExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilLicenseExpires());
             var whenUpgradeProtectedExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires());
@@ -43,7 +43,7 @@ namespace NServiceBus
                 case LicenseStatus.Valid:
                     break;
                 case LicenseStatus.ValidWithExpiredUpgradeProtection:
-                    logger.Warn("Upgrade protection expired.In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact @particular.net");
+                    logger.Warn("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
                     break;
                 case LicenseStatus.ValidWithExpiringTrial:
                     if (license.IsExtendedTrial)
@@ -64,11 +64,11 @@ namespace NServiceBus
                 case LicenseStatus.InvalidDueToExpiredTrial:
                     if(license.IsExtendedTrial)
                     {
-                        logger.Warn($"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
+                        logger.Error($"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
                     }
                     else
                     {
-                        logger.Warn($"Trial license expired. Get your free development license at {developerLicenseUrl}");
+                        logger.Error($"Trial license expired. Get your free development license at {developerLicenseUrl}");
                     }
                     break;
                 case LicenseStatus.InvalidDueToExpiredSubscription:
@@ -130,7 +130,7 @@ namespace NServiceBus
 #endif
         }
 
-        void OpenDeveloperLicensePage()
+        void OpenDeveloperLicensePage(string developerLicenseUrl)
         {
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
@@ -201,7 +201,6 @@ namespace NServiceBus
 #endif
 
         ActiveLicenseFindResult result;
-        string developerLicenseUrl;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
