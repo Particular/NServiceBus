@@ -217,3 +217,9 @@ dotnet_diagnostic.SA1306.severity = none
 
 #SA1009: Closing parenthesis should be spaced correctly
 dotnet_diagnostic.SA1009.severity = none
+
+#SA1611: Element parameters should be documented
+dotnet_diagnostic.SA1611.severity = none
+
+#SA1615:Element return value should be documented
+dotnet_diagnostic.SA1615.severity = none
