@@ -35,30 +35,47 @@ namespace NServiceBus
 
         internal void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license)
         {
+            var whenLicenseExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilLicenseExpires());
+            var whenUpgradeProtectedExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires());
+
             switch (licenseStatus)
             {
                 case LicenseStatus.Valid:
                     break;
                 case LicenseStatus.ValidWithExpiredUpgradeProtection:
-                    logger.Warn("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expired");
+                    logger.Warn("Upgrade protection expired.In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact @particular.net");
                     break;
                 case LicenseStatus.ValidWithExpiringTrial:
-                    logger.WarnFormat("Trial license expiring {0}. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expiring", GetRemainingDaysString(license.GetDaysUntilLicenseExpires()));
+                    if (license.IsExtendedTrial)
+                    {
+                        logger.Warn($"Development license expiring {whenLicenseExpiresPhrase}. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
+                    }
+                    else
+                    {
+                        logger.Warn($"Trial license expiring {whenLicenseExpiresPhrase}. Get your free development license at {developerLicenseUrl}");
+                    }
                     break;
                 case LicenseStatus.ValidWithExpiringSubscription:
-                    logger.WarnFormat("Platform license expiring {0}. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expiring", GetRemainingDaysString(license.GetDaysUntilLicenseExpires()));
+                    logger.Warn($"License expiring {whenLicenseExpiresPhrase}. Contact us to renew your license: contact@particular.net");
                     break;
                 case LicenseStatus.ValidWithExpiringUpgradeProtection:
-                    logger.WarnFormat("Upgrade protection expiring {0}. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expiring", GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires()));
+                    logger.Warn($"Upgrade protection expiring {whenUpgradeProtectedExpiresPhrase}. Contact us to renew your license: contact@particular.net");
                     break;
                 case LicenseStatus.InvalidDueToExpiredTrial:
-                    logger.Error("Trial license expired. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expired");
+                    if(license.IsExtendedTrial)
+                    {
+                        logger.Warn($"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
+                    }
+                    else
+                    {
+                        logger.Warn($"Trial license expired. Get your free development license at {developerLicenseUrl}");
+                    }
                     break;
                 case LicenseStatus.InvalidDueToExpiredSubscription:
-                    logger.Error("Platform license expired. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expired");
+                    logger.Error("License expired. Contact us to renew your license: contact@particular.net");
                     break;
                 case LicenseStatus.InvalidDueToExpiredUpgradeProtection:
-                    logger.Error("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expired");
+                    logger.Error("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
                     break;
             }
 
