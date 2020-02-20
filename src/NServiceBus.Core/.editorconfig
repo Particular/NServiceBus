@@ -223,3 +223,6 @@ dotnet_diagnostic.SA1611.severity = none
 
 #SA1615:Element return value should be documented
 dotnet_diagnostic.SA1615.severity = none
+
+#SA1400: Access modifier should be declared
+dotnet_diagnostic.SA1400.severity = none
