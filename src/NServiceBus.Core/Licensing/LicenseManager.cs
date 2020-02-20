@@ -20,6 +20,7 @@ namespace NServiceBus
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
             result = ActiveLicense.Find("NServiceBus", licenseSources);
+            developerLicenseUrl = CreateDeveloperLicenseUrl();
 
             LogFindResults(result);
 
@@ -28,7 +29,7 @@ namespace NServiceBus
 
             if (licenseStatus == LicenseStatus.InvalidDueToExpiredTrial)
             {
-                OpenTrialExtensionPage();
+                OpenDeveloperLicensePage();
             }
         }
 
@@ -112,16 +113,11 @@ namespace NServiceBus
 #endif
         }
 
-        void OpenTrialExtensionPage()
+        void OpenDeveloperLicensePage()
         {
-            var version = GitVersionInformation.MajorMinorPatch;
-            var extendedTrial = result.License.IsExtendedTrial ? "1" : "0";
-            var platform = GetPlatformCode();
-            var url = $"https://particular.net/license/nservicebus?v={version}&t={extendedTrial}&p={platform}";
-
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
-                Logger.WarnFormat("To extend your trial license, visit: {0}", url);
+                Logger.WarnFormat("To extend your trial license, visit: {0}", developerLicenseUrl);
 
                 return;
             }
@@ -132,13 +128,13 @@ namespace NServiceBus
                 {
                     try
                     {
-                        Logger.WarnFormat("Opening browser to: {0}", url);
+                        Logger.WarnFormat("Opening browser to: {0}", developerLicenseUrl);
 
-                        var opened = Browser.TryOpen(url);
+                        var opened = Browser.TryOpen(developerLicenseUrl);
 
                         if (!opened)
                         {
-                            Logger.WarnFormat("Unable to open browser. To extend your trial license, visit: {0}", url);
+                            Logger.WarnFormat("Unable to open browser. To extend your trial license, visit: {0}", developerLicenseUrl);
                         }
 
                         Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
@@ -153,6 +149,14 @@ namespace NServiceBus
                     Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
                 }
             }
+        }
+
+        string CreateDeveloperLicenseUrl()
+        {
+            var version = GitVersionInformation.MajorMinorPatch;
+            var isRenewal = result.License.IsExtendedTrial ? "1" : "0";
+            var platform = GetPlatformCode();
+            return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}";
         }
 
 #if NETSTANDARD
@@ -180,6 +184,7 @@ namespace NServiceBus
 #endif
 
         ActiveLicenseFindResult result;
+        string developerLicenseUrl;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
