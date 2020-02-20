@@ -45,7 +45,8 @@ dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_collection_initializer = true:suggestion
 dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_null_propagation = true:suggestion
-dotnet_style_object_initializer = true:error
+# IDE0017: Simplify object initialization
+dotnet_style_object_initializer = true:none
 dotnet_style_prefer_auto_properties = true:error
 dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = true:silent
