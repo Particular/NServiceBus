@@ -136,7 +136,7 @@ namespace NServiceBus
         readonly ICollection<KeyValuePair<Guid, Entry>> sagasCollection;
         readonly ICollection<KeyValuePair<CorrelationId, Guid>> byCorrelationIdCollection;
         const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
-        static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
+        static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), string.Empty, new object());
 
         class Entry
         {

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
-    using MessageMutator;
     using System.Collections.Generic;
+    using MessageMutator;
 
     class Mutators : Feature
     {

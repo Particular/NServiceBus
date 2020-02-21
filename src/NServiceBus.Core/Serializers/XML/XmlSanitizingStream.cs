@@ -74,8 +74,8 @@ namespace NServiceBus
                 }
             }
 
-                // Skip the character if it's prohibited, and try the next
-	
+            // Skip the character if it's prohibited, and try the next
+
             while (!IsLegalXmlChar(nextCharacter));
 
             return nextCharacter;
@@ -96,7 +96,7 @@ namespace NServiceBus
                 (
                 // If it's prohibited XML, skip over the character in the stream
                 // and try the next.
-	
+
                 !IsLegalXmlChar(nextCharacter) &&
                 (nextCharacter = base.Read()) != EOF
                 );
