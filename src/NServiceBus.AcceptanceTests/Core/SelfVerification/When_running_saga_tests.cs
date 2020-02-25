@@ -50,7 +50,9 @@
                 .ToArray();
 
             var nestedSagaEntityParents = sagaEntities
+#if NETFRAMEWORK
                 .Where(t => t.DeclaringType != null)
+#endif
                 .Select(t => t.DeclaringType)
                 .ToArray();
 
