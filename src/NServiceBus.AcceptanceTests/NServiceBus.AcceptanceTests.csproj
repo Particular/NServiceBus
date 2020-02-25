@@ -28,7 +28,6 @@
   <PropertyGroup>
     <PackageId>NServiceBus.AcceptanceTests.Sources</PackageId>
     <Description>Acceptance tests for NServiceBus core functionality</Description>
-    <IsPackable>true</IsPackable>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
