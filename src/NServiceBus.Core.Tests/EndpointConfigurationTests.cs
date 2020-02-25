@@ -14,7 +14,7 @@
         {
             var exception = Assert.Throws<ArgumentException>(() => new EndpointConfiguration(name));
 
-            Assert.That(exception.Message, Does.Contain("Endpoint name must not be empty").And.Contain("Parameter name: endpointName"));
+            Assert.That(exception.Message, Does.Contain("Endpoint name must not be empty").And.Contain("endpointName"));
         }
 
         [Test]
@@ -22,7 +22,7 @@
         {
             var exception = Assert.Throws<ArgumentException>(() => new EndpointConfiguration("endpoint@V6"));
 
-            Assert.That(exception.Message, Does.Contain("Endpoint name must not contain an '@' character.").And.Contain("Parameter name: endpointName"));
+            Assert.That(exception.Message, Does.Contain("Endpoint name must not contain an '@' character.").And.Contain("endpointName"));
         }
     }
 }
