@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -23,7 +23,6 @@
   <PropertyGroup>
     <PackageId>NServiceBus.TransportTests.Sources</PackageId>
     <Description>Tests for transport seam implementations</Description>
-    <IsPackable>true</IsPackable>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 

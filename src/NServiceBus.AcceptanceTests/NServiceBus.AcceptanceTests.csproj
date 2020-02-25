@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <NoWarn>$(NoWarn);PCR0001</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
@@ -28,7 +28,6 @@
   <PropertyGroup>
     <PackageId>NServiceBus.AcceptanceTests.Sources</PackageId>
     <Description>Acceptance tests for NServiceBus core functionality</Description>
-    <IsPackable>true</IsPackable>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
