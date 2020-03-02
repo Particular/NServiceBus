@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using Logging;
+    using NUnit.Framework;
 
     class ContextAppender : ILog
     {
@@ -105,6 +106,12 @@
         void Log(string message, LogLevel messageSeverity)
         {
             var context = ScenarioContext.Current;
+            if (context == null)
+            {
+                // avoid NRE in case something logs outside of a test scenario
+                TestContext.WriteLine(message);
+                return;
+            }
 
             if (context.LogLevel > messageSeverity)
                 return;
