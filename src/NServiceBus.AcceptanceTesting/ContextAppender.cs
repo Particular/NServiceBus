@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using Logging;
+    using NUnit.Framework;
 
     class ContextAppender : ILog
     {
@@ -108,7 +109,7 @@
             if (context == null)
             {
                 // avoid NRE in case something logs outside of a test scenario
-                Console.WriteLine(message);
+                TestContext.WriteLine(message);
                 return;
             }
 
