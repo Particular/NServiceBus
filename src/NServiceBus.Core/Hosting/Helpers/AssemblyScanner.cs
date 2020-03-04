@@ -83,10 +83,11 @@ namespace NServiceBus.Hosting.Helpers
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
+                if (!TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
                 {
-                    assemblies.Add(assembly);
+                    continue;
                 }
+                assemblies.Add(assembly);
             }
 
             var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
@@ -97,10 +98,11 @@ namespace NServiceBus.Hosting.Helpers
 
                 foreach (var platformAssembly in platformAssemblies)
                 {
-                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
+                    if (!TryLoadScannableAssembly(platformAssembly, results, out var assembly))
                     {
-                        assemblies.Add(assembly);
+                        continue;
                     }
+                    assemblies.Add(assembly);
                 }
             }
 
@@ -329,7 +331,12 @@ namespace NServiceBus.Hosting.Helpers
 
         static bool IsMatch(string expression1, string expression2)
         {
-            return DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
+            var distillLowerAssemblyName = DistillLowerAssemblyName(expression2);
+            if (distillLowerAssemblyName.StartsWith("microsoft") || distillLowerAssemblyName.StartsWith("system"))
+            {
+                return true;
+            }
+            return DistillLowerAssemblyName(expression1) == distillLowerAssemblyName;
         }
 
         bool IsAllowedType(Type type)
