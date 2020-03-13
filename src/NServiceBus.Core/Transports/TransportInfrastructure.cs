@@ -31,6 +31,14 @@ namespace NServiceBus.Transport
         public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
 
         /// <summary>
+        /// Gets the factories to receive message.
+        /// </summary>
+        public virtual TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string localAddress)
+        {
+            return ConfigureReceiveInfrastructure();
+        }
+
+        /// <summary>
         /// Gets the factories to send message.
         /// </summary>
         public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
@@ -39,6 +47,14 @@ namespace NServiceBus.Transport
         /// Gets the factory to manage subscriptions.
         /// </summary>
         public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
+
+        /// <summary>
+        /// Gets the factory to manage subscriptions.
+        /// </summary>
+        public virtual TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(string localAddress)
+        {
+            return ConfigureSubscriptionInfrastructure();
+        }
 
         /// <summary>
         /// Returns the discriminator for this endpoint instance.

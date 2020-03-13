@@ -20,7 +20,8 @@ namespace NServiceBus.Features
 
             if (canReceive)
             {
-                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
+                var localAddress = context.Settings.LocalAddress();
+                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure(localAddress);
                 var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
 
                 context.Pipeline.Register(new NativeSubscribeTerminator(subscriptionManager), "Requests the transport to subscribe to a given message type");

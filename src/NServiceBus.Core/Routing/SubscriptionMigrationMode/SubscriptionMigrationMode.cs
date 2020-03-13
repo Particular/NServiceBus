@@ -36,7 +36,8 @@
             if (canReceive)
             {
                 var endpointInstances = context.Routing.EndpointInstances;
-                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
+                var localAddress = context.Settings.LocalAddress();
+                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure(localAddress);
                 var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
 
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));

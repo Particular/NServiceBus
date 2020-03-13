@@ -26,6 +26,7 @@
             transactionMode = settings.RequiredTransactionMode;
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
+            PathChecker.ThrowForBadPath(settings.ErrorQueue, "ErrorQueue");
 
             messagePumpBasePath = Path.Combine(basePath, settings.InputQueue);
             bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);

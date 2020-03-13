@@ -17,7 +17,11 @@
             var transportDefinition = transportSettings.TransportDefinition;
             var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
 
-            var transportInfrastructure = transportDefinition.Initialize(transportSettings.settings, connectionString);
+            var transportInfrastructure = transportDefinition.Initialize(
+                hostingConfiguration.EndpointName,
+                connectionString,
+                hostingConfiguration.StartupDiagnostics,
+                transportSettings.settings);
 
             //RegisterTransportInfrastructureForBackwardsCompatibility
             transportSettings.settings.Set(transportInfrastructure);

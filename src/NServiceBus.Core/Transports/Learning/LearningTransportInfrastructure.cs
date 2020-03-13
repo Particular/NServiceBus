@@ -13,9 +13,11 @@
 
     class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public LearningTransportInfrastructure(SettingsHolder settings)
+        public LearningTransportInfrastructure(string endpointName, SettingsHolder settings)
         {
-            this.settings = settings;
+            PathChecker.ThrowForBadPath(endpointName, "endpoint name");
+            this.endpointName = endpointName;
+
             if (!settings.TryGet(StorageLocationKey, out storagePath))
             {
                 storagePath = FindStoragePath();
@@ -26,8 +28,7 @@
                 receiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
             }
 
-            var errorQueueAddress = settings.ErrorQueueAddress();
-            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+            maxPayloadSize = settings.GetOrDefault<bool>(NoPayloadSizeRestrictionKey) ? int.MaxValue / 1024 : 64; //64 kB is the max size of the ASQ transport
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -79,23 +80,18 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            var maxPayloadSize = settings.GetOrDefault<bool>(NoPayloadSizeRestrictionKey) ? int.MaxValue / 1024 : 64; //64 kB is the max size of the ASQ transport
-
             return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            return new TransportSubscriptionInfrastructure(() =>
-            {
-                var endpointName = settings.EndpointName();
-                PathChecker.ThrowForBadPath(endpointName, "endpoint name");
+            throw new NotSupportedException("Use the ConfigureSubscriptionInfrastructure(string) overload to create a TransportSubscriptionInfrastructure.");
+        }
 
-                var localAddress = settings.LocalAddress();
-                PathChecker.ThrowForBadPath(localAddress, "localAddress");
-
-                return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
-            });
+        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(string localAddress)
+        {
+            return new TransportSubscriptionInfrastructure(
+                () => new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance;
@@ -126,8 +122,9 @@
             return address;
         }
 
-        string storagePath;
-        SettingsHolder settings;
+        readonly string storagePath;
+        readonly string endpointName;
+        readonly int maxPayloadSize;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
         public const string StorageLocationKey = "LearningTransport.StoragePath";
