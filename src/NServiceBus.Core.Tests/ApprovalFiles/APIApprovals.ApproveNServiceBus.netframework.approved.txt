@@ -635,6 +635,7 @@ namespace NServiceBus
         public override string ExampleConnectionStringForErrorMessage { get; }
         public override bool RequiresConnectionString { get; }
         public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+        public override NServiceBus.Transport.TransportInfrastructure Initialize(string endpointName, string connectionString, NServiceBus.StartupDiagnosticEntries startupDiagnostics, NServiceBus.Settings.SettingsHolder settings) { }
     }
     public class static LearningTransportConfigurationExtensions
     {
@@ -2665,6 +2666,7 @@ namespace NServiceBus.Transport
         public abstract string ExampleConnectionStringForErrorMessage { get; }
         public virtual bool RequiresConnectionString { get; }
         public abstract NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
+        public virtual NServiceBus.Transport.TransportInfrastructure Initialize(string endpointName, string connectionString, NServiceBus.StartupDiagnosticEntries startupDiagnostics, NServiceBus.Settings.SettingsHolder settings) { }
     }
     public abstract class TransportInfrastructure
     {
@@ -2678,8 +2680,10 @@ namespace NServiceBus.Transport
         public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
         public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance);
         public abstract NServiceBus.Transport.TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
+        public virtual NServiceBus.Transport.TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string localAddress) { }
         public abstract NServiceBus.Transport.TransportSendInfrastructure ConfigureSendInfrastructure();
         public abstract NServiceBus.Transport.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
+        public virtual NServiceBus.Transport.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(string localAddress) { }
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public virtual System.Threading.Tasks.Task Start() { }
         public virtual System.Threading.Tasks.Task Stop() { }
