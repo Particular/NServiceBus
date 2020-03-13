@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Settings;
 using NServiceBus.TransportTests;
+using NUnit.Framework;
 
 class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructure
 {
@@ -16,7 +17,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
 
         return new TransportConfigurationResult
         {
-            TransportInfrastructure = transportDefinition.Initialize(settings, ""),
+            TransportInfrastructure = transportDefinition.Initialize(TestContext.CurrentContext.Test.ID, "", new StartupDiagnosticEntries(), settings),
             PurgeInputQueueOnStartup = true
         };
     }
