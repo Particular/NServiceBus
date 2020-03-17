@@ -7,7 +7,7 @@
 
     class SatelliteDefinition
     {
-        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
+        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, IDispatchMessages, MessageContext, Task> onMessage)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
@@ -16,17 +16,17 @@
             RecoverabilityPolicy = recoverabilityPolicy;
             OnMessage = onMessage;
         }
+        
+        public string Name { get; set; }
 
-        public string Name { get; }
-
-        public string ReceiveAddress { get; }
+        public string ReceiveAddress { get; set; }
 
         public TransportTransactionMode RequiredTransportTransactionMode { get; }
 
-        public PushRuntimeSettings RuntimeSettings { get; }
+        public PushRuntimeSettings RuntimeSettings { get; set; }
 
         public Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> RecoverabilityPolicy { get; }
 
-        public Func<IBuilder, MessageContext, Task> OnMessage { get; }
+        public Func<IBuilder, IDispatchMessages, MessageContext, Task> OnMessage { get; }
     }
 }

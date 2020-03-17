@@ -14,12 +14,18 @@
 
         public Task Invoke(MessageContext messageContext)
         {
+            if (dispatcher == null)
+            {
+                dispatcher = builder.Build<IDispatchMessages>();
+            }
+            
             messageContext.Extensions.Set(messageContext.TransportTransaction);
 
-            return satelliteDefinition.OnMessage(builder, messageContext);
+            return satelliteDefinition.OnMessage(builder, dispatcher, messageContext);
         }
 
         SatelliteDefinition satelliteDefinition;
         IBuilder builder;
+        IDispatchMessages dispatcher;
     }
 }

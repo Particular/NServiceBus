@@ -95,6 +95,13 @@ namespace NServiceBus
                 }
             }
 
+            foreach (var satelliteDefinition in configuration.SatelliteDefinitions.OfType<OwningSatelliteDefinition>())
+            {
+                satelliteDefinition.Name = MainReceiverId;
+                satelliteDefinition.ReceiveAddress = configuration.LocalAddress;
+                satelliteDefinition.RuntimeSettings = configuration.PushRuntimeSettings;
+            }
+
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
             {
                 configuration.LocalAddress,
@@ -230,6 +237,10 @@ namespace NServiceBus
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
             {
+                if (satellitePipeline is OwningSatelliteDefinition)
+                {
+                    continue;
+                }
                 queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
             }
         }
@@ -242,6 +253,31 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
+            var hasOwningSatellite = false;
+            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
+            {
+                var owningSatelliteDefinition = satellitePipeline as OwningSatelliteDefinition;
+
+                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
+                var satellitePushRuntimeSettings = satellitePipeline.RuntimeSettings;
+
+                if (owningSatelliteDefinition != null)
+                {
+                    satelliteRecoverabilityExecutor = recoverabilityExecutor;
+                    satellitePushSettings = pushSettings;
+
+                    hasOwningSatellite = true;
+                }
+
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePushRuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+            }
+
+            if (hasOwningSatellite)
+            {
+                return;
+            }
+
             receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
 
             if (configuration.InstanceSpecificQueue != null)
@@ -251,14 +287,6 @@ namespace NServiceBus
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
-            }
-
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
-            {
-                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
-
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
         }
 

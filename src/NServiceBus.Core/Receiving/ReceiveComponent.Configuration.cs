@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using ObjectBuilder;
     using Routing;
@@ -115,8 +116,20 @@ namespace NServiceBus
             public List<Type> ExecuteTheseHandlersFirst { get; }
 
             public bool CreateQueues { get; }
+            
+            public void AddOwningSatelliteReceiver(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, IDispatchMessages, MessageContext, Task> onMessage)
+            {
+                if (SatelliteDefinitions.OfType<OwningSatelliteDefinition>().Any())
+                {
+                    throw new InvalidOperationException("Meaningful message");
+                }
+                
+                var satelliteDefinition = new OwningSatelliteDefinition(TransactionMode, recoverabilityPolicy, onMessage);
 
-            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
+                satelliteDefinitions.Add(satelliteDefinition);
+            }
+
+            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, IDispatchMessages, MessageContext, Task> onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
 

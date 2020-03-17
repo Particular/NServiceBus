@@ -49,6 +49,20 @@
         internal ReceiveComponent.Configuration Receiving => receiveConfiguration ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
+        
+        /// <summary>
+        /// Adds a new satellite receiver that owns the endpoints address.
+        /// </summary>
+        /// <remarks>Only one allowed.</remarks>
+        /// <param name="onMessage">The message func.</param>
+        /// <param name="recoverabilityPolicy">Recoverability policy to be if processing fails.</param>
+        public void AddOwningSatelliteReceiver(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, IDispatchMessages, MessageContext, Task> onMessage)
+        {
+            Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
+            Guard.AgainstNull(nameof(onMessage), onMessage);
+
+            Receiving.AddOwningSatelliteReceiver(recoverabilityPolicy, onMessage);
+        }
 
         /// <summary>
         /// Adds a new satellite receiver.
@@ -66,7 +80,7 @@
             Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
             Guard.AgainstNull(nameof(onMessage), onMessage);
 
-            Receiving.AddSatelliteReceiver(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
+            Receiving.AddSatelliteReceiver(name, transportAddress, runtimeSettings, recoverabilityPolicy, (b, d, ctx) => onMessage(b, ctx));
         }
 
         /// <summary>
