@@ -34,12 +34,12 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
+            if (!settings.TryGet<LogicalAddress>("ReceiveComponent.Legacy.LogicalAddress", out var result))
             {
                 throw new InvalidOperationException("LogicalAddress isn't available since this endpoint is configured to run in send-only mode.");
             }
 
-            return receiveConfiguration.LogicalAddress;
+            return result;
         }
 
         /// <summary>
@@ -49,12 +49,12 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
+            if (!settings.TryGet<string>("ReceiveComponent.Legacy.LocalAddress", out var result))
             {
                 throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
             }
 
-            return receiveConfiguration.LocalAddress;
+            return result;
         }
 
         /// <summary>
@@ -64,12 +64,12 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
+            if (!settings.TryGet<string>("ReceiveComponent.Legacy.InstanceSpecificQueue", out var result))
             {
                 throw new InvalidOperationException("Instance-specific queue name isn't available since this endpoint is configured to run in send-only mode.");
             }
 
-            return receiveConfiguration.InstanceSpecificQueue;
+            return result;
         }
     }
 }

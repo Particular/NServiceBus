@@ -16,6 +16,9 @@ namespace NServiceBus.Transport
             SubscriptionManagerFactory = subscriptionManagerFactory;
         }
 
-        internal Func<IManageSubscriptions> SubscriptionManagerFactory { get; }
+        /// <summary>
+        /// Factory for creating a subscription manager.
+        /// </summary>
+        public Func<IManageSubscriptions> SubscriptionManagerFactory { get; }
     }
 }

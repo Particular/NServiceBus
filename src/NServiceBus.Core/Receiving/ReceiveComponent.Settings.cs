@@ -70,7 +70,9 @@ namespace NServiceBus
             public void RegisterReceiveConfigurationForBackwardsCompatibility(Configuration configuration)
             {
                 //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
-                settings.Set(configuration);
+                settings.Set("ReceiveComponent.Legacy.LogicalAddress", configuration.LogicalAddress);
+                settings.Set("ReceiveComponent.Legacy.LocalAddress", configuration.LocalAddress);
+                settings.Set("ReceiveComponent.Legacy.InstanceSpecificQueue", configuration.InstanceSpecificQueue);
             }
 
             public void SetDefaultPushRuntimeSettings(PushRuntimeSettings pushRuntimeSettings)

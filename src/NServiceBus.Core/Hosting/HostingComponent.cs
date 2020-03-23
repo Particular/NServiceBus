@@ -75,7 +75,7 @@
 
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
 
-            configuration.CriticalError.SetEndpoint(endpointInstance);
+            configuration.CriticalError.SetStopCallback(endpointInstance.Stop);
 
             return endpointInstance;
         }

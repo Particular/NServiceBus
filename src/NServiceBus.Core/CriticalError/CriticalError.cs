@@ -48,7 +48,7 @@ namespace NServiceBus
 
             lock (endpointCriticalLock)
             {
-                if (endpoint == null)
+                if (endpointStopCallback == null)
                 {
                     criticalErrors.Add(new LatentCritical
                     {
@@ -67,16 +67,19 @@ namespace NServiceBus
         {
             Task.Run(() =>
             {
-                var context = new CriticalErrorContext(endpoint.Stop, errorMessage, exception);
+                var context = new CriticalErrorContext(endpointStopCallback, errorMessage, exception);
                 return criticalErrorAction(context);
             }).Ignore();
         }
 
-        internal void SetEndpoint(IEndpointInstance endpointInstance)
+        /// <summary>
+        /// Registers the callback to be called when critical error handler decides to stop the endpoint.
+        /// </summary>
+        public void SetStopCallback(Func<Task> endpointStopCallback)
         {
             lock (endpointCriticalLock)
             {
-                endpoint = endpointInstance;
+                this.endpointStopCallback = endpointStopCallback;
                 foreach (var latentCritical in criticalErrors)
                 {
                     RaiseForEndpoint(latentCritical.Message, latentCritical.Exception);
@@ -88,7 +91,7 @@ namespace NServiceBus
         Func<CriticalErrorContext, Task> criticalErrorAction;
 
         List<LatentCritical> criticalErrors = new List<LatentCritical>();
-        IEndpointInstance endpoint;
+        Func<Task> endpointStopCallback;
         object endpointCriticalLock = new object();
 
         class LatentCritical
