@@ -5,7 +5,7 @@
     using ObjectBuilder;
     using Transport;
 
-    class SatelliteDefinition
+    class SatelliteDefinition : ISatellite
     {
         public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {
@@ -28,5 +28,36 @@
         public Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> RecoverabilityPolicy { get; }
 
         public Func<IBuilder, MessageContext, Task> OnMessage { get; }
+
+        public Func<Task> ResumeAction { get; set; } = () => Task.FromResult(0);
+        public Func<Task> StopAction { get; set; } = () => Task.FromResult(0);
+        
+        public Task Resume()
+        {
+            return ResumeAction();
+        }
+
+        public Task Stop()
+        {
+            return StopAction();
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface ISatellite
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Task Resume();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Task Stop();
     }
 }

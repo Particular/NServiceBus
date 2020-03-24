@@ -208,6 +208,7 @@ namespace NServiceBus
             {
                 Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
                 await receiver.Stop().ConfigureAwait(false);
+                receiver.Dispose();
                 Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
             });
 
@@ -258,7 +259,12 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                var transportReceiver = new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError);
+
+                satellitePipeline.ResumeAction = () => transportReceiver.Start();
+                satellitePipeline.StopAction = () => transportReceiver.Stop();
+                
+                receivers.Add(transportReceiver);
             }
         }
 

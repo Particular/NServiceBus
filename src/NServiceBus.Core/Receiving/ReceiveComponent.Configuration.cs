@@ -116,11 +116,13 @@ namespace NServiceBus
 
             public bool CreateQueues { get; }
 
-            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
+            public ISatellite AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
 
                 satelliteDefinitions.Add(satelliteDefinition);
+
+                return satelliteDefinition;
             }
 
             public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers;

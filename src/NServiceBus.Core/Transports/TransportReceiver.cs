@@ -2,10 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Janitor;
     using Logging;
     using Transport;
 
-    class TransportReceiver
+    [SkipWeaving]
+    class TransportReceiver : IDisposable
     {
         public TransportReceiver(
             string id,
@@ -59,7 +61,6 @@ namespace NServiceBus
             try
             {
                 await receiver.Stop().ConfigureAwait(false);
-                (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)
             {
@@ -69,6 +70,12 @@ namespace NServiceBus
             {
                 isStarted = false;
             }
+        }
+
+        public void Dispose()
+        {
+            // TODO: Try catch?
+            (receiver as IDisposable)?.Dispose();
         }
 
         readonly CriticalError criticalError;
