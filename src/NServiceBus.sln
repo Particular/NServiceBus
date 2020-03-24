@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer.T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzer", "Analyzer", "{6CF85707-290E-4FA1-8444-25D29B6A6BA8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Raw", "NServiceBus.Raw\NServiceBus.Raw.csproj", "{22ADFB59-0D30-4374-B671-21F0D35584A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22ADFB59-0D30-4374-B671-21F0D35584A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22ADFB59-0D30-4374-B671-21F0D35584A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22ADFB59-0D30-4374-B671-21F0D35584A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22ADFB59-0D30-4374-B671-21F0D35584A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
