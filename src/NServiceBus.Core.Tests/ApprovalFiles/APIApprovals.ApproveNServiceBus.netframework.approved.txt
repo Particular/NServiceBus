@@ -200,6 +200,11 @@ namespace NServiceBus
             "ll be removed in version 8.0.0.", true)]
         public static void EnableCriticalTimePerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
+    public class CustomAction : NServiceBus.RecoverabilityAction
+    {
+        public CustomAction(System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task> customAction) { }
+        public System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> Invoke(NServiceBus.Transport.ErrorContext errorContext) { }
+    }
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
     {
@@ -773,6 +778,7 @@ namespace NServiceBus
     public abstract class RecoverabilityAction
     {
         protected RecoverabilityAction() { }
+        public static NServiceBus.CustomAction Custom(System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task> customAction) { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }

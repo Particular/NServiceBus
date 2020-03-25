@@ -160,6 +160,23 @@
             Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
         }
 
+        [Test]
+        public async Task When_providing_custom_action_should_invoke()
+        {
+            var invokedCustomAction = false;
+            var customAction = RecoverabilityAction.Custom(errorCtx =>
+            {
+                invokedCustomAction = true;
+                return TaskEx.CompletedTask;
+            });
+            var recoverabilityExecutor = CreateExecutor(RetryPolicy.Return(new RecoverabilityAction[] {customAction}));
+
+            var result = await recoverabilityExecutor.Invoke(CreateErrorContext());
+
+            Assert.AreEqual(ErrorHandleResult.Handled, result);
+            Assert.IsTrue(invokedCustomAction);
+        }
+
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
         {
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts);

@@ -34,11 +34,7 @@
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 
-            if (recoveryAction is Discard discard)
-            {
-                Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {discard.Reason}", errorContext.Exception);
-                return HandledTask;
-            }
+
 
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
@@ -67,6 +63,18 @@
             if (recoveryAction is MoveToError moveToError)
             {
                 return MoveToError(errorContext, moveToError.ErrorQueue);
+            }
+
+            if (recoveryAction is CustomAction customAction)
+            {
+                Logger.Info($"Invoke custom recoverability action for message with id '{errorContext.Message.MessageId}'.");
+                return customAction.Invoke(errorContext);
+            }
+
+            if (recoveryAction is Discard discard)
+            {
+                Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {discard.Reason}", errorContext.Exception);
+                return HandledTask;
             }
 
             Logger.Warn("Recoverability policy returned an unsupported recoverability action. Moving message to error queue instead.");

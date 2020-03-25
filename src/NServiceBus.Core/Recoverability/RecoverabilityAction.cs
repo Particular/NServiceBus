@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
+    using Transport;
 
     /// <summary>
     /// Abstraction representing any recoverability action.
@@ -55,6 +57,16 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(reason), reason);
             return new Discard(reason);
+        }
+
+        /// <summary>
+        /// Creates a custom recoverability action.
+        /// </summary>
+        /// <param name="customAction">The action to perform for the failed message.</param>
+        /// <returns>Custom recoverability action.</returns>
+        public static CustomAction Custom(Func<ErrorContext, Task> customAction)
+        {
+            return new CustomAction(customAction);
         }
 
         static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
