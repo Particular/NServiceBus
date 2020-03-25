@@ -183,6 +183,7 @@ namespace NServiceBus
     {
         public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
         public virtual void Raise(string errorMessage, System.Exception exception) { }
+        public void SetStopCallback(System.Func<System.Threading.Tasks.Task> endpointStopCallback) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
@@ -2717,6 +2718,7 @@ namespace NServiceBus.Transport
     public class TransportSubscriptionInfrastructure
     {
         public TransportSubscriptionInfrastructure(System.Func<NServiceBus.Transport.IManageSubscriptions> subscriptionManagerFactory) { }
+        public System.Func<NServiceBus.Transport.IManageSubscriptions> SubscriptionManagerFactory { get; }
     }
     public sealed class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
