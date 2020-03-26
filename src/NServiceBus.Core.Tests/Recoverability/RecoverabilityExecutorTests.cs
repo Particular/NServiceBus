@@ -176,6 +176,23 @@
             Assert.AreEqual(ErrorHandleResult.Handled, result);
             Assert.IsTrue(invokedCustomAction);
         }
+        
+        [Test]
+        public async Task When_providing_custom_action_with_dispatcher_should_pass_dispatcher()
+        {
+            IDispatchMessages caughtDispatcher = null;
+            var customAction = RecoverabilityAction.Custom((errorCtx, disp) =>
+            {
+                caughtDispatcher = disp;
+                
+                return TaskEx.CompletedTask;
+            });
+            var recoverabilityExecutor = CreateExecutor(RetryPolicy.Return(new RecoverabilityAction[] {customAction}));
+
+            await recoverabilityExecutor.Invoke(CreateErrorContext());
+
+            Assert.AreSame(dispatcher, caughtDispatcher);
+        }
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
         {
@@ -209,7 +226,8 @@
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
                 new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }),
                 messageRetryNotification,
-                messageFaultedNotification);
+                messageFaultedNotification,
+                dispatcher);
         }
 
         FakeDispatcher dispatcher;

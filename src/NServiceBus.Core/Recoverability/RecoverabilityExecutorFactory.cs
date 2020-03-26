@@ -13,8 +13,10 @@
             bool immediateRetriesAvailable,
             bool delayedRetriesAvailable,
             INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
-            INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
+            INotificationSubscriptions<MessageFaulted> messageFaultedNotification,
+            IDispatchMessages dispatcher)
         {
+            this.dispatcher = dispatcher;
             this.configuration = configuration;
             this.defaultRecoverabilityPolicy = defaultRecoverabilityPolicy;
             this.delayedRetryExecutorFactory = delayedRetryExecutorFactory;
@@ -49,7 +51,8 @@
                 delayedRetryExecutor,
                 moveToErrorsExecutor,
                 messageRetryNotification,
-                messageFaultedNotification);
+                messageFaultedNotification, 
+                dispatcher);
         }
 
         readonly bool immediateRetriesAvailable;
@@ -61,5 +64,6 @@
         Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
         RecoverabilityConfig configuration;
+        IDispatchMessages dispatcher;
     }
 }

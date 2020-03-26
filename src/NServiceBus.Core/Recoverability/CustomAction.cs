@@ -9,24 +9,20 @@ namespace NServiceBus
     /// </summary>
     public class CustomAction : RecoverabilityAction
     {
-        readonly Func<ErrorContext, Task> customAction;
+        readonly Func<ErrorContext, IDispatchMessages, Task> customAction;
 
         /// <summary>
         /// Creates a new <see cref="CustomAction"/> using the provided callback to resolve a message failure.
         /// </summary>
         /// <param name="customAction">The method invoked to handle a failed message.</param>
-        public CustomAction(Func<ErrorContext, Task> customAction)
+        public CustomAction(Func<ErrorContext, IDispatchMessages, Task> customAction)
         {
             this.customAction = customAction;
         }
 
-        /// <summary>
-        /// Invokes the custom recoverability action.
-        /// </summary>
-        /// <returns>always returns <see cref="ErrorHandleResult.Handled"/> to indicate the transport to consume the message.</returns>
-        public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
+        internal async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, IDispatchMessages dispatcher)
         {
-            await customAction(errorContext).ConfigureAwait(false);
+            await customAction(errorContext, dispatcher).ConfigureAwait(false);
             return ErrorHandleResult.Handled;
         }
     }
