@@ -49,8 +49,6 @@
                 EndpointSetup<EndpointWithNativePubSub>(c =>
                 {
                     // Enable Migration mode
-                    c.GetSettings().Set("NServiceBus.Subscriptions.EnableMigrationMode", true);
-
                     var settings = new SubscriptionMigrationModeSettings(c.GetSettings());
                     settings.RegisterPublisher(typeof(SomeEvent), Conventions.EndpointNamingConvention(typeof(MessageDrivenPublisher)));
                 });

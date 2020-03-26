@@ -17,6 +17,7 @@
         /// </summary>
         public SubscriptionMigrationModeSettings(SettingsHolder settings) : base(settings)
         {
+            settings.Set("NServiceBus.Subscriptions.EnableMigrationMode", true);
         }
 
         /// <summary>
