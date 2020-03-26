@@ -124,7 +124,8 @@
                 immediateRetriesAvailable,
                 delayedRetriesAvailable,
                 MessageRetryNotification,
-                MessageFaultedNotification);
+                MessageFaultedNotification,
+                builder.Build<IDispatchMessages>());
         }
 
         ImmediateConfig GetImmediateRetryConfig()

@@ -16,8 +16,10 @@
             DelayedRetryExecutor delayedRetryExecutor,
             MoveToErrorsExecutor moveToErrorsExecutor,
             INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
-            INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
+            INotificationSubscriptions<MessageFaulted> messageFaultedNotification,
+            IDispatchMessages dispatcher)
         {
+            this.dispatcher = dispatcher;
             this.configuration = configuration;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.delayedRetryExecutor = delayedRetryExecutor;
@@ -33,8 +35,6 @@
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
-
-
 
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
@@ -68,7 +68,7 @@
             if (recoveryAction is CustomAction customAction)
             {
                 Logger.Info($"Invoke custom recoverability action for message with id '{errorContext.Message.MessageId}'.");
-                return customAction.Invoke(errorContext);
+                return customAction.Invoke(errorContext, dispatcher);
             }
 
             if (recoveryAction is Discard discard)
@@ -149,5 +149,6 @@
 
         static Task<ErrorHandleResult> HandledTask = Task.FromResult(ErrorHandleResult.Handled);
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
+        IDispatchMessages dispatcher;
     }
 }
