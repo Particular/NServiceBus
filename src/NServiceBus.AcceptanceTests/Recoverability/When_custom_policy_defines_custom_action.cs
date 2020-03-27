@@ -74,7 +74,7 @@
             }
         }
 
-        class FailingMessage : IMessage
+        public class FailingMessage : IMessage
         {
         }
     }
