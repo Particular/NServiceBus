@@ -77,8 +77,8 @@
         {
             var delayedRetriesAvailable = transactionsOn
                                           && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
-
             var immediateRetriesAvailable = transactionsOn;
+            var dispatcher = builder.Build<IDispatchMessages>();
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
             {
@@ -93,7 +93,7 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(dispatcher, staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
@@ -102,7 +102,7 @@
                 {
                     return new DelayedRetryExecutor(
                         localAddress,
-                        builder.Build<IDispatchMessages>(),
+                        dispatcher,
                         settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                             ? null
                             : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
@@ -125,7 +125,7 @@
                 delayedRetriesAvailable,
                 MessageRetryNotification,
                 MessageFaultedNotification,
-                builder.Build<IDispatchMessages>());
+                dispatcher);
         }
 
         ImmediateConfig GetImmediateRetryConfig()
