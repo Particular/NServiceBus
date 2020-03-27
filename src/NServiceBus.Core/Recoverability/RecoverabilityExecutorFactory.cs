@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using ObjectBuilder;
     using Transport;
 
     class RecoverabilityExecutorFactory
@@ -14,9 +15,9 @@
             bool delayedRetriesAvailable,
             INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
             INotificationSubscriptions<MessageFaulted> messageFaultedNotification,
-            IDispatchMessages dispatcher)
+            IBuilder builder)
         {
-            this.dispatcher = dispatcher;
+            this.builder = builder;
             this.configuration = configuration;
             this.defaultRecoverabilityPolicy = defaultRecoverabilityPolicy;
             this.delayedRetryExecutorFactory = delayedRetryExecutorFactory;
@@ -52,7 +53,7 @@
                 moveToErrorsExecutor,
                 messageRetryNotification,
                 messageFaultedNotification, 
-                dispatcher);
+                builder);
         }
 
         readonly bool immediateRetriesAvailable;
@@ -64,6 +65,6 @@
         Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
         RecoverabilityConfig configuration;
-        IDispatchMessages dispatcher;
+        IBuilder builder;
     }
 }

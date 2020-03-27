@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using ObjectBuilder;
     using Transport;
 
     /// <summary>
@@ -58,23 +59,13 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(reason), reason);
             return new Discard(reason);
         }
-        
-        /// <summary>
-        /// Creates a custom recoverability action.
-        /// </summary>
-        /// <param name="customAction">The action to perform for the failed message.</param>
-        /// <returns>Custom recoverability action.</returns>
-        public static CustomAction Custom(Func<ErrorContext, Task> customAction)
-        {
-            return new CustomAction((e, d) => customAction(e));
-        }        
 
         /// <summary>
         /// Creates a custom recoverability action.
         /// </summary>
         /// <param name="customAction">The action to perform for the failed message.</param>
         /// <returns>Custom recoverability action.</returns>
-        public static CustomAction Custom(Func<ErrorContext, IDispatchMessages, Task> customAction)
+        public static CustomAction Custom(Func<ErrorContext, IBuilder, IDispatchMessages, Task> customAction)
         {
             return new CustomAction(customAction);
         }

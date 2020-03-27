@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using Logging;
+    using ObjectBuilder;
     using Transport;
 
     class RecoverabilityExecutor
@@ -17,9 +18,9 @@
             MoveToErrorsExecutor moveToErrorsExecutor,
             INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
             INotificationSubscriptions<MessageFaulted> messageFaultedNotification,
-            IDispatchMessages dispatcher)
+            IBuilder builder)
         {
-            this.dispatcher = dispatcher;
+            this.builder = builder;
             this.configuration = configuration;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.delayedRetryExecutor = delayedRetryExecutor;
@@ -68,7 +69,7 @@
             if (recoveryAction is CustomAction customAction)
             {
                 Logger.Info($"Invoke custom recoverability action for message with id '{errorContext.Message.MessageId}'.");
-                return customAction.Invoke(errorContext, dispatcher);
+                return customAction.Invoke(errorContext, builder, builder.Build<IDispatchMessages>());
             }
 
             if (recoveryAction is Discard discard)
@@ -149,6 +150,6 @@
 
         static Task<ErrorHandleResult> HandledTask = Task.FromResult(ErrorHandleResult.Handled);
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
-        IDispatchMessages dispatcher;
+        IBuilder builder;
     }
 }

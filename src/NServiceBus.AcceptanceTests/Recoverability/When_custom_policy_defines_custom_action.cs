@@ -37,7 +37,7 @@
                 {
                     c.Pipeline.Register<FailingBehavior.Registration>();
                     c.Recoverability().CustomPolicy((config, context) => 
-                        RecoverabilityAction.Custom(errorContext =>
+                        RecoverabilityAction.Custom((_, __, ___) =>
                         {
                             var testContext = r.ScenarioContext as Context;
                             testContext.CustomActionInvoked = true;

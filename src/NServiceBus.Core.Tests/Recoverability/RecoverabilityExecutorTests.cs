@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
+    using Testing;
     using Transport;
 
     [TestFixture]
@@ -163,25 +164,8 @@
         [Test]
         public async Task When_providing_custom_action_should_invoke()
         {
-            var invokedCustomAction = false;
-            var customAction = RecoverabilityAction.Custom(errorCtx =>
-            {
-                invokedCustomAction = true;
-                return TaskEx.CompletedTask;
-            });
-            var recoverabilityExecutor = CreateExecutor(RetryPolicy.Return(new RecoverabilityAction[] {customAction}));
-
-            var result = await recoverabilityExecutor.Invoke(CreateErrorContext());
-
-            Assert.AreEqual(ErrorHandleResult.Handled, result);
-            Assert.IsTrue(invokedCustomAction);
-        }
-        
-        [Test]
-        public async Task When_providing_custom_action_with_dispatcher_should_pass_dispatcher()
-        {
             IDispatchMessages caughtDispatcher = null;
-            var customAction = RecoverabilityAction.Custom((errorCtx, disp) =>
+            var customAction = RecoverabilityAction.Custom((errorCtx, builder, disp) =>
             {
                 caughtDispatcher = disp;
                 
@@ -227,7 +211,7 @@
                 new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }),
                 messageRetryNotification,
                 messageFaultedNotification,
-                dispatcher);
+                new FakeBuilder());
         }
 
         FakeDispatcher dispatcher;

@@ -202,7 +202,7 @@ namespace NServiceBus
     }
     public class CustomAction : NServiceBus.RecoverabilityAction
     {
-        public CustomAction(System.Func<NServiceBus.Transport.ErrorContext, NServiceBus.Transport.IDispatchMessages, System.Threading.Tasks.Task> customAction) { }
+        public CustomAction(System.Func<NServiceBus.Transport.ErrorContext, NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.IDispatchMessages, System.Threading.Tasks.Task> customAction) { }
     }
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
@@ -777,8 +777,7 @@ namespace NServiceBus
     public abstract class RecoverabilityAction
     {
         protected RecoverabilityAction() { }
-        public static NServiceBus.CustomAction Custom(System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task> customAction) { }
-        public static NServiceBus.CustomAction Custom(System.Func<NServiceBus.Transport.ErrorContext, NServiceBus.Transport.IDispatchMessages, System.Threading.Tasks.Task> customAction) { }
+        public static NServiceBus.CustomAction Custom(System.Func<NServiceBus.Transport.ErrorContext, NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.IDispatchMessages, System.Threading.Tasks.Task> customAction) { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }

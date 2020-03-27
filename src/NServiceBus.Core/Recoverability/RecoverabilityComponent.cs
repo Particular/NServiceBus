@@ -125,7 +125,7 @@
                 delayedRetriesAvailable,
                 MessageRetryNotification,
                 MessageFaultedNotification,
-                dispatcher);
+                builder);
         }
 
         ImmediateConfig GetImmediateRetryConfig()
