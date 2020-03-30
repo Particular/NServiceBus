@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using ObjectBuilder;
+    using ObjectBuilder.MsDI;
 
     class HostCreator
     {
@@ -48,7 +49,7 @@
 
             var hostingSetting = settings.Get<HostingComponent.Settings>();
             var useDefaultBuilder = hostingSetting.CustomObjectBuilder == null;
-            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingSetting.CustomObjectBuilder;
+            var container = useDefaultBuilder ? new MsDIObjectBuilder() : hostingSetting.CustomObjectBuilder;
 
             var commonObjectBuilder = new CommonObjectBuilder(container);
 

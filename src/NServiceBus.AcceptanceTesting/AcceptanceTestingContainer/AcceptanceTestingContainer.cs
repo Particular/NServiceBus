@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using ObjectBuilder.Common;
+    using ObjectBuilder.MsDI;
 
     /// <summary>
     /// Container that enforces registration immutability once the first instance has been resolved.
@@ -15,7 +16,7 @@
 
         public AcceptanceTestingContainer()
         {
-            builder = new LightInjectObjectBuilder();
+            builder = new MsDIObjectBuilder();
         }
 
         public void Dispose()
@@ -96,7 +97,7 @@
             }
         }
 
-        LightInjectObjectBuilder builder;
+        MsDIObjectBuilder builder;
         bool locked;
 
         public class Component
