@@ -4,7 +4,6 @@ build32
 binaries
 *.vshost.*
 .nu
-.learningtransport
 _UpgradeReport.*
 *.cache
 *~
@@ -18,6 +17,7 @@ Samples/DataBus/storage
 packages
 PrecompiledWeb
 tempstorage
+.learningtransport
 core-only
 Release
 Artifacts
@@ -43,6 +43,9 @@ installer/ServiceControl-cache
 # User-specific files
 *.suo
 *.user
+*.json.lock
+*.nuget.targets
+*.lock.json
 *.userosscache
 *.sln.docstates
 .vs/
