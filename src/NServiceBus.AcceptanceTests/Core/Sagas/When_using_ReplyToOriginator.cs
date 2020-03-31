@@ -56,6 +56,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public RequestingSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     TestContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
@@ -85,6 +90,11 @@
             class MyReplyToOriginatorHandler : IHandleMessages<MyReplyToOriginator>
             {
                 public Context TestContext { get; set; }
+
+                public MyReplyToOriginatorHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {

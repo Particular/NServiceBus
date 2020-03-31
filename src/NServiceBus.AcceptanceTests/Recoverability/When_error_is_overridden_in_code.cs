@@ -49,6 +49,11 @@
             {
                 public Context MyContext { get; set; }
 
+                public Handler(Context myContext)
+                {
+                    MyContext = myContext;
+                }
+
                 public Task Handle(Message message, IMessageHandlerContext context)
                 {
                     MyContext.MessageReceived = true;

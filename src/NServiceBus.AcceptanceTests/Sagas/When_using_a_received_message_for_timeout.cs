@@ -41,6 +41,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public TestSaga01(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.HandlerCalled++;

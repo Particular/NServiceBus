@@ -37,6 +37,11 @@
             {
                 public Context Context { get; set; }
 
+                public Handler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(Message request, IMessageHandlerContext context)
                 {
                     Context.ReceivedMessage = request.Property == "value";

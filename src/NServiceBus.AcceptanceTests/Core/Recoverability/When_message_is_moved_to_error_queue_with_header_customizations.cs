@@ -59,6 +59,11 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 public Context TestContext { get; set; }
 
+                public InitiatingHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     throw new SimulatedException("THIS IS A LARGE MESSAGE");
@@ -76,6 +81,11 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
                 public Context TestContext { get; set; }
+
+                public InitiatingMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {

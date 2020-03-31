@@ -148,6 +148,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.Subscriber3GotTheEvent = true;
@@ -167,6 +172,11 @@
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context TestContext { get; set; }
+
+                public MyEventHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
@@ -188,6 +198,11 @@
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context Context { get; set; }
+
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {

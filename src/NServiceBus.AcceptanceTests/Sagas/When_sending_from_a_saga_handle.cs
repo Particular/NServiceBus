@@ -71,6 +71,11 @@
             {
                 public Context Context { get; set; }
 
+                public TwoSaga1Saga2(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;

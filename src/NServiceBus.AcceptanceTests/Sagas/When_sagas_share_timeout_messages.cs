@@ -46,6 +46,11 @@
             {
                 public Context Context { get; set; }
 
+                public TimeoutSharingSaga1(Context context)
+                {
+                    Context = context;
+                }
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSharingSagaData1> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.CorrelationProperty);
@@ -72,6 +77,11 @@
             public class TimeoutSharingSaga2 : Saga<TimeoutSharingSaga2.TimeoutSharingSagaData2>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<MySagaTimeout>
             {
                 public Context Context { get; set; }
+
+                public TimeoutSharingSaga2(Context context)
+                {
+                    Context = context;
+                }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSharingSagaData2> mapper)
                 {

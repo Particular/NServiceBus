@@ -61,6 +61,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public EventFromOtherSaga1(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
@@ -112,6 +117,11 @@
                 IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>
             {
                 public Context Context { get; set; }
+
+                public EventFromOtherSaga2(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(SomethingHappenedEvent message, IMessageHandlerContext context)
                 {

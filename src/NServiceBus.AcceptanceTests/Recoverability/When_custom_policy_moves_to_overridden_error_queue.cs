@@ -47,7 +47,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
-                public Context TestContext { get; set; }
 
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
@@ -66,6 +65,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
                 public Context TestContext { get; set; }
+
+                public InitiatingMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {

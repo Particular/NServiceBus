@@ -52,6 +52,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyMessageHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
                 {
                     Context.WasCalled1 = true;
@@ -70,6 +75,11 @@
             public class MyMessageHandler : IHandleMessages<MyBaseCommand>
             {
                 public Context Context { get; set; }
+
+                public MyMessageHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
                 {

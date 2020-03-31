@@ -51,6 +51,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public DelayedRetryTestingSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;

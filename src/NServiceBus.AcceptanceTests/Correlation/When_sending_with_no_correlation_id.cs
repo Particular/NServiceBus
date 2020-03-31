@@ -36,6 +36,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MyResponseHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
                     TestContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];

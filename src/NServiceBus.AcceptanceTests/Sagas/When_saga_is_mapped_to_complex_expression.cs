@@ -50,6 +50,11 @@
             {
                 public Context Context { get; set; }
 
+                public TestSaga02(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
                     Context.SagaIdWhenOtherMessageReceived = Data.Id;

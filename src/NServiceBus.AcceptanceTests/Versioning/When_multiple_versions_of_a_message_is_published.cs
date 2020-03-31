@@ -88,6 +88,11 @@
             {
                 public Context Context { get; set; }
 
+                public V1Handler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(V1Event message, IMessageHandlerContext context)
                 {
                     Context.V1SubscriberGotTheMessage = true;
@@ -107,6 +112,11 @@
             class V2Handler : IHandleMessages<V2Event>
             {
                 public Context Context { get; set; }
+
+                public V2Handler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(V2Event message, IMessageHandlerContext context)
                 {

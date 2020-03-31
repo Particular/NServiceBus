@@ -42,6 +42,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public StartMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public async Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
                     try
@@ -60,6 +65,11 @@
             class CallbacksAssumptionVerifier : Behavior<IOutgoingLogicalMessageContext>
             {
                 public Context TestContext { get; set; }
+
+                public CallbacksAssumptionVerifier(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
                 {

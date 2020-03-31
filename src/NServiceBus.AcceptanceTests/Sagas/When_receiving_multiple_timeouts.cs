@@ -54,6 +54,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MultiTimeoutsSaga1(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     if (message.ContextId != TestContext.Id)
@@ -116,6 +121,11 @@
             public class SagaNotFound : IHandleSagaNotFound
             {
                 public Context TestContext { get; set; }
+
+                public SagaNotFound(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {

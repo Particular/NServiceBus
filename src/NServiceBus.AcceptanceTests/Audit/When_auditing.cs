@@ -57,6 +57,12 @@
             {
                 public Context MyContext { get; set; }
 
+
+                public MessageToBeAuditedHandler(Context myContext)
+                {
+                    MyContext = myContext;
+                }
+
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.IsMessageHandlingComplete = true;
@@ -76,6 +82,11 @@
             {
                 public Context MyContext { get; set; }
 
+                public MessageToBeAuditedHandler(Context myContext)
+                {
+                    MyContext = myContext;
+                }
+
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.IsMessageHandlingComplete = true;
@@ -94,6 +105,11 @@
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
                 public Context MyContext { get; set; }
+
+                public AuditMessageHandler(Context myContext)
+                {
+                    MyContext = myContext;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {

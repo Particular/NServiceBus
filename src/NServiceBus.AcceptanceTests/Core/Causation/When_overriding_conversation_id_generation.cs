@@ -69,6 +69,12 @@
             {
                 public Context TestContext { get; set; }
 
+
+                public MessageSentOutsideOfHandlerMatchingTheConventionHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context)
                 {
                     TestContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
@@ -80,6 +86,11 @@
             public class MessageSentOutsideOfHandlerNotMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerNotMatchingTheConvention>
             {
                 public Context TestContext { get; set; }
+
+                public MessageSentOutsideOfHandlerNotMatchingTheConventionHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context)
                 {

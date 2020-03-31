@@ -66,6 +66,12 @@
                 public Context TestContext { get; set; }
                 public MyComponent MyComponent { get; set; }
 
+                public SomeMessageHandler(Context testContext, MyComponent myComponent)
+                {
+                    TestContext = testContext;
+                    MyComponent = myComponent;
+                }
+
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     TestContext.Message = MyComponent.Message;

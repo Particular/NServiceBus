@@ -44,6 +44,11 @@
             {
                 public Context Context { get; set; }
 
+                public ResponseHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.SendingEndpointGotResponse = true;
@@ -62,6 +67,11 @@
             public class ResponseHandler : IHandleMessages<MyReply>
             {
                 public Context Context { get; set; }
+
+                public ResponseHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {

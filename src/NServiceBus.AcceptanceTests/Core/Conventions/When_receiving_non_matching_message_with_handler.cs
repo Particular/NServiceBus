@@ -47,6 +47,11 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
             {
                 public Context TestContext { get; set; }
 
+                public MyHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context)
                 {
                     TestContext.GotTheMessage = true;

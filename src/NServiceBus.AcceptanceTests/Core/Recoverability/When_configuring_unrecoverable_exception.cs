@@ -54,6 +54,11 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 public Context TestContext { get; set; }
 
+                public InitiatingHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     TestContext.HandlerInvoked++;

@@ -57,6 +57,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     if (messageThatIsEnlisted is SpecificEvent)

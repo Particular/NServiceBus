@@ -45,6 +45,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public TimeoutHitsNotFoundSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;

@@ -51,6 +51,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public FirstMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
                     TestContext.OriginRelatedTo = context.MessageId;
@@ -72,6 +77,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageToBeAuditedHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     TestContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
@@ -84,8 +94,6 @@
 
             public class FirstMessageHandler : IHandleMessages<FirstMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);

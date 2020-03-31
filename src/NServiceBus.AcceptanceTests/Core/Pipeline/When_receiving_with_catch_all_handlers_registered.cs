@@ -49,6 +49,11 @@
         {
             public Context Context { get; set; }
 
+            public CatchAllHandler_object(Context context)
+            {
+                Context = context;
+            }
+
             public Task Handle(object message, IMessageHandlerContext context)
             {
                 var myMessage = (MyMessage) message;
@@ -65,6 +70,11 @@
         public class CatchAllHandler_dynamic : IHandleMessages<object>
         {
             public Context Context { get; set; }
+
+            public CatchAllHandler_dynamic(Context context)
+            {
+                Context = context;
+            }
 
             public Task Handle(dynamic message, IMessageHandlerContext context)
             {
@@ -83,6 +93,11 @@
         public class CatchAllHandler_IMessage : IHandleMessages<IMessage>
         {
             public Context Context { get; set; }
+
+            public CatchAllHandler_IMessage(Context context)
+            {
+                Context = context;
+            }
 
             public Task Handle(IMessage message, IMessageHandlerContext context)
             {

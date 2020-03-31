@@ -38,6 +38,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 public Context TestContext { get; set; }
 
+                public RequestResponseRequestingSaga1(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
@@ -71,6 +76,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 IAmStartedByMessages<RequestToRespondingSaga>
             {
                 public Context TestContext { get; set; }
+
+                public RequestResponseRespondingSaga1(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {

@@ -91,7 +91,6 @@ namespace NServiceBus.ContainerTests
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
             }
         }
 
@@ -107,7 +106,6 @@ namespace NServiceBus.ContainerTests
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
             }
         }
 
@@ -118,7 +116,10 @@ namespace NServiceBus.ContainerTests
             {
                 builder.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
 
-                Assert.AreSame(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(ISingletonComponent)));
+                var expected = builder.Build(typeof(SingletonComponent));
+                var actual = builder.Build(typeof(ISingletonComponent));
+                
+                Assert.AreSame(expected, actual);
             }
         }
 
@@ -222,6 +223,12 @@ namespace NServiceBus.ContainerTests
     {
         public ISingleton1 Singleton1 { get; set; }
         public ISingleton2 Singleton2 { get; set; }
+
+        public ComponentThatDependsOnMultiSingletons(ISingleton1 singleton1, ISingleton2 singleton2)
+        {
+            Singleton1 = singleton1;
+            Singleton2 = singleton2;
+        }
     }
 
     public class SingletonThatImplementsToInterfaces : ISingleton2
@@ -294,14 +301,11 @@ namespace NServiceBus.ContainerTests
         public ISomeInterface InterfaceDependency { get; set; }
         public SomeClass ConcreteDependency { get; set; }
 
-        public SomeClass ConcreteDependencyWithSetOnly
+        public ClassWithSetterDependencies(ISomeInterface interfaceDependency, SomeClass concreteDependency)
         {
-            set { concreteDependencyWithSetOnly = value; }
+            InterfaceDependency = interfaceDependency;
+            ConcreteDependency = concreteDependency;
         }
-
-        public SomeClass ConcreteDependencyWithPrivateSet { get; private set; }
-
-        public SomeClass concreteDependencyWithSetOnly;
     }
 
     public class SomeClass : ISomeInterface

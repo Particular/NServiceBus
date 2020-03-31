@@ -69,6 +69,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public CustomSagaIdSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.CustomerId = message.CustomerId;

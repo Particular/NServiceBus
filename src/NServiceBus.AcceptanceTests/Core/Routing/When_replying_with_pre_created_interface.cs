@@ -38,6 +38,11 @@
             {
                 public IMessageCreator MessageCreator { get; set; }
 
+                public StartMessageHandler(IMessageCreator messageCreator)
+                {
+                    MessageCreator = messageCreator;
+                }
+
                 public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
                     var interfaceMessage = MessageCreator.CreateInstance<IMyReply>();
@@ -48,6 +53,12 @@
             public class IMyMessageHandler : IHandleMessages<IMyReply>
             {
                 public Context Context { get; set; }
+
+
+                public IMyMessageHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(IMyReply message, IMessageHandlerContext context)
                 {

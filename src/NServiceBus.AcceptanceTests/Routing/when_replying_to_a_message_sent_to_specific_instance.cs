@@ -50,6 +50,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyResponseHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyResponse message, IMessageHandlerContext context)
                 {
                     Context.ReplyToAddress = context.MessageHeaders[Headers.ReplyToAddress];

@@ -48,6 +48,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public Handler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(Message message, IMessageHandlerContext context)
                 {
                     TestContext.MessageId = context.MessageId;

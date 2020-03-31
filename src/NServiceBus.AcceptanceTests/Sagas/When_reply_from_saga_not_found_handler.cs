@@ -43,6 +43,11 @@
             {
                 public Context Context { get; set; }
 
+                public ReplyHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(Reply message, IMessageHandlerContext context)
                 {
                     Context.ReplyReceived = true;

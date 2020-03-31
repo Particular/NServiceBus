@@ -62,6 +62,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageToBeAuditedHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
                     TestContext.HostId = context.MessageHeaders.ContainsKey(Headers.HostId) ? context.MessageHeaders[Headers.HostId] : null;

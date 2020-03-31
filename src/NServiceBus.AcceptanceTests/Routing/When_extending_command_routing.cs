@@ -87,6 +87,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyCommandHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyCommand evnt, IMessageHandlerContext context)
                 {
                     Interlocked.Increment(ref Context.MessageDelivered);

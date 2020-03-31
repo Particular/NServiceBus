@@ -64,6 +64,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.SubscriberGotEvent = true;
@@ -74,6 +79,11 @@
             public class DoneHandler : IHandleMessages<Done>
             {
                 public Context Context { get; set; }
+
+                public DoneHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(Done message, IMessageHandlerContext context)
                 {

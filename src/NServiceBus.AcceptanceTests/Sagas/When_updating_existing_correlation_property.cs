@@ -45,6 +45,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public ChangeCorrPropertySaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     if (message.SecondMessage)

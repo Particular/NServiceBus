@@ -44,6 +44,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MyMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     if (TestContext.FirstAttempt)
@@ -63,6 +68,11 @@
             public class MessageHandledEventHandler : IHandleMessages<MessageHandledEvent>
             {
                 public Context TestContext { get; set; }
+
+                public MessageHandledEventHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)
                 {

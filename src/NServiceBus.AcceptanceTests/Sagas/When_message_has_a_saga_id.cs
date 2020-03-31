@@ -58,6 +58,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageWithSagaIdSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
                 {
                     TestContext.MessageHandlerCalled = true;
@@ -91,6 +96,11 @@
             class MessageWithSagaIdHandler : IHandleMessages<MessageWithSagaId>
             {
                 public Context TestContext { get; set; }
+
+                public MessageWithSagaIdHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
                 {

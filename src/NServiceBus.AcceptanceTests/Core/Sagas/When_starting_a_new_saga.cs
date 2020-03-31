@@ -40,6 +40,11 @@
             {
                 public Context Context { get; set; }
 
+                public NullCorrPropertySaga(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.SomeId = Data.SomeId;

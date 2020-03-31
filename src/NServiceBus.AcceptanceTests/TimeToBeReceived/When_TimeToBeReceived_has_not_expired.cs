@@ -37,6 +37,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MyMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     TestContext.TTBROnIncomingMessage = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);

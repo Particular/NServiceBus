@@ -68,6 +68,11 @@
             {
                 public SagaContext Context { get; set; }
 
+                public SagaStartedByBaseEvent(SagaContext context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;

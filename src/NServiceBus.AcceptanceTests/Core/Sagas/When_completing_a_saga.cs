@@ -53,6 +53,11 @@
             {
                 public Context Context { get; set; }
 
+                public TestSaga10(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.StartSagaMessageReceived = true;

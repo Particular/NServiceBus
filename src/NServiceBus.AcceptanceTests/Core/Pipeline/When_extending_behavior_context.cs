@@ -46,6 +46,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageHandlerA(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
@@ -57,6 +62,11 @@
             class MessageHandlerB : IHandleMessages<SomeMessage>
             {
                 public Context TestContext { get; set; }
+
+                public MessageHandlerB(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {

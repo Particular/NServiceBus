@@ -57,6 +57,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageToBeRetriedHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     if (message.Id != TestContext.Id)

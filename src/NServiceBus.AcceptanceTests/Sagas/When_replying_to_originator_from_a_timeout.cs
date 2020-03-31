@@ -38,6 +38,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 public Context TestContext { get; set; }
 
+                public RequestResponseRequestingSaga3(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
@@ -72,6 +77,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 IHandleTimeouts<RequestResponseRespondingSaga3.DelayReply>
             {
                 public Context TestContext { get; set; }
+
+                public RequestResponseRespondingSaga3(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {

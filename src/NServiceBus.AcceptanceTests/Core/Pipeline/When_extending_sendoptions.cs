@@ -49,6 +49,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public SendMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(SendMessage message, IMessageHandlerContext context)
                 {
                     TestContext.Secret = message.Secret;

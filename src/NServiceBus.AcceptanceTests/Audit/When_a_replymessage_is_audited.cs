@@ -73,12 +73,17 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public Context TestContext { get; set; }
+                Context testContext;
+
+                public MessageToBeAuditedHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
-                    TestContext.HeaderValue = context.MessageHeaders["MyHeader"];
-                    TestContext.MessageProcessed = true;
+                    testContext.HeaderValue = context.MessageHeaders["MyHeader"];
+                    testContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
             }

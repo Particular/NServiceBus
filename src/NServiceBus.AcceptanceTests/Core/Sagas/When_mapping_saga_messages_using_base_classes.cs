@@ -46,6 +46,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public BaseClassIsMappedSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.SecondMessageFoundExistingSaga = true;

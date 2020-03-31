@@ -60,6 +60,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageToBeAuditedHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     TestContext.HostId = context.MessageHeaders[Headers.HostId];

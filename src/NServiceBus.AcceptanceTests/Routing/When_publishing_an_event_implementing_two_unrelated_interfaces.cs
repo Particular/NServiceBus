@@ -93,6 +93,11 @@
             {
                 public Context Context { get; set; }
 
+                public EventAHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(IEventA @event, IMessageHandlerContext context)
                 {
                     if (@event.ContextId != Context.Id)
@@ -108,6 +113,11 @@
             public class EventBHandler : IHandleMessages<IEventB>
             {
                 public Context Context { get; set; }
+
+                public EventBHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(IEventB @event, IMessageHandlerContext context)
                 {

@@ -51,6 +51,11 @@
             {
                 public Context Context { get; set; }
 
+                public MessageToBeDispatchedImmediatelyHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
                 {
                     Context.MessageDispatched = true;

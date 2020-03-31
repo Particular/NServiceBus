@@ -57,6 +57,11 @@
             {
                 public Context Context { get; set; }
 
+                public EventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(Event @event, IMessageHandlerContext context)
                 {
                     if (@event.ContextId != Context.Id)

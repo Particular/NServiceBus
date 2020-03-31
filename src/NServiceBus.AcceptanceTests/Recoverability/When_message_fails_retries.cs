@@ -40,6 +40,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageWhichFailsRetries message, IMessageHandlerContext context)
                 {
                     TestContext.PhysicalMessageId = context.MessageId;

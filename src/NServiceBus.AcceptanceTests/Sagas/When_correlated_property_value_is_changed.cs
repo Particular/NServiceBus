@@ -46,6 +46,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public CorrIdChangedSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = Guid.NewGuid();

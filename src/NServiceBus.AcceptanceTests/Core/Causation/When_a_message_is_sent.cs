@@ -41,6 +41,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageSentOutsideHandlersHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
                 {
                     TestContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
@@ -53,6 +58,11 @@
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
             {
                 public Context TestContext { get; set; }
+
+                public MessageSentInsideHandlersHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
                 {

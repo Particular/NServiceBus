@@ -41,6 +41,11 @@
             {
                 public Context Context { get; set; }
 
+                public MessageToForwardHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MessageToForward message, IMessageHandlerContext context)
                 {
                     Context.ForwardedHeaders = context.MessageHeaders;
@@ -60,6 +65,11 @@
             public class MessageToForwardHandler : IHandleMessages<MessageToForward>
             {
                 public Context Context { get; set; }
+
+                public MessageToForwardHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(MessageToForward message, IMessageHandlerContext context)
                 {

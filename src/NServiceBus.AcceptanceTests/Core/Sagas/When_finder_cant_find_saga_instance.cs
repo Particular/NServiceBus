@@ -45,6 +45,11 @@
             {
                 public Context Context { get; set; }
 
+                public CustomFinder(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
@@ -57,6 +62,11 @@
                 IHandleMessages<SomeOtherMessage>
             {
                 public Context Context { get; set; }
+
+                public TestSaga06(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {

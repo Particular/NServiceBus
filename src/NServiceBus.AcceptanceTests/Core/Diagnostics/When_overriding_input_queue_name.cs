@@ -36,6 +36,11 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
         {
             public Context Context { get; set; }
 
+            public MyMessageHandler(Context context)
+            {
+                Context = context;
+            }
+
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 Context.InputQueue = context.MessageHeaders[Headers.ReplyToAddress];

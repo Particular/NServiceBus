@@ -60,6 +60,11 @@
             {
                 public IMessageCreator MessageCreator { get; set; }
 
+                public StartMessageHandler(IMessageCreator messageCreator)
+                {
+                    MessageCreator = messageCreator;
+                }
+
                 public Task Handle(StartMessage message, IMessageHandlerContext context)
                 {
                     return context.Publish(MessageCreator.CreateInstance<MyEvent>());
@@ -97,6 +102,11 @@
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context Context { get; set; }
+
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(MyEvent @event, IMessageHandlerContext context)
                 {

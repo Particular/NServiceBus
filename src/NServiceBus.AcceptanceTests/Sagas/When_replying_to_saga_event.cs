@@ -74,6 +74,11 @@
             {
                 public Context Context { get; set; }
 
+                public ReplyToPubMsgSaga(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     return context.Publish(new DidSomething

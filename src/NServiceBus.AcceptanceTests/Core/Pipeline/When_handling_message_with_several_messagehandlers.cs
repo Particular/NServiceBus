@@ -48,6 +48,11 @@
         {
             public Context Context { get; set; }
 
+            public FirstMessageHandler(Context context)
+            {
+                Context = context;
+            }
+
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (Context.Id != message.Id)
@@ -64,6 +69,11 @@
         public class SecondMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
+
+            public SecondMessageHandler(Context context)
+            {
+                Context = context;
+            }
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {

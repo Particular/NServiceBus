@@ -68,6 +68,11 @@
             {
                 public Context Context { get; set; }
 
+                public MessageToBeRetriedHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     Context.TotalNumberOfHandlerInvocations++;

@@ -38,6 +38,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 public Context TestContext { get; set; }
 
+                public RequestResponseRequestingSaga2(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
@@ -72,6 +77,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 IHandleMessages<SendReplyFromNonInitiatingHandler>
             {
                 public Context TestContext { get; set; }
+
+                public RequestResponseRespondingSaga2(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {

@@ -41,6 +41,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public SendFromTimeoutSaga1(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
@@ -70,6 +75,11 @@
             public class SendFromTimeoutSaga2 : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>, IAmStartedByMessages<StartSaga2>
             {
                 public Context Context { get; set; }
+
+                public SendFromTimeoutSaga2(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {

@@ -53,6 +53,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public InitiatingHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
@@ -96,6 +101,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public InitiatingMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
@@ -110,6 +120,11 @@
             class SubsequentMessageHandler : IHandleMessages<SubsequentMessage>
             {
                 public Context TestContext { get; set; }
+
+                public SubsequentMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {

@@ -56,6 +56,11 @@
             {
                 public Context Context { get; set; }
 
+                public UnmappedMsgSaga(Context context)
+                {
+                    Context = context;
+                }
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnmappedMsgSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
@@ -90,6 +95,11 @@
             public class OutboundMessageHandler : IHandleMessages<OutboundMessage>
             {
                 public Context Context { get; set; }
+
+                public OutboundMessageHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public async Task Handle(OutboundMessage message, IMessageHandlerContext context)
                 {

@@ -50,6 +50,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyMessageHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     Context.ReceivedAt = DateTime.UtcNow;

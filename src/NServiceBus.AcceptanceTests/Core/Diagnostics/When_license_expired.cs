@@ -85,6 +85,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public MessageToBeAuditedHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     TestContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);

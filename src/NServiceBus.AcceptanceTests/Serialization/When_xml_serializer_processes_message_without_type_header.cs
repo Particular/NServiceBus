@@ -43,6 +43,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyMessageHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
                 {
                     Context.WasCalled = true;

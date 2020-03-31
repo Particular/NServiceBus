@@ -40,6 +40,11 @@
             {
                 public SagaEndpointContext Context { get; set; }
 
+                public TestSaga13(SagaEndpointContext context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     if (Context.InterceptingHandlerCalled)
@@ -65,6 +70,11 @@
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
                 public SagaEndpointContext TestContext { get; set; }
+
+                public InterceptingHandler(SagaEndpointContext testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {

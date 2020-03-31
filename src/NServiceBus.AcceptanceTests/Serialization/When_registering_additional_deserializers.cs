@@ -72,6 +72,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyRequestHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     Context.HandlerGotTheRequest = true;

@@ -60,6 +60,11 @@
             {
                 public Context Context { get; set; }
 
+                public ConcurrentlyStartedSaga(Context context)
+                {
+                    Context = context;
+                }
+
                 public async Task Handle(StartMessageOne message, IMessageHandlerContext context)
                 {
                     Data.Placed = true;
@@ -110,6 +115,11 @@
             class LogSuccessfulHandler : IHandleMessages<SuccessfulProcessing>
             {
                 public Context Context { get; set; }
+
+                public LogSuccessfulHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context)
                 {

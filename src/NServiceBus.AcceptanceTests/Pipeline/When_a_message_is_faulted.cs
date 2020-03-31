@@ -43,6 +43,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public FirstMessageHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
                     TestContext.OriginRelatedTo = context.MessageId;
@@ -55,6 +60,11 @@
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageThatFails>
             {
                 public Context TestContext { get; set; }
+
+                public MessageSentInsideHandlersHandler(Context testContext)
+                {
+                    TestContext = testContext;
+                }
 
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {

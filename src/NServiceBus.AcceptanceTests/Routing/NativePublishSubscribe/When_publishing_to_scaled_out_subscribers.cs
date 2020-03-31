@@ -66,6 +66,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     Context.IncrementSubscriberACounter();
@@ -84,6 +89,11 @@
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context Context { get; set; }
+
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {

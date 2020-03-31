@@ -70,6 +70,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public CorrelationTestSaga(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     return context.Send(new DoSomething

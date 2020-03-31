@@ -51,6 +51,11 @@
             {
                 public Context TestContext { get; set; }
 
+                public TestSaga05(Context testContext)
+                {
+                    TestContext = testContext;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.SagaIds.Add(Data.Id);

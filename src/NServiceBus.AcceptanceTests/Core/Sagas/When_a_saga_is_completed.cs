@@ -63,6 +63,11 @@
             {
                 public Context Context { get; set; }
 
+                public TestSaga12(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.StartSagaMessageReceived = true;
@@ -102,6 +107,11 @@
         public class CompletionHandler : IHandleMessages<AnotherMessage>
         {
             public Context Context { get; set; }
+
+            public CompletionHandler(Context context)
+            {
+                Context = context;
+            }
 
             public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {

@@ -56,6 +56,11 @@
             {
                 public Context Context { get; set; }
 
+                public DateTimeMessageHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
                 {
                     Context.ReceivedMessage = message;

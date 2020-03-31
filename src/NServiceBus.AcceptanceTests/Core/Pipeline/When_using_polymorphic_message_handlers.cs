@@ -39,6 +39,11 @@
             {
                 public Context Context { get; set; }
 
+                public CatchAllHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(ICommand message, IMessageHandlerContext context)
                 {
                     Context.CatchAllHandlerInvoked = true;
@@ -49,6 +54,11 @@
             class SpecificHandler : IHandleMessages<SomeCommand>
             {
                 public Context Context { get; set; }
+
+                public SpecificHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(SomeCommand message, IMessageHandlerContext context)
                 {

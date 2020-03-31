@@ -40,6 +40,11 @@
             {
                 public Context Context { get; set; }
 
+                public FirstHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     Context.FirstHandlerInvoked = true;
@@ -53,6 +58,11 @@
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
+
+                public SecondHandler(Context context)
+                {
+                    Context = context;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {

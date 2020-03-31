@@ -90,6 +90,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyEventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(MyEvent @event, IMessageHandlerContext context)
                 {
                     Context.GotTheEvent = true;

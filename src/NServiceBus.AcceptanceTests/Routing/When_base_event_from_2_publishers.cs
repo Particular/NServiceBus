@@ -92,6 +92,11 @@
             {
                 public Context Context { get; set; }
 
+                public BaseEventHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))

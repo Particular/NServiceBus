@@ -57,6 +57,11 @@
             {
                 public Context Context { get; set; }
 
+                public MyMessageInterfaceHandler(Context context)
+                {
+                    Context = context;
+                }
+
                 public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
                 {
                     if (Context.Id != interfaceMessage.Id)
