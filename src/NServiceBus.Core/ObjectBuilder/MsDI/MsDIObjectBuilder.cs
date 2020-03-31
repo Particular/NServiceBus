@@ -35,6 +35,8 @@
 
         public IContainer BuildChildContainer()
         {
+            MakeSureScopeInitialized();
+
             return new MsDIObjectBuilder(serviceScope.ServiceProvider.CreateScope());
         }
 
@@ -58,14 +60,13 @@
 
             serviceCollection.Add(new ServiceDescriptor(component, component, serviceLifetime));
 
-            /*
+            
             var interfaces = GetAllServices(component);
 
             foreach (var serviceType in interfaces)
             {
-                container.Register(serviceType, s => s.GetInstance(component), serviceLifetime, component.FullName);
+                serviceCollection.Add(new ServiceDescriptor(serviceType, sp => sp.GetRequiredService(component), serviceLifetime));
             }
-            */
         }
 
         public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
@@ -83,14 +84,12 @@
 
             serviceCollection.Add(new ServiceDescriptor(typeof(T), sp => component(), serviceLifetime));
 
-            /*
             var interfaces = GetAllServices(componentType);
 
             foreach (var servicesType in interfaces)
             {
-                container.Register(servicesType, s => s.GetInstance<T>(), serviceLifetime, componentType.FullName);
+                serviceCollection.Add(new ServiceDescriptor(servicesType, sp => component(),  serviceLifetime));
             }
-            */
         }
 
         public void RegisterSingleton(Type lookupType, object instance)
@@ -149,6 +148,23 @@
             {
                 throw new InvalidOperationException("Reconfiguration of child containers is not allowed.");
             }
+        }
+
+        static IEnumerable<Type> GetAllServices(Type type)
+        {
+            if (type == null)
+            {
+                return new List<Type>();
+            }
+
+            var result = new List<Type>(type.GetInterfaces());
+
+            foreach (var interfaceType in type.GetInterfaces())
+            {
+                result.AddRange(GetAllServices(interfaceType));
+            }
+
+            return result.Distinct();
         }
     }
 }
