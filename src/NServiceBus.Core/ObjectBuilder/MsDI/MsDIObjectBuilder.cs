@@ -12,7 +12,8 @@
     class MsDIObjectBuilder : IContainer
     {
         IServiceCollection serviceCollection = new ServiceCollection();
-        IServiceProvider serviceProvider;
+        ServiceProvider container;
+
         IServiceScope serviceScope;
 
         public MsDIObjectBuilder()
@@ -20,29 +21,28 @@
             serviceCollection = new ServiceCollection();
         }
 
-        public MsDIObjectBuilder(IServiceScope serviceScope)
+        MsDIObjectBuilder(IServiceScope serviceScope)
         {
             this.serviceScope = serviceScope;
-            serviceProvider = serviceScope.ServiceProvider;
         }
 
         public object Build(Type typeToBuild)
         {
-            BuildProviderIfNeeded();
+            MakeSureScopeInitialized();
 
-            return serviceProvider.GetRequiredService(typeToBuild);
+            return serviceScope.ServiceProvider.GetRequiredService(typeToBuild);
         }
 
         public IContainer BuildChildContainer()
         {
-            return new MsDIObjectBuilder(serviceProvider.CreateScope());
+            return new MsDIObjectBuilder(serviceScope.ServiceProvider.CreateScope());
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            BuildProviderIfNeeded();
+            MakeSureScopeInitialized();
 
-            return serviceProvider.GetServices(typeToBuild);
+            return serviceScope.ServiceProvider.GetServices(typeToBuild);
         }
 
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
@@ -95,7 +95,8 @@
 
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            serviceCollection.AddSingleton(lookupType, instance);
+            //TODO: this is needed to keep make sure dispose is called on the instance
+            serviceCollection.AddSingleton(lookupType, sp => instance);
         }
 
         public bool HasComponent(Type componentType)
@@ -113,10 +114,8 @@
             if (serviceScope != null)
             {
                 serviceScope.Dispose();
-            }
-            else
-            {
-                ((ServiceProvider)serviceProvider).Dispose();
+
+                container?.Dispose();
             }
         }
 
@@ -135,11 +134,12 @@
             }
         }
 
-        void BuildProviderIfNeeded()
+        void MakeSureScopeInitialized()
         {
-            if (serviceProvider == null)
+            if (serviceScope == null)
             {
-                serviceProvider = serviceCollection.BuildServiceProvider(true);
+                container = serviceCollection.BuildServiceProvider(true);
+                serviceScope = container.CreateScope();
             }
         }
 
