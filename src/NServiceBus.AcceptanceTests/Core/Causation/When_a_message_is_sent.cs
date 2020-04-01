@@ -39,31 +39,41 @@
 
             public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
             {
-                public Context TestContext { get; set; }
+                public MessageSentOutsideHandlersHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
                 {
-                    TestContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
-                    TestContext.MessageIdOfFirstMessage = context.MessageId;
+                    testContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
+                    testContext.MessageIdOfFirstMessage = context.MessageId;
 
                     return context.SendLocal(new MessageSentInsideHandler());
                 }
+
+                Context testContext;
             }
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
             {
-                public Context TestContext { get; set; }
+                public MessageSentInsideHandlersHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
                 {
-                    TestContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
+                    testContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
 
-                    TestContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
+                    testContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
 
-                    TestContext.Done = true;
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

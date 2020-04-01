@@ -55,13 +55,18 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context MyContext { get; set; }
+                public MessageToBeAuditedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    MyContext.IsMessageHandlingComplete = true;
+                    testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -74,13 +79,18 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context MyContext { get; set; }
+                public MessageToBeAuditedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    MyContext.IsMessageHandlingComplete = true;
+                    testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -93,13 +103,18 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context MyContext { get; set; }
+                public AuditMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    MyContext.IsMessageHandledByTheAuditEndpoint = true;
+                    testContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
