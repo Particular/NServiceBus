@@ -14,11 +14,12 @@
         {
             container = new ServiceContainer(new ContainerOptions
             {
-                EnableVariance = false
+                EnableVariance = false,
+                EnablePropertyInjection = false,
             })
             {
-                // Logical call context is necessary because the CurrentScope would be managed in a thread local 
-                // by default, if not specified otherwise, which leads to inproper scope 
+                // Logical call context is necessary because the CurrentScope would be managed in a thread local
+                // by default, if not specified otherwise, which leads to inproper scope
                 // usage when executed with async code.
                 ScopeManagerProvider = new PerLogicalCallContextScopeManagerProvider()
             };
