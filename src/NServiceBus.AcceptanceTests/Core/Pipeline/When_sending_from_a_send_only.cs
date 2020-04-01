@@ -67,18 +67,23 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            public Context Context { get; set; }
+            public MyMessageHandler(Context context)
+            {
+                testContext = context;
+            }
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                if (Context.Id != message.Id)
+                if (testContext.Id != message.Id)
                 {
                     return Task.FromResult(0);
                 }
 
-                Context.WasCalled = true;
+                testContext.WasCalled = true;
                 return Task.FromResult(0);
             }
+
+            Context testContext;
         }
     }
 }

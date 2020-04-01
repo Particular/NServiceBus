@@ -39,11 +39,14 @@
 
             public class TestSaga03 : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
             {
-                public SagaEndpointContext Context { get; set; }
+                public TestSaga03(SagaEndpointContext context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.SagaStarted = true;
+                    testContext.SagaStarted = true;
                     Data.SomeId = message.SomeId;
                     return Task.FromResult(0);
                 }
@@ -54,6 +57,8 @@
                         .ToSaga(s => s.SomeId);
                 }
 
+                SagaEndpointContext testContext;
+
                 public class TestSagaData03 : ContainSagaData
                 {
                     public virtual string SomeId { get; set; }
@@ -62,15 +67,20 @@
 
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
-                public SagaEndpointContext TestContext { get; set; }
+                public InterceptingHandler(SagaEndpointContext context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.InterceptingHandlerCalled = true;
+                    testContext.InterceptingHandlerCalled = true;
                     context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
                     return Task.FromResult(0);
                 }
+
+                SagaEndpointContext testContext;
             }
         }
 

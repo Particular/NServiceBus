@@ -60,20 +60,25 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            public Context TestContext { get; set; }
+            public MyMessageHandler(Context context)
+            {
+                testContext = context;
+            }
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                if (TestContext.Id != message.Id)
+                if (testContext.Id != message.Id)
                 {
                     return Task.FromResult(0);
                 }
 
-                TestContext.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
-                TestContext.WasCalled = true;
+                testContext.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
+                testContext.WasCalled = true;
 
                 return Task.FromResult(0);
             }
+
+            Context testContext;
         }
     }
 }

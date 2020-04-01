@@ -67,26 +67,36 @@
 
             public class MessageSentOutsideOfHandlerMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerMatchingTheConvention>
             {
-                public Context TestContext { get; set; }
+                public MessageSentOutsideOfHandlerMatchingTheConventionHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context)
                 {
-                    TestContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
-                    TestContext.MatchingMessageReceived = true;
+                    testContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
+                    testContext.MatchingMessageReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class MessageSentOutsideOfHandlerNotMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerNotMatchingTheConvention>
             {
-                public Context TestContext { get; set; }
+                public MessageSentOutsideOfHandlerNotMatchingTheConventionHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context)
                 {
-                    TestContext.NonMatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
-                    TestContext.NonMatchingMessageReceived = true;
+                    testContext.NonMatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
+                    testContext.NonMatchingMessageReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

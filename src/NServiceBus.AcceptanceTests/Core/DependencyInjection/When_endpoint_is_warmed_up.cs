@@ -55,14 +55,19 @@
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
-                public Context TestContext { get; set; }
+                public SomeMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.GotTheMessage = true;
+                    testContext.GotTheMessage = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

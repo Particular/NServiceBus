@@ -47,19 +47,24 @@
 
         public class CatchAllHandler_object : IHandleMessages<object>
         {
-            public Context Context { get; set; }
+            public CatchAllHandler_object(Context context)
+            {
+                testContext = context;
+            }
 
             public Task Handle(object message, IMessageHandlerContext context)
             {
                 var myMessage = (MyMessage) message;
-                if (Context.Id != myMessage.Id)
+                if (testContext.Id != myMessage.Id)
                 {
                     return Task.FromResult(0);
                 }
 
-                Context.ObjectHandlerWasCalled = true;
+                testContext.ObjectHandlerWasCalled = true;
                 return Task.FromResult(0);
             }
+
+            Context testContext;
         }
 
         public class CatchAllHandler_dynamic : IHandleMessages<object>

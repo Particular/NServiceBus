@@ -86,13 +86,18 @@
 
             class V1Handler : IHandleMessages<V1Event>
             {
-                public Context Context { get; set; }
+                public V1Handler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(V1Event message, IMessageHandlerContext context)
                 {
-                    Context.V1SubscriberGotTheMessage = true;
+                    testContext.V1SubscriberGotTheMessage = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -106,13 +111,18 @@
 
             class V2Handler : IHandleMessages<V2Event>
             {
-                public Context Context { get; set; }
+                public V2Handler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(V2Event message, IMessageHandlerContext context)
                 {
-                    Context.V2SubscriberGotTheMessage = true;
+                    testContext.V2SubscriberGotTheMessage = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

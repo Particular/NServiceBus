@@ -38,28 +38,40 @@
 
             class FirstHandler : IHandleMessages<SomeMessage>
             {
-                public Context Context { get; set; }
+                public FirstHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    Context.FirstHandlerInvoked = true;
+                    testContext.FirstHandlerInvoked = true;
 
                     context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
+
             }
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
-                public Context Context { get; set; }
+                public SecondHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    Context.SecondHandlerInvoked = true;
+                    testContext.SecondHandlerInvoked = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
+
             }
         }
     }

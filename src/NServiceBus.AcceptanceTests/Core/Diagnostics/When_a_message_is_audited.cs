@@ -58,17 +58,22 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context TestContext { get; set; }
+                public MessageToBeAuditedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    TestContext.HostId = context.MessageHeaders[Headers.HostId];
-                    TestContext.HostName = context.MessageHeaders[Headers.HostDisplayName];
-                    TestContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
-                    TestContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
-                    TestContext.Done = true;
+                    testContext.HostId = context.MessageHeaders[Headers.HostId];
+                    testContext.HostName = context.MessageHeaders[Headers.HostDisplayName];
+                    testContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
+                    testContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
+                    testContext.Done = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

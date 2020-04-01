@@ -45,15 +45,21 @@
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
-                public Context TestContext { get; set; }
-                public MyComponent MyComponent { get; set; }
+                public SomeMessageHandler(Context context, MyComponent component)
+                {
+                    testContext = context;
+                    myComponent = component;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.Message = MyComponent.Message;
+                    testContext.Message = myComponent.Message;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
+                MyComponent myComponent;
             }
         }
 

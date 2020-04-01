@@ -60,17 +60,22 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageThatFails>
             {
-                public Context TestContext { get; set; }
+                public MessageToBeAuditedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
-                    TestContext.HostId = context.MessageHeaders.ContainsKey(Headers.HostId) ? context.MessageHeaders[Headers.HostId] : null;
-                    TestContext.HostName = context.MessageHeaders.ContainsKey(Headers.HostDisplayName) ? context.MessageHeaders[Headers.HostDisplayName] : null;
-                    TestContext.Endpoint = context.MessageHeaders.ContainsKey(Headers.ProcessingEndpoint) ? context.MessageHeaders[Headers.ProcessingEndpoint] : null;
-                    TestContext.Machine = context.MessageHeaders.ContainsKey(Headers.ProcessingMachine) ? context.MessageHeaders[Headers.ProcessingMachine] : null;
-                    TestContext.Done = true;
+                    testContext.HostId = context.MessageHeaders.ContainsKey(Headers.HostId) ? context.MessageHeaders[Headers.HostId] : null;
+                    testContext.HostName = context.MessageHeaders.ContainsKey(Headers.HostDisplayName) ? context.MessageHeaders[Headers.HostDisplayName] : null;
+                    testContext.Endpoint = context.MessageHeaders.ContainsKey(Headers.ProcessingEndpoint) ? context.MessageHeaders[Headers.ProcessingEndpoint] : null;
+                    testContext.Machine = context.MessageHeaders.ContainsKey(Headers.ProcessingMachine) ? context.MessageHeaders[Headers.ProcessingMachine] : null;
+                    testContext.Done = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

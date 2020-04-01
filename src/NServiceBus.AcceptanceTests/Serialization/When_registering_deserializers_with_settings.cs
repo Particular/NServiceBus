@@ -61,13 +61,18 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
             class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Context Context { get; set; }
+                public MyRequestHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
-                    Context.HandlerGotTheRequest = true;
+                    testContext.HandlerGotTheRequest = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

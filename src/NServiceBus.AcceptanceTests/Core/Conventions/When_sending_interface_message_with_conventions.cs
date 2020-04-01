@@ -55,19 +55,24 @@
 
             public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
             {
-                public Context Context { get; set; }
+                public MyMessageInterfaceHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
                 {
-                    if (Context.Id != interfaceMessage.Id)
+                    if (testContext.Id != interfaceMessage.Id)
                     {
                         return Task.FromResult(0);
                     }
 
-                    Context.MessageInterfaceReceived = true;
+                    testContext.MessageInterfaceReceived = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

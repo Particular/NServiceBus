@@ -47,14 +47,19 @@
 
             class SendMessageHandler : IHandleMessages<SendMessage>
             {
-                public Context TestContext { get; set; }
+                public SendMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SendMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.Secret = message.Secret;
-                    TestContext.WasCalled = true;
+                    testContext.Secret = message.Secret;
+                    testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class TestingSendOptionsExtensionBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
