@@ -23,7 +23,7 @@ namespace NServiceBus
         public static bool CreateQueues(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveComponent.Configuration>().CreateQueues;
+            return settings.Get<bool>("ReceiveComponent.Legacy.CreateQueues");
         }
     }
 }

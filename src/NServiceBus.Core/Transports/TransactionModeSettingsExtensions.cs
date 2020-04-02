@@ -15,14 +15,11 @@ namespace NServiceBus.ConsistencyGuarantees
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            var receiveConfiguration = settings.Get<ReceiveComponent.Configuration>();
-
-            if (receiveConfiguration.IsSendOnlyEndpoint)
+            if (!settings.TryGet<TransportTransactionMode>("ReceiveComponent.Legacy.ReceiveTransactionMode", out var result))
             {
                 throw new InvalidOperationException("Receive transaction mode isn't available since this endpoint is configured to run in send-only mode.");
             }
-
-            return receiveConfiguration.TransactionMode;
+            return result;
         }
     }
 }
