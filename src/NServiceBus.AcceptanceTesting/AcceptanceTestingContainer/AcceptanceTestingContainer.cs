@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder.Common;
     using ObjectBuilder.MsDI;
 
@@ -16,7 +17,8 @@
 
         public AcceptanceTestingContainer()
         {
-            builder = new MsDIObjectBuilder();
+            var serviceCollection = new ServiceCollection();
+            builder = new MsDIObjectBuilder(serviceCollection, () => serviceCollection.BuildServiceProvider());
         }
 
         public void Dispose()

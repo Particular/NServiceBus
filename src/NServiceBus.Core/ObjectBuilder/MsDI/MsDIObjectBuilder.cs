@@ -11,14 +11,16 @@
 
     class MsDIObjectBuilder : IContainer
     {
-        IServiceCollection serviceCollection = new ServiceCollection();
-        ServiceProvider container;
-
+        IServiceCollection serviceCollection;
+        Func<IServiceProvider> containerFactory;
+        
+        IServiceProvider container;
         IServiceScope serviceScope;
 
-        public MsDIObjectBuilder()
+        public MsDIObjectBuilder(IServiceCollection serviceCollection, Func<IServiceProvider> containerFactory)
         {
-            serviceCollection = new ServiceCollection();
+            this.serviceCollection = serviceCollection;
+            this.containerFactory = containerFactory;
         }
 
         MsDIObjectBuilder(IServiceScope serviceScope)
@@ -110,12 +112,7 @@
 
         public void Dispose()
         {
-            if (serviceScope != null)
-            {
-                serviceScope.Dispose();
-
-                container?.Dispose();
-            }
+            serviceScope?.Dispose();
         }
 
         ServiceLifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
@@ -137,7 +134,7 @@
         {
             if (serviceScope == null)
             {
-                container = serviceCollection.BuildServiceProvider(true);
+                container = containerFactory();
                 serviceScope = container.CreateScope();
             }
         }

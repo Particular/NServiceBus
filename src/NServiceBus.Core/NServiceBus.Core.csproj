@@ -26,7 +26,7 @@
     <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="3.0.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.6.1" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
