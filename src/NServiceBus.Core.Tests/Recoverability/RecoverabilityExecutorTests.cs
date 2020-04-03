@@ -201,6 +201,9 @@
                 return Task.FromResult(0);
             });
 
+            var fakeBuilder = new FakeBuilder();
+            fakeBuilder.Register<IDispatchMessages>(dispatcher);
+
             return new RecoverabilityExecutor(
                 raiseNotifications,
                 immediateRetriesSupported,
@@ -211,7 +214,7 @@
                 new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }),
                 messageRetryNotification,
                 messageFaultedNotification,
-                new FakeBuilder());
+                fakeBuilder);
         }
 
         FakeDispatcher dispatcher;
