@@ -204,12 +204,12 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 var associatedMessage = associatedMessages.FirstOrDefault(m => mapping.MessageType.IsAssignableFrom(m.MessageType));
                 if (associatedMessage == null)
                 {
-                    var msgType = mapping.MessageType.Name;
+                    var msgType = mapping.MessageType.FullName;
                     if (mapping.HasCustomFinderMap)
                     {
                         throw new Exception($"Custom saga finder {mapping.CustomFinderType.FullName} maps message type {msgType} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
                     }
-                    throw new Exception($"Saga {sagaType.Name} contains a mapping for {msgType} in the ConfigureHowToFindSaga method, but does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
+                    throw new Exception($"Saga {sagaType.FullName} contains a mapping for {msgType} in the ConfigureHowToFindSaga method, but does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
                 }
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
