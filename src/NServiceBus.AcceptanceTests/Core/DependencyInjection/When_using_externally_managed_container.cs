@@ -26,8 +26,8 @@
 
                 b.ToCreateInstance(
                         config =>
-                        {
-                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, new RegistrationPhaseAdapter(container));
+                        { 
+                            (configuredEndpoint, _) = EndpointWithExternallyManagedContainer.Create(config, new RegistrationPhaseAdapter(container));
                             return Task.FromResult(configuredEndpoint);
                         },
                         configured => configured.Start(new ResolutionPhaseAdapter(container))

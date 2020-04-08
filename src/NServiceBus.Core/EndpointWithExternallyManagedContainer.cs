@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+    using System.Runtime.ExceptionServices;
     using ObjectBuilder;
 
     /// <summary>
@@ -12,13 +14,24 @@
         /// </summary>
         /// <param name="configuration">The endpoint configuration.</param>
         /// <param name="configureComponents">The registration API adapter for the external container.</param>
-        public static IStartableEndpointWithExternallyManagedContainer Create(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        public static (IStartableEndpointWithExternallyManagedContainer, ExceptionDispatchInfo) Create(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            return HostCreator
-                .CreateWithExternallyManagedContainer(configuration, configureComponents);
+            ExceptionDispatchInfo exceptionDispatchInfo = null;
+            IStartableEndpointWithExternallyManagedContainer endpoint = null;
+            try
+            {
+                endpoint = HostCreator
+                    .CreateWithExternallyManagedContainer(configuration, configureComponents);
+            }
+            catch (Exception e)
+            {
+                exceptionDispatchInfo = ExceptionDispatchInfo.Capture(e);
+            }
+
+            return (endpoint, exceptionDispatchInfo);
         }
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using ObjectBuilder;
 
