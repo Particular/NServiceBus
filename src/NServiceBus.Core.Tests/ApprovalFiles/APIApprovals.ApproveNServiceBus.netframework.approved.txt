@@ -707,6 +707,7 @@ namespace NServiceBus
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
         public NonDurableDelivery() { }
+        protected override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
     public class Notifications
     {
@@ -1417,6 +1418,7 @@ namespace NServiceBus.DelayedDelivery
     {
         public DelayDeliveryWith(System.TimeSpan delay) { }
         public System.TimeSpan Delay { get; }
+        protected override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
     public abstract class DelayedDeliveryConstraint : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -1426,6 +1428,7 @@ namespace NServiceBus.DelayedDelivery
     {
         public DoNotDeliverBefore(System.DateTime at) { }
         public System.DateTime At { get; }
+        protected override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
     public class static ExternalTimeoutManagerConfigurationExtensions
     {
@@ -1437,6 +1440,8 @@ namespace NServiceBus.DeliveryConstraints
     public abstract class DeliveryConstraint
     {
         protected DeliveryConstraint() { }
+        protected static void RegisterDeserializer(System.Action<System.Collections.Generic.IReadOnlyDictionary<string, string>, System.Collections.Generic.ICollection<NServiceBus.DeliveryConstraints.DeliveryConstraint>> factory) { }
+        protected virtual void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
     public class static DeliveryConstraintContextExtensions
     {
@@ -1942,6 +1947,7 @@ namespace NServiceBus.Performance.TimeToBeReceived
     {
         public DiscardIfNotReceivedBefore(System.TimeSpan maxTime) { }
         public System.TimeSpan MaxTime { get; }
+        protected override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
 }
 namespace NServiceBus.Persistence

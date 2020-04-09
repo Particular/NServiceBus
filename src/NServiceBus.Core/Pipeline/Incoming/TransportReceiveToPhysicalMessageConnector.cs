@@ -3,10 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using DelayedDelivery;
     using DeliveryConstraints;
     using Outbox;
-    using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
     using Transport;
@@ -66,12 +64,14 @@ namespace NServiceBus
             {
                 var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
+                var constraints = DeliveryConstraint.DeserializeInternal(operation.Options);
+
                 pendingTransportOperations.Add(
                     new Transport.TransportOperation(
                         message,
                         DeserializeRoutingStrategy(operation.Options),
                         DispatchConsistency.Isolated,
-                        DeserializeConstraints(operation.Options)));
+                        constraints));
             }
         }
 
@@ -85,7 +85,7 @@ namespace NServiceBus
 
                 foreach (var constraint in operation.DeliveryConstraints)
                 {
-                    SerializeDeliveryConstraint(constraint, options);
+                    constraint.SerializeInternal(options);
                 }
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
@@ -111,59 +111,6 @@ namespace NServiceBus
             }
 
             throw new Exception($"Unknown routing strategy {addressTag.GetType().FullName}");
-        }
-
-        static void SerializeDeliveryConstraint(DeliveryConstraint constraint, Dictionary<string, string> options)
-        {
-            if (constraint is NonDurableDelivery)
-            {
-                options["NonDurable"] = true.ToString();
-                return;
-            }
-            if (constraint is DoNotDeliverBefore doNotDeliverBefore)
-            {
-                options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(doNotDeliverBefore.At);
-                return;
-            }
-
-            if (constraint is DelayDeliveryWith delayDeliveryWith)
-            {
-                options["DelayDeliveryFor"] = delayDeliveryWith.Delay.ToString();
-                return;
-            }
-
-            if (constraint is DiscardIfNotReceivedBefore discard)
-            {
-                options["TimeToBeReceived"] = discard.MaxTime.ToString();
-                return;
-            }
-
-            throw new Exception($"Unknown delivery constraint {constraint.GetType().FullName}");
-        }
-
-        static List<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
-        {
-            var constraints = new List<DeliveryConstraint>(4);
-            if (options.ContainsKey("NonDurable"))
-            {
-                constraints.Add(new NonDurableDelivery());
-            }
-
-            if (options.TryGetValue("DeliverAt", out var deliverAt))
-            {
-                constraints.Add(new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt)));
-            }
-
-            if (options.TryGetValue("DelayDeliveryFor", out var delay))
-            {
-                constraints.Add(new DelayDeliveryWith(TimeSpan.Parse(delay)));
-            }
-
-            if (options.TryGetValue("TimeToBeReceived", out var ttbr))
-            {
-                constraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr)));
-            }
-            return constraints;
         }
 
         static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
