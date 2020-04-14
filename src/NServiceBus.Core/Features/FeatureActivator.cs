@@ -62,6 +62,7 @@ namespace NServiceBus.Features
 
         public async Task StartFeatures(IBuilder builder, IMessageSession session)
         {
+            // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
             foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
