@@ -40,7 +40,6 @@ namespace NServiceBus.Features
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
 
-            var enabledFeatures = new List<FeatureInfo>();
             while (true)
             {
                 var featureToActivate = sourceFeatures.FirstOrDefault(x => settings.IsFeatureEnabled(x.Feature.GetType()));
@@ -63,7 +62,7 @@ namespace NServiceBus.Features
 
         public async Task StartFeatures(IBuilder builder, IMessageSession session)
         {
-            foreach (var feature in features.Where(f => f.Feature.IsActive))
+            foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
                 {
@@ -74,7 +73,7 @@ namespace NServiceBus.Features
 
         public Task StopFeatures()
         {
-            var featureStopTasks = features.Where(f => f.Feature.IsActive)
+            var featureStopTasks = enabledFeatures.Where(f => f.Feature.IsActive)
                 .SelectMany(f => f.TaskControllers)
                 .Select(task => task.Stop());
 
@@ -208,6 +207,7 @@ namespace NServiceBus.Features
         }
 
         List<FeatureInfo> features = new List<FeatureInfo>();
+        List<FeatureInfo> enabledFeatures = new List<FeatureInfo>();
         SettingsHolder settings;
 
         class FeatureInfo
