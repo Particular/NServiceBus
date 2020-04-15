@@ -48,11 +48,13 @@
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures();
 
-            StringAssert.AreEqualIgnoringCase(@"FeatureWithStartupThatAnotherFeatureDependsOn.Start
-FeatureWithStartupTaskWithDependency.Start
-FeatureWithStartupThatAnotherFeatureDependsOn.Stop
-FeatureWithStartupTaskWithDependency.Stop
-", orderBuilder.ToString());
+            var expectedOrderBuilder = new StringBuilder();
+            expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
+            expectedOrderBuilder.AppendLine("FeatureWithStartupTaskWithDependency.Start");
+            expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Stop");
+            expectedOrderBuilder.AppendLine("FeatureWithStartupTaskWithDependency.Stop");
+
+            Assert.AreEqual(expectedOrderBuilder.ToString(), orderBuilder.ToString());
         }
 
         [Test]
