@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
@@ -32,6 +33,28 @@
 
             Assert.True(feature.TaskStarted);
             Assert.True(feature.TaskStopped);
+        }
+
+        [Test]
+        public async Task Should_start_and_stop_features_in_dependency_order()
+        {
+            var orderBuilder = new StringBuilder();
+
+            featureSettings.Add(new FeatureWithStartupTaskWithDependency(orderBuilder));
+            featureSettings.Add(new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder));
+
+            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+
+            await featureSettings.StartFeatures(null, null);
+            await featureSettings.StopFeatures();
+
+            var expectedOrderBuilder = new StringBuilder();
+            expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
+            expectedOrderBuilder.AppendLine("FeatureWithStartupTaskWithDependency.Start");
+            expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Stop");
+            expectedOrderBuilder.AppendLine("FeatureWithStartupTaskWithDependency.Stop");
+
+            Assert.AreEqual(expectedOrderBuilder.ToString(), orderBuilder.ToString());
         }
 
         [Test]
@@ -98,6 +121,85 @@
 
         FeatureActivator featureSettings;
         SettingsHolder settings;
+
+        class FeatureWithStartupTaskWithDependency : TestFeature
+        {
+            public FeatureWithStartupTaskWithDependency(StringBuilder orderBuilder)
+            {
+                EnableByDefault();
+                DependsOn<FeatureWithStartupThatAnotherFeatureDependsOn>();
+
+                this.orderBuilder = orderBuilder;
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(new Runner(orderBuilder));
+            }
+
+            class Runner : FeatureStartupTask
+            {
+                public Runner(StringBuilder orderBuilder)
+                {
+                    this.orderBuilder = orderBuilder;
+                }
+
+                protected override Task OnStart(IMessageSession session)
+                {
+                    orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Start");
+                    return TaskEx.CompletedTask;
+                }
+
+                protected override Task OnStop(IMessageSession session)
+                {
+                    orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Stop");
+                    return TaskEx.CompletedTask;
+                }
+
+                StringBuilder orderBuilder;
+            }
+
+            readonly StringBuilder orderBuilder;
+        }
+
+        class FeatureWithStartupThatAnotherFeatureDependsOn : TestFeature
+        {
+            public FeatureWithStartupThatAnotherFeatureDependsOn(StringBuilder orderBuilder)
+            {
+                EnableByDefault();
+
+                this.orderBuilder = orderBuilder;
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(new Runner(orderBuilder));
+            }
+
+            class Runner : FeatureStartupTask
+            {
+                public Runner(StringBuilder orderBuilder)
+                {
+                    this.orderBuilder = orderBuilder;
+                }
+
+                protected override Task OnStart(IMessageSession session)
+                {
+                    orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Start");
+                    return TaskEx.CompletedTask;
+                }
+
+                protected override Task OnStop(IMessageSession session)
+                {
+                    orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Stop");
+                    return TaskEx.CompletedTask;
+                }
+
+                StringBuilder orderBuilder;
+            }
+
+            readonly StringBuilder orderBuilder;
+        }
 
         class FeatureWithStartupTask : TestFeature
         {
