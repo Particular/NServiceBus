@@ -141,7 +141,7 @@
 
         static Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
         {
-            var whenTimeout = TimeSpan.FromSeconds(60);
+            var whenTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(endpoint => ExecuteWhens(endpoint, cts))
                 .Timebox(whenTimeout, $"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
         }
