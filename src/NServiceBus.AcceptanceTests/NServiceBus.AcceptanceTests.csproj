@@ -22,7 +22,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.6.2" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.7.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
