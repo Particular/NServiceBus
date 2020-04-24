@@ -4,10 +4,4 @@
     <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.1.2-alpha" PrivateAssets="All" />
   </ItemGroup>
 
-  <Target Name="SuppressNuGetPathLengthWarning" AfterTargets="GetVersion" BeforeTargets="CoreCompile" Condition="'$(TEAMCITY_VERSION)' != ''">
-    <PropertyGroup Condition="'$(GitVersion_BranchName)' != 'master' And $(GitVersion_BranchName.StartsWith('release-')) == false">
-      <NoWarn>$(NoWarn);NU5123</NoWarn>
-    </PropertyGroup>
-  </Target>
-
 </Project>
