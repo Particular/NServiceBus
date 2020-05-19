@@ -78,7 +78,7 @@
             ErrorQueueName = $"{InputQueueName}.error";
 
             transportSettings.Set("NServiceBus.Routing.EndpointName", InputQueueName);
-            transportSettings.Set(new StartupDiagnosticEntries());
+            CreateStartupDiagnostics(transportSettings);
 
             var queueBindings = new QueueBindings();
             queueBindings.BindReceiving(InputQueueName);
@@ -246,6 +246,13 @@
             return testName;
         }
 
+        static void CreateStartupDiagnostics(SettingsHolder settings)
+        {
+            var ctor = hostingSettingsType.GetConstructors()[0];
+            var hostingSettings = ctor.Invoke(new object[] {settings});
+            settings.Set(hostingSettingsType.FullName, hostingSettings);
+        }
+
         protected string InputQueueName;
         protected string ErrorQueueName;
         protected TransportTestLoggerFactory LogFactory;
@@ -266,6 +273,8 @@
         const string TestIdHeaderName = "TransportTest.TestId";
 
         static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
+
+        static Type hostingSettingsType = typeof(IEndpointInstance).Assembly.GetType("NServiceBus.HostingComponent+Settings", true);
 
         class FakeCriticalError : CriticalError
         {
