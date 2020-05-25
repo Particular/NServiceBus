@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Configuration.AdvancedExtensibility;
     using DeliveryConstraints;
     using Extensibility;
     using Logging;
@@ -68,8 +69,6 @@
             MessagePump?.Stop().GetAwaiter().GetResult();
             TransportInfrastructure?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
-
-            transportSettings.Clear();
         }
 
         protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
@@ -77,16 +76,15 @@
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
 
-            transportSettings.Set("NServiceBus.Routing.EndpointName", InputQueueName);
-            transportSettings.Set(new StartupDiagnosticEntries());
+            var endpointConfiguration = new EndpointConfiguration(InputQueueName);
+            endpointConfiguration.SendFailedMessagesTo(ErrorQueueName);
 
-            var queueBindings = new QueueBindings();
+            transportSettings = endpointConfiguration.GetSettings();
+
+
+            var queueBindings = transportSettings.Get<QueueBindings>();
             queueBindings.BindReceiving(InputQueueName);
             queueBindings.BindSending(ErrorQueueName);
-            transportSettings.Set(ErrorQueueSettings.SettingsKey, ErrorQueueName);
-            transportSettings.Set(queueBindings);
-
-            transportSettings.Set(new EndpointInstances());
 
             Configurer = CreateConfigurer();
 
@@ -253,7 +251,7 @@
         string testId;
 
         List<Type> requiredDeliveryConstraints = new List<Type>();
-        SettingsHolder transportSettings = new SettingsHolder();
+        SettingsHolder transportSettings;
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;
