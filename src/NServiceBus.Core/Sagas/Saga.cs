@@ -49,7 +49,7 @@ namespace NServiceBus
         {
             if (at.Kind == DateTimeKind.Unspecified)
             {
-                throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
+                throw new ArgumentException("Kind property must be specified.", nameof(at));
             }
 
             VerifySagaCanHandleTimeout(timeoutMessage);
