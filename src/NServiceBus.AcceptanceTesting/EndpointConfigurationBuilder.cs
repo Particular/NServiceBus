@@ -109,13 +109,10 @@
             return this;
         }
 
-
         EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
         {
             return CreateScenario();
         }
-        public ScenarioContext ScenarioContext { get; set; }
-
 
         EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
 

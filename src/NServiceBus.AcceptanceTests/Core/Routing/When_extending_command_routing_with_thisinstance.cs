@@ -45,7 +45,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.GetSettings().GetOrCreate<UnicastRoutingTable>()
                         .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
@@ -58,7 +58,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
                             new EndpointInstance(ReceiverEndpoint, Discriminator2)
                         });
                     c.GetSettings().GetOrCreate<DistributionPolicy>()
-                        .SetDistributionStrategy(new SelectFirstDistributionStrategy(ReceiverEndpoint, (Context)ScenarioContext));
+                        .SetDistributionStrategy(new SelectFirstDistributionStrategy(ReceiverEndpoint, (Context)r.ScenarioContext));
                 });
             }
 

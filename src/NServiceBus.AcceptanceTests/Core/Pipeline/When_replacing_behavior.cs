@@ -66,11 +66,11 @@
         {
             public EndpointWithReplacement()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
                     // replace before register to ensure out-of-order replacements work correctly.
-                    c.Pipeline.Replace("demoBehavior", new ReplacementBehavior((Context)ScenarioContext));
-                    c.Pipeline.Register("demoBehavior", new OriginalBehavior((Context)ScenarioContext), "test behavior replacement");
+                    c.Pipeline.Replace("demoBehavior", new ReplacementBehavior((Context)r.ScenarioContext));
+                    c.Pipeline.Register("demoBehavior", new OriginalBehavior((Context)r.ScenarioContext), "test behavior replacement");
                 });
             }
 

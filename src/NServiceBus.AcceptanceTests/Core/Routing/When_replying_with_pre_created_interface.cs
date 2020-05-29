@@ -31,7 +31,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("MessageTypeSpy", new MessageTypeSpy((Context)ScenarioContext), "MessageTypeSpy"));
+                EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("MessageTypeSpy", new MessageTypeSpy((Context)r.ScenarioContext), "MessageTypeSpy"));
             }
 
             public class StartMessageHandler : IHandleMessages<MyRequest>

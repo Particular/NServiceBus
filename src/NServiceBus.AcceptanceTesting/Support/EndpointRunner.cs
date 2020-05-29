@@ -37,7 +37,6 @@
             {
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
-                endpointBehavior.EndpointBuilder.ScenarioContext = run.ScenarioContext;
                 configuration = endpointBehavior.EndpointBuilder.Get();
                 configuration.EndpointName = endpointName;
 

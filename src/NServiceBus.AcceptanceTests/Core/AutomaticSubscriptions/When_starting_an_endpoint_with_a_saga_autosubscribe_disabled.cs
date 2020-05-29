@@ -37,9 +37,9 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                     {
-                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)ScenarioContext), "Spies on subscriptions made");
+                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
                         c.AutoSubscribe().DoNotAutoSubscribeSagas();
                     },
                     metadata =>
