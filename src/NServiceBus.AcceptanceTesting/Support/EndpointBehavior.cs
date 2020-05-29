@@ -8,9 +8,9 @@
 
     public class EndpointBehavior : IComponentBehavior
     {
-        public EndpointBehavior(Type builderType)
+        public EndpointBehavior(IEndpointConfigurationFactory endpointBuilder)
         {
-            EndpointBuilderType = builderType;
+            EndpointBuilder = endpointBuilder;
             CustomConfig = new List<Action<EndpointConfiguration, ScenarioContext>>();
             ConfigureHowToCreateInstance(config => Endpoint.Create(config), startable => startable.Start());
         }
@@ -25,7 +25,7 @@
             startInstanceCallback = state => startCallback((T)state);
         }
 
-        public Type EndpointBuilderType { get; }
+        public IEndpointConfigurationFactory EndpointBuilder { get; }
 
         public List<IWhenDefinition> Whens { get; set; }
 
@@ -35,7 +35,7 @@
 
         public async Task<ComponentRunner> CreateRunner(RunDescriptor run)
         {
-            var endpointName = Conventions.EndpointNamingConvention(EndpointBuilderType);
+            var endpointName = Conventions.EndpointNamingConvention(EndpointBuilder.GetType());
 
             var runner = new EndpointRunner(createInstanceCallback, startInstanceCallback, DoNotFailOnErrorMessages);
 

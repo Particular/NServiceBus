@@ -6,9 +6,9 @@
 
     public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
     {
-        public EndpointBehaviorBuilder(Type type)
+        public EndpointBehaviorBuilder(IEndpointConfigurationFactory endpointConfigurationFactory)
         {
-            behavior = new EndpointBehavior(type)
+            behavior = new EndpointBehavior(endpointConfigurationFactory)
             {
                 Whens = new List<IWhenDefinition>()
             };
