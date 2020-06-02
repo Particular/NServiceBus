@@ -27,6 +27,11 @@
         public bool ScanAssembliesInNestedDirectories { get; set; }
 
         /// <summary>
+        /// Defines a custom path for assembly scanning.
+        /// </summary>
+        public string CustomAssemblyScanningPath { get; set; }
+
+        /// <summary>
         /// A list of <see cref="Assembly" />s to ignore in the assembly scanning.
         /// </summary>
         /// <param name="assemblies">The file name of the assembly.</param>

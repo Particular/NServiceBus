@@ -11,6 +11,8 @@
     {
         public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
         {
+            var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
+
             var shouldScanBinDirectory = configuration.UserProvidedTypes == null;
 
             List<Type> availableTypes;
@@ -18,7 +20,7 @@
 
             if (shouldScanBinDirectory)
             {
-                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+                var directoryToScan = assemblyScannerSettings.CustomAssemblyScanningPath ?? AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
                 assemblyScanner = new AssemblyScanner(directoryToScan);
                 availableTypes = new List<Type>();
@@ -28,8 +30,6 @@
                 assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly());
                 availableTypes = configuration.UserProvidedTypes;
             }
-
-            var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
 
             assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
             assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
