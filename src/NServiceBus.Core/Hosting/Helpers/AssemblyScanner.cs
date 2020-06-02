@@ -6,6 +6,9 @@ namespace NServiceBus.Hosting.Helpers
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+#if NETCOREAPP2_1
+    using System.Runtime.Loader;
+#endif
     using System.Text;
     using Logging;
 
@@ -141,7 +144,12 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
+#if NETCOREAPP2_1
+                var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
+                assembly = context.LoadFromAssemblyPath(assemblyPath);
+#else
                 assembly = Assembly.LoadFrom(assemblyPath);
+#endif
 
                 return true;
             }
