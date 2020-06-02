@@ -53,7 +53,8 @@
                         FileVersion = FileVersionRetriever.GetFileVersion(a)
                     }),
                     scannableAssemblies.ErrorsThrownDuringScanning,
-                    scannableAssemblies.SkippedFiles
+                    scannableAssemblies.SkippedFiles,
+                    Settings = assemblyScannerSettings
                 });
             }
 
