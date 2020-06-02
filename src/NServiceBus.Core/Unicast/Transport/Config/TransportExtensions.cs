@@ -44,7 +44,7 @@ namespace NServiceBus
         }
 #endif
 
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
@@ -117,7 +117,7 @@ namespace NServiceBus
         }
 #endif
 
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>

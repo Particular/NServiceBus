@@ -31,7 +31,7 @@
 #define NET45
 #endif
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETCOREAPP2_1
 #define NETSTANDARD16
 #endif
 

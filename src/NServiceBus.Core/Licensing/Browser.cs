@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD
+﻿#if NETSTANDARD || NETCOREAPP2_1
 namespace NServiceBus
 {
     using System.Diagnostics;

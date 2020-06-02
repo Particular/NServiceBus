@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
     using System.Runtime.InteropServices;
 #endif
     using System.Security.Principal;
@@ -46,7 +46,7 @@ namespace NServiceBus
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);
             var messageSession = new MessageSession(rootContext);
 
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                  AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);

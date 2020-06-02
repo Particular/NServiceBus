@@ -69,7 +69,7 @@ or
     }
 #endif
 
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
     sealed class TransportConnectionString
     {
         TransportConnectionString()

@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
     using System.Runtime.InteropServices;
 #endif
     using System.Text;
@@ -176,7 +176,7 @@ namespace NServiceBus
             return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}";
         }
 
-#if NETSTANDARD
+#if NETSTANDARD || NETCOREAPP2_1
         string GetPlatformCode()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
