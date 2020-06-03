@@ -1,5 +1,4 @@
 assembly-versioning-scheme: Major
-next-version: 1.0
 branches:
   master:
     mode: ContinuousDeployment
