@@ -49,11 +49,11 @@
                     x.Name != "GitVersionInformation" &&
                     x.Namespace != "Particular.Licensing" &&
                     x.Namespace != "NServiceBus.Features" &&
-                    x.Name != "ProcessedByFody" &&
+                    x.Name != "NServiceBusCore_ProcessedByFody" &&
                     x.Namespace != "NServiceBus").ToList();
             if (types.Count > 0)
             {
-                Assert.IsEmpty(types, $"Non public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
+                Assert.IsEmpty(types, $"Non-public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
             }
         }
 
