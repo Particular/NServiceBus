@@ -102,39 +102,19 @@
         {
             var tokenString = BitConverter.ToString(publicKeyToken).Replace("-", string.Empty).ToLowerInvariant();
 
-            //Compare token to known Microsoft tokens
-
-            if (tokenString == "b77a5c561934e089")
+            switch (tokenString)
             {
-                return true;
+                case "b77a5c561934e089": // Microsoft tokens
+                case "7cec85d7bea7798e":
+                case "b03f5f7f11d50a3a":
+                case "31bf3856ad364e35":
+                case "cc7b13ffcd2ddd51":
+                case "adb9793829ddae60":
+                case "7e34167dcc6d6d8c": // Microsoft.Azure.ServiceBus
+                    return true;
+                default:
+                    return false;
             }
-
-            if (tokenString == "7cec85d7bea7798e")
-            {
-                return true;
-            }
-
-            if (tokenString == "b03f5f7f11d50a3a")
-            {
-                return true;
-            }
-
-            if (tokenString == "31bf3856ad364e35")
-            {
-                return true;
-            }
-
-            if (tokenString == "cc7b13ffcd2ddd51")
-            {
-                return true;
-            }
-
-            if (tokenString == "adb9793829ddae60")
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }
