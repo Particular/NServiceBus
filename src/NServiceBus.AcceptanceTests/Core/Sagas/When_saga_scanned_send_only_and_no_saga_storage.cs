@@ -39,7 +39,6 @@
 
             public class SagaInSendOnlyEndpointSagaData : ContainSagaData
             {
-                public virtual Guid DataId { get; set; }
             }
         }
 
