@@ -40,7 +40,8 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.UsePersistence<InMemoryPersistence>();
+                    //use inmemory persistence since the learning saga persister doesn't support custom saga id generators
+                    config.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
                     config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
                 });
             }
