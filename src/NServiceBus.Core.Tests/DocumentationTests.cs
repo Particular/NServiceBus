@@ -24,7 +24,7 @@
             var path = Uri.UnescapeDataString(uri.Path);
             var assemblyMembers = DocReader.Read(assembly, Path.ChangeExtension(path, "xml"));
 
-            var list = GetListOfMissingDoco(assemblyMembers).ToList();
+            var list = GetListOfMissingDocs(assemblyMembers).ToList();
 
             if (list.Any())
             {
@@ -33,7 +33,7 @@
             }
         }
 
-        static IEnumerable<string> GetListOfMissingDoco(AssemblyMembers assemblyMembers)
+        static IEnumerable<string> GetListOfMissingDocs(AssemblyMembers assemblyMembers)
         {
             var visitor = new VerificationVisitor();
             visitor.VisitAssembly(assemblyMembers);
