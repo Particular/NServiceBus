@@ -37,6 +37,9 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         public string Queue { get; set; }
 
+        /// <inheritdoc />
+        public override string Message => string.IsNullOrEmpty(Queue) ? base.Message : $"Queue '{Queue}' not found. This queue might need to be created manually.";
+
         /// <summary>
         /// Gets the object data for serialization purposes.
         /// </summary>
