@@ -9,6 +9,8 @@
 
         IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> behavior) where T : EndpointConfigurationBuilder;
 
+        IScenarioWithEndpointBehavior<TContext> WithEndpoint(EndpointConfigurationBuilder endpointConfigurationBuilder, Action<EndpointBehaviorBuilder<TContext>> defineBehavior);
+
         IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior);
 
         IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);

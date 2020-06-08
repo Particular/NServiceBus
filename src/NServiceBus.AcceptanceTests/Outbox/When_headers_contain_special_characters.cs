@@ -50,10 +50,10 @@
         {
             public OutboxEndpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
+                EndpointSetup<DefaultServer>((b, r) =>
                 {
                     b.EnableOutbox();
-                    b.Pipeline.Register("BlowUpBeforeDispatchBehavior", new BlowUpBeforeDispatchBehavior((Context)ScenarioContext), "Force reading the message from Outbox storage.");
+                    b.Pipeline.Register("BlowUpBeforeDispatchBehavior", new BlowUpBeforeDispatchBehavior((Context)r.ScenarioContext), "Force reading the message from Outbox storage.");
                     b.Recoverability().Immediate(a => a.NumberOfRetries(1));
                 });
             }

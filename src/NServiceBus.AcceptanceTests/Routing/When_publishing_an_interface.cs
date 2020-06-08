@@ -43,9 +43,9 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(c =>
+                EndpointSetup<DefaultPublisher>((c, r) =>
                 {
-                    c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)ScenarioContext), "EventTypeSpy");
+                    c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)r.ScenarioContext), "EventTypeSpy");
                     c.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber))))

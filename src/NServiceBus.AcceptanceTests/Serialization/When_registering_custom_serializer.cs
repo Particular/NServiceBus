@@ -39,11 +39,10 @@
         {
             public EndpointWithCustomSerializer()
             {
-                var context = (Context) ScenarioContext;
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.UseSerialization<MySuperSerializer>();
-                    c.GetSettings().Set(context);
+                    c.GetSettings().Set((Context)r.ScenarioContext);
                 });
             }
 

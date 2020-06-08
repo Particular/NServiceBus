@@ -43,9 +43,9 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                     {
-                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context) ScenarioContext), "Spies on subscriptions made");
+                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
                         c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Subscriber)); //just route to our self for this test
                         c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Subscriber)); //just route to our self for this test
                     },

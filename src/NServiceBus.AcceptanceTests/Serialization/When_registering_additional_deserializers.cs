@@ -49,9 +49,9 @@
         {
             public CustomSerializationSender()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UseSerialization<MyCustomSerializer>().Settings((Context) ScenarioContext, "");
+                    c.UseSerialization<MyCustomSerializer>().Settings((Context)r.ScenarioContext, "");
                     c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyRequest), typeof(XmlCustomSerializationReceiver));
                 });
             }
@@ -61,10 +61,10 @@
         {
             public XmlCustomSerializationReceiver()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.UseSerialization<XmlSerializer>();
-                    c.AddDeserializer<MyCustomSerializer>().Settings((Context) ScenarioContext, "SomeFancySettings");
+                    c.AddDeserializer<MyCustomSerializer>().Settings((Context)r.ScenarioContext, "SomeFancySettings");
                 });
             }
 

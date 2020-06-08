@@ -52,11 +52,10 @@ namespace NServiceBus.AcceptanceTests.Serialization
         {
             public XmlCustomSerializationReceiver()
             {
-                var context = (Context)ScenarioContext;
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UseSerialization<MyCustomSerializer>().Settings(Value1, context);
-                    c.AddDeserializer<MyCustomSerializer>().Settings(Value2, context);
+                    c.UseSerialization<MyCustomSerializer>().Settings(Value1, (Context)r.ScenarioContext);
+                    c.AddDeserializer<MyCustomSerializer>().Settings(Value2, (Context)r.ScenarioContext);
                 });
             }
 
