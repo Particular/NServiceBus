@@ -20,9 +20,12 @@
 
             if (shouldScanBinDirectory)
             {
-                var directoryToScan = assemblyScannerSettings.CustomAssemblyScanningPath ?? AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
-                assemblyScanner = new AssemblyScanner(directoryToScan);
+                assemblyScanner = string.IsNullOrWhiteSpace(assemblyScannerSettings.AdditionalAssemblyScanningPath)
+                    ? new AssemblyScanner(directoryToScan)
+                    : new AssemblyScanner(new[] {directoryToScan, assemblyScannerSettings.AdditionalAssemblyScanningPath});
+
                 availableTypes = new List<Type>();
             }
             else

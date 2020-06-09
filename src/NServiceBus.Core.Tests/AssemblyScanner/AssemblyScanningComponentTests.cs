@@ -16,7 +16,7 @@
 
             var configuration = new AssemblyScanningComponent.Configuration(settingsHolder);
 
-            configuration.AssemblyScannerConfiguration.CustomAssemblyScanningPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested", "Subfolder");
+            configuration.AssemblyScannerConfiguration.AdditionalAssemblyScanningPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested", "Subfolder");
 
             var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
 
