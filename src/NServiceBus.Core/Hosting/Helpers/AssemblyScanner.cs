@@ -27,12 +27,7 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public AssemblyScanner(string baseDirectoryToScan)
         {
-            this.baseDirectoriesToScan = new[] { baseDirectoryToScan };
-        }
-
-        internal AssemblyScanner(string[] baseDirectoriesToScan)
-        {
-            this.baseDirectoriesToScan = baseDirectoriesToScan;
+            this.baseDirectoryToScan = baseDirectoryToScan;
         }
 
         internal AssemblyScanner(Assembly assemblyToScan)
@@ -51,6 +46,8 @@ namespace NServiceBus.Hosting.Helpers
         public bool ScanAppDomainAssemblies { get; set; } = true;
 
         internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
+
+        internal string AdditionalAssemblyScanningPath { get; set; }
 
         /// <summary>
         /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
@@ -86,7 +83,11 @@ namespace NServiceBus.Hosting.Helpers
 
             var assemblies = new List<Assembly>();
 
-            foreach (var directoryToScan in baseDirectoriesToScan)
+            var directoriesToScan = string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath)
+                ? new[] {baseDirectoryToScan}
+                : new[] {baseDirectoryToScan, AdditionalAssemblyScanningPath};
+
+            foreach (var directoryToScan in directoriesToScan)
             {
                 foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
                 {
@@ -418,7 +419,7 @@ namespace NServiceBus.Hosting.Helpers
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();
         Assembly assemblyToScan;
-        string[] baseDirectoriesToScan;
+        string baseDirectoryToScan;
         const string NServicebusCoreAssemblyName = "NServiceBus.Core";
 
         static string[] FileSearchPatternsToUse =
