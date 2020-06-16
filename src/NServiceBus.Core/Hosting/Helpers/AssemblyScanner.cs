@@ -83,11 +83,7 @@ namespace NServiceBus.Hosting.Helpers
 
             var assemblies = new List<Assembly>();
 
-            var directoriesToScan = string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath)
-                ? new[] {baseDirectoryToScan}
-                : new[] {baseDirectoryToScan, AdditionalAssemblyScanningPath};
-
-            foreach (var directoryToScan in directoriesToScan)
+            foreach (var directoryToScan in GetDirectoriesToScan())
             {
                 foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
                 {
@@ -124,6 +120,16 @@ namespace NServiceBus.Hosting.Helpers
             results.RemoveDuplicates();
 
             return results;
+        }
+
+        IEnumerable<string> GetDirectoriesToScan()
+        {
+            yield return baseDirectoryToScan;
+
+            if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
+            {
+                yield return AdditionalAssemblyScanningPath;
+            }
         }
 
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
