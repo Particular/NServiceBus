@@ -83,15 +83,11 @@ namespace NServiceBus.Hosting.Helpers
 
             var assemblies = new List<Assembly>();
 
-            foreach (var directoryToScan in GetDirectoriesToScan())
+            ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
+
+            if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
             {
-                foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
-                {
-                    if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
-                    {
-                        assemblies.Add(assembly);
-                    }
-                }
+                ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results);
             }
 
             var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
@@ -122,13 +118,14 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
-        IEnumerable<string> GetDirectoriesToScan()
+        void ScanAssembliesInDirectory(string directoryToScan, List<Assembly> assemblies, AssemblyScannerResults results)
         {
-            yield return baseDirectoryToScan;
-
-            if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
+            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
             {
-                yield return AdditionalAssemblyScanningPath;
+                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
+                {
+                    assemblies.Add(assembly);
+                }
             }
         }
 
