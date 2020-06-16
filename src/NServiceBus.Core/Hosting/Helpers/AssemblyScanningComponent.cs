@@ -11,8 +11,6 @@
     {
         public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
         {
-            var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
-
             var shouldScanBinDirectory = configuration.UserProvidedTypes == null;
 
             List<Type> availableTypes;
@@ -23,12 +21,6 @@
                 var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
                 assemblyScanner = new AssemblyScanner(directoryToScan);
-
-                if (!string.IsNullOrWhiteSpace(assemblyScannerSettings.AdditionalAssemblyScanningPath))
-                {
-                    assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
-                }
-
                 availableTypes = new List<Type>();
             }
             else
@@ -37,11 +29,14 @@
                 availableTypes = configuration.UserProvidedTypes;
             }
 
+            var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
+
             assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
             assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
             assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
             assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
             assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
+            assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
 
             var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
 
