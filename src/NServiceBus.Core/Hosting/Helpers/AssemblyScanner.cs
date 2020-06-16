@@ -47,6 +47,8 @@ namespace NServiceBus.Hosting.Helpers
 
         internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
 
+        internal string AdditionalAssemblyScanningPath { get; set; }
+
         /// <summary>
         /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
         /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
@@ -81,12 +83,11 @@ namespace NServiceBus.Hosting.Helpers
 
             var assemblies = new List<Assembly>();
 
-            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
+            ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
+
+            if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
             {
-                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
-                {
-                    assemblies.Add(assembly);
-                }
+                ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results);
             }
 
             var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
@@ -115,6 +116,17 @@ namespace NServiceBus.Hosting.Helpers
             results.RemoveDuplicates();
 
             return results;
+        }
+
+        void ScanAssembliesInDirectory(string directoryToScan, List<Assembly> assemblies, AssemblyScannerResults results)
+        {
+            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
+            {
+                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
+                {
+                    assemblies.Add(assembly);
+                }
+            }
         }
 
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
