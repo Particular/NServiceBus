@@ -52,6 +52,7 @@
                 }
                 );
 
+            LogFactory.LogItems.Clear();
             await SendMessage(InputQueueName);
 
             var errorContext = await onErrorCalled.Task;
