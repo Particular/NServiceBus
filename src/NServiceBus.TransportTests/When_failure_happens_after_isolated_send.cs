@@ -29,7 +29,7 @@
                     await SendMessage(InputQueueName, new Dictionary<string, string>
                     {
                         {"IsolatedSend", "true"}
-                    }, context.TransportTransaction, null, DispatchConsistency.Isolated);
+                    }, new TransportTransaction(), null, DispatchConsistency.Isolated);
 
                     throw new Exception("Simulated exception");
                 },
