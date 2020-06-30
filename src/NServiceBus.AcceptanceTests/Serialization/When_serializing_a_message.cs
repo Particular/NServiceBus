@@ -54,14 +54,19 @@
 
             class DateTimeMessageHandler : IHandleMessages<DateTimeMessage>
             {
-                public Context Context { get; set; }
+                public DateTimeMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
                 {
-                    Context.ReceivedMessage = message;
+                    testContext.ReceivedMessage = message;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

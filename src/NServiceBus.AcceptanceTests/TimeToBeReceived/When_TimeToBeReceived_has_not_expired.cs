@@ -35,14 +35,20 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context TestContext { get; set; }
+                public MyMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.TTBROnIncomingMessage = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
-                    TestContext.WasCalled = true;
+                    testContext.TTBROnIncomingMessage = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
+                    testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
+
             }
         }
 

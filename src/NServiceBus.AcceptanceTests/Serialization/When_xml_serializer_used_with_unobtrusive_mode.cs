@@ -42,14 +42,19 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    Context.Data = message.Data;
-                    Context.WasCalled = true;
+                    testContext.Data = message.Data;
+                    testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

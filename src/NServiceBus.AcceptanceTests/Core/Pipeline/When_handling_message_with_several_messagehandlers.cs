@@ -46,36 +46,46 @@
 
         public class FirstMessageHandler : IHandleMessages<MyMessage>
         {
-            public Context Context { get; set; }
+            public FirstMessageHandler(Context context)
+            {
+                testContext = context;
+            }
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                if (Context.Id != message.Id)
+                if (testContext.Id != message.Id)
                 {
                     return Task.FromResult(0);
                 }
 
-                Context.FirstHandlerWasCalled = true;
+                testContext.FirstHandlerWasCalled = true;
 
                 return Task.FromResult(0);
             }
+
+            Context testContext;
         }
 
         public class SecondMessageHandler : IHandleMessages<MyMessage>
         {
-            public Context Context { get; set; }
+            public SecondMessageHandler(Context context)
+            {
+                testContext = context;
+            }
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                if (Context.Id != message.Id)
+                if (testContext.Id != message.Id)
                 {
                     return Task.FromResult(0);
                 }
 
-                Context.SecondHandlerWasCalled = true;
+                testContext.SecondHandlerWasCalled = true;
 
                 return Task.FromResult(0);
             }
+
+            Context testContext;
         }
     }
 }

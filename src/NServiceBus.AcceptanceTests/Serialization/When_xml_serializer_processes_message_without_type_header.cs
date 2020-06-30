@@ -41,13 +41,18 @@
 
             public class MyMessageHandler : IHandleMessages<MessageToBeDetectedByRootNodeName>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
                 {
-                    Context.WasCalled = true;
+                    testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class RemoveTheTypeHeader : Behavior<IDispatchContext>

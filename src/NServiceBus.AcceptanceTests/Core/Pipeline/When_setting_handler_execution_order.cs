@@ -38,15 +38,18 @@
 
             public class TestSaga13 : Saga<TestSaga13.TestSagaData13>, IAmStartedByMessages<StartSagaMessage>
             {
-                public SagaEndpointContext Context { get; set; }
+                public TestSaga13(SagaEndpointContext context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    if (Context.InterceptingHandlerCalled)
+                    if (testContext.InterceptingHandlerCalled)
                     {
-                        Context.InterceptingHandlerCalledFirst = true;
+                        testContext.InterceptingHandlerCalledFirst = true;
                     }
-                    Context.SagaStarted = true;
+                    testContext.SagaStarted = true;
                     return Task.FromResult(0);
                 }
 
@@ -56,6 +59,8 @@
                         .ToSaga(s => s.SomeId);
                 }
 
+                SagaEndpointContext testContext;
+
                 public class TestSagaData13 : ContainSagaData
                 {
                     public virtual string SomeId { get; set; }
@@ -64,14 +69,19 @@
 
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
-                public SagaEndpointContext TestContext { get; set; }
+                public InterceptingHandler(SagaEndpointContext context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.InterceptingHandlerCalled = true;
+                    testContext.InterceptingHandlerCalled = true;
 
                     return Task.FromResult(0);
                 }
+
+                SagaEndpointContext testContext;
             }
         }
 

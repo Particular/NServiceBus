@@ -44,26 +44,36 @@
 
             class MessageHandlerA : IHandleMessages<SomeMessage>
             {
-                public Context TestContext { get; set; }
+                public MessageHandlerA(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
-                    TestContext.HandlerAExtensionValue = extensionValue;
+                    testContext.HandlerAExtensionValue = extensionValue;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class MessageHandlerB : IHandleMessages<SomeMessage>
             {
-                public Context TestContext { get; set; }
+                public MessageHandlerB(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
-                    TestContext.HandlerBExtensionValue = extensionValue;
+                    testContext.HandlerBExtensionValue = extensionValue;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class CustomContextExtensionBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>

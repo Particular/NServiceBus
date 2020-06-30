@@ -35,13 +35,18 @@
 
             public class Handler : IHandleMessages<Message>
             {
-                public Context Context { get; set; }
+                public Handler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(Message request, IMessageHandlerContext context)
                 {
-                    Context.ReceivedMessage = request.Property == "value";
+                    testContext.ReceivedMessage = request.Property == "value";
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class ContentTypeMutator : IMutateIncomingTransportMessages

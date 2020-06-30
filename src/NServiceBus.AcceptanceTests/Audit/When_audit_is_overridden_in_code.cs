@@ -45,13 +45,18 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context MyContext { get; set; }
+                public AuditMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    MyContext.MessageAudited = true;
+                    testContext.MessageAudited = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

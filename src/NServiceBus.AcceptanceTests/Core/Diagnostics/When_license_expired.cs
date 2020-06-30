@@ -83,16 +83,21 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context TestContext { get; set; }
+                public MessageToBeAuditedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    TestContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);
+                    testContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);
 
-                    TestContext.Done = true;
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
