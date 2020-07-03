@@ -37,25 +37,26 @@
                 EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
             }
 
-            public Context Context { get; set; }
-
             public class FirstMessageHandler : IHandleMessages<FirstMessage>
             {
-                public Context TestContext { get; set; }
+                public FirstMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.OriginRelatedTo = context.MessageId;
-                    TestContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
+                    testContext.OriginRelatedTo = context.MessageId;
+                    testContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
 
                     return context.SendLocal(new MessageThatFails());
                 }
+
+                Context testContext;
             }
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageThatFails>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
                     throw new SimulatedException();

@@ -65,13 +65,18 @@
 
             public class MyEventHandler : IHandleMessages<EventMessage>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(EventMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.Subscriber1GotTheEvent = true;
+                    testContext.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

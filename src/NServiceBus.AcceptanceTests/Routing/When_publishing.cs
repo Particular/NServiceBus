@@ -146,13 +146,18 @@
 
             public class MyEventHandler : IHandleMessages<IFoo>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.Subscriber3GotTheEvent = true;
+                    testContext.Subscriber3GotTheEvent = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -166,14 +171,19 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context TestContext { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    TestContext.HeaderValue = context.MessageHeaders["MyHeader"];
-                    TestContext.Subscriber1GotTheEvent = true;
+                    testContext.HeaderValue = context.MessageHeaders["MyHeader"];
+                    testContext.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -187,13 +197,18 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.Subscriber2GotTheEvent = true;
+                    testContext.Subscriber2GotTheEvent = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

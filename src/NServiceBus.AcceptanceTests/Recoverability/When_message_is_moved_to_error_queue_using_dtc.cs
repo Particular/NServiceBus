@@ -49,11 +49,14 @@
 
             class FailingHandler : IHandleMessages<MessageToFail>
             {
-                public Context TestContext { get; set; }
+                public FailingHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToFail message, IMessageHandlerContext context)
                 {
-                    if (message.Id == TestContext.Id)
+                    if (message.Id == testContext.Id)
                     {
                         Transaction.Current.TransactionCompleted += CaptureTransactionStatus;
                     }
@@ -63,8 +66,10 @@
 
                 void CaptureTransactionStatus(object sender, TransactionEventArgs args)
                 {
-                    TestContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
+                    testContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
                 }
+
+                Context testContext;
             }
         }
 
@@ -77,17 +82,22 @@
 
             class Handler : IHandleMessages<MessageToFail>
             {
-                public Context TestContext { get; set; }
+                public Handler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToFail message, IMessageHandlerContext context)
                 {
-                    if (message.Id == TestContext.Id)
+                    if (message.Id == testContext.Id)
                     {
-                        TestContext.MessageMovedToErrorQueue = true;
+                        testContext.MessageMovedToErrorQueue = true;
                     }
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

@@ -51,13 +51,18 @@
 
             class DoneHandler : IHandleMessages<SignalDone>
             {
-                public Context Context { get; set; }
+                public DoneHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SignalDone message, IMessageHandlerContext context)
                 {
-                    Context.Done = true;
+                    testContext.Done = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>

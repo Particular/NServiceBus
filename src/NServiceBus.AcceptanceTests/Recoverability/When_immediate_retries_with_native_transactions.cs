@@ -60,15 +60,20 @@
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
-                public Context TestContext { get; set; }
+                public MessageToBeRetriedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    TestContext.MessageId = context.MessageId;
-                    TestContext.NumberOfTimesInvoked++;
+                    testContext.MessageId = context.MessageId;
+                    testContext.NumberOfTimesInvoked++;
 
                     throw new SimulatedException();
                 }
+
+                Context testContext;
             }
         }
 

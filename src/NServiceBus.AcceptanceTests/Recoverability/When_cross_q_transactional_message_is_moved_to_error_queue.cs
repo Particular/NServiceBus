@@ -51,11 +51,14 @@
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
-                public Context TestContext { get; set; }
+                public InitiatingHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (initiatingMessage.Id == TestContext.TestRunId)
+                    if (initiatingMessage.Id == testContext.TestRunId)
                     {
                         await context.Send(Conventions.EndpointNamingConvention(typeof(ErrorSpy)), new SubsequentMessage
                         {
@@ -63,6 +66,8 @@
                         });
                     }
                 }
+
+                Context testContext;
             }
         }
 

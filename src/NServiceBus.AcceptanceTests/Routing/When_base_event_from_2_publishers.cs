@@ -90,21 +90,26 @@
 
             public class BaseEventHandler : IHandleMessages<BaseEvent>
             {
-                public Context Context { get; set; }
+                public BaseEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))
                     {
-                        Context.GotTheEventFromPublisher1 = true;
+                        testContext.GotTheEventFromPublisher1 = true;
                     }
                     if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))
                     {
-                        Context.GotTheEventFromPublisher2 = true;
+                        testContext.GotTheEventFromPublisher2 = true;
                     }
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

@@ -64,13 +64,18 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Context.IncrementSubscriberACounter();
+                    testContext.IncrementSubscriberACounter();
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -83,13 +88,18 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Context.IncrementSubscriberBCounter();
+                    testContext.IncrementSubscriberBCounter();
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

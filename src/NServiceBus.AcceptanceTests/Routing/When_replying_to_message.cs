@@ -76,13 +76,18 @@
 
             public class ResponseHandler : IHandleMessages<MyReply>
             {
-                public Context Context { get; set; }
+                public ResponseHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.SendingEndpointGotResponse = true;
+                    testContext.SendingEndpointGotResponse = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -95,13 +100,18 @@
 
             public class ResponseHandler : IHandleMessages<MyReply>
             {
-                public Context Context { get; set; }
+                public ResponseHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.OtherEndpointGotResponse = true;
+                    testContext.OtherEndpointGotResponse = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -114,13 +124,18 @@
 
             public class MessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public MessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    Context.ReplyToAddress = context.ReplyToAddress;
+                    testContext.ReplyToAddress = context.ReplyToAddress;
                     return context.Reply(new MyReply());
                 }
+
+                Context testContext;
             }
         }
 

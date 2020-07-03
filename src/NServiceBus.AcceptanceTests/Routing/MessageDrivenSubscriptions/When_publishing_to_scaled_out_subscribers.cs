@@ -72,13 +72,18 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Context.IncrementA();
+                    testContext.IncrementA();
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -91,13 +96,18 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Context.IncrementB();
+                    testContext.IncrementB();
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

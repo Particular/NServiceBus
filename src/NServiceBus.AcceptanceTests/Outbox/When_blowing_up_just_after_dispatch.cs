@@ -61,13 +61,18 @@
 
             class SendOrderAcknowledgmentHandler : IHandleMessages<SendOrderAcknowledgment>
             {
-                public Context Context { get; set; }
+                public SendOrderAcknowledgmentHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context)
                 {
-                    Context.OrderAckReceived++;
+                    testContext.OrderAckReceived++;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
