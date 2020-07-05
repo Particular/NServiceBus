@@ -85,13 +85,18 @@
 
             public class MyCommandHandler : IHandleMessages<MyCommand>
             {
-                public Context Context { get; set; }
+                public MyCommandHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyCommand evnt, IMessageHandlerContext context)
                 {
-                    Interlocked.Increment(ref Context.MessageDelivered);
+                    Interlocked.Increment(ref testContext.MessageDelivered);
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

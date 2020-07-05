@@ -58,12 +58,17 @@
 
             public class StartMessageHandler : IHandleMessages<StartMessage>
             {
-                public IMessageCreator MessageCreator { get; set; }
+                public StartMessageHandler(IMessageCreator messageCreator)
+                {
+                    this.messageCreator = messageCreator;
+                }
 
                 public Task Handle(StartMessage message, IMessageHandlerContext context)
                 {
-                    return context.Publish(MessageCreator.CreateInstance<MyEvent>());
+                    return context.Publish(messageCreator.CreateInstance<MyEvent>());
                 }
+
+                IMessageCreator messageCreator;
             }
 
             class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
@@ -96,13 +101,18 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyEvent @event, IMessageHandlerContext context)
                 {
-                    Context.GotTheEvent = true;
+                    testContext.GotTheEvent = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
         public class StartMessage : IMessage

@@ -52,17 +52,22 @@
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
-                public Context Context { get; set; }
+                public MessageToBeRetriedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    if (Context.Id != message.ContextId)
+                    if (testContext.Id != message.ContextId)
                     {
                         return Task.FromResult(0);
                     }
-                    Context.NumberOfTimesInvoked++;
+                    testContext.NumberOfTimesInvoked++;
                     throw new SimulatedException();
                 }
+
+                Context testContext;
             }
         }
 

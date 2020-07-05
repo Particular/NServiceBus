@@ -52,20 +52,25 @@
 
             public class MyEventHandler : IHandleMessages<IBaseEvent>
             {
-                public Context Context { get; set; }
+                public MyEventHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     if (messageThatIsEnlisted is SpecificEvent)
                     {
-                        Context.SubscriberGotSpecificEvent = true;
+                        testContext.SubscriberGotSpecificEvent = true;
                     }
                     else
                     {
-                        Context.SubscriberGotBaseEvent = true;
+                        testContext.SubscriberGotBaseEvent = true;
                     }
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

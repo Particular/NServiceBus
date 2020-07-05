@@ -61,8 +61,6 @@
 
             class DelayedMessageHandler : IHandleMessages<DelayedMessage>
             {
-                Context testContext;
-
                 public DelayedMessageHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -73,6 +71,8 @@
                     testContext.ReceivedMessageHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

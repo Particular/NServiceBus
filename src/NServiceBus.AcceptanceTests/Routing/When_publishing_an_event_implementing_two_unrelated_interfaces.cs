@@ -91,35 +91,45 @@
 
             public class EventAHandler : IHandleMessages<IEventA>
             {
-                public Context Context { get; set; }
+                public EventAHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(IEventA @event, IMessageHandlerContext context)
                 {
-                    if (@event.ContextId != Context.Id)
+                    if (@event.ContextId != testContext.Id)
                     {
                         return Task.FromResult(0);
                     }
-                    Context.GotEventA = true;
+                    testContext.GotEventA = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class EventBHandler : IHandleMessages<IEventB>
             {
-                public Context Context { get; set; }
+                public EventBHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(IEventB @event, IMessageHandlerContext context)
                 {
-                    if (@event.ContextId != Context.Id)
+                    if (@event.ContextId != testContext.Id)
                     {
                         return Task.FromResult(0);
                     }
 
-                    Context.GotEventB = true;
+                    testContext.GotEventB = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

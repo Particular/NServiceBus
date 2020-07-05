@@ -49,16 +49,21 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public Context TestContext { get; set; }
+                public Handler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(Message message, IMessageHandlerContext context)
                 {
-                    TestContext.MessageId = context.MessageId;
-                    TestContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
-                    TestContext.MessageReceived = true;
+                    testContext.MessageId = context.MessageId;
+                    testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
+                    testContext.MessageReceived = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

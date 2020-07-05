@@ -79,13 +79,18 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context Context { get; set; }
+                public MessageToBeAuditedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    Context.MessageAudited = true;
+                    testContext.MessageAudited = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

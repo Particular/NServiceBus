@@ -95,14 +95,19 @@
 
             class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>
             {
-                public Context Context { get; set; }
+                public SendOrderAcknowledgementHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
-                    Context.MessageReceived = true;
-                    Context.UnicodeHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
+                    testContext.MessageReceived = true;
+                    testContext.UnicodeHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

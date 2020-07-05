@@ -55,17 +55,22 @@
 
             class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>
             {
-                public Context Context { get; set; }
+                public SendOrderAcknowledgementHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
-                    Context.MessagesReceivedByDownstreamEndpoint++;
+                    testContext.MessagesReceivedByDownstreamEndpoint++;
                     if (message.Terminator)
                     {
-                        Context.Done = true;
+                        testContext.Done = true;
                     }
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
