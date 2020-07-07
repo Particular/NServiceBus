@@ -40,7 +40,10 @@
                 IAmStartedByMessages<StartSaga>,
                 IHandleTimeouts<MySaga.TimeHasPassed>
             {
-                public Context TestContext { get; set; }
+                public MySaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
@@ -52,7 +55,7 @@
                 public Task Timeout(TimeHasPassed state, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
-                    TestContext.TimeoutReceived = true;
+                    testContext.TimeoutReceived = true;
                     return Task.FromResult(0);
                 }
 
@@ -69,6 +72,8 @@
                 public class TimeHasPassed
                 {
                 }
+
+                Context testContext;
             }
         }
 

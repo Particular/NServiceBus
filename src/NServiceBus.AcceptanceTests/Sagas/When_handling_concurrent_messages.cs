@@ -65,8 +65,6 @@
                 IHandleMessages<ContinueMsg>,
                 IHandleMessages<FinishMsg>
             {
-                Context testContext;
-
                 public OrderSaga(Context testContext)
                 {
                     this.testContext = testContext;
@@ -105,6 +103,8 @@
                     testContext.SagaData = this.Data;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class OrderSagaData : ContainSagaData

@@ -49,11 +49,14 @@
 
             public class TestSaga05 : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context TestContext { get; set; }
+                public TestSaga05(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.SagaIds.Add(Data.Id);
+                    testContext.SagaIds.Add(Data.Id);
 
                     return Task.FromResult(0);
                 }
@@ -63,6 +66,8 @@
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
+
+                Context testContext;
             }
 
             public class TestSagaData05 : IContainSagaData

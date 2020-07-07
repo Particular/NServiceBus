@@ -52,11 +52,14 @@
                 IHandleTimeouts<Saga1Timeout>,
                 IHandleTimeouts<Saga2Timeout>
             {
-                public Context TestContext { get; set; }
+                public MultiTimeoutsSaga1(Context context)
+                {
+                    testContext = context;
+                }
 
                 public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
-                    if (message.ContextId != TestContext.Id)
+                    if (message.ContextId != testContext.Id)
                     {
                         return;
                     }
@@ -65,22 +68,22 @@
 
                     await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout
                     {
-                        ContextId = TestContext.Id
+                        ContextId = testContext.Id
                     });
                     await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout
                     {
-                        ContextId = TestContext.Id
+                        ContextId = testContext.Id
                     });
                 }
 
                 public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
-                    if (state.ContextId == TestContext.Id)
+                    if (state.ContextId == testContext.Id)
                     {
-                        TestContext.Saga1TimeoutFired = true;
+                        testContext.Saga1TimeoutFired = true;
                     }
 
-                    if (TestContext.Saga1TimeoutFired && TestContext.Saga2TimeoutFired)
+                    if (testContext.Saga1TimeoutFired && testContext.Saga2TimeoutFired)
                     {
                         MarkAsComplete();
                     }
@@ -89,12 +92,12 @@
 
                 public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
                 {
-                    if (state.ContextId == TestContext.Id)
+                    if (state.ContextId == testContext.Id)
                     {
-                        TestContext.Saga2TimeoutFired = true;
+                        testContext.Saga2TimeoutFired = true;
                     }
 
-                    if (TestContext.Saga1TimeoutFired && TestContext.Saga2TimeoutFired)
+                    if (testContext.Saga1TimeoutFired && testContext.Saga2TimeoutFired)
                     {
                         MarkAsComplete();
                     }
@@ -111,6 +114,8 @@
                 {
                     public virtual Guid ContextId { get; set; }
                 }
+
+                Context testContext;
             }
 
             public class SagaNotFound : IHandleSagaNotFound

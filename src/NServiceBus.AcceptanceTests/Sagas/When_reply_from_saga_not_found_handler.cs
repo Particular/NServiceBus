@@ -41,14 +41,19 @@
 
             public class ReplyHandler : IHandleMessages<Reply>
             {
-                public Context Context { get; set; }
+                public ReplyHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(Reply message, IMessageHandlerContext context)
                 {
-                    Context.ReplyReceived = true;
+                    testContext.ReplyReceived = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

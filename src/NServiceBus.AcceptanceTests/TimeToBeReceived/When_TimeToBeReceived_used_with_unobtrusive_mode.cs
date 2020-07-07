@@ -103,13 +103,18 @@
 
             public class MyMessageHandler : IHandleMessages<MyCommand>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
-                    Context.WasCalled = true;
+                    testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

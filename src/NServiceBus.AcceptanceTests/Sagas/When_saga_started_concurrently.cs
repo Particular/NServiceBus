@@ -58,7 +58,10 @@
                 IAmStartedByMessages<StartMessageTwo>,
                 IAmStartedByMessages<StartMessageOne>
             {
-                public Context Context { get; set; }
+                public ConcurrentlyStartedSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public async Task Handle(StartMessageOne message, IMessageHandlerContext context)
                 {
@@ -95,8 +98,10 @@
                         return;
                     }
                     MarkAsComplete();
-                    Context.SagaCompleted = true;
+                    testContext.SagaCompleted = true;
                 }
+
+                Context testContext;
             }
 
             public class ConcurrentlyStartedSagaData : ContainSagaData
@@ -109,17 +114,20 @@
             // Intercepts the messages sent out by the saga
             class LogSuccessfulHandler : IHandleMessages<SuccessfulProcessing>
             {
-                public Context Context { get; set; }
+                public LogSuccessfulHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context)
                 {
                     if (message.Type == nameof(StartMessageOne))
                     {
-                        Context.PlacedSagaId = message.SagaId;
+                        testContext.PlacedSagaId = message.SagaId;
                     }
                     else if (message.Type == nameof(StartMessageTwo))
                     {
-                        Context.BilledSagaId = message.SagaId;
+                        testContext.BilledSagaId = message.SagaId;
                     }
                     else
                     {
@@ -128,6 +136,8 @@
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

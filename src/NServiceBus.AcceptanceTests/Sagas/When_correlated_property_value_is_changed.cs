@@ -44,12 +44,15 @@
             public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
-                public Context TestContext { get; set; }
+                public CorrIdChangedSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = Guid.NewGuid();
-                    TestContext.ModifiedCorrelationProperty = true;
+                    testContext.ModifiedCorrelationProperty = true;
                     return Task.FromResult(0);
                 }
 
@@ -62,6 +65,8 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

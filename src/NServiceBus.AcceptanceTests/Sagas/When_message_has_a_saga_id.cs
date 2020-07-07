@@ -56,23 +56,26 @@
                 IHandleTimeouts<MessageWithSagaId>,
                 IHandleSagaNotFound
             {
-                public Context TestContext { get; set; }
+                public MessageWithSagaIdSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
                 {
-                    TestContext.MessageHandlerCalled = true;
+                    testContext.MessageHandlerCalled = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    TestContext.NotFoundHandlerCalled = true;
+                    testContext.NotFoundHandlerCalled = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context)
                 {
-                    TestContext.TimeoutHandlerCalled = true;
+                    testContext.TimeoutHandlerCalled = true;
                     return Task.FromResult(0);
                 }
 
@@ -86,18 +89,25 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                Context testContext;
             }
 
             class MessageWithSagaIdHandler : IHandleMessages<MessageWithSagaId>
             {
-                public Context TestContext { get; set; }
+                public MessageWithSagaIdHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
                 {
-                    TestContext.Done = true;
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

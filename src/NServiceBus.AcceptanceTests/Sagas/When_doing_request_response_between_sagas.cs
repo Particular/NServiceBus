@@ -36,19 +36,22 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<ResponseFromOtherSaga>
             {
-                public Context TestContext { get; set; }
+                public RequestResponseRequestingSaga1(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
                     {
-                        SomeId = Guid.NewGuid() 
+                        SomeId = Guid.NewGuid()
                     });
                 }
 
                 public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
                 {
-                    TestContext.DidRequestingSagaGetTheResponse = true;
+                    testContext.DidRequestingSagaGetTheResponse = true;
 
                     MarkAsComplete();
 
@@ -63,8 +66,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public class RequestResponseRequestingSagaData1 : ContainSagaData
                 {
-                    public virtual Guid CorrIdForResponse { get; set; } 
+                    public virtual Guid CorrIdForResponse { get; set; }
                 }
+
+                Context testContext;
             }
 
             public class RequestResponseRespondingSaga1 : Saga<RequestResponseRespondingSaga1.RequestResponseRespondingSagaData1>,

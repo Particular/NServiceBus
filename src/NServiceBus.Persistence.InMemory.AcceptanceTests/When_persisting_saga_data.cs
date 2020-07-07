@@ -160,7 +160,10 @@
                 IAmStartedByMessages<StartSaga>,
                 IHandleMessages<LoadTheSagaAgain>
             {
-                public Context TestContext { get; set; }
+                public SupportedFieldTypesSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
@@ -185,8 +188,8 @@
 
                 public Task Handle(LoadTheSagaAgain message, IMessageHandlerContext context)
                 {
-                    TestContext.LoadedSagaData = Data;
-                    TestContext.SagaDataLoaded = true;
+                    testContext.LoadedSagaData = Data;
+                    testContext.SagaDataLoaded = true;
 
                     return Task.FromResult(0);
                 }
@@ -196,6 +199,8 @@
                     mapper.ConfigureMapping<StartSaga>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
                     mapper.ConfigureMapping<LoadTheSagaAgain>(m => m.DataId).ToSaga(s => s.CorrelationId);
                 }
+
+                Context testContext;
             }
         }
 

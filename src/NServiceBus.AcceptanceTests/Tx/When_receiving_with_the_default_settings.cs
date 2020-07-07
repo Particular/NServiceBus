@@ -36,14 +36,19 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.AmbientTransactionExists = Transaction.Current != null;
-                    Context.HandlerInvoked = true;
+                    testContext.AmbientTransactionExists = Transaction.Current != null;
+                    testContext.HandlerInvoked = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

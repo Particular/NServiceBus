@@ -92,32 +92,42 @@
 
             public class MessageThatIsEnlistedHandler : IHandleMessages<MessageThatIsEnlisted>
             {
-                public Context Context { get; set; }
+                public MessageThatIsEnlistedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.MessageThatIsEnlistedHandlerWasCalled = true;
-                    Context.TimesCalled++;
+                    testContext.MessageThatIsEnlistedHandlerWasCalled = true;
+                    testContext.TimesCalled++;
 
-                    if (Context.SequenceNumberOfFirstMessage == 0)
+                    if (testContext.SequenceNumberOfFirstMessage == 0)
                     {
-                        Context.SequenceNumberOfFirstMessage = messageThatIsEnlisted.SequenceNumber;
+                        testContext.SequenceNumberOfFirstMessage = messageThatIsEnlisted.SequenceNumber;
                     }
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class MessageThatIsNotEnlistedHandler : IHandleMessages<MessageThatIsNotEnlisted>
             {
-                public Context Context { get; set; }
+                public MessageThatIsNotEnlistedHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted, IMessageHandlerContext context)
                 {
-                    Context.MessageThatIsNotEnlistedHandlerWasCalled = true;
-                    Context.NonTransactionalHandlerCalledFirst = !Context.MessageThatIsEnlistedHandlerWasCalled;
+                    testContext.MessageThatIsNotEnlistedHandlerWasCalled = true;
+                    testContext.NonTransactionalHandlerCalledFirst = !testContext.MessageThatIsEnlistedHandlerWasCalled;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

@@ -49,7 +49,10 @@
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<SecondSagaMessage>
             {
-                public Context TestContext { get; set; }
+                public DelayedRetryTestingSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
@@ -63,14 +66,14 @@
 
                 public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.NumberOfTimesInvoked++;
+                    testContext.NumberOfTimesInvoked++;
 
-                    if (TestContext.NumberOfTimesInvoked < 2)
+                    if (testContext.NumberOfTimesInvoked < 2)
                     {
                         throw new SimulatedException();
                     }
 
-                    TestContext.SecondMessageProcessed = true;
+                    testContext.SecondMessageProcessed = true;
 
                     return Task.FromResult(0);
                 }
@@ -82,6 +85,8 @@
                     mapper.ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
+
+                Context testContext;
             }
 
             public class DelayedRetryTestingSagaData : IContainSagaData
