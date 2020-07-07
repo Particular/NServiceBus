@@ -44,12 +44,15 @@
             public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
-                public Context TestContext { get; set; }
+                public SagaIdChangedSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.Id = Guid.NewGuid();
-                    TestContext.MessageId = context.MessageId;
+                    testContext.MessageId = context.MessageId;
                     return Task.FromResult(0);
                 }
 
@@ -62,6 +65,8 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

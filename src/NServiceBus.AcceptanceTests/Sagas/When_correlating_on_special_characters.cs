@@ -46,8 +46,6 @@
                 IAmStartedByMessages<MessageWithSpecialPropertyValues>,
                 IHandleMessages<FollowupMessageWithSpecialPropertyValues>
             {
-                Context testContext;
-
                 public SagaSpecialValues(Context testContext)
                 {
                     this.testContext = testContext;
@@ -72,6 +70,8 @@
                     testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

@@ -44,7 +44,10 @@
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleTimeouts<MySagaTimeout>
             {
-                public Context Context { get; set; }
+                public TimeoutSharingSaga1(Context context)
+                {
+                    testContext = context;
+                }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSharingSagaData1> mapper)
                 {
@@ -58,7 +61,7 @@
 
                 public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
                 {
-                    Context.Saga1ReceivedTimeout = true;
+                    testContext.Saga1ReceivedTimeout = true;
                     return Task.FromResult(0);
                 }
 
@@ -67,11 +70,15 @@
                     public virtual string CorrelationProperty { get; set; }
                 }
 
+                Context testContext;
             }
 
             public class TimeoutSharingSaga2 : Saga<TimeoutSharingSaga2.TimeoutSharingSagaData2>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<MySagaTimeout>
             {
-                public Context Context { get; set; }
+                public TimeoutSharingSaga2(Context context)
+                {
+                    testContext = context;
+                }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSharingSagaData2> mapper)
                 {
@@ -85,13 +92,15 @@
 
                 public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
                 {
-                    Context.Saga2ReceivedTimeout = true;
+                    testContext.Saga2ReceivedTimeout = true;
                     return Task.FromResult(0);
                 }
                 public class TimeoutSharingSagaData2 : ContainSagaData
                 {
                     public virtual string CorrelationProperty { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

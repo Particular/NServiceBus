@@ -43,7 +43,10 @@
                 IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
                 IHandleMessages<SomeOtherMessage>
             {
-                public Context TestContext { get; set; }
+                public TimeoutHitsNotFoundSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
@@ -68,12 +71,12 @@
                 {
                     if (message is SomeOtherMessage)
                     {
-                        TestContext.NotFoundHandlerCalledForRegularMessage = true;
+                        testContext.NotFoundHandlerCalledForRegularMessage = true;
                     }
 
                     if (message is MyTimeout)
                     {
-                        TestContext.NotFoundHandlerCalledForTimeout = true;
+                        testContext.NotFoundHandlerCalledForTimeout = true;
                     }
                     return Task.FromResult(0);
                 }
@@ -97,6 +100,8 @@
                 public class MyTimeout
                 {
                 }
+
+                Context testContext;
             }
         }
 

@@ -72,7 +72,10 @@
 
             public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
             {
-                public Context Context { get; set; }
+                public ReplyToPubMsgSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
@@ -84,7 +87,7 @@
 
                 public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
                 {
-                    Context.CorrelatedResponseReceived = message.ReceivedDataId == Data.DataId;
+                    testContext.CorrelatedResponseReceived = message.ReceivedDataId == Data.DataId;
                     return Task.FromResult(0);
                 }
 
@@ -97,6 +100,8 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

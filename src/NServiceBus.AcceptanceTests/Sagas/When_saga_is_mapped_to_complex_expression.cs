@@ -48,19 +48,22 @@
             public class TestSaga02 : Saga<TestSagaData02>,
                 IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
             {
-                public Context Context { get; set; }
+                public TestSaga02(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
-                    Context.SagaIdWhenOtherMessageReceived = Data.Id;
-                    Context.SecondMessageReceived = true;
+                    testContext.SagaIdWhenOtherMessageReceived = Data.Id;
+                    testContext.SecondMessageReceived = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.FirstMessageReceived = true;
-                    Context.SagaIdWhenStartSagaMessageReceived = Data.Id;
+                    testContext.FirstMessageReceived = true;
+                    testContext.SagaIdWhenStartSagaMessageReceived = Data.Id;
                     return Task.FromResult(0);
                 }
 
@@ -72,6 +75,8 @@
                     mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_" + m.Part2)
                         .ToSaga(s => s.KeyValue);
                 }
+
+                Context testContext;
             }
 
             public class TestSagaData02 : IContainSagaData

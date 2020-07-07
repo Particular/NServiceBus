@@ -36,19 +36,22 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<ResponseFromOtherSaga>
             {
-                public Context TestContext { get; set; }
+                public RequestResponseRequestingSaga3(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
                     {
-                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse 
+                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse
                     });
                 }
 
                 public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
                 {
-                    TestContext.DidRequestingSagaGetTheResponse = true;
+                    testContext.DidRequestingSagaGetTheResponse = true;
 
                     MarkAsComplete();
 
@@ -65,14 +68,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     public virtual Guid CorrIdForResponse { get; set; }
                 }
+
+                Context testContext;
             }
 
             public class RequestResponseRespondingSaga3 : Saga<RequestResponseRespondingSaga3.RequestResponseRespondingSagaData3>,
                 IAmStartedByMessages<RequestToRespondingSaga>,
                 IHandleTimeouts<RequestResponseRespondingSaga3.DelayReply>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {
                     return RequestTimeout<DelayReply>(context, TimeSpan.FromMilliseconds(1));

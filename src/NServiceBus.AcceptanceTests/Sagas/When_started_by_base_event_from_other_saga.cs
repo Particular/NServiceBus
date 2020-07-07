@@ -66,13 +66,16 @@
 
             public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>
             {
-                public SagaContext Context { get; set; }
+                public SagaStartedByBaseEvent(SagaContext context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     MarkAsComplete();
-                    Context.DidSagaComplete = true;
+                    testContext.DidSagaComplete = true;
                     return Task.FromResult(0);
                 }
 
@@ -85,6 +88,8 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                SagaContext testContext;
             }
         }
 

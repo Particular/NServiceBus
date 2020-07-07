@@ -43,14 +43,17 @@
 
             public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context TestContext { get; set; }
+                public ChangeCorrPropertySaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     if (message.SecondMessage)
                     {
                         Data.SomeId = Guid.NewGuid(); //this is not allowed
-                        TestContext.ModifiedCorrelationProperty = true;
+                        testContext.ModifiedCorrelationProperty = true;
                         return Task.FromResult(0);
                     }
 
@@ -66,6 +69,8 @@
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
+
+                Context testContext;
             }
 
             public class ChangeCorrPropertySagaData : IContainSagaData

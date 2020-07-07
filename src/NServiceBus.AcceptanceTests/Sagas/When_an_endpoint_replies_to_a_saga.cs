@@ -68,7 +68,10 @@
                 IAmStartedByMessages<StartSaga>,
                 IHandleMessages<DoSomethingResponse>
             {
-                public Context TestContext { get; set; }
+                public CorrelationTestSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
@@ -80,8 +83,8 @@
 
                 public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
                 {
-                    TestContext.Done = true;
-                    TestContext.ResponseRunId = message.RunId;
+                    testContext.Done = true;
+                    testContext.ResponseRunId = message.RunId;
                     MarkAsComplete();
                     return Task.FromResult(0);
                 }
@@ -96,6 +99,8 @@
                 {
                     public virtual Guid RunId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

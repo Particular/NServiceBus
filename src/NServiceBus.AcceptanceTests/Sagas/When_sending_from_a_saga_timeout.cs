@@ -39,8 +39,6 @@
                 IAmStartedByMessages<StartSaga1>,
                 IHandleTimeouts<Saga1Timeout>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
@@ -69,12 +67,15 @@
 
             public class SendFromTimeoutSaga2 : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>, IAmStartedByMessages<StartSaga2>
             {
-                public Context Context { get; set; }
+                public SendFromTimeoutSaga2(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    Context.DidSaga2ReceiveMessage = true;
+                    testContext.DidSaga2ReceiveMessage = true;
                     return Task.FromResult(0);
                 }
 
@@ -87,6 +88,8 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

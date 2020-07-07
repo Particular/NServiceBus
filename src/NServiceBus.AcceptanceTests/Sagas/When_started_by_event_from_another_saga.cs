@@ -59,7 +59,10 @@
                 IAmStartedByMessages<StartSaga>,
                 IHandleTimeouts<EventFromOtherSaga1.Timeout1>
             {
-                public Context TestContext { get; set; }
+                public EventFromOtherSaga1(Context context)
+                {
+                    testContext = context;
+                }
 
                 public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
@@ -75,7 +78,7 @@
                 public Task Timeout(Timeout1 state, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
-                    TestContext.DidSaga1Complete = true;
+                    testContext.DidSaga1Complete = true;
                     return Task.FromResult(0);
                 }
 
@@ -92,6 +95,8 @@
                 public class Timeout1
                 {
                 }
+
+                Context testContext;
             }
         }
 
@@ -111,7 +116,10 @@
                 IAmStartedByMessages<SomethingHappenedEvent>,
                 IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>
             {
-                public Context Context { get; set; }
+                public EventFromOtherSaga2(Context context)
+                {
+                    testContext = context;
+                }
 
                 public Task Handle(SomethingHappenedEvent message, IMessageHandlerContext context)
                 {
@@ -123,7 +131,7 @@
                 public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
-                    Context.DidSaga2Complete = true;
+                    testContext.DidSaga2Complete = true;
                     return Task.FromResult(0);
                 }
 
@@ -140,6 +148,8 @@
                 public class Saga2Timeout
                 {
                 }
+
+                Context testContext;
             }
         }
 

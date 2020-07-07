@@ -54,7 +54,10 @@
                 IHandleMessages<MappedEchoMessage>,
                 IHandleMessages<EchoMessage>
             {
-                public Context Context { get; set; }
+                public UnmappedMsgSaga(Context context)
+                {
+                    testContext = context;
+                }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnmappedMsgSagaData> mapper)
                 {
@@ -65,21 +68,23 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.StartReceived = true;
+                    testContext.StartReceived = true;
                     return context.SendLocal(new OutboundMessage { SomeId = message.SomeId });
                 }
 
                 public Task Handle(MappedEchoMessage message, IMessageHandlerContext context)
                 {
-                    Context.MappedEchoReceived = true;
+                    testContext.MappedEchoReceived = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(EchoMessage message, IMessageHandlerContext context)
                 {
-                    Context.EchoReceived = true;
+                    testContext.EchoReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class UnmappedMsgSagaData : ContainSagaData
@@ -89,14 +94,19 @@
 
             public class OutboundMessageHandler : IHandleMessages<OutboundMessage>
             {
-                public Context Context { get; set; }
+                public OutboundMessageHandler(Context context)
+                {
+                    testContext = context;
+                }
 
                 public async Task Handle(OutboundMessage message, IMessageHandlerContext context)
                 {
-                    Context.OutboundReceived = true;
+                    testContext.OutboundReceived = true;
                     await context.SendLocal(new EchoMessage { SomeId = message.SomeId });
                     await context.SendLocal(new MappedEchoMessage {  SomeId = message.SomeId });
                 }
+
+                Context testContext;
             }
         }
 
