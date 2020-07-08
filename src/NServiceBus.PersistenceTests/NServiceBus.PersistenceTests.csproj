@@ -2,15 +2,24 @@
 
     <PropertyGroup>
         <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+        <NoWarn>$(NoWarn);CA2007</NoWarn>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
-
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" PrivateAssets="All" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" PrivateAssets="All" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
         <PackageReference Include="Particular.Approvals" Version="0.2.0" PrivateAssets="All" />
         <PackageReference Include="Particular.CodeRules" Version="0.3.0" PrivateAssets="All" />
         <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
+        <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
     </ItemGroup>
 
 </Project>

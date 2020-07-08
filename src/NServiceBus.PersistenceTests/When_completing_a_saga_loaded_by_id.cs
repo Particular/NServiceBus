@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.PersistenceTests
+﻿#pragma warning disable 1591
+namespace NServiceBus.PersistenceTests
 {
     using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
-    
+
     [TestFixture]
     public class When_completing_a_saga_loaded_by_id : SagaPersisterTests<TestSaga, TestSagaData>
     {
