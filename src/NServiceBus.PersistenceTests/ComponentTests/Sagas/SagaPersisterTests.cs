@@ -1,11 +1,11 @@
 ﻿#pragma warning disable 1591
-namespace NServiceBus.PersistenceTests
+namespace NServiceBus.PersistenceTests.ComponentTests.Sagas
 {
     using System;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Sagas;
 
     /// <summary>
     /// 

@@ -3,6 +3,7 @@ namespace NServiceBus.PersistenceTests
 {
     using System;
     using System.Threading.Tasks;
+    using ComponentTests.Sagas;
     using Extensibility;
     using Features;
     using Outbox;
