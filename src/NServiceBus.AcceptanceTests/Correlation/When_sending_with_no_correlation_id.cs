@@ -34,16 +34,21 @@
 
             public class MyResponseHandler : IHandleMessages<MyRequest>
             {
-                public Context TestContext { get; set; }
+                public MyResponseHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
-                    TestContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];
-                    TestContext.MessageIdReceived = context.MessageId;
-                    TestContext.GotRequest = true;
+                    testContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];
+                    testContext.MessageIdReceived = context.MessageId;
+                    testContext.GotRequest = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

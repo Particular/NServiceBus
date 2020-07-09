@@ -47,20 +47,23 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
 
             class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
             {
-                public Context Context { get; set; }
+                public CustomFinder(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
-                    Context.ContextBag = context;
-                    Context.FinderUsed = true;
+                    testContext.ContextBag = context;
+                    testContext.FinderUsed = true;
                     return Task.FromResult(default(TestSaga07.SagaData07));
                 }
+
+                Context testContext;
             }
 
             public class TestSaga07 : Saga<TestSaga07.SagaData07>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context Context { get; set; }
-
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);

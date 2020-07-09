@@ -85,19 +85,24 @@
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
-                public Context Context { get; set; }
+                public MessageToBeRetriedHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    if (message.Id != Context.Id)
+                    if (message.Id != testContext.Id)
                     {
                         return Task.FromResult(0); // messages from previous test runs must be ignored
                     }
 
-                    Context.TotalNumberOfHandlerInvocations++;
+                    testContext.TotalNumberOfHandlerInvocations++;
 
                     throw new SimulatedException("Simulated exception message");
                 }
+
+                Context testContext;
             }
         }
 

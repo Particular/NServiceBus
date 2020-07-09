@@ -48,13 +48,18 @@
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
-                public Context TestContext { get; set; }
+                public SomeMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.MessageId = context.MessageId;
+                    testContext.MessageId = context.MessageId;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

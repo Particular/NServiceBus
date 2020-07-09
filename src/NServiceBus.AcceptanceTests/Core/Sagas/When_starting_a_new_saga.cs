@@ -38,11 +38,14 @@
 
             public class NullCorrPropertySaga : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context Context { get; set; }
+                public NullCorrPropertySaga(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.SomeId = Data.SomeId;
+                    testContext.SomeId = Data.SomeId;
                     return Task.FromResult(0);
                 }
 
@@ -51,6 +54,8 @@
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
+
+                Context testContext;
             }
 
             public class NullCorrPropertySagaData : ContainSagaData

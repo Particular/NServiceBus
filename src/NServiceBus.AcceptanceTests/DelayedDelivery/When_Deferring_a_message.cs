@@ -48,14 +48,19 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    Context.ReceivedAt = DateTime.UtcNow;
-                    Context.WasCalled = true;
+                    testContext.ReceivedAt = DateTime.UtcNow;
+                    testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

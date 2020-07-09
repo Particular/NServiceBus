@@ -43,19 +43,24 @@
 
             class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     if (Transaction.Current != null)
                     {
-                        Context.AmbientTransactionPresent = Transaction.Current != null;
-                        Context.IsolationLevel = Transaction.Current.IsolationLevel;
+                        testContext.AmbientTransactionPresent = Transaction.Current != null;
+                        testContext.IsolationLevel = Transaction.Current.IsolationLevel;
                     }
-                    Context.Done = true;
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

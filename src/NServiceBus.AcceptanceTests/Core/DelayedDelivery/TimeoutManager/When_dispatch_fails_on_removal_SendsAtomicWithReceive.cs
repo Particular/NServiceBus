@@ -10,7 +10,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    
+
     class When_dispatch_fails_on_removal_SendsAtomicWithReceive : NServiceBusAcceptanceTest
     {
         [Test]
@@ -64,17 +64,22 @@
 
             class Handler : IHandleMessages<MyMessage>
             {
-                public Context TestContext { get; set; }
+                public Handler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id == TestContext.TestRunId)
+                    if (message.Id == testContext.TestRunId)
                     {
-                        TestContext.DelayedMessageDeliveredToHandler = true;
+                        testContext.DelayedMessageDeliveredToHandler = true;
                     }
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class FakeTimeoutPersistence : PersistenceDefinition
@@ -87,13 +92,16 @@
 
             class FakeTimeoutStorage : IQueryTimeouts, IPersistTimeouts
             {
-                public Context TestContext { get; set; }
+                public FakeTimeoutStorage(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Add(TimeoutData timeout, ContextBag context)
                 {
-                    if (TestContext.TestRunId.ToString() == timeout.Headers[Headers.MessageId])
+                    if (testContext.TestRunId.ToString() == timeout.Headers[Headers.MessageId])
                     {
-                        timeout.Id = TestContext.TestRunId.ToString();
+                        timeout.Id = testContext.TestRunId.ToString();
                         timeout.Time = DateTime.UtcNow;
 
                         timeoutData = timeout;
@@ -109,7 +117,7 @@
 
                 public Task<TimeoutData> Peek(string timeoutId, ContextBag context)
                 {
-                    if (timeoutId == TestContext.TestRunId.ToString() && timeoutData != null)
+                    if (timeoutId == testContext.TestRunId.ToString() && timeoutData != null)
                     {
                         return Task.FromResult(timeoutData);
                     }
@@ -135,18 +143,22 @@
                 }
 
                 TimeoutData timeoutData;
+                Context testContext;
             }
 
             class BehaviorThatLogsControlMessageDelivery : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
             {
-                public Context TestContext { get; set; }
+                public BehaviorThatLogsControlMessageDelivery(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
-                        context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
+                        context.Message.Headers["Timeout.Id"] == testContext.TestRunId.ToString())
                     {
-                        TestContext.FailedTimeoutMovedToError = true;
+                        testContext.FailedTimeoutMovedToError = true;
                         return Task.FromResult(0);
                     }
 
@@ -159,6 +171,8 @@
                     {
                     }
                 }
+
+                Context testContext;
             }
         }
 

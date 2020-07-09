@@ -114,13 +114,18 @@
 
             class Handler : IHandleMessages<MyMessage>
             {
-                public Context MyContext { get; set; }
+                public Handler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    MyContext.FailedTimeoutMovedToError = true;
+                    testContext.FailedTimeoutMovedToError = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

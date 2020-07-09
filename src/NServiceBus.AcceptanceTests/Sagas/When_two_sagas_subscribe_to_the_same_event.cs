@@ -117,7 +117,10 @@
                 IAmStartedByMessages<StartSaga2>,
                 IHandleMessages<GroupPendingEvent>
             {
-                public Context TestContext { get; set; }
+                public Saga2(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
@@ -129,7 +132,7 @@
 
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
-                    TestContext.DidSaga2EventHandlerGetInvoked = true;
+                    testContext.DidSaga2EventHandlerGetInvoked = true;
                     MarkAsComplete();
                     return Task.FromResult(0);
                 }
@@ -144,6 +147,8 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 
