@@ -2,14 +2,16 @@
 namespace NServiceBus.PersistenceTests
 {
     using System;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
     using Outbox;
     using Persistence;
-    using Sagas;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using NServiceBus;
 
     public partial class PersistenceTestsConfiguration : IPersistenceTestsConfiguration
     {
@@ -20,23 +22,21 @@ namespace NServiceBus.PersistenceTests
 
         public SagaMetadataCollection SagaMetadataCollection
         {
-            get{
+            get
+            {
                 if (sagaMetadataCollection == null)
                 {
-                    // TODO: look how mongo db does scanning for this
+                    var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => typeof(Saga).IsAssignableFrom(t) || typeof(IFindSagas<>).IsAssignableFrom(t) || typeof(IFinder).IsAssignableFrom(t)).ToArray();
                     sagaMetadataCollection = new SagaMetadataCollection();
-                    sagaMetadataCollection.Initialize(new[]
-                    {
-                        typeof(TestSaga)
-                    });
+                    sagaMetadataCollection.Initialize(sagaTypes);
                 }
+
                 return sagaMetadataCollection;
             }
             set { sagaMetadataCollection = value; }
         }
 
         SagaMetadataCollection sagaMetadataCollection;
-
     }
     
     public partial class PersistenceTestsConfiguration
