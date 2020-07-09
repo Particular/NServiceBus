@@ -89,21 +89,26 @@
                 IHandleMessages<DelayedMessage>,
                 IHandleMessages<FailingMessage>
             {
-                public Context Context { get; set; }
+                public MyMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(DelayedMessage message, IMessageHandlerContext context)
                 {
-                    Context.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
-                    Context.ExternalTimeoutManagerInvoked = true;
+                    testContext.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
+                    testContext.ExternalTimeoutManagerInvoked = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
-                    Context.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
-                    Context.ExternalTimeoutManagerInvoked = true;
+                    testContext.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
+                    testContext.ExternalTimeoutManagerInvoked = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

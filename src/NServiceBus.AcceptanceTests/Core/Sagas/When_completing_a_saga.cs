@@ -51,11 +51,14 @@
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<CompleteSagaMessage>
             {
-                public Context Context { get; set; }
+                public TestSaga10(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.StartSagaMessageReceived = true;
+                    testContext.StartSagaMessageReceived = true;
 
                     return Task.FromResult(0);
                 }
@@ -63,7 +66,7 @@
                 public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
-                    Context.SagaCompleted = true;
+                    testContext.SagaCompleted = true;
                     return Task.FromResult(0);
                 }
 
@@ -74,6 +77,8 @@
                     mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
+
+                Context testContext;
             }
 
             public class TestSagaData10 : ContainSagaData

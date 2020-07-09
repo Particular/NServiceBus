@@ -37,25 +37,35 @@
 
             public class StartMessageHandler : IHandleMessages<StartMessage>
             {
-                public IMessageCreator MessageCreator { get; set; }
+                public StartMessageHandler(IMessageCreator messageCreator)
+                {
+                    this.messageCreator = messageCreator;
+                }
 
                 public Task Handle(StartMessage message, IMessageHandlerContext context)
                 {
-                    var interfaceMessage = MessageCreator.CreateInstance<IMyMessage>();
+                    var interfaceMessage = messageCreator.CreateInstance<IMyMessage>();
                     return context.Send(interfaceMessage);
                 }
+
+                IMessageCreator messageCreator;
             }
 
             public class IMyMessageHandler : IHandleMessages<IMyMessage>
             {
-                public Context Context { get; set; }
+                public IMyMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(IMyMessage message, IMessageHandlerContext context)
                 {
-                    Context.GotTheMessage = true;
+                    testContext.GotTheMessage = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

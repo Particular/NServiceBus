@@ -18,7 +18,7 @@
                 .Run();
 
             Assert.True(context.GotExceptionFromReply);
-           
+
             //this verifies a callbacks assumption that core won't throw until after the `IOutgoingLogicalMessageContext` stage
             // See https://github.com/Particular/NServiceBus.Callbacks/blob/develop/src/NServiceBus.Callbacks/Reply/SetCallbackResponseReturnCodeBehavior.cs#L7
             Assert.True(context.WasAbleToInterceptBeforeCoreThrows, "Callbacks needs to be able to intercept the pipeline before core throws");
@@ -40,7 +40,10 @@
 
             public class StartMessageHandler : IHandleMessages<MyRequest>
             {
-                public Context TestContext { get; set; }
+                public StartMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public async Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
@@ -50,22 +53,29 @@
                     }
                     catch (Exception)
                     {
-                        TestContext.GotExceptionFromReply = true;
+                        testContext.GotExceptionFromReply = true;
                     }
 
-                    TestContext.GotTheRequest = true;
+                    testContext.GotTheRequest = true;
                 }
+
+                Context testContext;
             }
 
             class CallbacksAssumptionVerifier : Behavior<IOutgoingLogicalMessageContext>
             {
-                public Context TestContext { get; set; }
+                public CallbacksAssumptionVerifier(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
                 {
-                    TestContext.WasAbleToInterceptBeforeCoreThrows = true;
+                    testContext.WasAbleToInterceptBeforeCoreThrows = true;
                     return next();
                 }
+
+                Context testContext;
             }
         }
 

@@ -47,7 +47,10 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
             {
-                public Context TestContext { get; set; }
+                public MyMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
@@ -62,16 +65,18 @@
                     catch (Exception x)
                     {
                         Console.WriteLine(x.Message);
-                        TestContext.ExceptionThrown = true;
+                        testContext.ExceptionThrown = true;
                     }
                 }
 
                 public Task Handle(MyOtherMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.SecondMessageReceived = true;
+                    testContext.SecondMessageReceived = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

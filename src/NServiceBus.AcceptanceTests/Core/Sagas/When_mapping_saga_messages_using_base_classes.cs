@@ -44,11 +44,14 @@
                 IAmStartedByMessages<StartSagaMessage>,
                 IAmStartedByMessages<SecondSagaMessage>
             {
-                public Context TestContext { get; set; }
+                public BaseClassIsMappedSaga(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.SecondMessageFoundExistingSaga = true;
+                    testContext.SecondMessageFoundExistingSaga = true;
                     return Task.FromResult(0);
                 }
 
@@ -71,6 +74,8 @@
                 {
                     public virtual Guid SomeId { get; set; }
                 }
+
+                Context testContext;
             }
         }
 

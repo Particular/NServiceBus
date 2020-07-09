@@ -37,11 +37,14 @@
 
             class MyUow : IManageUnitsOfWork
             {
-                public Context Context { get; set; }
+                public MyUow(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Begin()
                 {
-                    Context.UowWasCalled = true;
+                    testContext.UowWasCalled = true;
                     return Task.FromResult(0);
                 }
 
@@ -49,12 +52,12 @@
                 {
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class DummyHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
-
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);

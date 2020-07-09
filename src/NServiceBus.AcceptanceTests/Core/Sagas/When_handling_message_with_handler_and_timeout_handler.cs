@@ -40,17 +40,20 @@
             public class HandlerAndTimeoutSaga : Saga<HandlerAndTimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>,
                 IHandleTimeouts<StartSagaMessage>
             {
-                public Context TestContext { get; set; }
+                public HandlerAndTimeoutSaga(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.HandlerInvoked = true;
+                    testContext.HandlerInvoked = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.TimeoutHandlerInvoked = true;
+                    testContext.TimeoutHandlerInvoked = true;
                     return Task.FromResult(0);
                 }
 
@@ -59,6 +62,8 @@
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
+
+                Context testContext;
             }
 
             public class HandlerAndTimeoutSagaData : ContainSagaData

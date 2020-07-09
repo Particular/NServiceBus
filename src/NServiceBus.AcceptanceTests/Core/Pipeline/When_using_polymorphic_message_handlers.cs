@@ -37,24 +37,34 @@
 
             class CatchAllHandler : IHandleMessages<ICommand>
             {
-                public Context Context { get; set; }
+                public CatchAllHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(ICommand message, IMessageHandlerContext context)
                 {
-                    Context.CatchAllHandlerInvoked = true;
+                    testContext.CatchAllHandlerInvoked = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class SpecificHandler : IHandleMessages<SomeCommand>
             {
-                public Context Context { get; set; }
+                public SpecificHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(SomeCommand message, IMessageHandlerContext context)
                 {
-                    Context.SpecificHandlerInvoked = true;
+                    testContext.SpecificHandlerInvoked = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

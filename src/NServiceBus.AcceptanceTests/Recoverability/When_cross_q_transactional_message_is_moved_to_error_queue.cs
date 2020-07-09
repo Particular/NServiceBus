@@ -96,32 +96,42 @@
 
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
-                public Context TestContext { get; set; }
+                public InitiatingMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (initiatingMessage.Id == TestContext.TestRunId)
+                    if (initiatingMessage.Id == testContext.TestRunId)
                     {
-                        TestContext.MessageMovedToErrorQueue = true;
+                        testContext.MessageMovedToErrorQueue = true;
                     }
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class SubsequentMessageHandler : IHandleMessages<SubsequentMessage>
             {
-                public Context TestContext { get; set; }
+                public SubsequentMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id == TestContext.TestRunId)
+                    if (message.Id == testContext.TestRunId)
                     {
-                        TestContext.OutgoingMessageSent = true;
+                        testContext.OutgoingMessageSent = true;
                     }
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

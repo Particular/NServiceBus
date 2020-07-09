@@ -19,7 +19,7 @@
                     SagaCorrelationId = sagaCorrelationId
                 }))
                     .When(c => c.OriginalCorrelationId != null, session =>
-                            // we're sending a new message here to make sure we get a new correlation id to make sure that the saga 
+                            // we're sending a new message here to make sure we get a new correlation id to make sure that the saga
                             // preserves the original one. This message can't be sent from a message handler as it would float the received
                             // correlation id into the outgoing message instead of assigning a new one.
                             session.SendLocal(new MessageThatWillCauseSagaToReplyToOriginator
@@ -54,11 +54,14 @@
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<MessageThatWillCauseSagaToReplyToOriginator>
             {
-                public Context TestContext { get; set; }
+                public RequestingSaga(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    TestContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
+                    testContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
 
                     return Task.FromResult(0);
                 }
@@ -80,18 +83,25 @@
                 {
                     public virtual Guid SagaCorrelationId { get; set; }
                 }
+
+                Context testContext;
             }
 
             class MyReplyToOriginatorHandler : IHandleMessages<MyReplyToOriginator>
             {
-                public Context TestContext { get; set; }
+                public MyReplyToOriginatorHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
-                    TestContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
-                    TestContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
+                    testContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
+                    testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

@@ -89,16 +89,21 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public Context Context { get; set; }
+                public PlaceOrderHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    Context.MessagesReceivedByOutboxEndpoint++;
+                    testContext.MessagesReceivedByOutboxEndpoint++;
                     return context.Send(new SendOrderAcknowledgement
                     {
                         Terminator = message.Terminator
                     });
                 }
+
+                Context testContext;
             }
         }
 
