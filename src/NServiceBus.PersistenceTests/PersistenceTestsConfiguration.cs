@@ -4,7 +4,7 @@ namespace NServiceBus.PersistenceTests
     using System;
     using System.Threading.Tasks;
     using Extensibility;
-    using Features;
+    using NServiceBus.Sagas;
     using Outbox;
     using Persistence;
     using Sagas;
