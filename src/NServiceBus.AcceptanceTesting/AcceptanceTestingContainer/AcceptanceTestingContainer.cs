@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using LightInject;
     using ObjectBuilder.Common;
 
     /// <summary>
@@ -15,7 +16,11 @@
 
         public AcceptanceTestingContainer()
         {
-            builder = new LightInjectObjectBuilder();
+            builder = new LightInjectObjectBuilder(new ContainerOptions
+            {
+                EnableVariance = false,
+                EnablePropertyInjection = false
+            });
         }
 
         public void Dispose()
