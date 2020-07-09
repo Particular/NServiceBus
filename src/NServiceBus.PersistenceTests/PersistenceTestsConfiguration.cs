@@ -41,6 +41,18 @@ namespace NServiceBus.PersistenceTests
     
     public partial class PersistenceTestsConfiguration
     {
+        public PersistenceTestsConfiguration()
+        {
+            SagaIdGenerator = new DefaultSagaIdGenerator();
+            SagaStorage = new InMemorySagaPersister();
+            SynchronizedStorage = new InMemorySynchronizedStorage();
+            SynchronizedStorageAdapter = new InMemoryTransactionalSynchronizedStorageAdapter();
+            SubscriptionStorage = new InMemorySubscriptionStorage();
+            TimeoutStorage = new InMemoryTimeoutPersister(() => DateTime.UtcNow); // todo: verify
+            TimeoutQuery = new InMemoryTimeoutPersister(() => DateTime.Now);
+            OutboxStorage = new InMemoryOutboxStorage();
+        }
+        
         public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
         public bool SupportsFinders => false;
@@ -48,14 +60,15 @@ namespace NServiceBus.PersistenceTests
         public bool SupportsTimeouts => true;
         public bool SupportsOptimisticConcurrency => true;
         public bool SupportsPessimisticConcurrency => false;
-        public ISagaIdGenerator SagaIdGenerator => new DefaultSagaIdGenerator();
-        public ISagaPersister SagaStorage => new InMemorySagaPersister();
-        public ISynchronizedStorage SynchronizedStorage => new InMemorySynchronizedStorage();
-        public ISynchronizedStorageAdapter SynchronizedStorageAdapter => new InMemoryTransactionalSynchronizedStorageAdapter();
-        public ISubscriptionStorage SubscriptionStorage => new InMemorySubscriptionStorage();
-        public IPersistTimeouts TimeoutStorage => new InMemoryTimeoutPersister(() => DateTime.UtcNow); // todo: verify
-        public IQueryTimeouts TimeoutQuery => new InMemoryTimeoutPersister(() => DateTime.Now);
-        public IOutboxStorage OutboxStorage => new InMemoryOutboxStorage();
+        public ISagaIdGenerator SagaIdGenerator { get; }
+        public ISagaPersister SagaStorage  { get; }
+        public ISynchronizedStorage SynchronizedStorage { get; }
+        public ISynchronizedStorageAdapter SynchronizedStorageAdapter  { get; }
+        public ISubscriptionStorage SubscriptionStorage { get; }
+        public IPersistTimeouts TimeoutStorage  { get; }
+        public IQueryTimeouts TimeoutQuery { get; }
+        public IOutboxStorage OutboxStorage  { get; }
+        
         public Task Configure()
         {
             return TaskEx.CompletedTask;
