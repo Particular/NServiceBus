@@ -47,9 +47,6 @@ namespace NServiceBus.PersistenceTests.Sagas
         
         public class StartMessage
         {
-            /// <summary>
-            /// 
-            /// </summary>
             public string SomeId { get; set; }
         }
     }

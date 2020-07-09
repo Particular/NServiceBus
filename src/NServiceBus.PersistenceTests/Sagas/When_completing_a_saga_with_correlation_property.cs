@@ -44,5 +44,10 @@
                 mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
             }
         }
+        
+        public class SagaCorrelationPropertyStartingMessage
+        {
+            public string CorrelatedProperty { get; set; }
+        }
     }
 }
