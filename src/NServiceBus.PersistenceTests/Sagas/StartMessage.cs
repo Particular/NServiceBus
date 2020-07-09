@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.PersistenceTests.ComponentTests.Sagas
+﻿namespace NServiceBus.PersistenceTests.Sagas
 {
     /// <summary>
     /// 

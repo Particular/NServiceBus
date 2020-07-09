@@ -21,11 +21,4 @@
     <ItemGroup>
       <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
     </ItemGroup>
-
-
-    <ItemGroup>
-      <Folder Include="ComponentTests\Outbox" />
-      <Folder Include="ComponentTests\SynchronizedStorageSession" />
-    </ItemGroup>
-
 </Project>

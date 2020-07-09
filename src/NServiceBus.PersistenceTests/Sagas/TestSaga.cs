@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 1591
-namespace NServiceBus.PersistenceTests.ComponentTests.Sagas
+namespace NServiceBus.PersistenceTests.Sagas
 {
     using System;
     using System.Threading.Tasks;
