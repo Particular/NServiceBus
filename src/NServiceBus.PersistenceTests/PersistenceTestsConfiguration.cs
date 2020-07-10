@@ -41,7 +41,7 @@ namespace NServiceBus.PersistenceTests
     
     public partial class PersistenceTestsConfiguration
     {
-        public PersistenceTestsConfiguration()
+        public PersistenceTestsConfiguration(TimeSpan? fromMilliseconds = null)
         {
             SagaIdGenerator = new DefaultSagaIdGenerator();
             SagaStorage = new InMemorySagaPersister();
