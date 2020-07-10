@@ -38,7 +38,7 @@ namespace NServiceBus.PersistenceTests
 
         SagaMetadataCollection sagaMetadataCollection;
     }
-    
+
     public partial class PersistenceTestsConfiguration
     {
         public PersistenceTestsConfiguration(TimeSpan? fromMilliseconds = null)
@@ -52,7 +52,7 @@ namespace NServiceBus.PersistenceTests
             TimeoutQuery = new InMemoryTimeoutPersister(() => DateTime.Now);
             OutboxStorage = new InMemoryOutboxStorage();
         }
-        
+
         public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
         public bool SupportsFinders => false;
@@ -68,7 +68,7 @@ namespace NServiceBus.PersistenceTests
         public IPersistTimeouts TimeoutStorage  { get; }
         public IQueryTimeouts TimeoutQuery { get; }
         public IOutboxStorage OutboxStorage  { get; }
-        
+
         public Task Configure()
         {
             return TaskEx.CompletedTask;
@@ -84,5 +84,4 @@ namespace NServiceBus.PersistenceTests
             return TaskEx.CompletedTask;
         }
     }
-    
 }
