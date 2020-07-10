@@ -35,6 +35,15 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Sagas\When_persisting_a_saga_with_an_escalated_DTC_transaction.cs">
+      <BuildAction>Compile</BuildAction>
+      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.TransportTests\</PackagePath>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
   <!-- End Workaround -->
 
 </Project>
