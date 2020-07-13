@@ -8,7 +8,7 @@ namespace NServiceBus.PersistenceTests.Sagas
     using NUnit.Framework;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="TSaga"></typeparam>
     /// <typeparam name="TSagaData"></typeparam>
@@ -17,14 +17,16 @@ namespace NServiceBus.PersistenceTests.Sagas
         where TSagaData : class, IContainSagaData, new()
     {
         protected Task SaveSaga(TSagaData saga, params Type[] availableTypes) => SaveSaga<TSaga, TSagaData>(saga, availableTypes);
+        protected Task<TSagaData> GetById(Guid sagaId, params Type[] availableTypes) => GetById<TSaga, TSagaData>(sagaId, availableTypes);
+        protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
+
+        // TODO: should be inlined as they don't reflect Core api's
         protected Task<TSagaData> GetByIdAndComplete(Guid sagaId, params Type[] availableTypes) => GetByIdAndComplete<TSaga, TSagaData>(sagaId, availableTypes);
         protected Task<TSagaData> GetByIdAndUpdate(Guid sagaId, Action<TSagaData> update, params Type[] availableTypes) => GetByIdAndUpdate<TSaga, TSagaData>(sagaId, update, availableTypes);
         protected Task<TSagaData> GetByCorrelationPropertyAndUpdate(string correlatedPropertyName, object correlationPropertyData, Action<TSagaData> update) => GetByCorrelationPropertyAndUpdate<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData, update);
         protected Task<TSagaData> GetByCorrelationPropertyAndComplete(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationPropertyAndComplete<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
-        protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
-        protected Task<TSagaData> GetById(Guid sagaId, params Type[] availableTypes) => GetById<TSaga, TSagaData>(sagaId, availableTypes);
     }
-    
+
      public class SagaPersisterTests
     {
         protected PersistenceTestsConfiguration configuration;
@@ -43,7 +45,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="saga"></param>
         /// <param name="availableTypes"></param>
@@ -65,7 +67,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sagaId"></param>
         /// <param name="availableTypes"></param>
@@ -92,7 +94,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sagaId"></param>
         /// <param name="update"></param>
@@ -122,7 +124,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="correlatedPropertyName"></param>
         /// <param name="correlationPropertyData"></param>
@@ -136,6 +138,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         {
             var context = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
+            TSagaData updatedSagaData;
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
@@ -148,12 +151,14 @@ namespace NServiceBus.PersistenceTests.Sagas
 
                 await persister.Update(sagaData, completeSession, context);
                 await completeSession.CompleteAsync();
+
+                updatedSagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
             }
-            return sagaData;
+            return updatedSagaData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="correlatedPropertyName"></param>
         /// <param name="correlationPropertyData"></param>
@@ -181,7 +186,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="correlatedPropertyName"></param>
         /// <param name="correlationPropertyData"></param>
@@ -208,7 +213,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sagaId"></param>
         /// <param name="availableTypes"></param>
@@ -232,7 +237,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="context"></param>
         /// <param name="saga"></param>
@@ -268,7 +273,7 @@ namespace NServiceBus.PersistenceTests.Sagas
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sagaData"></param>
