@@ -6,7 +6,6 @@ namespace NServiceBus.PersistenceTests
     using NServiceBus.Sagas;
     using Outbox;
     using Persistence;
-    using Sagas;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -16,7 +15,7 @@ namespace NServiceBus.PersistenceTests
 
         bool SupportsOutbox { get; }
 
-        bool SupportsFinders { get; }
+        bool SupportsFinders { get; }  // TODO: why do we require this?
 
         bool SupportsSubscriptions { get; }
 

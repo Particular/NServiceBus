@@ -13,8 +13,7 @@
         [Test]
         public async Task It_should_persist_successfully()
         {
-            // TODO: why do we require this?
-            //configuration.RequiresFindersSupport();
+            configuration.RequiresFindersSupport();
 
             var propertyData = Guid.NewGuid().ToString();
             var sagaData = new SagaWithoutCorrelationPropertyData {FoundByFinderProperty = propertyData, DateTimeProperty = DateTime.UtcNow};

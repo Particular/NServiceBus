@@ -55,7 +55,8 @@ namespace NServiceBus.PersistenceTests
 
         public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
-        public bool SupportsFinders => false;
+
+        public bool SupportsFinders => true;
         public bool SupportsSubscriptions => true;
         public bool SupportsTimeouts => true;
         public bool SupportsOptimisticConcurrency => true;

@@ -18,8 +18,7 @@
         [Test]
         public async Task It_should_successfully_remove_the_saga()
         {
-            // TODO: why do we require this?
-            //configuration.RequiresFindersSupport(); 
+            configuration.RequiresFindersSupport(); 
 
             var propertyData = Guid.NewGuid().ToString();
 
