@@ -69,7 +69,6 @@
             }
         }
 
-
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
         {
             public Task Handle(StartMessage message, IMessageHandlerContext context)
