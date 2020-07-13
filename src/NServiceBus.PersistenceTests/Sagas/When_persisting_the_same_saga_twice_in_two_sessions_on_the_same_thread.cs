@@ -9,7 +9,7 @@
     [TestFixture]
     public class When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread : SagaPersisterTests<When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread.TestSaga, When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread.TestSagaData>
     {
-        [Test]
+        [Test] // TODO: Do we need this? What's the use of this test as opposed to When_retrieving_same_saga_on_the_same_thread?
         public async Task Save_process_is_repeatable()
         {
             configuration.RequiresOptimisticConcurrencySupport();
@@ -56,8 +56,11 @@
 
             try
             {
-                await persister.Update(staleRecord1, losingSaveSession1, losingContext1);
-                Assert.That(async () => await losingSaveSession1.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.EndsWith($"concurrency violation: saga entity Id[{saga.Id}] already saved."));
+                Assert.That(async() =>
+                {
+                    await persister.Update(staleRecord1, losingSaveSession1, losingContext1);
+                    await losingSaveSession1.CompleteAsync();
+                }, Throws.InstanceOf<Exception>());
             }
             finally
             {
@@ -93,8 +96,11 @@
 
             try
             {
-                await persister.Update(staleRecord2, losingSaveSession2, losingContext2);
-                Assert.That(async () => await losingSaveSession2.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.EndsWith($"concurrency violation: saga entity Id[{saga.Id}] already saved."));
+               Assert.That(async () =>
+                {
+                    await persister.Update(staleRecord2, losingSaveSession2, losingContext2);
+                    await losingSaveSession2.CompleteAsync();
+                }, Throws.InstanceOf<Exception>().And.Message.EndsWith($"concurrency violation: saga entity Id[{saga.Id}] already saved."));
             }
             finally
             {
