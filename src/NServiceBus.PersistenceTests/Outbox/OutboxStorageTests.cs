@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using NServiceBus.Outbox;
     using NUnit.Framework;
 
@@ -45,6 +46,38 @@
 
             Assert.That(message, Is.Not.Null);
             CollectionAssert.IsEmpty(message.TransportOperations);
+        }
+
+        [Test]
+        public async Task Should_throw_if_trying_to_insert_same_messageid()
+        {
+            var failed = false;
+
+            var storage = configuration.OutboxStorage;
+            var winningContextBag = configuration.GetContextBagForOutbox();
+            var losingContextBag = configuration.GetContextBagForOutbox();
+            await storage.Get("MySpecialId", winningContextBag);
+            await storage.Get("MySpecialId", losingContextBag);
+
+            using (var transactionA = await storage.BeginTransaction(winningContextBag))
+            {
+                await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionA, winningContextBag);
+                await transactionA.Commit();
+            }
+
+            try
+            {
+                using (var transactionB = await storage.BeginTransaction(losingContextBag))
+                {
+                    await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionB, losingContextBag);
+                    await transactionB.Commit();
+                }
+            }
+            catch (Exception)
+            {
+                failed = true;
+            }
+            Assert.IsTrue(failed);
         }
 
         [Test]
