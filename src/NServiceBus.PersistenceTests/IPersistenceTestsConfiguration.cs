@@ -1,10 +1,9 @@
 ﻿#pragma warning disable 1591
 namespace NServiceBus.PersistenceTests
 {
-    using System;
     using System.Threading.Tasks;
+    using NServiceBus.Outbox;
     using NServiceBus.Sagas;
-    using Outbox;
     using Persistence;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -22,7 +21,7 @@ namespace NServiceBus.PersistenceTests
         bool SupportsTimeouts { get; }
 
         bool SupportsOptimisticConcurrency { get; }
-        
+
         bool SupportsPessimisticConcurrency { get; }
 
         ISagaIdGenerator SagaIdGenerator { get; }
@@ -44,7 +43,5 @@ namespace NServiceBus.PersistenceTests
         Task Configure();
 
         Task Cleanup();
-
-        Task CleanupMessagesOlderThan(DateTimeOffset beforeStore);
     }
 }

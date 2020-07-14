@@ -7,11 +7,11 @@ namespace NServiceBus.PersistenceTests
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
-    using Outbox;
     using Persistence;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using NServiceBus;
+    using NServiceBus.Outbox;
 
     public partial class PersistenceTestsConfiguration : IPersistenceTestsConfiguration
     {
@@ -76,11 +76,6 @@ namespace NServiceBus.PersistenceTests
         }
 
         public Task Cleanup()
-        {
-            return TaskEx.CompletedTask;
-        }
-
-        public Task CleanupMessagesOlderThan(DateTimeOffset beforeStore)
         {
             return TaskEx.CompletedTask;
         }
