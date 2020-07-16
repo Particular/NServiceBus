@@ -11,27 +11,36 @@
         public async Task Should_delete_the_saga()
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
-
             var saga = new SagaWithCorrelationPropertyData {CorrelatedProperty = correlationPropertyData, DateTimeProperty = DateTime.UtcNow};
 
             await SaveSaga(saga);
 
             const string correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
+            var context = configuration.GetContextBagForSagaStorage();
+            var persister = configuration.SagaStorage;
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            {
+                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(context, new SagaWithCorrelationPropertyData());
 
-            var sagaData = await GetByCorrelationPropertyAndComplete(correlatedPropertyName, correlationPropertyData);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(context, sagaData);
+
+                await persister.Complete(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
+            }
+
             var completedSaga = await GetByCorrelationProperty(correlatedPropertyName, correlationPropertyData);
 
-            Assert.NotNull(sagaData);
             Assert.Null(completedSaga);
         }
-        
+
         public class SagaWithCorrelationPropertyData : ContainSagaData
         {
             public string CorrelatedProperty { get; set; }
 
             public DateTime DateTimeProperty { get; set; }
         }
-        
+
         public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
         {
             public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
@@ -44,7 +53,7 @@
                 mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
             }
         }
-        
+
         public class SagaCorrelationPropertyStartingMessage
         {
             public string CorrelatedProperty { get; set; }
