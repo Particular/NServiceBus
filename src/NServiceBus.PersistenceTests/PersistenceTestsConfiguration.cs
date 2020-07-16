@@ -1,5 +1,4 @@
-﻿#pragma warning disable 1591
-namespace NServiceBus.PersistenceTests
+﻿namespace NServiceBus.PersistenceTests
 {
     using System;
     using System.Threading.Tasks;
@@ -9,7 +8,6 @@ namespace NServiceBus.PersistenceTests
     using Persistence;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
-
     public partial class PersistenceTestsConfiguration : IPersistenceTestsConfiguration
     {
         public Func<ContextBag> GetContextBagForTimeoutPersister { get; set; } = () => new ContextBag();

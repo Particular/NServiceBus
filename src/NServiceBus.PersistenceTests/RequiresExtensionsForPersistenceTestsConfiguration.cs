@@ -1,5 +1,4 @@
-﻿#pragma warning disable 1591
-namespace NServiceBus.PersistenceTests
+﻿namespace NServiceBus.PersistenceTests
 {
     using NUnit.Framework;
 
