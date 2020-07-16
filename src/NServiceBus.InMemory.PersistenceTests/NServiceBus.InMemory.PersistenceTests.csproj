@@ -20,8 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="../NServiceBus.PersistenceTests/**/*.cs" Exclude="../NServiceBus.PersistenceTests/obj/**/*.*"></Compile>
-        <Compile Remove="../NServiceBus.PersistenceTests/PersistenceTestsConfiguration.cs" />
+        <Compile Include="../NServiceBus.PersistenceTesting/**/*.cs" Exclude="../NServiceBus.PersistenceTesting/obj/**/*.*"></Compile>
+        <Compile Remove="../NServiceBus.PersistenceTesting/PersistenceTestsConfiguration.cs" />
     </ItemGroup>
 
     <ItemGroup>
