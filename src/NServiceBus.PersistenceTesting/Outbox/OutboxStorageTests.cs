@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.PersistenceTests.Outbox
+﻿namespace NServiceBus.PersistenceTesting.Outbox
 {
     using System;
     using System.Threading.Tasks;

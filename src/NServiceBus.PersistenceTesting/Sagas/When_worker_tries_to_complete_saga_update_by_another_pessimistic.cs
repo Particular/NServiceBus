@@ -1,20 +1,14 @@
-﻿namespace NServiceBus.PersistenceTests.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_concurrent_update_exceed_transaction_timeout_pessimistic : SagaPersisterTests<When_concurrent_update_exceed_transaction_timeout_pessimistic.TestSaga, When_concurrent_update_exceed_transaction_timeout_pessimistic.TestSagaData>
+    public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : SagaPersisterTests<When_worker_tries_to_complete_saga_update_by_another_pessimistic.TestSaga, When_worker_tries_to_complete_saga_update_by_another_pessimistic.TestSagaData>
     {
-        public override async Task OneTimeSetUp()
-        {
-            configuration = new PersistenceTestsConfiguration(TimeSpan.FromMilliseconds(100));
-            await configuration.Configure();
-        }
-
         [Test]
-        public async Task Should_fail_with_timeout()
+        public async Task Should_complete()
         {
             configuration.RequiresPessimisticConcurrencySupport();
 
@@ -38,8 +32,6 @@
                     SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(firstContent, saga);
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
                     firstSessionGetDone.SetResult(true);
-
-                    await Task.Delay(200).ConfigureAwait(false);
 
                     SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(firstContent, record);
                     record.DateTimeProperty = firstSessionDateTimeValue;
@@ -77,39 +69,37 @@
                 }
             }
 
-            var firstSessionTask = FirstSession();
-            var secondSessionTask = SecondSession();
+            await Task.WhenAll(SecondSession(), FirstSession());
 
-            await firstSessionTask;
-            var updatedSaga = await GetById(saga.Id);
+            var result = await GetByCorrelationProperty(nameof(TestSagaData.SomeId), correlationPropertyData);
 
-            Assert.ThrowsAsync<TimeoutException>(async () => await secondSessionTask);
-            Assert.That(updatedSaga.DateTimeProperty, Is.EqualTo(firstSessionDateTimeValue));
+            // MongoDB stores datetime with less precision
+            Assert.That(result.DateTimeProperty, Is.EqualTo(secondSessionDateTimeValue).Within(TimeSpan.FromMilliseconds(1)));
         }
 
-        public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
-        {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
+         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
             {
-                throw new NotImplementedException();
+                public Task Handle(StartMessage message, IMessageHandlerContext context)
+                {
+                    throw new NotImplementedException();
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                {
+                    mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+                }
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+            public class StartMessage
             {
-                mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+                public string SomeId { get; set; }
             }
-        }
 
-        public class TestSagaData : ContainSagaData
-        {
-            public string SomeId { get; set; } = "Test";
+            public class TestSagaData : ContainSagaData
+            {
+                public string SomeId { get; set; } = "Test";
 
-            public DateTime DateTimeProperty { get; set; }
-        }
-
-        public class StartMessage
-        {
-            public string SomeId { get; set; }
-        }
+                public DateTime DateTimeProperty { get; set; }
+            }
     }
 }

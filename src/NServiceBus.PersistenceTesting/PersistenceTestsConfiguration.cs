@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.PersistenceTests
+﻿namespace NServiceBus.PersistenceTesting
 {
     using System;
     using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.PersistenceTests.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using NUnit.Framework;
     using System;
