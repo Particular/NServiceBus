@@ -23,11 +23,22 @@
             };
 
             var finder = typeof(CustomFinder);
-
             await SaveSaga(sagaData, finder);
 
             var updateValue = Guid.NewGuid().ToString();
-            await GetByIdAndUpdate(sagaData.Id, saga => { saga.FoundByFinderProperty = updateValue; }, finder);
+            var context = configuration.GetContextBagForSagaStorage();
+            var persister = configuration.SagaStorage;
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            {
+                SetActiveSagaInstanceForGet<SagaWithoutCorrelationProperty, SagaWithoutCorrelationPropertyData>(context, new SagaWithoutCorrelationPropertyData(), typeof(CustomFinder));
+                sagaData = await persister.Get<SagaWithoutCorrelationPropertyData>(sagaData.Id, completeSession, context);
+                SetActiveSagaInstanceForGet<SagaWithoutCorrelationProperty, SagaWithoutCorrelationPropertyData>(context, sagaData, typeof(CustomFinder));
+
+                sagaData.FoundByFinderProperty = updateValue;
+
+                await persister.Update(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
+            }
 
             var result = await GetById(sagaData.Id, finder);
 

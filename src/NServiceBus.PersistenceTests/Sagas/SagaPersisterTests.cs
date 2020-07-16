@@ -16,7 +16,6 @@
 
         // TODO: should be inlined as they don't reflect Core api's
         protected Task<TSagaData> GetByIdAndComplete(Guid sagaId, params Type[] availableTypes) => GetByIdAndComplete<TSaga, TSagaData>(sagaId, availableTypes);
-        protected Task<TSagaData> GetByIdAndUpdate(Guid sagaId, Action<TSagaData> update, params Type[] availableTypes) => GetByIdAndUpdate<TSaga, TSagaData>(sagaId, update, availableTypes);
         protected Task<TSagaData> GetByCorrelationPropertyAndUpdate(string correlatedPropertyName, object correlationPropertyData, Action<TSagaData> update) => GetByCorrelationPropertyAndUpdate<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData, update);
         protected Task<TSagaData> GetByCorrelationPropertyAndComplete(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationPropertyAndComplete<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
     }
@@ -66,27 +65,6 @@
                 SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, sagaData, availableTypes);
 
                 await persister.Complete(sagaData, completeSession, context);
-                await completeSession.CompleteAsync();
-            }
-            return sagaData;
-        }
-
-        protected async Task<TSagaData> GetByIdAndUpdate<TSaga, TSagaData>(Guid sagaId, Action<TSagaData> update, params Type[] availableTypes)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
-        {
-            var context = configuration.GetContextBagForSagaStorage();
-            TSagaData sagaData;
-            var persister = configuration.SagaStorage;
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
-            {
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, new TSagaData(), availableTypes);
-                sagaData = await persister.Get<TSagaData>(sagaId, completeSession, context);
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, sagaData, availableTypes);
-
-                update(sagaData);
-
-                await persister.Update(sagaData, completeSession, context);
                 await completeSession.CompleteAsync();
             }
             return sagaData;
