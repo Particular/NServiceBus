@@ -1,30 +1,31 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
-        <NoWarn>$(NoWarn);CA2007</NoWarn>
-        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <NoWarn>$(NoWarn);CA2007</NoWarn>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" PrivateAssets="All" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" PrivateAssets="All" />
-        <PackageReference Include="Particular.CodeRules" Version="0.3.0" PrivateAssets="All" />
-        <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Compile Include="../NServiceBus.PersistenceTesting/**/*.cs" Exclude="../NServiceBus.PersistenceTesting/obj/**/*.*"></Compile>
-        <Compile Remove="../NServiceBus.PersistenceTesting/PersistenceTestsConfiguration.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Particular.CodeRules" Version="0.3.0"  />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Reference Include="System.Transactions" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../NServiceBus.PersistenceTesting/**/*.cs" Exclude="../NServiceBus.PersistenceTesting/obj/**/*.*"></Compile>
+    <Compile Remove="../NServiceBus.PersistenceTesting/PersistenceTestsConfiguration.cs" />
+  </ItemGroup>
+
 </Project>
