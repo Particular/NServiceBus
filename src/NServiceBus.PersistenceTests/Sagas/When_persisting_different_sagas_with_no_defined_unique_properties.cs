@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace NServiceBus.PersistenceTests.Sagas
+﻿namespace NServiceBus.PersistenceTests.Sagas
 {
+    using System;
+    using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
     using NUnit.Framework;
