@@ -16,7 +16,6 @@
 
         // TODO: should be inlined as they don't reflect Core api's
         protected Task<TSagaData> GetByIdAndComplete(Guid sagaId, params Type[] availableTypes) => GetByIdAndComplete<TSaga, TSagaData>(sagaId, availableTypes);
-        protected Task<TSagaData> GetByCorrelationPropertyAndUpdate(string correlatedPropertyName, object correlationPropertyData, Action<TSagaData> update) => GetByCorrelationPropertyAndUpdate<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData, update);
         protected Task<TSagaData> GetByCorrelationPropertyAndComplete(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationPropertyAndComplete<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
     }
 
@@ -70,30 +69,7 @@
             return sagaData;
         }
 
-        protected async Task<TSagaData> GetByCorrelationPropertyAndUpdate<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData, Action<TSagaData> update)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
-        {
-            var context = configuration.GetContextBagForSagaStorage();
-            TSagaData updatedSagaData;
-            var persister = configuration.SagaStorage;
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
-            {
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, new TSagaData());
-                var sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, sagaData);
-
-                update(sagaData);
-
-                await persister.Update(sagaData, completeSession, context);
-                await completeSession.CompleteAsync();
-
-                updatedSagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
-            }
-            return updatedSagaData;
-        }
-
-        protected async Task<TSagaData> GetByCorrelationPropertyAndComplete<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData)
+       protected async Task<TSagaData> GetByCorrelationPropertyAndComplete<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData)
            where TSaga : Saga<TSagaData>, new()
            where TSagaData : class, IContainSagaData, new()
         {

@@ -20,10 +20,26 @@
             await SaveSaga(saga1);
 
             var updatedValue = "bar";
-            var result = await GetByCorrelationPropertyAndUpdate(nameof(SagaWithCorrelationPropertyData.CorrelatedProperty), correlationPropertyData, saga => { saga.SomeProperty = updatedValue; });
+            var context = configuration.GetContextBagForSagaStorage();
+            var correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
+            SagaWithCorrelationPropertyData updatedSagaData;
+            var persister = configuration.SagaStorage;
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            {
+                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(context, new SagaWithCorrelationPropertyData());
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(context, sagaData);
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.SomeProperty, Is.EqualTo(updatedValue));
+                sagaData.SomeProperty = updatedValue;
+
+                await persister.Update(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
+
+                updatedSagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+            }
+
+            Assert.That(updatedSagaData, Is.Not.Null);
+            Assert.That(updatedSagaData.SomeProperty, Is.EqualTo(updatedValue));
         }
 
         public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
