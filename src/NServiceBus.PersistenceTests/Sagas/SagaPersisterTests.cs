@@ -75,14 +75,12 @@
             where TSagaData : class, IContainSagaData, new()
         {
             var context = configuration.GetContextBagForSagaStorage();
-            TSagaData sagaData;
             TSagaData updatedSagaData;
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
                 SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, new TSagaData());
-
-                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                var sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
                 SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, sagaData);
 
                 update(sagaData);
