@@ -1,5 +1,4 @@
-﻿#pragma warning disable 1591
-namespace NServiceBus.PersistenceTests.Sagas
+﻿namespace NServiceBus.PersistenceTests.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -7,11 +6,6 @@ namespace NServiceBus.PersistenceTests.Sagas
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <typeparam name="TSaga"></typeparam>
-    /// <typeparam name="TSagaData"></typeparam>
     public class SagaPersisterTests<TSaga, TSagaData> : SagaPersisterTests
         where TSaga : Saga<TSagaData>, new()
         where TSagaData : class, IContainSagaData, new()
@@ -44,14 +38,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             await configuration.Cleanup();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="saga"></param>
-        /// <param name="availableTypes"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task SaveSaga<TSaga, TSagaData>(TSagaData saga, params Type[] availableTypes)
             where TSaga : Saga<TSagaData>, new()
             where TSagaData : class, IContainSagaData, new()
@@ -66,14 +52,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sagaId"></param>
-        /// <param name="availableTypes"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task<TSagaData> GetByIdAndComplete<TSaga, TSagaData>(Guid sagaId, params Type[] availableTypes)
             where TSaga : Saga<TSagaData>, new()
             where TSagaData : class, IContainSagaData, new()
@@ -93,15 +71,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return sagaData;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sagaId"></param>
-        /// <param name="update"></param>
-        /// <param name="availableTypes"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task<TSagaData> GetByIdAndUpdate<TSaga, TSagaData>(Guid sagaId, Action<TSagaData> update, params Type[] availableTypes)
             where TSaga : Saga<TSagaData>, new()
             where TSagaData : class, IContainSagaData, new()
@@ -123,15 +92,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return sagaData;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="correlatedPropertyName"></param>
-        /// <param name="correlationPropertyData"></param>
-        /// <param name="update"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task<TSagaData> GetByCorrelationPropertyAndUpdate<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData, Action<TSagaData> update)
             where TSaga : Saga<TSagaData>, new()
             where TSagaData : class, IContainSagaData, new()
@@ -157,14 +117,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return updatedSagaData;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="correlatedPropertyName"></param>
-        /// <param name="correlationPropertyData"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task<TSagaData> GetByCorrelationPropertyAndComplete<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData)
            where TSaga : Saga<TSagaData>, new()
            where TSagaData : class, IContainSagaData, new()
@@ -185,14 +137,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return sagaData;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="correlatedPropertyName"></param>
-        /// <param name="correlationPropertyData"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task<TSagaData> GetByCorrelationProperty<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData)
            where TSaga : Saga<TSagaData>, new()
            where TSagaData : class, IContainSagaData, new()
@@ -212,14 +156,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return sagaData;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sagaId"></param>
-        /// <param name="availableTypes"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected async Task<TSagaData> GetById<TSaga, TSagaData>(Guid sagaId, params Type[] availableTypes)
             where TSaga : Saga<TSagaData>, new()
             where TSagaData : class, IContainSagaData, new()
@@ -236,16 +172,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return sagaData;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="saga"></param>
-        /// <param name="sagaData"></param>
-        /// <param name="availableTypes"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
-        /// <returns></returns>
         protected SagaCorrelationProperty SetActiveSagaInstanceForSave<TSaga, TSagaData>(ContextBag context, TSaga saga, TSagaData sagaData, params Type[] availableTypes)
             where TSaga : Saga<TSagaData>
             where TSagaData : class, IContainSagaData, new()
@@ -272,14 +198,6 @@ namespace NServiceBus.PersistenceTests.Sagas
             return correlationProperty;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="sagaData"></param>
-        /// <param name="availableTypes"></param>
-        /// <typeparam name="TSaga"></typeparam>
-        /// <typeparam name="TSagaData"></typeparam>
         protected void SetActiveSagaInstanceForGet<TSaga, TSagaData>(ContextBag context, TSagaData sagaData, params Type[] availableTypes)
             where TSaga : Saga<TSagaData>, new ()
             where TSagaData : class, IContainSagaData, new()
