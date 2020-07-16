@@ -2,8 +2,11 @@
 namespace NServiceBus.PersistenceTests
 {
     using System;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
     using Persistence;
@@ -20,7 +23,13 @@ namespace NServiceBus.PersistenceTests
         {
             get
             {
-               return sagaMetadataCollection;
+                if (sagaMetadataCollection == null)
+                {
+                    var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => typeof(Saga).IsAssignableFrom(t) || typeof(IFindSagas<>).IsAssignableFrom(t) || typeof(IFinder).IsAssignableFrom(t)).ToArray();
+                    sagaMetadataCollection = new SagaMetadataCollection();
+                    sagaMetadataCollection.Initialize(sagaTypes);
+                }
+                return sagaMetadataCollection;
             }
             set { sagaMetadataCollection = value; }
         }
@@ -32,12 +41,19 @@ namespace NServiceBus.PersistenceTests
     {
         public PersistenceTestsConfiguration(TimeSpan? fromMilliseconds = null)
         {
-           throw new InvalidOperationException("Run tests from NServiceBus.InMemory.PersistenceTests");
+            SagaIdGenerator = new DefaultSagaIdGenerator();
+            SagaStorage = new InMemorySagaPersister();
+            SynchronizedStorage = new InMemorySynchronizedStorage();
+            SynchronizedStorageAdapter = new InMemoryTransactionalSynchronizedStorageAdapter();
+            SubscriptionStorage = new InMemorySubscriptionStorage();
+            TimeoutStorage = new InMemoryTimeoutPersister(() => DateTime.UtcNow); // todo: verify
+            TimeoutQuery = new InMemoryTimeoutPersister(() => DateTime.Now);
+            OutboxStorage = new InMemoryOutboxStorage();
         }
 
-        public bool SupportsDtc => false;
+        public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
-        public bool SupportsFinders => true;
+        public bool SupportsFinders => true;  // TODO: verify if we actually need this as we think it should only be invoked by core
         public bool SupportsSubscriptions => true;
         public bool SupportsTimeouts => true;
         public bool SupportsOptimisticConcurrency => true;
@@ -53,11 +69,11 @@ namespace NServiceBus.PersistenceTests
 
         public Task Configure()
         {
-            throw new NotImplementedException();
+            return TaskEx.CompletedTask;
         }
         public Task Cleanup()
         {
-            throw new NotImplementedException();
+            return TaskEx.CompletedTask;
         }
     }
 }

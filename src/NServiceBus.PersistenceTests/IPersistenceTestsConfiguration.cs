@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.PersistenceTests
+﻿#pragma warning disable 1591
+namespace NServiceBus.PersistenceTests
 {
     using System.Threading.Tasks;
     using NServiceBus.Outbox;

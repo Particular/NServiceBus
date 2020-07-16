@@ -4,8 +4,6 @@
     <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CA2007</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +31,7 @@
       <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.TransportTests\</PackagePath>
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
+    <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Transactions" />
