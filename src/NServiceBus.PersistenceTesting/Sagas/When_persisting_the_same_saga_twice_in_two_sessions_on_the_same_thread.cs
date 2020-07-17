@@ -34,14 +34,11 @@
 
             try
             {
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(winningContext1, saga);
                 var record1 = await persister.Get<TestSagaData>(saga.Id, winningSaveSession1, winningContext1);
 
                 losingContext1 = configuration.GetContextBagForSagaStorage();
                 losingSaveSession1 = await configuration.SynchronizedStorage.OpenSession(losingContext1);
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(losingContext1, saga);
                 staleRecord1 = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession1, losingContext1);
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(losingContext1, staleRecord1);
 
                 record1.DateTimeProperty = DateTime.UtcNow;
                 await persister.Update(record1, winningSaveSession1, winningContext1);
@@ -73,15 +70,11 @@
             var winningSaveSession2 = await configuration.SynchronizedStorage.OpenSession(winningContext2);
             try
             {
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(winningContext2, saga);
                 var record2 = await persister.Get<TestSagaData>(saga.Id, winningSaveSession2, winningContext2);
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(winningContext2, record2);
 
                 losingContext2 = configuration.GetContextBagForSagaStorage();
                 losingSaveSession2 = await configuration.SynchronizedStorage.OpenSession(losingContext2);
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(losingContext2, saga);
                 staleRecord2 = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession2, losingContext2);
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(losingContext2, staleRecord2);
 
                 record2.DateTimeProperty = DateTime.UtcNow;
                 await persister.Update(record2, winningSaveSession2, winningContext2);

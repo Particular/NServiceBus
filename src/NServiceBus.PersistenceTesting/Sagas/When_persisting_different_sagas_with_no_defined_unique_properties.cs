@@ -38,10 +38,8 @@
             var readContextBag = configuration.GetContextBagForSagaStorage();
             using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
             {
-                SetActiveSagaInstanceForGet<SagaWithoutCorrelationProperty, SagaWithoutCorrelationPropertyData>(readContextBag, saga1, typeof(CustomFinder));
                 var saga1Result = await persister.Get<SagaWithoutCorrelationPropertyData>(saga1.Id, readSession, readContextBag);
 
-                SetActiveSagaInstanceForGet<AnotherSagaWithoutCorrelationProperty, AnotherSagaWithoutCorrelationPropertyData>(readContextBag, saga2, typeof(AnotherCustomFinder));
                 var saga2Result = await persister.Get<AnotherSagaWithoutCorrelationPropertyData>(saga2.Id, readSession, readContextBag);
 
                 Assert.AreEqual(saga1.FoundByFinderProperty, saga1Result.FoundByFinderProperty);

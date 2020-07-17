@@ -43,13 +43,9 @@
                         var enlistedContextBag = configuration.GetContextBagForSagaStorage();
                         var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, enlistedContextBag);
 
-                        SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(unenlistedContextBag, new TestSagaData {Id = generatedSagaId, SomeId = correlationPropertData});
                         var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
-                        SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(unenlistedContextBag, unenlistedRecord);
 
-                        SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(enlistedContextBag, new TestSagaData {Id = generatedSagaId, SomeId = correlationPropertData});
                         var enlistedRecord = await persister.Get<TestSagaData>("Id", generatedSagaId, enlistedSession, enlistedContextBag);
-                        SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(enlistedContextBag, enlistedRecord);
 
                         await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
                         await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);

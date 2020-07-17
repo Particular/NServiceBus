@@ -35,13 +35,11 @@
                 var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent);
                 try
                 {
-                    SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(firstContent, saga);
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
                     firstSessionGetDone.SetResult(true);
 
                     await Task.Delay(200).ConfigureAwait(false);
 
-                    SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(firstContent, record);
                     record.DateTimeProperty = firstSessionDateTimeValue;
                     await persister.Update(record, firstSaveSession, firstContent);
                     await secondSessionGetDone.Task.ConfigureAwait(false);
@@ -59,14 +57,11 @@
                 var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext);
                 try
                 {
-                    SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(secondContext, saga);
-
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
                     var recordTask = persister.Get<TestSagaData>(saga.Id, secondSession, secondContext);
                     secondSessionGetDone.SetResult(true);
                     var record = await recordTask.ConfigureAwait(false);
-                    SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(secondContext, record);
                     record.DateTimeProperty = secondSessionDateTimeValue;
                     await persister.Update(record, secondSession, secondContext);
                     await secondSession.CompleteAsync();

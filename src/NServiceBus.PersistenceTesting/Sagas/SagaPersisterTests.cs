@@ -66,9 +66,7 @@
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, new TSagaData(), availableTypes);
                 sagaData = await persister.Get<TSagaData>(sagaId, completeSession, context);
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, sagaData, availableTypes);
 
                 await persister.Complete(sagaData, completeSession, context);
                 await completeSession.CompleteAsync();
@@ -87,8 +85,6 @@
 
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(context, new TSagaData());
-
                 sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 
                 await completeSession.CompleteAsync();
@@ -105,7 +101,6 @@
             TSagaData sagaData;
             using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
             {
-                SetActiveSagaInstanceForGet<TSaga, TSagaData>(readContextBag, new TSagaData(), availableTypes);
                 sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag);
 
                 await readSession.CompleteAsync();
@@ -149,17 +144,6 @@
 
                 sagaData.Id = configuration.SagaIdGenerator.Generate(new SagaIdGeneratorContext(correlationProperty, sagaMetadata, new ContextBag()));
             }
-        }
-
-        protected void SetActiveSagaInstanceForGet<TSaga, TSagaData>(ContextBag context, TSagaData sagaData, params Type[] availableTypes)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
-        {
-            var sagaMetadata = configuration.SagaMetadataCollection.FindByEntity(typeof(TSagaData));
-            var sagaInstance = new ActiveSagaInstance(new TSaga(), sagaMetadata, () => DateTime.UtcNow);
-
-            sagaInstance.AttachNewEntity(sagaData);
-            context.Set(sagaInstance);
         }
 
         protected IPersistenceTestsConfiguration configuration;
