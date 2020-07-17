@@ -5,6 +5,7 @@
     using Extensibility;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     public class SagaPersisterTests<TSaga, TSagaData> : SagaPersisterTests
         where TSaga : Saga<TSagaData>, new()
@@ -40,11 +41,20 @@
             var insertContextBag = configuration.GetContextBagForSagaStorage();
             using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
             {
-                var correlationProperty = SetActiveSagaInstanceForSave(insertContextBag, new TSaga(), saga, availableTypes);
+                SetupNewSaga(saga);
+                var correlationProperty = GetSagaCorrelationProperty(saga);
 
                 await configuration.SagaStorage.Save(saga, correlationProperty, insertSession, insertContextBag);
                 await insertSession.CompleteAsync();
             }
+        }
+
+        protected async Task SaveSagaWithSession<TSagaData>(TSagaData saga, CompletableSynchronizedStorageSession session, ContextBag context)
+            where TSagaData : class, IContainSagaData, new()
+        {
+            SetupNewSaga(saga);
+            var correlationProperty = GetSagaCorrelationProperty(saga);
+            await configuration.SagaStorage.Save(saga, correlationProperty, session, context);
         }
 
         protected async Task<TSagaData> GetByIdAndComplete<TSaga, TSagaData>(Guid sagaId, params Type[] availableTypes)
@@ -104,12 +114,10 @@
             return sagaData;
         }
 
-        protected SagaCorrelationProperty SetActiveSagaInstanceForSave<TSaga, TSagaData>(ContextBag context, TSaga saga, TSagaData sagaData, params Type[] availableTypes)
-            where TSaga : Saga<TSagaData>
-            where TSagaData : class, IContainSagaData, new()
+        protected SagaCorrelationProperty GetSagaCorrelationProperty<TSagaData>(TSagaData sagaData)
         {
             var sagaMetadata = configuration.SagaMetadataCollection.FindByEntity(typeof(TSagaData));
-            var sagaInstance = new ActiveSagaInstance(saga, sagaMetadata, () => DateTime.UtcNow);
+
             var correlationProperty = SagaCorrelationProperty.None;
             if (sagaMetadata.TryGetCorrelationProperty(out var correlatedProp))
             {
@@ -120,15 +128,27 @@
                 correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
             }
 
+            return correlationProperty;
+        }
+
+        protected void SetupNewSaga<TSagaData>(TSagaData sagaData) where TSagaData : IContainSagaData
+        {
+            //TODO setup other IContainSagaData properties
             if (sagaData.Id == Guid.Empty)
             {
-                sagaData.Id = configuration.SagaIdGenerator.Generate(new SagaIdGeneratorContext(correlationProperty, sagaMetadata, context));
+                var sagaMetadata = configuration.SagaMetadataCollection.FindByEntity(typeof(TSagaData));
+                var correlationProperty = SagaCorrelationProperty.None;
+                if (sagaMetadata.TryGetCorrelationProperty(out var correlatedProp))
+                {
+                    var prop = sagaData.GetType().GetProperty(correlatedProp.Name);
+
+                    var value = prop.GetValue(sagaData);
+
+                    correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
+                }
+
+                sagaData.Id = configuration.SagaIdGenerator.Generate(new SagaIdGeneratorContext(correlationProperty, sagaMetadata, new ContextBag()));
             }
-
-            sagaInstance.AttachNewEntity(sagaData);
-            context.Set(sagaInstance);
-
-            return correlationProperty;
         }
 
         protected void SetActiveSagaInstanceForGet<TSaga, TSagaData>(ContextBag context, TSagaData sagaData, params Type[] availableTypes)

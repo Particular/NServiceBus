@@ -21,7 +21,6 @@
             {
                 var sagaFromStorage = await GetById(sagaData.Id);
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
-                SetActiveSagaInstanceForSave(contextBag, new TestSaga(), sagaFromStorage);
 
                 await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
                 await session.CompleteAsync();

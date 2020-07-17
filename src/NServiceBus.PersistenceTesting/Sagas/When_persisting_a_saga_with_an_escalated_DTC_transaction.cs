@@ -22,11 +22,9 @@
             using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
             {
                 var sagaData = new TestSagaData {SomeId = correlationPropertData};
-                SetActiveSagaInstanceForSave(savingContextBag, new TestSaga(), sagaData);
-                generatedSagaId = sagaData.Id;
-
-                await persister.Save(sagaData, null, session, savingContextBag);
+                await SaveSagaWithSession(sagaData, session, savingContextBag);
                 await session.CompleteAsync();
+                generatedSagaId = sagaData.Id;
             }
 
             Assert.That(async () =>

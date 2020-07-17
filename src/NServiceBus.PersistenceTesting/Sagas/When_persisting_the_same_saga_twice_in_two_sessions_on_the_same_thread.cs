@@ -21,9 +21,7 @@
             var insertContextBag = configuration.GetContextBagForSagaStorage();
             using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
             {
-                var correlationProperty = SetActiveSagaInstanceForSave(insertContextBag, new TestSaga(), saga);
-
-                await persister.Save(saga, correlationProperty, insertSession, insertContextBag);
+                await SaveSagaWithSession(saga, insertSession, insertContextBag);
                 await insertSession.CompleteAsync();
             }
 
