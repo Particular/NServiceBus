@@ -30,12 +30,8 @@
             var savingContextBag = configuration.GetContextBagForSagaStorage();
             using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
             {
-                var correlationPropertyNoneSaga1 = SetActiveSagaInstanceForSave(savingContextBag, new SagaWithoutCorrelationProperty(), saga1, typeof(CustomFinder));
-                await persister.Save(saga1, correlationPropertyNoneSaga1, session, savingContextBag);
-
-                var correlationPropertyNoneSaga2 = SetActiveSagaInstanceForSave(savingContextBag, new AnotherSagaWithoutCorrelationProperty(), saga2, typeof(AnotherCustomFinder));
-                await persister.Save(saga2, correlationPropertyNoneSaga2, session, savingContextBag);
-
+                await SaveSagaWithSession(saga1, session, savingContextBag);
+                await SaveSagaWithSession(saga2, session, savingContextBag);
                 await session.CompleteAsync();
             }
 

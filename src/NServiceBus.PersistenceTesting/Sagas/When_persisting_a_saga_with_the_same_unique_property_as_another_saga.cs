@@ -22,24 +22,19 @@
                 DateTimeProperty = DateTime.UtcNow
             };
 
-            var persister = configuration.SagaStorage;
-
             var winningContextBag = configuration.GetContextBagForSagaStorage();
             using (var winningSession = await configuration.SynchronizedStorage.OpenSession(winningContextBag))
             {
-                var correlationPropertySaga1 = SetActiveSagaInstanceForSave(winningContextBag, new SagaWithCorrelationProperty(), saga1);
-                await persister.Save(saga1, correlationPropertySaga1, winningSession, winningContextBag);
+                await SaveSagaWithSession(saga1, winningSession, winningContextBag);
                 await winningSession.CompleteAsync();
             }
 
             var losingContextBag = configuration.GetContextBagForSagaStorage();
             using (var losingSession = await configuration.SynchronizedStorage.OpenSession(losingContextBag))
             {
-                var correlationPropertySaga2 = SetActiveSagaInstanceForSave(losingContextBag, new SagaWithCorrelationProperty(), saga2);
-
                 Assert.That(async () =>
                 {
-                    await persister.Save(saga2, correlationPropertySaga2, losingSession, losingContextBag);
+                    await SaveSagaWithSession(saga2, losingSession, losingContextBag);
                     await losingSession.CompleteAsync();
                 }, Throws.InstanceOf<Exception>());
             }

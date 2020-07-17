@@ -20,11 +20,10 @@
             using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
             {
                 var sagaData = new TestSagaData {SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow};
-                var correlationProperty = SetActiveSagaInstanceForSave(insertContextBag, new TestSaga(), sagaData);
-                generatedSagaId = sagaData.Id;
 
-                await persister.Save(sagaData, correlationProperty, insertSession, insertContextBag);
+                await SaveSagaWithSession(sagaData, insertSession, insertContextBag);
                 await insertSession.CompleteAsync();
+                generatedSagaId = sagaData.Id;
             }
 
             var startSecondTaskSync = new TaskCompletionSource<bool>();
