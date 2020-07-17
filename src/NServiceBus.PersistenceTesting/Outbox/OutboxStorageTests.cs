@@ -123,6 +123,6 @@
             Assert.NotNull(message);
         }
 
-        PersistenceTestsConfiguration configuration;
+        IPersistenceTestsConfiguration configuration;
     }
 }
