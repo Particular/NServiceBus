@@ -20,10 +20,7 @@
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(context, new SagaWithCorrelationPropertyData());
-
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
-                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(context, sagaData);
 
                 await persister.Complete(sagaData, completeSession, context);
                 await completeSession.CompleteAsync();

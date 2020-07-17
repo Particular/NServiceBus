@@ -30,9 +30,7 @@
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                SetActiveSagaInstanceForGet<SagaWithoutCorrelationProperty, SagaWithoutCorrelationPropertyData>(context, new SagaWithoutCorrelationPropertyData(), typeof(CustomFinder));
                 sagaData = await persister.Get<SagaWithoutCorrelationPropertyData>(sagaData.Id, completeSession, context);
-                SetActiveSagaInstanceForGet<SagaWithoutCorrelationProperty, SagaWithoutCorrelationPropertyData>(context, sagaData, typeof(CustomFinder));
 
                 sagaData.FoundByFinderProperty = updateValue;
 

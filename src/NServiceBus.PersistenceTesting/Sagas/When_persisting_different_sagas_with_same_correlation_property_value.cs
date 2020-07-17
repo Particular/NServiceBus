@@ -34,10 +34,8 @@
             var readContextBag = configuration.GetContextBagForSagaStorage();
             using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
             {
-                SetActiveSagaInstanceForGet<SagaWithCorrelationProperty, SagaWithCorrelationPropertyData>(readContextBag, saga1);
                 var saga1Result = await persister.Get<SagaWithCorrelationPropertyData>(nameof(SagaWithCorrelationPropertyData.CorrelatedProperty), saga1.CorrelatedProperty, readSession, readContextBag);
 
-                SetActiveSagaInstanceForGet<AnotherSagaWithCorrelatedProperty, AnotherSagaWithCorrelatedPropertyData>(readContextBag, saga2);
                 var saga2Result = await persister.Get<AnotherSagaWithCorrelatedPropertyData>(nameof(AnotherSagaWithCorrelatedPropertyData.CorrelatedProperty), saga2.CorrelatedProperty, readSession, readContextBag);
 
                 Assert.AreEqual(saga1.CorrelatedProperty, saga1Result.CorrelatedProperty);
