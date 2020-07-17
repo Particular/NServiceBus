@@ -11,7 +11,7 @@
         where TSaga : Saga<TSagaData>, new()
         where TSagaData : class, IContainSagaData, new()
     {
-        protected Task SaveSaga(TSagaData saga, params Type[] availableTypes) => SaveSaga<TSaga, TSagaData>(saga, availableTypes);
+        protected Task SaveSaga(TSagaData saga, params Type[] availableTypes) => SaveSaga<TSagaData>(saga, availableTypes);
         protected Task<TSagaData> GetById(Guid sagaId, params Type[] availableTypes) => GetById<TSaga, TSagaData>(sagaId, availableTypes);
         protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
 
@@ -34,17 +34,12 @@
             await configuration.Cleanup();
         }
 
-        protected async Task SaveSaga<TSaga, TSagaData>(TSagaData saga, params Type[] availableTypes)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
+        protected async Task SaveSaga<TSagaData>(TSagaData saga, params Type[] availableTypes) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
             using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
             {
-                SetupNewSaga(saga);
-                var correlationProperty = GetSagaCorrelationProperty(saga);
-
-                await configuration.SagaStorage.Save(saga, correlationProperty, insertSession, insertContextBag);
+                await SaveSagaWithSession(saga, insertSession, insertContextBag);
                 await insertSession.CompleteAsync();
             }
         }
