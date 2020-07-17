@@ -8,8 +8,6 @@
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
     using Persistence;
-    using Timeout.Core;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public interface IPersistenceTestsConfiguration
     {
@@ -35,12 +33,6 @@
 
         ISynchronizedStorageAdapter SynchronizedStorageAdapter { get; }
 
-        ISubscriptionStorage SubscriptionStorage { get; }
-
-        IPersistTimeouts TimeoutStorage { get; }
-
-        IQueryTimeouts TimeoutQuery { get; }
-
         IOutboxStorage OutboxStorage { get; }
 
         SagaMetadataCollection SagaMetadataCollection { get; }
@@ -49,10 +41,8 @@
 
         Task Cleanup();
 
-        Func<ContextBag> GetContextBagForTimeoutPersister { get; }
         Func<ContextBag> GetContextBagForSagaStorage { get; } //TODO why is this not used?
         Func<ContextBag> GetContextBagForOutbox { get; }
-        Func<ContextBag> GetContextBagForSubscriptions { get; }
     }
 
     // Consumers of this source package have to implement the remaining properties via partial class to configure the tests infrastructure.
@@ -63,10 +53,8 @@
             SessionTimeout = sessionTimeout;
         }
 
-        public Func<ContextBag> GetContextBagForTimeoutPersister { get; } = () => new ContextBag();
         public Func<ContextBag> GetContextBagForSagaStorage { get; } = () => new ContextBag();
         public Func<ContextBag> GetContextBagForOutbox { get; } = () => new ContextBag();
-        public Func<ContextBag> GetContextBagForSubscriptions { get; } = () => new ContextBag();
         public TimeSpan? SessionTimeout { get; }
 
         public SagaMetadataCollection SagaMetadataCollection

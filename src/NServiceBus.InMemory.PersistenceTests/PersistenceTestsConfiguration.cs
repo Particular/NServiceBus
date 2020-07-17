@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.PersistenceTesting
 {
-    using System;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
     using Persistence;
-    using Timeout.Core;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public partial class PersistenceTestsConfiguration
     {
@@ -21,9 +18,6 @@
         public ISagaPersister SagaStorage  { get; private set; }
         public ISynchronizedStorage SynchronizedStorage { get; private set; }
         public ISynchronizedStorageAdapter SynchronizedStorageAdapter  { get; private set; }
-        public ISubscriptionStorage SubscriptionStorage { get; private set; }
-        public IPersistTimeouts TimeoutStorage  { get; private set; }
-        public IQueryTimeouts TimeoutQuery { get; private set; }
         public IOutboxStorage OutboxStorage  { get; private set; }
 
         public Task Configure()
@@ -32,9 +26,6 @@
             SagaStorage = new InMemorySagaPersister();
             SynchronizedStorage = new InMemorySynchronizedStorage();
             SynchronizedStorageAdapter = new InMemoryTransactionalSynchronizedStorageAdapter();
-            SubscriptionStorage = new InMemorySubscriptionStorage();
-            TimeoutStorage = new InMemoryTimeoutPersister(() => DateTime.UtcNow); // todo: verify
-            TimeoutQuery = new InMemoryTimeoutPersister(() => DateTime.Now);
             OutboxStorage = new InMemoryOutboxStorage();
             return TaskEx.CompletedTask;
         }
