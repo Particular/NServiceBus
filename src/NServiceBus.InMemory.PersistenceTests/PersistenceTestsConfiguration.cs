@@ -16,7 +16,6 @@
         public bool SupportsFinders => true;  // TODO: verify if we actually need this as we think it should only be invoked by core
         public bool SupportsSubscriptions => true;
         public bool SupportsTimeouts => true;
-        public bool SupportsOptimisticConcurrency => true;
         public bool SupportsPessimisticConcurrency => false;
         public ISagaIdGenerator SagaIdGenerator { get; private set; }
         public ISagaPersister SagaStorage  { get; private set; }

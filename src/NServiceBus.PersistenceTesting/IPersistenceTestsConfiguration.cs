@@ -23,8 +23,6 @@
 
         bool SupportsTimeouts { get; }
 
-        bool SupportsOptimisticConcurrency { get; }
-
         bool SupportsPessimisticConcurrency { get; }
 
         ISagaIdGenerator SagaIdGenerator { get; }
