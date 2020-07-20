@@ -145,6 +145,7 @@ namespace NServiceBus
     {
         public ConventionsBuilder(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.Conventions Conventions { get; }
+        public NServiceBus.ConventionsBuilder Add(NServiceBus.IMessageConvention messageConvention) { }
         public NServiceBus.ConventionsBuilder DefiningCommandsAs(System.Func<System.Type, bool> definesCommandType) { }
         public NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
         [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. This convention configuration does not work in combination with the NServiceBus.Encryption.MessageProperty package. The member currently throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
@@ -488,6 +489,13 @@ namespace NServiceBus
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
     }
     public interface IMessage { }
+    public interface IMessageConvention
+    {
+        string Name { get; }
+        bool IsCommandType(System.Type type);
+        bool IsEventType(System.Type type);
+        bool IsMessageType(System.Type type);
+    }
     public interface IMessageCreator
     {
         T CreateInstance<T>();
@@ -704,6 +712,14 @@ namespace NServiceBus
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
         public string ErrorQueue { get; }
+    }
+    public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
+    {
+        public NServiceBusMarkerInterfaceConvention() { }
+        public string Name { get; }
+        public bool IsCommandType(System.Type type) { }
+        public bool IsEventType(System.Type type) { }
+        public bool IsMessageType(System.Type type) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
