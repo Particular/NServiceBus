@@ -488,6 +488,13 @@ namespace NServiceBus
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
     }
     public interface IMessage { }
+    public interface IMessageConvention
+    {
+        string Name { get; }
+        bool IsCommandType(System.Type type);
+        bool IsEventType(System.Type type);
+        bool IsMessageType(System.Type type);
+    }
     public interface IMessageCreator
     {
         T CreateInstance<T>();
@@ -704,6 +711,14 @@ namespace NServiceBus
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
         public string ErrorQueue { get; }
+    }
+    public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
+    {
+        public NServiceBusMarkerInterfaceConvention() { }
+        public string Name { get; }
+        public bool IsCommandType(System.Type type) { }
+        public bool IsEventType(System.Type type) { }
+        public bool IsMessageType(System.Type type) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {

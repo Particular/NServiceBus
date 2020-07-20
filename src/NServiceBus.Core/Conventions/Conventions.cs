@@ -12,6 +12,15 @@
     public partial class Conventions
     {
         /// <summary>
+        /// Initializes message conventions with the default NServiceBus conventions.
+        /// </summary>
+        public Conventions()
+        {
+            defaultMessageConvention = new OverridableMessageConvention(new NServiceBusMarkerInterfaceConvention());
+            conventions.Add(defaultMessageConvention);
+        }
+
+        /// <summary>
         /// Returns true if the given type is a message type.
         /// </summary>
         public bool IsMessageType(Type t)
@@ -32,9 +41,19 @@
                         {
                             return false;
                         }
-                        return IsMessageTypeAction(type) ||
-                               IsCommandTypeAction(type) ||
-                               IsEventTypeAction(type);
+
+                        foreach(var convention in conventions)
+                        {
+                            if(convention.IsMessageType(type)
+                            || convention.IsCommandType(type)
+                            || convention.IsEventType(type))
+                            {
+                                // TODO: Log the matched convention
+                                return true;
+                            }
+                        }
+
+                        return false;
                     });
             }
             catch (Exception ex)
@@ -81,7 +100,17 @@
                     {
                         return false;
                     }
-                    return IsCommandTypeAction(type);
+
+                    foreach(var convention in conventions)
+                    {
+                        if(convention.IsCommandType(type))
+                        {
+                            // TODO: Log matching convention
+                            return true;
+                        }
+
+                    }
+                    return false;
                 });
             }
             catch (Exception ex)
@@ -121,7 +150,17 @@
                     {
                         return false;
                     }
-                    return IsEventTypeAction(type);
+
+                    foreach(var convention in conventions)
+                    {
+                        if(convention.IsEventType(type))
+                        {
+                            // TODO: Log matching convention
+                            return true;
+                        }
+                    }
+
+                    return false;
                 });
             }
             catch (Exception ex)
@@ -130,7 +169,7 @@
             }
         }
 
-        internal bool CustomMessageTypeConventionUsed { get; private set; }
+        internal bool CustomMessageTypeConventionUsed => defaultMessageConvention.ConventionModified || conventions.Count > 1;
 
         internal List<DataBusPropertyInfo> GetDataBusProperties(object message)
         {
@@ -156,28 +195,31 @@
 
         internal void DefineMessageTypeConvention(Func<Type, bool> definesMessageType)
         {
-            IsMessageTypeAction = definesMessageType;
-            CustomMessageTypeConventionUsed = true;
+            defaultMessageConvention.DefiningMessagesAs(definesMessageType);
         }
 
-        internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
+        internal void DefineCommandTypeConventions(Func<Type, bool> definesCommandType)
+        {
+            defaultMessageConvention.DefiningCommandsAs(definesCommandType);
+        }
+
+        internal void DefineEventTypeConventions(Func<Type, bool> definesEventType)
+        {
+            defaultMessageConvention.DefiningEventsAs(definesEventType);
+        }
 
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
-
-        internal Func<Type, bool> IsEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
 
         ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();
 
         ConventionCache CommandsConventionCache = new ConventionCache();
         ConventionCache EventsConventionCache = new ConventionCache();
 
-        Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
-                                                    typeof(IMessage) != t &&
-                                                    typeof(IEvent) != t &&
-                                                    typeof(ICommand) != t;
-
         List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
         ConventionCache MessagesConventionCache = new ConventionCache();
+
+        IList<IMessageConvention> conventions = new List<IMessageConvention>();
+        OverridableMessageConvention defaultMessageConvention;
 
         class ConventionCache
         {

@@ -72,10 +72,8 @@
             [Test]
             public void IsCommandType_should_return_false_for_NServiceBus_types()
             {
-                var conventions = new Conventions
-                {
-                    IsCommandTypeAction = t => t.Assembly == typeof(Conventions).Assembly
-                };
+                var conventions = new Conventions();
+                conventions.DefineCommandTypeConventions(t => t.Assembly == typeof(Conventions).Assembly);
                 Assert.IsFalse(conventions.IsCommandType(typeof(Conventions)));
             }
 
@@ -91,10 +89,8 @@
             [Test]
             public void IsEventType_should_return_false_for_NServiceBus_types()
             {
-                var conventions = new Conventions
-                {
-                    IsEventTypeAction = t => t.Assembly == typeof(Conventions).Assembly
-                };
+                var conventions = new Conventions();
+                conventions.DefineEventTypeConventions(t => t.Assembly == typeof(Conventions).Assembly);
                 Assert.IsFalse(conventions.IsEventType(typeof(Conventions)));
             }
 
@@ -105,11 +101,9 @@
             [Test]
             public void IsCommandType_should_return_true_for_matching_type()
             {
-                var conventions = new Conventions
-                {
-                    IsCommandTypeAction = t => t.Assembly == typeof(Conventions).Assembly ||
-                                               t == typeof(MyConventionCommand)
-                };
+                var conventions = new Conventions();
+                conventions.DefineCommandTypeConventions(t => t.Assembly == typeof(Conventions).Assembly ||
+                                               t == typeof(MyConventionCommand));
                 Assert.IsTrue(conventions.IsCommandType(typeof(MyConventionCommand)));
             }
 
@@ -133,11 +127,9 @@
             [Test]
             public void IsEventType_should_return_true_for_matching_type()
             {
-                var conventions = new Conventions
-                {
-                    IsEventTypeAction = t => t.Assembly == typeof(Conventions).Assembly ||
-                                               t == typeof(MyConventionEvent)
-                };
+                var conventions = new Conventions();
+                conventions.DefineEventTypeConventions(t => t.Assembly == typeof(Conventions).Assembly ||
+                                               t == typeof(MyConventionEvent));
                 Assert.IsTrue(conventions.IsEventType(typeof(MyConventionEvent)));
             }
 

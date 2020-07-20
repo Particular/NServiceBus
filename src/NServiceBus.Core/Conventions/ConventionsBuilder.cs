@@ -34,7 +34,7 @@ namespace NServiceBus
         public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
         {
             Guard.AgainstNull(nameof(definesCommandType), definesCommandType);
-            Conventions.IsCommandTypeAction = definesCommandType;
+            Conventions.DefineCommandTypeConventions(definesCommandType);
             return this;
         }
 
@@ -44,7 +44,7 @@ namespace NServiceBus
         public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
         {
             Guard.AgainstNull(nameof(definesEventType), definesEventType);
-            Conventions.IsEventTypeAction = definesEventType;
+            Conventions.DefineEventTypeConventions(definesEventType);
             return this;
         }
 
