@@ -208,6 +208,11 @@
             defaultMessageConvention.DefiningEventsAs(definesEventType);
         }
 
+        internal void Add(IMessageConvention messageConvention)
+        {
+            conventions.Add(messageConvention);
+        }
+
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
 
         ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();

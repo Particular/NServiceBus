@@ -58,6 +58,16 @@ namespace NServiceBus
             return this;
         }
 
+        /// <summary>
+        /// Adds a message convention that will be used to evaluate whether a type is a message, command, or event.
+        /// </summary>
+        public ConventionsBuilder Add(IMessageConvention messageConvention)
+        {
+            Guard.AgainstNull(nameof(messageConvention), messageConvention);
+            Conventions.Add(messageConvention);
+            return this;
+        }
+
 
         /// <summary>
         /// The defined <see cref="Conventions"/>.

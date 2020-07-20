@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests
 {
     using NUnit.Framework;
+    using System;
 
     [TestFixture]
     public class ConventionsTests
@@ -135,6 +136,81 @@
 
             public class MyConventionEvent
             {
+            }
+        }
+
+        [TestFixture]
+        public class When_using_custom_convention
+        {
+            [Test]
+            public void IsCommandType_should_return_true_for_matching_type()
+            {
+                var conventions = new Conventions();
+                conventions.Add(new MyConvention());
+                Assert.IsTrue(conventions.IsCommandType(typeof(MyConventionCommand)));
+            }
+
+            [Test]
+            public void IsEventType_should_return_true_for_matching_type()
+            {
+                var conventions = new Conventions();
+                conventions.Add(new MyConvention());
+                Assert.IsTrue(conventions.IsEventType(typeof(MyConventionEvent)));
+            }
+
+            [Test]
+            public void IsMessageType_should_return_true_for_matching_type()
+            {
+                var conventions = new Conventions();
+                conventions.Add(new MyConvention());
+                Assert.IsTrue(conventions.IsMessageType(typeof(MyConventionMessage)));
+            }
+
+            [Test]
+            public void IsCommandType_should_return_true_for_default_convention()
+            {
+                var conventions = new Conventions();
+                conventions.Add(new MyConvention());
+                Assert.IsTrue(conventions.IsCommandType(typeof(DefaultConventionCommand)));
+            }
+
+            [Test]
+            public void IsEventType_should_return_true_for_default_convention()
+            {
+                var conventions = new Conventions();
+                conventions.Add(new MyConvention());
+                Assert.IsTrue(conventions.IsEventType(typeof(DefaultConventionEvent)));
+            }
+
+            [Test]
+            public void IsMessageType_should_return_true_for_default_convention()
+            {
+                var conventions = new Conventions();
+                conventions.Add(new MyConvention());
+                Assert.IsTrue(conventions.IsMessageType(typeof(DefaultConventionMessage)));
+            }
+
+            class DefaultConventionCommand : ICommand { }
+
+            class DefaultConventionEvent : IEvent { }
+
+            class DefaultConventionMessage : IMessage { }
+
+            class MyConventionCommand { }
+
+            class MyConventionEvent { }
+
+            class MyConventionMessage { }
+
+            class MyConvention : IMessageConvention
+            {
+                public string Name => "Test Convention";
+
+                public bool IsCommandType(Type type) => type == typeof(MyConventionCommand);
+
+                public bool IsEventType(Type type) => type == typeof(MyConventionEvent);
+
+                public bool IsMessageType(Type type) => type == typeof(MyConventionMessage);
             }
         }
     }
