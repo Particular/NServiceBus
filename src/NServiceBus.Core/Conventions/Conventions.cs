@@ -43,20 +43,35 @@
                             return false;
                         }
 
-                        foreach(var convention in conventions)
+                        foreach (var convention in conventions)
                         {
-                            if(convention.IsMessageType(type)
-                            || convention.IsCommandType(type)
-                            || convention.IsEventType(type))
+                            if (convention.IsMessageType(type))
                             {
-                                if(logger.IsDebugEnabled)
+                                if (logger.IsDebugEnabled)
                                 {
                                     logger.Debug($"{type.FullName} identified as message type by {convention.Name} convention.");
                                 }
                                 return true;
                             }
-                        }
 
+                            if (convention.IsCommandType(type))
+                            {
+                                if (logger.IsDebugEnabled)
+                                {
+                                    logger.Debug($"{type.FullName} identified as command type by {convention.Name} but does not match message type convention. Treating as a message.");
+                                }
+                                return true;
+                            }
+
+                            if (convention.IsEventType(type))
+                            {
+                                if (logger.IsDebugEnabled)
+                                {
+                                    logger.Debug($"{type.FullName} identified as event type by {convention.Name} but does not match message type convention. Treating as a message.");
+                                }
+                                return true;
+                            }
+                        }
                         return false;
                     });
             }
@@ -105,9 +120,9 @@
                         return false;
                     }
 
-                    foreach(var convention in conventions)
+                    foreach (var convention in conventions)
                     {
-                        if(convention.IsCommandType(type))
+                        if (convention.IsCommandType(type))
                         {
                             if (logger.IsDebugEnabled)
                             {
@@ -158,9 +173,9 @@
                         return false;
                     }
 
-                    foreach(var convention in conventions)
+                    foreach (var convention in conventions)
                     {
-                        if(convention.IsEventType(type))
+                        if (convention.IsEventType(type))
                         {
                             if (logger.IsDebugEnabled)
                             {
