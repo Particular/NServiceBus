@@ -32,7 +32,7 @@
   <ItemGroup>
     <_PackageFiles Include="**\*.cs">
       <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.TransportTests\</PackagePath>
+      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.PersistenceTests\</PackagePath>
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
