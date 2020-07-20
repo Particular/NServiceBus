@@ -21,6 +21,8 @@ namespace NServiceBus.Features
                 var licenseManager = new LicenseManager();
                 licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
 
+                context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
+                
                 if (!licenseManager.HasLicenseExpired)
                 {
                     return;
@@ -38,6 +40,23 @@ namespace NServiceBus.Features
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
+        }
+
+        static object GenerateLicenseDiagnostics(LicenseManager licenseManager)
+        {
+            return new
+            {
+                LicenseLocation = licenseManager.result.Location,
+                RegisteredTo = licenseManager.result.License.RegisteredTo,
+                LicenseStatus = licenseManager.result.License.GetLicenseStatus(),
+                LicenseType = licenseManager.result.License.LicenseType,
+                Edition = licenseManager.result.License.Edition,
+                ValidApplications = string.Join(",", licenseManager.result.License.ValidApplications),
+                CommercialLicense = licenseManager.result.License.IsCommercialLicense,
+                IsExpired = licenseManager.HasLicenseExpired,
+                ExpirationDate = licenseManager.result.License.ExpirationDate,
+                UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration
+            };
         }
 
         public const string LicenseTextSettingsKey = "LicenseText";
