@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Logging;
+    using Logging;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
