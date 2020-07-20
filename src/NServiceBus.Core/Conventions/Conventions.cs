@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using NServiceBus.Logging;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -48,7 +49,10 @@
                             || convention.IsCommandType(type)
                             || convention.IsEventType(type))
                             {
-                                // TODO: Log the matched convention
+                                if(logger.IsDebugEnabled)
+                                {
+                                    logger.Debug($"{type.FullName} identified as message type by {convention.Name} convention.");
+                                }
                                 return true;
                             }
                         }
@@ -105,7 +109,10 @@
                     {
                         if(convention.IsCommandType(type))
                         {
-                            // TODO: Log matching convention
+                            if (logger.IsDebugEnabled)
+                            {
+                                logger.Debug($"{type.FullName} identified as command type by {convention.Name} convention.");
+                            }
                             return true;
                         }
 
@@ -155,7 +162,10 @@
                     {
                         if(convention.IsEventType(type))
                         {
-                            // TODO: Log matching convention
+                            if (logger.IsDebugEnabled)
+                            {
+                                logger.Debug($"{type.FullName} identified as event type by {convention.Name} convention.");
+                            }
                             return true;
                         }
                     }
@@ -170,6 +180,8 @@
         }
 
         internal bool CustomMessageTypeConventionUsed => defaultMessageConvention.ConventionModified || conventions.Count > 1;
+
+        internal string[] RegisteredConventions => conventions.Select(x => x.Name).ToArray();
 
         internal List<DataBusPropertyInfo> GetDataBusProperties(object message)
         {
@@ -225,6 +237,8 @@
 
         IList<IMessageConvention> conventions = new List<IMessageConvention>();
         OverridableMessageConvention defaultMessageConvention;
+
+        static ILog logger = LogManager.GetLogger<Conventions>();
 
         class ConventionCache
         {
