@@ -46,15 +46,15 @@ namespace NServiceBus.Features
         {
             return new
             {
-                LicenseLocation = licenseManager.result.Location,
-                RegisteredTo = licenseManager.result.License.RegisteredTo,
+                licenseManager.result.License.RegisteredTo,
+                licenseManager.result.License.LicenseType,
+                licenseManager.result.License.Edition,
                 LicenseStatus = licenseManager.result.License.GetLicenseStatus(),
-                LicenseType = licenseManager.result.License.LicenseType,
-                Edition = licenseManager.result.License.Edition,
+                LicenseLocation = licenseManager.result.Location,
                 ValidApplications = string.Join(",", licenseManager.result.License.ValidApplications),
                 CommercialLicense = licenseManager.result.License.IsCommercialLicense,
                 IsExpired = licenseManager.HasLicenseExpired,
-                ExpirationDate = licenseManager.result.License.ExpirationDate,
+                licenseManager.result.License.ExpirationDate,
                 UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration
             };
         }

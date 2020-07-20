@@ -21,7 +21,7 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
                 Directory.Delete(basePath, true);
             }
             
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<EndpointThatWithDiagnosticsEnabled>()
                 .Done(c => c.EndpointsStarted)
                 .Run()
