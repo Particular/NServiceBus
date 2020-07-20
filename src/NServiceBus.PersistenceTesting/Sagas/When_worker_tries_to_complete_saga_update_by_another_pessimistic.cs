@@ -19,8 +19,8 @@
             var firstSessionDateTimeValue = DateTime.UtcNow.AddDays(-2);
             var secondSessionDateTimeValue = DateTime.UtcNow.AddDays(-1);
 
-            var firstSessionGetDone = new TaskCompletionSource<bool>(TaskCreationOptions.PreferFairness);
-            var secondSessionGetDone = new TaskCompletionSource<bool>(TaskCreationOptions.PreferFairness);
+            var firstSessionGetDone = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var secondSessionGetDone = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var persister = configuration.SagaStorage;
 
             async Task FirstSession()
