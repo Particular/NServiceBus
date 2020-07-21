@@ -20,4 +20,8 @@
     <Description>Acceptance testing framework for NServiceBus endpoints. This is an unsupported package.</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectCapability Remove="TestContainer" />
+  </ItemGroup>
+
 </Project>

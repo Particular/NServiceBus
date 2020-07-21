@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
     <PackageReference Include="Particular.CodeRules" Version="0.3.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
-    <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -36,5 +36,9 @@
     <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
   </ItemGroup>
   <!-- End Workaround -->
+
+  <ItemGroup>
+    <ProjectCapability Remove="TestContainer" />
+  </ItemGroup>
 
 </Project>
