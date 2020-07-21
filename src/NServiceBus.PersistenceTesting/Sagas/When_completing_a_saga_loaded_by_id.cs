@@ -16,11 +16,10 @@
 
             await SaveSaga(saga);
 
-            var sagaData = await GetByIdAndComplete(saga.Id);
+            await GetByIdAndComplete(saga.Id);
 
             var completedSaga = await GetById(saga.Id);
 
-            Assert.NotNull(sagaData);
             Assert.Null(completedSaga);
         }
 

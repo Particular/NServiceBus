@@ -7,6 +7,7 @@
     using NUnit.Framework;
     using Persistence;
 
+    //TODO review
     [TestFixture]
     public class When_persisting_a_saga_with_no_defined_unique_property : SagaPersisterTests<When_persisting_a_saga_with_no_defined_unique_property.SagaWithoutCorrelationProperty, When_persisting_a_saga_with_no_defined_unique_property.SagaWithoutCorrelationPropertyData>
     {
@@ -18,11 +19,11 @@
             var propertyData = Guid.NewGuid().ToString();
             var sagaData = new SagaWithoutCorrelationPropertyData {FoundByFinderProperty = propertyData, DateTimeProperty = DateTime.UtcNow};
 
-            var finder = typeof(CustomFinder);
+            //var finder = typeof(CustomFinder);
 
-            await SaveSaga(sagaData, finder);
+            await SaveSaga(sagaData);
 
-            var result = await GetById(sagaData.Id, finder);
+            var result = await GetById(sagaData.Id);
 
             Assert.AreEqual(sagaData.FoundByFinderProperty, result.FoundByFinderProperty);
         }

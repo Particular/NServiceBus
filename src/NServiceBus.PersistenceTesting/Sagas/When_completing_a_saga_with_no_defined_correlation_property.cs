@@ -14,23 +14,23 @@
         /// There can be a saga that is only started by a message and then is driven by timeouts only.
         /// This kind of saga would not require to be correlated by any property.
         /// </summary>
-        /// <returns></returns>
         [Test]
         public async Task It_should_successfully_remove_the_saga()
         {
+            //TODO why does this require finder support?
             configuration.RequiresFindersSupport(); 
 
             var propertyData = Guid.NewGuid().ToString();
 
             var sagaData = new SagaWithoutCorrelationPropertyData {FoundByFinderProperty = propertyData, DateTimeProperty = DateTime.UtcNow};
 
-            var finder = typeof(CustomFinder);
+            //var finder = typeof(CustomFinder);
 
-            await SaveSaga(sagaData, finder);
+            await SaveSaga(sagaData);
 
-            await GetByIdAndComplete(sagaData.Id, finder);
+            await GetByIdAndComplete(sagaData.Id);
 
-            var result = await GetById(sagaData.Id, finder);
+            var result = await GetById(sagaData.Id);
             Assert.That(result, Is.Null);
         }
         

@@ -11,12 +11,12 @@
         where TSaga : Saga<TSagaData>, new()
         where TSagaData : class, IContainSagaData, new()
     {
-        protected Task SaveSaga(TSagaData saga, params Type[] availableTypes) => SaveSaga<TSagaData>(saga, availableTypes);
-        protected Task<TSagaData> GetById(Guid sagaId, params Type[] availableTypes) => GetById<TSaga, TSagaData>(sagaId, availableTypes);
-        protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSaga, TSagaData>(correlatedPropertyName, correlationPropertyData);
+        protected Task SaveSaga(TSagaData saga) => SaveSaga<TSagaData>(saga);
+        protected Task<TSagaData> GetById(Guid sagaId) => GetById<TSagaData>(sagaId);
+        protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSagaData>(correlatedPropertyName, correlationPropertyData);
 
         // TODO: should be inlined as they don't reflect Core api's
-        protected Task<TSagaData> GetByIdAndComplete(Guid sagaId, params Type[] availableTypes) => GetByIdAndComplete<TSaga, TSagaData>(sagaId, availableTypes);
+        protected Task GetByIdAndComplete(Guid sagaId) => GetByIdAndComplete<TSagaData>(sagaId);
     }
 
     public class SagaPersisterTests
@@ -34,7 +34,7 @@
             await configuration.Cleanup();
         }
 
-        protected async Task SaveSaga<TSagaData>(TSagaData saga, params Type[] availableTypes) where TSagaData : class, IContainSagaData, new()
+        protected async Task SaveSaga<TSagaData>(TSagaData saga) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
             using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
@@ -52,27 +52,20 @@
             await configuration.SagaStorage.Save(saga, correlationProperty, session, context);
         }
 
-        protected async Task<TSagaData> GetByIdAndComplete<TSaga, TSagaData>(Guid sagaId, params Type[] availableTypes)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
+        protected async Task GetByIdAndComplete<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData, new()
         {
             var context = configuration.GetContextBagForSagaStorage();
-            TSagaData sagaData;
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                sagaData = await persister.Get<TSagaData>(sagaId, completeSession, context);
+                var sagaData = await persister.Get<TSagaData>(sagaId, completeSession, context);
 
                 await persister.Complete(sagaData, completeSession, context);
                 await completeSession.CompleteAsync();
             }
-
-            return sagaData;
         }
 
-        protected async Task<TSagaData> GetByCorrelationProperty<TSaga, TSagaData>(string correlatedPropertyName, object correlationPropertyData)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
+        protected async Task<TSagaData> GetByCorrelationProperty<TSagaData>(string correlatedPropertyName, object correlationPropertyData) where TSagaData : class, IContainSagaData, new()
         {
             var context = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
@@ -88,9 +81,7 @@
             return sagaData;
         }
 
-        protected async Task<TSagaData> GetById<TSaga, TSagaData>(Guid sagaId, params Type[] availableTypes)
-            where TSaga : Saga<TSagaData>, new()
-            where TSagaData : class, IContainSagaData, new()
+        protected async Task<TSagaData> GetById<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData, new()
         {
             var readContextBag = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
