@@ -28,7 +28,7 @@
 
             await SaveSaga(sagaData);
 
-            await GetByIdAndComplete(sagaData.Id);
+            await CompleteSagaById(sagaData.Id);
 
             var result = await GetById(sagaData.Id);
             Assert.That(result, Is.Null);

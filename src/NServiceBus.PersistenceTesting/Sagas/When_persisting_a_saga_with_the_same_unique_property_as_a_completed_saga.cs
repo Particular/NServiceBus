@@ -17,15 +17,15 @@
             var saga3 = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
 
             await SaveSaga(saga1);
-            await GetByIdAndComplete(saga1.Id);
+            await CompleteSagaById(saga1.Id);
             Assert.IsNull(await GetById(saga1.Id));
 
             await SaveSaga(saga2);
-            await GetByIdAndComplete(saga2.Id);
+            await CompleteSagaById(saga2.Id);
             Assert.IsNull(await GetById(saga2.Id));
 
             await SaveSaga(saga3);
-            await GetByIdAndComplete(saga3.Id);
+            await CompleteSagaById(saga3.Id);
             Assert.IsNull(await GetById(saga2.Id));
 
             CollectionAssert.AllItemsAreUnique(new[]{ saga1.Id, saga2.Id, saga3.Id}, "a new saga should be created each time");

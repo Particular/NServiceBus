@@ -16,7 +16,7 @@
 
             await SaveSaga(saga);
 
-            await GetByIdAndComplete(saga.Id);
+            await CompleteSagaById(saga.Id);
 
             var completedSaga = await GetById(saga.Id);
 

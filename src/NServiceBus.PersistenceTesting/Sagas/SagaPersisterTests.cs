@@ -16,7 +16,7 @@
         protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSagaData>(correlatedPropertyName, correlationPropertyData);
 
         // TODO: should be inlined as they don't reflect Core api's
-        protected Task GetByIdAndComplete(Guid sagaId) => GetByIdAndComplete<TSagaData>(sagaId);
+        protected Task CompleteSagaById(Guid sagaId) => CompleteSagaById<TSagaData>(sagaId);
     }
 
     public class SagaPersisterTests
@@ -52,7 +52,7 @@
             await configuration.SagaStorage.Save(saga, correlationProperty, session, context);
         }
 
-        protected async Task GetByIdAndComplete<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData, new()
+        protected async Task CompleteSagaById<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData, new()
         {
             var context = configuration.GetContextBagForSagaStorage();
             var persister = configuration.SagaStorage;
