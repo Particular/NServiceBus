@@ -8,7 +8,7 @@
     using Persistence;
 
     [TestFixture]
-    public class When_updating_a_saga_with_no_mapping_found_by_id : SagaPersisterTests<When_updating_a_saga_with_no_mapping_found_by_id.SagaWithoutCorrelationProperty, When_updating_a_saga_with_no_mapping_found_by_id.SagaWithoutCorrelationPropertyData>
+    public class When_updating_a_saga_with_no_mapping_found_by_id : SagaPersisterTests
     {
         [Test]
         public async Task It_should_successfully_update_the_saga()
@@ -33,7 +33,7 @@
                 await completeSession.CompleteAsync();
             }
 
-            var result = await GetById(sagaData.Id);
+            var result = await GetById<SagaWithoutCorrelationPropertyData>(sagaData.Id);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.SomeSagaProperty, Is.EqualTo(updateValue));
