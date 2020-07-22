@@ -63,7 +63,7 @@ namespace NServiceBus
         static void PrintIndent(StringBuilder sb, int indent)
         {
             sb.AppendLine();
-            for (var i = 0; i <= indent; i++)
+            for (var i = 0; i < indent; i++)
             {
                 sb.Append(LINE_INDENT);
             }
