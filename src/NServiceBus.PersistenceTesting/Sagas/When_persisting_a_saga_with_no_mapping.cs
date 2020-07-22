@@ -7,19 +7,19 @@
     using NUnit.Framework;
     using Persistence;
 
-    //TODO review
     [TestFixture]
-    public class When_persisting_a_saga_with_no_defined_unique_property : SagaPersisterTests<When_persisting_a_saga_with_no_defined_unique_property.SagaWithoutCorrelationProperty, When_persisting_a_saga_with_no_defined_unique_property.SagaWithoutCorrelationPropertyData>
+    public class When_persisting_a_saga_with_no_mapping : SagaPersisterTests<When_persisting_a_saga_with_no_mapping.SagaWithoutCorrelationProperty, When_persisting_a_saga_with_no_mapping.SagaWithoutCorrelationPropertyData>
     {
         [Test]
-        public async Task It_should_persist_successfully()
+        public async Task It_should_persist_successfully_when_finder_exists()
         {
             configuration.RequiresFindersSupport();
 
-            var propertyData = Guid.NewGuid().ToString();
-            var sagaData = new SagaWithoutCorrelationPropertyData {FoundByFinderProperty = propertyData, DateTimeProperty = DateTime.UtcNow};
-
-            //var finder = typeof(CustomFinder);
+            var sagaData = new SagaWithoutCorrelationPropertyData
+            {
+                FoundByFinderProperty = Guid.NewGuid().ToString(), 
+                DateTimeProperty = DateTime.UtcNow
+            };
 
             await SaveSaga(sagaData);
 
@@ -31,14 +31,14 @@
         public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
             IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
         {
-            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
-
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
             {
                 // no mapping needed
+            }
+
+            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -58,7 +58,7 @@
         {
             public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
             {
-                return Task.FromResult(default(SagaWithoutCorrelationPropertyData));
+                throw new NotImplementedException();
             }
         }
     }
