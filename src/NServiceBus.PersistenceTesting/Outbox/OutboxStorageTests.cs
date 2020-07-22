@@ -51,6 +51,8 @@
         [Test]
         public async Task Should_throw_if_trying_to_insert_same_messageid()
         {
+            configuration.RequiresOutboxSupport();
+
             var failed = false;
 
             var storage = configuration.OutboxStorage;
