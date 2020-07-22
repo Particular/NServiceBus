@@ -16,7 +16,7 @@
 
             await SaveSaga(sagaData);
 
-            var retrieved = await GetById(sagaData.Id);
+            var retrieved = await GetById<SagaWithComplexTypeEntity>(sagaData.Id);
 
             CollectionAssert.AreEqual(sagaData.Ints, retrieved.Ints);
             Assert.False(ReferenceEquals(sagaData.Ints, retrieved.Ints));

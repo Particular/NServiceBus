@@ -17,7 +17,7 @@
         [Test]
         public async Task Should_return_default_when_using_finding_saga_with_id()
         {
-            var result = await GetById(Guid.NewGuid());
+            var result = await GetById<SimpleSagaEntity>(Guid.NewGuid());
             Assert.IsNull(result);
         }
 

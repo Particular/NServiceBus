@@ -19,7 +19,7 @@
             var contextBag = configuration.GetContextBagForSagaStorage();
             using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await GetById(sagaData.Id);
+                var sagaFromStorage = await GetById<TestSagaData>(sagaData.Id);
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
 
                 await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
@@ -27,7 +27,7 @@
                 // Do not complete
             }
 
-            var hopefullyNotUpdatedSaga = await GetById(sagaData.Id);
+            var hopefullyNotUpdatedSaga = await GetById<TestSagaData>(sagaData.Id);
 
             Assert.NotNull(hopefullyNotUpdatedSaga);
             Assert.That(hopefullyNotUpdatedSaga.SomethingWeCareAbout, Is.EqualTo("NServiceBus"));

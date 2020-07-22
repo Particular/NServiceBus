@@ -15,8 +15,8 @@
 
             await SaveSaga(saga);
 
-            var returnedSaga1 = await GetById(saga.Id);
-            var returnedSaga2 = await GetById(saga.Id);
+            var returnedSaga1 = await GetById<TestSagaData>(saga.Id);
+            var returnedSaga2 = await GetById<TestSagaData>(saga.Id);
 
             Assert.AreNotSame(returnedSaga2, returnedSaga1);
             Assert.AreNotSame(returnedSaga1, saga);

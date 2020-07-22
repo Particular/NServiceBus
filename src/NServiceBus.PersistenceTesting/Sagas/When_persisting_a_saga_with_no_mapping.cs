@@ -23,7 +23,7 @@
 
             await SaveSaga(sagaData);
 
-            var result = await GetById(sagaData.Id);
+            var result = await GetById<SagaWithoutCorrelationPropertyData>(sagaData.Id);
 
             Assert.AreEqual(sagaData.FoundByFinderProperty, result.FoundByFinderProperty);
         }

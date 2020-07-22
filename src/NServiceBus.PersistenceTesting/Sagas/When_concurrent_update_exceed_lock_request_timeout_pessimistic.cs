@@ -70,7 +70,7 @@
             Assert.DoesNotThrowAsync(async () => await firstSessionTask);
             Assert.ThrowsAsync<TimeoutException>(async () => await secondSessionTask);
 
-            var updatedSaga = await GetById(saga.Id);
+            var updatedSaga = await GetById<TestSagaData>(saga.Id);
             Assert.That(updatedSaga.SagaProperty, Is.EqualTo("session 1 value"));
         }
 
