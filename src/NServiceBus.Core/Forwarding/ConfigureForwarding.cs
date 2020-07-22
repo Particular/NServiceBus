@@ -3,6 +3,7 @@
     /// <summary>
     /// Contains extension methods to <see cref="EndpointConfiguration" />.
     /// </summary>
+    [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
     public static class ConfigureForwarding
     {
         /// <summary>

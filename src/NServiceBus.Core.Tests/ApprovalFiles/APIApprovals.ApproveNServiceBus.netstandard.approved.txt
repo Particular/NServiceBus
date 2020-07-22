@@ -65,6 +65,8 @@ namespace NServiceBus
     {
         public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
+    [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
+        "", false)]
     public class static ConfigureForwarding
     {
         [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
@@ -1612,6 +1614,8 @@ namespace NServiceBus.Features
         Active = 2,
         Deactivated = 3,
     }
+    [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
+        "", false)]
     public class ForwardReceivedMessages : NServiceBus.Features.Feature
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -2018,6 +2022,8 @@ namespace NServiceBus.Pipeline
     {
         System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
+    [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
+        "", false)]
     public interface IForwardingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         string Address { get; }

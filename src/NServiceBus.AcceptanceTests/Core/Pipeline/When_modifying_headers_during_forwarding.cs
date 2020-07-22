@@ -76,6 +76,7 @@
                 }
             }
 
+#pragma warning disable 618
             class ForwardingBehavior : Behavior<IForwardingContext>
             {
                 public override Task Invoke(IForwardingContext context, Func<Task> next)
@@ -84,6 +85,7 @@
                     return next();
                 }
             }
+#pragma warning restore 618
         }
 
         class SomeMessage
