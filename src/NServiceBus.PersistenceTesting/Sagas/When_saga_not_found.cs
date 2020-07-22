@@ -10,7 +10,7 @@
         [Test]
         public async Task Should_throw_when_using_finding_saga_with_correlation_property()
         {
-            var result = await GetByCorrelationProperty("UsedAsCorrelationId", "someValue");
+            var result = await GetByCorrelationProperty<SimpleSagaEntity>("UsedAsCorrelationId", "someValue");
             Assert.IsNull(result);
         }
 

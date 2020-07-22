@@ -66,7 +66,7 @@
 
             await Task.WhenAll(SecondSession(), FirstSession());
 
-            var result = await GetByCorrelationProperty(nameof(TestSagaData.SomeId), correlationPropertyData);
+            var result = await GetByCorrelationProperty<TestSagaData>(nameof(TestSagaData.SomeId), correlationPropertyData);
 
             // MongoDB stores datetime with less precision
             Assert.That(result.DateTimeProperty, Is.EqualTo(secondSessionDateTimeValue).Within(TimeSpan.FromMilliseconds(1)));
