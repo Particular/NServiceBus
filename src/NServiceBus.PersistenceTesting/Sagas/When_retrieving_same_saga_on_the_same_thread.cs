@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_retrieving_same_saga_on_the_same_thread : SagaPersisterTests
     {
         [Test]
@@ -86,6 +86,10 @@
             public string SomeId { get; set; } = "Test";
 
             public DateTime DateTimeProperty { get; set; }
+        }
+
+        public When_retrieving_same_saga_on_the_same_thread(TestVariant param) : base(param)
+        {
         }
     }
 }

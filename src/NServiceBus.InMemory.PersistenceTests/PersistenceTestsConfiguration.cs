@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.PersistenceTesting
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.Outbox;
@@ -33,6 +34,22 @@
         public Task Cleanup()
         {
             return TaskEx.CompletedTask;
+        }
+    }
+
+    public partial class SagaTestVariantSource
+    {
+        static partial void GenerateCases(List<TestVariant> caseList)
+        {
+            caseList.Add(new TestVariant());
+        }
+    }
+
+    public partial class OutboxTestVariantSource
+    {
+        static partial void GenerateCases(List<TestVariant> caseList)
+        {
+            caseList.Add(new TestVariant());
         }
     }
 }

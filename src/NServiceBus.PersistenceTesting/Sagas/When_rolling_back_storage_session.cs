@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_rolling_back_storage_session : SagaPersisterTests
     {
         [Test]
@@ -105,6 +105,10 @@
         public class StartMessage
         {
             public string SomeId { get; set; }
+        }
+
+        public When_rolling_back_storage_session(TestVariant param) : base(param)
+        {
         }
     }
 }

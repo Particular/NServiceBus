@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread : SagaPersisterTests
     {
         [Test] // TODO: Do we need this? What's the use of this test as opposed to When_retrieving_same_saga_on_the_same_thread?
@@ -122,6 +122,10 @@
             public string SomeId { get; set; } = "Test";
 
             public DateTime DateTimeProperty { get; set; }
+        }
+
+        public When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread(TestVariant param) : base(param)
+        {
         }
     }
 }

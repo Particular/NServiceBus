@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_a_saga_with_the_same_unique_property_as_another_saga : SagaPersisterTests
     {
         [Test]
@@ -65,6 +65,9 @@
             public string CorrelatedProperty { get; set; }
         }
 
+        public When_persisting_a_saga_with_the_same_unique_property_as_another_saga(TestVariant param) : base(param)
+        {
+        }
     }
 
 

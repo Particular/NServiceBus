@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_a_saga_with_no_mapping : SagaPersisterTests
     {
         [Test]
@@ -60,6 +60,10 @@
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public When_persisting_a_saga_with_no_defined_unique_property(TestVariant param) : base(param)
+        {
         }
     }
 }

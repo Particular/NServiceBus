@@ -4,7 +4,7 @@
     using System;
     using System.Threading.Tasks;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_different_sagas_with_same_correlation_property_value : SagaPersisterTests
     {
         [Test]
@@ -89,6 +89,10 @@
         public class AnotherSagaWithCorrelatedPropertyData : ContainSagaData
         {
             public string CorrelatedProperty { get; set; }
+        }
+
+        public When_persisting_different_sagas_with_same_correlation_property_value(TestVariant param) : base(param)
+        {
         }
     }
 }

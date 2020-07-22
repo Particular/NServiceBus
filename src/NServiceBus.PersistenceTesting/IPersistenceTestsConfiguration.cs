@@ -48,14 +48,16 @@
     // Consumers of this source package have to implement the remaining properties via partial class to configure the tests infrastructure.
     public partial class PersistenceTestsConfiguration : IPersistenceTestsConfiguration
     {
-        public PersistenceTestsConfiguration(TimeSpan? sessionTimeout = null)
+        public PersistenceTestsConfiguration(TestVariant variant, TimeSpan? sessionTimeout = null)
         {
             SessionTimeout = sessionTimeout;
+            Variant = variant;
         }
 
         public Func<ContextBag> GetContextBagForSagaStorage { get; private set; } = () => new ContextBag();
         public Func<ContextBag> GetContextBagForOutbox { get; private set; } = () => new ContextBag();
         public TimeSpan? SessionTimeout { get; }
+        public TestVariant Variant { get; }
 
         public SagaMetadataCollection SagaMetadataCollection
         {

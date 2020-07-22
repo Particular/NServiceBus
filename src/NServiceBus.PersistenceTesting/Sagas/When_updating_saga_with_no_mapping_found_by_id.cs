@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_updating_saga_with_no_mapping_found_by_id : SagaPersisterTests
     {
         [Test]
@@ -67,6 +67,10 @@
         }
 
         public class SagaWithoutCorrelationPropertyStartingMessage : IMessage
+        {
+        }
+
+        public When_updating_a_saga_with_no_defined_unique_property(TestVariant param) : base(param)
         {
         }
     }

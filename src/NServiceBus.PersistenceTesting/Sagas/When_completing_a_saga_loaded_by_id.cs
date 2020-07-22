@@ -4,7 +4,8 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
+
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
     {
         [Test]
@@ -49,6 +50,10 @@
         public class StartMessage
         {
             public string SomeId { get; set; }
+        }
+
+        public When_completing_a_saga_loaded_by_id(TestVariant param) : base(param)
+        {
         }
     }
 }

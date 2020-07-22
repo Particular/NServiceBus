@@ -5,13 +5,18 @@
     using NServiceBus.Outbox;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(OutboxTestVariantSource), "Variants")]
     class OutboxStorageTests
     {
+        public OutboxStorageTests(TestVariant param)
+        {
+            this.param = param;
+        }
+
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
         {
-            configuration = new PersistenceTestsConfiguration();
+            configuration = new PersistenceTestsConfiguration(param);
             await configuration.Configure();
         }
 
@@ -129,5 +134,6 @@
         }
 
         IPersistenceTestsConfiguration configuration;
+        TestVariant param;
     }
 }

@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : SagaPersisterTests
     {
         [Test]
@@ -95,6 +95,10 @@
                 public string SomeId { get; set; } = "Test";
 
                 public DateTime DateTimeProperty { get; set; }
+            }
+
+            public When_worker_tries_to_complete_saga_update_by_another_pessimistic(TestVariant param) : base(param)
+            {
             }
     }
 }

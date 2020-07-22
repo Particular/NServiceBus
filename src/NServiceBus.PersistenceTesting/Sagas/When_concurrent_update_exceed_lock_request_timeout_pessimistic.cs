@@ -4,12 +4,12 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : SagaPersisterTests
     {
         public override async Task OneTimeSetUp()
         {
-            configuration = new PersistenceTestsConfiguration(TimeSpan.FromMilliseconds(100));
+            configuration = new PersistenceTestsConfiguration(param, TimeSpan.FromMilliseconds(100));
             await configuration.Configure();
         }
 
@@ -97,6 +97,10 @@
         public class StartMessage
         {
             public string SomeId { get; set; }
+        }
+
+        public When_concurrent_update_exceed_transaction_timeout_pessimistic(TestVariant param) : base(param)
+        {
         }
     }
 }

@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Transport;
 
-    [TestFixture]
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPersisterTests
     {
         [Test]
@@ -106,6 +106,10 @@
             }
 
             public static readonly Guid Id = Guid.NewGuid();
+        }
+
+        public When_persisting_a_saga_with_an_escalated_DTC_transaction(TestVariant param) : base(param)
+        {
         }
     }
 }
