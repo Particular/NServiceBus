@@ -8,7 +8,7 @@
     using Persistence;
 
     [TestFixture]
-    public class When_updating_a_saga_with_no_mapping : SagaPersisterTests<When_updating_a_saga_with_no_mapping.SagaWithoutCorrelationProperty, When_updating_a_saga_with_no_mapping.SagaWithoutCorrelationPropertyData>
+    public class When_updating_a_saga_with_no_mapping_found_by_id : SagaPersisterTests<When_updating_a_saga_with_no_mapping_found_by_id.SagaWithoutCorrelationProperty, When_updating_a_saga_with_no_mapping_found_by_id.SagaWithoutCorrelationPropertyData>
     {
         [Test]
         public async Task It_should_successfully_update_the_saga()
