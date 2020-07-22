@@ -4,8 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
-    public class When_updating_a_saga_found_using_correlation_property : SagaPersisterTests<When_updating_a_saga_found_using_correlation_property.SagaWithCorrelationProperty, When_updating_a_saga_found_using_correlation_property.SagaWithCorrelationPropertyData>
+    public class When_updating_saga_found_by_id : SagaPersisterTests
     {
         [Test]
         public async Task It_should_persist_successfully()
@@ -21,20 +20,18 @@
 
             var updatedValue = "bar";
             var context = configuration.GetContextBagForSagaStorage();
-            var correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
-            SagaWithCorrelationPropertyData updatedSagaData;
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(saga1.Id, completeSession, context);
 
                 sagaData.SomeProperty = updatedValue;
 
                 await persister.Update(sagaData, completeSession, context);
                 await completeSession.CompleteAsync();
-
-                updatedSagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
             }
+
+            var updatedSagaData = await GetById<SagaWithCorrelationPropertyData>(saga1.Id);
 
             Assert.That(updatedSagaData, Is.Not.Null);
             Assert.That(updatedSagaData.SomeProperty, Is.EqualTo(updatedValue));
@@ -42,14 +39,14 @@
 
         public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
         {
-            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
-
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
             {
                 mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
+            }
+
+            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
             }
         }
 
