@@ -5,15 +5,16 @@
     using NUnit.Framework;
 
     [TestFixture]
-    [Ignore("Not finished yet")]
     public class When_rolling_back_storage_session : SagaPersisterTests
     {
         [Test]
-        public async Task After_update_should_not_have_stored_anything()
+        public async Task Should_rollback_updates()
         {
-            var correlationPropertyData = Guid.NewGuid().ToString();
-
-            var sagaData = new TestSagaData {SomeId = correlationPropertyData, SomethingWeCareAbout = "NServiceBus"};
+            var sagaData = new TestSagaData
+            {
+                SomeId = Guid.NewGuid().ToString(), 
+                SomethingWeCareAbout = "NServiceBus"
+            };
             await SaveSaga(sagaData);
 
             var contextBag = configuration.GetContextBagForSagaStorage();
@@ -23,7 +24,7 @@
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
 
                 await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
-                await session.CompleteAsync();
+
                 // Do not complete
             }
 
@@ -34,15 +35,51 @@
         }
 
         [Test]
-        public Task After_save_should_not_have_stored_anything()
+        public async Task Should_rollback_storing_new_saga()
         {
-            return Task.FromResult(0);
+            var sagaData = new TestSagaData
+            {
+                SomeId = Guid.NewGuid().ToString(),
+                SomethingWeCareAbout = "NServiceBus"
+            };
+
+            var contextBag = configuration.GetContextBagForSagaStorage();
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
+            {
+                await SaveSagaWithSession(sagaData, session, contextBag);
+                // Do not complete
+            }
+
+            var sagaById = await GetById<TestSagaData>(sagaData.Id);
+            Assert.IsNull(sagaById);
+            var sagaByCorrelationProperty = await GetByCorrelationProperty<TestSagaData>(nameof(sagaData.SomeId), sagaData.SomeId);
+            Assert.IsNull(sagaByCorrelationProperty);
         }
 
         [Test]
-        public Task After_complete_should_not_have_stored_anything()
+        public async Task Should_rollback_saga_completion()
         {
-            return Task.FromResult(0);
+            var sagaData = new TestSagaData
+            {
+                SomeId = Guid.NewGuid().ToString(),
+                SomethingWeCareAbout = "NServiceBus"
+            };
+            await SaveSaga(sagaData);
+
+            var contextBag = configuration.GetContextBagForSagaStorage();
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
+            {
+                var sagaFromStorage = await GetById<TestSagaData>(sagaData.Id);
+
+                await configuration.SagaStorage.Complete(sagaFromStorage, session, contextBag);
+
+                // Do not complete
+            }
+
+            var nonCompletedSaga = await GetById<TestSagaData>(sagaData.Id);
+
+            Assert.NotNull(nonCompletedSaga);
+            Assert.That(nonCompletedSaga.SomethingWeCareAbout, Is.EqualTo("NServiceBus"));
         }
 
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
