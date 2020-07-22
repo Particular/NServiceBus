@@ -8,21 +8,17 @@
     public class When_saga_not_found : SagaPersisterTests
     {
         [Test]
-        public async Task Should_throw_when_using_finding_saga_with_correlation_property()
+        public async Task Should_return_null_when_loading_by_correlation_property()
         {
             var result = await GetByCorrelationProperty<SimpleSagaEntity>("UsedAsCorrelationId", "someValue");
             Assert.IsNull(result);
         }
 
         [Test]
-        public async Task Should_return_default_when_using_finding_saga_with_id()
+        public async Task Should_return_null_when_loading_by_id()
         {
             var result = await GetById<SimpleSagaEntity>(Guid.NewGuid());
             Assert.IsNull(result);
-        }
-
-        public class AnotherSimpleSagaEntity : ContainSagaData
-        {
         }
 
         public class SimpleSagaEntitySaga : Saga<SimpleSagaEntity>, IAmStartedByMessages<StartMessage>
