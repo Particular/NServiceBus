@@ -7,9 +7,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    public class SagaPersisterTests<TSaga, TSagaData> : SagaPersisterTests
-        where TSaga : Saga<TSagaData>, new()
-        where TSagaData : class, IContainSagaData, new()
+    public class SagaPersisterTests<TSagaData> : SagaPersisterTests where TSagaData : class, IContainSagaData, new()
     {
         protected Task SaveSaga(TSagaData saga) => SaveSaga<TSagaData>(saga);
         protected Task<TSagaData> GetById(Guid sagaId) => GetById<TSagaData>(sagaId);

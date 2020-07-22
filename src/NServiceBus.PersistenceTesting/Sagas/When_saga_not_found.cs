@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_saga_not_found : SagaPersisterTests<When_saga_not_found.SimpleSagaEntitySaga, When_saga_not_found.SimpleSagaEntity>
+    public class When_saga_not_found : SagaPersisterTests<When_saga_not_found.SimpleSagaEntity>
     {
         [Test]
         public async Task Should_throw_when_using_finding_saga_with_correlation_property()

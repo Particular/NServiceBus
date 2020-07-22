@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_retrieving_the_same_saga_twice : SagaPersisterTests<When_retrieving_the_same_saga_twice.TestSaga, When_retrieving_the_same_saga_twice.TestSagaData>
+    public class When_retrieving_the_same_saga_twice : SagaPersisterTests<When_retrieving_the_same_saga_twice.TestSagaData>
     {
         [Test]
         public async Task Get_returns_different_instance_of_saga_data()

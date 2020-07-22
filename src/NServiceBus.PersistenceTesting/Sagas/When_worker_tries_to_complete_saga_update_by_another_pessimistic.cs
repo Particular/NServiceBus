@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : SagaPersisterTests<When_worker_tries_to_complete_saga_update_by_another_pessimistic.TestSaga, When_worker_tries_to_complete_saga_update_by_another_pessimistic.TestSagaData>
+    public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : SagaPersisterTests<When_worker_tries_to_complete_saga_update_by_another_pessimistic.TestSagaData>
     {
         [Test]
         public async Task Should_complete()
