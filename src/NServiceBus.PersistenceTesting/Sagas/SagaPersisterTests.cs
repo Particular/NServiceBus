@@ -9,7 +9,6 @@
 
     public class SagaPersisterTests<TSagaData> : SagaPersisterTests where TSagaData : class, IContainSagaData, new()
     {
-        protected Task SaveSaga(TSagaData saga) => SaveSaga<TSagaData>(saga);
         protected Task<TSagaData> GetById(Guid sagaId) => GetById<TSagaData>(sagaId);
         protected Task<TSagaData> GetByCorrelationProperty(string correlatedPropertyName, object correlationPropertyData) => GetByCorrelationProperty<TSagaData>(correlatedPropertyName, correlationPropertyData);
     }
