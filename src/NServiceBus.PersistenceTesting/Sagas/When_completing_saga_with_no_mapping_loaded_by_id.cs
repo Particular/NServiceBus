@@ -8,43 +8,45 @@
     using Persistence;
 
     [TestFixture]
-    public class When_completing_a_saga_with_no_defined_correlation_property : SagaPersisterTests<When_completing_a_saga_with_no_defined_correlation_property.SagaWithoutCorrelationProperty, When_completing_a_saga_with_no_defined_correlation_property.SagaWithoutCorrelationPropertyData>
+    public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTests
     {
-        /// <summary>
-        /// There can be a saga that is only started by a message and then is driven by timeouts only.
-        /// This kind of saga would not require to be correlated by any property.
-        /// </summary>
         [Test]
         public async Task It_should_successfully_remove_the_saga()
         {
-            //TODO why does this require finder support?
             configuration.RequiresFindersSupport(); 
 
             var propertyData = Guid.NewGuid().ToString();
+            var saga = new SagaWithoutCorrelationPropertyData
+            {
+                FoundByFinderProperty = propertyData, 
+                DateTimeProperty = DateTime.UtcNow
+            };
+            await SaveSaga(saga);
 
-            var sagaData = new SagaWithoutCorrelationPropertyData {FoundByFinderProperty = propertyData, DateTimeProperty = DateTime.UtcNow};
+            var context = configuration.GetContextBagForSagaStorage();
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            {
+                var sagaData = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(saga.Id, completeSession, context);
 
-            //var finder = typeof(CustomFinder);
+                await configuration.SagaStorage.Complete(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
+            }
 
-            await SaveSaga(sagaData);
-
-            await CompleteSagaById(sagaData.Id);
-
-            var result = await GetById(sagaData.Id);
+            var result = await GetById<SagaWithoutCorrelationPropertyData>(saga.Id);
             Assert.That(result, Is.Null);
         }
         
         public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
             IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
         {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
+            {
+                // no mapping provided
+            }
+
             public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
-            {
-                // no mapping needed
             }
         }
         
@@ -64,13 +66,8 @@
         {
             public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
             {
-                return Task.FromResult(default(SagaWithoutCorrelationPropertyData));
+                throw new NotImplementedException();
             }
-        }
-        
-        public class SagaCorrelationPropertyStartingMessage
-        {
-            public string CorrelatedProperty { get; set; }
         }
     }
 }
