@@ -8,7 +8,7 @@
     using Persistence;
 
     [TestFixture]
-    public class When_updating_a_saga_with_no_mapping_found_by_id : SagaPersisterTests
+    public class When_updating_saga_with_no_mapping_found_by_id : SagaPersisterTests
     {
         [Test]
         public async Task It_should_successfully_update_the_saga()
