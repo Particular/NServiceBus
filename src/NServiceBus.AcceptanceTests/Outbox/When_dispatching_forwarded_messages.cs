@@ -41,7 +41,9 @@
                     {
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
+#pragma warning disable 618
                         b.ForwardReceivedMessagesTo(Conventions.EndpointNamingConvention(typeof(ForwardingSpyEndpoint)));
+#pragma warning restore 618
                     });
             }
 

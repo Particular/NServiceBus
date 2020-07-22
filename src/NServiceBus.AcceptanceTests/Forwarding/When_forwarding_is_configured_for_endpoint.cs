@@ -59,7 +59,9 @@
         {
             public EndpointThatForwards()
             {
+#pragma warning disable 618
                 EndpointSetup<DefaultServer>(c => c.ForwardReceivedMessagesTo("endpoint_forward_receiver"));
+#pragma warning restore 618
             }
 
             public class MessageToForwardHandler : IHandleMessages<MessageToForward>

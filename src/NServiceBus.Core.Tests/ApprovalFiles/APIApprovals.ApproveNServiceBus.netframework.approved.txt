@@ -67,6 +67,8 @@ namespace NServiceBus
     }
     public class static ConfigureForwarding
     {
+        [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
+            "", false)]
         public static void ForwardReceivedMessagesTo(this NServiceBus.EndpointConfiguration config, string address) { }
     }
     public class static ConfigureLicenseExtensions
