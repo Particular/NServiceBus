@@ -7,7 +7,7 @@
     using Persistence;
 
     [TestFixture]
-    public class When_worker_tries_to_complete_saga_update_by_another_optimistic : SagaPersisterTests<When_worker_tries_to_complete_saga_update_by_another_optimistic.TestSagaData>
+    public class When_worker_tries_to_complete_saga_update_by_another_optimistic : SagaPersisterTests
     {
         [Test]
         public async Task Should_fail()

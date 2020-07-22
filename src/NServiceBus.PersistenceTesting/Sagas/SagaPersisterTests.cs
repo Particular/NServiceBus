@@ -7,10 +7,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    public class SagaPersisterTests<TSagaData> : SagaPersisterTests where TSagaData : class, IContainSagaData, new()
-    {
-    }
-
     public class SagaPersisterTests
     {
         [OneTimeSetUp]

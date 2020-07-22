@@ -8,7 +8,7 @@
     using Persistence;
 
     [TestFixture]
-    public class When_persisting_a_saga_with_no_mapping : SagaPersisterTests<When_persisting_a_saga_with_no_mapping.SagaWithoutCorrelationPropertyData>
+    public class When_persisting_a_saga_with_no_mapping : SagaPersisterTests
     {
         [Test]
         public async Task It_should_persist_successfully_when_finder_exists()

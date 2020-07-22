@@ -6,7 +6,7 @@
 
     [TestFixture]
     [Ignore("Not finished yet")]
-    public class When_rolling_back_storage_session : SagaPersisterTests<When_rolling_back_storage_session.TestSagaData>
+    public class When_rolling_back_storage_session : SagaPersisterTests
     {
         [Test]
         public async Task After_update_should_not_have_stored_anything()
