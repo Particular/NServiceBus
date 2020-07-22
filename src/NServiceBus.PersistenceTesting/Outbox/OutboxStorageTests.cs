@@ -17,7 +17,7 @@
         public async Task OneTimeSetUp()
         {
             configuration = new PersistenceTestsConfiguration(param);
-            await configuration.Configure();
+            await configuration.Configure(this);
         }
 
         [OneTimeTearDown]

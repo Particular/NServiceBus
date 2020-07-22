@@ -10,7 +10,7 @@
         public override async Task OneTimeSetUp()
         {
             configuration = new PersistenceTestsConfiguration(param, TimeSpan.FromMilliseconds(100));
-            await configuration.Configure();
+            await configuration.Configure(this);
         }
 
         [Test]
@@ -99,7 +99,7 @@
             public string SomeId { get; set; }
         }
 
-        public When_concurrent_update_exceed_transaction_timeout_pessimistic(TestVariant param) : base(param)
+        public When_concurrent_update_exceed_lock_request_timeout_pessimistic(TestVariant param) : base(param)
         {
         }
     }

@@ -37,11 +37,11 @@
 
         SagaMetadataCollection SagaMetadataCollection { get; }
 
-        Task Configure();
+        Task Configure(object testClass);
 
         Task Cleanup();
 
-        Func<ContextBag> GetContextBagForSagaStorage { get; } //TODO why is this not used?
+        Func<ContextBag> GetContextBagForSagaStorage { get; }
         Func<ContextBag> GetContextBagForOutbox { get; }
     }
 

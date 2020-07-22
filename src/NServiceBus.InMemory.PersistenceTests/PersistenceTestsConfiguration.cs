@@ -21,7 +21,7 @@
         public ISynchronizedStorageAdapter SynchronizedStorageAdapter  { get; private set; }
         public IOutboxStorage OutboxStorage  { get; private set; }
 
-        public Task Configure()
+        public Task Configure(object testClass)
         {
             SagaIdGenerator = new DefaultSagaIdGenerator();
             SagaStorage = new InMemorySagaPersister();

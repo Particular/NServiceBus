@@ -26,7 +26,7 @@
         public IQueryTimeouts TimeoutQuery => throw new NotImplementedException();
         public IOutboxStorage OutboxStorage => throw new NotImplementedException();
 
-        public Task Configure() => throw new NotImplementedException();
+        public Task Configure(object testClass) => throw new NotImplementedException();
         public Task Cleanup() => throw new NotImplementedException();
     }
 }
