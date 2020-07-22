@@ -10,7 +10,7 @@
     {
         public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
-        public bool SupportsFinders => true;  // TODO: verify if we actually need this as we think it should only be invoked by core
+        public bool SupportsFinders => false;
         public bool SupportsSubscriptions => true;
         public bool SupportsTimeouts => true;
         public bool SupportsPessimisticConcurrency => false;
