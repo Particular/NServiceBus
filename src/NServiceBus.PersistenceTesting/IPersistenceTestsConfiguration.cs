@@ -53,8 +53,8 @@
             SessionTimeout = sessionTimeout;
         }
 
-        public Func<ContextBag> GetContextBagForSagaStorage { get; } = () => new ContextBag();
-        public Func<ContextBag> GetContextBagForOutbox { get; } = () => new ContextBag();
+        public Func<ContextBag> GetContextBagForSagaStorage { get; private set; } = () => new ContextBag();
+        public Func<ContextBag> GetContextBagForOutbox { get; private set; } = () => new ContextBag();
         public TimeSpan? SessionTimeout { get; }
 
         public SagaMetadataCollection SagaMetadataCollection
