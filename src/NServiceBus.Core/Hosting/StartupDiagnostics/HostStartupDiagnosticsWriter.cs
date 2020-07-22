@@ -24,13 +24,13 @@
 
             if (duplicateNames.Any())
             {
-                logger.Error("Diagnostics entries contains duplicates. Duplicates: " + string.Join(", ", duplicateNames));
-                return;
+                logger.Error("Diagnostics entries contains duplicates. Some entries might not be present in the output. Duplicates: " + string.Join(", ", duplicateNames));
             }
 
             var dictionary = entries
                 .OrderBy(e => e.Name)
-                .ToDictionary(e => e.Name, e => e.Data);
+                .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(e => e.Key, e => e.First().Data, StringComparer.OrdinalIgnoreCase);
             string data;
 
             try
