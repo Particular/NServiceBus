@@ -96,14 +96,5 @@
         readonly ISubscriptionStorage subscriptionStorage;
 
         static readonly ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
-            {
-                InsertAfterIfExists("ExecuteUnitOfWork");
-            }
-        }
     }
 }

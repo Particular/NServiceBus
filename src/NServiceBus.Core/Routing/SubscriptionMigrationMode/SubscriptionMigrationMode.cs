@@ -53,7 +53,7 @@
                     authorizer = _ => true;
                 }
                 context.Container.RegisterSingleton(authorizer);
-                context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
+                context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             }
             else
             {
