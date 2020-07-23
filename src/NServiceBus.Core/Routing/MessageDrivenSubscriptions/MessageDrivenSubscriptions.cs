@@ -9,10 +9,8 @@ namespace NServiceBus.Features
     /// <summary>
     /// Allows subscribers to register by sending a subscription message to this endpoint.
     /// </summary>
-    [ObsoleteEx(Message = "It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
-        RemoveInVersion = "8.0",
-        TreatAsErrorFromVersion = "8.0")]
-    public class MessageDrivenSubscriptions : Feature
+    // TODO:V8 Was making this internal the goal? How to communicate what to do to the user upgrading from an early V7?
+    class MessageDrivenSubscriptions : Feature
     {
         internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
