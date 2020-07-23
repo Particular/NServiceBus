@@ -22,7 +22,7 @@
 
         internal static List<Type> GetAvailableStorageTypes()
         {
-            return typeof(StorageType).GetNestedTypes().ToList();
+            return typeof(StorageType).GetNestedTypes().Where(t => t != typeof(GatewayDeduplication)).ToList();
         }
 
         string storage;
