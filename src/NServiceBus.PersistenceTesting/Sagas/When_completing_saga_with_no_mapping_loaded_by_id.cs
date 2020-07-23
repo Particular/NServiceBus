@@ -70,7 +70,7 @@
             }
         }
 
-        public When_completing_a_saga_with_no_defined_correlation_property(TestVariant param) : base(param)
+        public When_completing_saga_with_no_mapping_loaded_by_id(TestVariant param) : base(param)
         {
         }
     }

@@ -70,7 +70,7 @@
         {
         }
 
-        public When_updating_a_saga_with_no_defined_unique_property(TestVariant param) : base(param)
+        public When_updating_saga_with_no_mapping_found_by_id(TestVariant param) : base(param)
         {
         }
     }

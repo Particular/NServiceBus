@@ -62,7 +62,7 @@
             }
         }
 
-        public When_persisting_a_saga_with_no_defined_unique_property(TestVariant param) : base(param)
+        public When_persisting_a_saga_with_no_mapping(TestVariant param) : base(param)
         {
         }
     }

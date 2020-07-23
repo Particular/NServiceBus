@@ -10,7 +10,7 @@
         public override async Task OneTimeSetUp()
         {
             configuration = new PersistenceTestsConfiguration(param, TimeSpan.FromMilliseconds(100));
-            await configuration.Configure(this);
+            await configuration.Configure();
         }
 
         [Test]

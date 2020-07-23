@@ -64,7 +64,7 @@
             public string CorrelatedProperty { get; set; }
         }
 
-        public When_updating_a_saga_found_using_correlation_property(TestVariant param) : base(param)
+        public When_updating_saga_found_by_correlation_property(TestVariant param) : base(param)
         {
         }
     }

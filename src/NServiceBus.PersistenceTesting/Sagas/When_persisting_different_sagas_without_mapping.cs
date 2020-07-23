@@ -112,7 +112,7 @@
             public string FoundByFinderProperty { get; set; }
         }
 
-        public When_persisting_different_sagas_with_no_defined_unique_properties(TestVariant param) : base(param)
+        public When_persisting_different_sagas_without_mapping(TestVariant param) : base(param)
         {
         }
     }

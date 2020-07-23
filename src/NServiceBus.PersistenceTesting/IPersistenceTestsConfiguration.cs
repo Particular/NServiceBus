@@ -37,7 +37,7 @@
 
         SagaMetadataCollection SagaMetadataCollection { get; }
 
-        Task Configure(object testClass);
+        Task Configure();
 
         Task Cleanup();
 

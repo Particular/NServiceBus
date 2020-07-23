@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
+    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_updating_saga_found_by_id : SagaPersisterTests
     {
         [Test]
@@ -60,6 +61,10 @@
         public class SagaCorrelationPropertyStartingMessage
         {
             public string CorrelatedProperty { get; set; }
+        }
+
+        public When_updating_saga_found_by_id(TestVariant param) : base(param)
+        {
         }
     }
 }

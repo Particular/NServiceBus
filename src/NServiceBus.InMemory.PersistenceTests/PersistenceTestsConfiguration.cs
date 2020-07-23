@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.PersistenceTesting
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.Outbox;
@@ -21,7 +20,7 @@
         public ISynchronizedStorageAdapter SynchronizedStorageAdapter  { get; private set; }
         public IOutboxStorage OutboxStorage  { get; private set; }
 
-        public Task Configure(object testClass)
+        public Task Configure()
         {
             SagaIdGenerator = new DefaultSagaIdGenerator();
             SagaStorage = new InMemorySagaPersister();
@@ -34,22 +33,6 @@
         public Task Cleanup()
         {
             return TaskEx.CompletedTask;
-        }
-    }
-
-    public partial class SagaTestVariantSource
-    {
-        static partial void GenerateCases(List<TestVariant> caseList)
-        {
-            caseList.Add(new TestVariant());
-        }
-    }
-
-    public partial class OutboxTestVariantSource
-    {
-        static partial void GenerateCases(List<TestVariant> caseList)
-        {
-            caseList.Add(new TestVariant());
         }
     }
 }
