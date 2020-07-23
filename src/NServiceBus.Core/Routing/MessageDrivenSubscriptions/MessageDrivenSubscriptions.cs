@@ -14,6 +14,8 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "8")]
     public class MessageDrivenSubscriptions : Feature
     {
+        internal MessageDrivenSubscriptions() { }
+
         /// <summary>
         /// See <see cref="Feature.Setup" />.
         /// </summary>
