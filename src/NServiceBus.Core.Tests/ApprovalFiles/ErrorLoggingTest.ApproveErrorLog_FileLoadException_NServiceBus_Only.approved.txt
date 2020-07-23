@@ -5,7 +5,7 @@ Try to add the following binding redirects to the config file:
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
         <dependentAssembly>
             <assemblyIdentity name="NServiceBus.Core" publicKeyToken="9fc386479f8a226c" culture="neutral" />
-            <bindingRedirect oldVersion="0.0.0.0-7.0.0.0" newVersion="7.0.0.0" />
+            <bindingRedirect oldVersion="0.0.0.0-8.0.0.0" newVersion="8.0.0.0" />
         </dependentAssembly>
     </assemblyBinding>
 </runtime>
