@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -81,6 +83,23 @@
             Pages[pageNo] = flag;
         }
 
-        public ConcurrentDictionary<int, bool> Pages { get; set; }
+        public IDictionary<int, bool> Pages { get; set; }
+    }
+
+    [Serializable]
+    public class DictionaryWrapper : ISerializable
+    {
+        ConcurrentDictionary<int, bool> inner = new ConcurrentDictionary<int, bool>();
+
+        public bool this[int key]
+        {
+            get => inner[key];
+            set => inner[key] = value;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("inner", inner, typeof(Dictionary<int, bool>));
+        }
     }
 }
