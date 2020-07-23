@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_rolling_back_storage_session : SagaPersisterTests
     {
         [Test]

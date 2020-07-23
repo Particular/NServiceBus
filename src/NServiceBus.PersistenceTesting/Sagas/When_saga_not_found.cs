@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_saga_not_found : SagaPersisterTests
     {
         [Test]

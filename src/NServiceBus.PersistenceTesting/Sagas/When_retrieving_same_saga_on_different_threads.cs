@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_retrieving_same_saga_on_different_threads : SagaPersisterTests
     {
         [Test]

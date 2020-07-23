@@ -4,8 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
     {
         [Test]

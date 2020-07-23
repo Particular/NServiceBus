@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTests
     {
         [Test]

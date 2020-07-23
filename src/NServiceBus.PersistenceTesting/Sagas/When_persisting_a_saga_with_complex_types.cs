@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
     {
         [Test]

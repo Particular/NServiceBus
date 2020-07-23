@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_persisting_different_sagas_without_mapping : SagaPersisterTests
     {
         [Test]

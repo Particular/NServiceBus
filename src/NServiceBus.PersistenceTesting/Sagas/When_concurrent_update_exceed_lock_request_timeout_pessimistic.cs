@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : SagaPersisterTests
     {
         public override async Task OneTimeSetUp()

@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : SagaPersisterTests
     {
         [Test]

@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_updating_saga_with_no_mapping_found_by_finder : SagaPersisterTests
     {
         [Test]

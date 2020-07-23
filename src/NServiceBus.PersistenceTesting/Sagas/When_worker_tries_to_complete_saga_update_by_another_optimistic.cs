@@ -6,7 +6,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_worker_tries_to_complete_saga_update_by_another_optimistic : SagaPersisterTests
     {
         [Test]

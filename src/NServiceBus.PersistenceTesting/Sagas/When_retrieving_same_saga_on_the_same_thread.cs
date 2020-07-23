@@ -6,7 +6,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixtureSource(typeof(SagaTestVariantSource), "Variants")]
     public class When_retrieving_same_saga_on_the_same_thread : SagaPersisterTests
     {
         [Test]
