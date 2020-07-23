@@ -36,15 +36,6 @@ namespace NServiceBus
 
         public MessageMetadata MessageMetadata { get; }
 
-        // remove in v8
-        public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException();
-
-        // remove in v8
-        public Task HandleCurrentMessageLater()
-        {
-            throw new NotImplementedException();
-        }
-
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             HandlerInvocationAborted = true;
