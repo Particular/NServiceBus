@@ -7,14 +7,33 @@ namespace NServiceBus.Features
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
-    /// Allows subscribers to register by sending a subscription message to this endpoint.
+    /// Use 'TransportExtensions&lt;T&gt;.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events
     /// </summary>
-    // TODO:V8 Was making this internal the goal? How to communicate what to do to the user upgrading from an early V7?
-    class MessageDrivenSubscriptions : Feature
+    [ObsoleteEx(Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8")]
+    public class MessageDrivenSubscriptions : Feature
+    {
+        /// <summary>
+        /// See <see cref="Feature.Setup" />.
+        /// </summary>
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Allows subscribers to register by sending a subscription message to this endpoint.
+    /// ---
+    /// The goal is to remove feature classes that implemented functionality far beyond what features are "supposed" to be.
+    /// Many of those features have been moved into components instead. Now that this class is internal in V8 that
+    /// refactoring can occur.
+    /// </summary>
+    class MessageDrivenSubscriptionsToBeRefactored : Feature
     {
         internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
-        internal MessageDrivenSubscriptions()
+        public MessageDrivenSubscriptionsToBeRefactored()
         {
             EnableByDefault();
             Defaults(s =>

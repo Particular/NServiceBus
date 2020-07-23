@@ -61,9 +61,9 @@
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
 
-            context.Container.ConfigureComponent<MessageDrivenSubscriptions.InitializableSubscriptionStorage>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<MessageDrivenSubscriptionsToBeRefactored.InitializableSubscriptionStorage>(DependencyLifecycle.SingleInstance);
 
-            context.RegisterStartupTask(b => b.Build<MessageDrivenSubscriptions.InitializableSubscriptionStorage>());
+            context.RegisterStartupTask(b => b.Build<MessageDrivenSubscriptionsToBeRefactored.InitializableSubscriptionStorage>());
         }
 
         public static bool IsMigrationModeEnabled(ReadOnlySettings settings)

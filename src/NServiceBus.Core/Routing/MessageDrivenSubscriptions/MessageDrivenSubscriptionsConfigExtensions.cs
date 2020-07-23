@@ -39,7 +39,7 @@ namespace NServiceBus
         /// </summary>
         public static void DisablePublishing<T>(this TransportExtensions<T> transportExtensions) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            transportExtensions.Settings.Set(MessageDrivenSubscriptions.EnablePublishingSettingsKey, false);
+            transportExtensions.Settings.Set(MessageDrivenSubscriptionsToBeRefactored.EnablePublishingSettingsKey, false);
         }
 
         /// <summary>
