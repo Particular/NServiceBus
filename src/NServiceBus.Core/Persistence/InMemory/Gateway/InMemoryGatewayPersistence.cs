@@ -9,7 +9,7 @@
             TreatAsErrorFromVersion = "8.0.0")]
     public class InMemoryGatewayPersistence : Feature
     {
-
+        internal InMemoryGatewayPersistence() { }
 
         /// <summary>
         /// See <see cref="Feature.Setup" />.
