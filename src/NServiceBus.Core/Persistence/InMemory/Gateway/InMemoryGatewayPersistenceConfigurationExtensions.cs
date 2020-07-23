@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using Features;
+    using System;
 
     /// <summary>
     /// Configuration options for the in memory gateway persistence.
@@ -18,9 +18,7 @@
             TreatAsErrorFromVersion = "8.0.0")]
         public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<InMemoryPersistence> persistenceExtensions, int maxSize)
         {
-            Guard.AgainstNull(nameof(persistenceExtensions), persistenceExtensions);
-            Guard.AgainstNegativeAndZero(nameof(maxSize), maxSize);
-            persistenceExtensions.Settings.Set(InMemoryGatewayPersistence.MaxSizeKey, maxSize);
+            throw new NotImplementedException();
         }
     }
 }
