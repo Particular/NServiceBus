@@ -4,10 +4,21 @@
     using NServiceBus;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
+    using NUnit.Framework;
     using Persistence;
 
     public partial class PersistenceTestsConfiguration
     {
+        //TODO remove, just a demo of potential usage
+        static PersistenceTestsConfiguration()
+        {
+            SagaVariants = new object[]
+            {
+                new TestFixtureData(new TestVariant("just a demo")),
+                new TestFixtureData(new TestVariant("delete me before merging")),
+            };
+        }
+
         public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
         public bool SupportsFinders => false;

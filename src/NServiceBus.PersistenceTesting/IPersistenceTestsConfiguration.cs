@@ -7,6 +7,7 @@
     using Extensibility;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
+    using NUnit.Framework;
     using Persistence;
 
     public interface IPersistenceTestsConfiguration
@@ -74,6 +75,14 @@
             }
             set { sagaMetadataCollection = value; }
         }
+
+        // Used by the SagaPersisterTests TestFixtureSource attribute
+        // Change this value via static constructor to create custom test permutations
+        // ReSharper disable once NotAccessedField.Local
+        static object[] SagaVariants = new[]
+        {
+            new TestFixtureData(new TestVariant("default"))
+        };
 
         SagaMetadataCollection sagaMetadataCollection;
     }
