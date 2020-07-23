@@ -23,14 +23,16 @@
             var messageHandler = cache.GetCachedHandlerForMessage<StubMessage>();
             var timeoutHandler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
 
-            await messageHandler.Invoke(stubMessage, null);
-            await timeoutHandler.Invoke(stubTimeout, null);
+            var fakeContext = new TestableMessageHandlerContext();
+
+            await messageHandler.Invoke(stubMessage, fakeContext);
+            await timeoutHandler.Invoke(stubTimeout, fakeContext);
 
             var startNew = Stopwatch.StartNew();
             for (var i = 0; i < 100000; i++)
             {
-                await messageHandler.Invoke(stubMessage, null);
-                await timeoutHandler.Invoke(stubTimeout, null);
+                await messageHandler.Invoke(stubMessage, fakeContext);
+                await timeoutHandler.Invoke(stubTimeout, fakeContext);
             }
             startNew.Stop();
             Trace.WriteLine(startNew.ElapsedMilliseconds);
