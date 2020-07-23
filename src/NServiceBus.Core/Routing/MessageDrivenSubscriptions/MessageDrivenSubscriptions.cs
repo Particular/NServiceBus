@@ -7,7 +7,7 @@ namespace NServiceBus.Features
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
-    /// Use 'TransportExtensions&lt;T&gt;.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events
+    /// Use 'TransportExtensions&lt;T&gt;.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.
     /// </summary>
     [ObsoleteEx(Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
         RemoveInVersion = "9",
