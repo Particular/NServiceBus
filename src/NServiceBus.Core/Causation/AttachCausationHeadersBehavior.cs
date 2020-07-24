@@ -34,9 +34,25 @@ namespace NServiceBus
 
         void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
+            var conversationIdFromCurrentMessageContext = default(string);
+            var hasIncomingMessageConversationId = incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext);
             var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
-            if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out var conversationIdFromCurrentMessageContext))
+            if (context.Extensions.TryGet<string>(NewConversationId, out var newConversationId))
+            {
+                if(hasUserDefinedConversationId)
+                {
+                    throw new Exception($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as StartNewConversation() was called.");
+                }
+                if (hasIncomingMessageConversationId)
+                {
+                    context.Headers[Headers.PreviousConversationId] = conversationIdFromCurrentMessageContext;
+                }
+                context.Headers[Headers.ConversationId] = newConversationId ?? conversationIdStrategy(context);
+                return;
+            }
+
+            if (hasIncomingMessageConversationId)
             {
                 if (hasUserDefinedConversationId)
                 {
@@ -56,5 +72,6 @@ namespace NServiceBus
         }
 
         readonly Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
+        public const string NewConversationId = "NewConversationId";
     }
 }

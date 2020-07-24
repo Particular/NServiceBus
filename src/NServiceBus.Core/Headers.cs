@@ -212,6 +212,11 @@
         public const string ConversationId = "NServiceBus.ConversationId";
 
         /// <summary>
+        /// The id of the previous message conversation that triggered this message.
+        /// </summary>
+        public const string PreviousConversationId = "NServiceBus.PreviousConversationId";
+
+        /// <summary>
         /// The intent of the current message.
         /// </summary>
         public const string MessageIntent = "NServiceBus.MessageIntent";
