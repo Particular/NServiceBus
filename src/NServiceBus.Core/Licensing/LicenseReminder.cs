@@ -49,6 +49,7 @@ namespace NServiceBus.Features
                 licenseManager.result.License.RegisteredTo,
                 licenseManager.result.License.LicenseType,
                 licenseManager.result.License.Edition,
+                Tiers = licenseManager.result.License.Edition,
                 LicenseStatus = licenseManager.result.License.GetLicenseStatus(),
                 LicenseLocation = licenseManager.result.Location,
                 ValidApplications = string.Join(",", licenseManager.result.License.ValidApplications),
