@@ -28,7 +28,7 @@
 
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
-    <_PackageFiles Include="**\*.cs">
+    <_PackageFiles Include="**\*.cs;..\NServiceBus.Core\IdGeneration\CombGuid.cs;..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs">
       <BuildAction>Compile</BuildAction>
       <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.PersistenceTests\</PackagePath>
     </_PackageFiles>
