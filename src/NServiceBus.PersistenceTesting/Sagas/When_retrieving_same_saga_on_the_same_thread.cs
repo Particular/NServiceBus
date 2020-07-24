@@ -51,7 +51,7 @@
 
             try
             {
-                Assert.ThrowsAsync<Exception>(async () =>
+                Assert.CatchAsync<Exception>(async () =>
                 {
                     await persister.Update(staleRecord, losingSaveSession, losingContext);
                     await losingSaveSession.CompleteAsync();
