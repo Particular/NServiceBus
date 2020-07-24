@@ -17,20 +17,11 @@
 
         public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
         {
-            var duplicateNames = entries.GroupBy(item => item.Name)
-                .Where(group => group.Count() > 1)
-                .Select(group => group.Key)
-                .ToList();
-
-            if (duplicateNames.Any())
-            {
-                logger.Error("Diagnostics entries contains duplicates. Some entries might not be present in the output. Duplicates: " + string.Join(", ", duplicateNames));
-            }
-
-            var dictionary = entries
+            var deduplicatedEntries = DeduplicateEntries(entries);
+            var dictionary = deduplicatedEntries
                 .OrderBy(e => e.Name)
-                .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(e => e.Key, e => e.First().Data, StringComparer.OrdinalIgnoreCase);
+                .ToDictionary(e => e.Name, e => e.Data, StringComparer.OrdinalIgnoreCase);
+
             string data;
 
             try
@@ -56,6 +47,32 @@
                 }
                 logger.Error("Failed to write startup diagnostics", exception);
             }
+        }
+
+        List<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
+        {
+            var countMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var newList = new List<StartupDiagnosticEntries.StartupDiagnosticEntry>();
+            
+            foreach (var entry in entries)
+            {
+                if (!countMap.ContainsKey(entry.Name))
+                {
+                    countMap.Add(entry.Name, 1);
+                    newList.Add(entry);
+                }
+                else
+                {
+                    countMap[entry.Name] += 1;
+                    newList.Add(new StartupDiagnosticEntries.StartupDiagnosticEntry
+                    {
+                        Name = $"{entry.Name}-{countMap[entry.Name]}",
+                        Data = entry.Data
+                    });
+                }
+            }
+
+            return newList;
         }
 
         Func<string, Task> diagnosticsWriter;
