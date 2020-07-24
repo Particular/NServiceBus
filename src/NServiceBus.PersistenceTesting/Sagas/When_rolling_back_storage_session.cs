@@ -20,7 +20,7 @@
             var contextBag = configuration.GetContextBagForSagaStorage();
             using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await GetById<TestSagaData>(sagaData.Id);
+                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
 
                 await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
@@ -69,7 +69,7 @@
             var contextBag = configuration.GetContextBagForSagaStorage();
             using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await GetById<TestSagaData>(sagaData.Id);
+                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
 
                 await configuration.SagaStorage.Complete(sagaFromStorage, session, contextBag);
 
