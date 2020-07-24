@@ -56,7 +56,7 @@ namespace NServiceBus
             {
                 if (hasUserDefinedConversationId)
                 {
-                    throw new Exception($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{conversationIdFromCurrentMessageContext}').");
+                    throw new Exception($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{conversationIdFromCurrentMessageContext}'). To start a new conversation use sendOptions.StartNewConversation().");
                 }
 
                 context.Headers[Headers.ConversationId] = conversationIdFromCurrentMessageContext;
