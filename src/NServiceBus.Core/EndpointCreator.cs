@@ -85,6 +85,9 @@ namespace NServiceBus
             // As well as all the other components have been initialized
             settings.PreventChanges();
 
+            // Comment
+            pipelineSettings.PreventChanges();
+
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
                 {

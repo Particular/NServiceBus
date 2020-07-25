@@ -25,6 +25,7 @@ namespace NServiceBus.Pipeline
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, "remove");
 
             modifications.Removals.Add(new RemoveStep(stepId));
         }
@@ -39,6 +40,7 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, "replace");
 
             modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
         }
@@ -54,6 +56,7 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, "replace");
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
         }
@@ -69,6 +72,7 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, "replace");
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
         }
@@ -94,6 +98,7 @@ namespace NServiceBus.Pipeline
         public void Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
+            EnsureWriteEnabled(stepId, "register");
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
@@ -124,6 +129,7 @@ namespace NServiceBus.Pipeline
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+            EnsureWriteEnabled(stepId, "register");
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
@@ -154,6 +160,7 @@ namespace NServiceBus.Pipeline
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
+            EnsureWriteEnabled(nameof(stepId), "register");
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
@@ -166,6 +173,8 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void Register<TRegisterStep>() where TRegisterStep : RegisterStep, new()
         {
+            EnsureWriteEnabled(nameof(TRegisterStep), "register");
+
             modifications.Additions.Add(new TRegisterStep());
         }
 
@@ -176,9 +185,28 @@ namespace NServiceBus.Pipeline
         public void Register(RegisterStep registration)
         {
             Guard.AgainstNull(nameof(registration), registration);
+            EnsureWriteEnabled(nameof(registration), "register");
+
             modifications.Additions.Add(registration);
         }
 
+        /// <summary>
+        /// Locks the pipeline settings to prevent further modifications.
+        /// </summary>
+        internal void PreventChanges()
+        {
+            locked = true;
+        }
+
+        void EnsureWriteEnabled(string key, string operation)
+        {
+            if (locked)
+            {
+                throw new InvalidOperationException($"Unable to {operation} the pipeline step for key: {key}. The pipeline has been locked for modifications. Move any configuration code before the endpoint is started.");
+            }
+        }
+
+        bool locked;
         internal PipelineModifications modifications = new PipelineModifications();
     }
 }
