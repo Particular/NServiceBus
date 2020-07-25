@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Core.Config
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    public class When_starting_an_endpoint_with_already_used_configuration
+    public class When_starting_an_endpoint_with_already_used_configuration : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_throw()
