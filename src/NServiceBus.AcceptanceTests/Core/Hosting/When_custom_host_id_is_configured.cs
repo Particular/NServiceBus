@@ -15,18 +15,22 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
         public async Task Should_not_apply_default_to_be_FIPS_compliant()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>()
+                .WithEndpoint<MyEndpoint>(builder => builder.CustomConfig((endpointConfig, ctx) =>
+                {
+                    endpointConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(ctx.CustomHostId);
+                }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
             Assert.False(context.HostIdDefaultApplied);
+            Assert.AreEqual(context.CustomHostId, context.HostIdObserved);
         }
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(Guid.NewGuid()));
+                EndpointSetup<DefaultServer>();
             }
         }
 
@@ -40,7 +44,10 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
                     var fieldInfo = s.GetType().GetField("Defaults", BindingFlags.Instance | BindingFlags.NonPublic);
                     var defaults = (ConcurrentDictionary<string, object>)fieldInfo.GetValue(s);
 
-                    s.Get<Context>().HostIdDefaultApplied = defaults.ContainsKey("NServiceBus.HostInformation.HostId");
+                    var testContext = s.Get<Context>();
+
+                    testContext.HostIdDefaultApplied = defaults.ContainsKey("NServiceBus.HostInformation.HostId");
+                    testContext.HostIdObserved = s.Get<Guid>("NServiceBus.HostInformation.HostId");
                 });
             }
 
@@ -52,6 +59,8 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
         public class Context : ScenarioContext
         {
             public bool HostIdDefaultApplied { get; set; }
+            public Guid CustomHostId { get; } = Guid.NewGuid();
+            public Guid HostIdObserved { get; set; }
         }
     }
 }

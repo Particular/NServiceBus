@@ -56,8 +56,6 @@
                 string installationUserName,
                 bool shouldRunInstallers)
             {
-                this.settings = settings;
-
                 AvailableTypes = availableTypes;
                 CriticalError = criticalError;
                 StartupDiagnostics = startupDiagnostics;
@@ -67,6 +65,9 @@
                 Container = container;
                 InstallationUserName = installationUserName;
                 ShouldRunInstallers = shouldRunInstallers;
+
+                settings.ApplyHostIdDefaultIfNeeded();
+                HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
             }
 
             public ICollection<Type> AvailableTypes { get; }
@@ -93,35 +94,13 @@
                 StartupDiagnostics.Add(sectionName, section);
             }
 
-            public HostInformation HostInformation
-            {
-                get
-                {
-                    if (hostInformation == null)
-                    {
-                        throw new InvalidOperationException("Host information can't be accessed until features have been created for backwards compatibility");
-                    }
-
-                    return hostInformation;
-                }
-            }
+            public HostInformation HostInformation { get; }
 
             public bool ShouldRunInstallers { get; }
 
             public string InstallationUserName { get; }
 
-            // We just need to do this to allow host id to be overidden by accessing settings via Feature defaults.
-            // In v8 we can drop this and document in the upgrade guide that overriding host id is only supported via the public APIs
-            // See the test When_feature_overrides_hostinfo for more details.
-            [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
-            public void CreateHostInformationForV7BackwardsCompatibility()
-            {
-                hostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
-            }
-
             internal ICollection<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
-            HostInformation hostInformation;
-            readonly Settings settings;
         }
     }
 }
