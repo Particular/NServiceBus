@@ -10,7 +10,7 @@
     /// <summary>
     /// Message convention definitions.
     /// </summary>
-    public partial class Conventions
+    public class Conventions
     {
         /// <summary>
         /// Initializes message conventions with the default NServiceBus conventions.

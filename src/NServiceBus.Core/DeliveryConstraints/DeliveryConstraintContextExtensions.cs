@@ -10,7 +10,7 @@ namespace NServiceBus.DeliveryConstraints
     /// <summary>
     /// Gives access to <see cref="DeliveryConstraint" />s that exist in the various <see cref="ContextBag" />s.
     /// </summary>
-    public static partial class DeliveryConstraintContextExtensions
+    public static class DeliveryConstraintContextExtensions
     {
         /// <summary>
         /// Adds a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.

@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides extensions to the settings holder.
     /// </summary>
-    public static partial class SettingsExtensions
+    public static class SettingsExtensions
     {
         /// <summary>
         /// Gets the list of types available to this endpoint.

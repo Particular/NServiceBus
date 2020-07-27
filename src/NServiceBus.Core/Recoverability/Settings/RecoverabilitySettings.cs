@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// Configuration settings for recoverability.
     /// </summary>
-    public partial class RecoverabilitySettings : ExposeSettings
+    public class RecoverabilitySettings : ExposeSettings
     {
         internal RecoverabilitySettings(SettingsHolder settings) : base(settings)
         {
