@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Persistence;
     using Pipeline;
     using Unicast.Messages;
