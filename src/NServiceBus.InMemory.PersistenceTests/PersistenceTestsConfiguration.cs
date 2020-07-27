@@ -11,8 +11,6 @@
         public bool SupportsDtc => false; // TODO: verify if this is true
         public bool SupportsOutbox => true;
         public bool SupportsFinders => false;
-        public bool SupportsSubscriptions => true;
-        public bool SupportsTimeouts => true;
         public bool SupportsPessimisticConcurrency => false;
         public ISagaIdGenerator SagaIdGenerator { get; private set; }
         public ISagaPersister SagaStorage  { get; private set; }
