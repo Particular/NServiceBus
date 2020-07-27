@@ -56,7 +56,10 @@
 
                 foreach (var item in messages.Values)
                 {
-                    if (item.MessageType.FullName == messageTypeIdentifier)
+                    var messageTypeFullName = GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
+                    
+                    if (item.MessageType.FullName == messageTypeIdentifier ||
+                        item.MessageType.FullName == messageTypeFullName)
                     {
                         cachedTypes[messageTypeIdentifier] = item.MessageType;
                         return item;
@@ -78,6 +81,17 @@
 
             Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode. ", messageType, messageType.FullName);
             return null;
+        }
+
+        string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
+        {
+            var typeParts = messageTypeIdentifier.Split(',');
+            if (typeParts.Length > 1)
+            {
+                return typeParts[0]; //Take the type part only
+            }
+
+            return messageTypeIdentifier;
         }
 
         Type GetType(string messageTypeIdentifier)
