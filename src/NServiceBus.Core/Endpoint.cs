@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -15,12 +14,6 @@ namespace NServiceBus
         public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
-
-            if(configuration.Settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
-            {
-                throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint, create a new one before starting the other.");
-            }
-            configuration.Settings.Set("UsedToCreateEndpoint", true);
 
             return HostCreator.CreateWithInternallyManagedContainer(configuration);
         }

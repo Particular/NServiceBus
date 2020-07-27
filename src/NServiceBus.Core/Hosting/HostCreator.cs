@@ -3,12 +3,15 @@
     using System;
     using System.Threading.Tasks;
     using ObjectBuilder;
+    using Settings;
 
     class HostCreator
     {
         public static ExternallyManagedContainerHost CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
         {
             var settings = endpointConfiguration.Settings;
+
+            CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
             var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
@@ -41,6 +44,8 @@
         public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
             var settings = endpointConfiguration.Settings;
+
+            CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
             var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
@@ -89,6 +94,16 @@
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 
             return new InternallyManagedContainerHost(startableEndpoint, hostingComponent);
+        }
+
+        static void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
+        {
+            if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
+            {
+                throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint, create a new one before starting the other.");
+            }
+
+            settings.Set("UsedToCreateEndpoint", true);
         }
     }
 }
