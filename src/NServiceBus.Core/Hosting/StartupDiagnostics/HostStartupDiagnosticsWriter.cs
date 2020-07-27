@@ -49,30 +49,31 @@
             }
         }
 
-        List<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
+        IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
         {
             var countMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            var newList = new List<StartupDiagnosticEntries.StartupDiagnosticEntry>();
             
             foreach (var entry in entries)
             {
                 if (!countMap.ContainsKey(entry.Name))
                 {
                     countMap.Add(entry.Name, 1);
-                    newList.Add(entry);
+                    yield return entry;
                 }
                 else
                 {
                     countMap[entry.Name] += 1;
-                    newList.Add(new StartupDiagnosticEntries.StartupDiagnosticEntry
+                    var entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
+
+                    logger.Warn($"A duplicate diagnostic entry was renamed from {entry.Name} to {entryNewName}.");
+                    
+                    yield return new StartupDiagnosticEntries.StartupDiagnosticEntry
                     {
-                        Name = $"{entry.Name}-{countMap[entry.Name]}",
+                        Name = entryNewName,
                         Data = entry.Data
-                    });
+                    };
                 }
             }
-
-            return newList;
         }
 
         Func<string, Task> diagnosticsWriter;
