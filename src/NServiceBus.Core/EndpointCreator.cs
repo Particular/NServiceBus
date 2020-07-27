@@ -58,8 +58,6 @@ namespace NServiceBus
 
             featureComponent.Initalize(featureConfigurationContext);
 
-            hostingConfiguration.CreateHostInformationForV7BackwardsCompatibility();
-
             recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration, transportSeam);
 
             var routingComponent = RoutingComponent.Initialize(
