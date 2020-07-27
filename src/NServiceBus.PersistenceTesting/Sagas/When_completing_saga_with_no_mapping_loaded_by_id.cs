@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixture]
     public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTests
     {
         [Test]
@@ -68,6 +67,10 @@
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public When_completing_saga_with_no_mapping_loaded_by_id(TestVariant param) : base(param)
+        {
         }
     }
 }

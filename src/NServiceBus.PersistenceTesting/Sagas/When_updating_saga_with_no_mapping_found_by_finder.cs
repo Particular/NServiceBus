@@ -75,5 +75,9 @@
         public class SagaWithoutCorrelationPropertyStartingMessage : IMessage
         {
         }
+
+        public When_updating_saga_with_no_mapping_found_by_finder(TestVariant param) : base(param)
+        {
+        }
     }
 }

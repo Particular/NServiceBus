@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
     public class When_completing_a_saga_with_correlation_property : SagaPersisterTests
     {
         [Test]
@@ -51,6 +50,10 @@
         public class SagaCorrelationPropertyStartingMessage
         {
             public string CorrelatedProperty { get; set; }
+        }
+
+        public When_completing_a_saga_with_correlation_property(TestVariant param) : base(param)
+        {
         }
     }
 }

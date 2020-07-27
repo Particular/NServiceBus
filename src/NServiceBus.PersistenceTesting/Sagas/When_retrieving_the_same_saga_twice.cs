@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
     public class When_retrieving_the_same_saga_twice : SagaPersisterTests
     {
         [Test]
@@ -46,6 +45,10 @@
             public string SomeId { get; set; } = "Test";
 
             public DateTime DateTimeProperty { get; set; }
+        }
+
+        public When_retrieving_the_same_saga_twice(TestVariant param) : base(param)
+        {
         }
     }
 }

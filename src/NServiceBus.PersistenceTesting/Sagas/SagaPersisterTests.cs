@@ -7,12 +7,18 @@
     using NUnit.Framework;
     using Persistence;
 
+    [TestFixtureSource(typeof(PersistenceTestsConfiguration), "SagaVariants")]
     public class SagaPersisterTests
     {
+        public SagaPersisterTests(TestVariant param)
+        {
+            this.param = param;
+        }
+
         [OneTimeSetUp]
         public virtual async Task OneTimeSetUp()
         {
-            configuration = new PersistenceTestsConfiguration();
+            configuration = new PersistenceTestsConfiguration(param);
             await configuration.Configure();
         }
 
@@ -108,5 +114,6 @@
         }
 
         protected IPersistenceTestsConfiguration configuration;
+        protected TestVariant param;
     }
 }

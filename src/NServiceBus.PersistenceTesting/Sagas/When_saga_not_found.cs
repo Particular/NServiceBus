@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
     public class When_saga_not_found : SagaPersisterTests
     {
         [Test]
@@ -42,6 +41,10 @@
         public class StartMessage
         {
             public string SomeId { get; set; }
+        }
+
+        public When_saga_not_found(TestVariant param) : base(param)
+        {
         }
     }
 }

@@ -7,6 +7,7 @@
     using Extensibility;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
+    using NUnit.Framework;
     using Persistence;
 
     public interface IPersistenceTestsConfiguration
@@ -41,21 +42,23 @@
 
         Task Cleanup();
 
-        Func<ContextBag> GetContextBagForSagaStorage { get; } //TODO why is this not used?
+        Func<ContextBag> GetContextBagForSagaStorage { get; }
         Func<ContextBag> GetContextBagForOutbox { get; }
     }
 
     // Consumers of this source package have to implement the remaining properties via partial class to configure the tests infrastructure.
     public partial class PersistenceTestsConfiguration : IPersistenceTestsConfiguration
     {
-        public PersistenceTestsConfiguration(TimeSpan? sessionTimeout = null)
+        public PersistenceTestsConfiguration(TestVariant variant, TimeSpan? sessionTimeout = null)
         {
             SessionTimeout = sessionTimeout;
+            Variant = variant;
         }
 
         public Func<ContextBag> GetContextBagForSagaStorage { get; private set; } = () => new ContextBag();
         public Func<ContextBag> GetContextBagForOutbox { get; private set; } = () => new ContextBag();
         public TimeSpan? SessionTimeout { get; }
+        public TestVariant Variant { get; }
 
         public SagaMetadataCollection SagaMetadataCollection
         {
@@ -72,6 +75,22 @@
             }
             set { sagaMetadataCollection = value; }
         }
+
+        // Used by the SagaPersisterTests TestFixtureSource attribute
+        // Change this value via static constructor to create custom test permutations
+        // ReSharper disable once NotAccessedField.Local
+        static object[] SagaVariants = new[]
+        {
+            new TestFixtureData(new TestVariant("default"))
+        };
+
+        // Used by the OutboxStorageTests TestFixtureSource attribute
+        // Change this value via static constructor to create custom test permutations
+        // ReSharper disable once NotAccessedField.Local
+        static object[] OutboxVariants = new[]
+        {
+            new TestFixtureData(new TestVariant("default"))
+        };
 
         SagaMetadataCollection sagaMetadataCollection;
     }

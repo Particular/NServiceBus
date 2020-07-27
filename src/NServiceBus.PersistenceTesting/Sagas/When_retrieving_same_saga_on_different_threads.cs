@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
     public class When_retrieving_same_saga_on_different_threads : SagaPersisterTests
     {
         [Test]
@@ -92,6 +91,10 @@
             public string SomeId { get; set; } = "Test";
 
             public DateTime DateTimeProperty { get; set; }
+        }
+
+        public When_retrieving_same_saga_on_different_threads(TestVariant param) : base(param)
+        {
         }
     }
 }

@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture]
     public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
     {
         [Test]
@@ -44,6 +43,10 @@
         public class StartMessage
         {
             public string SomeId { get; set; }
+        }
+
+        public When_persisting_a_saga_with_complex_types(TestVariant param) : base(param)
+        {
         }
     }
 }

@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixture]
     public class When_persisting_different_sagas_without_mapping : SagaPersisterTests
     {
         [Test]
@@ -110,6 +109,10 @@
         public class AnotherSagaWithoutCorrelationPropertyStartingMessage : IMessage
         {
             public string FoundByFinderProperty { get; set; }
+        }
+
+        public When_persisting_different_sagas_without_mapping(TestVariant param) : base(param)
+        {
         }
     }
 }
