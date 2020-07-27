@@ -16,7 +16,6 @@
 
         bool SupportsOutbox { get; }
 
-        bool SupportsFinders { get; } // TODO: why do we require this?
         bool SupportsFinders { get; }
 
         bool SupportsPessimisticConcurrency { get; }
