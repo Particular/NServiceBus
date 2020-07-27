@@ -96,6 +96,8 @@
 
             internal void ApplyHostIdDefaultIfNeeded()
             {
+                // We don't want to do settings.SetDefault() all the time, because the default uses MD5 which runs afoul of FIPS in such a way that cannot be worked around.
+                // Changing the default implementation to a FIPS-compliant cipher would cause all users to get duplicates of every endpoint instance in ServicePulse.
                 if (settings.HasExplicitValue(HostIdSettingsKey))
                 {
                     return;
