@@ -5,7 +5,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Helper methods for <see cref="IncomingMessage" />.
     /// </summary>
-    public static partial class IncomingMessageExtensions
+    public static class IncomingMessageExtensions
     {
         /// <summary>
         /// Gets the message intent from the headers.

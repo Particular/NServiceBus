@@ -9,7 +9,7 @@
     /// <summary>
     /// Message convention definitions.
     /// </summary>
-    public partial class Conventions
+    public class Conventions
     {
         /// <summary>
         /// Returns true if the given type is a message type.

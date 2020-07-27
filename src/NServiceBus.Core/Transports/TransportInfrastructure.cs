@@ -8,7 +8,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Transport infrastructure definitions.
     /// </summary>
-    public abstract partial class TransportInfrastructure
+    public abstract class TransportInfrastructure
     {
         /// <summary>
         /// Returns the list of supported delivery constraints for this transport.
