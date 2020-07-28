@@ -1,0 +1,1 @@
+{"Endpoint":{"EndpointName":"MyEndpointOne"},"Endpoint-2":{"EndpointName":"MyEndpointTwo"},"Version":{"Version":"1.0.0.0"}}
