@@ -151,16 +151,14 @@ namespace NServiceBus.Sagas
 
         void ValidateCorrelationPropertyHaveValue(object currentCorrelationPropertyValue)
         {
-            var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
-
-            if (!currentCorrelationPropertyValue.Equals(defaultValue))
+            if(currentCorrelationPropertyValue != null)
             {
                 return;
             }
 
             throw new Exception(
                 $@"The correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value.
-A correlated property must have a non default (i.e. non null and non-empty) value assigned when a new saga instance is created.");
+A correlated property must have a non-null value assigned when a new saga instance is created.");
         }
 
         void ValidateCorrelationPropertyNotModified(object currentCorrelationPropertyValue)
