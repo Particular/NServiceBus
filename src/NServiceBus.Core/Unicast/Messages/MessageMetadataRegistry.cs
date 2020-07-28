@@ -61,6 +61,8 @@
                     if (item.MessageType.FullName == messageTypeIdentifier ||
                         item.MessageType.FullName == messageTypeFullName)
                     {
+                        Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
+                        
                         cachedTypes[messageTypeIdentifier] = item.MessageType;
                         return item;
                     }
