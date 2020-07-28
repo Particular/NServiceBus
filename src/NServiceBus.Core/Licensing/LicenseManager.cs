@@ -48,7 +48,7 @@ namespace NServiceBus
                 case LicenseStatus.ValidWithExpiringTrial:
                     if (license.IsExtendedTrial)
                     {
-                        logger.Warn($"Development license expiring {whenLicenseExpiresPhrase}. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
+                        logger.Warn($"Development license expiring {whenLicenseExpiresPhrase}. If youâ€™re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
                     }
                     else
                     {
@@ -64,7 +64,7 @@ namespace NServiceBus
                 case LicenseStatus.InvalidDueToExpiredTrial:
                     if(license.IsExtendedTrial)
                     {
-                        logger.Error($"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
+                        logger.Error($"Development license expired. If youâ€™re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
                     }
                     else
                     {
