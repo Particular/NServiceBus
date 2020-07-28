@@ -2,6 +2,7 @@
 {
     using System;
     using Transport;
+
     sealed class TransportConnectionString
     {
         TransportConnectionString()

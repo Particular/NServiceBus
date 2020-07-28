@@ -884,6 +884,8 @@ namespace NServiceBus
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
+        [System.ObsoleteAttribute(@"The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString). Use `TransportExtensions.ConnectionString(connectionString)` instead. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
         public NServiceBus.TransportExtensions Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
@@ -892,6 +894,10 @@ namespace NServiceBus
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
+        [System.ObsoleteAttribute("Loading named connection strings is no longer supported. Use `TransportExtensions" +
+            "<T>.ConnectionString(connectionString)` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
+        public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
         public NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     public enum TransportTransactionMode
