@@ -200,7 +200,7 @@ namespace NServiceBus
         string GetPlatformCode() => "windows";
 #endif
 
-        ActiveLicenseFindResult result;
+        internal ActiveLicenseFindResult result;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
