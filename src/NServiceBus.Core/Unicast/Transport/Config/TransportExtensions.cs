@@ -29,6 +29,19 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Configures the transport to use the connection string with the given name.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Loading named connection strings is no longer supported",
+            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "9.0")]
+        public new TransportExtensions<T> ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Configures the transport to use the given func as the connection string.
         /// </summary>
         public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
@@ -68,6 +81,19 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(connectionString), connectionString);
             Settings.Get<TransportSeam.Settings>().TransportConnectionString = new TransportConnectionString(() => connectionString);
             return this;
+        }
+
+        /// <summary>
+        /// Configures the transport to use the connection string with the given name.
+        /// </summary>
+        [ObsoleteEx(
+        Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
+        ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "9.0")]
+        public TransportExtensions ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
