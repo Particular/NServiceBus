@@ -52,6 +52,7 @@
             [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent, NonExistingAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b50674d1e0c6ce54")]
             [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent, NonExistingAssembly, Version=1.0.0.0, Culture=neutral")]
             [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent, NonExistingAssembly")]
+            [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent")]
             public void Should_match_types_from_a_different_assembly(string typeName)
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
