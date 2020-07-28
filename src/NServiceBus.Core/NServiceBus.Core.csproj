@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
-    <DefineConstants>$(DefineConstants);REGISTRYLICENSESOURCE;APPCONFIGLICENSESOURCE</DefineConstants>
+    <DefineConstants>$(DefineConstants);REGISTRYLICENSESOURCE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
