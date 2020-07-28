@@ -55,7 +55,12 @@
             var startupDiagnosticsFileName = $"{configuration.EndpointName}-configuration.txt";
             var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
 
-            return data => AsyncFile.WriteText(startupDiagnosticsFilePath, data);
+            
+            return data =>
+            {
+                var prettied = JsonPrettyPrinter.Print(data);    
+                return AsyncFile.WriteText(startupDiagnosticsFilePath, prettied);
+            };
         }
 
         static readonly ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
