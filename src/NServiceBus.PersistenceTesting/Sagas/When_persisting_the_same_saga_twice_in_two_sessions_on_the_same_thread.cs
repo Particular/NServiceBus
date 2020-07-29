@@ -50,7 +50,7 @@
 
             try
             {
-                Assert.That(async() =>
+                Assert.That(async () =>
                 {
                     await persister.Update(staleRecord1, losingSaveSession1, losingContext1);
                     await losingSaveSession1.CompleteAsync();
@@ -86,11 +86,11 @@
 
             try
             {
-               Assert.That(async () =>
-                {
-                    await persister.Update(staleRecord2, losingSaveSession2, losingContext2);
-                    await losingSaveSession2.CompleteAsync();
-                }, Throws.InstanceOf<Exception>());
+                Assert.That(async () =>
+                 {
+                     await persister.Update(staleRecord2, losingSaveSession2, losingContext2);
+                     await losingSaveSession2.CompleteAsync();
+                 }, Throws.InstanceOf<Exception>());
             }
             finally
             {

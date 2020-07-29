@@ -25,7 +25,7 @@
                 await persister.Complete(sagaData, completeSession, context1);
                 await completeSession.CompleteAsync();
             }
-            
+
             Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga1.Id));
 
             await SaveSaga(saga2);

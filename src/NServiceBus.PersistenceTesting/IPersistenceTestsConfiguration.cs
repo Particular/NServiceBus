@@ -39,6 +39,7 @@
         Task Cleanup();
 
         Func<ContextBag> GetContextBagForSagaStorage { get; }
+
         Func<ContextBag> GetContextBagForOutbox { get; }
     }
 
@@ -52,8 +53,11 @@
         }
 
         public Func<ContextBag> GetContextBagForSagaStorage { get; private set; } = () => new ContextBag();
+
         public Func<ContextBag> GetContextBagForOutbox { get; private set; } = () => new ContextBag();
+
         public TimeSpan? SessionTimeout { get; }
+
         public TestVariant Variant { get; }
 
         public SagaMetadataCollection SagaMetadataCollection

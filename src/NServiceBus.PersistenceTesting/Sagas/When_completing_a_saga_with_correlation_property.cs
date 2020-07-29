@@ -1,4 +1,4 @@
-﻿﻿namespace NServiceBus.PersistenceTesting.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -10,7 +10,7 @@
         public async Task Should_delete_the_saga()
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
-            var saga = new SagaWithCorrelationPropertyData {CorrelatedProperty = correlationPropertyData, DateTimeProperty = DateTime.UtcNow};
+            var saga = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
             await SaveSaga(saga);
 
             const string correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);

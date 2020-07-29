@@ -9,13 +9,21 @@
     public partial class PersistenceTestsConfiguration
     {
         public bool SupportsDtc => false; // TODO: verify if this is true
+
         public bool SupportsOutbox => true;
+
         public bool SupportsFinders => false;
+
         public bool SupportsPessimisticConcurrency => false;
+
         public ISagaIdGenerator SagaIdGenerator { get; private set; }
+
         public ISagaPersister SagaStorage  { get; private set; }
+
         public ISynchronizedStorage SynchronizedStorage { get; private set; }
+
         public ISynchronizedStorageAdapter SynchronizedStorageAdapter  { get; private set; }
+
         public IOutboxStorage OutboxStorage  { get; private set; }
 
         public Task Configure()

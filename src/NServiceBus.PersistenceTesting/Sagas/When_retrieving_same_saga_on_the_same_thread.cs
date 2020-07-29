@@ -19,7 +19,7 @@
             Guid generatedSagaId;
             using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
             {
-                var sagaData = new TestSagaData {SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow};
+                var sagaData = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
                 await SaveSagaWithSession(sagaData, insertSession, insertContextBag);
                 await insertSession.CompleteAsync();
                 generatedSagaId = sagaData.Id;

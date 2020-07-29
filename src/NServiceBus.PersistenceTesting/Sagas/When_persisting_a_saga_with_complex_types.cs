@@ -11,7 +11,7 @@
         public async Task It_should_get_deep_copy()
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
-            var sagaData = new SagaWithComplexTypeEntity {Ints = new List<int> {1, 2}, CorrelationProperty = correlationPropertyData};
+            var sagaData = new SagaWithComplexTypeEntity { Ints = new List<int> { 1, 2 }, CorrelationProperty = correlationPropertyData };
 
             await SaveSaga(sagaData);
 

@@ -11,7 +11,7 @@
         {
             var sagaData = new TestSagaData
             {
-                SomeId = Guid.NewGuid().ToString(), 
+                SomeId = Guid.NewGuid().ToString(),
                 SomethingWeCareAbout = "NServiceBus"
             };
             await SaveSaga(sagaData);

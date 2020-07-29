@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
-    using NUnit.Framework;
     using System;
     using System.Threading.Tasks;
+    using NUnit.Framework;
 
     public class When_persisting_different_sagas_with_same_correlation_property_value : SagaPersisterTests
     {

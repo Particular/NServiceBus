@@ -16,7 +16,7 @@
 
             var sagaData = new SagaWithoutCorrelationPropertyData
             {
-                FoundByFinderProperty = Guid.NewGuid().ToString(), 
+                FoundByFinderProperty = Guid.NewGuid().ToString(),
                 DateTimeProperty = DateTime.UtcNow
             };
 

@@ -18,7 +18,7 @@
             configuration.RequiresPessimisticConcurrencySupport();
 
             var correlationPropertyData = Guid.NewGuid().ToString();
-            var saga = new TestSagaData {SomeId = correlationPropertyData, SagaProperty = "initial value"};
+            var saga = new TestSagaData { SomeId = correlationPropertyData, SagaProperty = "initial value" };
             await SaveSaga(saga);
 
             var firstSessionGetDone = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);

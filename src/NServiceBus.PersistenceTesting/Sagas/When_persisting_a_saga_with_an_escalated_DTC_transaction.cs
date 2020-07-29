@@ -20,7 +20,7 @@
             Guid generatedSagaId;
             using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
             {
-                var sagaData = new TestSagaData {SomeId = correlationPropertData};
+                var sagaData = new TestSagaData { SomeId = correlationPropertData };
                 await SaveSagaWithSession(sagaData, session, savingContextBag);
                 await session.CompleteAsync();
                 generatedSagaId = sagaData.Id;
@@ -56,7 +56,7 @@
                 }
             }, Throws.Exception.TypeOf<TransactionAbortedException>());
         }
-        
+
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
         {
             public Task Handle(StartMessage message, IMessageHandlerContext context)

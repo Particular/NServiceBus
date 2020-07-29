@@ -9,7 +9,7 @@
         [Test]
         public async Task Should_delete_the_saga()
         {
-            var saga = new TestSagaData {SomeId = Guid.NewGuid().ToString(), DateTimeProperty = DateTime.UtcNow};
+            var saga = new TestSagaData { SomeId = Guid.NewGuid().ToString(), DateTimeProperty = DateTime.UtcNow };
             await SaveSaga(saga);
 
             var context = configuration.GetContextBagForSagaStorage();
@@ -44,7 +44,7 @@
 
             public DateTime DateTimeProperty { get; set; }
         }
-        
+
         public class StartMessage
         {
             public string SomeId { get; set; }

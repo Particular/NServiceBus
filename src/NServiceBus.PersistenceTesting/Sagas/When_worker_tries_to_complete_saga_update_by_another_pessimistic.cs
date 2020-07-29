@@ -12,7 +12,7 @@
             configuration.RequiresPessimisticConcurrencySupport();
 
             var correlationPropertyData = Guid.NewGuid().ToString();
-            var saga = new TestSagaData {SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow};
+            var saga = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
             await SaveSaga(saga);
 
             var firstSessionDateTimeValue = DateTime.UtcNow.AddDays(-2);
@@ -71,33 +71,33 @@
             Assert.That(result.DateTimeProperty, Is.EqualTo(secondSessionDateTimeValue).Within(TimeSpan.FromMilliseconds(1)));
         }
 
-         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
+        public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
+        {
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
             {
-                public Task Handle(StartMessage message, IMessageHandlerContext context)
-                {
-                    throw new NotImplementedException();
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                }
+                throw new NotImplementedException();
             }
 
-            public class StartMessage
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
             {
-                public string SomeId { get; set; }
+                mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
             }
+        }
 
-            public class TestSagaData : ContainSagaData
-            {
-                public string SomeId { get; set; } = "Test";
+        public class StartMessage
+        {
+            public string SomeId { get; set; }
+        }
 
-                public DateTime DateTimeProperty { get; set; }
-            }
+        public class TestSagaData : ContainSagaData
+        {
+            public string SomeId { get; set; } = "Test";
 
-            public When_worker_tries_to_complete_saga_update_by_another_pessimistic(TestVariant param) : base(param)
-            {
-            }
+            public DateTime DateTimeProperty { get; set; }
+        }
+
+        public When_worker_tries_to_complete_saga_update_by_another_pessimistic(TestVariant param) : base(param)
+        {
+        }
     }
 }

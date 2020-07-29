@@ -12,12 +12,12 @@
         [Test]
         public async Task It_should_successfully_remove_the_saga()
         {
-            configuration.RequiresFindersSupport(); 
+            configuration.RequiresFindersSupport();
 
             var propertyData = Guid.NewGuid().ToString();
             var saga = new SagaWithoutCorrelationPropertyData
             {
-                FoundByFinderProperty = propertyData, 
+                FoundByFinderProperty = propertyData,
                 DateTimeProperty = DateTime.UtcNow
             };
             await SaveSaga(saga);
@@ -34,7 +34,7 @@
             var result = await GetById<SagaWithoutCorrelationPropertyData>(saga.Id);
             Assert.That(result, Is.Null);
         }
-        
+
         public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
             IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
         {
@@ -48,19 +48,19 @@
                 throw new NotImplementedException();
             }
         }
-        
+
         public class SagaWithoutCorrelationPropertyData : ContainSagaData
         {
             public string FoundByFinderProperty { get; set; }
 
             public DateTime DateTimeProperty { get; set; }
         }
-        
+
         public class SagaWithoutCorrelationPropertyStartingMessage : IMessage
         {
             public string FoundByFinderProperty { get; set; }
         }
-        
+
         public class CustomFinder : IFindSagas<SagaWithoutCorrelationPropertyData>.Using<SagaWithoutCorrelationPropertyStartingMessage>
         {
             public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
