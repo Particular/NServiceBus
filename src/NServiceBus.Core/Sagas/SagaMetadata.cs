@@ -227,7 +227,27 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 }
             }
 
+            var invalidEntityProperties = sagaEntityType.GetProperties().Where(IsWritableNonPublic).ToList();
+            if (invalidEntityProperties.Count > 0)
+            {
+                var propertyNames = string.Join(", ", invalidEntityProperties.Select(p => $"'{p.Name}'"));
+                var writableDataPropertiesMustBePublic = $"Writable properties of '{sagaEntityType}' must be public: {propertyNames}";
+                throw new Exception(writableDataPropertiesMustBePublic);
+            }
+
             return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders);
+        }
+
+        static bool IsWritableNonPublic(PropertyInfo property)
+        {
+            if (property.CanWrite)
+            {
+                var setter = property.GetSetMethod(true);
+                if (setter == null || !setter.IsPublic)
+                    return true;
+            }
+
+            return false;
         }
 
         static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
