@@ -95,21 +95,23 @@
 
         protected void SetupNewSaga<TSagaData>(TSagaData sagaData) where TSagaData : IContainSagaData
         {
-            //TODO setup other IContainSagaData properties
             if (sagaData.Id == Guid.Empty)
             {
-                var sagaMetadata = configuration.SagaMetadataCollection.FindByEntity(typeof(TSagaData));
                 var correlationProperty = SagaCorrelationProperty.None;
+                var sagaMetadata = configuration.SagaMetadataCollection.FindByEntity(typeof(TSagaData));
                 if (sagaMetadata.TryGetCorrelationProperty(out var correlatedProp))
                 {
                     var prop = sagaData.GetType().GetProperty(correlatedProp.Name);
-
                     var value = prop.GetValue(sagaData);
-
                     correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
                 }
 
                 sagaData.Id = configuration.SagaIdGenerator.Generate(new SagaIdGeneratorContext(correlationProperty, sagaMetadata, new ContextBag()));
+            }
+
+            if (sagaData.OriginalMessageId == null)
+            {
+                sagaData.OriginalMessageId = Guid.NewGuid().ToString("D");
             }
         }
 
