@@ -37,8 +37,10 @@
   </ItemGroup>
   <!-- End Workaround -->
 
+  <!-- Workaround to prevent VS test discovery error -->
   <ItemGroup>
     <ProjectCapability Remove="TestContainer" />
   </ItemGroup>
+  <!-- End Workaround -->
 
 </Project>
