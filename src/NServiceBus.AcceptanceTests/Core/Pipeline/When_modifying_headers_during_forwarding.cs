@@ -36,7 +36,9 @@
             {
                 EndpointSetup<DefaultServer>(e =>
                 {
+#pragma warning disable 618
                     e.ForwardReceivedMessagesTo("forwardingQueue");
+#pragma warning restore 618
                     e.Pipeline.Register(typeof(ForwardingBehavior), "Adds headers to a forwarded message");
                     e.Pipeline.Register(typeof(MainPipelineBehavior), "Adds headers to a forwarded message");
                 });
@@ -74,6 +76,7 @@
                 }
             }
 
+#pragma warning disable 618
             class ForwardingBehavior : Behavior<IForwardingContext>
             {
                 public override Task Invoke(IForwardingContext context, Func<Task> next)
@@ -82,6 +85,7 @@
                     return next();
                 }
             }
+#pragma warning restore 618
         }
 
         class SomeMessage

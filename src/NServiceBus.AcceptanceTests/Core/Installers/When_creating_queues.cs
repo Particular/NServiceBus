@@ -85,7 +85,9 @@
                 .WithEndpoint<Endpoint>(e => e.CustomConfig(endpointConfig =>
                  {
                      endpointConfig.AuditProcessedMessagesTo("myAudit");
+#pragma warning disable 618
                      endpointConfig.ForwardReceivedMessagesTo("myForwardingEndpoint");
+#pragma warning restore 618
                      endpointConfig.MakeInstanceUniquelyAddressable(instanceDiscriminator);
                  }))
                 .Done(c => c.EndpointsStarted)

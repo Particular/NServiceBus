@@ -9,7 +9,9 @@ namespace NServiceBus.Testing
     /// <summary>
     /// A testable implementation for <see cref="IForwardingContext" />.
     /// </summary>
+#pragma warning disable 618
     public partial class TestableForwardingContext : TestableBehaviorContext, IForwardingContext
+#pragma warning restore 618
     {
         /// <summary>
         /// The message to be forwarded.

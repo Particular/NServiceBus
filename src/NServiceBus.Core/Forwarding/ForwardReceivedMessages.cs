@@ -5,6 +5,7 @@
     /// <summary>
     /// Provides message forwarding capabilities.
     /// </summary>
+    [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
     public class ForwardReceivedMessages : Feature
     {
         internal ForwardReceivedMessages()
