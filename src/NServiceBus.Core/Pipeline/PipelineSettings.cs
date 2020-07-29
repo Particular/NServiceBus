@@ -25,7 +25,7 @@ namespace NServiceBus.Pipeline
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
-            EnsureWriteEnabled(stepId, "remove");
+            EnsureWriteEnabled(stepId, nameof(Remove));
 
             modifications.Removals.Add(new RemoveStep(stepId));
         }
@@ -40,7 +40,7 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
-            EnsureWriteEnabled(stepId, "replace");
+            EnsureWriteEnabled(stepId, nameof(Replace));
 
             modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
         }
@@ -56,7 +56,7 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
-            EnsureWriteEnabled(stepId, "replace");
+            EnsureWriteEnabled(stepId, nameof(Replace));
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
         }
@@ -72,7 +72,7 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
-            EnsureWriteEnabled(stepId, "replace");
+            EnsureWriteEnabled(stepId, nameof(Replace));
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
         }
@@ -98,7 +98,7 @@ namespace NServiceBus.Pipeline
         public void Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
-            EnsureWriteEnabled(stepId, "register");
+            EnsureWriteEnabled(stepId, nameof(Register));
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
