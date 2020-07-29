@@ -22,12 +22,12 @@ jobs:
       - name: Create metadata
         run: |
           @"
-          `$Branch = "%GitVersion.BranchName%"
-          `$Version = "%GitVersion.LegacySemVer%"
-          `$Product = "%ProjectName%"
-          `$Major = "%GitVersion.Major%"
-          `$Minor = "%GitVersion.Minor%"
-          `$Commit = "%GitVersion.Sha%"
+          `$Branch = "$env:GitVersion.BranchName"
+          `$Version = "$env:GitVersion.LegacySemVer"
+          `$Product = "$env:ProjectName"
+          `$Major = "$env:GitVersion.Major"
+          `$Minor = "$env:GitVersion.Minor"
+          `$Commit = "$env:GitVersion.Sha"
           "@ > Metadata.ps1
       #- name: Sign packages
       #  ## https://timheuer.com/blog/use-nuget-with-github-actions-github-packages/
@@ -49,4 +49,22 @@ jobs:
         with:
           name: metadata
           path: Metadata.ps1
-        
+  
+  test:
+    name: Test
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        tfm: [ net452, netcoreapp3.1 ]
+        os: [ windows-latest, ubuntu-latest ]
+        exclude:
+          - tfm: net452
+            os: ubuntu-latest
+    steps:
+      - name: Download tests
+        uses: actions/download-artifact@v2
+        with:
+          name: tests
+      - name: Display structure of downloaded files
+        run: ls
