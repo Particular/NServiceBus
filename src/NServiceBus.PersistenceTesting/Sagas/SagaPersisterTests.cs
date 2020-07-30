@@ -93,7 +93,7 @@
             return correlationProperty;
         }
 
-        protected void SetupNewSaga<TSagaData>(TSagaData sagaData) where TSagaData : IContainSagaData
+        void SetupNewSaga<TSagaData>(TSagaData sagaData) where TSagaData : IContainSagaData
         {
             if (sagaData.Id == Guid.Empty)
             {
