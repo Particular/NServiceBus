@@ -8,7 +8,7 @@
 
     public partial class PersistenceTestsConfiguration
     {
-        public bool SupportsDtc => false; // TODO: verify if this is true
+        public bool SupportsDtc => true;
 
         public bool SupportsOutbox => true;
 
