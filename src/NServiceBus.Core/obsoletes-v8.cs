@@ -13,17 +13,11 @@ namespace NServiceBus.Gateway.Deduplication
     using Extensibility;
 
     [ObsoleteEx(
-            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
-            RemoveInVersion = "9.0.0",
-            TreatAsErrorFromVersion = "8.0.0")]
+        Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
     public interface IDeduplicateMessages
     {
-        /// <summary>
-        /// Returns false if the message is a duplicate.
-        /// </summary>
-        /// <param name="clientId">The client id that defines the range of ids to check for duplicates.</param>
-        /// <param name="timeReceived">The time received of the message to allow the storage to do cleanup.</param>
-        /// <param name="context">The current pipeline context.</param>
         Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived, ContextBag context);
     }
 }
@@ -41,13 +35,12 @@ namespace NServiceBus
         public const string HeaderName = "Header";
     }
 
+    [ObsoleteEx(
+        Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
     public static class InMemoryGatewayPersistenceConfigurationExtensions
     {
-        /// <summary>
-        /// Configures the size of the LRU cache.
-        /// </summary>
-        /// <param name="persistenceExtensions">The persistence extensions to extend.</param>
-        /// <param name="maxSize">Maximum size of the LRU cache.</param>
         [ObsoleteEx(
             Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
             RemoveInVersion = "9.0.0",
@@ -62,27 +55,36 @@ namespace NServiceBus
 namespace NServiceBus.Features
 {
     [ObsoleteEx(
-            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
-            RemoveInVersion = "9.0.0",
-            TreatAsErrorFromVersion = "8.0.0")]
+        Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
     public class InMemoryGatewayPersistence : Feature
     {
-        internal InMemoryGatewayPersistence() { }
+        internal InMemoryGatewayPersistence()
+        {
+            throw new NotImplementedException();
+        }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            throw new NotImplementedException();
         }
     }
 
-    [ObsoleteEx(Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
+    [ObsoleteEx(
+        Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
         RemoveInVersion = "9",
         TreatAsErrorFromVersion = "8")]
     public class MessageDrivenSubscriptions : Feature
     {
-        internal MessageDrivenSubscriptions() { }
+        internal MessageDrivenSubscriptions()
+        {
+            throw new NotImplementedException();
+        }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            throw new NotImplementedException();
         }
     }
 }
@@ -99,6 +101,7 @@ namespace NServiceBus
         {
             internal GatewayDeduplication() : base("GatewayDeduplication")
             {
+                throw new NotImplementedException();
             }
         }
     }

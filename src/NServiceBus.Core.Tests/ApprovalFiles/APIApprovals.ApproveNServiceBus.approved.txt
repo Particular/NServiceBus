@@ -535,6 +535,8 @@ namespace NServiceBus
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
+    [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
+        "Will be removed in version 9.0.0.", true)]
     public class static InMemoryGatewayPersistenceConfigurationExtensions
     {
         [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
