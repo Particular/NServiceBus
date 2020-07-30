@@ -13,18 +13,10 @@
         {
             configuration.RequiresDtcSupport();
 
-            var correlationPropertData = Guid.NewGuid().ToString();
-
             var persister = configuration.SagaStorage;
-            var savingContextBag = configuration.GetContextBagForSagaStorage();
-            Guid generatedSagaId;
-            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
-            {
-                var sagaData = new TestSagaData { SomeId = correlationPropertData };
-                await SaveSagaWithSession(sagaData, session, savingContextBag);
-                await session.CompleteAsync();
-                generatedSagaId = sagaData.Id;
-            }
+            var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
+            await SaveSaga(sagaData);
+            var generatedSagaId = sagaData.Id;
 
             Assert.That(async () =>
             {
@@ -44,7 +36,7 @@
 
                         var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
 
-                        var enlistedRecord = await persister.Get<TestSagaData>("Id", generatedSagaId, enlistedSession, enlistedContextBag);
+                        var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
 
                         await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
                         await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);
@@ -72,9 +64,7 @@
 
         public class TestSagaData : ContainSagaData
         {
-            public string SomeId { get; set; } = "Test";
-
-            public DateTime DateTimeProperty { get; set; }
+            public string SomeId { get; set; }
         }
 
         public class StartMessage
