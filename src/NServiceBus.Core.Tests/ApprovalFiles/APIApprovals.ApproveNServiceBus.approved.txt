@@ -2075,12 +2075,14 @@ namespace NServiceBus.Settings
         public bool HasExplicitValue<T>() { }
         public bool HasSetting(string key) { }
         public bool HasSetting<T>() { }
-        public void Set(string key, object value) { }
-        [System.ObsoleteAttribute("Use `Set<T>(T value)` instead. Will be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Set<T>(T value)` instead. The member currently throws a NotImplementedExcept" +
+            "ion. Will be removed in version 9.0.0.", true)]
         public void Set<T>(object value) { }
+        public void Set(string key, object value) { }
         public void Set<T>(T value) { }
         public void Set<T>(System.Action value) { }
-        [System.ObsoleteAttribute("Use `SetDefault<T>(T value)` instead. Will be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `SetDefault<T>(T value)` instead. The member currently throws a NotImplemente" +
+            "dException. Will be removed in version 9.0.0.", true)]
         public void SetDefault<T>(object value) { }
         public void SetDefault<T>(T value) { }
         public void SetDefault<T>(System.Action value) { }

@@ -7,24 +7,6 @@ namespace NServiceBus.Features
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
-    /// Use 'TransportExtensions&lt;T&gt;.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.
-    /// </summary>
-    [ObsoleteEx(Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
-        RemoveInVersion = "9",
-        TreatAsErrorFromVersion = "8")]
-    public class MessageDrivenSubscriptions : Feature
-    {
-        internal MessageDrivenSubscriptions() { }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-        }
-    }
-
-    /// <summary>
     /// Allows subscribers to register by sending a subscription message to this endpoint.
     /// ---
     /// The goal is to remove feature classes that implemented functionality far beyond what features are "supposed" to be.
