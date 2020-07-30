@@ -58,34 +58,18 @@ namespace NServiceBus.Features
         Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
         RemoveInVersion = "9.0.0",
         TreatAsErrorFromVersion = "8.0.0")]
-    public class InMemoryGatewayPersistence : Feature
+    public class InMemoryGatewayPersistence
     {
-        internal InMemoryGatewayPersistence()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
+        internal InMemoryGatewayPersistence() => throw new NotImplementedException();
     }
 
     [ObsoleteEx(
         Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
         RemoveInVersion = "9",
         TreatAsErrorFromVersion = "8")]
-    public class MessageDrivenSubscriptions : Feature
+    public class MessageDrivenSubscriptions
     {
-        internal MessageDrivenSubscriptions()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
+        internal MessageDrivenSubscriptions() => throw new NotImplementedException();
     }
 }
 
@@ -97,12 +81,9 @@ namespace NServiceBus
             Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
             RemoveInVersion = "9.0.0",
             TreatAsErrorFromVersion = "8.0.0")]
-        public sealed class GatewayDeduplication : StorageType
+        public sealed class GatewayDeduplication
         {
-            internal GatewayDeduplication() : base("GatewayDeduplication")
-            {
-                throw new NotImplementedException();
-            }
+            internal GatewayDeduplication() => throw new NotImplementedException();
         }
     }
 }

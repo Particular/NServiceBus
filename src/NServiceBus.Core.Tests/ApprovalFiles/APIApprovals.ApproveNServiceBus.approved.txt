@@ -883,7 +883,7 @@ namespace NServiceBus
         public override string ToString() { }
         [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
             "Will be removed in version 9.0.0.", true)]
-        public sealed class GatewayDeduplication : NServiceBus.StorageType { }
+        public sealed class GatewayDeduplication { }
         public sealed class Outbox : NServiceBus.StorageType { }
         public sealed class Sagas : NServiceBus.StorageType { }
         public sealed class Subscriptions : NServiceBus.StorageType { }
@@ -1254,10 +1254,7 @@ namespace NServiceBus.Features
     }
     [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
-    public class InMemoryGatewayPersistence : NServiceBus.Features.Feature
-    {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
+    public class InMemoryGatewayPersistence { }
     public class InMemoryOutboxPersistence : NServiceBus.Features.Feature
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1277,10 +1274,7 @@ namespace NServiceBus.Features
     [System.ObsoleteAttribute("Use \'TransportExtensions<T>.DisablePublishing()\' to avoid the need for a subscrip" +
         "tion storage if this endpoint does not publish events. Will be removed in versio" +
         "n 9.0.0.", true)]
-    public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
-    {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
+    public class MessageDrivenSubscriptions { }
     public class Outbox : NServiceBus.Features.Feature
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
