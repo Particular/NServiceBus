@@ -100,7 +100,7 @@
         {
             if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
             {
-                throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint, create a new one before starting the other.");
+                throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
             }
 
             settings.Set("UsedToCreateEndpoint", true);
