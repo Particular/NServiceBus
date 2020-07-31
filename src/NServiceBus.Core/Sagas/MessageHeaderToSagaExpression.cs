@@ -5,8 +5,8 @@
 
     class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
     {
-        private IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
-        private string headerName;
+        IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
+        string headerName;
 
         public MessageHeaderToSagaExpression(IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration, string headerName)
         {
