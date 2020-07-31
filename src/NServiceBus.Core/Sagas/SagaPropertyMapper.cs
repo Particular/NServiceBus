@@ -30,7 +30,6 @@ namespace NServiceBus
             return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
         }
 
-        /// <summary>
         /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a message header.
         /// </summary>
         /// <typeparam name="TMessage">The message type to map to.</typeparam>
@@ -50,6 +49,21 @@ namespace NServiceBus
             }
 
             return new MessageHeaderToSagaExpression<TSagaData, TMessage>(sagaHeaderFindingConfiguration, headerName);
+        }
+
+        /// <summary>
+        /// Specify the correlation property for instances of <typeparamref name="TSagaData"/>.
+        /// </summary>
+        /// <param name="sagaProperty">The correlation property to use when finding a saga instance.</param>
+        /// <returns>
+        /// A <see cref="CorrelatedSagaPropertyMapper{TSagaData}"/> that provides the fluent chained
+        /// <see cref="CorrelatedSagaPropertyMapper{TSagaData}.ToMessage{TMessage}"/> to map a message type to
+        /// the correlation property.
+        /// </returns>
+        public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object>> sagaProperty)
+        {
+            Guard.AgainstNull(nameof(sagaProperty), sagaProperty);
+            return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
         }
 
         IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
