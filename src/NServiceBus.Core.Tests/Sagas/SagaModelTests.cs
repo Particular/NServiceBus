@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -70,6 +71,36 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             var model = GetModel(typeof(MySaga), typeof(string), typeof(AbstractSaga)).ToList();
 
             Assert.That(model, Has.Exactly(1).Matches<SagaMetadata>(x => x.SagaType == typeof(MySaga)));
+        }
+
+        [Test]
+        public void ValidateHeaderBasedSagaMappingsSetCorrelationProperty()
+        {
+            var model = GetModel(typeof(MyHeaderMappedSaga));
+
+            var metadata = model.Find(typeof(MyHeaderMappedSaga));
+
+            Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
+            Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
+        }
+
+        class MyHeaderMappedSaga : Saga<MyHeaderMappedSaga.SagaData>, IAmStartedByMessages<Message1>
+        {
+            public Task Handle(Message1 message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureHeaderMapping<Message1>("CorrelationHeader")
+                    .ToSaga(saga => saga.UniqueProperty);
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public int UniqueProperty { get; set; }
+            }
         }
 
         class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>

@@ -177,7 +177,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             var finders = new List<SagaFinderDefinition>();
 
-            var propertyMappings = mapper.Mappings.OfType<PropertyFinderSagaToMessageMap>()
+            var propertyMappings = mapper.Mappings.OfType<CorrelationSagaToMessageMap>()
                 .GroupBy(m => m.SagaPropName)
                 .ToList();
 
@@ -339,7 +339,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             typeof(ushort)
         };
 
-        class SagaMapper : IConfigureHowToFindSagaWithMessage
+        class SagaMapper : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders
         {
             void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
             {
@@ -419,6 +419,26 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     throw new ArgumentException(
                         $@"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
                 }
+            }
+
+            void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
+            {
+                var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
+                var sagaProp = sagaMember as PropertyInfo;
+                if (sagaProp == null)
+                {
+                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
+                }
+
+                ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
+
+                Mappings.Add(new HeaderFinderSagaToMessageMap
+                {
+                    HeaderName = headerName,
+                    SagaPropName = sagaProp.Name,
+                    SagaPropType = sagaProp.PropertyType,
+                    MessageType = typeof(TMessage)
+                });
             }
 
             public List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();

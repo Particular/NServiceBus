@@ -444,6 +444,12 @@ namespace NServiceBus
             where TSagaEntity : NServiceBus.IContainSagaData
         ;
     }
+    public interface IConfigureHowToFindSagaWithMessageHeaders
+    {
+        void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
+            where TSagaEntity : NServiceBus.IContainSagaData
+        ;
+    }
     public interface IContainSagaData
     {
         System.Guid Id { get; set; }
@@ -575,6 +581,11 @@ namespace NServiceBus
     {
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.ObjectBuilder.IBuilder builder);
+    }
+    public interface IToSagaExpression<TSagaData>
+        where TSagaData : NServiceBus.IContainSagaData
+    {
+        void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
@@ -900,6 +911,7 @@ namespace NServiceBus
     public class SagaPropertyMapper<TSagaData>
         where TSagaData :  class, NServiceBus.IContainSagaData
     {
+        public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) { }
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
