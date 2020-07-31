@@ -85,6 +85,9 @@ namespace NServiceBus
             // As well as all the other components have been initialized
             settings.PreventChanges();
 
+            // The pipeline settings can be locked after the endpoint is configured. It prevents end users from modyfing pipeline after an endpoint has started.
+            pipelineSettings.PreventChanges();
+
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
                 {
