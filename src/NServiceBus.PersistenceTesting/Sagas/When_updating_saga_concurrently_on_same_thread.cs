@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    public class When_retrieving_same_saga_on_the_same_thread : SagaPersisterTests
+    public class When_updating_saga_concurrently_on_same_thread : SagaPersisterTests
     {
         [Test]
         public async Task Save_should_fail_when_data_changes_between_read_and_update()
@@ -87,7 +87,7 @@
             public DateTime DateTimeProperty { get; set; }
         }
 
-        public When_retrieving_same_saga_on_the_same_thread(TestVariant param) : base(param)
+        public When_updating_saga_concurrently_on_same_thread(TestVariant param) : base(param)
         {
         }
     }
