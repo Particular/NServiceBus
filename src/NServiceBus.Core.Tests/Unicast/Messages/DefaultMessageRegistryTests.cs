@@ -47,9 +47,21 @@
                 Assert.AreEqual(typeof(ConcreteParent1), messageMetadata.MessageHierarchy.ToList()[2]);
                 Assert.AreEqual(typeof(InterfaceParent1Base), messageMetadata.MessageHierarchy.ToList()[3]);
                 Assert.AreEqual(typeof(ConcreteParentBase), messageMetadata.MessageHierarchy.ToList()[4]);
-
             }
 
+            [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent, NonExistingAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b50674d1e0c6ce54")]
+            [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent, NonExistingAssembly, Version=1.0.0.0, Culture=neutral")]
+            [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent, NonExistingAssembly")]
+            [TestCase("NServiceBus.Unicast.Tests.DefaultMessageRegistryTests+When_getting_message_definition+MyEvent")]
+            public void Should_match_types_from_a_different_assembly(string typeName)
+            {
+                var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
+                defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
+                
+                var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeName);
+
+                Assert.AreEqual(typeof(MyEvent), messageMetadata.MessageHierarchy.ToList()[0]);
+            }
 
             class MyEvent : ConcreteParent1, InterfaceParent1
             {
