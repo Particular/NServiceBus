@@ -8,7 +8,7 @@
 
     public class When_updating_saga_concurrently_twice_on_the_same_thread : SagaPersisterTests
     {
-        [Test] // TODO: Do we need this? What's the use of this test as opposed to When_retrieving_same_saga_on_the_same_thread?
+        [Test]
         public async Task Save_process_is_repeatable()
         {
             configuration.RequiresOptimisticConcurrencySupport();
