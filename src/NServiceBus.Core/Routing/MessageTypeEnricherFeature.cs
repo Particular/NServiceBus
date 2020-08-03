@@ -1,7 +1,5 @@
-﻿namespace NServiceBus.Routing
+﻿namespace NServiceBus.Features
 {
-    using Features;
-
     class MessageTypeEnricherFeature : Feature
     {
         public MessageTypeEnricherFeature()
