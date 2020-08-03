@@ -12,26 +12,19 @@
         public async Task Save_should_fail_when_data_changes_between_read_and_update()
         {
             configuration.RequiresOptimisticConcurrencySupport();
-            var correlationPropertyData = Guid.NewGuid().ToString();
 
-            var persister = configuration.SagaStorage;
-            var insertContextBag = configuration.GetContextBagForSagaStorage();
-            Guid generatedSagaId;
-            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
-            {
-                var sagaData = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
-                await SaveSagaWithSession(sagaData, insertSession, insertContextBag);
-                await insertSession.CompleteAsync();
-                generatedSagaId = sagaData.Id;
-            }
+            var correlationPropertyData = Guid.NewGuid().ToString();
+            var sagaData = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
+            await SaveSaga(sagaData);
+            var generatedSagaId = sagaData.Id;
 
             ContextBag losingContext;
             CompletableSynchronizedStorageSession losingSaveSession;
             TestSagaData staleRecord;
+            var persister = configuration.SagaStorage;
 
             var winningContext = configuration.GetContextBagForSagaStorage();
-            var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext);
-            try
+            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
             {
                 var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
 
@@ -42,10 +35,6 @@
                 record.DateTimeProperty = DateTime.UtcNow;
                 await persister.Update(record, winningSaveSession, winningContext);
                 await winningSaveSession.CompleteAsync();
-            }
-            finally
-            {
-                winningSaveSession.Dispose();
             }
 
             try

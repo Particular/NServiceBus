@@ -15,18 +15,12 @@
 
             var correlationPropertyData = Guid.NewGuid().ToString();
             var saga = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
-
-            var persister = configuration.SagaStorage;
-            var insertContextBag = configuration.GetContextBagForSagaStorage();
-            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
-            {
-                await SaveSagaWithSession(saga, insertSession, insertContextBag);
-                await insertSession.CompleteAsync();
-            }
+            await SaveSaga(saga);
 
             ContextBag losingContext1;
             CompletableSynchronizedStorageSession losingSaveSession1;
             TestSagaData staleRecord1;
+            var persister = configuration.SagaStorage;
 
             var winningContext1 = configuration.GetContextBagForSagaStorage();
             var winningSaveSession1 = await configuration.SynchronizedStorage.OpenSession(winningContext1);
