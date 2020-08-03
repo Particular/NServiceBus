@@ -8,7 +8,7 @@
     {
         public override async Task OneTimeSetUp()
         {
-            configuration = new PersistenceTestsConfiguration(param, TimeSpan.FromMilliseconds(100));
+            configuration = new PersistenceTestsConfiguration(param, TimeSpan.FromMilliseconds(500));
             await configuration.Configure();
         }
 
@@ -33,7 +33,7 @@
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstSessionContext);
                     firstSessionGetDone.SetResult(true);
 
-                    await Task.Delay(200).ConfigureAwait(false);
+                    await Task.Delay(1000).ConfigureAwait(false);
 
                     record.SagaProperty = "session 1 value";
                     await persister.Update(record, firstSaveSession, firstSessionContext);
