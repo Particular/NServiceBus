@@ -25,6 +25,7 @@ namespace NServiceBus
         public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
+
             var startableEndpoint = await Create(configuration).ConfigureAwait(false);
 
             return await startableEndpoint.Start().ConfigureAwait(false);
