@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
 
-    class MessageTypeEnricher : Behavior<IIncomingLogicalMessageContext>
+    class MessageTypeEnricherBehavior : Behavior<IIncomingLogicalMessageContext>
     {
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
         {
