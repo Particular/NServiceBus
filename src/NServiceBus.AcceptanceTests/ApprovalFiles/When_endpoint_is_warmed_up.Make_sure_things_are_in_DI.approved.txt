@@ -1,4 +1,5 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
+NServiceBus.MessageTypeEnricherBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
