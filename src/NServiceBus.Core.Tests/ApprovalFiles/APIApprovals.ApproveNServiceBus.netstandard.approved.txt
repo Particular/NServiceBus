@@ -176,6 +176,7 @@ namespace NServiceBus
         where TSagaData :  class, NServiceBus.IContainSagaData
     {
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessageHeader<TMessage>(string headerName) { }
     }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
         "n 8.0.0.", true)]

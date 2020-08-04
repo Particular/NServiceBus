@@ -31,5 +31,20 @@ namespace NServiceBus
             sagaPropertyMapper.ConfigureMapping(messageProperty).ToSaga(sagaProperty);
             return this;
         }
+
+        /// <summary>
+        /// Specify how to map <typeparamref name="TMessage"/> messages to instance of <typeparamref name="TSagaData"/>
+        /// using a header.
+        /// </summary>
+        /// <typeparam name="TMessage">The message type to map to.</typeparam>
+        /// <param name="headerName">The name of the header to use for correlation.</param>
+        /// <returns>
+        /// The same mapper instance.
+        /// </returns>
+        public CorrelatedSagaPropertyMapper<TSagaData> ToMessageHeader<TMessage>(string headerName)
+        {
+            sagaPropertyMapper.ConfigureHeaderMapping<TMessage>(headerName).ToSaga(sagaProperty);
+            return this;
+        }
     }
 }
