@@ -30,6 +30,7 @@ namespace NServiceBus
             return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
         }
 
+        /// <summary>
         /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a message header.
         /// </summary>
         /// <typeparam name="TMessage">The message type to map to.</typeparam>
