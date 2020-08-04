@@ -30,6 +30,28 @@ namespace NServiceBus
             return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
         }
 
+        /// <summary>
+        /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a message header.
+        /// </summary>
+        /// <typeparam name="TMessage">The message type to map to.</typeparam>
+        /// <param name="headerName">The name of the header that contains the correlation value.</param>
+        /// <returns>
+        /// A <see cref="IToSagaExpression{TSagaData}" /> that provides the fluent chained
+        /// <see cref="IToSagaExpression{TSagaData}.ToSaga" /> to link <typeparamref name="TMessage"/> with
+        /// <typeparamref name="TSagaData"/> using <paramref name="headerName"/>.
+        /// </returns>
+        public IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName)
+        {
+            Guard.AgainstNull(nameof(headerName), headerName);
+
+            if(!(sagaMessageFindingConfiguration is IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration))
+            {
+                throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithMessageHeaders)}.");
+            }
+
+            return new MessageHeaderToSagaExpression<TSagaData, TMessage>(sagaHeaderFindingConfiguration, headerName);
+        }
+
         IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
     }
 }

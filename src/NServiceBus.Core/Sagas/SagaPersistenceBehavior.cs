@@ -262,7 +262,7 @@
             var finderType = finderDefinition.Type;
             var finder = (SagaFinder)context.Builder.Build(finderType);
 
-            return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
+            return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders);
         }
 
         SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)

@@ -177,8 +177,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             var finders = new List<SagaFinderDefinition>();
 
-
-            var propertyMappings = mapper.Mappings.Where(m => !m.HasCustomFinderMap)
+            var propertyMappings = mapper.Mappings.OfType<CorrelationSagaToMessageMap>()
                 .GroupBy(m => m.SagaPropName)
                 .ToList();
 
@@ -201,17 +200,9 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             foreach (var mapping in mapper.Mappings)
             {
-                var associatedMessage = associatedMessages.FirstOrDefault(m => mapping.MessageType.IsAssignableFrom(m.MessageType));
-                if (associatedMessage == null)
-                {
-                    var msgType = mapping.MessageType.FullName;
-                    if (mapping.HasCustomFinderMap)
-                    {
-                        throw new Exception($"Custom saga finder {mapping.CustomFinderType.FullName} maps message type {msgType} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
-                    }
-                    throw new Exception($"Saga {sagaType.FullName} contains a mapping for {msgType} in the ConfigureHowToFindSaga method, but does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
-                }
-                SetFinderForMessage(mapping, sagaEntityType, finders);
+                mapping.AssertSagaHandlesMappedMessage(sagaType, associatedMessages);
+
+                finders.Add(mapping.CreateSagaFinderDefinition(sagaEntityType));
             }
 
             foreach (var messageType in associatedMessages)
@@ -267,25 +258,6 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     }
                     mapper.ConfigureCustomFinder(finderType, messageType);
                 }
-            }
-        }
-
-        static void SetFinderForMessage(SagaToMessageMap mapping, Type sagaEntityType, List<SagaFinderDefinition> finders)
-        {
-            if (mapping.HasCustomFinderMap)
-            {
-                finders.Add(new SagaFinderDefinition(typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType), mapping.MessageType, new Dictionary<string, object>
-                {
-                    {"custom-finder-clr-type", mapping.CustomFinderType}
-                }));
-            }
-            else
-            {
-                finders.Add(new SagaFinderDefinition(typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType), mapping.MessageType, new Dictionary<string, object>
-                {
-                    {"property-accessor", mapping.MessageProp},
-                    {"saga-property-name", mapping.SagaPropName}
-                }));
             }
         }
 
@@ -367,7 +339,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             typeof(ushort)
         };
 
-        class SagaMapper : IConfigureHowToFindSagaWithMessage
+        class SagaMapper : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders
         {
             void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
             {
@@ -384,7 +356,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 var compiledMessageExpression = messageExpression.Compile();
                 var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage) o));
 
-                Mappings.Add(new SagaToMessageMap
+                Mappings.Add(new PropertyFinderSagaToMessageMap
                 {
                     MessageProp = messageFunc,
                     SagaPropName = sagaProp.Name,
@@ -432,7 +404,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             public void ConfigureCustomFinder(Type finderType, Type messageType)
             {
-                Mappings.Add(new SagaToMessageMap
+                Mappings.Add(new CustomFinderSagaToMessageMap
                 {
                     MessageType = messageType,
                     CustomFinderType = finderType
@@ -447,6 +419,26 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     throw new ArgumentException(
                         $@"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
                 }
+            }
+
+            void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
+            {
+                var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
+                var sagaProp = sagaMember as PropertyInfo;
+                if (sagaProp == null)
+                {
+                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
+                }
+
+                ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
+
+                Mappings.Add(new HeaderFinderSagaToMessageMap
+                {
+                    HeaderName = headerName,
+                    SagaPropName = sagaProp.Name,
+                    SagaPropType = sagaProp.PropertyType,
+                    MessageType = typeof(TMessage)
+                });
             }
 
             public List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
