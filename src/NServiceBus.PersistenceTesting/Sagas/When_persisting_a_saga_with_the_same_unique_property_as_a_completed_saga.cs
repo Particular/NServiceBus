@@ -38,9 +38,8 @@
                 await persister.Complete(sagaData, completeSession, context2);
                 await completeSession.CompleteAsync();
             }
-            Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga2.Id));
 
-            Assert.AreNotEqual(saga1.Id, saga2.Id, "a new saga should be created each time");
+            Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga2.Id));
         }
 
         public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
