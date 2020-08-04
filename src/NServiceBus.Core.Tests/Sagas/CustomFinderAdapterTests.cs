@@ -22,10 +22,9 @@
 
             var messageType = typeof(StartSagaMessage);
 
-            var messageConventions = new Conventions
-            {
-                IsCommandTypeAction = t => t == messageType
-            };
+            var messageConventions = new Conventions();
+
+            messageConventions.DefineCommandTypeConventions(t => t == messageType);
 
             var sagaMetadata = SagaMetadata.Create(typeof(TestSaga), availableTypes, messageConventions);
 

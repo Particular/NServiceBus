@@ -31,14 +31,13 @@
         public void Should_cache_the_message_convention()
         {
             var timesCalled = 0;
-            conventions = new Conventions
+            conventions = new Conventions();
+
+            conventions.DefineEventTypeConventions(t =>
             {
-                IsEventTypeAction = t =>
-                {
-                    timesCalled++;
-                    return false;
-                }
-            };
+                timesCalled++;
+                return false;
+            });
 
             conventions.IsEventType(GetType());
             Assert.AreEqual(1, timesCalled);
@@ -55,14 +54,13 @@
         public void Should_cache_the_message_convention()
         {
             var timesCalled = 0;
-            conventions = new Conventions
+            conventions = new Conventions();
+           
+            conventions.DefineCommandTypeConventions(t =>
             {
-                IsCommandTypeAction = t =>
-                {
-                    timesCalled++;
-                    return false;
-                }
-            };
+                timesCalled++;
+                return false;
+            });
 
             conventions.IsCommandType(GetType());
             Assert.AreEqual(1, timesCalled);

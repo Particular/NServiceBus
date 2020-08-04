@@ -111,6 +111,7 @@ namespace NServiceBus
             settings.AddStartupDiagnosticsSection("Messages", new
             {
                 CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
+                MessageConventions = conventions.RegisteredConventions,
                 NumberOfMessagesFoundAtStartup = foundMessages.Count,
                 Messages = foundMessages.Select(m => m.MessageType.FullName)
             });
