@@ -167,6 +167,10 @@ namespace NServiceBus
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
+    public class static ConversationRoutingExtensions
+    {
+        public static void StartNewConversation(this NServiceBus.SendOptions sendOptions, string conversationId = null) { }
+    }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
         "n 8.0.0.", true)]
     public class static CorrelationContextExtensions
@@ -409,6 +413,7 @@ namespace NServiceBus
         public const string OriginatingSagaId = "NServiceBus.OriginatingSagaId";
         public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
         public const string OriginatingSite = "NServiceBus.OriginatingSite";
+        public const string PreviousConversationId = "NServiceBus.PreviousConversationId";
         public const string ProcessingEnded = "NServiceBus.ProcessingEnded";
         public const string ProcessingEndpoint = "NServiceBus.ProcessingEndpoint";
         public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
