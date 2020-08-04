@@ -34,9 +34,6 @@
 
         SagaMetadataCollection SagaMetadataCollection { get; }
 
-        /// <summary>
-        /// Initialize any properties needed within the Configure method
-        /// </summary>
         Task Configure();
 
         Task Cleanup();
