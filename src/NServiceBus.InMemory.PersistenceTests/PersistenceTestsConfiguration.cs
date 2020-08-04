@@ -33,12 +33,13 @@
             SynchronizedStorage = new InMemorySynchronizedStorage();
             SynchronizedStorageAdapter = new InMemoryTransactionalSynchronizedStorageAdapter();
             OutboxStorage = new InMemoryOutboxStorage();
-            return TaskEx.CompletedTask;
+
+            return Task.CompletedTask;
         }
 
         public Task Cleanup()
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }
