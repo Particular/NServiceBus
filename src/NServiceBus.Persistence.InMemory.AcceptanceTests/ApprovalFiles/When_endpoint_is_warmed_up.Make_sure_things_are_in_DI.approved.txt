@@ -1,6 +1,6 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
 NServiceBus.Features.MessageDrivenSubscriptions+InitializableSubscriptionStorage - SingleInstance
-NServiceBus.MessageTypeEnricherBehavior - InstancePerCall
+NServiceBus.InferredMessageTypeEnricherBehavior - InstancePerCall
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
