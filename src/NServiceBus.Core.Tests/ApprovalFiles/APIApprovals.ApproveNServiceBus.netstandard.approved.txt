@@ -172,6 +172,12 @@ namespace NServiceBus
     {
         public static void StartNewConversation(this NServiceBus.SendOptions sendOptions, string conversationId = null) { }
     }
+    public class CorrelatedSagaPropertyMapper<TSagaData>
+        where TSagaData :  class, NServiceBus.IContainSagaData
+    {
+        public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessageHeader<TMessage>(string headerName) { }
+    }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
         "n 8.0.0.", true)]
     public class static CorrelationContextExtensions
@@ -934,6 +940,7 @@ namespace NServiceBus
     {
         public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) { }
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaProperty) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData :  class, NServiceBus.IContainSagaData, new ()
