@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+    <NoWarn>$(NoWarn);CA2007</NoWarn>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
+    <PackageReference Include="Particular.CodeRules" Version="0.3.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>NServiceBus.PersistenceTests.Sources</PackageId>
+    <Description>Tests for persistence seam implementations</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
+  <ItemGroup>
+    <_PackageFiles Include="**\*.cs;..\NServiceBus.Core\IdGeneration\CombGuid.cs;..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs">
+      <BuildAction>Compile</BuildAction>
+      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.PersistenceTests\</PackagePath>
+    </_PackageFiles>
+    <_PackageFiles Remove="**\obj\**\*.cs" />
+    <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
+  </ItemGroup>
+  <!-- End Workaround -->
+
+  <!-- Workaround to prevent VS test discovery error -->
+  <ItemGroup>
+    <ProjectCapability Remove="TestContainer" />
+  </ItemGroup>
+  <!-- End Workaround -->
+
+</Project>
