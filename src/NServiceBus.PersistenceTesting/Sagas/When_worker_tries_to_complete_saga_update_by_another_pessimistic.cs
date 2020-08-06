@@ -25,8 +25,7 @@
             async Task FirstSession()
             {
                 var firstContent = configuration.GetContextBagForSagaStorage();
-                var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent);
-                try
+                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent))
                 {
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
                     firstSessionGetDone.SetResult(true);
@@ -36,37 +35,28 @@
                     await secondSessionGetDone.Task.ConfigureAwait(false);
                     await firstSaveSession.CompleteAsync();
                 }
-                finally
-                {
-                    firstSaveSession.Dispose();
-                }
             }
 
             async Task SecondSession()
             {
                 var secondContext = configuration.GetContextBagForSagaStorage();
-                var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext);
-                try
+                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext))
                 {
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
-                    var recordTask = persister.Get<TestSagaData>(saga.Id, secondSession, secondContext);
+                    var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext));
                     secondSessionGetDone.SetResult(true);
+
                     var record = await recordTask.ConfigureAwait(false);
                     record.DateTimeProperty = secondSessionDateTimeValue;
                     await persister.Update(record, secondSession, secondContext);
                     await secondSession.CompleteAsync();
-                }
-                finally
-                {
-                    secondSession.Dispose();
                 }
             }
 
             await Task.WhenAll(SecondSession(), FirstSession());
 
             var result = await GetByCorrelationProperty<TestSagaData>(nameof(TestSagaData.SomeId), correlationPropertyData);
-
             // MongoDB stores datetime with less precision
             Assert.That(result.DateTimeProperty, Is.EqualTo(secondSessionDateTimeValue).Within(TimeSpan.FromMilliseconds(1)));
         }
