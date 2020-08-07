@@ -4,6 +4,7 @@
     using System.Reflection;
     using Pipeline;
     using NUnit.Framework;
+    using System;
 
     [TestFixture]
     public class TestableContextChecker
@@ -17,6 +18,7 @@
 
             var behaviorContextInterfaces = nservicebusAssembly.DefinedTypes
                 .Where(x => x.IsInterface && behaviorContextType.IsAssignableFrom(x))
+                .Where(x => !x.GetCustomAttributes().Any(att => att.GetType() == typeof(ObsoleteAttribute)))
                 .Except(new[]
                 {
                     typeof(PipelineTerminator<>.ITerminatingContext)
@@ -31,6 +33,6 @@
                     Assert.Fail($"Found no testable implementation for {behaviorContextInterface.FullName}. Expecting an implementation named {testableImplementationName}.");
                 }
             }
-        } 
+        }
     }
 }

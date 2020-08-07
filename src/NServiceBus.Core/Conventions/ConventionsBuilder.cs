@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// Defines custom message conventions instead of using the <see cref="IMessage"/>, <see cref="IEvent"/> or <see cref="ICommand"/> interfaces, and other conventions.
     /// </summary>
-    public partial class ConventionsBuilder : ExposeSettings
+    public class ConventionsBuilder : ExposeSettings
     {
         /// <summary>
         /// Creates a new instance of ConventionsBuilder class.

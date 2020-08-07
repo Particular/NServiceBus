@@ -6,10 +6,7 @@ public class ConfigureEndpointInMemoryPersistence : IConfigureEndpointTestExecut
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-#pragma warning disable 0618
-        configuration.UsePersistence<InMemoryPersistence>()
-            .GatewayDeduplicationCacheSize(100);
-#pragma warning restore 0618
+        configuration.UsePersistence<InMemoryPersistence>();
         return Task.FromResult(0);
     }
 

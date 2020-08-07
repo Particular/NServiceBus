@@ -8,15 +8,16 @@ namespace NServiceBus.Features
 
     /// <summary>
     /// Allows subscribers to register by sending a subscription message to this endpoint.
+    /// ---
+    /// The goal is to remove feature classes that implemented functionality far beyond what features are "supposed" to be.
+    /// Many of those features have been moved into components instead. Now that this class is internal in V8 that
+    /// refactoring can occur.
     /// </summary>
-    [ObsoleteEx(Message = "It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
-        RemoveInVersion = "8.0",
-        TreatAsErrorFromVersion = "8.0")]
-    public class MessageDrivenSubscriptions : Feature
+    class MessageDrivenSubscriptionsToBeRefactored : Feature
     {
         internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
-        internal MessageDrivenSubscriptions()
+        public MessageDrivenSubscriptionsToBeRefactored()
         {
             EnableByDefault();
             Defaults(s =>

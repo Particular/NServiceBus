@@ -69,8 +69,6 @@
                 recoverabilityConfig.Failed.ErrorQueue,
                 UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
             });
-
-            WireUpLegacyNotifications();
         }
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
@@ -154,32 +152,6 @@
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
 
             return new DelayedConfig(numberOfRetries, timeIncrease);
-        }
-
-        //note: will soon be removed since we're deprecating Notifications in favor of the new notifications
-        void WireUpLegacyNotifications()
-        {
-            var legacyNotifications = settings.Get<Notifications>();
-
-            MessageRetryNotification.Subscribe(e =>
-            {
-                if (e.IsImmediateRetry)
-                {
-                    legacyNotifications.Errors.InvokeMessageHasFailedAnImmediateRetryAttempt(e.Attempt, e.Message, e.Exception);
-                }
-                else
-                {
-                    legacyNotifications.Errors.InvokeMessageHasBeenSentToDelayedRetries(e.Attempt, e.Message, e.Exception);
-                }
-
-                return TaskEx.CompletedTask;
-            });
-
-            MessageFaultedNotification.Subscribe(e =>
-            {
-                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception, e.ErrorQueue);
-                return TaskEx.CompletedTask;
-            });
         }
 
         public Notification<MessageToBeRetried> MessageRetryNotification;

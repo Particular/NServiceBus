@@ -1,7 +1,6 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Persistence;
@@ -24,20 +23,6 @@ namespace NServiceBus.Testing
         /// Indicates if <see cref="IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> has been called.
         /// </summary>
         public bool DoNotContinueDispatchingCurrentMessageToHandlersWasCalled { get; set; }
-
-        /// <summary>
-        /// Moves the message being handled to the back of the list of available
-        /// messages so it can be handled later.
-        /// </summary>
-        public Task HandleCurrentMessageLater()
-        {
-            throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
-        }
-
-        /// <summary>
-        /// Indicates if <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
-        /// </summary>
-        public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
 
         /// <summary>
         /// Tells the endpoint to stop dispatching the current message to additional

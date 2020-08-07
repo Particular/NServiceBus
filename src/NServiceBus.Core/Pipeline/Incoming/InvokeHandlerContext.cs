@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Persistence;
     using Pipeline;
     using Unicast.Messages;
@@ -35,15 +33,6 @@ namespace NServiceBus
         public bool HandlerInvocationAborted { get; private set; }
 
         public MessageMetadata MessageMetadata { get; }
-
-        // remove in v8
-        public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException();
-
-        // remove in v8
-        public Task HandleCurrentMessageLater()
-        {
-            throw new NotImplementedException();
-        }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {

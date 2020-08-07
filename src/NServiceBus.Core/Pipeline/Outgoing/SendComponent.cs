@@ -31,24 +31,14 @@
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.Build<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
             var sendComponent = new SendComponent(messageMapper, transportSeam.TransportInfrastructure);
+            sendComponent.transportSendInfrastructure = sendComponent.transportInfrastructure.ConfigureSendInfrastructure();
 
             hostingConfiguration.Container.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
 
             return sendComponent;
         }
 
-        [ObsoleteEx(
-            Message = "Change transport infrastructure to configure the send infrastructure at component initialization time",
-            RemoveInVersion = "8")]
-        public void ConfigureSendInfrastructureForBackwardsCompatibility()
-        {
-            transportSendInfrastructure = transportInfrastructure.ConfigureSendInfrastructure();
-        }
-
-        [ObsoleteEx(
-            Message = "Change transport infrastructure to run send pre-startup checks on component.Start",
-            RemoveInVersion = "8")]
-        public async Task InvokeSendPreStartupChecksForBackwardsCompatibility()
+        public async Task SendPreStartupChecks()
         {
             var sendResult = await transportSendInfrastructure.PreStartupCheck().ConfigureAwait(false);
             if (!sendResult.Succeeded)
@@ -72,8 +62,6 @@
         {
             return this.transportSendInfrastructure.DispatcherFactory();
         }
-
-        
 
         TransportSendInfrastructure transportSendInfrastructure;
         readonly IMessageMapper messageMapper;

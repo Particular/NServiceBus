@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// The context of the currently processed message for a message handler.
     /// </summary>
-    public partial interface IMessageHandlerContext : IMessageProcessingContext
+    public interface IMessageHandlerContext : IMessageProcessingContext
     {
         /// <summary>
         /// Gets the synchronized storage session for processing the current message. NServiceBus makes sure the changes made

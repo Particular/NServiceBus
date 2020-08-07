@@ -94,19 +94,16 @@
                 set => settings.Set("Installers.Enable", value);
             }
 
-            // Since the host id default is using MD5 which breaks MIPS compliant users we need to delay setting the default until users have a chance to override
-            // via a custom feature to be backwards compatible.
-            // For more details see the test: When_feature_overrides_hostid_from_feature_default
-            // When this is removed in v8 downstreams can no longer rely on the setting to always be there
-            [ObsoleteEx(RemoveInVersion = "8", TreatAsErrorFromVersion = "7")]
-            internal void ApplyHostIdDefaultIfNeededForV7BackwardsCompatibility()
+            internal void ApplyHostIdDefaultIfNeeded()
             {
+                // We don't want to do settings.SetDefault() all the time, because the default uses MD5 which runs afoul of FIPS in such a way that cannot be worked around.
+                // Changing the default implementation to a FIPS-compliant cipher would cause all users to get duplicates of every endpoint instance in ServicePulse.
                 if (settings.HasExplicitValue(HostIdSettingsKey))
                 {
                     return;
                 }
 
-                settings.SetDefault(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
+                settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
             }
 
             SettingsHolder settings;

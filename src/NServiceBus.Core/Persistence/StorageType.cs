@@ -7,7 +7,7 @@
     /// <summary>
     /// The storage types used for NServiceBus needs.
     /// </summary>
-    public abstract class StorageType
+    public abstract partial class StorageType
     {
         StorageType(string storage)
         {
@@ -22,7 +22,7 @@
 
         internal static List<Type> GetAvailableStorageTypes()
         {
-            return typeof(StorageType).GetNestedTypes().ToList();
+            return typeof(StorageType).GetNestedTypes().Where(t => t.BaseType == typeof(StorageType)).ToList();
         }
 
         string storage;
@@ -53,20 +53,6 @@
         public sealed class Sagas : StorageType
         {
             internal Sagas() : base("Sagas")
-            {
-            }
-        }
-
-        /// <summary>
-        /// Storage for gateway de-duplication.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
-            RemoveInVersion = "9.0.0",
-            TreatAsErrorFromVersion = "8.0.0")]
-        public sealed class GatewayDeduplication : StorageType
-        {
-            internal GatewayDeduplication() : base("GatewayDeduplication")
             {
             }
         }

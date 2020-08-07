@@ -35,11 +35,10 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
+            await sendComponent.SendPreStartupChecks().ConfigureAwait(false);
             await receiveComponent.ReceivePreStartupChecks().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
-            // This is a hack to maintain the current order of transport infrastructure initialization
-            sendComponent.ConfigureSendInfrastructureForBackwardsCompatibility();
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
@@ -55,9 +54,6 @@ namespace NServiceBus
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 #endif
             await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
-
-            // This is a hack to maintain the current order of transport infrastructure initialization
-            await sendComponent.InvokeSendPreStartupChecksForBackwardsCompatibility().ConfigureAwait(false);
 
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 

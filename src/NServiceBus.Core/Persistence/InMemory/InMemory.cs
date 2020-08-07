@@ -14,7 +14,6 @@
             Supports<StorageType.Timeouts>(s => s.EnableFeatureByDefault<InMemoryTimeoutPersistence>());
             Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<InMemorySubscriptionPersistence>());
             Supports<StorageType.Outbox>(s => s.EnableFeatureByDefault<InMemoryOutboxPersistence>());
-            Supports<StorageType.GatewayDeduplication>(s => s.EnableFeatureByDefault<InMemoryGatewayPersistence>());
         }
     }
 }

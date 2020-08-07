@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides information about the fault configuration.
     /// </summary>
-    public partial class FailedConfig
+    public class FailedConfig
     {
         /// <summary>
         /// Creates a new fault configuration.

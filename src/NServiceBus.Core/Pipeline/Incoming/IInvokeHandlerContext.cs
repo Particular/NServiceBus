@@ -6,7 +6,7 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// A context of handling a logical message by a handler.
     /// </summary>
-    public partial interface IInvokeHandlerContext : IIncomingContext, IMessageHandlerContext
+    public interface IInvokeHandlerContext : IIncomingContext, IMessageHandlerContext
     {
         /// <summary>
         /// The current <see cref="IHandleMessages{T}" /> being executed.

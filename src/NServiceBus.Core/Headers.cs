@@ -3,7 +3,7 @@
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
-    public static class Headers
+    public static partial class Headers
     {
         /// <summary>
         /// Header for retrieving from which Http endpoint the message arrived.
@@ -50,15 +50,6 @@
         /// Header containing the ReplyToAddress for a message.
         /// </summary>
         public const string ReplyToAddress = "NServiceBus.ReplyToAddress";
-
-        /// <summary>
-        /// Prefix included on the wire when sending applicative headers.
-        /// </summary>
-        [ObsoleteEx(
-            RemoveInVersion = "9.0", 
-            TreatAsErrorFromVersion = "8.0",
-            Message = "Not intended for public usage.")]
-        public const string HeaderName = "Header";
 
         /// <summary>
         /// Header telling the NServiceBus Version (beginning NServiceBus V3.0.1).
