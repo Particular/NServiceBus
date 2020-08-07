@@ -92,7 +92,7 @@ namespace NServiceBus.Faults
 {
     using System;
 
-    public partial class ErrorsNotifications
+    public class ErrorsNotifications
     {
 #pragma warning disable 67
 
