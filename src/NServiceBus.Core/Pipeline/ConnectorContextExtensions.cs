@@ -9,7 +9,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extensions methods to map behavior contexts.
     /// </summary>
-    public static class ConnectorContextExtensions
+    public static partial class ConnectorContextExtensions
     {
         /// <summary>
         /// Creates a <see cref="IRoutingContext" /> based on the current context.
@@ -224,24 +224,6 @@ namespace NServiceBus
         internal static IAuditContext CreateAuditContext(this IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
         {
             return new AuditContext(message, auditAddress, sourceContext);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IForwardingContext" /> based on the current context.
-        /// </summary>
-        public static IForwardingContext CreateForwardingContext(this ForkConnector<IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
-        {
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(forwardingAddress), forwardingAddress);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
-
-            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext>) forwardingContext;
-            return connector.CreateForwardingContext(message, forwardingAddress, sourceContext);
-        }
-
-        internal static IForwardingContext CreateForwardingContext(this IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
-        {
-            return new ForwardingContext(message, forwardingAddress, sourceContext);
         }
     }
 }

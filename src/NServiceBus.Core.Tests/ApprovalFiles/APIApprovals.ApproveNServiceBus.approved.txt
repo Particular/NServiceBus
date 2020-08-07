@@ -65,12 +65,10 @@ namespace NServiceBus
     {
         public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
-    [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
-        "", false)]
+    [System.ObsoleteAttribute("Will be removed in version 9.0.0.", true)]
     public class static ConfigureForwarding
     {
-        [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
-            "", false)]
+        [System.ObsoleteAttribute(@"Message forwarding is no longer supported natively by NServiceBus. For auditing messages, use endpointConfiguration.AuditProcessedMessagesTo(address). If true message forwarding capabilities are needed, use a custom pipeline behavior, an example of which can be found in the documentation. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void ForwardReceivedMessagesTo(this NServiceBus.EndpointConfiguration config, string address) { }
     }
     public class static ConfigureLicenseExtensions
@@ -93,6 +91,9 @@ namespace NServiceBus
         public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IRoutingContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IRoutingContext sourceContext) { }
+        [System.ObsoleteAttribute("Message forwarding is no longer supported, but can be implemented as a custom pip" +
+            "eline behavior. The member currently throws a NotImplementedException. Will be r" +
+            "emoved in version 9.0.0.", true)]
         public static NServiceBus.Pipeline.IForwardingContext CreateForwardingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IForwardingContext> forwardingContext, NServiceBus.Transport.OutgoingMessage message, string forwardingAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingLogicalMessageContext CreateIncomingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IIncomingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.LogicalMessage logicalMessage, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
@@ -1246,12 +1247,9 @@ namespace NServiceBus.Features
         Active = 2,
         Deactivated = 3,
     }
-    [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
-        "", false)]
-    public class ForwardReceivedMessages : NServiceBus.Features.Feature
-    {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
+    [System.ObsoleteAttribute("Message forwarding is no longer supported, but can be implemented as a custom pip" +
+        "eline behavior. Will be removed in version 9.0.0.", true)]
+    public class ForwardReceivedMessages { }
     [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
     public class InMemoryGatewayPersistence { }
@@ -1636,13 +1634,9 @@ namespace NServiceBus.Pipeline
     {
         System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
-    [System.ObsoleteAttribute("Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0." +
-        "", false)]
-    public interface IForwardingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
-    {
-        string Address { get; }
-        NServiceBus.Transport.OutgoingMessage Message { get; }
-    }
+    [System.ObsoleteAttribute("Message forwarding is no longer supported, but can be implemented as a custom pip" +
+        "eline behavior. Will be removed in version 9.0.0.", true)]
+    public interface IForwardingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext { }
     public interface IIncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext { }
     public interface IIncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {

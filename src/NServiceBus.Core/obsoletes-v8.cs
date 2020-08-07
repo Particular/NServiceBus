@@ -173,4 +173,61 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus
+{
+    [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+    public static class ConfigureForwarding
+    {
+        [ObsoleteEx(
+            Message = "Message forwarding is no longer supported natively by NServiceBus. For auditing messages, use endpointConfiguration.AuditProcessedMessagesTo(address). If true message forwarding capabilities are needed, use a custom pipeline behavior, an example of which can be found in the documentation.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void ForwardReceivedMessagesTo(this EndpointConfiguration config, string address)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class ForwardReceivedMessages
+    {
+        internal ForwardReceivedMessages() => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Pipeline
+{
+    [ObsoleteEx(
+        Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IForwardingContext : IBehaviorContext
+    {
+    }
+}
+
+namespace NServiceBus
+{
+    using Pipeline;
+    using Transport;
+
+    public static partial class ConnectorContextExtensions
+    {
+        [ObsoleteEx(
+        Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+        public static IForwardingContext CreateForwardingContext(this ForkConnector<IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 #pragma warning restore 1591
