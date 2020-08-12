@@ -2,7 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
+    using ObjectBuilder.MicrosoftDependencyInjection;
     using Settings;
 
     class HostCreator
@@ -41,7 +43,7 @@
             return externallyManagedContainerHost;
         }
 
-        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
+        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection, Func<IServiceProvider> containerFactory)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -53,7 +55,7 @@
 
             var hostingSetting = settings.Get<HostingComponent.Settings>();
             var useDefaultBuilder = hostingSetting.CustomObjectBuilder == null;
-            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingSetting.CustomObjectBuilder;
+            var container = useDefaultBuilder ? new MsDIObjectBuilder(serviceCollection, containerFactory) : hostingSetting.CustomObjectBuilder;
 
             var commonObjectBuilder = new CommonObjectBuilder(container);
 

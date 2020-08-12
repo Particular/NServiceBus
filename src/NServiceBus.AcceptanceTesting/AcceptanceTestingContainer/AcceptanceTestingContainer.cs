@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder.Common;
+    using ObjectBuilder.MicrosoftDependencyInjection;
 
     /// <summary>
     /// Container that enforces registration immutability once the first instance has been resolved.
@@ -15,7 +17,8 @@
 
         public AcceptanceTestingContainer()
         {
-            builder = new LightInjectObjectBuilder();
+            var serviceCollection = new ServiceCollection();
+            builder = new MsDIObjectBuilder(serviceCollection, () => serviceCollection.BuildServiceProvider());
         }
 
         public void Dispose()
@@ -96,7 +99,7 @@
             }
         }
 
-        LightInjectObjectBuilder builder;
+        MsDIObjectBuilder builder;
         bool locked;
 
         public class Component

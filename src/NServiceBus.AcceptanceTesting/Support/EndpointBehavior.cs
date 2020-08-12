@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Customization;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     public class EndpointBehavior : IComponentBehavior
@@ -12,7 +13,13 @@
         {
             EndpointBuilder = endpointBuilder;
             CustomConfig = new List<Action<EndpointConfiguration, ScenarioContext>>();
-            ConfigureHowToCreateInstance(config => Endpoint.Create(config), startable => startable.Start());
+            ConfigureHowToCreateInstance(config =>
+            {
+                var serviceCollection = new ServiceCollection();
+                Func<IServiceProvider> containerFactory = () => serviceCollection.BuildServiceProvider();
+
+                return Endpoint.Create(config, serviceCollection, containerFactory);
+            }, startable => startable.Start());
         }
 
         public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, Task<IEndpointInstance>> startCallback)

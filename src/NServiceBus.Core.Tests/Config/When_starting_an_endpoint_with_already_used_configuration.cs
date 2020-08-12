@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Config
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     public class When_starting_an_endpoint_with_already_used_configuration
@@ -14,8 +15,11 @@ namespace NServiceBus.Core.Tests.Config
             var scanner = configuration.AssemblyScanner();
             scanner.ExcludeAssemblies("NServiceBus.Core.Tests.dll");
 
-            await Endpoint.Create(configuration).ConfigureAwait(false);
-            Assert.ThrowsAsync<ArgumentException>(async () => await Endpoint.Create(configuration).ConfigureAwait(false));
+            var serviceCollection = new ServiceCollection();
+            Func<IServiceProvider> containerFactory = () => serviceCollection.BuildServiceProvider();
+
+            await Endpoint.Create(configuration, serviceCollection, containerFactory).ConfigureAwait(false);
+            Assert.ThrowsAsync<ArgumentException>(async () => await Endpoint.Create(configuration, serviceCollection, containerFactory).ConfigureAwait(false));
         }
 
     }
