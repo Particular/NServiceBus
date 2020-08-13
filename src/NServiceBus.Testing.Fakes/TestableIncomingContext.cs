@@ -1,6 +1,7 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
+    using System;
     using ObjectBuilder;
     using Pipeline;
 
@@ -22,13 +23,13 @@ namespace NServiceBus.Testing
         /// </summary>
         public FakeBuilder Builder { get; set; } = new FakeBuilder();
 
-        IBuilder IBehaviorContext.Builder => GetBuilder();
+        IServiceProvider IBehaviorContext.Builder => GetBuilder();
 
         /// <summary>
         /// Selects the builder returned by <see cref="IBehaviorContext.Builder" />. Override this method to provide your custom
         /// <see cref="IBuilder" /> implementation.
         /// </summary>
-        protected virtual IBuilder GetBuilder()
+        protected virtual IServiceProvider GetBuilder()
         {
             return Builder;
         }

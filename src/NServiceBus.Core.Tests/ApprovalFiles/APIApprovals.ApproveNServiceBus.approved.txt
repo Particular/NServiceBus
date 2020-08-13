@@ -1506,14 +1506,27 @@ namespace NServiceBus.ObjectBuilder.Common
 }
 namespace NServiceBus.ObjectBuilder
 {
-    public interface IBuilder : System.IDisposable
+    public interface IBuilder : System.IDisposable, System.IServiceProvider
     {
+        [System.ObsoleteAttribute("The Build method is not supported anymore. Use `GetService` instead. Will be remo" +
+            "ved in version 9.0.0.", true)]
         object Build(System.Type typeToBuild);
+        [System.ObsoleteAttribute("The Build<T> method is not supported anymore. Use `GetService` instead. Will be r" +
+            "emoved in version 9.0.0.", true)]
         T Build<T>();
+        [System.ObsoleteAttribute("The BuildAll<T> method is not supported anymore. Use `GetServices` instead. Will " +
+            "be removed in version 9.0.0.", true)]
         System.Collections.Generic.IEnumerable<T> BuildAll<T>();
+        [System.ObsoleteAttribute("The BuildAll method is not supported anymore. Use `GetServices` instead. Will be " +
+            "removed in version 9.0.0.", true)]
         System.Collections.Generic.IEnumerable<object> BuildAll(System.Type typeToBuild);
+        [System.ObsoleteAttribute("The BuildAndDispatch method is not supported anymore. Will be removed in version " +
+            "9.0.0.", true)]
         void BuildAndDispatch(System.Type typeToBuild, System.Action<object> action);
+        [System.ObsoleteAttribute("The CreateChildBuilder method is not supported anymore. Use `CreateScope` instead" +
+            ". Will be removed in version 9.0.0.", true)]
         NServiceBus.ObjectBuilder.IBuilder CreateChildBuilder();
+        [System.ObsoleteAttribute("The Release method is not supported anymore. Will be removed in version 9.0.0.", true)]
         void Release(object instance);
     }
     public interface IConfigureComponents
@@ -1622,7 +1635,7 @@ namespace NServiceBus.Pipeline
     public interface IBehavior { }
     public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable
     {
-        NServiceBus.ObjectBuilder.IBuilder Builder { get; }
+        System.IServiceProvider Builder { get; }
     }
     public interface IBehavior<in TInContext, out TOutContext> : NServiceBus.Pipeline.IBehavior
         where in TInContext : NServiceBus.Pipeline.IBehaviorContext

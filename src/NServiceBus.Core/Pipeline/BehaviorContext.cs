@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
+    using System;
     using Extensibility;
-    using ObjectBuilder;
     using Pipeline;
 
     abstract class BehaviorContext : ContextBag, IBehaviorContext
@@ -10,7 +10,7 @@ namespace NServiceBus
         {
         }
 
-        public IBuilder Builder => Get<IBuilder>();
+        public IServiceProvider Builder => Get<IServiceProvider>();
 
         public ContextBag Extensions => this;
     }
