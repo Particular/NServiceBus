@@ -41,6 +41,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>Instances of <typeparamref name="T" />.</returns>
+        [ObsoleteEx(Message = "The BuildAll<T> method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IEnumerable<T> BuildAll<T>();
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
         /// <returns>The component instances.</returns>
+        [ObsoleteEx(Message = "The BuildAll method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IEnumerable<object> BuildAll(Type typeToBuild);
 
         /// <summary>

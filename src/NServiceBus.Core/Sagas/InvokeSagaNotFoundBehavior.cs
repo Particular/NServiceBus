@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Sagas;
 
@@ -22,7 +23,7 @@ namespace NServiceBus
 
             logger.InfoFormat("Could not find a started saga for '{0}' message type. Going to invoke SagaNotFoundHandlers.", context.Message.MessageType.FullName);
 
-            foreach (var handler in context.Builder.BuildAll<IHandleSagaNotFound>())
+            foreach (var handler in context.Builder.GetServices<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
 

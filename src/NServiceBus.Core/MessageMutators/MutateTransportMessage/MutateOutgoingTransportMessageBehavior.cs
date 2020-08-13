@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Transport;
 
@@ -40,7 +41,7 @@
 
             var hasMutators = false;
 
-            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
+            foreach (var mutator in context.Builder.GetServices<IMutateOutgoingTransportMessages>())
             {
                 hasMutators = true;
 

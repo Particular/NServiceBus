@@ -5,6 +5,7 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Installation;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Support;
 
@@ -61,7 +62,7 @@
                 await internalInstaller(installationUserName).ConfigureAwait(false);
             }
 
-            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+            foreach (var installer in builder.GetServices<INeedToInstallSomething>())
             {
                 await installer.Install(installationUserName).ConfigureAwait(false);
             }

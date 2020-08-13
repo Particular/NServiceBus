@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
 
     /// <summary>
@@ -15,7 +16,7 @@ namespace NServiceBus.Unicast
         {
             Guard.AgainstNull(nameof(builder), builder);
             Guard.AgainstNull(nameof(action), action);
-            foreach (var t in builder.BuildAll<T>())
+            foreach (var t in builder.GetServices<T>())
             {
                 action(t);
             }

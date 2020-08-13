@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
     class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
@@ -32,7 +33,7 @@
 
             var hasMutators = false;
 
-            foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
+            foreach (var mutator in context.Builder.GetServices<IMutateIncomingMessages>())
             {
                 hasMutators = true;
 
