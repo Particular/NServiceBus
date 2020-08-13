@@ -16,7 +16,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
         /// <returns>The component instance.</returns>
-        [ObsoleteEx(Message = "The Build method is not anymore supported.", ReplacementTypeOrMember = nameof(IServiceProvider.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(Message = "The Build method is not supported anymore.", ReplacementTypeOrMember = nameof(IServiceProvider.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         object Build(Type typeToBuild);
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace NServiceBus.ObjectBuilder
         /// of all resources built by the child container.
         /// </summary>
         /// <returns>Returns a new child container.</returns>
-        [ObsoleteEx(Message = "The CreateChildBuilder method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.CreateScope), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(Message = "The CreateChildBuilder method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.CreateScope), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IBuilder CreateChildBuilder();
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>Instance of <typeparamref name="T" />.</returns>
-        [ObsoleteEx(Message = "The Build<T> method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(Message = "The Build<T> method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         T Build<T>();
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>Instances of <typeparamref name="T" />.</returns>
-        [ObsoleteEx(Message = "The BuildAll<T> method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(Message = "The BuildAll<T> method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IEnumerable<T> BuildAll<T>();
 
         /// <summary>
@@ -49,13 +49,14 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
         /// <returns>The component instances.</returns>
-        [ObsoleteEx(Message = "The BuildAll method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(Message = "The BuildAll method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IEnumerable<object> BuildAll(Type typeToBuild);
 
         /// <summary>
         /// Releases a component instance.
         /// </summary>
         /// <param name="instance">The component instance to release.</param>
+        [ObsoleteEx(Message = "The Release method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         void Release(object instance);
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
         /// <param name="action">The callback to call.</param>
+        [ObsoleteEx(Message = "The BuildAndDispatch method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         void BuildAndDispatch(Type typeToBuild, Action<object> action);
     }
 }
