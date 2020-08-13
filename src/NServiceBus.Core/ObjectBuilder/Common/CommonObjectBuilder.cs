@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using ObjectBuilder;
     using ObjectBuilder.Common;
 
@@ -15,12 +14,12 @@ namespace NServiceBus
 
         public object GetService(Type serviceType)
         {
-            return Build(serviceType);
+            return container.Build(serviceType);
         }
 
         public IBuilder CreateChildBuilder()
         {
-            return new CommonObjectBuilder(container.BuildChildContainer());
+            throw new NotSupportedException();
         }
 
         public void Dispose()
@@ -30,33 +29,32 @@ namespace NServiceBus
 
         public T Build<T>()
         {
-            return (T) container.Build(typeof(T));
+            throw new NotSupportedException();
         }
 
         public object Build(Type typeToBuild)
         {
-            return container.Build(typeToBuild);
+            throw new NotSupportedException();
         }
 
         IEnumerable<object> IBuilder.BuildAll(Type typeToBuild)
         {
-            return container.BuildAll(typeToBuild);
+            throw new NotSupportedException();
         }
 
         void IBuilder.Release(object instance)
         {
-            container.Release(instance);
+            throw new NotSupportedException();
         }
 
         public IEnumerable<T> BuildAll<T>()
         {
-            return container.BuildAll(typeof(T)).Cast<T>();
+            throw new NotSupportedException();
         }
 
         public void BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
-            var o = container.Build(typeToBuild);
-            action(o);
+            throw new NotSupportedException();
         }
 
         public void ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
