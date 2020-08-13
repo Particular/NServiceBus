@@ -26,15 +26,6 @@
     http://twitter.com/bernhardrichter
 ******************************************************************************/
 
-//Define the necessary compilation symbols
-#if NET452
-#define NET45
-#endif
-
-#if NETSTANDARD2_0
-#define NETSTANDARD16
-#endif
-
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1126:PrefixCallsCorrectly", Justification = "Reviewed")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:PrefixLocalCallsWithThis", Justification = "No inheritance")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Single source file deployment.")]
@@ -51,19 +42,13 @@ namespace LightInject
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
-#if NET45 || NETSTANDARD11 || NETSTANDARD13 || NETSTANDARD16 || NET46
     using System.IO;
-#endif
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-#if NET45 || NETSTANDARD11 || NETSTANDARD13 || NETSTANDARD16 || NET46
     using System.Reflection.Emit;
-#endif
     using System.Runtime.CompilerServices;
-#if NET45
-    using System.Runtime.Remoting.Messaging;
-#endif
+    // using System.Runtime.Remoting.Messaging;
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading;
@@ -4027,31 +4012,12 @@ namespace LightInject
                 return dynamicMethod.CreateDelegate(delegateType);
             }
 
-#if NET40
-            private void CreateDynamicMethod(Type returnType, Type[] parameterTypes)
-            {
-                dynamicMethod = new DynamicMethod(
-                        "DynamicMethod", returnType, parameterTypes, typeof(ServiceContainer).Module, true);
-                emitter = new Emitter(dynamicMethod.GetILGenerator(), parameterTypes);
-            }
-#endif
-
-#if NET45 || NETSTANDARD11 || NETSTANDARD13 || NETSTANDARD16 || NET46
             private void CreateDynamicMethod(Type returnType, Type[] parameterTypes)
             {
                 dynamicMethod = new DynamicMethod(
                     "DynamicMethod", returnType, parameterTypes, typeof(ServiceContainer).GetTypeInfo().Module, true);
                 emitter = new Emitter(dynamicMethod.GetILGenerator(), parameterTypes);
             }
-#endif
-
-#if PCL_111
-            private void CreateDynamicMethod(Type returnType, Type[] parameterTypes)
-            {
-                dynamicMethod = new DynamicMethod(returnType, parameterTypes);
-                emitter = new Emitter(dynamicMethod.GetILGenerator(), parameterTypes);
-            }
-#endif
         }
 
         private class ServiceRegistry<T> : ThreadSafeDictionary<Type, ThreadSafeDictionary<string, T>>
@@ -4139,8 +4105,6 @@ namespace LightInject
         }
     }
 
-#if NET45 || NETSTANDARD13 || NETSTANDARD16 || NET46
-
     /// <summary>
     /// Manages a set of <see cref="Scope"/> instances.
     /// </summary>
@@ -4185,7 +4149,6 @@ namespace LightInject
             return new PerLogicalCallContextScopeManager(serviceFactory);
         }
     }
-#endif
 
     /// <summary>
     /// A thread safe dictionary.
@@ -7722,64 +7685,7 @@ namespace LightInject
             return localBuilder;
         }
     }
-#if NET45
 
-    /// <summary>
-    /// Provides storage per logical thread of execution.
-    /// </summary>
-    /// <typeparam name="T">The type of the value contained in this <see cref="LogicalThreadStorage{T}"/>.</typeparam>
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    internal class LogicalThreadStorage<T>
-    {
-        private readonly string key = Guid.NewGuid().ToString();
-
-        /// <summary>
-        /// Gets the value for the current logical thread of execution.
-        /// </summary>
-        /// <value>
-        /// The value for the current logical thread of execution.
-        /// </value>
-        public T Value
-        {
-            get
-            {
-                var logicalThreadValue = (LogicalThreadValue)CallContext.LogicalGetData(key);
-                return logicalThreadValue != null ? logicalThreadValue.Value : default(T);
-            }
-            set
-            {
-                LogicalThreadValue logicalThreadValue = null;
-                if (value != null)
-                {
-                    logicalThreadValue = new LogicalThreadValue { Value = value };
-                }
-
-                CallContext.LogicalSetData(key, logicalThreadValue);
-            }
-        }
-
-        [Serializable]
-        private class LogicalThreadValue : MarshalByRefObject
-        {
-            [NonSerialized]
-            private T value;
-
-            public T Value
-            {
-                get
-                {
-                    return value;
-                }
-
-                set
-                {
-                    this.value = value;
-                }
-            }
-        }
-    }
-#endif
-#if NETSTANDARD13 || NETSTANDARD16 || NET46
     /// <summary>
     /// Provides storage per logical thread of execution.
     /// </summary>
@@ -7803,7 +7709,6 @@ namespace LightInject
             set { asyncLocal.Value = value; }
         }
     }
-#endif
 
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class LifetimeHelper
