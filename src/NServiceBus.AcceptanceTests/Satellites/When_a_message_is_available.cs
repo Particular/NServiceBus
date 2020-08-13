@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using Transport;
 
@@ -54,7 +55,7 @@
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, messageContext) =>
                         {
-                            var testContext = builder.Build<Context>();
+                            var testContext = builder.GetService<Context>();
                             testContext.MessageReceived = true;
                             testContext.TransportTransactionAddedToContext = ReferenceEquals(messageContext.Extensions.Get<TransportTransaction>(), messageContext.TransportTransaction);
                             return Task.FromResult(true);

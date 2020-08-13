@@ -142,7 +142,7 @@ namespace NServiceBus.Pipeline
         {
             var behavior = factoryMethod != null
                 ? factoryMethod(defaultBuilder)
-                : (IBehavior)defaultBuilder.Build(BehaviorType);
+                : (IBehavior)defaultBuilder.GetService(BehaviorType);
 
             return behavior;
         }

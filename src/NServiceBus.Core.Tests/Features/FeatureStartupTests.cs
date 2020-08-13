@@ -393,6 +393,11 @@
             throw new NotImplementedException();
         }
 
+        public object GetService(Type serviceType)
+        {
+            return Build(serviceType);
+        }
+
         Type type;
     }
 }

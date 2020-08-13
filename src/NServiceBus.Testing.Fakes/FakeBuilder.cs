@@ -18,6 +18,18 @@ namespace NServiceBus.Testing
         /// <returns>
         /// The component instance.
         /// </returns>
+        public virtual object GetService(Type typeToBuild)
+        {
+            return Build(typeToBuild);
+        }
+
+        /// <summary>
+        /// Returns an instantiation of the given type.
+        /// </summary>
+        /// <param name="typeToBuild">The <see cref="T:System.Type" /> to build.</param>
+        /// <returns>
+        /// The component instance.
+        /// </returns>
         public virtual object Build(Type typeToBuild)
         {
             return BuildAll(typeToBuild).First();

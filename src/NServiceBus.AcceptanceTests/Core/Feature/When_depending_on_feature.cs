@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     public class When_depending_on_feature : NServiceBusAcceptanceTest
@@ -50,7 +51,7 @@
             protected override void Setup(FeatureConfigurationContext context)
             {
                 context.Container.ConfigureComponent<Runner>(DependencyLifecycle.SingleInstance);
-                context.RegisterStartupTask(b => b.Build<Runner>());
+                context.RegisterStartupTask(b => b.GetService<Runner>());
             }
 
             class Runner : FeatureStartupTask
@@ -82,7 +83,7 @@
                 context.Container.ConfigureComponent<Dependency>(DependencyLifecycle.SingleInstance);
 
                 context.Container.ConfigureComponent<Runner>(DependencyLifecycle.SingleInstance);
-                context.RegisterStartupTask(b => b.Build<Runner>());
+                context.RegisterStartupTask(b => b.GetService<Runner>());
             }
 
             class Runner : FeatureStartupTask

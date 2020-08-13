@@ -42,7 +42,7 @@
 
                 foreach (var messageHandler in handlersToInvoke)
                 {
-                    messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
+                    messageHandler.Instance = context.Builder.GetService(messageHandler.HandlerType);
 
                     var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
                     await stage(handlingContext).ConfigureAwait(false);

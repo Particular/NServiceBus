@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest
@@ -31,7 +32,7 @@
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.RegisterStartupTask(b => new SetupScheduledActionTask(b.Build<Context>()));
+                context.RegisterStartupTask(b => new SetupScheduledActionTask(b.GetService<Context>()));
             }
         }
 

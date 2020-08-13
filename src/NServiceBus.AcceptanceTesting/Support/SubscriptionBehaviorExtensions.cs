@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
 
     public static class SubscriptionBehaviorExtensions
     {
@@ -8,7 +9,7 @@ namespace NServiceBus.AcceptanceTesting
         {
             configuration.Pipeline.Register("NotifySubscriptionBehavior", builder =>
             {
-                var context = builder.Build<TContext>();
+                var context = builder.GetService<TContext>();
                 return new SubscriptionBehavior<TContext>(action, context, MessageIntentEnum.Subscribe);
             }, "Provides notifications when endpoints subscribe");
         }
@@ -17,7 +18,7 @@ namespace NServiceBus.AcceptanceTesting
         {
             configuration.Pipeline.Register("NotifyUnsubscriptionBehavior", builder =>
             {
-                var context = builder.Build<TContext>();
+                var context = builder.GetService<TContext>();
                 return new SubscriptionBehavior<TContext>(action, context, MessageIntentEnum.Unsubscribe);
             }, "Provides notifications when endpoints unsubscribe");
         }

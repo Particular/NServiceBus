@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using CriticalError = NServiceBus.CriticalError;
 
@@ -83,7 +84,7 @@
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.RegisterStartupTask(b => new CriticalErrorStartupFeatureTask(b.Build<CriticalError>(), b.Build<TestContext>()));
+                context.RegisterStartupTask(b => new CriticalErrorStartupFeatureTask(b.GetService<CriticalError>(), b.GetService<TestContext>()));
             }
 
             class CriticalErrorStartupFeatureTask : FeatureStartupTask

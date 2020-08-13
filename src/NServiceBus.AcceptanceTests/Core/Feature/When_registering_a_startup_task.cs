@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     public class When_registering_a_startup_task : NServiceBusAcceptanceTest
@@ -48,7 +49,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.RegisterStartupTask(b => new MyTask(b.Build<Context>()));
+                    context.RegisterStartupTask(b => new MyTask(b.GetService<Context>()));
                 }
 
                 public class MyTask : FeatureStartupTask

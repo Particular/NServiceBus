@@ -54,6 +54,11 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
             action(o);
         }
 
+        public object GetService(Type serviceType)
+        {
+            return Build(serviceType);
+        }
+
         IContainer container;
     }
 }

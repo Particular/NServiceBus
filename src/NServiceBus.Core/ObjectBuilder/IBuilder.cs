@@ -2,19 +2,21 @@ namespace NServiceBus.ObjectBuilder
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Used to instantiate types, so that all configured dependencies
     /// and property values are set.
     /// An abstraction on top of dependency injection frameworks.
     /// </summary>
-    public interface IBuilder : IDisposable
+    public interface IBuilder : IDisposable, IServiceProvider
     {
         /// <summary>
         /// Returns an instantiation of the given type.
         /// </summary>
         /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
         /// <returns>The component instance.</returns>
+        [ObsoleteEx(Message = "The Build method is not anymore supported.", ReplacementTypeOrMember = nameof(IServiceProvider.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         object Build(Type typeToBuild);
 
         /// <summary>
@@ -22,6 +24,7 @@ namespace NServiceBus.ObjectBuilder
         /// of all resources built by the child container.
         /// </summary>
         /// <returns>Returns a new child container.</returns>
+        [ObsoleteEx(Message = "The CreateChildBuilder method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.CreateScope), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IBuilder CreateChildBuilder();
 
         /// <summary>
@@ -29,6 +32,7 @@ namespace NServiceBus.ObjectBuilder
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>Instance of <typeparamref name="T" />.</returns>
+        [ObsoleteEx(Message = "The Build<T> method is not anymore supported.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         T Build<T>();
 
         /// <summary>

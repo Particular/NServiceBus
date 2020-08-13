@@ -8,6 +8,7 @@
     using Faults;
     using Hosting;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Settings;
     using Support;
@@ -91,7 +92,7 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(builder.GetService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
@@ -100,7 +101,7 @@
                 {
                     return new DelayedRetryExecutor(
                         localAddress,
-                        builder.Build<IDispatchMessages>(),
+                        builder.GetService<IDispatchMessages>(),
                         settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                             ? null
                             : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);

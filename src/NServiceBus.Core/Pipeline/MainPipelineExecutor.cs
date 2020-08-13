@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Pipeline;
     using Transport;
@@ -21,11 +22,11 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
-            using (var childBuilder = rootBuilder.CreateChildBuilder())
+            using (var childScope = rootBuilder.CreateScope())
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = new RootContext(childBuilder, messageOperations, pipelineCache);
+                var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache);
                 rootContext.Extensions.Merge(messageContext.Extensions);
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);

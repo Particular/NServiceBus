@@ -13,6 +13,11 @@ namespace NServiceBus
             this.container = container;
         }
 
+        public object GetService(Type serviceType)
+        {
+            return Build(serviceType);
+        }
+
         public IBuilder CreateChildBuilder()
         {
             return new CommonObjectBuilder(container.BuildChildContainer());
