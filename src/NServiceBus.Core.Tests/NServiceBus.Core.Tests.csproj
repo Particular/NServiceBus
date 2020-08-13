@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -12,16 +12,16 @@
     <ProjectReference Include="..\NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <Reference Include="System.Transactions" />
-  </ItemGroup>
-
   <!-- Workaround reference because we can't use nullable reference types yet -->
   <ItemGroup>
     <Reference Include="WithDodgyNullable" HintPath="TestDlls\WithDodgyNullable.dll" />
   </ItemGroup>
   <!-- End workaround -->
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="NUnit.ApplicationDomain" Version="11.1.0" />
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="Mono.Cecil" Version="0.10.4" />
