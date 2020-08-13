@@ -356,11 +356,7 @@
 
         public object Build(Type typeToBuild)
         {
-            if (typeToBuild != type)
-            {
-                throw new Exception("Not the expected type");
-            }
-            return Activator.CreateInstance(typeToBuild);
+            throw new NotImplementedException();
         }
 
         public IBuilder CreateChildBuilder()
@@ -395,7 +391,11 @@
 
         public object GetService(Type serviceType)
         {
-            return Build(serviceType);
+            if (serviceType != type)
+            {
+                throw new Exception("Not the expected type");
+            }
+            return Activator.CreateInstance(serviceType);
         }
 
         Type type;
