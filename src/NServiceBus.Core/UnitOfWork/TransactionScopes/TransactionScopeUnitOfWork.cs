@@ -53,7 +53,7 @@
             {
                 //default is always 10 minutes
                 var maxTimeout = TimeSpan.FromMinutes(10);
-#if NET472
+#if NETFRAMEWORK
                 var systemTransactionsGroup = System.Configuration.ConfigurationManager.OpenMachineConfiguration()
                     .GetSectionGroup("system.transactions");
 

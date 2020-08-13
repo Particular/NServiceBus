@@ -1,5 +1,5 @@
 ﻿
-#if NET472
+#if NETFRAMEWORK
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
