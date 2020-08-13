@@ -1,13 +1,45 @@
 ﻿namespace NServiceBus
 {
     using System;
+#if NETFRAMEWORK
+    using System.Reflection;
+#endif
+#if NETSTANDARD
     using System.IO;
     using System.Reflection.Metadata;
     using System.Reflection.PortableExecutable;
     using System.Security.Cryptography;
+#endif
 
     class AssemblyValidator
     {
+#if NETFRAMEWORK
+        public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
+        {
+            try
+            {
+                var token = AssemblyName.GetAssemblyName(assemblyPath).GetPublicKeyToken();
+
+                if (IsRuntimeAssembly(token))
+                {
+                    shouldLoad = false;
+                    reason = "File is a .NET runtime assembly.";
+                    return;
+                }
+            }
+            catch (BadImageFormatException)
+            {
+                shouldLoad = false;
+                reason = "File is not a .NET assembly.";
+                return;
+            }
+
+            shouldLoad = true;
+            reason = "File is a .NET assembly.";
+        }
+#endif
+
+#if NETSTANDARD
         public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
             using (var stream = File.OpenRead(assemblyPath))
@@ -64,6 +96,7 @@
                 return publicKeyToken;
             }
         }
+#endif
 
         public static bool IsRuntimeAssembly(byte[] publicKeyToken)
         {
