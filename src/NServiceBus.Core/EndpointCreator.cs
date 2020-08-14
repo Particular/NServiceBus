@@ -1,10 +1,10 @@
 namespace NServiceBus
 {
+    using System;
     using System.Linq;
     using Features;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using ObjectBuilder;
     using Pipeline;
     using Settings;
     using Unicast.Messages;
@@ -115,7 +115,7 @@ namespace NServiceBus
             });
         }
 
-        public IStartableEndpoint CreateStartableEndpoint(IBuilder builder, HostingComponent hostingComponent)
+        public IStartableEndpoint CreateStartableEndpoint(IServiceProvider builder, HostingComponent hostingComponent)
         {
             return new StartableEndpoint(settings,
                 featureComponent,

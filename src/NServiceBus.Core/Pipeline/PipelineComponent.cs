@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using ObjectBuilder;
     using Pipeline;
 
     class PipelineComponent
@@ -33,7 +32,7 @@ namespace NServiceBus
             return new Pipeline<T>(builder, modifications);
         }
 
-        public PipelineCache BuildPipelineCache(IBuilder rootBuilder)
+        public PipelineCache BuildPipelineCache(IServiceProvider rootBuilder)
         {
             return new PipelineCache(rootBuilder, modifications);
         }

@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using Installation;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Support;
 
     partial class HostingComponent
@@ -40,7 +39,7 @@
             return new HostingComponent(configuration);
         }
 
-        public void RegisterBuilder(IBuilder objectBuilder, bool isInternalBuilder)
+        public void RegisterBuilder(IServiceProvider objectBuilder, bool isInternalBuilder)
         {
             builder = objectBuilder;
             shouldDisposeBuilder = isInternalBuilder;
@@ -85,7 +84,7 @@
         {
             if (shouldDisposeBuilder)
             {
-                builder.Dispose();
+                (builder as IDisposable)?.Dispose();
             }
 
             return Task.FromResult(0);
@@ -108,6 +107,6 @@
 
         readonly Configuration configuration;
         bool shouldDisposeBuilder;
-        IBuilder builder;
+        IServiceProvider builder;
     }
 }

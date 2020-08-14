@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using ObjectBuilder;
     using Routing;
     using Transport;
     using Unicast;

@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using MessageInterfaces;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Pipeline;
     using Transport;
 
@@ -48,7 +47,7 @@
             }
         }
 
-        public MessageOperations CreateMessageOperations(IBuilder builder, PipelineComponent pipelineComponent)
+        public MessageOperations CreateMessageOperations(IServiceProvider builder, PipelineComponent pipelineComponent)
         {
             return new MessageOperations(
                 messageMapper,

@@ -6,7 +6,6 @@ namespace NServiceBus
 #endif
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using ObjectBuilder;
     using Settings;
     using Transport;
 
@@ -20,7 +19,7 @@ namespace NServiceBus
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
             SendComponent sendComponent,
-            IBuilder builder)
+            IServiceProvider builder)
         {
             this.settings = settings;
             this.featureComponent = featureComponent;
@@ -68,7 +67,7 @@ namespace NServiceBus
         readonly RecoverabilityComponent recoverabilityComponent;
         readonly HostingComponent hostingComponent;
         readonly SendComponent sendComponent;
-        readonly IBuilder builder;
+        readonly IServiceProvider builder;
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;

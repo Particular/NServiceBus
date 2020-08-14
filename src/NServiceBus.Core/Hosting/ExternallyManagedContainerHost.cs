@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using ObjectBuilder;
 
     class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedContainer
     {
@@ -20,7 +19,7 @@ namespace NServiceBus
                 return messageSession;
             });
 
-            Builder = new Lazy<IBuilder>(() =>
+            Builder = new Lazy<IServiceProvider>(() =>
             {
                 if (objectBuilder == null)
                 {
@@ -32,9 +31,9 @@ namespace NServiceBus
 
         public Lazy<IMessageSession> MessageSession { get; private set; }
 
-        internal Lazy<IBuilder> Builder { get; private set; }
+        internal Lazy<IServiceProvider> Builder { get; private set; }
 
-        public async Task<IEndpointInstance> Start(IBuilder externalBuilder)
+        public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder)
         {
             objectBuilder = externalBuilder;
 
@@ -56,6 +55,6 @@ namespace NServiceBus
         HostingComponent.Configuration hostingConfiguration;
         EndpointCreator endpointCreator;
         IMessageSession messageSession;
-        IBuilder objectBuilder;
+        IServiceProvider objectBuilder;
     }
 }

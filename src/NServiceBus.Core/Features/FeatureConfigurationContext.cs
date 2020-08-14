@@ -94,7 +94,7 @@
         /// </summary>
         /// <param name="startupTaskFactory">A startup task factory.</param>
         /// <remarks>Should only be used when really necessary. Usually a design smell.</remarks>
-        public void RegisterStartupTask<TTask>(Func<IBuilder, TTask> startupTaskFactory) where TTask : FeatureStartupTask
+        public void RegisterStartupTask<TTask>(Func<IServiceProvider, TTask> startupTaskFactory) where TTask : FeatureStartupTask
         {
             Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
