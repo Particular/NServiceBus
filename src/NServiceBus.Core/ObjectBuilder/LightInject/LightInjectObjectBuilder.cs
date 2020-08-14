@@ -6,7 +6,6 @@
     using Janitor;
     using LightInject;
     using LightInject.Microsoft.DependencyInjection;
-    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder.Common;
 
     [SkipWeaving]
@@ -32,7 +31,7 @@
 
         public IServiceProvider CreateServiceProvider()
         {
-            return container.CreateServiceProvider(new ServiceCollection());
+            return container.CreateServiceProvider(new MicrosoftExtensionsDependencyInjection.ServiceCollection());
         }
 
         public void Dispose()

@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
-    using Testing;
+    using Microsoft.Extensions.DependencyInjection;
 
     [TestFixture]
     public class CustomFinderAdapterTests
@@ -33,13 +33,12 @@
                 throw new Exception("Finder not found");
             }
 
-            var builder = new FakeBuilder();
-
-            builder.Register(() => new ReturnsNullFinder());
+            var services = new ServiceCollection();
+            services.AddTransient(sp => new ReturnsNullFinder());
 
             var customerFinderAdapter = new CustomFinderAdapter<TestSaga.SagaData, StartSagaMessage>();
 
-            Assert.That(async () => await customerFinderAdapter.Find(builder, finderDefinition, new InMemorySynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
+            Assert.That(async () => await customerFinderAdapter.Find(services.BuildServiceProvider(), finderDefinition, new InMemorySynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
     }

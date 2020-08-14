@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
@@ -36,7 +37,7 @@
             var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages> { explicitMutator });
 
             var context = new TestableIncomingLogicalMessageContext();
-            context.Builder.Register<IMutateIncomingMessages>(() => containerMutator);
+            context.Services.AddTransient<IMutateIncomingMessages>(sp => containerMutator);
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -54,7 +55,7 @@
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
-            context.Builder.Register<IMutateIncomingMessages>(() => mutator);
+            context.Services.AddTransient<IMutateIncomingMessages>(sp => mutator);
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -73,7 +74,7 @@
                 Message = logicalMessage
             };
 
-            context.Builder.Register<IMutateIncomingMessages>(() => new MutateIncomingMessagesReturnsNull());
+            context.Services.AddTransient<IMutateIncomingMessages>(sp => new MutateIncomingMessagesReturnsNull());
 
             Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
@@ -85,7 +86,7 @@
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
-            context.Builder.Register<IMutateIncomingMessages>(() => new MutatorWhichDoesNotMutateTheBody());
+            context.Services.AddTransient<IMutateIncomingMessages>(sp => new MutatorWhichDoesNotMutateTheBody());
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -99,7 +100,7 @@
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
-            context.Builder.Register(() => new IMutateIncomingMessages[] { });
+            context.Services.AddTransient(sp => new IMutateIncomingMessages[] { });
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -113,7 +114,7 @@
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
-            context.Builder.Register<IMutateIncomingMessages>(() => new MutatorWhichMutatesTheBody());
+            context.Services.AddTransient<IMutateIncomingMessages>(sp => new MutatorWhichMutatesTheBody());
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 

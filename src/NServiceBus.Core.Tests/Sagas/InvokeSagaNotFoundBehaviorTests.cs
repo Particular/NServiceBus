@@ -4,6 +4,7 @@
     using NServiceBus.Sagas;
     using NUnit.Framework;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using Testing;
 
     [TestFixture]
@@ -22,7 +23,8 @@
         {
             var validSagaHandler = new HandleSagaNotFoundValid();
 
-            incomingContext.Builder.Register<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1(), validSagaHandler);
+            incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1());
+            incomingContext.Services.AddSingleton<IHandleSagaNotFound>(validSagaHandler);
 
             Assert.That(async () => await behavior.Invoke(incomingContext, ctx => TaskEx.CompletedTask), Throws.Nothing);
 
@@ -32,7 +34,8 @@
         [Test]
         public void Throw_friendly_exception_when_any_IHandleSagaNotFound_Handler_returns_null()
         {
-            incomingContext.Builder.Register<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1(), new HandleSagaNotFoundValid());
+            incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1());
+            incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundValid());
 
             Assert.That(async () => await behavior.Invoke(incomingContext, SetSagaNotFound), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }

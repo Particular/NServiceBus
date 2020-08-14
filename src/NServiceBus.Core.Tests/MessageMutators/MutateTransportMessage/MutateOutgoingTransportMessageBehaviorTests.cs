@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
@@ -37,7 +38,7 @@
 
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
-            physicalContext.Builder.Register<IMutateOutgoingTransportMessages>(() => containerMutator);
+            physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => containerMutator);
 
             await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
 
@@ -56,7 +57,7 @@
             await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
-            physicalContext.Builder.Register<IMutateOutgoingTransportMessages>(() => mutator);
+            physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => mutator);
 
             await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
 
@@ -70,7 +71,7 @@
 
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
-            physicalContext.Builder.Register<IMutateOutgoingTransportMessages>(() => new MutateOutgoingTransportMessagesReturnsNull());
+            physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutateOutgoingTransportMessagesReturnsNull());
 
             Assert.That(async () => await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
@@ -83,7 +84,7 @@
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            context.Builder.Register<IMutateOutgoingTransportMessages>(() => new MutatorWhichDoesNotMutateTheBody());
+            context.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutatorWhichDoesNotMutateTheBody());
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -98,7 +99,7 @@
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            context.Builder.Register(() => new IMutateOutgoingTransportMessages[] { });
+            context.Services.AddTransient(sp => new IMutateOutgoingTransportMessages[] { });
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -113,7 +114,7 @@
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            context.Builder.Register<IMutateOutgoingTransportMessages>(() => new MutatorWhichMutatesTheBody());
+            context.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutatorWhichMutatesTheBody());
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 

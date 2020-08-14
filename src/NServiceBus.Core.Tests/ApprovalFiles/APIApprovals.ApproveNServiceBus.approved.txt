@@ -267,9 +267,15 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
         public void SendOnly() { }
+        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
             where T : NServiceBus.Container.ContainerDefinition, new () { }
+        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public void UseContainer(System.Type definitionType) { }
+        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
     }
     public class static EndpointConfigurationExtensions
@@ -509,7 +515,7 @@ namespace NServiceBus
     public interface IStartableEndpointWithExternallyManagedContainer
     {
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
-        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.ObjectBuilder.IBuilder builder);
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder);
     }
     public interface IToSagaExpression<TSagaData>
         where TSagaData : NServiceBus.IContainSagaData
@@ -1226,12 +1232,12 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, System.Func<System.IServiceProvider, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
-        public void RegisterStartupTask<TTask>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TTask> startupTaskFactory)
+        public void RegisterStartupTask<TTask>(System.Func<System.IServiceProvider, TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
     }
     public abstract class FeatureStartupTask
@@ -1534,7 +1540,7 @@ namespace NServiceBus.ObjectBuilder
         void ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
         void ConfigureComponent<T>(NServiceBus.DependencyLifecycle dependencyLifecycle);
         void ConfigureComponent<T>(System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        void ConfigureComponent<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        void ConfigureComponent<T>(System.Func<System.IServiceProvider, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
         bool HasComponent<T>();
         bool HasComponent(System.Type componentType);
         void RegisterSingleton(System.Type lookupType, object instance);
@@ -1748,9 +1754,9 @@ namespace NServiceBus.Pipeline
     {
         public void Register(System.Type behavior, string description) { }
         public void Register(string stepId, System.Type behavior, string description) { }
-        public void Register<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+        public void Register<T>(System.Func<System.IServiceProvider, T> factoryMethod, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public void Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+        public void Register<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Register<T>(T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
@@ -1763,7 +1769,7 @@ namespace NServiceBus.Pipeline
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public void Replace<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description = null)
+        public void Replace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>
@@ -1778,7 +1784,7 @@ namespace NServiceBus.Pipeline
     [System.Diagnostics.DebuggerDisplayAttribute("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Pipeline.IBehavior> factoryMethod = null) { }
+        protected RegisterStep(string stepId, System.Type behavior, string description, System.Func<System.IServiceProvider, NServiceBus.Pipeline.IBehavior> factoryMethod = null) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
@@ -2346,7 +2352,7 @@ namespace NServiceBus.Unicast
 {
     public class static BuilderExtensions
     {
-        public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
+        public static void ForEach<T>(this System.IServiceProvider builder, System.Action<T> action) { }
     }
     public class MessageEventArgs : System.EventArgs
     {

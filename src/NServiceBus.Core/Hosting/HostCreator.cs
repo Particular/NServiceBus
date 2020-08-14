@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using LightInject;
     using LightInject.Microsoft.DependencyInjection;
-    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Settings;
 
@@ -49,11 +48,11 @@
 
             endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
-            var serviceCollection = new ServiceCollection();
+            var serviceCollection = new MicrosoftExtensionsDependencyInjection.ServiceCollection();
             var commonObjectBuilder = new CommonObjectBuilder(serviceCollection);
 
             IConfigureComponents internalContainer = commonObjectBuilder;
-            
+
             //TODO still needed?
             ////for backwards compatibility we need to make the IBuilder available in the container
             //internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
