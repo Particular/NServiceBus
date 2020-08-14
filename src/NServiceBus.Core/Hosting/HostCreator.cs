@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensions.DependencyInjection;
     using LightInject;
     using LightInject.Microsoft.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection;
