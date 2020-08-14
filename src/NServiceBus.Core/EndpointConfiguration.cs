@@ -5,9 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Transactions;
     using Configuration.AdvancedExtensibility;
-    using Container;
     using ObjectBuilder;
-    using ObjectBuilder.Common;
     using Pipeline;
     using Settings;
 
