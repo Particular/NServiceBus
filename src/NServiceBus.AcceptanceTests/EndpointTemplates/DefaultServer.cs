@@ -10,7 +10,6 @@
         {
             return base.GetConfiguration(runDescriptor, endpointCustomizationConfiguration, endpointConfiguration =>
             {
-                endpointConfiguration.UseContainer(new AcceptanceTestingContainer());
                 configurationBuilderCustomization(endpointConfiguration);
             });
         }

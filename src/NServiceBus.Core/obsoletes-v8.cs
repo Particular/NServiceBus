@@ -25,6 +25,35 @@ namespace NServiceBus.Gateway.Deduplication
 namespace NServiceBus
 {
     using System;
+    using Container;
+    using ObjectBuilder.Common;
+
+    public partial class EndpointConfiguration
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9.0", 
+            TreatAsErrorFromVersion = "8.0")] //TODO add obsolete message
+        public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9.0",
+            TreatAsErrorFromVersion = "8.0")] //TODO add obsolete message
+        public void UseContainer(Type definitionType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9.0",
+            TreatAsErrorFromVersion = "8.0")] //TODO add obsolete message
+        public void UseContainer(IContainer builder)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public static partial class Headers
     {

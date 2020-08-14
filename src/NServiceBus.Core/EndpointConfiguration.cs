@@ -14,7 +14,7 @@ namespace NServiceBus
     /// <summary>
     /// Configuration used to create an endpoint instance.
     /// </summary>
-    public class EndpointConfiguration : ExposeSettings
+    public partial class EndpointConfiguration : ExposeSettings
     {
         /// <summary>
         /// Initializes the endpoint configuration builder.
@@ -81,39 +81,7 @@ namespace NServiceBus
             return ConventionsBuilder;
         }
 
-        /// <summary>
-        /// Defines a custom builder to use.
-        /// </summary>
-        /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition" />.</typeparam>
-        public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
-        {
-            customizations?.Invoke(new ContainerCustomizations(Settings));
-
-            UseContainer(typeof(T));
-        }
-
-        /// <summary>
-        /// Defines a custom builder to use.
-        /// </summary>
-        /// <param name="definitionType">The type of the <see cref="ContainerDefinition" />.</param>
-        public void UseContainer(Type definitionType)
-        {
-            Guard.AgainstNull(nameof(definitionType), definitionType);
-            Guard.TypeHasDefaultConstructor(definitionType, nameof(definitionType));
-
-            Settings.Get<HostingComponent.Settings>().CustomObjectBuilder = definitionType.Construct<ContainerDefinition>().CreateContainer(Settings);
-        }
-
-        /// <summary>
-        /// Uses an already active instance of a builder.
-        /// </summary>
-        /// <param name="builder">The instance to use.</param>
-        public void UseContainer(IContainer builder)
-        {
-            Guard.AgainstNull(nameof(builder), builder);
-
-            Settings.Get<HostingComponent.Settings>().CustomObjectBuilder = builder;
-        }
+        
 
         //This needs to be here since we have downstreams that use reflection to access this property
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
