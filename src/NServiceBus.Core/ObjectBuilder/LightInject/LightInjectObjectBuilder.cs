@@ -14,14 +14,11 @@
     {
         public LightInjectObjectBuilder()
         {
-            container = new ServiceContainer(ContainerOptions.Default.WithMicrosoftSettings())
+            var containerOptions = new ContainerOptions()
             {
-                // Logical call context is necessary because the CurrentScope would be managed in a thread local 
-                // by default, if not specified otherwise, which leads to inproper scope 
-                // usage when executed with async code.
-                //TODO still requried?
-                ScopeManagerProvider = new PerLogicalCallContextScopeManagerProvider()
-            };
+                EnableVariance = false
+            }.WithMicrosoftSettings();
+            container = new ServiceContainer(containerOptions);
             scope = container.BeginScope();
             isRootScope = true;
         }
