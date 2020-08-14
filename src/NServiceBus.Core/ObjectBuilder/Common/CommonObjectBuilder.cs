@@ -6,7 +6,7 @@ namespace NServiceBus
 
     class CommonObjectBuilder : IConfigureComponents
     {
-        public IBuilder Builder { get; set; }
+        public IServiceProvider ServiceProvider { get; set; }
 
         public CommonObjectBuilder(IContainer container)
         {
@@ -28,9 +28,9 @@ namespace NServiceBus
             container.Configure(componentFactory, instanceLifecycle);
         }
 
-        public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle instanceLifecycle)
+        public void ConfigureComponent<T>(Func<IServiceProvider, T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(() => componentFactory(Builder), instanceLifecycle);
+            container.Configure(() => componentFactory(ServiceProvider), instanceLifecycle);
         }
 
         void IConfigureComponents.RegisterSingleton(Type lookupType, object instance)

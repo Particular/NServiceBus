@@ -69,7 +69,7 @@
 
             var internalBuilder = container.CreateServiceProvider();
             IBuilder serviceProviderAdapter = new ServiceProviderAdapter(internalBuilder);
-            commonObjectBuilder.Builder = serviceProviderAdapter;
+            commonObjectBuilder.ServiceProvider = internalBuilder;
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProviderAdapter, hostingComponent);
 
             hostingComponent.RegisterBuilder(serviceProviderAdapter, true);
