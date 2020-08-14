@@ -9,7 +9,6 @@
     using Hosting;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Settings;
     using Support;
     using Transport;
@@ -29,7 +28,7 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IBuilder builder)
+        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IServiceProvider builder)
         {
             if (recoverabilityExecutorFactory == null)
             {
@@ -72,7 +71,7 @@
             });
         }
 
-        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
+        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
             var delayedRetriesAvailable = transactionsOn
                                           && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);

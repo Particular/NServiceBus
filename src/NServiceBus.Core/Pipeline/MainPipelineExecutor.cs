@@ -3,13 +3,12 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Pipeline;
     using Transport;
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
+        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
@@ -50,7 +49,7 @@ namespace NServiceBus
             }
         }
 
-        readonly IBuilder rootBuilder;
+        readonly IServiceProvider rootBuilder;
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;

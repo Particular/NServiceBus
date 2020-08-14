@@ -139,7 +139,7 @@ namespace NServiceBus
             return requestedTransportTransactionMode;
         }
 
-        public async Task PrepareToStart(IBuilder builder,
+        public async Task PrepareToStart(IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
@@ -235,7 +235,7 @@ namespace NServiceBus
             }
         }
 
-        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
+        void AddReceivers(IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 

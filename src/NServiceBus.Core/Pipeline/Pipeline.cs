@@ -4,14 +4,13 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Janitor;
-    using ObjectBuilder;
     using Pipeline;
 
     [SkipWeaving]
     class Pipeline<TContext> : IPipeline<TContext>
         where TContext : IBehaviorContext
     {
-        public Pipeline(IBuilder builder, PipelineModifications pipelineModifications)
+        public Pipeline(IServiceProvider builder, PipelineModifications pipelineModifications)
         {
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
 
