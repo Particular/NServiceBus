@@ -1,60 +1,16 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using ObjectBuilder;
     using ObjectBuilder.Common;
 
-    class CommonObjectBuilder : IBuilder, IConfigureComponents
+    class CommonObjectBuilder : IConfigureComponents
     {
+        public IBuilder Builder { get; set; }
+
         public CommonObjectBuilder(IContainer container)
         {
             this.container = container;
-        }
-
-        public object GetService(Type serviceType)
-        {
-            return container.Build(serviceType);
-        }
-
-        public IBuilder CreateChildBuilder()
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Dispose()
-        {
-            //Injected at compile time
-        }
-
-        public T Build<T>()
-        {
-            throw new NotSupportedException();
-        }
-
-        public object Build(Type typeToBuild)
-        {
-            throw new NotSupportedException();
-        }
-
-        IEnumerable<object> IBuilder.BuildAll(Type typeToBuild)
-        {
-            throw new NotSupportedException();
-        }
-
-        void IBuilder.Release(object instance)
-        {
-            throw new NotSupportedException();
-        }
-
-        public IEnumerable<T> BuildAll<T>()
-        {
-            throw new NotSupportedException();
-        }
-
-        public void BuildAndDispatch(Type typeToBuild, Action<object> action)
-        {
-            throw new NotSupportedException();
         }
 
         public void ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
@@ -74,7 +30,7 @@ namespace NServiceBus
 
         public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(() => componentFactory(this), instanceLifecycle);
+            container.Configure(() => componentFactory(Builder), instanceLifecycle);
         }
 
         void IConfigureComponents.RegisterSingleton(Type lookupType, object instance)
@@ -95,11 +51,6 @@ namespace NServiceBus
         public bool HasComponent(Type componentType)
         {
             return container.HasComponent(componentType);
-        }
-
-        void DisposeManaged()
-        {
-            container?.Dispose();
         }
 
         IContainer container;

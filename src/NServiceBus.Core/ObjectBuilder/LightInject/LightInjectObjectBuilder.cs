@@ -5,6 +5,8 @@
     using System.Linq;
     using Janitor;
     using LightInject;
+    using LightInject.Microsoft.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder.Common;
 
     [SkipWeaving]
@@ -12,14 +14,12 @@
     {
         public LightInjectObjectBuilder()
         {
-            container = new ServiceContainer(new ContainerOptions
-            {
-                EnableVariance = false
-            })
+            container = new ServiceContainer(ContainerOptions.Default.WithMicrosoftSettings())
             {
                 // Logical call context is necessary because the CurrentScope would be managed in a thread local 
                 // by default, if not specified otherwise, which leads to inproper scope 
                 // usage when executed with async code.
+                //TODO still requried?
                 ScopeManagerProvider = new PerLogicalCallContextScopeManagerProvider()
             };
             scope = container.BeginScope();
@@ -31,6 +31,11 @@
             container = serviceContainer;
             scope = serviceContainer.BeginScope();
             isRootScope = false;
+        }
+
+        public IServiceProvider CreateServiceProvider()
+        {
+            return container.CreateServiceProvider(new ServiceCollection());
         }
 
         public void Dispose()

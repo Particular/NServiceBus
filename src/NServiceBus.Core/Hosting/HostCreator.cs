@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Extensions.DependencyInjection;
     using ObjectBuilder;
     using Settings;
 
@@ -51,45 +52,32 @@
 
             endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
-            var hostingSetting = settings.Get<HostingComponent.Settings>();
-            var useDefaultBuilder = hostingSetting.CustomObjectBuilder == null;
-            var container = useDefaultBuilder ? new LightInjectObjectBuilder() : hostingSetting.CustomObjectBuilder;
-
+            var container = new LightInjectObjectBuilder();
             var commonObjectBuilder = new CommonObjectBuilder(container);
 
             IConfigureComponents internalContainer = commonObjectBuilder;
-            IBuilder internalBuilder = commonObjectBuilder;
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
+            
+            //TODO still needed?
+            ////for backwards compatibility we need to make the IBuilder available in the container
+            //internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
 
             var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, internalContainer);
 
-            if (useDefaultBuilder)
+            hostingConfiguration.AddStartupDiagnosticsSection("Container", new
             {
-                hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = "internal"
-                });
-            }
-            else
-            {
-                var containerType = internalContainer.GetType();
-
-                hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = containerType.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(containerType)
-                });
-            }
+                Type = "internal"
+            });
 
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
 
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
 
-            var startableEndpoint = endpointCreator.CreateStartableEndpoint(internalBuilder, hostingComponent);
+            var internalBuilder = container.CreateServiceProvider();
+            IBuilder serviceProviderAdapter = new ServiceProviderAdapter(internalBuilder);
+            commonObjectBuilder.Builder = serviceProviderAdapter;
+            var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProviderAdapter, hostingComponent);
 
-            hostingComponent.RegisterBuilder(internalBuilder, true);
+            hostingComponent.RegisterBuilder(serviceProviderAdapter, true);
 
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 
