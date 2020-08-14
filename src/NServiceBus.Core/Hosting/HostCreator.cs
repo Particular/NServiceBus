@@ -3,6 +3,9 @@
     using System;
     using System.Threading.Tasks;
     using Extensions.DependencyInjection;
+    using LightInject;
+    using LightInject.Microsoft.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Settings;
 
@@ -47,8 +50,8 @@
 
             endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
-            var container = new LightInjectObjectBuilder();
-            var commonObjectBuilder = new CommonObjectBuilder(container);
+            var serviceCollection = new ServiceCollection();
+            var commonObjectBuilder = new CommonObjectBuilder(serviceCollection);
 
             IConfigureComponents internalContainer = commonObjectBuilder;
             
@@ -67,12 +70,14 @@
 
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
 
-            var internalBuilder = container.CreateServiceProvider();
-            IBuilder serviceProviderAdapter = new ServiceProviderAdapter(internalBuilder);
-            commonObjectBuilder.ServiceProvider = internalBuilder;
-            var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProviderAdapter, hostingComponent);
+            var containerOptions = new ContainerOptions
+            {
+                EnableVariance = false
+            }.WithMicrosoftSettings();
+            var serviceProvider = serviceCollection.CreateLightInjectServiceProvider(containerOptions);
+            var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, hostingComponent);
 
-            hostingComponent.RegisterBuilder(serviceProviderAdapter, true);
+            hostingComponent.RegisterBuilder(serviceProvider, true);
 
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 
