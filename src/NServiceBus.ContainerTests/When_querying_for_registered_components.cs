@@ -1,8 +1,9 @@
 namespace NServiceBus.ContainerTests
 {
+    using MicrosoftExtensionsDependencyInjection;
     using NServiceBus;
-    using ObjectBuilder.Common;
     using NUnit.Framework;
+    using ObjectBuilder;
 
     [TestFixture]
     public class When_querying_for_registered_components
@@ -10,37 +11,37 @@ namespace NServiceBus.ContainerTests
         [Test]
         public void Existing_components_should_return_true()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                InitializeBuilder(builder);
-                Assert.True(builder.HasComponent(typeof(ExistingComponent)));
-            }
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            InitializeBuilder(configureComponents);
+
+            Assert.True(configureComponents.HasComponent(typeof(ExistingComponent)));
         }
 
         [Test]
         public void Non_existing_components_should_return_false()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                InitializeBuilder(builder);
-                Assert.False(builder.HasComponent(typeof(NonExistingComponent)));
-            }
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            InitializeBuilder(configureComponents);
+
+            Assert.False(configureComponents.HasComponent(typeof(NonExistingComponent)));
         }
 
         [Test]
         public void Builders_should_not_determine_existence_by_building_components()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                InitializeBuilder(builder);
-                Assert.True(builder.HasComponent(typeof(ExistingComponentWithUnsatisfiedDependency)));
-            }
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            InitializeBuilder(configureComponents);
+
+            Assert.True(configureComponents.HasComponent(typeof(ExistingComponentWithUnsatisfiedDependency)));
         }
 
-        void InitializeBuilder(IContainer c)
+        void InitializeBuilder(IConfigureComponents c)
         {
-            c.Configure(typeof(ExistingComponent), DependencyLifecycle.InstancePerCall);
-            c.Configure(typeof(ExistingComponentWithUnsatisfiedDependency), DependencyLifecycle.InstancePerCall);
+            c.ConfigureComponent(typeof(ExistingComponent), DependencyLifecycle.InstancePerCall);
+            c.ConfigureComponent(typeof(ExistingComponentWithUnsatisfiedDependency), DependencyLifecycle.InstancePerCall);
         }
 
         public class NonExistingComponent

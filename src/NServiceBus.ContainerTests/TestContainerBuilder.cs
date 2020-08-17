@@ -1,11 +1,19 @@
 namespace NServiceBus.ContainerTests
 {
     using System;
-    using ObjectBuilder.Common;
+    using LightInject;
+    using LightInject.Microsoft.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
 
     public static class TestContainerBuilder
     {
-        public static Func<IContainer> ConstructBuilder = () => (IContainer)Activator.CreateInstance(Type.GetType("NServiceBus.LightInjectObjectBuilder, NServiceBus.Core"));
-
+        public static Func<IServiceCollection, IServiceProvider> CreateServiceProvider = serviceCollection =>
+        {
+            var containerOptions = new ContainerOptions
+            {
+                EnableVariance = false
+            }.WithMicrosoftSettings();
+            return serviceCollection.CreateLightInjectServiceProvider(containerOptions);
+        };
     }
 }
