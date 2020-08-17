@@ -189,8 +189,14 @@ namespace NServiceBus.ContainerTests
 
     public class ComponentThatDependsOnMultiSingletons
     {
-        public ISingleton1 Singleton1 { get; set; }
-        public ISingleton2 Singleton2 { get; set; }
+        public ComponentThatDependsOnMultiSingletons(ISingleton1 singleton1, ISingleton2 singleton2)
+        {
+            Singleton1 = singleton1;
+            Singleton2 = singleton2;
+        }
+
+        public ISingleton1 Singleton1 { get; private set; }
+        public ISingleton2 Singleton2 { get; private set; }
     }
 
     public class SingletonThatImplementsToInterfaces : ISingleton2
@@ -256,21 +262,6 @@ namespace NServiceBus.ContainerTests
 
     public interface IWithSetterDependencies
     {
-    }
-
-    public class ClassWithSetterDependencies : IWithSetterDependencies
-    {
-        public ISomeInterface InterfaceDependency { get; set; }
-        public SomeClass ConcreteDependency { get; set; }
-
-        public SomeClass ConcreteDependencyWithSetOnly
-        {
-            set { concreteDependencyWithSetOnly = value; }
-        }
-
-        public SomeClass ConcreteDependencyWithPrivateSet { get; private set; }
-
-        public SomeClass concreteDependencyWithSetOnly;
     }
 
     public class SomeClass : ISomeInterface
