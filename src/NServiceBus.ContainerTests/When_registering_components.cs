@@ -81,37 +81,6 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Setter_dependencies_should_be_supported_when_resolving_interfaces()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
-                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
-
-                var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
-                Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
-                Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
-            }
-        }
-
-
-        [Test]
-        public void Setter_injection_should_be_enabled_by_default()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
-                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
-
-                var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
-                Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
-                Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
-            }
-        }
-
-        [Test]
         public void Concrete_classes_should_get_the_same_lifecycle_as_their_interfaces()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
