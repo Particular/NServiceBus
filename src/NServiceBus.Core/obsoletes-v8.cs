@@ -81,6 +81,38 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus.Container
+{
+    [ObsoleteEx(
+        Message = "The NServiceBus dependency injection container API has been deprecated. Use the externally managed container mode to use custom containers.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
+    public abstract class ContainerDefinition
+    {
+    }
+
+    [ObsoleteEx(
+        Message = "The NServiceBus dependency injection container API has been deprecated. Use the externally managed container mode to use custom containers.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
+    public class ContainerCustomizations
+    {
+    }
+}
+
+namespace NServiceBus.ObjectBuilder.Common
+{
+    using System;
+
+    [ObsoleteEx(
+        Message = "The NServiceBus dependency injection container API has been deprecated. Use the externally managed container mode to use custom containers.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
+    public interface IContainer : IDisposable
+    {
+    }
+}
+
 namespace NServiceBus.Features
 {
     [ObsoleteEx(
