@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
     using System;
-    using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
-    using ObjectBuilder;
     using Settings;
 
     [TestFixture]
