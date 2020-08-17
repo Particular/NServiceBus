@@ -73,15 +73,6 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Requesting_an_unregistered_component_should_throw()
-        {
-            var serviceCollection = new ServiceCollection();
-            InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
-            Assert.That(() => builder.GetService(typeof(UnregisteredComponent)), Throws.Exception);
-        }
-
-        [Test]
         public void Resolving_all_components_of_unregistered_types_should_give_empty_list()
         {
             var serviceCollection = new ServiceCollection();
