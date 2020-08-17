@@ -5,7 +5,6 @@
     using LightInject;
     using LightInject.Microsoft.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Settings;
 
     class HostCreator
