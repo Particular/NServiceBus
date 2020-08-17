@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using ObjectBuilder;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Provides factory methods for creating endpoints instances with an externally managed container.
@@ -10,15 +10,13 @@
         /// <summary>
         /// Creates a new startable endpoint based on the provided configuration that uses an externally managed container.
         /// </summary>
-        /// <param name="configuration">The endpoint configuration.</param>
-        /// <param name="configureComponents">The registration API adapter for the external container.</param>
-        public static IStartableEndpointWithExternallyManagedContainer Create(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        public static IStartableEndpointWithExternallyManagedContainer Create(EndpointConfiguration configuration, IServiceCollection serviceCollection)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
-            Guard.AgainstNull(nameof(configureComponents), configureComponents);
+            Guard.AgainstNull(nameof(serviceCollection), serviceCollection);
 
             return HostCreator
-                .CreateWithExternallyManagedContainer(configuration, configureComponents);
+                .CreateWithExternallyManagedContainer(configuration, serviceCollection);
         }
     }
 }

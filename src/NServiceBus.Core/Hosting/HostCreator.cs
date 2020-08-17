@@ -4,12 +4,13 @@
     using System.Threading.Tasks;
     using LightInject;
     using LightInject.Microsoft.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Settings;
 
     class HostCreator
     {
-        public static ExternallyManagedContainerHost CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents externalContainer)
+        public static ExternallyManagedContainerHost CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -21,7 +22,7 @@
 
             var hostingSettings = settings.Get<HostingComponent.Settings>();
 
-            var hostingConfiguration = HostingComponent.PrepareConfiguration(hostingSettings, assemblyScanningComponent, externalContainer);
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(hostingSettings, assemblyScanningComponent, serviceCollection);
 
             hostingConfiguration.AddStartupDiagnosticsSection("Container", new
             {
@@ -31,9 +32,6 @@
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
 
             var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingConfiguration);
-
-            //for backwards compatibility we need to make the IBuilder available in the container
-            externalContainer.ConfigureComponent(_ => externallyManagedContainerHost.Builder.Value, DependencyLifecycle.SingleInstance);
 
             return externallyManagedContainerHost;
         }
@@ -49,15 +47,8 @@
             endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
             var serviceCollection = new MicrosoftExtensionsDependencyInjection.ServiceCollection();
-            var commonObjectBuilder = new CommonObjectBuilder(serviceCollection);
 
-            IConfigureComponents internalContainer = commonObjectBuilder;
-
-            //TODO still needed?
-            ////for backwards compatibility we need to make the IBuilder available in the container
-            //internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
-
-            var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, internalContainer);
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, serviceCollection);
 
             hostingConfiguration.AddStartupDiagnosticsSection("Container", new
             {
