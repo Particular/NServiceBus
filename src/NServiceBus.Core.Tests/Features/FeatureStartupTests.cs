@@ -338,55 +338,11 @@
         }
     }
 
-    public class FakeBuilder : IBuilder
+    public class FakeBuilder : IServiceProvider
     {
-        public FakeBuilder()
-        {
-        }
-
         public FakeBuilder(Type type)
         {
             this.type = type;
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public object Build(Type typeToBuild)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IBuilder CreateChildBuilder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public T Build<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<T> BuildAll<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<object> BuildAll(Type typeToBuild)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Release(object instance)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BuildAndDispatch(Type typeToBuild, Action<object> action)
-        {
-            throw new NotImplementedException();
         }
 
         public object GetService(Type serviceType)

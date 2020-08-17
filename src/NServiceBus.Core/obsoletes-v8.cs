@@ -100,6 +100,40 @@ namespace NServiceBus.Container
     }
 }
 
+namespace NServiceBus.ObjectBuilder
+{
+    using System.Collections.Generic;
+    using Microsoft.Extensions.DependencyInjection;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = nameof(IServiceProvider), 
+        TreatAsErrorFromVersion = "8.0.0", 
+        RemoveInVersion = "9.0.0")]
+    public interface IBuilder : IDisposable
+    {
+        [ObsoleteEx(Message = "The Build method is not supported anymore.", ReplacementTypeOrMember = nameof(IServiceProvider.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        object Build(Type typeToBuild);
+
+        [ObsoleteEx(Message = "The CreateChildBuilder method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.CreateScope), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        IBuilder CreateChildBuilder();
+
+        [ObsoleteEx(Message = "The Build<T> method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        T Build<T>();
+
+        [ObsoleteEx(Message = "The BuildAll<T> method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        IEnumerable<T> BuildAll<T>();
+
+        [ObsoleteEx(Message = "The BuildAll method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        IEnumerable<object> BuildAll(Type typeToBuild);
+
+        [ObsoleteEx(Message = "The Release method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        void Release(object instance);
+
+        [ObsoleteEx(Message = "The BuildAndDispatch method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        void BuildAndDispatch(Type typeToBuild, Action<object> action);
+    }
+}
+
 namespace NServiceBus.ObjectBuilder.Common
 {
     using System;
