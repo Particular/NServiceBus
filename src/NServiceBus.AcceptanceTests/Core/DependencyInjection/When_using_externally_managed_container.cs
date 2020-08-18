@@ -1,93 +1,89 @@
-﻿//TODO this test should use the MS default implementations
-//namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
-//{
-//    using System.Threading.Tasks;
-//    using AcceptanceTesting;
-//    using EndpointTemplates;
-//    using ObjectBuilder;
-//    using NUnit.Framework;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
+{
+    using System;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Microsoft.Extensions.DependencyInjection;
+    using NUnit.Framework;
 
-//    public class When_using_externally_managed_container : NServiceBusAcceptanceTest
-//    {
-//        static MyComponent myComponent = new MyComponent
-//        {
-//            Message = "Hello World!"
-//        };
+    public class When_using_externally_managed_container : NServiceBusAcceptanceTest
+    {
+        static MyComponent myComponent = new MyComponent();
 
-//        [Test]
-//        public async Task Should_use_it_for_component_resolution()
-//        {
-//            var container = new AcceptanceTestingContainer();
-//            container.RegisterSingleton(typeof(MyComponent), myComponent);
+        [Test]
+        public async Task Should_use_it_for_component_resolution()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton(typeof(MyComponent), myComponent);
 
-//            var result = await Scenario.Define<Context>()
-//            .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-//            {
-//                IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
+            var result = await Scenario.Define<Context>()
+            .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
+            {
+                IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
 
-//                b.ToCreateInstance(
-//                        config =>
-//                        {
-//                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, new RegistrationPhaseAdapter(container));
-//                            return Task.FromResult(configuredEndpoint);
-//                        },
-//                        configured => configured.Start(new ResolutionPhaseAdapter(container))
-//                    )
-//                    .When((e,c) =>
-//                    {
-//                        c.BuilderWasResolvable = container.Build(typeof(IBuilder)) != null;
+                b.ToCreateInstance(
+                        config =>
+                        {
+                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
+                            return Task.FromResult(configuredEndpoint);
+                        },
+                        configured => configured.Start(serviceCollection.BuildServiceProvider())
+                    )
+                    .When((e, c) =>
+                    {
+                        //use the session provided by configure to make sure its properly populated
+                        return configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage());
+                    });
+            })
+            .Done(c => c.MessageReceived)
+            .Run();
 
-//                        //use the session provided by configure to make sure its properly populated
-//                        return configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage());
-//                    });
-//            })
-//            .Done(c => c.Message != null)
-//            .Run();
+            Assert.NotNull(result.ServiceProvider, "IServiceProvider should be injectable");
+            Assert.AreSame(myComponent, result.CustomService, "Should inject custom services");
+        }
 
-//            Assert.AreEqual(result.Message, myComponent.Message);
-//            Assert.True(result.BuilderWasResolvable, "IBuilder should be resolvable in the container");
-//            Assert.False(container.WasDisposed, "Externally managed containers should not be disposed");
-//        }
+        class Context : ScenarioContext
+        {
+            public bool MessageReceived { get; set; }
+            public IServiceProvider ServiceProvider { get; set; }
+            public MyComponent CustomService { get; set; }
+        }
 
-//        class Context : ScenarioContext
-//        {
-//            public string Message { get; set; }
-//            public bool BuilderWasResolvable { get; set; }
-//        }
+        public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
+        {
+            public ExternallyManagedContainerEndpoint()
+            {
+                EndpointSetup<ExternallyManagedContainerServer>();
+            }
 
-//        public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
-//        {
-//            public ExternallyManagedContainerEndpoint()
-//            {
-//                EndpointSetup<ExternallyManagedContainerServer>();
-//            }
+            class SomeMessageHandler : IHandleMessages<SomeMessage>
+            {
+                public SomeMessageHandler(Context context, MyComponent component, IServiceProvider serviceProvider)
+                {
+                    testContext = context;
+                    myComponent = component;
 
-//            class SomeMessageHandler : IHandleMessages<SomeMessage>
-//            {
-//                public SomeMessageHandler(Context context, MyComponent component)
-//                {
-//                    testContext = context;
-//                    myComponent = component;
-//                }
+                    testContext.CustomService = component;
+                    testContext.ServiceProvider = serviceProvider;
+                }
 
-//                public Task Handle(SomeMessage message, IMessageHandlerContext context)
-//                {
-//                    testContext.Message = myComponent.Message;
-//                    return Task.FromResult(0);
-//                }
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
+                {
+                    testContext.MessageReceived = true;
+                    return Task.FromResult(0);
+                }
 
-//                Context testContext;
-//                MyComponent myComponent;
-//            }
-//        }
+                Context testContext;
+            }
+        }
 
-//        public class MyComponent
-//        {
-//            public string Message { get; set; }
-//        }
+        public class MyComponent
+        {
+        }
 
-//        public class SomeMessage : IMessage
-//        {
-//        }
-//    }
-//}
+        public class SomeMessage : IMessage
+        {
+        }
+    }
+}
