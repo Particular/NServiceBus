@@ -31,24 +31,27 @@ namespace NServiceBus
     public partial class EndpointConfiguration
     {
         [ObsoleteEx(
+            Message = "Use the externally managed container mode to integrate with third party dependency injection containers.",
             RemoveInVersion = "9.0", 
-            TreatAsErrorFromVersion = "8.0")] //TODO add obsolete message
+            TreatAsErrorFromVersion = "8.0")]
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
+            Message = "Use the externally managed container mode to integrate with third party dependency injection containers.",
             RemoveInVersion = "9.0",
-            TreatAsErrorFromVersion = "8.0")] //TODO add obsolete message
+            TreatAsErrorFromVersion = "8.0")]
         public void UseContainer(Type definitionType)
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
+            Message = "Use the externally managed container mode to integrate with third party dependency injection containers.",
             RemoveInVersion = "9.0",
-            TreatAsErrorFromVersion = "8.0")] //TODO add obsolete message
+            TreatAsErrorFromVersion = "8.0")]
         public void UseContainer(IContainer builder)
         {
             throw new NotImplementedException();
