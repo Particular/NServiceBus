@@ -97,6 +97,10 @@ namespace NServiceBus.Container
         TreatAsErrorFromVersion = "8.0.0")]
     public class ContainerCustomizations
     {
+        private ContainerCustomizations()
+        {
+            // private ctor
+        }
     }
 }
 
