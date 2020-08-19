@@ -268,15 +268,18 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
         public void SendOnly() { }
-        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
-            " 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use the externally managed container mode to integrate with third party dependenc" +
+            "y injection containers. The member currently throws a NotImplementedException. W" +
+            "ill be removed in version 9.0.0.", true)]
         public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
             where T : NServiceBus.Container.ContainerDefinition, new () { }
-        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
-            " 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use the externally managed container mode to integrate with third party dependenc" +
+            "y injection containers. The member currently throws a NotImplementedException. W" +
+            "ill be removed in version 9.0.0.", true)]
         public void UseContainer(System.Type definitionType) { }
-        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
-            " 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use the externally managed container mode to integrate with third party dependenc" +
+            "y injection containers. The member currently throws a NotImplementedException. W" +
+            "ill be removed in version 9.0.0.", true)]
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
     }
     public class static EndpointConfigurationExtensions
@@ -1030,10 +1033,7 @@ namespace NServiceBus.Container
     [System.ObsoleteAttribute("The NServiceBus dependency injection container API has been deprecated. Use the e" +
         "xternally managed container mode to use custom containers. Will be removed in ve" +
         "rsion 9.0.0.", true)]
-    public class ContainerCustomizations
-    {
-        public ContainerCustomizations() { }
-    }
+    public class ContainerCustomizations { }
     [System.ObsoleteAttribute("The NServiceBus dependency injection container API has been deprecated. Use the e" +
         "xternally managed container mode to use custom containers. Will be removed in ve" +
         "rsion 9.0.0.", true)]
