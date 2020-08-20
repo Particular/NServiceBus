@@ -19,6 +19,12 @@ LightInject is licensed under the MIT license as described [here](https://github
 
 LightInject sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/seesharper/LightInject/blob/master/license.md).
 
+### [LightInject.Microsoft.DependencyInjection]
+
+LightInject.Microsoft.DependencyInjection is licensed under the MIT license as described [here](https://github.com/seesharper/LightInject.Microsoft.DependencyInjection/blob/master/license.md).
+
+LightInject.Microsoft.DependencyInjection sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/seesharper/LightInject.Microsoft.DependencyInjection/blob/master/license.md).
+
 ### [SimpleJson](https://github.com/facebook-csharp-sdk/simple-json/) 
 
 SimpleJson is licensed under the MIT license as described [here](https://github.com/facebook-csharp-sdk/simple-json/blob/master/LICENSE.txt).
