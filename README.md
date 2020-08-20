@@ -42,3 +42,9 @@ net-object-deep-copy sources are compiled into the NServiceBus distribution as a
 FastExpressionCompiler is licensed under the MIT license as described [here](https://github.com/dadhi/FastExpressionCompiler/blob/master/LICENSE).
 
 FastExpressionCompiler sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/dadhi/FastExpressionCompiler/blob/master/LICENSE).
+
+### [ServiceCollection.cs](https://github.com/aspnet/DependencyInjection/blob/master/src/DI/ServiceCollection.cs)
+
+ServiceCollection.cs is licensed under the Apache 2.0 License as described [here](NOTICE.txt).
+
+ServiceCollection.cs sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](NOTICE.txt).
