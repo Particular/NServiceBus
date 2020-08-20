@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]
@@ -89,7 +91,8 @@
         {
             public EndpointWithSagaWithHeaderMapping()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(cfg => 
+                    cfg.Pipeline.Register(typeof(EndTestOnException), "Ends test if an exception occurs"));
             }
 
             public class SagaWithHeaderMapping : Saga<SagaDataWithHeaderMapping>, IAmStartedByMessages<StartSaga>
@@ -112,6 +115,29 @@
                 {
                     mapper.ConfigureHeaderMapping<StartSaga>(CorrelationHeader)
                         .ToSaga(saga => saga.CorrelationId);
+                }
+            }
+
+            class EndTestOnException : Behavior<IIncomingLogicalMessageContext>
+            {
+                Context scenario;
+
+                public EndTestOnException(Context scenario)
+                {
+                    this.scenario = scenario;
+                }
+
+                public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+                {
+                    try
+                    {
+                        await next();
+                    }
+                    catch
+                    {
+                        scenario.Done = true;
+                        throw;
+                    }
                 }
             }
         }
