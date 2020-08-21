@@ -1,5 +1,4 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
-NServiceBus.Features.MessageDrivenSubscriptionsToBeRefactored+InitializableSubscriptionStorage - Singleton
 NServiceBus.InferredMessageTypeEnricherBehavior - Transient
 NServiceBus.Persistence.ISynchronizedStorage - Singleton
 NServiceBus.Persistence.ISynchronizedStorageAdapter - Singleton
