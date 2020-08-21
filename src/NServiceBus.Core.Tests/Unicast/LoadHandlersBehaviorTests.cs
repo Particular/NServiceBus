@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System.Threading.Tasks;
     using Outbox;
     using NServiceBus.Transport;
     using NUnit.Framework;
@@ -18,7 +19,7 @@
             context.Extensions.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
             context.Extensions.Set(new TransportTransaction());
 
-            Assert.That(async () => await behavior.Invoke(context, c => TaskEx.CompletedTask), Throws.InvalidOperationException);
+            Assert.That(async () => await behavior.Invoke(context, c => Task.CompletedTask), Throws.InvalidOperationException);
         }
     }
 }

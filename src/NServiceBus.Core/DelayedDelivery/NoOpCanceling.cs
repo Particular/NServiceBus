@@ -9,7 +9,7 @@
         public Task CancelDeferredMessages(string messageKey, IBehaviorContext context)
         {
             //no-op
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

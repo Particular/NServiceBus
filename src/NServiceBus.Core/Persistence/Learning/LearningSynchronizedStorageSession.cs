@@ -50,19 +50,19 @@ namespace NServiceBus
         public Task Update(IContainSagaData sagaData)
         {
             deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task Save(IContainSagaData sagaData)
         {
             deferredActions.Add(new SaveAction(sagaData, sagaFiles, sagaManifests));
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task Complete(IContainSagaData sagaData)
         {
             deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         async Task<SagaStorageFile> Open(Guid sagaId, Type entityType)

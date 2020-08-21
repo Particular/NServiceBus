@@ -68,7 +68,7 @@ namespace NServiceBus.Transport
         /// </summary>
         public virtual Task Start()
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace NServiceBus.Transport
         /// </summary>
         public virtual Task Stop()
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

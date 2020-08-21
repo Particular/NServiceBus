@@ -34,15 +34,16 @@ namespace NServiceBus
 
         public Task Stop()
         {
+            var completedTask = Task.CompletedTask;
             if (tokenSource == null)
             {
-                return TaskEx.CompletedTask;
+                return completedTask;
             }
 
             tokenSource.Cancel();
             tokenSource.Dispose();
 
-            return task ?? TaskEx.CompletedTask;
+            return task ?? completedTask;
         }
 
         Task task;

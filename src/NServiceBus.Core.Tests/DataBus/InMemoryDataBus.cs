@@ -47,7 +47,7 @@
         public Task Start()
         {
             //no-op
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         //used for test purposes

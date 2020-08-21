@@ -34,7 +34,7 @@
             if (!state.ImmediateDispatch && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             return stage(this.CreateDispatchContext(operations, context));

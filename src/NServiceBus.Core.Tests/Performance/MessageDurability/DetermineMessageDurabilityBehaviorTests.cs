@@ -13,7 +13,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => true);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => TaskEx.CompletedTask);
+            await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.IsTrue(context.Extensions.TryGetDeliveryConstraint(out NonDurableDelivery nonDurableDeliveryConstraint));
             Assert.IsNotNull(nonDurableDeliveryConstraint);
@@ -25,7 +25,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => true);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => TaskEx.CompletedTask);
+            await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.IsTrue(bool.Parse(context.Headers[Headers.NonDurableMessage]));
         }
@@ -36,7 +36,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => false);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => TaskEx.CompletedTask);
+            await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.IsFalse(context.Extensions.TryGetDeliveryConstraint(out NonDurableDelivery nonDurableDeliveryConstraint));
             Assert.IsNull(nonDurableDeliveryConstraint);
@@ -48,7 +48,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => false);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => TaskEx.CompletedTask);
+            await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.IsFalse(context.Headers.ContainsKey(Headers.NonDurableMessage));
         }

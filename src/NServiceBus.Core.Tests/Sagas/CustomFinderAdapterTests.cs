@@ -55,7 +55,7 @@
 
         public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 

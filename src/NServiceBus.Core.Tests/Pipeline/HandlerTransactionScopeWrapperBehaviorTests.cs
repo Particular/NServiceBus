@@ -17,7 +17,7 @@
             {
                 using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    await behavior.Invoke(null, ctx => TaskEx.CompletedTask);
+                    await behavior.Invoke(null, ctx => Task.CompletedTask);
                 }
             }, Throws.InstanceOf<Exception>().And.Message.Contains("Ambient transaction detected. The transaction scope unit of work is not supported when there already is a scope present."));
         }
@@ -30,7 +30,7 @@
             return behavior.Invoke(null, ctx =>
             {
                 Assert.NotNull(Transaction.Current);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
         }
     }

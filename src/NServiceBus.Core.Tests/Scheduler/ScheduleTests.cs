@@ -22,7 +22,7 @@
             await session.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c =>
             {
                 wasCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
 
             Assert.IsTrue(wasCalled);
@@ -36,7 +36,7 @@
             await session.ScheduleEvery(TimeSpan.FromMinutes(5), c =>
             {
                 wasCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
 
             Assert.IsTrue(wasCalled);

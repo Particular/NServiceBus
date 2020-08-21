@@ -68,7 +68,7 @@
                     var eventType = messagesHandledByThisEndpoint[i];
 
                     tasks[i] = excludedTypes.Contains(eventType)
-                        ? TaskEx.CompletedTask
+                        ? Task.CompletedTask
                         : SubscribeToEvent(session, eventType);
                 }
                 return Task.WhenAll(tasks);
@@ -76,7 +76,7 @@
 
             protected override Task OnStop(IMessageSession session)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             static async Task SubscribeToEvent(IMessageSession session, Type eventType)

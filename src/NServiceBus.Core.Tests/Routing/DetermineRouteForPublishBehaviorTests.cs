@@ -24,7 +24,7 @@
             await behavior.Invoke(context, _ =>
             {
                 addressTag = (MulticastAddressTag)_.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
 
             Assert.AreEqual(typeof(MyEvent), addressTag.MessageType);

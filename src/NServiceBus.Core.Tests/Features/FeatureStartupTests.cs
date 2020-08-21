@@ -145,13 +145,13 @@
                 protected override Task OnStart(IMessageSession session)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Start");
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 protected override Task OnStop(IMessageSession session)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Stop");
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 StringBuilder orderBuilder;
@@ -184,13 +184,13 @@
                 protected override Task OnStart(IMessageSession session)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Start");
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 protected override Task OnStop(IMessageSession session)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Stop");
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 StringBuilder orderBuilder;
@@ -224,13 +224,13 @@
                 protected override Task OnStart(IMessageSession session)
                 {
                     parentFeature.TaskStarted = true;
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 protected override Task OnStop(IMessageSession session)
                 {
                     parentFeature.TaskStopped = true;
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 FeatureWithStartupTask parentFeature;
@@ -323,12 +323,12 @@
 
                 protected override Task OnStart(IMessageSession session)
                 {
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 protected override Task OnStop(IMessageSession session)
                 {
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 FeatureWithStartupTaskWhichIsDisposable parentFeature;

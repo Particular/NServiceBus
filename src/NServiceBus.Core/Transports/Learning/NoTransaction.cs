@@ -23,7 +23,7 @@ namespace NServiceBus
 
         public Task Enlist(string messagePath, string messageContents) => AsyncFile.WriteText(messagePath, messageContents);
 
-        public Task Commit() => TaskEx.CompletedTask;
+        public Task Commit() => Task.CompletedTask;
 
         public void Rollback() { }
 

@@ -75,7 +75,7 @@ namespace NServiceBus
         public Task MarkAsCompleted()
         {
             isCompleted = true;
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public async Task<TSagaData> Read<TSagaData>() where TSagaData : class, IContainSagaData

@@ -44,7 +44,7 @@
 
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void Start(PushRuntimeSettings limitations)

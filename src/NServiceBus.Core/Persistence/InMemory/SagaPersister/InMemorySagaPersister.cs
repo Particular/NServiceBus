@@ -39,7 +39,7 @@ namespace NServiceBus
                }
            });
 
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
@@ -91,7 +91,7 @@ namespace NServiceBus
                }
            });
 
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
@@ -106,7 +106,7 @@ namespace NServiceBus
                }
            });
 
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         static void SetEntry(ContextBag context, Guid sagaId, Entry value)

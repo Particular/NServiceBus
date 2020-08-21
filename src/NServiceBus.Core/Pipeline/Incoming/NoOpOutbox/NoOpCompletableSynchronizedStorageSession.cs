@@ -11,7 +11,7 @@
     {
         public Task CompleteAsync()
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void Dispose()

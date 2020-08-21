@@ -126,7 +126,7 @@
 
         Task Invoke(ITransportReceiveContext context)
         {
-            return behavior.Invoke(context, c => TaskEx.CompletedTask);
+            return behavior.Invoke(context, c => Task.CompletedTask);
         }
 
         TransportReceiveToPhysicalMessageConnector behavior;
@@ -163,7 +163,7 @@
             {
                 TransportOperations = context.Operations;
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

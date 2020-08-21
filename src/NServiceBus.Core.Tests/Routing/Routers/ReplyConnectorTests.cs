@@ -14,7 +14,7 @@
             var context = new TestableOutgoingReplyContext();
             context.Extensions.Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
 
-            await router.Invoke(context, ctx => TaskEx.CompletedTask);
+            await router.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(1, context.Headers.Count);
             Assert.AreEqual(MessageIntentEnum.Reply.ToString(), context.Headers[Headers.MessageIntent]);

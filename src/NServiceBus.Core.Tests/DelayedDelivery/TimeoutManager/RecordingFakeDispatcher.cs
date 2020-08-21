@@ -26,7 +26,7 @@
         public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
         {
             DispatchedMessages.Add(new DispatchedMessage(outgoingMessages, transaction, context));
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

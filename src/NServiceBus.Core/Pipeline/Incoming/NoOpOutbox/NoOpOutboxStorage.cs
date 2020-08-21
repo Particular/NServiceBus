@@ -13,12 +13,12 @@
 
         public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task SetAsDispatched(string messageId, ContextBag options)
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task<OutboxTransaction> BeginTransaction(ContextBag context)

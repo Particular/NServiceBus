@@ -44,7 +44,7 @@
             {
                 MoveDelayedMessagesToMainDirectory();
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             },
             TimeSpan.FromSeconds(1),
             ex => Logger.Error("Unable to move expired messages to main input queue.", ex));

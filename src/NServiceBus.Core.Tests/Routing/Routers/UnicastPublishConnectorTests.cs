@@ -17,7 +17,7 @@
             var router = new UnicastPublishConnector(new FakePublishRouter(), new DistributionPolicy());
             var context = new TestableOutgoingPublishContext();
 
-            await router.Invoke(context, ctx => TaskEx.CompletedTask);
+            await router.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(1, context.Headers.Count);
             Assert.AreEqual(MessageIntentEnum.Publish.ToString(), context.Headers[Headers.MessageIntent]);

@@ -22,7 +22,7 @@
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
             Assert.True(mutator.MutateOutgoingCalled);
             Assert.True(otherMutator.MutateOutgoingCalled);
@@ -40,7 +40,7 @@
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => containerMutator);
 
-            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
             Assert.True(explicitMutator.MutateOutgoingCalled);
             Assert.True(containerMutator.MutateOutgoingCalled);
@@ -54,12 +54,13 @@
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
+            var completedTask = Task.CompletedTask;
+            await behavior.Invoke(physicalContext, ctx => completedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => mutator);
 
-            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(physicalContext, ctx => completedTask);
 
             Assert.IsFalse(mutator.MutateOutgoingCalled);
         }
@@ -73,7 +74,7 @@
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutateOutgoingTransportMessagesReturnsNull());
 
-            Assert.That(async () => await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(physicalContext, ctx => Task.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
         [Test]
@@ -86,7 +87,7 @@
 
             context.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutatorWhichDoesNotMutateTheBody());
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -101,7 +102,7 @@
 
             context.Services.AddTransient(sp => new IMutateOutgoingTransportMessages[] { });
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -116,7 +117,7 @@
 
             context.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutatorWhichMutatesTheBody());
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.True(context.UpdateMessageCalled);
         }
@@ -141,7 +142,7 @@
             {
                 MutateOutgoingCalled = true;
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -157,7 +158,7 @@
         {
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -167,7 +168,7 @@
             {
                 context.OutgoingBody = new byte[0];
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 

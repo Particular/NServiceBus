@@ -60,7 +60,7 @@
         {
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -68,7 +68,7 @@
         {
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -88,7 +88,7 @@
         {
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 

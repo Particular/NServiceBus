@@ -15,7 +15,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
             var testWriter = new Func<string, Task>(diagnosticOutput =>
             {
                 output = diagnosticOutput;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
             var diagnostics = new StartupDiagnosticEntries();
             diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });

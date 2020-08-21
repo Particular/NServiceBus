@@ -42,7 +42,7 @@
         {
             public Task Handle(StubMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -54,7 +54,7 @@
         {
             public Task Timeout(StubTimeoutState state, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -113,7 +113,7 @@
                 HandleCalled = true;
                 HandledMessage = message;
                 HandlerContext = context;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public bool HandleCalled;
@@ -176,7 +176,7 @@
                 TimeoutCalled = true;
                 HandledState = state;
                 HandlerContext = context;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public StubTimeoutState HandledState;

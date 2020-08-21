@@ -11,7 +11,7 @@
 
         public Task Commit()
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

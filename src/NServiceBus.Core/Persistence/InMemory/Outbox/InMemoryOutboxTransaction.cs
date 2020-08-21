@@ -23,7 +23,7 @@
         public Task Commit()
         {
             Transaction.Commit();
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void Enlist(Action action)

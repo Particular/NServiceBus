@@ -27,7 +27,7 @@
             {
                 var addressTag = (UnicastAddressTag) c.RoutingStrategies.First().Apply(headers);
                 destination = addressTag.Destination;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
 
             Assert.AreEqual("tm", destination);
@@ -42,7 +42,7 @@
 
             var context = CreateContext(new MulticastRoutingStrategy(null), new DelayDeliveryWith(delay));
 
-            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing"));
+            Assert.That(async () => await behavior.Invoke(context, ctx => Task.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing"));
         }
 
         [Test]
@@ -54,7 +54,7 @@
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay), new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
             context.Message.Headers[Headers.EnclosedMessageTypes] = "TestMessage";
 
-            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type 'TestMessage'."));
+            Assert.That(async () => await behavior.Invoke(context, ctx => Task.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type 'TestMessage'."));
         }
 
         [Test]
@@ -69,7 +69,7 @@
             await behavior.Invoke(context, c =>
             {
                 c.RoutingStrategies.First().Apply(headers);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
 
             Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(headers[TimeoutManagerHeaders.Expire]), DateTime.UtcNow + delay);
@@ -87,7 +87,7 @@
             await behavior.Invoke(context, c =>
             {
                 c.RoutingStrategies.First().Apply(headers);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
 
             Assert.AreEqual(headers[TimeoutManagerHeaders.Expire], DateTimeExtensions.ToWireFormattedString(at));
