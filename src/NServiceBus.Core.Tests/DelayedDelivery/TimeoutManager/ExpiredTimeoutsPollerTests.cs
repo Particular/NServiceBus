@@ -87,7 +87,7 @@
 
                 // succeed second dispatch
                 unicastTransportOperations = m.UnicastTransportOperations;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             };
 
             try
@@ -132,7 +132,7 @@
 
             public Task Failure(Exception exception)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 

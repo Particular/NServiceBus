@@ -22,7 +22,7 @@
 
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.True(mutator.MutateOutgoingCalled);
             Assert.True(otherMutator.MutateOutgoingCalled);
@@ -39,7 +39,7 @@
             var context = new TestableOutgoingLogicalMessageContext();
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => containerMutator);
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.True(explicitMutator.MutateOutgoingCalled);
             Assert.True(containerMutator.MutateOutgoingCalled);
@@ -52,12 +52,12 @@
 
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => mutator);
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.IsFalse(mutator.MutateOutgoingCalled);
         }
@@ -72,7 +72,7 @@
             context.Extensions.Set(new LogicalMessage(null, null));
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutateOutgoingMessagesReturnsNull());
 
-            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(context, ctx => Task.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
         [Test]
@@ -84,7 +84,7 @@
 
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutatorWhichDoesNotMutateTheBody());
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -98,7 +98,7 @@
 
             context.Services.AddTransient(sp => new IMutateOutgoingMessages[] { });
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -112,7 +112,7 @@
 
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutatorWhichMutatesTheBody());
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.True(context.UpdateMessageCalled);
         }
@@ -137,7 +137,7 @@
             {
                 MutateOutgoingCalled = true;
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -153,7 +153,7 @@
         {
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -163,7 +163,7 @@
             {
                 context.OutgoingMessage = new object();
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

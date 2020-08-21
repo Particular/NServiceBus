@@ -180,7 +180,7 @@
                     throw toThrow;
                 }
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             });
         }
 
@@ -193,7 +193,7 @@
             public Task Begin()
             {
                 BeginCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task End(Exception ex = null)
@@ -216,7 +216,7 @@
             public Task End(Exception ex = null)
             {
                 EndCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -229,14 +229,14 @@
             public Task Begin()
             {
                 BeginCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task End(Exception ex = null)
             {
                 ExceptionPassedToEnd = ex;
                 EndCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -249,7 +249,7 @@
 
             public Task End(Exception ex = null)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -257,7 +257,7 @@
         {
             public Task Begin()
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task End(Exception ex = null)
@@ -300,14 +300,14 @@
             {
                 BeginCallCount++;
                 BeginCallIndex = BeginCallCount;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task End(Exception ex = null)
             {
                 EndCallCount++;
                 EndCallIndex = EndCallCount;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -331,13 +331,13 @@
         {
             public Task Begin()
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task End(Exception ex = null)
             {
                 Exception = ex;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Exception Exception;
@@ -357,13 +357,13 @@
             public Task Begin()
             {
                 order.Add(name);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task End(Exception ex = null)
             {
                 order.Add(name);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

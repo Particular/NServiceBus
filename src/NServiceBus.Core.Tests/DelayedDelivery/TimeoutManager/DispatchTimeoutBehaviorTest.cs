@@ -145,7 +145,7 @@
             {
                 OutgoingTransportOperations = outgoingMessages;
                 TransportTransactionUsed = transportTransaction;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -164,7 +164,7 @@
 
             public Task Add(TimeoutData timeout, ContextBag context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task<bool> TryRemove(string timeoutId, ContextBag context)
@@ -179,7 +179,7 @@
 
             public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

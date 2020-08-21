@@ -36,13 +36,13 @@ namespace NServiceBus
         {
             if (tokenSource == null)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             tokenSource.Cancel();
             tokenSource.Dispose();
 
-            return task ?? TaskEx.CompletedTask;
+            return task ?? Task.CompletedTask;
         }
 
         Task task;

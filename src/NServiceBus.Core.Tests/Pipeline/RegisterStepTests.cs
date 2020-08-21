@@ -110,7 +110,7 @@
         {
             public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -118,7 +118,7 @@
         {
             public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

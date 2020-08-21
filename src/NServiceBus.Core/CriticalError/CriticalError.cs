@@ -31,7 +31,7 @@ namespace NServiceBus
 
         static Task DefaultCriticalErrorHandling(ICriticalErrorContext criticalErrorContext)
         {
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         /// <summary>

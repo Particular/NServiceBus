@@ -52,7 +52,7 @@ namespace NServiceBus
             {
                 if (retry.IsImmediateRetry)
                 {
-                    return TaskEx.CompletedTask;
+                    return Task.CompletedTask;
                 }
 
                 var headerCopy = new Dictionary<string, string>(retry.Message.Headers);

@@ -18,7 +18,7 @@
             var behavior = new AttachCausationHeadersBehavior(_ => generatedId);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(generatedId, context.Headers[Headers.ConversationId]);
         }
@@ -37,7 +37,7 @@
             }, new byte[0]);
             context.Extensions.Set(transportMessage);
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
         }
@@ -56,7 +56,7 @@
                 }
             };
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(userConversationId, context.Headers[Headers.ConversationId]);
         }
@@ -81,7 +81,7 @@
             }, new byte[0]);
             context.Extensions.Set(transportMessage);
 
-            var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => TaskEx.CompletedTask));
+            var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => Task.CompletedTask));
 
             Assert.AreEqual($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}'). To start a new conversation use sendOptions.StartNewConversation().", exception.Message);
         }
@@ -94,7 +94,7 @@
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         }

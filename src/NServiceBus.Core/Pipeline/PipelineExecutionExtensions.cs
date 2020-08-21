@@ -84,7 +84,7 @@
         static Delegate CreateDoneDelegate(Type inContextType, int i)
         {
             var innerContextParam = ExpressionInfo.Parameter(inContextType, $"context{i + 1}");
-            return ExpressionInfo.Lambda(ExpressionInfo.Constant(TaskEx.CompletedTask), innerContextParam).CompileFast();
+            return ExpressionInfo.Lambda(ExpressionInfo.Constant(Task.CompletedTask), innerContextParam).CompileFast();
         }
     }
 }

@@ -29,8 +29,8 @@
         {
             var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
-            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
+            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => Task.CompletedTask);
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {
@@ -45,7 +45,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -59,7 +59,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -76,7 +76,7 @@
 
             Assert.That(async () =>
             {
-                await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+                await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
             }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
@@ -102,7 +102,7 @@
                 }
 
                 DispatchedTransportOperations.Add(outgoingMessages);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public void FailDispatch(int times)

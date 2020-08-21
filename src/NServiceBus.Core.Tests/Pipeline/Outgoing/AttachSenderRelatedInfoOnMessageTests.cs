@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Routing;
     using Transport;
     using NUnit.Framework;
@@ -59,7 +60,7 @@
             var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
 
             new AttachSenderRelatedInfoOnMessageBehavior()
-                .Invoke(new TestableRoutingContext {Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }}, _ => TaskEx.CompletedTask);
+                .Invoke(new TestableRoutingContext {Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }}, _ => Task.CompletedTask);
 
             return message;
         }

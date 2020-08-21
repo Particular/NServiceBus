@@ -48,7 +48,7 @@ namespace NServiceBus
         {
             logger.Info("File share data bus started. Location: " + basePath);
             //TODO: Implement a clean up thread
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         string GenerateKey(TimeSpan timeToBeReceived)

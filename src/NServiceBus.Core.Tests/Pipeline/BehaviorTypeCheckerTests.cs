@@ -70,7 +70,7 @@
         {
             public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -78,7 +78,7 @@
         {
             public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -86,7 +86,7 @@
         {
             public Task Invoke(IIncomingContext context, Func<IIncomingContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -94,7 +94,7 @@
         {
             public Task Invoke(IOutgoingContext context, Func<IOutgoingContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -102,7 +102,7 @@
         {
             public Task Invoke(IAuditContext context, Func<RootContext, Task> stage)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -110,7 +110,7 @@
         {
             public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -118,7 +118,7 @@
         {
             public Task Invoke(RootContext context, Func<RootContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -126,7 +126,7 @@
         {
             public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 

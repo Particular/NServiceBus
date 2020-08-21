@@ -28,7 +28,7 @@
 
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
 
-            await behavior.Invoke(context, c => TaskEx.CompletedTask);
+            await behavior.Invoke(context, c => Task.CompletedTask);
 
             Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
         }

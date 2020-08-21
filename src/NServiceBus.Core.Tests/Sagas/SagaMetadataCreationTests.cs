@@ -275,7 +275,7 @@
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -307,7 +307,7 @@
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -339,7 +339,7 @@
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -434,12 +434,12 @@
         {
             public Task Handle(MessageThatStartsTheSaga message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public Task Handle(MessageThatDoesNotStartTheSaga message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -486,7 +486,7 @@
 
             public Task Timeout(MyTimeout state, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -536,7 +536,7 @@
 
             public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -556,7 +556,7 @@
 
             public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 
@@ -565,7 +565,7 @@
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -584,7 +584,7 @@
         {
             public Task Handle(SomeMessageWithField message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -603,7 +603,7 @@
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -622,7 +622,7 @@
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)

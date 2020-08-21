@@ -15,7 +15,7 @@ namespace NServiceBus
             var dict = storage.GetOrAdd(messageType, type => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
 
             dict.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
@@ -24,7 +24,7 @@ namespace NServiceBus
             {
                 dict.TryRemove(subscriber.TransportAddress, out var _);
             }
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)

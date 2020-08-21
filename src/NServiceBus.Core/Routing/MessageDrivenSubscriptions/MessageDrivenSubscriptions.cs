@@ -110,12 +110,12 @@ namespace NServiceBus.Features
             protected override Task OnStart(IMessageSession session)
             {
                 subscriptionStorage?.Init();
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override Task OnStop(IMessageSession session)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

@@ -244,7 +244,7 @@
             public Task Invoke(TContext context)
             {
                 ReceivedContext = context;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

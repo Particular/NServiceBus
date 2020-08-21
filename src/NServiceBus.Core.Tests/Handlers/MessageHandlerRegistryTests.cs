@@ -159,7 +159,7 @@
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 HandlerCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
@@ -170,7 +170,7 @@
             public Task Timeout(MyMessage state, IMessageHandlerContext context)
             {
                 TimeoutCalled = true;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             public bool HandlerCalled { get; set; }

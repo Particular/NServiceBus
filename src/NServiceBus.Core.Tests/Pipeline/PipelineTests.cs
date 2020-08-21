@@ -290,7 +290,7 @@
             protected override Task Terminate(IDispatchContext context)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             readonly string instance;
@@ -319,7 +319,7 @@
         {
             public Task Invoke(IBatchDispatchContext context)
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }

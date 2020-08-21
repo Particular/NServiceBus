@@ -26,7 +26,7 @@
             incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1());
             incomingContext.Services.AddSingleton<IHandleSagaNotFound>(validSagaHandler);
 
-            Assert.That(async () => await behavior.Invoke(incomingContext, ctx => TaskEx.CompletedTask), Throws.Nothing);
+            Assert.That(async () => await behavior.Invoke(incomingContext, ctx => Task.CompletedTask), Throws.Nothing);
 
             Assert.False(validSagaHandler.Handled);
         }
@@ -44,7 +44,7 @@
         static Task SetSagaNotFound(IIncomingLogicalMessageContext context)
         {
             context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         class TestMessage : IMessage
@@ -66,7 +66,7 @@
             {
                 Handled = true;
 
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
 

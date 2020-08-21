@@ -33,18 +33,18 @@
                     throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
                 }
             });
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task SetAsDispatched(string messageId, ContextBag context)
         {
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
 
             storedMessage.MarkAsDispatched();
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void RemoveEntriesOlderThan(DateTime dateTime)

@@ -31,7 +31,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await terminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
+            await terminator.Invoke(new TestableUnsubscribeContext(), c => Task.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -50,7 +50,7 @@
                 Extensions = options.Context
             };
 
-            await terminator.Invoke(context, c => TaskEx.CompletedTask);
+            await terminator.Invoke(context, c => Task.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -70,7 +70,7 @@
                 Extensions = options.Context
             };
 
-            Assert.That(async () => await terminator.Invoke(context, c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            Assert.That(async () => await terminator.Invoke(context, c => Task.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
@@ -98,7 +98,7 @@
                 }
 
                 DispatchedTransportOperations.Add(outgoingMessages);
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
         }
     }
