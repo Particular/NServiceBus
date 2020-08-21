@@ -62,6 +62,7 @@
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
 
+            // implementations of IInitializableSubscriptionStorage are optional and can be provided by persisters.
             context.RegisterStartupTask(b => new MessageDrivenSubscriptionsToBeRefactored.InitializableSubscriptionStorage(b.GetService<IInitializableSubscriptionStorage>()));
         }
 
