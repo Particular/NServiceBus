@@ -52,13 +52,12 @@
 
             var context = new TestableIncomingLogicalMessageContext();
 
-            var completedTask = Task.CompletedTask;
-            await behavior.Invoke(context, ctx => completedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             context.Services.AddTransient<IMutateIncomingMessages>(sp => mutator);
 
-            await behavior.Invoke(context, ctx => completedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.IsFalse(mutator.MutateIncomingCalled);
         }

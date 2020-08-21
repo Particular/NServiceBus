@@ -54,13 +54,12 @@
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            var completedTask = Task.CompletedTask;
-            await behavior.Invoke(physicalContext, ctx => completedTask);
+            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => mutator);
 
-            await behavior.Invoke(physicalContext, ctx => completedTask);
+            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
             Assert.IsFalse(mutator.MutateOutgoingCalled);
         }

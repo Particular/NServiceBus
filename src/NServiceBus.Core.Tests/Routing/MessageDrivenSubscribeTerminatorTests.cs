@@ -29,9 +29,8 @@
         {
             var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
 
-            var completedTask = Task.CompletedTask;
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => completedTask);
-            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => completedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
+            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => Task.CompletedTask);
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {

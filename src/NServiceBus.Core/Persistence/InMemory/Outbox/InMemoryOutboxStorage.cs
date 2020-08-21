@@ -38,14 +38,13 @@
 
         public Task SetAsDispatched(string messageId, ContextBag context)
         {
-            var completedTask = Task.CompletedTask;
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {
-                return completedTask;
+                return Task.CompletedTask;
             }
 
             storedMessage.MarkAsDispatched();
-            return completedTask;
+            return Task.CompletedTask;
         }
 
         public void RemoveEntriesOlderThan(DateTime dateTime)

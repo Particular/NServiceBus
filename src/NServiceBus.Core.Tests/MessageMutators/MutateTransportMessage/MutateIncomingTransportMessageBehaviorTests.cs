@@ -50,13 +50,12 @@
 
             var context = new TestableIncomingPhysicalMessageContext();
 
-            var completedTask = Task.CompletedTask;
-            await behavior.Invoke(context, ctx => completedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             context.Services.AddTransient<IMutateIncomingTransportMessages>(sp => mutator);
 
-            await behavior.Invoke(context, ctx => completedTask);
+            await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.IsFalse(mutator.MutateIncomingCalled);
         }

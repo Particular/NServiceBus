@@ -22,7 +22,6 @@
         {
             var diagnosticsRootPath = configuration.DiagnosticsPath;
 
-            var completedTask = Task.CompletedTask;
             if (diagnosticsRootPath == null)
             {
                 try
@@ -33,7 +32,7 @@
                 {
                     logger.Warn("Unable to determine the diagnostics output directory. Check the attached exception for further information, or configure a custom diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
 
-                    return data => completedTask;
+                    return data => Task.CompletedTask;
                 }
             }
 
@@ -47,7 +46,7 @@
                 {
                     logger.Warn("Unable to create the diagnostics output directory. Check the attached exception for further information, or change the diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
 
-                    return data => completedTask;
+                    return data => Task.CompletedTask;
                 }
             }
 
