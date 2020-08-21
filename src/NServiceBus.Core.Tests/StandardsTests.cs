@@ -50,7 +50,8 @@
                     x.Namespace != "Particular.Licensing" &&
                     x.Namespace != "NServiceBus.Features" &&
                     x.Name != "NServiceBusCore_ProcessedByFody" &&
-                    x.Namespace != "NServiceBus").ToList();
+                    x.Namespace != "NServiceBus" &&
+                    x.Namespace != "MicrosoftExtensionsDependencyInjection").ToList();
             if (types.Count > 0)
             {
                 Assert.IsEmpty(types, $"Non-public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");

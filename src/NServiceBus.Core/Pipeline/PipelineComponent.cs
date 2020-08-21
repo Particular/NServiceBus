@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using ObjectBuilder;
+    using System;
     using Pipeline;
 
     class PipelineComponent
@@ -27,12 +27,12 @@ namespace NServiceBus
             return new PipelineComponent(modifications);
         }
 
-        public Pipeline<T> CreatePipeline<T>(IBuilder builder) where T : IBehaviorContext
+        public Pipeline<T> CreatePipeline<T>(IServiceProvider builder) where T : IBehaviorContext
         {
             return new Pipeline<T>(builder, modifications);
         }
 
-        public PipelineCache BuildPipelineCache(IBuilder rootBuilder)
+        public PipelineCache BuildPipelineCache(IServiceProvider rootBuilder)
         {
             return new PipelineCache(rootBuilder, modifications);
         }

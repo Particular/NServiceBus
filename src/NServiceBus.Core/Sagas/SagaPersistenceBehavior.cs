@@ -260,7 +260,7 @@
             }
 
             var finderType = finderDefinition.Type;
-            var finder = (SagaFinder)context.Builder.Build(finderType);
+            var finder = (SagaFinder)context.Builder.GetService(finderType);
 
             return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders);
         }

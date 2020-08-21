@@ -9,11 +9,11 @@
     using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Particular.Approvals;
     using Testing;
-    using FakeBuilder = Testing.FakeBuilder;
 
     [TestFixture]
     public class PipelineTests
@@ -31,7 +31,7 @@
             pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
 
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
@@ -54,7 +54,7 @@
             pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
 
             stringWriter.WriteLine("Run 1");
 
@@ -107,7 +107,7 @@
             pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
 
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());

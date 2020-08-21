@@ -8,7 +8,7 @@
     using Faults;
     using Hosting;
     using Logging;
-    using ObjectBuilder;
+    using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Support;
     using Transport;
@@ -28,7 +28,7 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IBuilder builder)
+        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IServiceProvider builder)
         {
             if (recoverabilityExecutorFactory == null)
             {
@@ -71,7 +71,7 @@
             });
         }
 
-        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
+        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
             var delayedRetriesAvailable = transactionsOn
                                           && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
@@ -91,7 +91,7 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(builder.GetService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
@@ -100,7 +100,7 @@
                 {
                     return new DelayedRetryExecutor(
                         localAddress,
-                        builder.Build<IDispatchMessages>(),
+                        builder.GetService<IDispatchMessages>(),
                         settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                             ? null
                             : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);

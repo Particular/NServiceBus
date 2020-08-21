@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -61,7 +62,7 @@ namespace NServiceBus.Features
 
                 context.Pipeline.Register("UnicastPublishRouterConnector", b =>
                 {
-                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
+                    var unicastPublishRouter = new UnicastPublishRouter(b.GetService<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.GetService<ISubscriptionStorage>());
                     return new UnicastPublishConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
 
@@ -84,8 +85,8 @@ namespace NServiceBus.Features
                 var subscriberAddress = context.Receiving.LocalAddress;
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetService<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetService<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
             }
             else
             {
@@ -93,18 +94,22 @@ namespace NServiceBus.Features
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
 
-            context.Container.ConfigureComponent<InitializableSubscriptionStorage>(DependencyLifecycle.SingleInstance);
-
-            context.RegisterStartupTask(b => b.Build<InitializableSubscriptionStorage>());
+            // implementations of IInitializableSubscriptionStorage are optional and can be provided by persisters.
+            context.RegisterStartupTask(b => new InitializableSubscriptionStorage(b.GetService<IInitializableSubscriptionStorage>()));
         }
 
         internal class InitializableSubscriptionStorage : FeatureStartupTask
         {
-            public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
+            IInitializableSubscriptionStorage subscriptionStorage;
+
+            public InitializableSubscriptionStorage(IInitializableSubscriptionStorage subscriptionStorage)
+            {
+                this.subscriptionStorage = subscriptionStorage;
+            }
 
             protected override Task OnStart(IMessageSession session)
             {
-                SubscriptionStorage?.Init();
+                subscriptionStorage?.Init();
                 return TaskEx.CompletedTask;
             }
 

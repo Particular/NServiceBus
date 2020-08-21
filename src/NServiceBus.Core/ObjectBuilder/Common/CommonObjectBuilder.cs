@@ -1,104 +1,94 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
-    using ObjectBuilder.Common;
 
-    class CommonObjectBuilder : IBuilder, IConfigureComponents
+    class CommonObjectBuilder : IConfigureComponents
     {
-        public CommonObjectBuilder(IContainer container)
+        public CommonObjectBuilder(IServiceCollection serviceCollection)
         {
-            this.container = container;
+            this.serviceCollection = serviceCollection;
         }
 
-        public IBuilder CreateChildBuilder()
-        {
-            return new CommonObjectBuilder(container.BuildChildContainer());
-        }
-
-        public void Dispose()
-        {
-            //Injected at compile time
-        }
-
-        public T Build<T>()
-        {
-            return (T) container.Build(typeof(T));
-        }
-
-        public object Build(Type typeToBuild)
-        {
-            return container.Build(typeToBuild);
-        }
-
-        IEnumerable<object> IBuilder.BuildAll(Type typeToBuild)
-        {
-            return container.BuildAll(typeToBuild);
-        }
-
-        void IBuilder.Release(object instance)
-        {
-            container.Release(instance);
-        }
-
-        public IEnumerable<T> BuildAll<T>()
-        {
-            return container.BuildAll(typeof(T)).Cast<T>();
-        }
-
-        public void BuildAndDispatch(Type typeToBuild, Action<object> action)
-        {
-            var o = container.Build(typeToBuild);
-            action(o);
-        }
 
         public void ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(concreteComponent, instanceLifecycle);
+            if (HasComponent(concreteComponent))
+            {
+                return;
+            }
+
+            var serviceLifeTime = MapLifeCycle(instanceLifecycle);
+            serviceCollection.Add(new ServiceDescriptor(concreteComponent, concreteComponent, serviceLifeTime));
+            RegisterInterfaces(concreteComponent, serviceLifeTime);
         }
 
         public void ConfigureComponent<T>(DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(typeof(T), instanceLifecycle);
+            ConfigureComponent(typeof(T), instanceLifecycle);
         }
 
         public void ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(componentFactory, instanceLifecycle);
+            ConfigureComponent(_ => componentFactory(), instanceLifecycle);
         }
 
-        public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle instanceLifecycle)
+        public void ConfigureComponent<T>(Func<IServiceProvider, T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            container.Configure(() => componentFactory(this), instanceLifecycle);
+            var componentType = typeof(T);
+            if (HasComponent(componentType))
+            {
+                return;
+            }
+
+            var serviceLifeTime = MapLifeCycle(instanceLifecycle);
+            serviceCollection.Add(new ServiceDescriptor(componentType, p => componentFactory(p), serviceLifeTime));
+            RegisterInterfaces(componentType, serviceLifeTime);
         }
 
-        void IConfigureComponents.RegisterSingleton(Type lookupType, object instance)
+        public void RegisterSingleton(Type lookupType, object instance)
         {
-            container.RegisterSingleton(lookupType, instance);
+            serviceCollection.AddSingleton(lookupType, instance);
         }
 
         public void RegisterSingleton<T>(T instance)
         {
-            container.RegisterSingleton(typeof(T), instance);
+            RegisterSingleton(typeof(T), instance);
         }
 
         public bool HasComponent<T>()
         {
-            return container.HasComponent(typeof(T));
+            return HasComponent(typeof(T));
         }
 
         public bool HasComponent(Type componentType)
         {
-            return container.HasComponent(componentType);
+            return serviceCollection.Any(sd => sd.ServiceType == componentType);
         }
 
-        void DisposeManaged()
+        void RegisterInterfaces(Type component, ServiceLifetime lifetime)
         {
-            container?.Dispose();
+            var interfaces = component.GetInterfaces();
+            foreach (var serviceType in interfaces)
+            {
+                // see https://andrewlock.net/how-to-register-a-service-with-multiple-interfaces-for-in-asp-net-core-di/
+                serviceCollection.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(component), lifetime));
+            }
         }
 
-        IContainer container;
+        static ServiceLifetime MapLifeCycle(DependencyLifecycle dependencyLifecycle)
+        {
+            switch (dependencyLifecycle)
+            {
+                case DependencyLifecycle.InstancePerCall: return ServiceLifetime.Transient;
+                case DependencyLifecycle.SingleInstance: return ServiceLifetime.Singleton;
+                case DependencyLifecycle.InstancePerUnitOfWork: return ServiceLifetime.Scoped;
+                default: throw new NotSupportedException($"{dependencyLifecycle} is not supported.");
+            }
+        }
+
+        IServiceCollection serviceCollection;
     }
 }

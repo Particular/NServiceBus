@@ -2,13 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using ObjectBuilder;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Transport;
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
+        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
@@ -21,11 +21,11 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
-            using (var childBuilder = rootBuilder.CreateChildBuilder())
+            using (var childScope = rootBuilder.CreateScope())
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = new RootContext(childBuilder, messageOperations, pipelineCache);
+                var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache);
                 rootContext.Extensions.Merge(messageContext.Extensions);
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
@@ -49,7 +49,7 @@ namespace NServiceBus
             }
         }
 
-        readonly IBuilder rootBuilder;
+        readonly IServiceProvider rootBuilder;
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;

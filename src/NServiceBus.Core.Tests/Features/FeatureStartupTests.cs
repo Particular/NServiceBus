@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
     using System;
-    using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
-    using ObjectBuilder;
     using Settings;
 
     [TestFixture]
@@ -338,59 +336,20 @@
         }
     }
 
-    public class FakeBuilder : IBuilder
+    public class FakeBuilder : IServiceProvider
     {
-        public FakeBuilder()
-        {
-        }
-
         public FakeBuilder(Type type)
         {
             this.type = type;
         }
 
-        public void Dispose()
+        public object GetService(Type serviceType)
         {
-            throw new NotImplementedException();
-        }
-
-        public object Build(Type typeToBuild)
-        {
-            if (typeToBuild != type)
+            if (serviceType != type)
             {
                 throw new Exception("Not the expected type");
             }
-            return Activator.CreateInstance(typeToBuild);
-        }
-
-        public IBuilder CreateChildBuilder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public T Build<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<T> BuildAll<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<object> BuildAll(Type typeToBuild)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Release(object instance)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BuildAndDispatch(Type typeToBuild, Action<object> action)
-        {
-            throw new NotImplementedException();
+            return Activator.CreateInstance(serviceType);
         }
 
         Type type;

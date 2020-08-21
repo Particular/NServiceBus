@@ -4,7 +4,6 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using ObjectBuilder;
     using Settings;
 
     class FeatureActivator
@@ -60,7 +59,7 @@ namespace NServiceBus.Features
             return features.Select(t => t.Diagnostics).ToArray();
         }
 
-        public async Task StartFeatures(IBuilder builder, IMessageSession session)
+        public async Task StartFeatures(IServiceProvider builder, IMessageSession session)
         {
             // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
             foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))

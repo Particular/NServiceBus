@@ -4,6 +4,8 @@ namespace NServiceBus.ContainerTests
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Extensions.DependencyInjection;
+    using MicrosoftExtensionsDependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
 
@@ -13,215 +15,184 @@ namespace NServiceBus.ContainerTests
         [Test]
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
-                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+            configureComponents.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
 
-                Assert.AreEqual(1, builder.BuildAll(typeof(DuplicateClass)).Count());
-            }
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.AreEqual(1, builder.GetServices(typeof(DuplicateClass)).Count());
         }
 
         [Test]
         public void Should_support_lambdas_that_uses_other_components_registered_later()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
-                builder.Configure(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(s => ((StaticFactory)s.GetService(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
+            configureComponents.ConfigureComponent(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
 
-                Assert.NotNull(builder.Build(typeof(ComponentCreatedByFactory)));
-            }
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.NotNull(builder.GetService(typeof(ComponentCreatedByFactory)));
         }
 
         [Test]
         public void A_registration_should_be_allowed_to_be_updated()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
-                builder.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
+            configureComponents.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
-                Assert.IsInstanceOf<AnotherSingletonComponent>(builder.Build(typeof(ISingletonComponent)));
-            }
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.IsInstanceOf<AnotherSingletonComponent>(builder.GetService(typeof(ISingletonComponent)));
         }
 
         [Test]
         public void Register_singleton_should_be_supported()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                var singleton = new SingletonComponent();
-                builder.RegisterSingleton(typeof(ISingletonComponent), singleton);
-                builder.RegisterSingleton(typeof(SingletonComponent), singleton);
-                Assert.AreEqual(builder.Build(typeof(SingletonComponent)), singleton);
-                Assert.AreEqual(builder.Build(typeof(ISingletonComponent)), singleton);
-            }
+            var singleton = new SingletonComponent();
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.RegisterSingleton(typeof(ISingletonComponent), singleton);
+            configureComponents.RegisterSingleton(typeof(SingletonComponent), singleton);
+
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.AreEqual(builder.GetService(typeof(SingletonComponent)), singleton);
+            Assert.AreEqual(builder.GetService(typeof(ISingletonComponent)), singleton);
         }
 
         [Test]
         public void Registering_the_same_singleton_for_different_interfaces_should_be_supported()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                var singleton = new SingletonThatImplementsToInterfaces();
-                builder.RegisterSingleton(typeof(ISingleton1), singleton);
-                builder.RegisterSingleton(typeof(ISingleton2), singleton);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            var singleton = new SingletonThatImplementsToInterfaces();
+            configureComponents.RegisterSingleton(typeof(ISingleton1), singleton);
+            configureComponents.RegisterSingleton(typeof(ISingleton2), singleton);
+            configureComponents.ConfigureComponent(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
+            
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var dependency = (ComponentThatDependsOnMultiSingletons)builder.GetService(typeof(ComponentThatDependsOnMultiSingletons));
 
-                builder.Configure(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
+            Assert.NotNull(dependency.Singleton1);
+            Assert.NotNull(dependency.Singleton2);
 
-                var dependency = (ComponentThatDependsOnMultiSingletons)builder.Build(typeof(ComponentThatDependsOnMultiSingletons));
-
-                Assert.NotNull(dependency.Singleton1);
-                Assert.NotNull(dependency.Singleton2);
-
-                Assert.AreEqual(builder.Build(typeof(ISingleton1)), singleton);
-                Assert.AreEqual(builder.Build(typeof(ISingleton2)), singleton);
-            }
-        }
-
-        [Test]
-        public void Setter_dependencies_should_be_supported_when_resolving_interfaces()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
-                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
-
-                var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
-                Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
-                Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
-            }
-        }
-
-
-        [Test]
-        public void Setter_injection_should_be_enabled_by_default()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
-                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
-
-                var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
-                Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
-                Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
-                Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
-            }
+            Assert.AreEqual(builder.GetService(typeof(ISingleton1)), singleton);
+            Assert.AreEqual(builder.GetService(typeof(ISingleton2)), singleton);
         }
 
         [Test]
         public void Concrete_classes_should_get_the_same_lifecycle_as_their_interfaces()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
 
-                Assert.AreSame(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(ISingletonComponent)));
-            }
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.AreSame(builder.GetService(typeof(SingletonComponent)), builder.GetService(typeof(ISingletonComponent)));
         }
 
         [Test]
         public void All_implemented_interfaces_should_be_registered()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(ComponentWithMultipleInterfaces),
-                    DependencyLifecycle.InstancePerCall);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(typeof(ComponentWithMultipleInterfaces),
+                DependencyLifecycle.InstancePerCall);
+            Assert.True(configureComponents.HasComponent(typeof(ISomeInterface)));
+            Assert.True(configureComponents.HasComponent(typeof(ISomeOtherInterface)));
+            Assert.True(configureComponents.HasComponent(typeof(IYetAnotherInterface)));
 
-                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
-
-                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
-
-                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
-
-                Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
-            }
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.AreEqual(1, builder.GetServices(typeof(IYetAnotherInterface)).Count());
         }
 
         [Test]
         public void All_implemented_interfaces_should_be_registered_for_func()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
+            Assert.True(configureComponents.HasComponent(typeof(ISomeInterface)));
+            Assert.True(configureComponents.HasComponent(typeof(ISomeOtherInterface)));
+            Assert.True(configureComponents.HasComponent(typeof(IYetAnotherInterface)));
 
-                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
-                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
-                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
-                Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
-            }
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+
+            Assert.AreEqual(1, builder.GetServices(typeof(IYetAnotherInterface)).Count());
         }
 
         [Test]
         public void Multiple_implementations_should_be_supported()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
+            configureComponents.ConfigureComponent(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
+
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.NotNull(builder.GetService(typeof(SomeClass)));
+            Assert.AreEqual(2, builder.GetServices(typeof(ISomeInterface)).Count());
+
+            using (var scope = builder.CreateScope())
             {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
-                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
-
-                Assert.NotNull(builder.Build(typeof(SomeClass)));
-                Assert.AreEqual(2, builder.BuildAll(typeof(ISomeInterface)).Count());
-
-                using (var childBuilder = builder.BuildChildContainer())
-                {
-                    Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
-                    Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
-                }
+                Assert.NotNull(scope.ServiceProvider.GetService(typeof(SomeClass)));
+                Assert.AreEqual(2, scope.ServiceProvider.GetServices(typeof(ISomeInterface)).Count());
             }
         }
 
         [Test]
         public void Given_lookupType_should_be_used_as_service_in_the_registration_when_RegisterSingleton()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            var expected = new InheritedFromSomeClass();
+            configureComponents.RegisterSingleton(typeof(SomeClass), expected);
+
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            Assert.AreEqual(expected, builder.GetService(typeof(SomeClass)));
+
+            using (var scope = builder.CreateScope())
             {
-                var expected = new InheritedFromSomeClass();
-                builder.RegisterSingleton(typeof(SomeClass), expected);
-
-                Assert.NotNull(builder.Build(typeof(SomeClass)));
-                Assert.AreEqual(expected, builder.Build(typeof(SomeClass)));
-
-                using (var childBuilder = builder.BuildChildContainer())
-                {
-                    Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
-                    Assert.AreEqual(expected, childBuilder.Build(typeof(SomeClass)));
-                }
+                Assert.AreEqual(expected, scope.ServiceProvider.GetService(typeof(SomeClass)));
             }
         }
 
         [Test]
         public void Generic_interfaces_should_be_registered()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(ComponentWithGenericInterface),
-                    DependencyLifecycle.InstancePerCall);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(typeof(ComponentWithGenericInterface),
+                DependencyLifecycle.InstancePerCall);
 
-                Assert.True(builder.HasComponent(typeof(ISomeGenericInterface<string>)));
-            }
+            Assert.True(configureComponents.HasComponent(typeof(ISomeGenericInterface<string>)));
         }
 
         [Test, Ignore("Not sure that we should enforce this")]
         public void System_interfaces_should_not_be_auto_registered()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(ComponentWithSystemInterface),
-                    DependencyLifecycle.InstancePerCall);
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            configureComponents.ConfigureComponent(typeof(ComponentWithSystemInterface),
+                DependencyLifecycle.InstancePerCall);
 
-                Assert.False(builder.HasComponent(typeof(IGrouping<string, string>)));
-                Assert.False(builder.HasComponent(typeof(IDisposable)));
-            }
+            Assert.False(configureComponents.HasComponent(typeof(IGrouping<string, string>)));
+            Assert.False(configureComponents.HasComponent(typeof(IDisposable)));
         }
     }
 
     public class ComponentThatDependsOnMultiSingletons
     {
-        public ISingleton1 Singleton1 { get; set; }
-        public ISingleton2 Singleton2 { get; set; }
+        public ComponentThatDependsOnMultiSingletons(ISingleton1 singleton1, ISingleton2 singleton2)
+        {
+            Singleton1 = singleton1;
+            Singleton2 = singleton2;
+        }
+
+        public ISingleton1 Singleton1 { get; private set; }
+        public ISingleton2 Singleton2 { get; private set; }
     }
 
     public class SingletonThatImplementsToInterfaces : ISingleton2
@@ -287,21 +258,6 @@ namespace NServiceBus.ContainerTests
 
     public interface IWithSetterDependencies
     {
-    }
-
-    public class ClassWithSetterDependencies : IWithSetterDependencies
-    {
-        public ISomeInterface InterfaceDependency { get; set; }
-        public SomeClass ConcreteDependency { get; set; }
-
-        public SomeClass ConcreteDependencyWithSetOnly
-        {
-            set { concreteDependencyWithSetOnly = value; }
-        }
-
-        public SomeClass ConcreteDependencyWithPrivateSet { get; private set; }
-
-        public SomeClass concreteDependencyWithSetOnly;
     }
 
     public class SomeClass : ISomeInterface

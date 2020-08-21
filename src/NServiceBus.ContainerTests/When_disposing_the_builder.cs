@@ -1,7 +1,7 @@
 namespace NServiceBus.ContainerTests
 {
     using System;
-    using System.Diagnostics;
+    using MicrosoftExtensionsDependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
 
@@ -11,28 +11,22 @@ namespace NServiceBus.ContainerTests
         [Test]
         public void Should_dispose_all_IDisposable_components()
         {
-            var builder = TestContainerBuilder.ConstructBuilder();
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            
             DisposableComponent.DisposeCalled = false;
             AnotherSingletonComponent.DisposeCalled = false;
 
-            builder.Configure(typeof(DisposableComponent), DependencyLifecycle.SingleInstance);
-            builder.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
+            configureComponents.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.SingleInstance);
+            configureComponents.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
 
-            builder.Build(typeof(DisposableComponent));
-            builder.Build(typeof(AnotherSingletonComponent));
-            builder.Dispose();
+            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            builder.GetService(typeof(DisposableComponent));
+            builder.GetService(typeof(AnotherSingletonComponent));
+            (builder as IDisposable)?.Dispose();
 
             Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
             Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
-        }
-
-        [Test]
-        public void When_circular_ref_exists_between_container_and_builder_should_not_infinite_loop()
-        {
-            var builder = TestContainerBuilder.ConstructBuilder();
-            Debug.WriteLine("Trying " + builder.GetType().Name);
-            builder.RegisterSingleton(builder.GetType(), builder);
-            builder.Dispose();
         }
 
         public class DisposableComponent : IDisposable

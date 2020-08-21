@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Features;
-    using ObjectBuilder;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -69,7 +68,7 @@
         public void Replace_WhenReplacementProvidesNoFactory_ShouldBuildReplacementFromBuilder()
         {
             var originalBehaviorFactoryCalled = false;
-            Func<IBuilder, IBehavior> originalBehaviorFactory = b =>
+            Func<IServiceProvider, IBehavior> originalBehaviorFactory = b =>
             {
                 originalBehaviorFactoryCalled = true;
                 return new BehaviorA();
@@ -90,7 +89,7 @@
         public void Replace_WhenReplacementProvidedFactory_ShouldBuildReplacementFromFactory()
         {
             var replacementBehaviorFactoryCalled = false;
-            Func<IBuilder, IBehavior> replacementBehaviorFactory = b =>
+            Func<IServiceProvider, IBehavior> replacementBehaviorFactory = b =>
             {
                 replacementBehaviorFactoryCalled = true;
                 return new BehaviorB();

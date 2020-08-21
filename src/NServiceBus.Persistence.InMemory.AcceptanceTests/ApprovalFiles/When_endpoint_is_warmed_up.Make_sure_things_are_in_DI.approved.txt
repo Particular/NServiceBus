@@ -1,19 +1,26 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
-NServiceBus.Features.MessageDrivenSubscriptionsToBeRefactored+InitializableSubscriptionStorage - SingleInstance
-NServiceBus.InferredMessageTypeEnricherBehavior - InstancePerCall
-NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
-NServiceBus.Transport.IDispatchMessages - SingleInstance
-NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
-NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
+NServiceBus.InferredMessageTypeEnricherBehavior - Transient
+NServiceBus.Persistence.ISynchronizedStorage - Singleton
+NServiceBus.Persistence.ISynchronizedStorageAdapter - Singleton
+NServiceBus.SubscriptionReceiverBehavior - Transient
+NServiceBus.Transport.IDispatchMessages - Singleton
+NServiceBus.Unicast.MessageHandlerRegistry - Singleton
+NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
+NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage - Singleton
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
-NServiceBus.CriticalError - SingleInstance
-NServiceBus.Hosting.HostInformation - SingleInstance
-NServiceBus.InMemorySubscriptionStorage - SingleInstance
-NServiceBus.InMemorySynchronizedStorage - SingleInstance
-NServiceBus.InMemoryTransactionalSynchronizedStorageAdapter - SingleInstance
-NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
-NServiceBus.NoOpCanceling - SingleInstance
-NServiceBus.Notifications - SingleInstance
-NServiceBus.ObjectBuilder.IBuilder - SingleInstance
-NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
-NServiceBus.Settings.ReadOnlySettings - SingleInstance
+NServiceBus.CriticalError - Singleton
+NServiceBus.Hosting.HostInformation - Singleton
+NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInjection.When_endpoint_is_warmed_up+SomeMessage, NServiceBus.Persistence.InMemory.AcceptanceTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] - Scoped
+NServiceBus.IMessageCreator - Singleton
+NServiceBus.InMemorySubscriptionStorage - Singleton
+NServiceBus.InMemorySynchronizedStorage - Singleton
+NServiceBus.InMemoryTransactionalSynchronizedStorageAdapter - Singleton
+NServiceBus.MessageInterfaces.IMessageMapper - Singleton
+NServiceBus.NoOpCanceling - Singleton
+NServiceBus.Notifications - Singleton
+NServiceBus.Pipeline.IBehavior - Transient
+NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c],[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c]] - Transient
+NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c],[NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c]] - Transient
+NServiceBus.Pipeline.LogicalMessageFactory - Singleton
+NServiceBus.Settings.ReadOnlySettings - Singleton
+NServiceBus.Transport.ICancelDeferredMessages - Singleton

@@ -6,6 +6,7 @@
     using System.Transactions;
     using DataBus;
     using DeliveryConstraints;
+    using Microsoft.Extensions.DependencyInjection;
     using Performance.TimeToBeReceived;
     using Pipeline;
 
@@ -85,7 +86,7 @@
 
         public class Registration : RegisterStep
         {
-            public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
+            public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.GetService<IDataBus>(), b.GetService<IDataBusSerializer>(), conventions))
             {
                 InsertAfter("MutateOutgoingMessages");
                 InsertAfter("ApplyTimeToBeReceived");

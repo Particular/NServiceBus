@@ -1,14 +1,18 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
-NServiceBus.InferredMessageTypeEnricherBehavior - InstancePerCall
-NServiceBus.Transport.IDispatchMessages - SingleInstance
-NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
+NServiceBus.InferredMessageTypeEnricherBehavior - Transient
+NServiceBus.Transport.IDispatchMessages - Singleton
+NServiceBus.Unicast.MessageHandlerRegistry - Singleton
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
-NServiceBus.CriticalError - SingleInstance
-NServiceBus.Hosting.HostInformation - SingleInstance
-NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
-NServiceBus.NoOpCanceling - SingleInstance
-NServiceBus.Notifications - SingleInstance
-NServiceBus.ObjectBuilder.IBuilder - SingleInstance
-NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
-NServiceBus.Settings.ReadOnlySettings - SingleInstance
-NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
+NServiceBus.CriticalError - Singleton
+NServiceBus.Hosting.HostInformation - Singleton
+NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInjection.When_endpoint_is_warmed_up+SomeMessage, NServiceBus.AcceptanceTests, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null]] - Scoped
+NServiceBus.IMessageCreator - Singleton
+NServiceBus.MessageInterfaces.IMessageMapper - Singleton
+NServiceBus.NoOpCanceling - Singleton
+NServiceBus.Notifications - Singleton
+NServiceBus.Pipeline.IBehavior - Transient
+NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c],[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c]] - Transient
+NServiceBus.Pipeline.LogicalMessageFactory - Singleton
+NServiceBus.Settings.ReadOnlySettings - Singleton
+NServiceBus.Transport.ICancelDeferredMessages - Singleton
+NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton

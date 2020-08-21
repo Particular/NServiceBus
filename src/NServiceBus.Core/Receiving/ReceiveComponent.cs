@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Outbox;
     using Persistence;
@@ -62,16 +63,16 @@ namespace NServiceBus
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
-                var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutboxStorage();
+                var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.GetService<IOutboxStorage>() : new NoOpOutboxStorage();
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.GetService<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
+                var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.GetService<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
+                return new LoadHandlersConnector(b.GetService<MessageHandlerRegistry>(), syncStorage, adapter);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
@@ -138,7 +139,7 @@ namespace NServiceBus
             return requestedTransportTransactionMode;
         }
 
-        public async Task PrepareToStart(IBuilder builder,
+        public async Task PrepareToStart(IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
@@ -234,7 +235,7 @@ namespace NServiceBus
             }
         }
 
-        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
+        void AddReceivers(IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 

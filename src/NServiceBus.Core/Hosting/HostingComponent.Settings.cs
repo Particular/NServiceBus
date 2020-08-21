@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
     using ObjectBuilder;
-    using ObjectBuilder.Common;
     using Settings;
     using Support;
 
@@ -79,8 +78,6 @@
             }
 
             public List<Action<IConfigureComponents>> UserRegistrations { get; } = new List<Action<IConfigureComponents>>();
-
-            public IContainer CustomObjectBuilder { get; set; }
 
             public string InstallationUserName
             {

@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Threading.Tasks;
-    using ObjectBuilder;
     using Transport;
 
     class SatellitePipelineExecutor : IPipelineExecutor
     {
-        public SatellitePipelineExecutor(IBuilder builder, SatelliteDefinition definition)
+        public SatellitePipelineExecutor(IServiceProvider builder, SatelliteDefinition definition)
         {
             this.builder = builder;
             satelliteDefinition = definition;
@@ -20,6 +20,6 @@
         }
 
         SatelliteDefinition satelliteDefinition;
-        IBuilder builder;
+        IServiceProvider builder;
     }
 }

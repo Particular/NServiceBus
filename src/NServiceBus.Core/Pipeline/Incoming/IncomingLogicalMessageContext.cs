@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
     class IncomingLogicalMessageContext : IncomingContext, IIncomingLogicalMessageContext
@@ -36,7 +37,7 @@
                 return;
             }
 
-            var factory = Builder.Build<LogicalMessageFactory>();
+            var factory = Builder.GetService<LogicalMessageFactory>();
             var newLogicalMessage = factory.Create(newInstance);
 
             Message.Metadata = newLogicalMessage.Metadata;

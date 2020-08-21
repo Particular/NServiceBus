@@ -18,7 +18,7 @@ namespace NServiceBus.Pipeline
         /// <param name="behavior">The type of <see cref="Behavior{TContext}" /> to register.</param>
         /// <param name="description">A brief description of what this step does.</param>
         /// <param name="factoryMethod">A factory method for creating the behavior.</param>
-        protected RegisterStep(string stepId, Type behavior, string description, Func<IBuilder, IBehavior> factoryMethod = null)
+        protected RegisterStep(string stepId, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
         {
             this.factoryMethod = factoryMethod;
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
@@ -138,25 +138,25 @@ namespace NServiceBus.Pipeline
             }
         }
 
-        internal IBehavior CreateBehavior(IBuilder defaultBuilder)
+        internal IBehavior CreateBehavior(IServiceProvider defaultBuilder)
         {
             var behavior = factoryMethod != null
                 ? factoryMethod(defaultBuilder)
-                : (IBehavior)defaultBuilder.Build(BehaviorType);
+                : (IBehavior)defaultBuilder.GetService(BehaviorType);
 
             return behavior;
         }
 
-        internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IBuilder, IBehavior> factoryMethod = null)
+        internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
         {
             return new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
         }
 
-        Func<IBuilder, IBehavior> factoryMethod;
+        Func<IServiceProvider, IBehavior> factoryMethod;
 
         class DefaultRegisterStep : RegisterStep
         {
-            public DefaultRegisterStep(Type behavior, string stepId, string description, Func<IBuilder, IBehavior> factoryMethod)
+            public DefaultRegisterStep(Type behavior, string stepId, string description, Func<IServiceProvider, IBehavior> factoryMethod)
                 : base(stepId, behavior, description, factoryMethod)
             {
             }

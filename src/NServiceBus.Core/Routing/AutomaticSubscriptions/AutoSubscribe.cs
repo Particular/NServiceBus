@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using Unicast;
     using Unicast.Queuing;
 
@@ -33,7 +34,7 @@
 
             context.RegisterStartupTask(b =>
             {
-                var handlerRegistry = b.Build<MessageHandlerRegistry>();
+                var handlerRegistry = b.GetService<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
                 return new ApplySubscriptions(messageTypesHandled, settings.ExcludedTypes);
             });

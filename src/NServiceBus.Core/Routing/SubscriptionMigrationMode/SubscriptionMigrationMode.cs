@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
     using Unicast.Messages;
@@ -29,7 +30,7 @@
 
             context.Pipeline.Register(b =>
             {
-                var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
+                var unicastPublishRouter = new UnicastPublishRouter(b.GetService<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.GetService<ISubscriptionStorage>());
                 return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
 
@@ -43,9 +44,9 @@
                 var subscriberAddress = context.Receiving.LocalAddress;
 
                 context.Pipeline.Register(b =>
-                    new MigrationSubscribeTerminator(subscriptionManager, subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(subscriptionManager, subscriptionRouter, b.GetService<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
-                    new MigrationUnsubscribeTerminator(subscriptionManager,subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(subscriptionManager,subscriptionRouter, b.GetService<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)
@@ -61,9 +62,8 @@
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
 
-            context.Container.ConfigureComponent<MessageDrivenSubscriptionsToBeRefactored.InitializableSubscriptionStorage>(DependencyLifecycle.SingleInstance);
-
-            context.RegisterStartupTask(b => b.Build<MessageDrivenSubscriptionsToBeRefactored.InitializableSubscriptionStorage>());
+            // implementations of IInitializableSubscriptionStorage are optional and can be provided by persisters.
+            context.RegisterStartupTask(b => new MessageDrivenSubscriptionsToBeRefactored.InitializableSubscriptionStorage(b.GetService<IInitializableSubscriptionStorage>()));
         }
 
         public static bool IsMigrationModeEnabled(ReadOnlySettings settings)

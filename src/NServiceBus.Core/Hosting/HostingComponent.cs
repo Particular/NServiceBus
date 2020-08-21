@@ -5,7 +5,7 @@
     using System.Runtime;
     using System.Threading.Tasks;
     using Installation;
-    using ObjectBuilder;
+    using Microsoft.Extensions.DependencyInjection;
     using Support;
 
     partial class HostingComponent
@@ -39,7 +39,7 @@
             return new HostingComponent(configuration);
         }
 
-        public void RegisterBuilder(IBuilder objectBuilder, bool isInternalBuilder)
+        public void RegisterBuilder(IServiceProvider objectBuilder, bool isInternalBuilder)
         {
             builder = objectBuilder;
             shouldDisposeBuilder = isInternalBuilder;
@@ -61,7 +61,7 @@
                 await internalInstaller(installationUserName).ConfigureAwait(false);
             }
 
-            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+            foreach (var installer in builder.GetServices<INeedToInstallSomething>())
             {
                 await installer.Install(installationUserName).ConfigureAwait(false);
             }
@@ -84,7 +84,7 @@
         {
             if (shouldDisposeBuilder)
             {
-                builder.Dispose();
+                (builder as IDisposable)?.Dispose();
             }
 
             return Task.FromResult(0);
@@ -107,6 +107,6 @@
 
         readonly Configuration configuration;
         bool shouldDisposeBuilder;
-        IBuilder builder;
+        IServiceProvider builder;
     }
 }

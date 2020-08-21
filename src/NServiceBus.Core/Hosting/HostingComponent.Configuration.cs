@@ -6,15 +6,17 @@
     using System.Threading.Tasks;
     using Hosting;
     using Installation;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
 
     partial class HostingComponent
     {
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
-        public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IConfigureComponents container)
+        public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+            var configureComponentsAdapter = new CommonObjectBuilder(serviceCollection);
 
             var configuration = new Configuration(settings,
                 availableTypes,
@@ -23,21 +25,21 @@
                 settings.DiagnosticsPath,
                 settings.HostDiagnosticsWriter,
                 settings.EndpointName,
-                container,
+                configureComponentsAdapter,
                 settings.InstallationUserName,
                 settings.ShouldRunInstallers);
 
-            container.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
-            container.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
+            configureComponentsAdapter.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
+            configureComponentsAdapter.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
 
             foreach (var installerType in availableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                configureComponentsAdapter.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
 
             foreach (var registration in settings.UserRegistrations)
             {
-                registration(container);
+                registration(configureComponentsAdapter);
             }
 
             return configuration;

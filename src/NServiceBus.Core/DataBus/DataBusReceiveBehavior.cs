@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using DataBus;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
     class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
@@ -67,7 +68,7 @@
 
         public class Registration : RegisterStep
         {
-            public Registration(Conventions conventions) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => new DataBusReceiveBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
+            public Registration(Conventions conventions) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => new DataBusReceiveBehavior(b.GetService<IDataBus>(), b.GetService<IDataBusSerializer>(), conventions))
             {
                 InsertAfter("MutateIncomingMessages");
             }

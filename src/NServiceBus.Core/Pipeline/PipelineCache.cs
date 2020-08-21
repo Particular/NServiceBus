@@ -3,12 +3,11 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using ObjectBuilder;
     using Pipeline;
 
     class PipelineCache : IPipelineCache
     {
-        public PipelineCache(IBuilder rootBuilder, PipelineModifications pipelineModifications)
+        public PipelineCache(IServiceProvider rootBuilder, PipelineModifications pipelineModifications)
         {
             this.pipelineModifications = pipelineModifications;
 
@@ -30,7 +29,7 @@ namespace NServiceBus
             throw new InvalidOperationException($"Pipeline for context `{typeof(TContext).FullName}` not found, custom pipelines are not supported.");
         }
 
-        void FromMainPipeline<TContext>(IBuilder builder)
+        void FromMainPipeline<TContext>(IServiceProvider builder)
             where TContext : IBehaviorContext
         {
             var lazyPipeline = new Lazy<IPipeline>(() =>

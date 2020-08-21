@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using UnitOfWork;
 
@@ -26,7 +27,7 @@
             try
             {
                 var hasUow = false;
-                foreach (var uow in context.Builder.BuildAll<IManageUnitsOfWork>())
+                foreach (var uow in context.Builder.GetServices<IManageUnitsOfWork>())
                 {
                     hasUow = true;
                     unitsOfWork.Push(uow);
