@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="Mono.Cecil" Version="0.10.4" />
     <PackageReference Include="NuDoq" Version="1.2.5" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="3.12.0" />
