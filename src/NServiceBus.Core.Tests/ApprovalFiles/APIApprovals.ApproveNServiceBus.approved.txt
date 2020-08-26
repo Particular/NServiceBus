@@ -2334,6 +2334,7 @@ namespace NServiceBus.Transport
     public class TransportSubscriptionInfrastructure
     {
         public TransportSubscriptionInfrastructure(System.Func<NServiceBus.Transport.IManageSubscriptions> subscriptionManagerFactory) { }
+        public System.Func<NServiceBus.Transport.IManageSubscriptions> SubscriptionManagerFactory { get; }
     }
     public sealed class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
