@@ -2350,8 +2350,11 @@ namespace NServiceBus.Transport
 }
 namespace NServiceBus.Unicast
 {
+    [System.ObsoleteAttribute("Will be removed in version 9.0.0.", true)]
     public class static BuilderExtensions
     {
+        [System.ObsoleteAttribute("Replace usages of ForEach<T> with a foreach loop. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public static void ForEach<T>(this System.IServiceProvider builder, System.Action<T> action) { }
     }
     public class MessageEventArgs : System.EventArgs
