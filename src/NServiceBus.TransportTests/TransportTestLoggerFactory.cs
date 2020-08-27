@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using Logging;
     using NUnit.Framework;
 
@@ -17,10 +17,11 @@
             return new TransportTestLogger(name, LogItems);
         }
 
-        public List<LogItem> LogItems { get; } = new List<LogItem>();
+        public ConcurrentQueue<LogItem> LogItems { get; } = new ConcurrentQueue<LogItem>();
 
         public class LogItem
         {
+            // ReSharper disable once NotAccessedField.Global
             public LogLevel Level;
             // ReSharper disable once NotAccessedField.Global
             public string Message;
@@ -28,7 +29,7 @@
 
         class TransportTestLogger : ILog
         {
-            public TransportTestLogger(string name, List<LogItem> logItems)
+            public TransportTestLogger(string name, ConcurrentQueue<LogItem> logItems)
             {
                 this.name = name;
                 this.logItems = logItems;
@@ -117,7 +118,7 @@
 
             void Log(LogLevel level, string message)
             {
-                logItems.Add(new LogItem
+                logItems.Enqueue(new LogItem
                 {
                     Level = level,
                     Message = message
@@ -127,7 +128,7 @@
             }
 
             string name;
-            List<LogItem> logItems;
+            ConcurrentQueue<LogItem> logItems;
         }
     }
 }
