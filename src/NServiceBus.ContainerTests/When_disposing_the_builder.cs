@@ -26,7 +26,7 @@ namespace NServiceBus.ContainerTests
             (builder as IDisposable)?.Dispose();
 
             Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
-            Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
+            Assert.False(AnotherSingletonComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent");
         }
 
         public class DisposableComponent : IDisposable
