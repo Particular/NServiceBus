@@ -8,6 +8,7 @@ namespace NServiceBus.ContainerTests
 
     public class When_disposing_the_builder : ContainerTest
     {
+        [Ignore("LightInject also disposes externally provided singleton instances")]
         [Test]
         public void Should_dispose_all_IDisposable_components()
         {
