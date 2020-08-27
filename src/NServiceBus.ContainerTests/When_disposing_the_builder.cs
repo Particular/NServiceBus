@@ -1,12 +1,12 @@
 namespace NServiceBus.ContainerTests
 {
     using System;
-    using MicrosoftExtensionsDependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
+    using ServiceCollection = MicrosoftExtensionsDependencyInjection.ServiceCollection;
 
-    [TestFixture]
-    public class When_disposing_the_builder
+    public class When_disposing_the_builder : ContainerTest
     {
         [Test]
         public void Should_dispose_all_IDisposable_components()
@@ -20,7 +20,7 @@ namespace NServiceBus.ContainerTests
             configureComponents.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.SingleInstance);
             configureComponents.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             builder.GetService(typeof(DisposableComponent));
             builder.GetService(typeof(AnotherSingletonComponent));
             (builder as IDisposable)?.Dispose();
@@ -47,6 +47,10 @@ namespace NServiceBus.ContainerTests
             {
                 DisposeCalled = true;
             }
+        }
+
+        public When_disposing_the_builder(Func<IServiceCollection, IServiceProvider> buildContainer) : base(buildContainer)
+        {
         }
     }
 }
