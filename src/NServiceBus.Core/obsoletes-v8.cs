@@ -164,15 +164,6 @@ namespace NServiceBus.Features
     {
         internal InMemoryGatewayPersistence() => throw new NotImplementedException();
     }
-
-    [ObsoleteEx(
-        Message = "Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
-        RemoveInVersion = "9",
-        TreatAsErrorFromVersion = "8")]
-    public class MessageDrivenSubscriptions
-    {
-        internal MessageDrivenSubscriptions() => throw new NotImplementedException();
-    }
 }
 
 namespace NServiceBus

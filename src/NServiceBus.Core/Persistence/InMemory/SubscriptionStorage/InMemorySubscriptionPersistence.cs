@@ -7,7 +7,7 @@
     {
         internal InMemorySubscriptionPersistence()
         {
-            DependsOn<MessageDrivenSubscriptionsToBeRefactored>();
+            DependsOn<MessageDrivenSubscriptions>();
         }
 
         /// <summary>
