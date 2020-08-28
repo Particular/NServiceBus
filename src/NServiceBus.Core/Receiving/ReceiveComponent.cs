@@ -63,14 +63,14 @@ namespace NServiceBus
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
-                var storage = hostingConfiguration.Container.HasComponent<IOutboxStorage>() ? b.GetService<IOutboxStorage>() : new NoOpOutboxStorage();
+                var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.GetService<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.GetService<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var adapter = b.GetService<ISynchronizedStorageAdapter>() ?? new NoOpSynchronizedStorageAdapter();
+                var syncStorage = b.GetService<ISynchronizedStorage>() ?? new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.GetService<MessageHandlerRegistry>(), syncStorage, adapter);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
