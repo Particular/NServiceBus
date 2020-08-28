@@ -5,12 +5,11 @@ namespace NServiceBus.ContainerTests
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
-    using MicrosoftExtensionsDependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
 
-    [TestFixture]
-    public class When_registering_components
+
+    public class When_registering_components : ContainerTest
     {
         [Test]
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
@@ -20,7 +19,7 @@ namespace NServiceBus.ContainerTests
             configureComponents.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
             configureComponents.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(1, builder.GetServices(typeof(DuplicateClass)).Count());
         }
 
@@ -32,7 +31,7 @@ namespace NServiceBus.ContainerTests
             configureComponents.ConfigureComponent(s => ((StaticFactory)s.GetService(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
             configureComponents.ConfigureComponent(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.NotNull(builder.GetService(typeof(ComponentCreatedByFactory)));
         }
 
@@ -44,7 +43,7 @@ namespace NServiceBus.ContainerTests
             configureComponents.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
             configureComponents.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.IsInstanceOf<AnotherSingletonComponent>(builder.GetService(typeof(ISingletonComponent)));
         }
 
@@ -57,7 +56,7 @@ namespace NServiceBus.ContainerTests
             configureComponents.RegisterSingleton(typeof(ISingletonComponent), singleton);
             configureComponents.RegisterSingleton(typeof(SingletonComponent), singleton);
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(builder.GetService(typeof(SingletonComponent)), singleton);
             Assert.AreEqual(builder.GetService(typeof(ISingletonComponent)), singleton);
         }
@@ -71,8 +70,8 @@ namespace NServiceBus.ContainerTests
             configureComponents.RegisterSingleton(typeof(ISingleton1), singleton);
             configureComponents.RegisterSingleton(typeof(ISingleton2), singleton);
             configureComponents.ConfigureComponent(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
-            
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+
+            var builder = BuildContainer(serviceCollection);
             var dependency = (ComponentThatDependsOnMultiSingletons)builder.GetService(typeof(ComponentThatDependsOnMultiSingletons));
 
             Assert.NotNull(dependency.Singleton1);
@@ -89,7 +88,7 @@ namespace NServiceBus.ContainerTests
             var configureComponents = new CommonObjectBuilder(serviceCollection);
             configureComponents.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreSame(builder.GetService(typeof(SingletonComponent)), builder.GetService(typeof(ISingletonComponent)));
         }
 
@@ -104,7 +103,7 @@ namespace NServiceBus.ContainerTests
             Assert.True(configureComponents.HasComponent(typeof(ISomeOtherInterface)));
             Assert.True(configureComponents.HasComponent(typeof(IYetAnotherInterface)));
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(1, builder.GetServices(typeof(IYetAnotherInterface)).Count());
         }
 
@@ -118,7 +117,7 @@ namespace NServiceBus.ContainerTests
             Assert.True(configureComponents.HasComponent(typeof(ISomeOtherInterface)));
             Assert.True(configureComponents.HasComponent(typeof(IYetAnotherInterface)));
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
 
             Assert.AreEqual(1, builder.GetServices(typeof(IYetAnotherInterface)).Count());
         }
@@ -131,7 +130,7 @@ namespace NServiceBus.ContainerTests
             configureComponents.ConfigureComponent(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
             configureComponents.ConfigureComponent(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.NotNull(builder.GetService(typeof(SomeClass)));
             Assert.AreEqual(2, builder.GetServices(typeof(ISomeInterface)).Count());
 
@@ -150,7 +149,7 @@ namespace NServiceBus.ContainerTests
             var expected = new InheritedFromSomeClass();
             configureComponents.RegisterSingleton(typeof(SomeClass), expected);
 
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(expected, builder.GetService(typeof(SomeClass)));
 
             using (var scope = builder.CreateScope())
@@ -181,7 +180,12 @@ namespace NServiceBus.ContainerTests
             Assert.False(configureComponents.HasComponent(typeof(IGrouping<string, string>)));
             Assert.False(configureComponents.HasComponent(typeof(IDisposable)));
         }
+
+        public When_registering_components(Func<IServiceCollection, IServiceProvider> buildContainer) : base(buildContainer)
+        {
+        }
     }
+
 
     public class ComponentThatDependsOnMultiSingletons
     {

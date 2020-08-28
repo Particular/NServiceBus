@@ -2,19 +2,17 @@ namespace NServiceBus.ContainerTests
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
-    using MicrosoftExtensionsDependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
 
-    [TestFixture]
-    public class When_building_components
+    public class When_building_components : ContainerTest
     {
         [Test]
         public void Singleton_components_should_yield_the_same_instance()
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(builder.GetService(typeof(SingletonComponent)), builder.GetService(typeof(SingletonComponent)));
         }
 
@@ -23,7 +21,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreNotEqual(builder.GetService<SinglecallComponent>(), builder.GetService<SinglecallComponent>());
         }
 
@@ -32,7 +30,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
 
             var instance1 = builder.GetService(typeof(InstancePerUoWComponent));
             var instance2 = builder.GetService(typeof(InstancePerUoWComponent));
@@ -46,7 +44,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
 
             var instance1 = builder.GetService(typeof(LambdaComponentUoW));
             var instance2 = builder.GetService(typeof(LambdaComponentUoW));
@@ -59,7 +57,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreNotEqual(builder.GetService(typeof(SingleCallLambdaComponent)), builder.GetService(typeof(SingleCallLambdaComponent)));
         }
 
@@ -68,7 +66,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(builder.GetService(typeof(SingletonLambdaComponent)), builder.GetService(typeof(SingletonLambdaComponent)));
         }
 
@@ -77,7 +75,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+            var builder = BuildContainer(serviceCollection);
             Assert.IsEmpty(builder.GetServices(typeof(UnregisteredComponent)));
         }
 
@@ -88,7 +86,7 @@ namespace NServiceBus.ContainerTests
             {
                 var serviceCollection = new ServiceCollection();
                 InitializeServices(serviceCollection);
-                var builder = TestContainerBuilder.CreateServiceProvider(serviceCollection);
+                var builder = BuildContainer(serviceCollection);
                 builder.GetService(typeof(RecursiveComponent));
             }
             catch (Exception)
@@ -146,6 +144,10 @@ namespace NServiceBus.ContainerTests
         }
 
         public class SingleCallLambdaComponent
+        {
+        }
+
+        public When_building_components(Func<IServiceCollection, IServiceProvider> buildContainer) : base(buildContainer)
         {
         }
     }
