@@ -323,4 +323,24 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus.Unicast
+{
+    using System;
+
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class BuilderExtensions
+    {
+        [ObsoleteEx(
+            Message = "Replace usages of ForEach<T> with a foreach loop",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void ForEach<T>(this IServiceProvider builder, Action<T> action)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 #pragma warning restore 1591
