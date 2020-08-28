@@ -14,11 +14,15 @@ namespace NServiceBus.Features
     /// Many of those features have been moved into components instead. Now that this class is internal in V8 that
     /// refactoring can occur.
     /// </summary>
-    class MessageDrivenSubscriptionsToBeRefactored : Feature
+    [ObsoleteEx(
+        Message = "It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
+        RemoveInVersion = "10",
+        TreatAsErrorFromVersion = "9")]
+    public class MessageDrivenSubscriptions : Feature
     {
         internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
-        public MessageDrivenSubscriptionsToBeRefactored()
+        internal MessageDrivenSubscriptions()
         {
             EnableByDefault();
             Defaults(s =>

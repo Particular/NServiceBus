@@ -1281,10 +1281,11 @@ namespace NServiceBus.Features
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("Use \'TransportExtensions<T>.DisablePublishing()\' to avoid the need for a subscrip" +
-        "tion storage if this endpoint does not publish events. Will be removed in versio" +
-        "n 9.0.0.", true)]
-    public class MessageDrivenSubscriptions { }
+    [System.ObsoleteAttribute(@"It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
+    public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
+    {
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public class Outbox : NServiceBus.Features.Feature
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
