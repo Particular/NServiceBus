@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using Outbox;
     using Persistence;
     using Pipeline;
@@ -42,7 +43,7 @@
 
                 foreach (var messageHandler in handlersToInvoke)
                 {
-                    messageHandler.Instance = context.Builder.GetService(messageHandler.HandlerType);
+                    messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
 
                     var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
                     await stage(handlingContext).ConfigureAwait(false);

@@ -3,6 +3,7 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
 
     /// <summary>
@@ -142,7 +143,7 @@ namespace NServiceBus.Pipeline
         {
             var behavior = factoryMethod != null
                 ? factoryMethod(defaultBuilder)
-                : (IBehavior)defaultBuilder.GetService(BehaviorType);
+                : (IBehavior)defaultBuilder.GetRequiredService(BehaviorType);
 
             return behavior;
         }
