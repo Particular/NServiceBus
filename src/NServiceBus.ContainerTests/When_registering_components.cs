@@ -20,7 +20,21 @@ namespace NServiceBus.ContainerTests
             configureComponents.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
 
             var builder = BuildContainer(serviceCollection);
-            Assert.AreEqual(1, builder.GetServices(typeof(DuplicateClass)).Count());
+            Assert.AreEqual(2, builder.GetServices(typeof(DuplicateClass)).Count());
+        }
+
+        [Test]
+        public void Multiple_registrations_should_return_last_registered()
+        {
+            var serviceCollection = new ServiceCollection();
+            var configureComponents = new CommonObjectBuilder(serviceCollection);
+            var instance1 = new DuplicateClass();
+            var instance2 = new DuplicateClass();
+            configureComponents.ConfigureComponent(sp=>instance1, DependencyLifecycle.InstancePerCall);
+            configureComponents.ConfigureComponent(sp=>instance2, DependencyLifecycle.InstancePerCall);
+
+            var builder = BuildContainer(serviceCollection);
+            Assert.AreEqual(instance2, builder.GetService(typeof(DuplicateClass)));
         }
 
         [Test]

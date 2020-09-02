@@ -15,11 +15,6 @@ namespace NServiceBus
 
         public void ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
-            if (HasComponent(concreteComponent))
-            {
-                return;
-            }
-
             var serviceLifeTime = MapLifeCycle(instanceLifecycle);
             serviceCollection.Add(new ServiceDescriptor(concreteComponent, concreteComponent, serviceLifeTime));
             RegisterInterfaces(concreteComponent, serviceLifeTime);
@@ -38,11 +33,6 @@ namespace NServiceBus
         public void ConfigureComponent<T>(Func<IServiceProvider, T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
             var componentType = typeof(T);
-            if (HasComponent(componentType))
-            {
-                return;
-            }
-
             var serviceLifeTime = MapLifeCycle(instanceLifecycle);
             serviceCollection.Add(new ServiceDescriptor(componentType, p => componentFactory(p), serviceLifeTime));
             RegisterInterfaces(componentType, serviceLifeTime);
