@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
+    using Microsoft.Extensions.DependencyInjection;
     using Persistence;
     using Sagas;
 
@@ -13,7 +14,7 @@ namespace NServiceBus
         {
             var customFinderType = (Type) finderDefinition.Properties["custom-finder-clr-type"];
 
-            var finder = (IFindSagas<TSagaData>.Using<TMessage>) builder.GetService(customFinderType);
+            var finder = (IFindSagas<TSagaData>.Using<TMessage>) builder.GetRequiredService(customFinderType);
 
             return await finder
                 .FindBy((TMessage) message, storageSession, context)

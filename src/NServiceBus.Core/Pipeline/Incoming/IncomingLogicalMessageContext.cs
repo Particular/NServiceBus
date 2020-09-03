@@ -37,7 +37,7 @@
                 return;
             }
 
-            var factory = Builder.GetService<LogicalMessageFactory>();
+            var factory = Builder.GetRequiredService<LogicalMessageFactory>();
             var newLogicalMessage = factory.Create(newInstance);
 
             Message.Metadata = newLogicalMessage.Metadata;

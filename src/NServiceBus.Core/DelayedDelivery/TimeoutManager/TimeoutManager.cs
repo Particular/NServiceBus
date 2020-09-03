@@ -48,16 +48,16 @@
             {
                 var waitTime = context.Settings.Get<TimeSpan>("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver");
 
-                var criticalError = b.GetService<CriticalError>();
+                var criticalError = b.GetRequiredService<CriticalError>();
 
                 var circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity",
                     waitTime,
                     ex => criticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
-                return new ExpiredTimeoutsPoller(b.GetService<IQueryTimeouts>(), b.GetService<IDispatchMessages>(), dispatcherAddress, circuitBreaker, () => DateTime.UtcNow);
+                return new ExpiredTimeoutsPoller(b.GetRequiredService<IQueryTimeouts>(), b.GetRequiredService<IDispatchMessages>(), dispatcherAddress, circuitBreaker, () => DateTime.UtcNow);
             }, DependencyLifecycle.SingleInstance);
 
-            context.RegisterStartupTask(b => new TimeoutPollerRunner(b.GetService<ExpiredTimeoutsPoller>()));
+            context.RegisterStartupTask(b => new TimeoutPollerRunner(b.GetRequiredService<ExpiredTimeoutsPoller>()));
         }
 
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, PushRuntimeSettings pushRuntimeSettings)
@@ -70,8 +70,8 @@
                 (builder, messageContext) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
-                        builder.GetService<IDispatchMessages>(),
-                        builder.GetService<IPersistTimeouts>(),
+                        builder.GetRequiredService<IDispatchMessages>(),
+                        builder.GetRequiredService<IPersistTimeouts>(),
                         requiredTransactionSupport);
 
                     return dispatchBehavior.Invoke(messageContext);
@@ -89,9 +89,9 @@
                 (builder, messageContext) =>
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
-                        builder.GetService<ExpiredTimeoutsPoller>(),
-                        builder.GetService<IDispatchMessages>(),
-                        builder.GetService<IPersistTimeouts>(),
+                        builder.GetRequiredService<ExpiredTimeoutsPoller>(),
+                        builder.GetRequiredService<IDispatchMessages>(),
+                        builder.GetRequiredService<IPersistTimeouts>(),
                         context.Settings.EndpointName());
 
                     return storeBehavior.Invoke(messageContext);

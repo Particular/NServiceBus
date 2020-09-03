@@ -34,7 +34,7 @@
 
             context.RegisterStartupTask(b =>
             {
-                var handlerRegistry = b.GetService<MessageHandlerRegistry>();
+                var handlerRegistry = b.GetRequiredService<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
                 return new ApplySubscriptions(messageTypesHandled, settings.ExcludedTypes);
             });

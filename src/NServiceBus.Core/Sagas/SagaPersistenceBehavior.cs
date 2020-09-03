@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Sagas;
     using Transport;
@@ -260,7 +261,7 @@
             }
 
             var finderType = finderDefinition.Type;
-            var finder = (SagaFinder)context.Builder.GetService(finderType);
+            var finder = (SagaFinder)context.Builder.GetRequiredService(finderType);
 
             return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders);
         }

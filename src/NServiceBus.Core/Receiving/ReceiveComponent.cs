@@ -72,7 +72,7 @@ namespace NServiceBus
                 var adapter = b.GetService<ISynchronizedStorageAdapter>() ?? new NoOpSynchronizedStorageAdapter();
                 var syncStorage = b.GetService<ISynchronizedStorage>() ?? new NoOpSynchronizedStorage();
 
-                return new LoadHandlersConnector(b.GetService<MessageHandlerRegistry>(), syncStorage, adapter);
+                return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), syncStorage, adapter);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");

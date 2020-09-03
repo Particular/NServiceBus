@@ -91,7 +91,7 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.GetService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(builder.GetRequiredService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
@@ -100,7 +100,7 @@
                 {
                     return new DelayedRetryExecutor(
                         localAddress,
-                        builder.GetService<IDispatchMessages>(),
+                        builder.GetRequiredService<IDispatchMessages>(),
                         settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                             ? null
                             : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
