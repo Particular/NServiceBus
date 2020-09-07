@@ -266,7 +266,7 @@ namespace NServiceBus
         public NServiceBus.Notifications Notifications { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
-        public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
+        public void RegisterComponents(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection> registration) { }
         public void SendOnly() { }
         [System.ObsoleteAttribute("Use the externally managed container mode to integrate with third party dependenc" +
             "y injection containers. The member currently throws a NotImplementedException. W" +
@@ -866,6 +866,21 @@ namespace NServiceBus
         public static bool ShouldSkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
         public static void SkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
     }
+    public class static ServiceCollectionExtensions
+    {
+        public static void ConfigureComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<System.IServiceProvider, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        public static bool HasComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
+        public static bool HasComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type componentType) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.AddSingleton` instead. Will be treated as an error from v" +
+            "ersion 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static void RegisterSingleton(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type lookupType, object instance) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.AddSingleton` instead. Will be treated as an error from v" +
+            "ersion 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static void RegisterSingleton<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, T instance) { }
+    }
     public class static SettingsExtensions
     {
         public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
@@ -1235,7 +1250,7 @@ namespace NServiceBus.Features
     }
     public class FeatureConfigurationContext
     {
-        public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
+        public Microsoft.Extensions.DependencyInjection.IServiceCollection Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, System.Func<System.IServiceProvider, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
@@ -1536,15 +1551,28 @@ namespace NServiceBus.ObjectBuilder
         [System.ObsoleteAttribute("The Release method is not supported anymore. Will be removed in version 9.0.0.", true)]
         void Release(object instance);
     }
+    [System.ObsoleteAttribute("Use `IServiceCollection` instead. Will be removed in version 9.0.0.", true)]
     public interface IConfigureComponents
     {
+        [System.ObsoleteAttribute("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
+            ".0.0.", true)]
         void ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        [System.ObsoleteAttribute("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
+            ".0.0.", true)]
         void ConfigureComponent<T>(NServiceBus.DependencyLifecycle dependencyLifecycle);
+        [System.ObsoleteAttribute("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
+            ".0.0.", true)]
         void ConfigureComponent<T>(System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        [System.ObsoleteAttribute("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
+            ".0.0.", true)]
         void ConfigureComponent<T>(System.Func<System.IServiceProvider, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        [System.ObsoleteAttribute("Use `IServiceCollection.HasComponent` instead. Will be removed in version 9.0.0.", true)]
         bool HasComponent<T>();
+        [System.ObsoleteAttribute("Use `IServiceCollection.HasComponent` instead. Will be removed in version 9.0.0.", true)]
         bool HasComponent(System.Type componentType);
+        [System.ObsoleteAttribute("Use `IServiceCollection.AddSingleton` instead. Will be removed in version 9.0.0.", true)]
         void RegisterSingleton(System.Type lookupType, object instance);
+        [System.ObsoleteAttribute("Use `IServiceCollection.AddSingleton` instead. Will be removed in version 9.0.0.", true)]
         void RegisterSingleton<T>(T instance);
     }
 }
