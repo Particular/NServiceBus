@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using Unicast;
 
@@ -50,7 +51,7 @@
                         c.GetSettings().Set(registry);
                         // the handler isn't registered for DI automatically
                         c.RegisterComponents(components => components
-                            .ConfigureComponent<ManuallyRegisteredHandler>(DependencyLifecycle.InstancePerCall));
+                            .AddTransient<ManuallyRegisteredHandler>());
                     })
                     .ExcludeType<ManuallyRegisteredHandler>();
             }

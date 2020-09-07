@@ -2,7 +2,6 @@ namespace NServiceBus.ContainerTests
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus;
     using NUnit.Framework;
     using ServiceCollection = MicrosoftExtensionsDependencyInjection.ServiceCollection;
 
@@ -17,7 +16,7 @@ namespace NServiceBus.ContainerTests
             DisposableComponent.DisposeCalled = false;
             AnotherSingletonComponent.DisposeCalled = false;
 
-            serviceCollection.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.SingleInstance);
+            serviceCollection.AddSingleton(typeof(DisposableComponent));
             serviceCollection.AddSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
 
             var builder = BuildContainer(serviceCollection);

@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Persistence;
     using NUnit.Framework;
     using Unicast.Subscriptions;
@@ -57,7 +58,7 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.RegisterComponents(container => container.ConfigureComponent<NoOpISubscriptionStorage>(DependencyLifecycle.SingleInstance));
+                    c.RegisterComponents(container => container.AddSingleton<NoOpISubscriptionStorage>());
                     c.UsePersistence<InMemoryNoSyncContextPersistence>();
                 });
             }

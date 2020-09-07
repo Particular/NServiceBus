@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     public class When_registering_handlers_explicitly : NServiceBusAcceptanceTest
@@ -32,10 +33,10 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer, Context>((config, context) =>
-                    config.RegisterComponents(r => r.ConfigureComponent(builder => new MyMessageHandler(context)
+                    config.RegisterComponents(r => r.AddTransient(_ => new MyMessageHandler(context)
                     {
                         MySimpleDependency = simpleValue
-                    }, DependencyLifecycle.InstancePerCall))
+                    }))
                 );
             }
 

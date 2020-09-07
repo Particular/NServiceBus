@@ -1,3 +1,4 @@
+#pragma warning disable 0618
 namespace NServiceBus.ContainerTests
 {
     using System;
@@ -183,3 +184,4 @@ namespace NServiceBus.ContainerTests
     {
     }
 }
+#pragma warning restore 0618

@@ -6,7 +6,9 @@
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Persistence;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
@@ -83,7 +85,9 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var testContext = context.Settings.Get<TimeoutTestContext>();
-                    context.Container.ConfigureComponent(b => new CyclingOutageTimeoutPersister(testContext.SecondsToWait), DependencyLifecycle.SingleInstance);
+                    var persister = new CyclingOutageTimeoutPersister(testContext.SecondsToWait);
+                    context.Container.AddSingleton<IPersistTimeouts>(persister);
+                    context.Container.AddSingleton<IQueryTimeouts>(persister);
                 }
             }
         }
