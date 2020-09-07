@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -16,6 +17,9 @@
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         public static void ConfigureComponent(this IServiceCollection serviceCollection, Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
+            var serviceLifeTime = MapLifeCycle(dependencyLifecycle);
+            serviceCollection.Add(new ServiceDescriptor(concreteComponent, concreteComponent, serviceLifeTime));
+            RegisterInterfaces(concreteComponent, serviceLifeTime, serviceCollection);
         }
 
         /// <summary>
@@ -25,7 +29,7 @@
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, DependencyLifecycle dependencyLifecycle)
         {
-
+            serviceCollection.ConfigureComponent(typeof(T), dependencyLifecycle);
         }
 
         /// <summary>
@@ -37,7 +41,7 @@
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
-
+            serviceCollection.ConfigureComponent(_ => componentFactory(), dependencyLifecycle);
         }
 
         /// <summary>
@@ -45,7 +49,10 @@
         /// </summary>
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<IServiceProvider, T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
-
+            var componentType = typeof(T);
+            var serviceLifeTime = MapLifeCycle(dependencyLifecycle);
+            serviceCollection.Add(new ServiceDescriptor(componentType, p => componentFactory(p), serviceLifeTime));
+            RegisterInterfaces(componentType, serviceLifeTime, serviceCollection);
         }
 
         /// <summary>
@@ -54,7 +61,7 @@
         /// </summary>
         public static void RegisterSingleton(this IServiceCollection serviceCollection, Type lookupType, object instance)
         {
-
+            serviceCollection.AddSingleton(lookupType, instance);
         }
 
         /// <summary>
@@ -63,7 +70,7 @@
         /// </summary>
         public static void RegisterSingleton<T>(this IServiceCollection serviceCollection, T instance)
         {
-
+            serviceCollection.RegisterSingleton(typeof(T), instance);
         }
 
         /// <summary>
@@ -71,7 +78,7 @@
         /// </summary>
         public static bool HasComponent<T>(this IServiceCollection serviceCollection)
         {
-            return false;
+            return serviceCollection.HasComponent(typeof(T));
         }
 
         /// <summary>
@@ -79,7 +86,29 @@
         /// </summary>
         public static bool HasComponent(this IServiceCollection serviceCollection, Type componentType)
         {
-            return false;
+            return serviceCollection.Any(sd => sd.ServiceType == componentType);
+        }
+
+        static void RegisterInterfaces(Type component, ServiceLifetime lifetime, IServiceCollection serviceCollection)
+        {
+            var interfaces = component.GetInterfaces();
+            foreach (var serviceType in interfaces)
+            {
+                // see https://andrewlock.net/how-to-register-a-service-with-multiple-interfaces-for-in-asp-net-core-di/
+                serviceCollection.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(component), lifetime));
+            }
+        }
+
+        //TODO Remove mappings
+        static ServiceLifetime MapLifeCycle(DependencyLifecycle dependencyLifecycle)
+        {
+            switch (dependencyLifecycle)
+            {
+                case DependencyLifecycle.InstancePerCall: return ServiceLifetime.Transient;
+                case DependencyLifecycle.SingleInstance: return ServiceLifetime.Singleton;
+                case DependencyLifecycle.InstancePerUnitOfWork: return ServiceLifetime.Scoped;
+                default: throw new NotSupportedException($"{dependencyLifecycle} is not supported.");
+            }
         }
     }
 }

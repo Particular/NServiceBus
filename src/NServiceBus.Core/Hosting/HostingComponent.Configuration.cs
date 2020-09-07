@@ -15,7 +15,6 @@
         public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-            var configureComponentsAdapter = new CommonObjectBuilder(serviceCollection);
 
             var configuration = new Configuration(settings,
                 availableTypes,
@@ -28,12 +27,12 @@
                 settings.InstallationUserName,
                 settings.ShouldRunInstallers);
 
-            configureComponentsAdapter.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
-            configureComponentsAdapter.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
 
             foreach (var installerType in availableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                configureComponentsAdapter.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                serviceCollection.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
 
             foreach (var registration in settings.UserRegistrations)

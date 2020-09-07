@@ -2,6 +2,8 @@ namespace NServiceBus.ObjectBuilder
 {
     using System;
 
+    //TODO Obsolete
+
     /// <summary>
     /// Used to configure components in the container.
     /// Should primarily be used at startup/initialization time.
