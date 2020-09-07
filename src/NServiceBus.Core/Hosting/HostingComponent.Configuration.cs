@@ -39,7 +39,7 @@
 
             foreach (var registration in settings.UserRegistrations)
             {
-                registration(configureComponentsAdapter);
+                registration(serviceCollection);
             }
 
             return configuration;

@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Transactions;
     using Configuration.AdvancedExtensibility;
+    using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -56,7 +57,7 @@ namespace NServiceBus
         /// <summary>
         /// Used to configure components in the container.
         /// </summary>
-        public void RegisterComponents(Action<IConfigureComponents> registration)
+        public void RegisterComponents(Action<IServiceCollection> registration)
         {
             Guard.AgainstNull(nameof(registration), registration);
 
