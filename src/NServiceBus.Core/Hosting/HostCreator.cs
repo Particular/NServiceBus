@@ -29,8 +29,8 @@
             });
 
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
-
-            var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingConfiguration);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, false);
+            var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingComponent);
 
             return externallyManagedContainerHost;
         }
@@ -56,7 +56,7 @@
 
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, true);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, true);
 
             var containerOptions = new ContainerOptions
             {

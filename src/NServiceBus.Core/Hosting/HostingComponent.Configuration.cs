@@ -25,20 +25,8 @@
                 settings.EndpointName,
                 serviceCollection,
                 settings.InstallationUserName,
-                settings.ShouldRunInstallers);
-
-            serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
-            serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
-
-            foreach (var installerType in availableTypes.Where(t => IsINeedToInstallSomething(t)))
-            {
-                serviceCollection.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
-            }
-
-            foreach (var registration in settings.UserRegistrations)
-            {
-                registration(serviceCollection);
-            }
+                settings.ShouldRunInstallers,
+                settings.UserRegistrations);
 
             return configuration;
         }
@@ -54,7 +42,8 @@
                 string endpointName,
                 IServiceCollection container,
                 string installationUserName,
-                bool shouldRunInstallers)
+                bool shouldRunInstallers, 
+                List<Action<IServiceCollection>> userRegistrations)
             {
                 AvailableTypes = availableTypes;
                 CriticalError = criticalError;
@@ -65,6 +54,7 @@
                 Container = container;
                 InstallationUserName = installationUserName;
                 ShouldRunInstallers = shouldRunInstallers;
+                UserRegistrations = userRegistrations;
 
                 settings.ApplyHostIdDefaultIfNeeded();
                 HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -99,6 +89,8 @@
             public bool ShouldRunInstallers { get; }
 
             public string InstallationUserName { get; }
+
+            public List<Action<IServiceCollection>> UserRegistrations { get; }
 
             internal ICollection<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
         }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using System.Net;
     using System.Runtime;
     using System.Threading.Tasks;
@@ -16,8 +17,22 @@
             this.shouldDisposeBuilder = shouldDisposeBuilder;
         }
 
-        public static HostingComponent Initialize(Configuration configuration, bool shouldDisposeBuilder)
+        public static HostingComponent Initialize(Configuration configuration, IServiceCollection serviceCollection, bool shouldDisposeBuilder)
         {
+            serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
+
+            foreach (var installerType in configuration.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
+            {
+                serviceCollection.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+            }
+
+            // Apply user registrations last, so that user overrides win.
+            foreach (var registration in configuration.UserRegistrations)
+            {
+                registration(serviceCollection);
+            }
+
             configuration.AddStartupDiagnosticsSection("Hosting", new
             {
                 configuration.HostInformation.HostId,
