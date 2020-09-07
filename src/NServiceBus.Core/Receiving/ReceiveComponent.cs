@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Outbox;
     using Persistence;
     using Pipeline;

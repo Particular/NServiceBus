@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Transactions;
     using Configuration.AdvancedExtensibility;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Pipeline;
     using Settings;
 
