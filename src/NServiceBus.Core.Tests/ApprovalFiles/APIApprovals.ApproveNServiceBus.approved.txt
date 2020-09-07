@@ -868,11 +868,23 @@ namespace NServiceBus
     }
     public class static ServiceCollectionExtensions
     {
+        [System.ObsoleteAttribute("Use `IServiceCollection.Add` instead. Will be treated as an error from version 9." +
+            "0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.Add` instead. Will be treated as an error from version 9." +
+            "0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.Add` instead. Will be treated as an error from version 9." +
+            "0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.Add` instead. Will be treated as an error from version 9." +
+            "0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<System.IServiceProvider, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.GetEnumerator` instead. Will be treated as an error from " +
+            "version 9.0.0. Will be removed in version 10.0.0.", false)]
         public static bool HasComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
+        [System.ObsoleteAttribute("Use `IServiceCollection.GetEnumerator` instead. Will be treated as an error from " +
+            "version 9.0.0. Will be removed in version 10.0.0.", false)]
         public static bool HasComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type componentType) { }
         [System.ObsoleteAttribute("Use `IServiceCollection.AddSingleton` instead. Will be treated as an error from v" +
             "ersion 9.0.0. Will be removed in version 10.0.0.", false)]
