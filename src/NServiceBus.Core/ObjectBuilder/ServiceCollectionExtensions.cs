@@ -60,6 +60,10 @@
         /// Registers the given instance as the singleton that will be returned
         /// for the given type.
         /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.AddSingleton",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static void RegisterSingleton(this IServiceCollection serviceCollection, Type lookupType, object instance)
         {
             serviceCollection.AddSingleton(lookupType, instance);
@@ -69,6 +73,10 @@
         /// Registers the given instance as the singleton that will be returned
         /// for the given type.
         /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.AddSingleton", 
+            TreatAsErrorFromVersion = "9.0", 
+            RemoveInVersion = "10.0")]
         public static void RegisterSingleton<T>(this IServiceCollection serviceCollection, T instance)
         {
             serviceCollection.RegisterSingleton(typeof(T), instance);

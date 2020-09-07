@@ -280,7 +280,7 @@ namespace NServiceBus
                 handlerRegistry.RegisterHandler(t);
             }
 
-            container.RegisterSingleton(handlerRegistry);
+            container.AddSingleton(handlerRegistry);
         }
 
         public static bool IsMessageHandler(Type type)

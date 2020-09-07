@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.DataBus;
 
     class DataBusFileBased : Feature
@@ -21,7 +22,7 @@ namespace NServiceBus.Features
             }
             var dataBus = new FileShareDataBusImplementation(basePath);
 
-            context.Container.RegisterSingleton<IDataBus>(dataBus);
+            context.Container.AddSingleton(typeof(IDataBus), dataBus);
         }
     }
 }

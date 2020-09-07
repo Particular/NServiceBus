@@ -37,8 +37,8 @@ namespace NServiceBus.ContainerTests
         public void A_registration_should_be_allowed_to_be_updated()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
-            serviceCollection.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
+            serviceCollection.AddSingleton(typeof(ISingletonComponent), new SingletonComponent());
+            serviceCollection.AddSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
             var builder = BuildContainer(serviceCollection);
             Assert.IsInstanceOf<AnotherSingletonComponent>(builder.GetService(typeof(ISingletonComponent)));
@@ -49,8 +49,8 @@ namespace NServiceBus.ContainerTests
         {
             var singleton = new SingletonComponent();
             var serviceCollection = new ServiceCollection();
-            serviceCollection.RegisterSingleton(typeof(ISingletonComponent), singleton);
-            serviceCollection.RegisterSingleton(typeof(SingletonComponent), singleton);
+            serviceCollection.AddSingleton(typeof(ISingletonComponent), singleton);
+            serviceCollection.AddSingleton(typeof(SingletonComponent), singleton);
 
             var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(builder.GetService(typeof(SingletonComponent)), singleton);
@@ -62,8 +62,8 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             var singleton = new SingletonThatImplementsToInterfaces();
-            serviceCollection.RegisterSingleton(typeof(ISingleton1), singleton);
-            serviceCollection.RegisterSingleton(typeof(ISingleton2), singleton);
+            serviceCollection.AddSingleton(typeof(ISingleton1), singleton);
+            serviceCollection.AddSingleton(typeof(ISingleton2), singleton);
             serviceCollection.ConfigureComponent(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
 
             var builder = BuildContainer(serviceCollection);
@@ -137,7 +137,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             var expected = new InheritedFromSomeClass();
-            serviceCollection.RegisterSingleton(typeof(SomeClass), expected);
+            serviceCollection.AddSingleton(typeof(SomeClass), expected);
 
             var builder = BuildContainer(serviceCollection);
             Assert.AreEqual(expected, builder.GetService(typeof(SomeClass)));

@@ -3,6 +3,7 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Outbox;
 
     /// <summary>
@@ -22,7 +23,7 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var outboxStorage = new InMemoryOutboxStorage();
-            context.Container.RegisterSingleton<IOutboxStorage>(outboxStorage);
+            context.Container.AddSingleton(typeof(IOutboxStorage), outboxStorage);
 
             var timeSpan = context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries);
 

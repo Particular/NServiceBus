@@ -5,6 +5,7 @@ namespace NServiceBus
     using Features;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Settings;
     using Unicast.Messages;
@@ -33,7 +34,7 @@ namespace NServiceBus
 
             var pipelineSettings = settings.Get<PipelineSettings>();
 
-            hostingConfiguration.Container.RegisterSingleton<ReadOnlySettings>(settings);
+            hostingConfiguration.Container.AddSingleton(typeof(ReadOnlySettings), settings);
 
             featureComponent = new FeatureComponent(settings);
 

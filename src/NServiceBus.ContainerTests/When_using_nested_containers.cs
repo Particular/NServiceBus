@@ -117,7 +117,7 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             var singletonInMainContainer = new SingletonComponent();
-            serviceCollection.RegisterSingleton(typeof(ISingletonComponent), singletonInMainContainer);
+            serviceCollection.AddSingleton(typeof(ISingletonComponent), singletonInMainContainer);
             serviceCollection.ConfigureComponent(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
@@ -134,7 +134,7 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             DisposableComponent.DisposeCalled = false;
             AnotherDisposableComponent.DisposeCalled = false;
-            serviceCollection.RegisterSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
+            serviceCollection.AddSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
             serviceCollection.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
 

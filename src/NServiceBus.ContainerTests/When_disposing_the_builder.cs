@@ -18,7 +18,7 @@ namespace NServiceBus.ContainerTests
             AnotherSingletonComponent.DisposeCalled = false;
 
             serviceCollection.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.SingleInstance);
-            serviceCollection.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
+            serviceCollection.AddSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
 
             var builder = BuildContainer(serviceCollection);
             builder.GetService(typeof(DisposableComponent));
