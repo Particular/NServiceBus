@@ -20,7 +20,7 @@ namespace NServiceBus.ContainerTests
             serviceCollection.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
 
             var builder = BuildContainer(serviceCollection);
-            Assert.AreEqual(1, builder.GetServices(typeof(DuplicateClass)).Count());
+            Assert.AreEqual(2, builder.GetServices(typeof(DuplicateClass)).Count());
         }
 
         [Test]
