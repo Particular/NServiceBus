@@ -10,12 +10,13 @@
 
     partial class HostingComponent
     {
-        public HostingComponent(Configuration configuration)
+        public HostingComponent(Configuration configuration, bool shouldDisposeBuilder)
         {
             this.configuration = configuration;
+            this.shouldDisposeBuilder = shouldDisposeBuilder;
         }
 
-        public static HostingComponent Initialize(Configuration configuration)
+        public static HostingComponent Initialize(Configuration configuration, bool shouldDisposeBuilder)
         {
             configuration.AddStartupDiagnosticsSection("Hosting", new
             {
@@ -36,13 +37,12 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            return new HostingComponent(configuration);
+            return new HostingComponent(configuration, shouldDisposeBuilder);
         }
 
-        public void RegisterBuilder(IServiceProvider objectBuilder, bool isInternalBuilder)
+        public void RegisterBuilder(IServiceProvider objectBuilder)
         {
             builder = objectBuilder;
-            shouldDisposeBuilder = isInternalBuilder;
         }
 
         // This can't happen at start due to an old "feature" that allowed users to

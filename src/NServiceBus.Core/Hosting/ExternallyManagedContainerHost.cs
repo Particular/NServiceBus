@@ -37,11 +37,11 @@ namespace NServiceBus
         {
             objectBuilder = externalBuilder;
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, false);
 
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, hostingComponent);
 
-            hostingComponent.RegisterBuilder(externalBuilder, false);
+            hostingComponent.RegisterBuilder(externalBuilder);
 
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 
