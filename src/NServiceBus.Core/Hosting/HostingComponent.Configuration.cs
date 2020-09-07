@@ -7,7 +7,6 @@
     using Hosting;
     using Installation;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
 
     partial class HostingComponent
     {
@@ -25,7 +24,7 @@
                 settings.DiagnosticsPath,
                 settings.HostDiagnosticsWriter,
                 settings.EndpointName,
-                configureComponentsAdapter,
+                serviceCollection,
                 settings.InstallationUserName,
                 settings.ShouldRunInstallers);
 
@@ -54,7 +53,7 @@
                 string diagnosticsPath,
                 Func<string, Task> hostDiagnosticsWriter,
                 string endpointName,
-                IConfigureComponents container,
+                IServiceCollection container,
                 string installationUserName,
                 bool shouldRunInstallers)
             {
@@ -87,7 +86,7 @@
 
             public string EndpointName { get; }
 
-            public IConfigureComponents Container { get; }
+            public IServiceCollection Container { get; }
 
             public string DiagnosticsPath { get; }
 
