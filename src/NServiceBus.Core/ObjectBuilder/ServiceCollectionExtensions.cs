@@ -3,11 +3,12 @@
     using System;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
+    using ObjectBuilder;
 
     /// <summary>
-    /// TODO
+    /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by <see cref="IConfigureComponents"/>.
     /// </summary>
-    public static class ConfigureComponentsExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Configures the given type. Can be used to configure all kinds of properties.
