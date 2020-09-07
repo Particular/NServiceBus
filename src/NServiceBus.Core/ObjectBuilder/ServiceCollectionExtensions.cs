@@ -16,6 +16,10 @@
         /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to register the types in.</param>
         /// <param name="concreteComponent">The concrete implementation of the component.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.Add",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static void ConfigureComponent(this IServiceCollection serviceCollection, Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             var serviceLifeTime = MapLifeCycle(dependencyLifecycle);
@@ -28,6 +32,10 @@
         /// </summary>
         /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to register the types in.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.Add",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, DependencyLifecycle dependencyLifecycle)
         {
             serviceCollection.ConfigureComponent(typeof(T), dependencyLifecycle);
@@ -40,6 +48,10 @@
         /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to register the types in.</param>
         /// <param name="componentFactory">Factory method that returns the given type.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.Add",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             serviceCollection.ConfigureComponent(_ => componentFactory(), dependencyLifecycle);
@@ -48,6 +60,10 @@
         /// <summary>
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.Add",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<IServiceProvider, T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var componentType = typeof(T);
@@ -85,6 +101,10 @@
         /// <summary>
         /// Indicates if a component of the given type has been configured.
         /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.GetEnumerator",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static bool HasComponent<T>(this IServiceCollection serviceCollection)
         {
             return serviceCollection.HasComponent(typeof(T));
@@ -93,6 +113,10 @@
         /// <summary>
         /// Indicates if a component of the given type has been configured.
         /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.GetEnumerator",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static bool HasComponent(this IServiceCollection serviceCollection, Type componentType)
         {
             return serviceCollection.Any(sd => sd.ServiceType == componentType);
