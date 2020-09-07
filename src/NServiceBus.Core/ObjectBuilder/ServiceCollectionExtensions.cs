@@ -108,7 +108,6 @@
             }
         }
 
-        //TODO Remove mappings
         static ServiceLifetime MapLifeCycle(DependencyLifecycle dependencyLifecycle)
         {
             switch (dependencyLifecycle)
