@@ -133,7 +133,7 @@
 
                 if (saga.Entity.Id != Guid.Empty)
                 {
-                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context).ConfigureAwait(false);
+                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context, cancellationToken).ConfigureAwait(false);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);

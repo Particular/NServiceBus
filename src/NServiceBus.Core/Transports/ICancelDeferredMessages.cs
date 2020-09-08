@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -11,6 +12,6 @@
         /// <summary>
         /// Clears all timeouts for the given timeout key.
         /// </summary>
-        Task CancelDeferredMessages(string messageKey, IBehaviorContext context);
+        Task CancelDeferredMessages(string messageKey, IBehaviorContext context, CancellationToken cancellationToken);
     }
 }

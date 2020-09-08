@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -13,7 +14,7 @@
             this.timeoutManagerAddress = timeoutManagerAddress;
         }
 
-        public Task CancelDeferredMessages(string messageKey, IBehaviorContext context)
+        public Task CancelDeferredMessages(string messageKey, IBehaviorContext context, CancellationToken cancellationToken)
         {
             var controlMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
@@ -22,7 +23,7 @@
 
             var dispatchContext = new RoutingContext(controlMessage, new UnicastRoutingStrategy(timeoutManagerAddress), context);
 
-            return dispatchContext.InvokePipeline<IRoutingContext>();
+            return dispatchContext.InvokePipeline<IRoutingContext>(cancellationToken);
         }
 
         string timeoutManagerAddress;

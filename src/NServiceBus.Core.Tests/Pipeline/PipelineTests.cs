@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +37,7 @@
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
 
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(context, CancellationToken.None);
 
             Approver.Verify(stringWriter.ToString());
         }
@@ -62,7 +63,7 @@
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
             context.Extensions.Set(ExtendableExtensions.RunSpecificKey, 1);
 
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(context, CancellationToken.None);
 
             stringWriter.WriteLine("Run 2");
 
@@ -70,7 +71,7 @@
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
             context.Extensions.Set(ExtendableExtensions.RunSpecificKey, 2);
 
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(context, CancellationToken.None);
 
             Approver.Verify(stringWriter.ToString());
         }
@@ -113,7 +114,7 @@
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
 
             var stopwatch = Stopwatch.StartNew();
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(context, CancellationToken.None);
             stopwatch.Stop();
 
             var firstRunTicks = stopwatch.ElapsedTicks;
@@ -122,7 +123,7 @@
             for (var i = 0; i < 100; i++)
             {
                 stopwatch = Stopwatch.StartNew();
-                await pipeline.Invoke(context);
+                await pipeline.Invoke(context, CancellationToken.None);
                 stopwatch.Stop();
                 runs.Add(stopwatch.ElapsedTicks);
             }
@@ -140,19 +141,19 @@
                 this.writer = writer;
             }
 
-            public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+            public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
                 var physicalMessageContext = new TestableIncomingPhysicalMessageContext();
                 physicalMessageContext.Extensions.Merge(context.Extensions);
 
-                await next(physicalMessageContext).ConfigureAwait(false);
+                await next(physicalMessageContext, cancellationToken).ConfigureAwait(false);
 
                 var dispatchContext = new TestableBatchDispatchContext();
                 dispatchContext.Extensions.Merge(context.Extensions);
 
-                await this.Fork(dispatchContext).ConfigureAwait(false);
+                await this.Fork(dispatchContext, cancellationToken).ConfigureAwait(false);
             }
 
 
@@ -179,10 +180,10 @@
                 this.writer = writer;
             }
 
-            public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+            public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
-                return next(context);
+                return next(context, cancellationToken);
             }
 
             readonly string instance;
@@ -204,14 +205,14 @@
                 this.instance = instance;
             }
 
-            public override Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
+            public override Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
                 var logicalMessageContext = new TestableIncomingLogicalMessageContext();
                 logicalMessageContext.Extensions.Merge(context.Extensions);
 
-                return stage(logicalMessageContext);
+                return stage(logicalMessageContext, cancellationToken);
             }
 
             string instance;
@@ -233,10 +234,10 @@
                 this.writer = writer;
             }
 
-            public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+            public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
             {
                 writer.WriteLine(instance);
-                return next(context);
+                return next(context, cancellationToken);
             }
 
             readonly string instance;
@@ -258,14 +259,14 @@
                 this.instance = instance;
             }
 
-            public override Task Invoke(IIncomingLogicalMessageContext context, Func<IDispatchContext, Task> stage)
+            public override Task Invoke(IIncomingLogicalMessageContext context, Func<IDispatchContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
                 var dispatchContext = new TestableDispatchContext();
                 dispatchContext.Extensions.Merge(context.Extensions);
 
-                return stage(dispatchContext);
+                return stage(dispatchContext, cancellationToken);
             }
 
             string instance;
@@ -287,7 +288,7 @@
                 this.writer = writer;
             }
 
-            protected override Task Terminate(IDispatchContext context)
+            protected override Task Terminate(IDispatchContext context, CancellationToken cancellationToken)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
                 return Task.CompletedTask;
@@ -317,7 +318,7 @@
 
         class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
         {
-            public Task Invoke(IBatchDispatchContext context)
+            public Task Invoke(IBatchDispatchContext context, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }

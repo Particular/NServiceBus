@@ -55,7 +55,7 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
+                await this.Fork(batchDispatchContext, cancellationToken).ConfigureAwait(false);
             }
 
             await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);

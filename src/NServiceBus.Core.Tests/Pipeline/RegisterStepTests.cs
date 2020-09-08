@@ -109,7 +109,7 @@
 
         class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next, CancellationToken cancellationToken)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, CancellationToken, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -117,7 +117,7 @@
 
         class BehaviorB : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next, CancellationToken cancellationToken)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, CancellationToken, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }

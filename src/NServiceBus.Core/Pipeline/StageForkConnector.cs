@@ -21,10 +21,10 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
 
-            return Invoke(context, next, ctx => ctx.InvokePipeline());
+            return Invoke(context, next, (ctx,ct) => ctx.InvokePipeline(ct), cancellationToken);
         }
 
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<TToContext, CancellationToken, Task> stage, Func<TForkContext, Task> fork);
+        public abstract Task Invoke(TFromContext context, Func<TToContext, CancellationToken, Task> stage, Func<TForkContext, CancellationToken, Task> fork, CancellationToken cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -7,7 +8,7 @@ namespace NServiceBus
 
     static class IncomingMessageOperations
     {
-        public static Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
+        public static Task ForwardCurrentMessageTo(IIncomingContext context, string destination, CancellationToken cancellationToken)
         {
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var outgoingMessage = new OutgoingMessage(
@@ -17,7 +18,7 @@ namespace NServiceBus
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            return routingContext.InvokePipeline<IRoutingContext>();
+            return routingContext.InvokePipeline<IRoutingContext>(cancellationToken);
         }
     }
 }

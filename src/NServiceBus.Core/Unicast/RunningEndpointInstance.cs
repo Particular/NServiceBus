@@ -19,7 +19,7 @@ namespace NServiceBus
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             if (stopped)
             {
@@ -28,7 +28,7 @@ namespace NServiceBus
 
             try
             {
-                await stopSemaphore.WaitAsync().ConfigureAwait(false);
+                await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
                 if (stopped)
                 {
@@ -38,7 +38,7 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 // Cannot throw by design
-                await receiveComponent.Stop().ConfigureAwait(false);
+                await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
                 await featureComponent.Stop().ConfigureAwait(false);
                 // Can throw
                 await transportInfrastructure.Stop().ConfigureAwait(false);
@@ -59,34 +59,34 @@ namespace NServiceBus
             }
         }
 
-        public Task Send(object message, SendOptions options)
+        public Task Send(object message, SendOptions options, CancellationToken cancellationToken)
         {
-            return messageSession.Send(message, options);
+            return messageSession.Send(message, options, cancellationToken);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken)
         {
-            return messageSession.Send(messageConstructor, options);
+            return messageSession.Send(messageConstructor, options, cancellationToken);
         }
 
-        public Task Publish(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken)
         {
-            return messageSession.Publish(message, options);
+            return messageSession.Publish(message, options, cancellationToken);
         }
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken)
         {
-            return messageSession.Publish(messageConstructor, publishOptions);
+            return messageSession.Publish(messageConstructor, publishOptions, cancellationToken);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken)
         {
-            return messageSession.Subscribe(eventType, options);
+            return messageSession.Subscribe(eventType, options, cancellationToken);
         }
 
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken)
         {
-            return messageSession.Unsubscribe(eventType, options);
+            return messageSession.Unsubscribe(eventType, options, cancellationToken);
         }
 
         HostingComponent hostingComponent;

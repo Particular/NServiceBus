@@ -24,7 +24,7 @@
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
 
-            await this.Fork(auditContext).ConfigureAwait(false);
+            await this.Fork(auditContext, cancellationToken).ConfigureAwait(false);
         }
 
         readonly string auditAddress;

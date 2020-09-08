@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using MessageInterfaces;
@@ -32,19 +33,19 @@ namespace NServiceBus
             this.unsubscribePipeline = unsubscribePipeline;
         }
 
-        public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
+        public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken)
         {
-            return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+            return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options, cancellationToken);
         }
 
-        public Task Publish(IBehaviorContext context, object message, PublishOptions options)
+        public Task Publish(IBehaviorContext context, object message, PublishOptions options, CancellationToken cancellationToken)
         {
             var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
-            return Publish(context, messageType, message, options);
+            return Publish(context, messageType, message, options, cancellationToken);
         }
 
-        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options, CancellationToken cancellationToken)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -59,42 +60,42 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return publishPipeline.Invoke(publishContext);
+            return publishPipeline.Invoke(publishContext, cancellationToken);
         }
 
-        public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
+        public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options, CancellationToken cancellationToken)
         {
             var subscribeContext = new SubscribeContext(
                 context,
                 eventType,
                 options.Context);
 
-            return subscribePipeline.Invoke(subscribeContext);
+            return subscribePipeline.Invoke(subscribeContext, cancellationToken);
         }
 
-        public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken)
         {
             var unsubscribeContext = new UnsubscribeContext(
                 context,
                 eventType,
                 options.Context);
 
-            return unsubscribePipeline.Invoke(unsubscribeContext);
+            return unsubscribePipeline.Invoke(unsubscribeContext, cancellationToken);
         }
 
-        public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken)
         {
-            return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+            return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options, cancellationToken);
         }
 
-        public Task Send(IBehaviorContext context, object message, SendOptions options)
+        public Task Send(IBehaviorContext context, object message, SendOptions options, CancellationToken cancellationToken)
         {
             var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
-            return SendMessage(context, messageType, message, options);
+            return SendMessage(context, messageType, message, options, cancellationToken);
         }
 
-        Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+        Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options, CancellationToken cancellationToken)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -116,22 +117,22 @@ namespace NServiceBus
                 outgoingContext.AddDeliveryConstraint(options.DelayedDeliveryConstraint);
             }
 
-            return sendPipeline.Invoke(outgoingContext);
+            return sendPipeline.Invoke(outgoingContext, cancellationToken);
         }
 
-        public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
+        public Task Reply(IBehaviorContext context, object message, ReplyOptions options, CancellationToken cancellationToken)
         {
             var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
-            return ReplyMessage(context, messageType, message, options);
+            return ReplyMessage(context, messageType, message, options, cancellationToken);
         }
 
-        public Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
+        public Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options, CancellationToken cancellationToken)
         {
-            return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+            return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options, cancellationToken);
         }
 
-        Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+        Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options, CancellationToken cancellationToken)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -146,7 +147,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return replyPipeline.Invoke(outgoingContext);
+            return replyPipeline.Invoke(outgoingContext, cancellationToken);
         }
     }
 }

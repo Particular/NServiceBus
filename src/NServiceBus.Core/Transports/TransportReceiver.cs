@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Transport;
@@ -28,12 +29,12 @@ namespace NServiceBus
 
         public string Id { get; }
 
-        public Task Init()
+        public Task Init(CancellationToken cancellationToken)
         {
-            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
+            return receiver.Init((c,ct) => pipelineExecutor.Invoke(c, ct), (c,ct) => recoverabilityExecutor.Invoke(c, ct), criticalError, pushSettings, cancellationToken);
         }
 
-        public Task Start()
+        public Task Start(CancellationToken cancellationToken)
         {
             if (isStarted)
             {
@@ -42,14 +43,14 @@ namespace NServiceBus
 
             Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
 
-            receiver.Start(pushRuntimeSettings);
+            receiver.Start(pushRuntimeSettings, cancellationToken);
 
             isStarted = true;
 
             return Task.FromResult(0);
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             if (!isStarted)
             {
@@ -58,7 +59,7 @@ namespace NServiceBus
 
             try
             {
-                await receiver.Stop().ConfigureAwait(false);
+                await receiver.Stop(cancellationToken).ConfigureAwait(false);
                 (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Transport;
 
@@ -12,7 +13,7 @@
             satelliteDefinition = definition;
         }
 
-        public Task Invoke(MessageContext messageContext)
+        public Task Invoke(MessageContext messageContext, CancellationToken cancellationToken)
         {
             messageContext.Extensions.Set(messageContext.TransportTransaction);
 

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -17,7 +18,7 @@ namespace NServiceBus
             this.receivePipeline = receivePipeline;
         }
 
-        public async Task Invoke(MessageContext messageContext)
+        public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken)
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
@@ -32,7 +33,7 @@ namespace NServiceBus
 
                 try
                 {
-                    await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                    await receivePipeline.Invoke(transportReceiveContext, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

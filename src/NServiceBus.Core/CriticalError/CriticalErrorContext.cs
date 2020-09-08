@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -14,7 +15,7 @@
         /// <param name="stop">See <see cref="ICriticalErrorContext.Stop" />.</param>
         /// <param name="error">See <see cref="ICriticalErrorContext.Error" />.</param>
         /// <param name="exception">See <see cref="ICriticalErrorContext.Exception" />.</param>
-        public CriticalErrorContext(Func<Task> stop, string error, Exception exception)
+        public CriticalErrorContext(Func<CancellationToken, Task> stop, string error, Exception exception)
         {
             Guard.AgainstNull(nameof(stop), stop);
             Guard.AgainstNullAndEmpty(nameof(error), error);
@@ -27,7 +28,7 @@
         /// <summary>
         /// See <see cref="ICriticalErrorContext.Stop" />.
         /// </summary>
-        public Func<Task> Stop { get; }
+        public Func<CancellationToken, Task> Stop { get; }
 
         /// <summary>
         /// See <see cref="ICriticalErrorContext.Error" />.

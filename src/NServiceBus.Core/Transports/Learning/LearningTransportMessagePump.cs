@@ -17,7 +17,7 @@
             this.basePath = basePath;
         }
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
+        public Task Init(Func<MessageContext, CancellationToken, Task> onMessage, Func<ErrorContext, CancellationToken, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -47,13 +47,13 @@
             return Task.CompletedTask;
         }
 
-        public void Start(PushRuntimeSettings limitations)
+        public void Start(PushRuntimeSettings limitations, CancellationToken cancellationToken)
         {
             maxConcurrency = limitations.MaxConcurrency;
             concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
-            cancellationTokenSource = new CancellationTokenSource();
+            stopCancellationTokenSource = new CancellationTokenSource();
 
-            cancellationToken = cancellationTokenSource.Token;
+            stopCancellationToken = stopCancellationTokenSource.Token;
 
             RecoverPendingTransactions();
 
@@ -64,9 +64,9 @@
             delayedMessagePoller.Start();
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
-            cancellationTokenSource.Cancel();
+            stopCancellationTokenSource.Cancel();
 
             await delayedMessagePoller.Stop()
                 .ConfigureAwait(false);
@@ -76,7 +76,7 @@
 
             while (concurrencyLimiter.CurrentCount != maxConcurrency)
             {
-                await Task.Delay(50, CancellationToken.None)
+                await Task.Delay(50, cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -123,7 +123,7 @@
         [DebuggerNonUserCode]
         async Task ProcessMessages()
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stopCancellationToken.IsCancellationRequested)
             {
                 try
                 {
@@ -145,7 +145,7 @@
         {
             log.Debug($"Started polling for new messages in {messagePumpBasePath}");
 
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stopCancellationToken.IsCancellationRequested)
             {
                 var filesFound = false;
 
@@ -155,7 +155,7 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
-                    await concurrencyLimiter.WaitAsync(cancellationToken)
+                    await concurrencyLimiter.WaitAsync(stopCancellationToken)
                         .ConfigureAwait(false);
 
                     ILearningTransportTransaction transaction;
@@ -186,7 +186,7 @@
 
                 if (!filesFound)
                 {
-                    await Task.Delay(10, cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(10, stopCancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -262,7 +262,7 @@
 
             var tokenSource = new CancellationTokenSource();
 
-            var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
+            var body = await AsyncFile.ReadBytes(bodyPath, stopCancellationToken)
                 .ConfigureAwait(false);
 
             var transportTransaction = new TransportTransaction();
@@ -276,7 +276,7 @@
 
             try
             {
-                await onMessage(messageContext)
+                await onMessage(messageContext, tokenSource.Token)
                     .ConfigureAwait(false);
             }
             catch (Exception exception)
@@ -292,7 +292,7 @@
                 ErrorHandleResult actionToTake;
                 try
                 {
-                    actionToTake = await onError(errorContext)
+                    actionToTake = await onError(errorContext, CancellationToken.None)
                         .ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -320,12 +320,12 @@
                 .ConfigureAwait(false);
         }
 
-        CancellationToken cancellationToken;
-        CancellationTokenSource cancellationTokenSource;
+        CancellationToken stopCancellationToken;
+        CancellationTokenSource stopCancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
         Task messagePumpTask;
-        Func<MessageContext, Task> onMessage;
-        Func<ErrorContext, Task<ErrorHandleResult>> onError;
+        Func<MessageContext, CancellationToken, Task> onMessage;
+        Func<ErrorContext, CancellationToken, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
         string basePath;

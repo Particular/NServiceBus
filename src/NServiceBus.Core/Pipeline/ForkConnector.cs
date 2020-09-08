@@ -14,7 +14,7 @@
         where TForkContext : IBehaviorContext
     {
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<CancellationToken, Task> next, Func<TForkContext, Task> fork);
+        public abstract Task Invoke(TFromContext context, Func<CancellationToken, Task> next, Func<TForkContext, CancellationToken, Task> fork, CancellationToken cancellationToken);
 
         /// <inheritdoc />
         public sealed override Task Invoke(TFromContext context, Func<CancellationToken, Task> next, CancellationToken cancellationToken)
@@ -22,7 +22,7 @@
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
 
-            return Invoke(context, next, ctx => ctx.InvokePipeline());
+            return Invoke(context, next, (ctx,ct) => ctx.InvokePipeline(ct), cancellationToken);
         }
     }
 }

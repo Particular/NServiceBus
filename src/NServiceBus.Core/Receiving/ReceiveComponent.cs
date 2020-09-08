@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
@@ -164,7 +165,9 @@ namespace NServiceBus
             {
                 try
                 {
-                    await receiver.Init().ConfigureAwait(false);
+                    await receiver.Init(
+                        CancellationToken.None // TODO: Cancellation token must be provided
+                        ).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -187,13 +190,13 @@ namespace NServiceBus
             }
         }
 
-        public async Task Start()
+        public async Task Start(CancellationToken cancellationToken)
         {
             foreach (var receiver in receivers)
             {
                 try
                 {
-                    await receiver.Start().ConfigureAwait(false);
+                    await receiver.Start(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -203,12 +206,12 @@ namespace NServiceBus
             }
         }
 
-        public Task Stop()
+        public Task Stop(CancellationToken cancellationToken)
         {
             var receiverStopTasks = receivers.Select(async receiver =>
             {
                 Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
-                await receiver.Stop().ConfigureAwait(false);
+                await receiver.Stop(cancellationToken).ConfigureAwait(false);
                 Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
             });
 

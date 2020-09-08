@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Pipeline;
@@ -26,13 +27,13 @@
             pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>();
         }
 
-        public Task Invoke(TContext context)
+        public Task Invoke(TContext context, CancellationToken cancellationToken)
         {
-            return pipeline(context);
+            return pipeline(context, cancellationToken);
         }
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         IBehavior[] behaviors;
-        Func<TContext, Task> pipeline;
+        Func<TContext, CancellationToken, Task> pipeline;
     }
 }

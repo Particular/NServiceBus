@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Transport;
@@ -30,7 +31,7 @@
             raiseNotifications = raiseRecoverabilityNotifications;
         }
 
-        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
+        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken)
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 

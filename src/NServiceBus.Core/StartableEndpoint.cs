@@ -59,7 +59,7 @@ namespace NServiceBus
 
             var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
-            await receiveComponent.Start().ConfigureAwait(false);
+            await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
 
             return runningInstance;
         }

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     class MessageSession : IMessageSession
@@ -11,34 +12,34 @@ namespace NServiceBus
             messageOperations = context.Get<MessageOperations>();
         }
 
-        public Task Send(object message, SendOptions options)
+        public Task Send(object message, SendOptions options, CancellationToken cancellationToken)
         {
-            return messageOperations.Send(context, message, options);
+            return messageOperations.Send(context, message, options, cancellationToken);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken)
         {
-            return messageOperations.Send(context, messageConstructor, options);
+            return messageOperations.Send(context, messageConstructor, options, cancellationToken);
         }
 
-        public Task Publish(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken)
         {
-            return messageOperations.Publish(context, message, options);
+            return messageOperations.Publish(context, message, options, cancellationToken);
         }
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken)
         {
-            return messageOperations.Publish(context, messageConstructor, publishOptions);
+            return messageOperations.Publish(context, messageConstructor, publishOptions, cancellationToken);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken)
         {
-            return messageOperations.Subscribe(context, eventType, options);
+            return messageOperations.Subscribe(context, eventType, options, cancellationToken);
         }
 
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken)
         {
-            return messageOperations.Unsubscribe(context, eventType, options);
+            return messageOperations.Unsubscribe(context, eventType, options, cancellationToken);
         }
 
         RootContext context;

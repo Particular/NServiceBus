@@ -20,7 +20,7 @@
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
-            return Invoke(context, ct => next(context, ct) , cancellationToken);
+            return Invoke(context, ct => next(context, ct), cancellationToken);
         }
 
         /// <summary>
