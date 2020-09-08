@@ -7,14 +7,14 @@ namespace NServiceBus
 
     class InferredMessageTypeEnricherBehavior : Behavior<IIncomingLogicalMessageContext>
     {
-        public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next, CancellationToken cancellationToken)
+        public override Task Invoke(IIncomingLogicalMessageContext context, Func<CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (!context.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
                 context.Headers[Headers.EnclosedMessageTypes] = context.Message.MessageType.FullName;
             }
 
-            return next();
+            return next(cancellationToken);
         }
     }
 }

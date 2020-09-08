@@ -14,12 +14,12 @@
             this.failedMessages = failedMessages;
         }
 
-        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             failedMessages.AddOrUpdate(context.Message.MessageId, id => true, (id, value) => true);
             log.Debug($"Processing message {context.Message.MessageId}");
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
 
             failedMessages.AddOrUpdate(context.Message.MessageId, id => false, (id, value) => false);
             log.Debug($"Finished message {context.Message.MessageId}");

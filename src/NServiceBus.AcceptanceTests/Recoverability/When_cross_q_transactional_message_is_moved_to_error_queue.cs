@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -137,9 +138,9 @@
 
         class ThrowingBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken cancellationToken)
             {
-                await next(context).ConfigureAwait(false);
+                await next(context, cancellationToken).ConfigureAwait(false);
 
                 throw new SimulatedException();
             }

@@ -63,9 +63,9 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next, CancellationToken cancellationToken)
+                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
-                    await next(context).ConfigureAwait(false);
+                    await next(context, cancellationToken).ConfigureAwait(false);
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }

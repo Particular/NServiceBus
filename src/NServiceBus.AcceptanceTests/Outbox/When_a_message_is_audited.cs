@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -47,15 +48,15 @@
 
             class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeAudited).Name)))
                     {
-                        await next(context).ConfigureAwait(false);
+                        await next(context, cancellationToken).ConfigureAwait(false);
                         return;
                     }
 
-                    await next(context).ConfigureAwait(false);
+                    await next(context, cancellationToken).ConfigureAwait(false);
 
                     throw new SimulatedException();
                 }

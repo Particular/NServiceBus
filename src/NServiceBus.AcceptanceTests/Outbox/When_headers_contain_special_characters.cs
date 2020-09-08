@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -66,7 +67,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
+                public Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
                     if (!testContext.SavedOutBoxRecord)
                     {
@@ -74,7 +75,7 @@
                         throw new Exception();
                     }
 
-                    return next(context);
+                    return next(context, cancellationToken);
                 }
             }
 

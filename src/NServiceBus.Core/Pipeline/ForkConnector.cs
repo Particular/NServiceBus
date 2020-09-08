@@ -14,10 +14,10 @@
         where TForkContext : IBehaviorContext
     {
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<Task> next, Func<TForkContext, Task> fork);
+        public abstract Task Invoke(TFromContext context, Func<CancellationToken, Task> next, Func<TForkContext, Task> fork);
 
         /// <inheritdoc />
-        public sealed override Task Invoke(TFromContext context, Func<Task> next, CancellationToken cancellationToken)
+        public sealed override Task Invoke(TFromContext context, Func<CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);

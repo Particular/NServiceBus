@@ -154,7 +154,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next, CancellationToken cancellationToken)
+                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
                         context.Message.Headers["Timeout.Id"] == testContext.TestRunId.ToString())
@@ -163,7 +163,7 @@
                         return Task.FromResult(0);
                     }
 
-                    return next(context);
+                    return next(context, cancellationToken);
                 }
 
                 public class Registration : RegisterStep

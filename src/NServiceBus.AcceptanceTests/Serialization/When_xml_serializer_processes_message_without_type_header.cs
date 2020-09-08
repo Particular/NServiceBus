@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Serialization
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -57,14 +58,14 @@
 
             public class RemoveTheTypeHeader : Behavior<IDispatchContext>
             {
-                public override Task Invoke(IDispatchContext context, Func<Task> next)
+                public override Task Invoke(IDispatchContext context, Func<CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
                     foreach (var op in context.Operations)
                     {
                         op.Message.Headers.Remove(Headers.EnclosedMessageTypes);
                     }
 
-                    return next();
+                    return next(cancellationToken);
                 }
             }
         }

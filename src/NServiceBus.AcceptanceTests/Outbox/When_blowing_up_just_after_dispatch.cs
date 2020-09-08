@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -43,9 +44,9 @@
 
             class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
-                    await next(context).ConfigureAwait(false);
+                    await next(context, cancellationToken).ConfigureAwait(false);
 
                     throw new SimulatedException();
                 }

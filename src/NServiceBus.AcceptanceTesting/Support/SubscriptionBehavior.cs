@@ -15,9 +15,9 @@
             this.intentToHandle = intentToHandle;
         }
 
-        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
             if (subscriptionMessageType != null)
             {

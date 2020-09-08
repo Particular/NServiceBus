@@ -20,7 +20,7 @@
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
-            return Invoke(context, () => next(context, cancellationToken), cancellationToken);
+            return Invoke(context, ct => next(context, ct) , cancellationToken);
         }
 
         /// <summary>
@@ -29,6 +29,6 @@
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="!:IBehavior{TContext}" /> in the chain to execute.</param>
         /// <param name="cancellationToken"></param>
-        public abstract Task Invoke(TContext context, Func<Task> next, CancellationToken cancellationToken);
+        public abstract Task Invoke(TContext context, Func<CancellationToken, Task> next, CancellationToken cancellationToken);
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -147,7 +148,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
                         context.Message.Headers["Timeout.Id"] == testContext.TestRunId.ToString())
@@ -156,7 +157,7 @@
                         return Task.FromResult(0);
                     }
 
-                    return next(context);
+                    return next(context, cancellationToken);
                 }
 
                 public class Registration : RegisterStep

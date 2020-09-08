@@ -153,7 +153,7 @@
                         return Task.FromResult(0);
                     }
 
-                    return next(context);
+                    return next(context, cancellationToken);
                 }
 
                 public class Registration : RegisterStep
