@@ -12,14 +12,14 @@ namespace NServiceBus
             this.validations = validations;
         }
 
-        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForReply(context.Message.MessageType);
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly Validations validations;

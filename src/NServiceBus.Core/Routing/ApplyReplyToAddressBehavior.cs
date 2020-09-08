@@ -22,7 +22,7 @@
             configuredReturnAddress = publicReturnAddress ?? sharedQueue;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var state = context.Extensions.GetOrCreate<State>();
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
@@ -34,7 +34,7 @@
 
             context.Headers[Headers.ReplyToAddress] = replyTo;
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         string ApplyUserOverride(string replyTo, State state)

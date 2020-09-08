@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class MulticastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
+        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
@@ -20,7 +20,7 @@ namespace NServiceBus
                 },
                 context);
 
-            return stage(logicalMessageContext);
+            return stage(logicalMessageContext, cancellationToken);
         }
     }
 }

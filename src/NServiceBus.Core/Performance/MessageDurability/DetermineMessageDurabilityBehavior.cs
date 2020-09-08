@@ -15,7 +15,7 @@ namespace NServiceBus
             durabilityCache = new ConcurrentDictionary<Type, bool>();
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (durabilityCache.GetOrAdd(context.Message.MessageType, t => convention(t)))
             {
@@ -24,7 +24,7 @@ namespace NServiceBus
                 context.Headers[Headers.NonDurableMessage] = true.ToString();
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly Func<Type, bool> convention;

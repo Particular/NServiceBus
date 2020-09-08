@@ -17,7 +17,7 @@ namespace NServiceBus
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
+        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
@@ -31,7 +31,7 @@ namespace NServiceBus
 
             try
             {
-                await stage(this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
+                await stage(this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context), cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

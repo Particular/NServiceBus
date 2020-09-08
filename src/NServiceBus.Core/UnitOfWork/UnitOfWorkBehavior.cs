@@ -11,17 +11,17 @@
 
     class UnitOfWorkBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (hasUnitsOfWork)
             {
-                return InvokeUnitsOfWork(context, next);
+                return InvokeUnitsOfWork(context, next, cancellationToken);
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
-        async Task InvokeUnitsOfWork(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        async Task InvokeUnitsOfWork(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var unitsOfWork = new Stack<IManageUnitsOfWork>();
 
@@ -39,7 +39,7 @@
 
                 hasUnitsOfWork = hasUow;
 
-                await next(context).ConfigureAwait(false);
+                await next(context, cancellationToken).ConfigureAwait(false);
 
                 while (unitsOfWork.Count > 0)
                 {

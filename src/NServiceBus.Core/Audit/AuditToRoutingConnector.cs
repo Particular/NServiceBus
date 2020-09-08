@@ -16,7 +16,7 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage, CancellationToken cancellationToken)
+        public override Task Invoke(IAuditContext context, Func<IRoutingContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var message = context.Message;
 
@@ -40,7 +40,7 @@ namespace NServiceBus
 
             dispatchContext.Extensions.Set(deliveryConstraints);
 
-            return stage(dispatchContext);
+            return stage(dispatchContext, cancellationToken);
         }
 
         TimeSpan? timeToBeReceived;

@@ -7,9 +7,9 @@
 
     class BatchToDispatchConnector : StageConnector<IBatchDispatchContext, IDispatchContext>
     {
-        public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage, CancellationToken cancellationToken)
+        public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
-            return stage(this.CreateDispatchContext(context.Operations, context));
+            return stage(this.CreateDispatchContext(context.Operations, context), cancellationToken);
         }
     }
 }

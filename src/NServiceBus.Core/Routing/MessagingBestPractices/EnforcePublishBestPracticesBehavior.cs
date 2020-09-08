@@ -12,14 +12,14 @@
             this.validations = validations;
         }
 
-        public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.Message.MessageType);
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly Validations validations;

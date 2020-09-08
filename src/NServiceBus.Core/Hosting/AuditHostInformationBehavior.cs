@@ -15,7 +15,7 @@
             this.endpoint = endpoint;
         }
 
-        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IAuditContext context, Func<IAuditContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             context.AddAuditData(Headers.HostId, hostInfo.HostId.ToString("N"));
             context.AddAuditData(Headers.HostDisplayName, hostInfo.DisplayName);
@@ -23,7 +23,7 @@
             context.AddAuditData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
             context.AddAuditData(Headers.ProcessingEndpoint, endpoint);
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly string endpoint;

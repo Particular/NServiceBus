@@ -9,7 +9,7 @@ namespace NServiceBus
 
     class ReplyConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
+        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var state = context.Extensions.GetOrCreate<State>();
 
@@ -27,7 +27,7 @@ namespace NServiceBus
 
             try
             {
-                await stage(logicalMessageContext).ConfigureAwait(false);
+                await stage(logicalMessageContext, cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

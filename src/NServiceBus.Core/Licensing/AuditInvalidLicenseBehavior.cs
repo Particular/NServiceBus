@@ -9,11 +9,11 @@
 
     class AuditInvalidLicenseBehavior : IBehavior<IAuditContext, IAuditContext>
     {
-        public async Task Invoke(IAuditContext context, Func<IAuditContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(IAuditContext context, Func<IAuditContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             context.AddAuditData(Headers.HasLicenseExpired, "true");
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
 
             if (Debugger.IsAttached)
             {

@@ -10,12 +10,12 @@ namespace NServiceBus
 
     class InvokeSagaNotFoundBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var invocationResult = new SagaInvocationResult();
             context.Extensions.Set(invocationResult);
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
 
             if (invocationResult.WasFound)
             {

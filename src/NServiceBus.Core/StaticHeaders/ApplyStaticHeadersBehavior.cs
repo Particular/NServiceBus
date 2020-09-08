@@ -12,14 +12,14 @@ namespace NServiceBus
             this.currentStaticHeaders = currentStaticHeaders;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             foreach (var staticHeader in currentStaticHeaders)
             {
                 context.Headers[staticHeader.Key] = staticHeader.Value;
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly CurrentStaticHeaders currentStaticHeaders;

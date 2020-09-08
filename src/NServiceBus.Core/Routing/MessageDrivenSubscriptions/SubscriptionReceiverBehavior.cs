@@ -12,13 +12,13 @@
 
     class SubscriptionReceiverBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, Func<IIncomingPhysicalMessageContext, bool> authorizer)
+        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, Func<IIncomingPhysicalMessageContext, CancellationToken, bool> authorizer)
         {
             this.subscriptionStorage = subscriptionStorage;
             this.authorizer = authorizer;
         }
 
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var incomingMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(incomingMessage);
@@ -27,7 +27,7 @@
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
-                await next(context).ConfigureAwait(false);
+                await next(context, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -70,7 +70,7 @@
                 return;
             }
 
-            if (!authorizer(context))
+            if (!authorizer(context, cancellationToken))
             {
                 Logger.Debug($"{intent} from {subscriberAddress} on message type {messageTypeString} was refused.");
                 return;
@@ -93,7 +93,7 @@
             return value;
         }
 
-        readonly Func<IIncomingPhysicalMessageContext, bool> authorizer;
+        readonly Func<IIncomingPhysicalMessageContext, CancellationToken, bool> authorizer;
         readonly ISubscriptionStorage subscriptionStorage;
 
         static readonly ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();

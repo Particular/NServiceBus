@@ -23,7 +23,7 @@
             this.adapter = adapter;
         }
 
-        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage, CancellationToken cancellationToken)
+        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
@@ -47,7 +47,7 @@
                     messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
 
                     var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-                    await stage(handlingContext).ConfigureAwait(false);
+                    await stage(handlingContext, cancellationToken).ConfigureAwait(false);
 
                     if (handlingContext.HandlerInvocationAborted)
                     {

@@ -16,11 +16,11 @@
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TIn,TOut}" /> in the chain to execute.</param>
         /// <param name="cancellationToken"></param>
-        public Task Invoke(TContext context, Func<TContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(TContext context, Func<TContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
-            return Invoke(context, () => next(context), cancellationToken);
+            return Invoke(context, () => next(context, cancellationToken), cancellationToken);
         }
 
         /// <summary>

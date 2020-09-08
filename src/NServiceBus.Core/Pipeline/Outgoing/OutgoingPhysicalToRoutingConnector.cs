@@ -8,11 +8,11 @@
 
     class OutgoingPhysicalToRoutingConnector : StageConnector<IOutgoingPhysicalMessageContext, IRoutingContext>
     {
-        public override Task Invoke(IOutgoingPhysicalMessageContext context, Func<IRoutingContext, Task> stage, CancellationToken cancellationToken)
+        public override Task Invoke(IOutgoingPhysicalMessageContext context, Func<IRoutingContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
-            return stage(this.CreateRoutingContext(message, context.RoutingStrategies, context));
+            return stage(this.CreateRoutingContext(message, context.RoutingStrategies, context), cancellationToken);
         }
     }
 }

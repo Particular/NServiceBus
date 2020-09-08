@@ -23,7 +23,7 @@ namespace NServiceBus
             this.mapper = mapper;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var incomingMessage = context.Message;
 
@@ -31,7 +31,7 @@ namespace NServiceBus
 
             foreach (var message in messages)
             {
-                await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
+                await stage(this.CreateIncomingLogicalMessageContext(message, context), cancellationToken).ConfigureAwait(false);
             }
         }
 

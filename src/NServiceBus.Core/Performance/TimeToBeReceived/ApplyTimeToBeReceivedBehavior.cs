@@ -14,7 +14,7 @@
             this.timeToBeReceivedMappings = timeToBeReceivedMappings;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
             {
@@ -22,7 +22,7 @@
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly TimeToBeReceivedMappings timeToBeReceivedMappings;

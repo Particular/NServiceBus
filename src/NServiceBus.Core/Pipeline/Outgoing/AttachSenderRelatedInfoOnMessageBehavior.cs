@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class AttachSenderRelatedInfoOnMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var message = context.Message;
 
@@ -20,7 +20,7 @@ namespace NServiceBus
             {
                 message.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             }
-            return next(context);
+            return next(context, cancellationToken);
         }
     }
 }

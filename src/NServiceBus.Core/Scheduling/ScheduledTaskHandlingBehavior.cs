@@ -12,7 +12,7 @@ namespace NServiceBus
             this.scheduler = scheduler;
         }
 
-        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (context.Message.Instance is ScheduledTask scheduledTask)
             {
@@ -20,7 +20,7 @@ namespace NServiceBus
                 await scheduler.Start(scheduledTask.TaskId, context).ConfigureAwait(false);
             }
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
         }
 
         DefaultScheduler scheduler;

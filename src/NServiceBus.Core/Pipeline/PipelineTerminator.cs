@@ -23,7 +23,7 @@
         /// <param name="context">Context object.</param>
         /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
         /// <param name="cancellationToken"></param>
-        public sealed override Task Invoke(T context, Func<ITerminatingContext, Task> next, CancellationToken cancellationToken)
+        public sealed override Task Invoke(T context, Func<ITerminatingContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(next), next);
 

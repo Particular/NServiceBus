@@ -15,6 +15,6 @@
         /// Contains information about the pipeline this behavior is part of.
         /// </summary>
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, CancellationToken cancellationToken);
+        public abstract Task Invoke(TFromContext context, Func<TToContext, CancellationToken, Task> stage, CancellationToken cancellationToken);
     }
 }

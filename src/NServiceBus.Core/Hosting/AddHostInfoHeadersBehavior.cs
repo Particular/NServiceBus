@@ -15,13 +15,13 @@
             this.endpoint = endpoint;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
             context.Headers[Headers.OriginatingEndpoint] = endpoint;
             context.Headers[Headers.OriginatingHostId] = hostInformation.HostId.ToString("N");
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly string endpoint;

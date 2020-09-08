@@ -13,14 +13,14 @@ namespace NServiceBus
             this.conversationIdStrategy = conversationIdStrategy;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             context.TryGetIncomingPhysicalMessage(out var incomingMessage);
 
             SetRelatedToHeader(context, incomingMessage);
             SetConversationIdHeader(context, incomingMessage);
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)

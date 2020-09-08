@@ -22,7 +22,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var isTimeoutMessage = IsTimeoutMessage(context.Headers);
             var isTimeoutHandler = context.MessageHandler.IsTimeoutHandler;
@@ -41,7 +41,7 @@
 
             if (!(context.MessageHandler.Instance is Saga saga))
             {
-                await next(context).ConfigureAwait(false);
+                await next(context, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -117,7 +117,7 @@
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {

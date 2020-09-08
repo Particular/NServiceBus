@@ -17,7 +17,7 @@
             this.unicastPublishRouter = unicastPublishRouter;
         }
 
-        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
+        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
@@ -38,7 +38,7 @@
 
             try
             {
-                await stage(logicalMessageContext).ConfigureAwait(false);
+                await stage(logicalMessageContext, cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

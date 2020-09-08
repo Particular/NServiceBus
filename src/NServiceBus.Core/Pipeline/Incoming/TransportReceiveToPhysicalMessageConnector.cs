@@ -20,7 +20,7 @@ namespace NServiceBus
             this.outboxStorage = outboxStorage;
         }
 
-        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
@@ -35,7 +35,7 @@ namespace NServiceBus
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
-                    await next(physicalMessageContext).ConfigureAwait(false);
+                    await next(physicalMessageContext, cancellationToken).ConfigureAwait(false);
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);

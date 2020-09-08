@@ -12,14 +12,14 @@
             this.validations = validations;
         }
 
-        public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForSend(context.Message.MessageType);
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         readonly Validations validations;

@@ -12,7 +12,7 @@
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {
-        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage, CancellationToken cancellationToken)
+        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
@@ -38,7 +38,7 @@
                 return Task.CompletedTask;
             }
 
-            return stage(this.CreateDispatchContext(operations, context));
+            return stage(this.CreateDispatchContext(operations, context), cancellationToken);
         }
 
         static void LogOutgoingOperations(TransportOperation[] operations)

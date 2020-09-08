@@ -7,11 +7,11 @@
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {
-        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             FlowDetailsForRequestingSagaToOutgoingMessage(context, cancellationToken);
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context, CancellationToken cancellationToken)

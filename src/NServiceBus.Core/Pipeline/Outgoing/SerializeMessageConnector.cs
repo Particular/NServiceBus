@@ -18,7 +18,7 @@ namespace NServiceBus
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> stage, CancellationToken cancellationToken)
+        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, CancellationToken, Task> stage, CancellationToken cancellationToken)
         {
             if (log.IsDebugEnabled)
             {
@@ -29,7 +29,7 @@ namespace NServiceBus
 
             if (context.ShouldSkipSerialization())
             {
-                await stage(this.CreateOutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
+                await stage(this.CreateOutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context), cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace NServiceBus
             context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
 
             var array = Serialize(context);
-            await stage(this.CreateOutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
+            await stage(this.CreateOutgoingPhysicalMessageContext(array, context.RoutingStrategies, context), cancellationToken).ConfigureAwait(false);
         }
 
         byte[] Serialize(IOutgoingLogicalMessageContext context)

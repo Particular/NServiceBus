@@ -16,17 +16,17 @@
             this.mutators = mutators;
         }
 
-        public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (hasOutgoingTransportMessageMutators)
             {
-                return InvokeOutgoingTransportMessageMutators(context, next);
+                return InvokeOutgoingTransportMessageMutators(context, next, cancellationToken);
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
-        async Task InvokeOutgoingTransportMessageMutators(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
+        async Task InvokeOutgoingTransportMessageMutators(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 
@@ -67,7 +67,7 @@
                 context.UpdateMessage(mutatorContext.OutgoingBody);
             }
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
         }
 
         volatile bool hasOutgoingTransportMessageMutators = true;

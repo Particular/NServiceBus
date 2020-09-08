@@ -7,7 +7,7 @@
 
     class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext>
     {
-        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next, CancellationToken cancellationToken)
+        public Task Invoke(IAuditContext context, Func<IAuditContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (context.Extensions.TryGet(out ProcessingStatisticsBehavior.State state))
             {
@@ -16,7 +16,7 @@
                 context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
             }
 
-            return next(context);
+            return next(context, cancellationToken);
         }
     }
 }
