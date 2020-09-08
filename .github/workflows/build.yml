@@ -21,6 +21,7 @@ jobs:
         run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
       - name: Create metadata
         run: |
+          @"
           `$Branch = "$env:GitVersion.BranchName"
           `$Version = "$env:GitVersion.LegacySemVer"
           `$Product = "$env:ProjectName"
