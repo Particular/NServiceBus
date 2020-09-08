@@ -34,7 +34,7 @@ namespace NServiceBus
 
             var pipelineSettings = settings.Get<PipelineSettings>();
 
-            hostingConfiguration.Container.AddSingleton(typeof(ReadOnlySettings), settings);
+            hostingConfiguration.Services.AddSingleton(typeof(ReadOnlySettings), settings);
 
             featureComponent = new FeatureComponent(settings);
 
@@ -55,7 +55,7 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Container, pipelineSettings, routingConfiguration, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
 
             featureComponent.Initalize(featureConfigurationContext);
 
@@ -70,7 +70,7 @@ namespace NServiceBus
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
 
-            hostingConfiguration.Container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             receiveComponent = ReceiveComponent.Initialize(
                 receiveConfiguration,

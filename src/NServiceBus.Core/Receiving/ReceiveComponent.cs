@@ -78,14 +78,14 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            var externalHandlerRegistryUsed = hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>();
+            var externalHandlerRegistryUsed = hostingConfiguration.Services.HasComponent<MessageHandlerRegistry>();
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
             if (!externalHandlerRegistryUsed)
             {
                 var messageHandlerRegistry = configuration.messageHandlerRegistry;
 
-                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
 
                 foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
                 {
