@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
@@ -166,14 +167,14 @@
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
-        static Task InvokeBehavior(IServiceCollection services, Exception toThrow = null, UnitOfWorkBehavior behavior = null)
+        static Task InvokeBehavior(IServiceCollection services, Exception toThrow = null, UnitOfWorkBehavior behavior = null, CancellationToken cancellationToken = default)
         {
             var runner = behavior ?? new UnitOfWorkBehavior();
 
             var context = new TestableIncomingPhysicalMessageContext();
             context.Services = services;
 
-            return runner.Invoke(context, ctx =>
+            return runner.Invoke(context, (ctx, ct) =>
             {
                 if (toThrow != null)
                 {
@@ -181,7 +182,7 @@
                 }
 
                 return Task.CompletedTask;
-            });
+            }, cancellationToken);
         }
 
         class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork

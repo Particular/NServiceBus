@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Transports
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -19,7 +20,7 @@
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start();
+            await receiver.Start(CancellationToken.None);
 
             Assert.IsTrue(pump.Started);
         }
@@ -29,15 +30,15 @@
         {
             pump.ThrowOnStart = true;
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start());
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start(CancellationToken.None));
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start();
+            await receiver.Start(CancellationToken.None);
 
-            await receiver.Stop();
+            await receiver.Stop(CancellationToken.None);
 
             Assert.IsTrue(pump.Stopped);
         }
@@ -47,17 +48,17 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start();
+            await receiver.Start(CancellationToken.None);
 
-            Assert.DoesNotThrowAsync(async () => await receiver.Stop());
+            Assert.DoesNotThrowAsync(async () => await receiver.Stop(CancellationToken.None));
         }
 
         [Test]
         public async Task Stop_should_dispose_pump() // for container backward compat reasons
         {
-            await receiver.Start();
+            await receiver.Start(CancellationToken.None);
 
-            await receiver.Stop();
+            await receiver.Stop(CancellationToken.None);
 
             Assert.True(pump.Disposed);
         }
@@ -74,12 +75,12 @@
             public bool Stopped { get; private set; }
             public bool Disposed { get; private set; }
 
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, CancellationToken, Task> onMessage, Func<ErrorContext, CancellationToken, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public void Start(PushRuntimeSettings limitations)
+            public void Start(PushRuntimeSettings limitations, CancellationToken cancellationToken)
             {
                 if (ThrowOnStart)
                 {
@@ -89,7 +90,7 @@
                 Started = true;
             }
 
-            public Task Stop()
+            public Task Stop(CancellationToken cancellationToken)
             {
                 if (ThrowOnStop)
                 {

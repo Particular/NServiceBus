@@ -40,6 +40,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
+        /// <param name="cancellationToken"></param>
         public virtual Task Reply(object message, ReplyOptions options, CancellationToken cancellationToken)
         {
             repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
@@ -53,10 +54,11 @@ namespace NServiceBus.Testing
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
+        /// <param name="cancellationToken"></param>
         public virtual Task Reply<T>(Action<T> messageConstructor, ReplyOptions options, CancellationToken cancellationToken)
         {
             return Reply(messageCreator.CreateInstance(messageConstructor), options, cancellationToken);
-        }
+        }    
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining

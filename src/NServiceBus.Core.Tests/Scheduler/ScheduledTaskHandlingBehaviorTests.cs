@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Pipeline;
@@ -37,11 +38,11 @@
             });
 
             var nextWasCalled = false;
-            await behavior.Invoke(logicalContext, ctx =>
+            await behavior.Invoke(logicalContext, (ctx, ct) =>
             {
                 nextWasCalled = true;
                 return Task.FromResult(0);
-            });
+            }, CancellationToken.None);
 
             var deferredMessage = logicalContext.SentMessages.First(message => message.Options.GetDeliveryDelay().HasValue).Message<ScheduledTask>();
             Assert.That(deferredMessage.TaskId, Is.EqualTo(taskId));
@@ -54,11 +55,11 @@
             logicalContext.Message = new LogicalMessage(new MessageMetadata(typeof(object)), new object());
 
             var nextWasCalled = false;
-            await behavior.Invoke(logicalContext, ctx =>
+            await behavior.Invoke(logicalContext, (ctx, ct) =>
             {
                 nextWasCalled = true;
                 return Task.FromResult(0);
-            });
+            }, CancellationToken.None);
 
             Assert.IsEmpty(logicalContext.SentMessages, "Nothing should have been deferred");
             Assert.True(nextWasCalled, "Next should have been called");

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -30,9 +31,9 @@
             var executor = CreateExecutor(policy, raiseNotifications: false);
             var errorContext = CreateErrorContext();
 
-            await executor.Invoke(errorContext); //force retry
-            await executor.Invoke(errorContext); //force delayed retry
-            await executor.Invoke(errorContext); //force move to errors
+            await executor.Invoke(errorContext, CancellationToken.None); //force retry
+            await executor.Invoke(errorContext, CancellationToken.None); //force delayed retry
+            await executor.Invoke(errorContext, CancellationToken.None); //force move to errors
 
             Assert.IsEmpty(messageRetriedNotifications);
             Assert.IsEmpty(messageFaultedNotifications);
@@ -44,7 +45,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry());
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageRetriedNotifications.Single();
 
@@ -60,7 +61,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysDelay(TimeSpan.FromSeconds(10)));
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageRetriedNotifications.Single();
 
@@ -76,7 +77,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors());
             var errorContext = CreateErrorContext(exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -92,7 +93,7 @@
                 delayedRetriesSupported: false);
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -108,7 +109,7 @@
                 immediateRetriesSupported: false);
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -123,7 +124,7 @@
                 RetryPolicy.Unsupported());
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -138,7 +139,7 @@
                 RetryPolicy.Discard("not needed anymore"));
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            var result = await recoverabilityExecutor.Invoke(errorContext);
+            var result = await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             Assert.AreEqual(ErrorHandleResult.Handled, result);
             Assert.IsEmpty(messageRetriedNotifications);
@@ -152,7 +153,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors(customErrorQueueAddress));
             var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, CancellationToken.None);
 
             var failure = messageFaultedNotifications.Single();
 

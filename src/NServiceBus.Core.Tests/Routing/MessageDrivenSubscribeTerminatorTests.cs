@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
@@ -29,8 +30,8 @@
         {
             var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
-            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), (ctx, ct) => Task.CompletedTask, CancellationToken.None);
+            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {
@@ -45,7 +46,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -59,7 +60,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -76,7 +77,7 @@
 
             Assert.That(async () =>
             {
-                await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
+                await subscribeTerminator.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
             }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);

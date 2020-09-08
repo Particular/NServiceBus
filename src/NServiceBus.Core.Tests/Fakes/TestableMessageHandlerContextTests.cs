@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Testing.Tests.Fakes
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -15,7 +16,7 @@
             var messageInstance = new TestMessage();
             var sendOptions = new SendOptions();
 
-            await context.Send(messageInstance, sendOptions);
+            await context.Send(messageInstance, sendOptions, CancellationToken.None);
 
             Assert.AreEqual(1, context.SentMessages.Length);
             Assert.AreSame(messageInstance, context.SentMessages[0].Message);
@@ -39,7 +40,7 @@
             var messageInstance = new TestMessage();
             var publishOptions = new PublishOptions();
 
-            await context.Publish(messageInstance, publishOptions);
+            await context.Publish(messageInstance, publishOptions, CancellationToken.None);
 
             Assert.AreEqual(1, context.PublishedMessages.Length);
             Assert.AreSame(messageInstance, context.PublishedMessages[0].Message);
@@ -63,7 +64,7 @@
             var messageInstance = new TestMessage();
             var publishOptions = new ReplyOptions();
 
-            await context.Reply(messageInstance, publishOptions);
+            await context.Reply(messageInstance, publishOptions, CancellationToken.None);
 
             Assert.AreEqual(1, context.RepliedMessages.Length);
             Assert.AreSame(messageInstance, context.RepliedMessages[0].Message);
@@ -85,8 +86,8 @@
         {
             var context = new TestableMessageHandlerContext();
 
-            await context.ForwardCurrentMessageTo("destination1");
-            await context.ForwardCurrentMessageTo("destination2");
+            await context.ForwardCurrentMessageTo("destination1", CancellationToken.None);
+            await context.ForwardCurrentMessageTo("destination2", CancellationToken.None);
 
             Assert.Contains("destination1", context.ForwardedMessages);
             Assert.Contains("destination2", context.ForwardedMessages);

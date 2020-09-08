@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Settings;
@@ -20,9 +21,11 @@
                 new MessageSession(new FakeRootContext()),
                 null);
 
-            await testee.Stop();
+            await testee.Stop(CancellationToken.None);
 
-            Assert.That(async () => await testee.Stop(), Throws.Nothing);
+            Assert.That(async () => await testee.Stop(CancellationToken.None), Throws.Nothing);
         }
+        
+        // TODO: we probably want to add tests here
     }
 }

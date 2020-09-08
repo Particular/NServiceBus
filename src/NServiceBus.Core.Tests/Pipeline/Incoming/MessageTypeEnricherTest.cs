@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.Pipeline.Incoming
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus;
     using NUnit.Framework;
@@ -16,7 +17,7 @@ namespace NServiceBus.Core.Tests.Pipeline.Incoming
 
             Assert.IsFalse(context.Headers.ContainsKey(Headers.EnclosedMessageTypes));
 
-            behavior.Invoke(context, messageContext => Task.CompletedTask);
+            behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsTrue(context.Headers.ContainsKey(Headers.EnclosedMessageTypes));
             Assert.AreEqual(context.Headers[Headers.EnclosedMessageTypes], typeof(object).FullName);
@@ -29,7 +30,7 @@ namespace NServiceBus.Core.Tests.Pipeline.Incoming
             var context = new TestableIncomingLogicalMessageContext();
             context.Headers.Add(Headers.EnclosedMessageTypes, typeof(string).FullName);
 
-            mutator.Invoke(context, messageContext => Task.CompletedTask);
+            mutator.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsTrue(context.Headers.ContainsKey(Headers.EnclosedMessageTypes));
             Assert.AreEqual(context.Headers[Headers.EnclosedMessageTypes], typeof(string).FullName);

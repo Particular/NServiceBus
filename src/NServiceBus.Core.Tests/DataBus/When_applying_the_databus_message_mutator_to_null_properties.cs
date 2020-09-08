@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.DataBus
 {
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 new BinaryFormatter().Serialize(stream, "test");
                 stream.Position = 0;
 
-                await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
+                await sendBehavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
             }
         }
 

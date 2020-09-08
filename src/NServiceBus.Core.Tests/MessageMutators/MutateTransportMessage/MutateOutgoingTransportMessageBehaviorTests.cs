@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateTransportMessage
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using MessageMutator;
     using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
+            await behavior.Invoke(physicalContext, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.True(mutator.MutateOutgoingCalled);
             Assert.True(otherMutator.MutateOutgoingCalled);
@@ -40,7 +41,7 @@
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => containerMutator);
 
-            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
+            await behavior.Invoke(physicalContext, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.True(explicitMutator.MutateOutgoingCalled);
             Assert.True(containerMutator.MutateOutgoingCalled);
@@ -54,12 +55,12 @@
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
+            await behavior.Invoke(physicalContext, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => mutator);
 
-            await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
+            await behavior.Invoke(physicalContext, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsFalse(mutator.MutateOutgoingCalled);
         }
@@ -73,7 +74,7 @@
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
             physicalContext.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutateOutgoingTransportMessagesReturnsNull());
 
-            Assert.That(async () => await behavior.Invoke(physicalContext, ctx => Task.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(physicalContext, (ctx, ct) => Task.CompletedTask, CancellationToken.None), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
         [Test]
@@ -86,7 +87,7 @@
 
             context.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutatorWhichDoesNotMutateTheBody());
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -101,7 +102,7 @@
 
             context.Services.AddTransient(sp => new IMutateOutgoingTransportMessages[] { });
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -116,7 +117,7 @@
 
             context.Services.AddTransient<IMutateOutgoingTransportMessages>(sp => new MutatorWhichMutatesTheBody());
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.True(context.UpdateMessageCalled);
         }

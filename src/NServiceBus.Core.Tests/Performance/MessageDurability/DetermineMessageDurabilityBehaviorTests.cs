@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Performance.MessageDurability
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using NUnit.Framework;
@@ -13,7 +14,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => true);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsTrue(context.Extensions.TryGetDeliveryConstraint(out NonDurableDelivery nonDurableDeliveryConstraint));
             Assert.IsNotNull(nonDurableDeliveryConstraint);
@@ -25,7 +26,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => true);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsTrue(bool.Parse(context.Headers[Headers.NonDurableMessage]));
         }
@@ -36,7 +37,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => false);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsFalse(context.Extensions.TryGetDeliveryConstraint(out NonDurableDelivery nonDurableDeliveryConstraint));
             Assert.IsNull(nonDurableDeliveryConstraint);
@@ -48,7 +49,7 @@
             var behavior = new DetermineMessageDurabilityBehavior(t => false);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, _ => Task.CompletedTask);
+            await behavior.Invoke(context, (ctx, ct) => Task.CompletedTask, CancellationToken.None);
 
             Assert.IsFalse(context.Headers.ContainsKey(Headers.NonDurableMessage));
         }

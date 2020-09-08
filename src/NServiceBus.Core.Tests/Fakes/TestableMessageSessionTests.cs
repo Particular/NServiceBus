@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
+    using System.Threading;
     using NUnit.Framework;
     using Testing;
 
@@ -12,7 +13,7 @@
             var session = new TestableMessageSession();
             var options = new SubscribeOptions();
 
-            session.Subscribe(typeof(MyEvent), options);
+            session.Subscribe(typeof(MyEvent), options, CancellationToken.None);
 
             Assert.AreEqual(1, session.Subscriptions.Length);
             Assert.AreSame(options, session.Subscriptions[0].Options);
@@ -25,7 +26,7 @@
             var session = new TestableMessageSession();
             var options = new UnsubscribeOptions();
 
-            session.Unsubscribe(typeof(MyEvent), options);
+            session.Unsubscribe(typeof(MyEvent), options, CancellationToken.None);
 
             Assert.AreEqual(1, session.Unsubscription.Length);
             Assert.AreSame(options, session.Unsubscription[0].Options);

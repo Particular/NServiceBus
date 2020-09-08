@@ -46,6 +46,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
+        /// <param name="cancellationToken"></param>
         public virtual Task Send(object message, SendOptions options, CancellationToken cancellationToken)
         {
             var headers = options.GetHeaders();
@@ -65,6 +66,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">The options for the send.</param>
+        /// <param name="cancellationToken"></param>
         public virtual Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken)
         {
             return Send(messageCreator.CreateInstance(messageConstructor), options, cancellationToken);
@@ -75,6 +77,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="message">The message to publish.</param>
         /// <param name="options">The options for the publish.</param>
+        /// <param name="cancellationToken"></param>
         public virtual Task Publish(object message, PublishOptions options, CancellationToken cancellationToken)
         {
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
@@ -87,6 +90,7 @@ namespace NServiceBus.Testing
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="publishOptions">Specific options for this event.</param>
+        /// <param name="cancellationToken"></param>
         public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken)
         {
             return Publish(messageCreator.CreateInstance(messageConstructor), publishOptions, cancellationToken);

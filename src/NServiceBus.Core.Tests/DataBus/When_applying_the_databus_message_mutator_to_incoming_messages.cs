@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Pipeline;
@@ -47,7 +48,7 @@ namespace NServiceBus.Core.Tests.DataBus
                             {"NServiceBus.DataBus." + propertyKey, databusKey}
                         },
                         null),
-                    ctx => Task.CompletedTask);
+                    (ctx, ct) => Task.CompletedTask, CancellationToken.None);
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;
