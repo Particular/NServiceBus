@@ -2,7 +2,7 @@ name: Build
 on: push
 jobs:
   build:
-    run-on: windows-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
