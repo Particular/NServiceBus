@@ -33,7 +33,7 @@
             var sendComponent = new SendComponent(messageMapper, transportSeam.TransportInfrastructure);
             sendComponent.transportSendInfrastructure = sendComponent.transportInfrastructure.ConfigureSendInfrastructure();
 
-            hostingConfiguration.Container.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Services.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
 
             return sendComponent;
         }

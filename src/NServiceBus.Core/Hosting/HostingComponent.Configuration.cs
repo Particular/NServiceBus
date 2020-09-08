@@ -40,7 +40,7 @@
                 string diagnosticsPath,
                 Func<string, Task> hostDiagnosticsWriter,
                 string endpointName,
-                IServiceCollection container,
+                IServiceCollection services,
                 string installationUserName,
                 bool shouldRunInstallers, 
                 List<Action<IServiceCollection>> userRegistrations)
@@ -51,7 +51,7 @@
                 DiagnosticsPath = diagnosticsPath;
                 HostDiagnosticsWriter = hostDiagnosticsWriter;
                 EndpointName = endpointName;
-                Container = container;
+                Services = services;
                 InstallationUserName = installationUserName;
                 ShouldRunInstallers = shouldRunInstallers;
                 UserRegistrations = userRegistrations;
@@ -75,7 +75,7 @@
 
             public string EndpointName { get; }
 
-            public IServiceCollection Container { get; }
+            public IServiceCollection Services { get; }
 
             public string DiagnosticsPath { get; }
 
