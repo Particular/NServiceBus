@@ -1262,8 +1262,11 @@ namespace NServiceBus.Features
     }
     public class FeatureConfigurationContext
     {
+        [System.ObsoleteAttribute("Use `Services` instead. Will be treated as an error from version 9.0.0. Will be r" +
+            "emoved in version 10.0.0.", false)]
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, System.Func<System.IServiceProvider, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)

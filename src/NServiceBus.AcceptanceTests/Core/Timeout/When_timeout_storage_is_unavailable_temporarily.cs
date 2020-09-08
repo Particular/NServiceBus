@@ -86,8 +86,8 @@
                 {
                     var testContext = context.Settings.Get<TimeoutTestContext>();
                     var persister = new CyclingOutageTimeoutPersister(testContext.SecondsToWait);
-                    context.Container.AddSingleton<IPersistTimeouts>(persister);
-                    context.Container.AddSingleton<IQueryTimeouts>(persister);
+                    context.Services.AddSingleton<IPersistTimeouts>(persister);
+                    context.Services.AddSingleton<IQueryTimeouts>(persister);
                 }
             }
         }

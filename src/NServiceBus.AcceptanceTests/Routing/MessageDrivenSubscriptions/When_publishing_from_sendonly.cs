@@ -91,7 +91,7 @@
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Container.AddSingleton(typeof(ISubscriptionStorage), typeof(HardcodedSubscriptionManager));
+                context.Services.AddSingleton(typeof(ISubscriptionStorage), typeof(HardcodedSubscriptionManager));
             }
         }
 

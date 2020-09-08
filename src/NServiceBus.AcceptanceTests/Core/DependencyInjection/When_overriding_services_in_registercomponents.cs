@@ -66,9 +66,9 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.Container.AddSingleton<IDependencyFromFeature, OriginallyDefinedDependency>();
+                    context.Services.AddSingleton<IDependencyFromFeature, OriginallyDefinedDependency>();
 
-                    context.Container.AddTransient<StartupFeatureWithDependencies>();
+                    context.Services.AddTransient<StartupFeatureWithDependencies>();
                     context.RegisterStartupTask(sp => sp.GetRequiredService<StartupFeatureWithDependencies>());
                 }
 
