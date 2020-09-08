@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Runtime.InteropServices;
 #endif
     using System.Security.Principal;
+    using System.Threading;
     using System.Threading.Tasks;
     using Settings;
     using Transport;
@@ -32,7 +33,7 @@ namespace NServiceBus
             this.builder = builder;
         }
 
-        public async Task<IEndpointInstance> Start()
+        public async Task<IEndpointInstance> Start(CancellationToken cancellationToken)
         {
             await sendComponent.SendPreStartupChecks().ConfigureAwait(false);
             await receiveComponent.ReceivePreStartupChecks().ConfigureAwait(false);

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
@@ -113,7 +114,7 @@
             methodList.Add(delegateHolder);
         }
 
-        static Func<object, object, IMessageHandlerContext, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+        static Func<object, object, IMessageHandlerContext, CancellationToken, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
@@ -122,7 +123,7 @@
                 return null;
             }
 
-            var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
+            var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.Skip(1).FirstOrDefault();
             if (methodInfo == null)
             {
                 return null;
@@ -131,15 +132,16 @@
             var target = Expression.Parameter(typeof(object));
             var messageParam = Expression.Parameter(typeof(object));
             var contextParam = Expression.Parameter(typeof(IMessageHandlerContext));
-
+            var cancellationParam = Expression.Parameter(typeof(CancellationToken));
+            
             var castTarget = Expression.Convert(target, targetType);
 
             var methodParameters = methodInfo.GetParameters();
             var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
 
-            Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam);
+            Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam, cancellationParam);
 
-            return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).Compile();
+            return Expression.Lambda<Func<object, object, IMessageHandlerContext, CancellationToken, Task>>(body, target, messageParam, contextParam, cancellationParam).Compile();
         }
 
         // ReSharper disable once ReturnTypeCanBeEnumerable.Local
@@ -178,7 +180,7 @@
         {
             public bool IsTimeoutHandler { get; set; }
             public Type MessageType;
-            public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
+            public Func<object, object, IMessageHandlerContext, CancellationToken, Task> MethodDelegate;
         }
     }
 }

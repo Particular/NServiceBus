@@ -443,7 +443,7 @@ namespace LightInject.Microsoft.DependencyInjection
         }
 
         /// <inheritdoc/>
-        [ExcludeFromCodeCoverage]
+        //[ExcludeFromCodeCoverage]
         public object GetInstance(Func<object> createInstance, Scope scope)
         {
             throw new NotImplementedException("Uses optimized non closing method");

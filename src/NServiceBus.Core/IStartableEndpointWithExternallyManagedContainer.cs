@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -12,8 +13,9 @@ namespace NServiceBus
         /// Starts the endpoint and returns a reference to it.
         /// </summary>
         /// <param name="builder">The <see cref="IServiceProvider"/> instance used to resolve dependencies.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>A reference to the endpoint.</returns>
-        Task<IEndpointInstance> Start(IServiceProvider builder);
+        Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Access to the singleton IMessageSession to be registered in dependency injection container.

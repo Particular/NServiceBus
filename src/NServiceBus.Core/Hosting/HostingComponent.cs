@@ -3,6 +3,7 @@
     using System;
     using System.Net;
     using System.Runtime;
+    using System.Threading;
     using System.Threading.Tasks;
     using Installation;
     using Microsoft.Extensions.DependencyInjection;
@@ -67,13 +68,13 @@
             }
         }
 
-        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint)
+        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint, CancellationToken cancellationToken)
         {
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
             await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries).ConfigureAwait(false);
 
-            var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+            var endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
 
             configuration.CriticalError.SetEndpoint(endpointInstance);
 

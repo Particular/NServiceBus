@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,7 +12,8 @@ namespace NServiceBus
         /// Creates a new startable endpoint based on the provided configuration.
         /// </summary>
         /// <param name="configuration">Configuration.</param>
-        public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
+        /// <param name="cancellationToken">TODOOOOOOOOO</param>
+        public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
@@ -22,13 +24,14 @@ namespace NServiceBus
         /// Creates and starts a new endpoint based on the provided configuration.
         /// </summary>
         /// <param name="configuration">Configuration.</param>
-        public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration)
+        /// <param name="cancellationToken"></param>
+        public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            var startableEndpoint = await Create(configuration).ConfigureAwait(false);
+            var startableEndpoint = await Create(configuration, cancellationToken).ConfigureAwait(false);
 
-            return await startableEndpoint.Start().ConfigureAwait(false);
+            return await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
         }
     }
 }

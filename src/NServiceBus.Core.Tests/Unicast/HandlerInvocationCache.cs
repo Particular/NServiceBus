@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using NUnit.Framework;
@@ -25,14 +26,14 @@
 
             var fakeContext = new TestableMessageHandlerContext();
 
-            await messageHandler.Invoke(stubMessage, fakeContext);
-            await timeoutHandler.Invoke(stubTimeout, fakeContext);
+            await messageHandler.Invoke(stubMessage, fakeContext, CancellationToken.None);
+            await timeoutHandler.Invoke(stubTimeout, fakeContext, CancellationToken.None);
 
             var startNew = Stopwatch.StartNew();
             for (var i = 0; i < 100000; i++)
             {
-                await messageHandler.Invoke(stubMessage, fakeContext);
-                await timeoutHandler.Invoke(stubTimeout, fakeContext);
+                await messageHandler.Invoke(stubMessage, fakeContext, CancellationToken.None);
+                await timeoutHandler.Invoke(stubTimeout, fakeContext, CancellationToken.None);
             }
             startNew.Stop();
             Trace.WriteLine(startNew.ElapsedMilliseconds);
@@ -74,7 +75,7 @@
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
             var handlerContext = new TestableMessageHandlerContext();
-            await handler.Invoke(new StubMessage(), handlerContext);
+            await handler.Invoke(new StubMessage(), handlerContext, CancellationToken.None);
 
             Assert.IsTrue(((StubHandler)handler.Instance).HandleCalled);
         }
@@ -88,7 +89,7 @@
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
             var stubMessage = new StubMessage();
             var handlerContext = new TestableMessageHandlerContext();
-            await handler.Invoke(stubMessage, handlerContext);
+            await handler.Invoke(stubMessage, handlerContext, CancellationToken.None);
 
             Assert.AreEqual(stubMessage, ((StubHandler)handler.Instance).HandledMessage);
         }
@@ -101,7 +102,7 @@
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
             var handlerContext = new TestableMessageHandlerContext();
-            await handler.Invoke(new StubMessage(), handlerContext);
+            await handler.Invoke(new StubMessage(), handlerContext, CancellationToken.None);
 
             Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
         }
@@ -137,7 +138,7 @@
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
             var handlerContext = new TestableMessageHandlerContext();
-            await handler.Invoke(new StubTimeoutState(), handlerContext);
+            await handler.Invoke(new StubTimeoutState(), handlerContext, CancellationToken.None);
 
             Assert.IsTrue(((StubHandler)handler.Instance).TimeoutCalled);
         }
@@ -151,7 +152,7 @@
             var stubState = new StubTimeoutState();
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
             var handlerContext = new TestableMessageHandlerContext();
-            await handler.Invoke(stubState, handlerContext);
+            await handler.Invoke(stubState, handlerContext, CancellationToken.None);
 
             Assert.AreEqual(stubState, ((StubHandler)handler.Instance).HandledState);
         }
@@ -164,7 +165,7 @@
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
             var handlerContext = new TestableMessageHandlerContext();
-            await handler.Invoke(new StubTimeoutState(), handlerContext);
+            await handler.Invoke(new StubTimeoutState(), handlerContext, CancellationToken.None);
 
             Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
         }

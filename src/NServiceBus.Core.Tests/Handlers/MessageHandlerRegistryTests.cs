@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Testing;
@@ -41,7 +42,7 @@
             var timeoutInstance = new SagaWithTimeoutOfMessage();
 
             timeoutHandler.Instance = timeoutInstance;
-            await timeoutHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext());
+            await timeoutHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext(), CancellationToken.None);
 
             Assert.True(timeoutInstance.TimeoutCalled);
             Assert.False(timeoutInstance.HandlerCalled);
@@ -53,7 +54,7 @@
             var regularInstance = new SagaWithTimeoutOfMessage();
 
             regularHandler.Instance = regularInstance;
-            await regularHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext());
+            await regularHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext(), CancellationToken.None);
 
             Assert.False(regularInstance.TimeoutCalled);
             Assert.True(regularInstance.HandlerCalled);

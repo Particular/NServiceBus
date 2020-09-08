@@ -4063,7 +4063,7 @@ namespace LightInject
         }
 #endif
 
-#if NET452 || NET46 || NETCOREAPP2_0
+#if NET452 || NET46 || NETCOREAPP2_0 || NETCOREAPP3_1
         private Action<IEmitter> GetEmitMethodForDefaultValue(ConstructorDependency constructorDependency)
         {
             Type parameterType = constructorDependency.Parameter.ParameterType;
@@ -4929,7 +4929,7 @@ namespace LightInject
                 return dynamicMethod.CreateDelegate(delegateType);
             }
 
-#if NET452 || NET46 || NETCOREAPP2_0
+#if NET452 || NET46 || NETCOREAPP2_0 || NETCOREAPP3_1
             private void CreateDynamicMethod(Type returnType, Type[] parameterTypes)
             {
                 dynamicMethod = new DynamicMethod(

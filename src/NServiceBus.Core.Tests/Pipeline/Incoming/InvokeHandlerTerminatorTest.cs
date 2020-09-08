@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
@@ -18,7 +19,7 @@
             var terminator = new InvokeHandlerTerminator();
             var saga = new FakeSaga();
 
-            var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, saga);
+            var messageHandler = CreateMessageHandler((i, m, ctx, ct) => handlerInvoked = true, saga);
             var behaviorContext = CreateBehaviorContext(messageHandler);
             AssociateSagaWithMessage(saga, behaviorContext);
 
@@ -34,7 +35,7 @@
             var terminator = new InvokeHandlerTerminator();
             var saga = new FakeSaga();
 
-            var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, saga);
+            var messageHandler = CreateMessageHandler((i, m, ctx, ct) => handlerInvoked = true, saga);
             var behaviorContext = CreateBehaviorContext(messageHandler);
             var sagaInstance = AssociateSagaWithMessage(saga, behaviorContext);
             sagaInstance.MarkAsNotFound();
@@ -50,7 +51,7 @@
             var handlerInvoked = false;
             var terminator = new InvokeHandlerTerminator();
 
-            var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
+            var messageHandler = CreateMessageHandler((i, m, ctx, ct) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
             var sagaInstance = AssociateSagaWithMessage(new FakeSaga(), behaviorContext);
             sagaInstance.MarkAsNotFound();
@@ -66,7 +67,7 @@
             var handlerInvoked = false;
             var terminator = new InvokeHandlerTerminator();
 
-            var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
+            var messageHandler = CreateMessageHandler((i, m, ctx, ct) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
             await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
@@ -79,7 +80,7 @@
         {
             object receivedMessage = null;
             var terminator = new InvokeHandlerTerminator();
-            var messageHandler = CreateMessageHandler((i, m, ctx) => receivedMessage = m, new FakeMessageHandler());
+            var messageHandler = CreateMessageHandler((i, m, ctx, ct) => receivedMessage = m, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
             await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
@@ -92,7 +93,7 @@
         {
             var thrownException = new InvalidOperationException();
             var terminator = new InvokeHandlerTerminator();
-            var messageHandler = CreateMessageHandler((i, m, ctx) => throw thrownException, new FakeMessageHandler());
+            var messageHandler = CreateMessageHandler((i, m, ctx, ct) => throw thrownException, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
             var caughtException = Assert.ThrowsAsync<InvalidOperationException>(async () => await terminator.Invoke(behaviorContext, _ => Task.CompletedTask));
@@ -108,7 +109,7 @@
         public void Should_throw_friendly_exception_if_handler_returns_null()
         {
             var terminator = new InvokeHandlerTerminator();
-            var messageHandler = CreateMessageHandlerThatReturnsNull((i, m, ctx) => { }, new FakeSaga());
+            var messageHandler = CreateMessageHandlerThatReturnsNull((i, m, ctx, ct) => { }, new FakeSaga());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
             Assert.That(async () => await terminator.Invoke(behaviorContext, _ => Task.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
@@ -121,11 +122,11 @@
             return sagaInstance;
         }
 
-        static MessageHandler CreateMessageHandler(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
+        static MessageHandler CreateMessageHandler(Action<object, object, IMessageHandlerContext, CancellationToken> invocationAction, object handlerInstance)
         {
-            var messageHandler = new MessageHandler((instance, message, handlerContext) =>
+            var messageHandler = new MessageHandler((instance, message, handlerContext, ct) =>
             {
-                invocationAction(instance, message, handlerContext);
+                invocationAction(instance, message, handlerContext, ct);
                 return Task.CompletedTask;
             }, handlerInstance.GetType())
             {
@@ -134,11 +135,11 @@
             return messageHandler;
         }
 
-        static MessageHandler CreateMessageHandlerThatReturnsNull(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
+        static MessageHandler CreateMessageHandlerThatReturnsNull(Action<object, object, IMessageHandlerContext, CancellationToken> invocationAction, object handlerInstance)
         {
-            var messageHandler = new MessageHandler((instance, message, handlerContext) =>
+            var messageHandler = new MessageHandler((instance, message,  handlerContext, ct) =>
             {
-                invocationAction(instance, message, handlerContext);
+                invocationAction(instance, message, handlerContext, ct);
                 return null;
             }, handlerInstance.GetType())
             {

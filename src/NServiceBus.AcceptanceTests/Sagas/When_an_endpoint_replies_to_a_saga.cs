@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -43,7 +44,7 @@
 
             class DoSomethingHandler : IHandleMessages<DoSomething>
             {
-                public Task Handle(DoSomething message, IMessageHandlerContext context)
+                public Task Handle(DoSomething message, IMessageHandlerContext context, CancellationToken token)
                 {
                     return context.Reply(new DoSomethingResponse
                     {

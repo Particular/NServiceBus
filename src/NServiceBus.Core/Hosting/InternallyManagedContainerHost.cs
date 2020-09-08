@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     class InternallyManagedContainerHost : IStartableEndpoint
@@ -10,9 +11,9 @@
             this.hostingComponent = hostingComponent;
         }
 
-        public Task<IEndpointInstance> Start()
+        public Task<IEndpointInstance> Start(CancellationToken cancellationToken)
         {
-            return hostingComponent.Start(startableEndpoint);
+            return hostingComponent.Start(startableEndpoint, cancellationToken);
         }
 
         readonly IStartableEndpoint startableEndpoint;
