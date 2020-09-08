@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using ObjectBuilder;
+    using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Support;
 
@@ -77,7 +77,7 @@
                 set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
             }
 
-            public List<Action<IConfigureComponents>> UserRegistrations { get; } = new List<Action<IConfigureComponents>>();
+            public List<Action<IServiceCollection>> UserRegistrations { get; } = new List<Action<IServiceCollection>>();
 
             public string InstallationUserName
             {

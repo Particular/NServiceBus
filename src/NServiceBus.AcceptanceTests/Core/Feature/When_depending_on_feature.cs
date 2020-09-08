@@ -50,7 +50,7 @@
 
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Container.ConfigureComponent<Runner>(DependencyLifecycle.SingleInstance);
+                context.Services.AddSingleton<Runner>();
                 context.RegisterStartupTask(b => b.GetService<Runner>());
             }
 
@@ -80,9 +80,8 @@
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Container.ConfigureComponent<Dependency>(DependencyLifecycle.SingleInstance);
-
-                context.Container.ConfigureComponent<Runner>(DependencyLifecycle.SingleInstance);
+                context.Services.AddSingleton<Dependency>();
+                context.Services.AddSingleton<Runner>();
                 context.RegisterStartupTask(b => b.GetService<Runner>());
             }
 

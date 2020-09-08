@@ -1,3 +1,4 @@
+#pragma warning disable 0618
 namespace NServiceBus.ContainerTests
 {
     using System;
@@ -10,8 +11,7 @@ namespace NServiceBus.ContainerTests
         public void Instance_per_uow__components_should_be_disposed_when_the_child_container_is_disposed()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            configureComponents.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
             using (var scope = builder.CreateScope())
@@ -25,8 +25,7 @@ namespace NServiceBus.ContainerTests
         public void Instance_per_uow_components_should_yield_different_instances_between_parent_and_child_containers()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            configureComponents.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
             var parentInstance = builder.GetService(typeof(InstancePerUoWComponent));
@@ -42,8 +41,7 @@ namespace NServiceBus.ContainerTests
         public void Instance_per_uow_components_should_yield_different_instances_between_different_instances_of_child_containers()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            configureComponents.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
             object instance1;
@@ -65,8 +63,7 @@ namespace NServiceBus.ContainerTests
         public void Instance_per_call_components_should_not_be_shared_across_child_containers()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            configureComponents.ConfigureComponent(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
+            serviceCollection.ConfigureComponent(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
 
             var builder = BuildContainer(serviceCollection);
             object instance1;
@@ -88,8 +85,7 @@ namespace NServiceBus.ContainerTests
         public void UoW_components_in_the_parent_container_should_be_singletons_in_the_same_child_container()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            configureComponents.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
             using (var scope = builder.CreateScope())
@@ -105,8 +101,7 @@ namespace NServiceBus.ContainerTests
         public void UoW_components_built_on_root_container_should_be_singletons_even_with_child_builder_present()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            configureComponents.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
 
@@ -122,10 +117,9 @@ namespace NServiceBus.ContainerTests
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
             var singletonInMainContainer = new SingletonComponent();
-            configureComponents.RegisterSingleton(typeof(ISingletonComponent), singletonInMainContainer);
-            configureComponents.ConfigureComponent(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddSingleton(typeof(ISingletonComponent), singletonInMainContainer);
+            serviceCollection.ConfigureComponent(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
 
             var builder = BuildContainer(serviceCollection);
             using (var scope = builder.CreateScope())
@@ -139,11 +133,10 @@ namespace NServiceBus.ContainerTests
         public void Should_dispose_all_non_percall_IDisposable_components_in_child_container()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
             DisposableComponent.DisposeCalled = false;
             AnotherDisposableComponent.DisposeCalled = false;
-            configureComponents.RegisterSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
-            configureComponents.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
+            serviceCollection.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
 
             var builder = BuildContainer(serviceCollection);
@@ -235,3 +228,4 @@ namespace NServiceBus.ContainerTests
         }
     }
 }
+#pragma warning restore 0618

@@ -139,6 +139,61 @@ namespace NServiceBus.ObjectBuilder
         [ObsoleteEx(Message = "The BuildAndDispatch method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         void BuildAndDispatch(Type typeToBuild, Action<object> action);
     }
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = nameof(IServiceCollection),
+        TreatAsErrorFromVersion = "8.0",
+        RemoveInVersion = "9.0")]
+    public interface IConfigureComponents
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.ConfigureComponent",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        void ConfigureComponent(Type concreteComponent, DependencyLifecycle dependencyLifecycle);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.ConfigureComponent",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        void ConfigureComponent<T>(DependencyLifecycle dependencyLifecycle);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.ConfigureComponent",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        void ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.ConfigureComponent",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        void ConfigureComponent<T>(Func<IServiceProvider, T> componentFactory, DependencyLifecycle dependencyLifecycle);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.AddSingleton",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        void RegisterSingleton(Type lookupType, object instance);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.AddSingleton",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        void RegisterSingleton<T>(T instance);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.HasComponent",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        bool HasComponent<T>();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IServiceCollection.HasComponent",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        bool HasComponent(Type componentType);
+    }
 }
 
 namespace NServiceBus.ObjectBuilder.Common

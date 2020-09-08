@@ -16,12 +16,12 @@ namespace NServiceBus
 
             foreach (var registeredBehavior in modifications.Replacements)
             {
-                hostingConfiguration.Container.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
+                hostingConfiguration.Services.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
             }
 
             foreach (var step in modifications.Additions)
             {
-                step.ApplyContainerRegistration(hostingConfiguration.Container);
+                step.ApplyContainerRegistration(hostingConfiguration.Services);
             }
 
             return new PipelineComponent(modifications);

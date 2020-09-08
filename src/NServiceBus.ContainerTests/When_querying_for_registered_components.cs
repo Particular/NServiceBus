@@ -1,9 +1,10 @@
+#pragma warning disable 0618
 namespace NServiceBus.ContainerTests
 {
-    using MicrosoftExtensionsDependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
-    using ObjectBuilder;
+    using ServiceCollection = MicrosoftExtensionsDependencyInjection.ServiceCollection;
 
     [TestFixture]
     public class When_querying_for_registered_components
@@ -12,33 +13,30 @@ namespace NServiceBus.ContainerTests
         public void Existing_components_should_return_true()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            InitializeBuilder(configureComponents);
+            InitializeBuilder(serviceCollection);
 
-            Assert.True(configureComponents.HasComponent(typeof(ExistingComponent)));
+            Assert.True(serviceCollection.HasComponent(typeof(ExistingComponent)));
         }
 
         [Test]
         public void Non_existing_components_should_return_false()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            InitializeBuilder(configureComponents);
+            InitializeBuilder(serviceCollection);
 
-            Assert.False(configureComponents.HasComponent(typeof(NonExistingComponent)));
+            Assert.False(serviceCollection.HasComponent(typeof(NonExistingComponent)));
         }
 
         [Test]
         public void Builders_should_not_determine_existence_by_building_components()
         {
             var serviceCollection = new ServiceCollection();
-            var configureComponents = new CommonObjectBuilder(serviceCollection);
-            InitializeBuilder(configureComponents);
+            InitializeBuilder(serviceCollection);
 
-            Assert.True(configureComponents.HasComponent(typeof(ExistingComponentWithUnsatisfiedDependency)));
+            Assert.True(serviceCollection.HasComponent(typeof(ExistingComponentWithUnsatisfiedDependency)));
         }
 
-        void InitializeBuilder(IConfigureComponents c)
+        void InitializeBuilder(IServiceCollection c)
         {
             c.ConfigureComponent(typeof(ExistingComponent), DependencyLifecycle.InstancePerCall);
             c.ConfigureComponent(typeof(ExistingComponentWithUnsatisfiedDependency), DependencyLifecycle.InstancePerCall);
@@ -62,3 +60,4 @@ namespace NServiceBus.ContainerTests
         }
     }
 }
+#pragma warning restore 0618

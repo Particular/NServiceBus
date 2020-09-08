@@ -7,7 +7,6 @@
     using Hosting;
     using Installation;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
 
     partial class HostingComponent
     {
@@ -16,7 +15,6 @@
         public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
         {
             var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-            var configureComponentsAdapter = new CommonObjectBuilder(serviceCollection);
 
             var configuration = new Configuration(settings,
                 availableTypes,
@@ -25,22 +23,10 @@
                 settings.DiagnosticsPath,
                 settings.HostDiagnosticsWriter,
                 settings.EndpointName,
-                configureComponentsAdapter,
+                serviceCollection,
                 settings.InstallationUserName,
-                settings.ShouldRunInstallers);
-
-            configureComponentsAdapter.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
-            configureComponentsAdapter.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
-
-            foreach (var installerType in availableTypes.Where(t => IsINeedToInstallSomething(t)))
-            {
-                configureComponentsAdapter.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
-            }
-
-            foreach (var registration in settings.UserRegistrations)
-            {
-                registration(configureComponentsAdapter);
-            }
+                settings.ShouldRunInstallers,
+                settings.UserRegistrations);
 
             return configuration;
         }
@@ -54,9 +40,10 @@
                 string diagnosticsPath,
                 Func<string, Task> hostDiagnosticsWriter,
                 string endpointName,
-                IConfigureComponents container,
+                IServiceCollection services,
                 string installationUserName,
-                bool shouldRunInstallers)
+                bool shouldRunInstallers, 
+                List<Action<IServiceCollection>> userRegistrations)
             {
                 AvailableTypes = availableTypes;
                 CriticalError = criticalError;
@@ -64,9 +51,10 @@
                 DiagnosticsPath = diagnosticsPath;
                 HostDiagnosticsWriter = hostDiagnosticsWriter;
                 EndpointName = endpointName;
-                Container = container;
+                Services = services;
                 InstallationUserName = installationUserName;
                 ShouldRunInstallers = shouldRunInstallers;
+                UserRegistrations = userRegistrations;
 
                 settings.ApplyHostIdDefaultIfNeeded();
                 HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -87,7 +75,7 @@
 
             public string EndpointName { get; }
 
-            public IConfigureComponents Container { get; }
+            public IServiceCollection Services { get; }
 
             public string DiagnosticsPath { get; }
 
@@ -101,6 +89,8 @@
             public bool ShouldRunInstallers { get; }
 
             public string InstallationUserName { get; }
+
+            public List<Action<IServiceCollection>> UserRegistrations { get; }
 
             internal ICollection<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
         }

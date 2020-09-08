@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using System.Net;
     using System.Runtime;
     using System.Threading.Tasks;
@@ -10,13 +11,28 @@
 
     partial class HostingComponent
     {
-        public HostingComponent(Configuration configuration)
+        public HostingComponent(Configuration configuration, bool shouldDisposeBuilder)
         {
             this.configuration = configuration;
+            this.shouldDisposeBuilder = shouldDisposeBuilder;
         }
 
-        public static HostingComponent Initialize(Configuration configuration)
+        public static HostingComponent Initialize(Configuration configuration, IServiceCollection serviceCollection, bool shouldDisposeBuilder)
         {
+            serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
+
+            foreach (var installerType in configuration.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
+            {
+                serviceCollection.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+            }
+
+            // Apply user registrations last, so that user overrides win.
+            foreach (var registration in configuration.UserRegistrations)
+            {
+                registration(serviceCollection);
+            }
+
             configuration.AddStartupDiagnosticsSection("Hosting", new
             {
                 configuration.HostInformation.HostId,
@@ -36,13 +52,12 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            return new HostingComponent(configuration);
+            return new HostingComponent(configuration, shouldDisposeBuilder);
         }
 
-        public void RegisterBuilder(IServiceProvider objectBuilder, bool isInternalBuilder)
+        public void RegisterBuilder(IServiceProvider objectBuilder)
         {
             builder = objectBuilder;
-            shouldDisposeBuilder = isInternalBuilder;
         }
 
         // This can't happen at start due to an old "feature" that allowed users to

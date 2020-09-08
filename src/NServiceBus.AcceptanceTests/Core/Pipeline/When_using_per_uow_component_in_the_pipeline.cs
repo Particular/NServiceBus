@@ -62,7 +62,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.RegisterComponents(r => r.ConfigureComponent<UnitOfWorkComponent>(DependencyLifecycle.InstancePerUnitOfWork));
+                    c.RegisterComponents(r => r.AddScoped<UnitOfWorkComponent>());
                     c.Pipeline.Register(b => new HeaderProcessingBehavior(b.GetService<Context>()), "Populates UoW component.");
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });

@@ -6,6 +6,7 @@
     using EndpointTemplates;
     using Extensibility;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus;
     using NServiceBus.Outbox;
     using Persistence;
@@ -45,7 +46,7 @@
                     {
                         b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
-                        b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
+                        b.RegisterComponents(c => c.AddSingleton<IOutboxStorage, FakeOutbox>());
                     });
             }
 

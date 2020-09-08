@@ -29,8 +29,8 @@
             });
 
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
-
-            var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingConfiguration);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, false);
+            var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingComponent);
 
             return externallyManagedContainerHost;
         }
@@ -56,7 +56,7 @@
 
             var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
+            var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, true);
 
             var containerOptions = new ContainerOptions
             {
@@ -64,8 +64,7 @@
             }.WithMicrosoftSettings();
             var serviceProvider = serviceCollection.CreateLightInjectServiceProvider(containerOptions);
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, hostingComponent);
-
-            hostingComponent.RegisterBuilder(serviceProvider, true);
+            hostingComponent.RegisterBuilder(serviceProvider);
 
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 

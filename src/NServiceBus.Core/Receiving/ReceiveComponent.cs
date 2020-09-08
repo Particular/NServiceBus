@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Outbox;
     using Persistence;
     using Pipeline;
@@ -79,14 +78,14 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            var externalHandlerRegistryUsed = hostingConfiguration.Container.HasComponent<MessageHandlerRegistry>();
+            var externalHandlerRegistryUsed = hostingConfiguration.Services.HasComponent<MessageHandlerRegistry>();
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
             if (!externalHandlerRegistryUsed)
             {
                 var messageHandlerRegistry = configuration.messageHandlerRegistry;
 
-                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Container, hostingConfiguration.AvailableTypes);
+                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
 
                 foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
                 {
@@ -263,7 +262,7 @@ namespace NServiceBus
             }
         }
 
-        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
+        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -280,7 +279,7 @@ namespace NServiceBus
                 handlerRegistry.RegisterHandler(t);
             }
 
-            container.RegisterSingleton(handlerRegistry);
+            container.AddSingleton(handlerRegistry);
         }
 
         public static bool IsMessageHandler(Type type)

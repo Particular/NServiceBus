@@ -1,3 +1,4 @@
+#pragma warning disable 0618
 namespace NServiceBus.ContainerTests
 {
     using System;
@@ -97,14 +98,13 @@ namespace NServiceBus.ContainerTests
 
         void InitializeServices(IServiceCollection serviceCollection)
         {
-            var container = new CommonObjectBuilder(serviceCollection);
-            container.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
-            container.ConfigureComponent(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
-            container.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-            container.ConfigureComponent(() => new SingletonLambdaComponent(), DependencyLifecycle.SingleInstance);
-            container.ConfigureComponent(() => new SingleCallLambdaComponent(), DependencyLifecycle.InstancePerCall);
-            container.ConfigureComponent(() => new LambdaComponentUoW(), DependencyLifecycle.InstancePerUnitOfWork);
-            container.ConfigureComponent(() => new RecursiveComponent(), DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
+            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(() => new SingletonLambdaComponent(), DependencyLifecycle.SingleInstance);
+            serviceCollection.ConfigureComponent(() => new SingleCallLambdaComponent(), DependencyLifecycle.InstancePerCall);
+            serviceCollection.ConfigureComponent(() => new LambdaComponentUoW(), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.ConfigureComponent(() => new RecursiveComponent(), DependencyLifecycle.SingleInstance);
         }
 
         public class RecursiveComponent
@@ -184,3 +184,4 @@ namespace NServiceBus.ContainerTests
     {
     }
 }
+#pragma warning restore 0618

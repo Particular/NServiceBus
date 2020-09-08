@@ -5,10 +5,10 @@ namespace NServiceBus
 
     class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedContainer
     {
-        public ExternallyManagedContainerHost(EndpointCreator endpointCreator, HostingComponent.Configuration hostingConfiguration)
+        public ExternallyManagedContainerHost(EndpointCreator endpointCreator, HostingComponent hostingComponent)
         {
             this.endpointCreator = endpointCreator;
-            this.hostingConfiguration = hostingConfiguration;
+            this.hostingComponent = hostingComponent;
 
             MessageSession = new Lazy<IMessageSession>(() =>
             {
@@ -37,11 +37,9 @@ namespace NServiceBus
         {
             objectBuilder = externalBuilder;
 
-            var hostingComponent = HostingComponent.Initialize(hostingConfiguration);
-
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, hostingComponent);
 
-            hostingComponent.RegisterBuilder(externalBuilder, false);
+            hostingComponent.RegisterBuilder(externalBuilder);
 
             await hostingComponent.RunInstallers().ConfigureAwait(false);
 
@@ -52,7 +50,7 @@ namespace NServiceBus
             return endpointInstance;
         }
 
-        HostingComponent.Configuration hostingConfiguration;
+        HostingComponent hostingComponent;
         EndpointCreator endpointCreator;
         IMessageSession messageSession;
         IServiceProvider objectBuilder;
