@@ -1,6 +1,7 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -16,7 +17,7 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Stops the endpoint.
         /// </summary>
-        public virtual Task Stop()
+        public virtual Task Stop(CancellationToken cancellationToken)
         {
             EndpointStopped = true;
             return Task.FromResult(0);

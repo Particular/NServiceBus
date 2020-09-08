@@ -3,6 +3,7 @@ namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -45,7 +46,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
-        public virtual Task Send(object message, SendOptions options)
+        public virtual Task Send(object message, SendOptions options, CancellationToken cancellationToken)
         {
             var headers = options.GetHeaders();
 
@@ -64,9 +65,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">The options for the send.</param>
-        public virtual Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        public virtual Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken)
         {
-            return Send(messageCreator.CreateInstance(messageConstructor), options);
+            return Send(messageCreator.CreateInstance(messageConstructor), options, cancellationToken);
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="message">The message to publish.</param>
         /// <param name="options">The options for the publish.</param>
-        public virtual Task Publish(object message, PublishOptions options)
+        public virtual Task Publish(object message, PublishOptions options, CancellationToken cancellationToken)
         {
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
             return Task.FromResult(0);
@@ -86,9 +87,9 @@ namespace NServiceBus.Testing
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="publishOptions">Specific options for this event.</param>
-        public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken)
         {
-            return Publish(messageCreator.CreateInstance(messageConstructor), publishOptions);
+            return Publish(messageCreator.CreateInstance(messageConstructor), publishOptions, cancellationToken);
         }
 
         static TimeoutMessage<object> GetTimeoutMessage(object message, SendOptions options)

@@ -4,6 +4,7 @@ namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -27,7 +28,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="eventType">The type of event to subscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
-        public virtual Task Subscribe(Type eventType, SubscribeOptions options)
+        public virtual Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken)
         {
             subscriptions.Enqueue(new Subscription(eventType, options));
             return Task.FromResult(0);
@@ -38,7 +39,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="eventType">The type of event to unsubscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
-        public virtual Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public virtual Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken)
         {
             unsubscriptions.Enqueue(new Unsubscription(eventType, options));
             return Task.FromResult(0);

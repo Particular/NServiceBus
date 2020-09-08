@@ -5,6 +5,7 @@ namespace NServiceBus.Testing
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -39,7 +40,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
-        public virtual Task Reply(object message, ReplyOptions options)
+        public virtual Task Reply(object message, ReplyOptions options, CancellationToken cancellationToken)
         {
             repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
             return Task.FromResult(0);
@@ -52,16 +53,16 @@ namespace NServiceBus.Testing
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
-        public virtual Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+        public virtual Task Reply<T>(Action<T> messageConstructor, ReplyOptions options, CancellationToken cancellationToken)
         {
-            return Reply(messageCreator.CreateInstance(messageConstructor), options);
+            return Reply(messageCreator.CreateInstance(messageConstructor), options, cancellationToken);
         }
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        public virtual Task ForwardCurrentMessageTo(string destination)
+        public virtual Task ForwardCurrentMessageTo(string destination, CancellationToken cancellationToken)
         {
             forwardedMessages.Enqueue(destination);
             return Task.FromResult(0);
