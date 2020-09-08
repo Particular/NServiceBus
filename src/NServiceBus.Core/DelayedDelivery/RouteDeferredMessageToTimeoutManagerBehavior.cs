@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -18,11 +19,11 @@ namespace NServiceBus
             this.timeoutManagerAddress = timeoutManagerAddress;
         }
 
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             if (!IsDeferred(context, out var deliverAt))
             {
-                return next(context);
+                return next(context, cancellationToken);
             }
 
             if (context.Extensions.TryGetDeliveryConstraint(out DiscardIfNotReceivedBefore _))
@@ -33,7 +34,7 @@ namespace NServiceBus
             var newRoutingStrategies = context.RoutingStrategies.Select(s => RerouteToTimeoutManager(s, context, deliverAt));
             context.RoutingStrategies = newRoutingStrategies.ToArray();
 
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         RoutingStrategy RerouteToTimeoutManager(RoutingStrategy routingStrategy, IRoutingContext context, DateTime deliverAt)

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -14,6 +15,6 @@
         /// Contains information about the pipeline this behavior is part of.
         /// </summary>
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage);
+        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, CancellationToken cancellationToken);
     }
 }

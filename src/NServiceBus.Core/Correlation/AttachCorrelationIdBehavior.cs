@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var correlationId = context.Extensions.GetOrCreate<State>().CustomCorrelationId;
 
@@ -35,7 +36,7 @@
             }
 
             context.Headers[Headers.CorrelationId] = correlationId;
-            return next(context);
+            return next(context, cancellationToken);
         }
 
         public class State

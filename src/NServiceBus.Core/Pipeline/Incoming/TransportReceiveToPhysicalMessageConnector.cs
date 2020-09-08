@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -19,7 +20,7 @@ namespace NServiceBus
             this.outboxStorage = outboxStorage;
         }
 
-        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next, CancellationToken cancellationToken)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);

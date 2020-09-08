@@ -2,6 +2,7 @@
 {
     using System;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Logging;
@@ -11,7 +12,7 @@
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {
-        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
+        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage, CancellationToken cancellationToken)
         {
             var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;

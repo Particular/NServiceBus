@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Pipeline;
@@ -14,7 +15,7 @@ namespace NServiceBus
             durabilityCache = new ConcurrentDictionary<Type, bool>();
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
         {
             if (durabilityCache.GetOrAdd(context.Message.MessageType, t => convention(t)))
             {

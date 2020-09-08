@@ -8,7 +8,7 @@
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
-        protected override async Task Terminate(IInvokeHandlerContext context)
+        protected override async Task Terminate(IInvokeHandlerContext context, CancellationToken cancellationToken)
         {
             if (context.Extensions.TryGet(out ActiveSagaInstance saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
             {

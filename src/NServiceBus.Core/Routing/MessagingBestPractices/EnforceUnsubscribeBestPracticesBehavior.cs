@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -11,7 +12,7 @@ namespace NServiceBus
             this.validations = validations;
         }
 
-        public Task Invoke(IUnsubscribeContext context, Func<IUnsubscribeContext, Task> next)
+        public Task Invoke(IUnsubscribeContext context, Func<IUnsubscribeContext, Task> next, CancellationToken cancellationToken)
         {
             if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {

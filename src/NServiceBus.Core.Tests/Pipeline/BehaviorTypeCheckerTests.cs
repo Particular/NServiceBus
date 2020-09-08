@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -68,7 +69,7 @@
 
         class ValidBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -76,7 +77,7 @@
 
         class BehaviorUsingBehaviorContext : IBehavior<IBehaviorContext, IBehaviorContext>
         {
-            public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
+            public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -84,7 +85,7 @@
 
         class BehaviorUsingIncomingContext : IBehavior<IIncomingContext, IIncomingContext>
         {
-            public Task Invoke(IIncomingContext context, Func<IIncomingContext, Task> next)
+            public Task Invoke(IIncomingContext context, Func<IIncomingContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -92,7 +93,7 @@
 
         class BehaviorUsingOutgoingContext : IBehavior<IOutgoingContext, IOutgoingContext>
         {
-            public Task Invoke(IOutgoingContext context, Func<IOutgoingContext, Task> next)
+            public Task Invoke(IOutgoingContext context, Func<IOutgoingContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -100,7 +101,7 @@
 
         class BehaviorUsingContextImplementationOnTTo : IBehavior<IAuditContext, RootContext>
         {
-            public Task Invoke(IAuditContext context, Func<RootContext, Task> stage)
+            public Task Invoke(IAuditContext context, Func<RootContext, Task> stage, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -108,7 +109,7 @@
 
         class BehaviorUsingContextInterface : IBehavior<IAuditContext, IAuditContext>
         {
-            public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
+            public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -116,7 +117,7 @@
 
         class BehaviorUsingContextImplementationOnTFrom : IBehavior<RootContext, RootContext>
         {
-            public Task Invoke(RootContext context, Func<RootContext, Task> next)
+            public Task Invoke(RootContext context, Func<RootContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -124,7 +125,7 @@
 
         class GenericBehavior<T> : IBehavior<IRootContext, IRootContext>
         {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -132,7 +133,7 @@
 
         abstract class AbstractBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public abstract Task Invoke(IRootContext context, Func<IRootContext, Task> next);
+            public abstract Task Invoke(IRootContext context, Func<IRootContext, Task> next, CancellationToken cancellationToken);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Hosting;
     using Pipeline;
@@ -14,7 +15,7 @@
             this.endpoint = endpoint;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
         {
             context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
             context.Headers[Headers.OriginatingEndpoint] = endpoint;

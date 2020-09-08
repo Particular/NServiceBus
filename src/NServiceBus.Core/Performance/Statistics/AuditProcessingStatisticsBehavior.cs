@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext>
     {
-        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
+        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next, CancellationToken cancellationToken)
         {
             if (context.Extensions.TryGet(out ProcessingStatisticsBehavior.State state))
             {

@@ -1,12 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class AttachSenderRelatedInfoOnMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next, CancellationToken cancellationToken)
         {
             var message = context.Message;
 

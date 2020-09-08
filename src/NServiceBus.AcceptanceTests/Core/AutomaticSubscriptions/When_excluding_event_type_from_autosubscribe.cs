@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -62,7 +63,7 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
+                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next, CancellationToken cancellationToken)
                 {
                     await next(context).ConfigureAwait(false);
 

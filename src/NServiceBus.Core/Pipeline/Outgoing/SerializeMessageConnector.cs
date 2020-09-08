@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
@@ -17,7 +18,7 @@ namespace NServiceBus
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> stage)
+        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> stage, CancellationToken cancellationToken)
         {
             if (log.IsDebugEnabled)
             {

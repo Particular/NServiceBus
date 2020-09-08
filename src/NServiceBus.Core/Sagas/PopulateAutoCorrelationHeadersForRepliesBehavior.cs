@@ -1,19 +1,20 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {
-        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
+        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next, CancellationToken cancellationToken)
         {
-            FlowDetailsForRequestingSagaToOutgoingMessage(context);
+            FlowDetailsForRequestingSagaToOutgoingMessage(context, cancellationToken);
 
             return next(context);
         }
 
-        static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context)
+        static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context, CancellationToken cancellationToken)
         {
             if (context.TryGetIncomingPhysicalMessage(out var incomingMessage))
             {

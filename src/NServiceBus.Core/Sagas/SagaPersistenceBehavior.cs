@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
+        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next, CancellationToken cancellationToken)
         {
             var isTimeoutMessage = IsTimeoutMessage(context.Headers);
             var isTimeoutHandler = context.MessageHandler.IsTimeoutHandler;

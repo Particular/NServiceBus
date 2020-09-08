@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Performance.TimeToBeReceived;
@@ -15,7 +16,7 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
+        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage, CancellationToken cancellationToken)
         {
             var message = context.Message;
 

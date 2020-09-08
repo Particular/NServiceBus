@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -199,7 +200,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class FakeBehavior: IBehavior<IRootContext, IRootContext>
         {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -208,7 +209,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class ReplacedBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -216,7 +217,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class FakeStageConnector : StageConnector<IRootContext, IChildContext>
         {
-            public override Task Invoke(IRootContext context, Func<IChildContext, Task> stage)
+            public override Task Invoke(IRootContext context, Func<IChildContext, Task> stage, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

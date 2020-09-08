@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -143,7 +144,7 @@
             {
                 public Context TestContext { get; set; }
 
-                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken cancellationToken)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
                         context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -8,7 +9,7 @@ namespace NServiceBus
 
     class ReplyConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
         {
             var state = context.Extensions.GetOrCreate<State>();
 

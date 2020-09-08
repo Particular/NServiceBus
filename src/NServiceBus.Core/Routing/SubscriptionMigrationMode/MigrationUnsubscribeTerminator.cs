@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -22,7 +23,7 @@
             this.endpoint = endpoint;
         }
 
-        protected override async Task Terminate(IUnsubscribeContext context)
+        protected override async Task Terminate(IUnsubscribeContext context, CancellationToken cancellationToken)
         {
             var eventType = context.EventType;
 

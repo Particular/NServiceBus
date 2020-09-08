@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Features;
     using NServiceBus.Pipeline;
@@ -108,7 +109,7 @@
 
         class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -116,7 +117,7 @@
 
         class BehaviorB : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }

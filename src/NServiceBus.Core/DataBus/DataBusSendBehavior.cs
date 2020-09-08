@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using DataBus;
@@ -19,7 +20,7 @@
             dataBus = databus;
         }
 
-        public async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken cancellationToken)
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -77,7 +78,7 @@
                 }
             }
 
-            await next(context).ConfigureAwait(false);
+            await next(context, cancellationToken).ConfigureAwait(false);
         }
 
         readonly Conventions conventions;

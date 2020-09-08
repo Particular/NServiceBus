@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using MessageInterfaces;
@@ -22,7 +23,7 @@ namespace NServiceBus
             this.mapper = mapper;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage, CancellationToken cancellationToken)
         {
             var incomingMessage = context.Message;
 

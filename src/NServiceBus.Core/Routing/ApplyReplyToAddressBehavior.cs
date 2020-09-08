@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -21,7 +22,7 @@
             configuredReturnAddress = publicReturnAddress ?? sharedQueue;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next, CancellationToken cancellationToken)
         {
             var state = context.Extensions.GetOrCreate<State>();
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
