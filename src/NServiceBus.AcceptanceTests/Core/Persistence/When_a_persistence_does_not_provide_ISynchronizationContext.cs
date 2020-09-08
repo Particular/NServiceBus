@@ -58,7 +58,7 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.RegisterComponents(container => container.AddSingleton<NoOpISubscriptionStorage>());
+                    c.RegisterComponents(container => container.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>());
                     c.UsePersistence<InMemoryNoSyncContextPersistence>();
                 });
             }

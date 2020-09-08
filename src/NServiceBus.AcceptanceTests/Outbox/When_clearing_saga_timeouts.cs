@@ -46,7 +46,7 @@
                     {
                         b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
-                        b.RegisterComponents(c => c.AddSingleton<FakeOutbox>());
+                        b.RegisterComponents(c => c.AddSingleton<IOutboxStorage, FakeOutbox>());
                     });
             }
 

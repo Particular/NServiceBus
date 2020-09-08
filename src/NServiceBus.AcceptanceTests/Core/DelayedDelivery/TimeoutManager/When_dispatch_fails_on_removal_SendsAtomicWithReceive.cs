@@ -58,8 +58,9 @@
                     config.SendFailedMessagesTo(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint)));
                     config.RegisterComponents(c =>
                     {
-                        c.AddSingleton<IPersistTimeouts, FakeTimeoutStorage>();
-                        c.AddSingleton<IQueryTimeouts, FakeTimeoutStorage>();
+                        c.AddSingleton<FakeTimeoutStorage>();
+                        c.AddSingleton<IPersistTimeouts>(sp => sp.GetRequiredService<FakeTimeoutStorage>());
+                        c.AddSingleton<IQueryTimeouts>(sp => sp.GetRequiredService<FakeTimeoutStorage>());
                     });
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);
