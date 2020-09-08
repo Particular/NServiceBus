@@ -142,12 +142,12 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             assemblyValidator.ValidateAssemblyFile(assemblyPath, out var shouldLoad, out var reason);
-             if (!shouldLoad)
-             {
-                var skippedFile = new SkippedFile(assemblyPath, "bla"); //reason);
-                 results.SkippedFiles.Add(skippedFile);
+            if (!shouldLoad)
+            {
+                var skippedFile = new SkippedFile(assemblyPath, reason);
+                results.SkippedFiles.Add(skippedFile);
 
-                 return false;
+                return false;
             }
 
             try
