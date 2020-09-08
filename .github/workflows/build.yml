@@ -1,0 +1,67 @@
+name: Build
+on: push
+jobs:
+  build:
+    run-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Fetch all history for all tags and branches ## So GitVersion will work
+        run: git fetch --prune --unshallow
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.4.0
+        with:
+          dotnet-version: 3.1.302
+          config-file: src/nuget.config
+      ##Signing support coming to `dotnet nuget` at some point https://github.com/NuGet/Home/issues/7939
+      - name: Add NuGet to  PATH
+        uses: nuget/setup-nuget@v1
+      - name: Build
+        # "normal" verbosity required otherwise GitVersionTask can't output its results in the special format for GitHub to translate into env vars for next steps
+        run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
+      - name: Create metadata
+        run: |
+          `$Branch = "$env:GitVersion.BranchName"
+          `$Version = "$env:GitVersion.LegacySemVer"
+          `$Product = "$env:ProjectName"
+          `$Major = "$env:GitVersion.Major"
+          `$Minor = "$env:GitVersion.Minor"
+          `$Commit = "$env:GitVersion.Sha"
+          "@ > Metadata.ps1
+      - name: Upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: nugets
+          path: nugets/
+      - name: Upload tests
+        uses: actions/upload-artifact@v2
+        with:
+          name: tests
+          path: src/
+      - name: Upload metadata
+        uses: actions/upload-artifact@v2
+        with:
+          name: metadata
+          path: Metadata.ps1
+  
+  test:
+    name: Test
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        tfm: [ net452, netcoreapp3.1 ]
+        os: [ windows-latest, ubuntu-latest ]
+        exlude:
+          - tfm: net452
+            os: ubuntu-latest
+    steps:
+      - name: Download tests
+        uses: actions/download-artifact@v2
+        with:
+          name: tests
+      - name: Display structure of downloaded files
+        run: ls
+
+        
+      
