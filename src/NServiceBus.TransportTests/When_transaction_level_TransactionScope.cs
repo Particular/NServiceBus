@@ -17,7 +17,7 @@
             var messageHandled = new TaskCompletionSource<Tuple<Transaction, Transaction>>();
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     var currentTransaction = Transaction.Current;
                     var contextTransaction = context.TransportTransaction.Get<Transaction>();
@@ -25,7 +25,7 @@
 
                     return Task.FromResult(0);
                 },
-                errorContext => Task.FromResult(ErrorHandleResult.Handled),
+                (errorContext, ct) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
             await SendMessage(InputQueueName);
 

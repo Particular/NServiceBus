@@ -18,7 +18,7 @@
 
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
-            await StartPump(async context =>
+            await StartPump(async (context, ct) =>
                 {
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
@@ -33,7 +33,7 @@
 
                     throw new Exception("Simulated exception");
                 },
-                errorContext => Task.FromResult(ErrorHandleResult.Handled),
+                (errorContext, ct) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);

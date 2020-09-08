@@ -19,12 +19,12 @@
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.FromResult(0);
                 },
-                context =>
+                (context, ct) =>
                 {
                     //perform an immediate retry to make sure the transport increments the counter properly
                     if (context.ImmediateProcessingFailures < 2)

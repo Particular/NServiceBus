@@ -25,13 +25,13 @@
             string nativeMessageId = null;
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     nativeMessageId = context.MessageId;
 
                     throw new Exception("Simulated exception");
                 },
-                context =>
+                (context, ct) =>
                 {
                     if (firstInvocation)
                     {

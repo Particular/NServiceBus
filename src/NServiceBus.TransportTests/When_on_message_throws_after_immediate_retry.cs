@@ -21,11 +21,11 @@
             var numberOfOnErrorInvocations = 0;
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     throw new Exception("Simulated exception");
                 },
-                context =>
+                (context, ct) =>
                 {
                     numberOfOnErrorInvocations += 1;
 

@@ -18,13 +18,13 @@
             OnTestTimeout(() => onErrorCalled.SetResult(null));
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     // handler enlists a failing transaction enlistment to the DTC transaction which will fail when committing the transaction.
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.FromResult(0);
                 },
-                context =>
+                (context, ct) =>
                 {
                     onErrorCalled.SetResult(context);
                     return Task.FromResult(ErrorHandleResult.Handled);

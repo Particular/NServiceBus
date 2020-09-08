@@ -20,7 +20,7 @@ namespace NServiceBus.TransportTests
             var onErrorCalled = false;
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     if (hasBeenCalled)
                     {
@@ -32,7 +32,7 @@ namespace NServiceBus.TransportTests
 
                     return Task.FromResult(0);
                 },
-                context =>
+                (context, ct) =>
                 {
                     onErrorCalled = true;
                     return Task.FromResult(ErrorHandleResult.RetryRequired);

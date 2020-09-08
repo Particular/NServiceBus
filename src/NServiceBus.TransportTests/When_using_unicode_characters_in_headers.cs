@@ -12,12 +12,12 @@
         {
             var onMessageCalled = new TaskCompletionSource<MessageContext>();
 
-            await StartPump(m =>
+            await StartPump((m, ct) =>
                 {
                     onMessageCalled.SetResult(m);
                     return Task.FromResult(0);
                 },
-                error => Task.FromResult(ErrorHandleResult.Handled),
+                (error, ct) => Task.FromResult(ErrorHandleResult.Handled),
                 TransportTransactionMode.None);
 
             var sentHeaders = new Dictionary<string, string>

@@ -20,12 +20,12 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
-            await StartPump(context =>
+            await StartPump((context, ct) =>
             {
                 onMessageCalled.SetResult(context);
                 return Task.FromResult(0);
             },
-                context => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
+                (context, ct) => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
 
             await SendMessage(InputQueueName, deliveryConstraints: new List<DeliveryConstraint> { new NonDurableDelivery() });
 

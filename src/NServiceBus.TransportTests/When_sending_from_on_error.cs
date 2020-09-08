@@ -19,7 +19,7 @@ namespace NServiceBus.TransportTests
             OnTestTimeout(() => messageReceived.SetResult(false));
 
             await StartPump(
-                context =>
+                (context, ct) =>
                 {
                     if (context.Headers.ContainsKey("FromOnError"))
                     {
@@ -29,7 +29,7 @@ namespace NServiceBus.TransportTests
 
                     throw new Exception("Simulated exception");
                 },
-                async context =>
+                async (context, ct) =>
                 {
                     await SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } }, context.TransportTransaction);
 

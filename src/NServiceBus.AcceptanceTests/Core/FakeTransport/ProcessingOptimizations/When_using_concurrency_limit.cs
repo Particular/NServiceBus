@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -44,13 +45,13 @@
         {
             PushSettings pushSettings;
 
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, CancellationToken, Task> onMessage, Func<ErrorContext, CancellationToken, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings, CancellationToken cancellationToken)
             {
                 pushSettings = settings;
                 return Task.FromResult(0);
             }
 
-            public void Start(PushRuntimeSettings limitations)
+            public void Start(PushRuntimeSettings limitations, CancellationToken cancellationToken)
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
@@ -59,7 +60,7 @@
                 }
             }
 
-            public Task Stop()
+            public Task Stop(CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

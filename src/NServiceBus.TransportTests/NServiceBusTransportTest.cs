@@ -71,12 +71,12 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            MessagePump?.Stop().GetAwaiter().GetResult();
+            MessagePump?.Stop(CancellationToken.None).GetAwaiter().GetResult();
             TransportInfrastructure?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
+        protected async Task StartPump(Func<MessageContext, CancellationToken, Task> onMessage, Func<ErrorContext, CancellationToken, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null, CancellationToken cancellationToken = default)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -119,26 +119,27 @@
 
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
             await MessagePump.Init(
-                context =>
+                (context, ct) =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
                     {
-                        return onMessage(context);
+                        return onMessage(context, ct);
                     }
 
                     return Task.FromResult(0);
                 },
-                context =>
+                (context, ct) =>
                 {
                     if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
                     {
-                        return onError(context);
+                        return onError(context, ct);
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 new FakeCriticalError(onCriticalError),
-                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
+                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
+                CancellationToken.None);
 
             result = await SendInfrastructure.PreStartupCheck();
             if (result.Succeeded == false)
@@ -146,7 +147,7 @@
                 throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
             }
 
-            MessagePump.Start(configuration.PushRuntimeSettings);
+            MessagePump.Start(configuration.PushRuntimeSettings, CancellationToken.None); // TODO: check if this is ok
         }
 
         string GetUserName()
