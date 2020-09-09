@@ -61,8 +61,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: tests
-      - name: Display structure of downloaded files
-        run: ls
+      - name: Run tests
+        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build -v normal
 
         
       
