@@ -62,7 +62,7 @@ jobs:
         with:
           name: tests
       - name: Run tests
-        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build -v normal
+        run: dotnet test NServiceBus.sln --configuration Release --nologo --no-build -v normal
 
         
       
