@@ -52,10 +52,7 @@ jobs:
     strategy:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
-        tfm: [ 4.8.04084, 3.1.302 ]
-        exlude:
-          - os: ubuntu-latest
-            tfm: 4.8.04084
+        tfm: [ 3.1.302 ]
     steps:
       - name: Download tests
         uses: actions/download-artifact@v2
