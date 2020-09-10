@@ -47,7 +47,7 @@
                     testContext = context;
                 }
 
-                public async Task Handle(MyMessage message, IMessageHandlerContext context)
+                public async Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (testContext.FirstAttempt)
                     {
@@ -72,7 +72,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)
+                public Task Handle(MessageHandledEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageHandled = true;
                     testContext.HasFailed |= message.HasFailed;

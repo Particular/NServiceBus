@@ -48,7 +48,7 @@
 
             class RequestHandler : IHandleMessages<Request>
             {
-                public Task Handle(Request message, IMessageHandlerContext context)
+                public Task Handle(Request message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     var replyOptions = new ReplyOptions();
 
@@ -78,7 +78,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     testContext.MessageProcessed = true;
@@ -113,7 +113,7 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

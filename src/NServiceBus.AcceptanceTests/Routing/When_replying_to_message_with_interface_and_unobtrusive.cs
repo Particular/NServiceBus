@@ -47,7 +47,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SendingEndpointGotResponse = true;
                     return Task.FromResult(0);
@@ -71,7 +71,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.OtherEndpointGotResponse = true;
                     return Task.FromResult(0);
@@ -91,7 +91,7 @@
 
             public class MessageHandler : IHandleMessages<MyMessage>
             {
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Reply<MyReply>(m => { });
                 }

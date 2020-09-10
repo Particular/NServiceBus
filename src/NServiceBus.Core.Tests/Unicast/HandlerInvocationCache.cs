@@ -41,7 +41,7 @@
 
         public class StubMessageHandler : IHandleMessages<StubMessage>
         {
-            public Task Handle(StubMessage message, IMessageHandlerContext context)
+            public Task Handle(StubMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -53,7 +53,7 @@
 
         public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>
         {
-            public Task Timeout(StubTimeoutState state, IMessageHandlerContext context)
+            public Task Timeout(StubTimeoutState state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -109,7 +109,7 @@
 
         public class StubHandler : IHandleMessages<StubMessage>
         {
-            public Task Handle(StubMessage message, IMessageHandlerContext context)
+            public Task Handle(StubMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 HandleCalled = true;
                 HandledMessage = message;
@@ -172,7 +172,7 @@
 
         public class StubHandler : IHandleTimeouts<StubTimeoutState>
         {
-            public Task Timeout(StubTimeoutState state, IMessageHandlerContext context)
+            public Task Timeout(StubTimeoutState state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 TimeoutCalled = true;
                 HandledState = state;

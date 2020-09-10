@@ -45,14 +45,14 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
 
                     return RequestTimeout(context, TimeSpan.FromMilliseconds(1), new TimeHasPassed());
                 }
 
-                public Task Timeout(TimeHasPassed state, IMessageHandlerContext context)
+                public Task Timeout(TimeHasPassed state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     MarkAsComplete();
                     testContext.TimeoutReceived = true;

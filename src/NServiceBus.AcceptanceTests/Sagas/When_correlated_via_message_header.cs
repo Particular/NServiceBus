@@ -105,7 +105,7 @@
                     this.scenario = scenario;
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     scenario.CorrelationId = Data.CorrelationId;
                     scenario.Done = true;

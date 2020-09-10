@@ -53,7 +53,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SendMessage message, IMessageHandlerContext context)
+                public Task Handle(SendMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Secret = message.Secret;
                     testContext.WasCalled = true;

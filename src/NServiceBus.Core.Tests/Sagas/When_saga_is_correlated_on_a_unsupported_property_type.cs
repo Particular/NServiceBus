@@ -19,7 +19,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
         class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IAmStartedByMessages<Message1>
         {
-            public Task Handle(Message1 message, IMessageHandlerContext context)
+            public Task Handle(Message1 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

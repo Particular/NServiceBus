@@ -40,7 +40,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(Message request, IMessageHandlerContext context)
+                public Task Handle(Message request, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedMessage = request.Property == "value";
                     return Task.FromResult(0);

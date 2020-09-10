@@ -56,7 +56,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SignalDone message, IMessageHandlerContext context)
+                public Task Handle(SignalDone message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Done = true;
                     return Task.FromResult(0);
@@ -67,7 +67,7 @@
 
             public class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>
             {
-                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     MarkAsComplete();
                     return context.SendLocal(new SignalDone());

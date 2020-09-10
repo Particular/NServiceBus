@@ -44,7 +44,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToForward message, IMessageHandlerContext context)
+                public Task Handle(MessageToForward message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ForwardedHeaders = context.MessageHeaders;
                     testContext.GotForwardedMessage = true;
@@ -69,7 +69,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToForward message, IMessageHandlerContext context)
+                public Task Handle(MessageToForward message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return context.ForwardCurrentMessageTo("message_forward_receiver");

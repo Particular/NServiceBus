@@ -77,7 +77,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(FailingMessage message, IMessageHandlerContext context)
+                public Task Handle(FailingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out _))
                     {

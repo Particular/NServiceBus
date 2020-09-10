@@ -68,7 +68,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(Message message, IMessageHandlerContext context)
+                public Task Handle(Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedMessage = true;
                     return Task.FromResult(0);

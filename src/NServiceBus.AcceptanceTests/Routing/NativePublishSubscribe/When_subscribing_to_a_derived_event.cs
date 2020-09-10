@@ -67,7 +67,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SubscriberGotEvent = true;
                     return Task.FromResult(0);
@@ -83,7 +83,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(Done message, IMessageHandlerContext context)
+                public Task Handle(Done message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Done = true;
                     return Task.FromResult(0);

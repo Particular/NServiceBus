@@ -66,7 +66,7 @@ namespace NServiceBus.AcceptanceTests.Serialization
                     testContext = context;
                 }
 
-                public Task Handle(MyRequest request, IMessageHandlerContext context)
+                public Task Handle(MyRequest request, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HandlerGotTheRequest = true;
                     return Task.FromResult(0);

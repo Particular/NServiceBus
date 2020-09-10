@@ -61,7 +61,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
+                public Task Handle(MessageWithSagaId message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageHandlerCalled = true;
                     return Task.FromResult(0);
@@ -73,7 +73,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context)
+                public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.TimeoutHandlerCalled = true;
                     return Task.FromResult(0);
@@ -100,7 +100,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
+                public Task Handle(MessageWithSagaId message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Done = true;
 

@@ -46,7 +46,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(Reply message, IMessageHandlerContext context)
+                public Task Handle(Reply message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReplyReceived = true;
 
@@ -66,13 +66,13 @@
 
             public class NotFoundHandlerSaga1 : Saga<NotFoundHandlerSaga1.NotFoundHandlerSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>
             {
-                public Task Handle(StartSaga1 message, IMessageHandlerContext context)
+                public Task Handle(StartSaga1 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.ContextId = message.ContextId;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

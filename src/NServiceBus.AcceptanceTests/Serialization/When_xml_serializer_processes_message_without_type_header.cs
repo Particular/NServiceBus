@@ -47,7 +47,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.WasCalled = true;
                     return Task.FromResult(0);

@@ -103,7 +103,7 @@
                     this.settings = settings;
                 }
 
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
+                public Task Handle(MyCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     var instanceDiscriminator = settings.Get<string>("EndpointInstanceDiscriminator");
 

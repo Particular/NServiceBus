@@ -276,7 +276,7 @@ using System.Threading.Tasks;
 
 class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 {
-    public Task Handle(IBaseEvent message, IMessageHandlerContext context)
+    public Task Handle(IBaseEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
     {
         return Task.FromResult(0);
     }

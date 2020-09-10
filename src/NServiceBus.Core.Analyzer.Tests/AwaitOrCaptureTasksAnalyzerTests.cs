@@ -143,7 +143,7 @@ $@"using System;
 using NServiceBus;
 class TestSaga : Saga<object>
 {{
-    void Bar(IMessageHandlerContext context)
+    void Bar(IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
     {{
         {call}
     }}
@@ -186,7 +186,7 @@ using NServiceBus;
 using System.Threading.Tasks;
 class Foo
 {
-    async Task Bar(IMessageHandlerContext context)
+    async Task Bar(IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
     {
         await context.Send(null);
     }
@@ -198,7 +198,7 @@ using NServiceBus;
 using System.Threading.Tasks;
 class Foo
 {
-    Task Bar(IMessageHandlerContext context) =>
+    Task Bar(IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken) =>
         context.Send(null);
 }",
             Description = "because the task is returned.")]

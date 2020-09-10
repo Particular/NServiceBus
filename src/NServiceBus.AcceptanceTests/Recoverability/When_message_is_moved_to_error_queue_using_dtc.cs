@@ -54,7 +54,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToFail message, IMessageHandlerContext context)
+                public Task Handle(MessageToFail message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.Id == testContext.Id)
                     {
@@ -87,7 +87,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToFail message, IMessageHandlerContext context)
+                public Task Handle(MessageToFail message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.Id == testContext.Id)
                     {

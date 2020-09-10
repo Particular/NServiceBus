@@ -76,7 +76,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 
             class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -84,7 +84,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 
             public class EventMessageHandler : IHandleMessages<MyEvent>
             {
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
+                public Task Handle(MyEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -92,7 +92,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 
             public class MyEventWithNoRoutingHandler : IHandleMessages<MyEventWithNoRouting>
             {
-                public Task Handle(MyEventWithNoRouting message, IMessageHandlerContext context)
+                public Task Handle(MyEventWithNoRouting message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -100,7 +100,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 
             public class CommandMessageHandler : IHandleMessages<MyCommand>
             {
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
+                public Task Handle(MyCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

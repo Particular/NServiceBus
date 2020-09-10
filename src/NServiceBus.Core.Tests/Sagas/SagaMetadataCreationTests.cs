@@ -249,7 +249,7 @@
 
         class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<StartingMessage>
         {
-            public Task Handle(StartingMessage message, IMessageHandlerContext context)
+            public Task Handle(StartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -274,7 +274,7 @@
         public class SagaWithNonMessageFinder : Saga<SagaWithNonMessageFinder.SagaData>,
             IAmStartedByMessages<SagaWithNonMessageFinder.StartSagaMessage>
         {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -306,7 +306,7 @@
         public class SagaWithFinderOnly : Saga<SagaWithFinderOnly.SagaData>,
             IAmStartedByMessages<SagaWithFinderOnly.StartSagaMessage>
         {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -338,7 +338,7 @@
         public class SagaWithMappingAndFinder : Saga<SagaWithMappingAndFinder.SagaData>,
             IAmStartedByMessages<SagaWithMappingAndFinder.StartSagaMessage>
         {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -370,7 +370,7 @@
 
         class MySagaWithMappedAndUniqueProperty : Saga<MySagaWithMappedAndUniqueProperty.SagaData>, IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -389,7 +389,7 @@
 
         class MySagaWithMappedProperty : Saga<MySagaWithMappedProperty.SagaData>, IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -408,7 +408,7 @@
 
         class MySagaWithMappedHeader : Saga<MySagaWithMappedHeader.SagaData>, IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -433,12 +433,12 @@
             IAmStartedByMessages<MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga>,
             IHandleMessages<MySagaWithUnmappedStartProperty.MessageThatDoesNotStartTheSaga>
         {
-            public Task Handle(MessageThatStartsTheSaga message, IMessageHandlerContext context)
+            public Task Handle(MessageThatStartsTheSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
 
-            public Task Handle(MessageThatDoesNotStartTheSaga message, IMessageHandlerContext context)
+            public Task Handle(MessageThatDoesNotStartTheSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -470,22 +470,22 @@
             IHandleMessages<SagaWith2StartersAnd1Handler.Message3>,
             IHandleTimeouts<SagaWith2StartersAnd1Handler.MyTimeout>
         {
-            public Task Handle(StartMessage1 message, IMessageHandlerContext context)
+            public Task Handle(StartMessage1 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Handle(StartMessage2 message, IMessageHandlerContext context)
+            public Task Handle(StartMessage2 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Handle(Message3 message, IMessageHandlerContext context)
+            public Task Handle(Message3 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Timeout(MyTimeout state, IMessageHandlerContext context)
+            public Task Timeout(MyTimeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -535,7 +535,7 @@
                     .ToSaga(s => s.Id);
             }
 
-            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
+            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -555,7 +555,7 @@
                     .ToSaga(s => s.NonIdColumn);
             }
 
-            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
+            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -564,7 +564,7 @@
         class SagaWithIdMappedToNonGuidMessageProperty : Saga<SagaWithIdMappedToNonGuidMessageProperty.SagaData>,
             IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -583,7 +583,7 @@
         class SagaWithIdMappedToNonGuidMessageField : Saga<SagaWithIdMappedToNonGuidMessageField.SagaData>,
             IAmStartedByMessages<SomeMessageWithField>
         {
-            public Task Handle(SomeMessageWithField message, IMessageHandlerContext context)
+            public Task Handle(SomeMessageWithField message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -602,7 +602,7 @@
         class SagaWithSagaDataMemberAsFieldInsteadOfProperty : Saga<SagaWithSagaDataMemberAsFieldInsteadOfProperty.SagaData>,
             IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -621,7 +621,7 @@
 
         class MySagaWithScannedFinder : Saga<MySagaWithScannedFinder.SagaData>, IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -646,7 +646,7 @@
 
         class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>, IAmStartedByMessages<SomeMessageWithStringProperty>
         {
-            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
+            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -677,7 +677,7 @@
                 mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
             }
 
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -702,7 +702,7 @@
                 mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
             }
 
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -725,7 +725,7 @@
                 mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
             }
 
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

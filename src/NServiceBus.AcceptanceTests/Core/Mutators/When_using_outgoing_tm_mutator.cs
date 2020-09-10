@@ -57,7 +57,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageThatMutatorChangesTo message, IMessageHandlerContext context)
+                public Task Handle(MessageThatMutatorChangesTo message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.CanAddHeaders = context.MessageHeaders.ContainsKey("HeaderSetByMutator");
                     testContext.MutatedPropertyValue = message.SomeProperty;

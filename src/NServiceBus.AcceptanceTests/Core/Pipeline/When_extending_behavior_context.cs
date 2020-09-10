@@ -50,7 +50,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
                     testContext.HandlerAExtensionValue = extensionValue;
@@ -67,7 +67,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
                     testContext.HandlerBExtensionValue = extensionValue;

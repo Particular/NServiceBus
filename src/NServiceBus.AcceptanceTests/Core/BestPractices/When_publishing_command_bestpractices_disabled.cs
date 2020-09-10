@@ -40,7 +40,7 @@
 
             public class Handler : IHandleMessages<MyCommand>
             {
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
+                public Task Handle(MyCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

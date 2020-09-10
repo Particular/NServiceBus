@@ -65,7 +65,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 
             public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
             {
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
+                public Task Handle(MyEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -84,7 +84,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
             public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
                 IAmStartedByMessages<MyEventBase>
             {
-                public Task Handle(MyEventBase message, IMessageHandlerContext context)
+                public Task Handle(MyEventBase message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

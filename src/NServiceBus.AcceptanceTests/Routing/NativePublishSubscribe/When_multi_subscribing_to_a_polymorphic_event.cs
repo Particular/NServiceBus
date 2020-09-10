@@ -67,7 +67,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(IMyEvent messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(IMyEvent messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.AddTrace($"Got event '{messageThatIsEnlisted}'");
                     if (messageThatIsEnlisted is MyEvent2)

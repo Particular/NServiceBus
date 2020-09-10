@@ -57,7 +57,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     this.testContext = testContext;
                 }
 
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HandlerInvoked++;
                     throw new CustomException();

@@ -43,7 +43,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.SomeId = message.SomeId;
                     return context.SendLocal(new OtherMessage
@@ -52,7 +52,7 @@
                     });
                 }
 
-                public Task Handle(OtherMessage message, IMessageHandlerContext context)
+                public Task Handle(OtherMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SecondMessageReceived = true;
                     return Task.FromResult(0);

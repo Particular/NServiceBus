@@ -44,7 +44,7 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageThatFails>
             {
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException();
                 }
@@ -65,7 +65,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HostId = context.MessageHeaders.ContainsKey(Headers.HostId) ? context.MessageHeaders[Headers.HostId] : null;
                     testContext.HostName = context.MessageHeaders.ContainsKey(Headers.HostDisplayName) ? context.MessageHeaders[Headers.HostDisplayName] : null;

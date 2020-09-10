@@ -43,7 +43,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (testContext.InterceptingHandlerCalled)
                     {
@@ -74,7 +74,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.InterceptingHandlerCalled = true;
 

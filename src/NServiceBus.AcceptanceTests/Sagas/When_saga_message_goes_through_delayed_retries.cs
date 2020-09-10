@@ -54,7 +54,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.SomeId = message.SomeId;
 
@@ -64,7 +64,7 @@
                     });
                 }
 
-                public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(SecondSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.NumberOfTimesInvoked++;
 

@@ -60,7 +60,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(Event @event, IMessageHandlerContext context)
+                public Task Handle(Event @event, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (@event.ContextId != testContext.Id)
                     {

@@ -71,7 +71,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(BaseEvent message, IMessageHandlerContext context)
+                public Task Handle(BaseEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
                     MarkAsComplete();

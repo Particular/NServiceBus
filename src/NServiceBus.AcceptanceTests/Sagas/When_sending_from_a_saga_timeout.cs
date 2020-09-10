@@ -39,13 +39,13 @@
                 IAmStartedByMessages<StartSaga1>,
                 IHandleTimeouts<Saga1Timeout>
             {
-                public Task Handle(StartSaga1 message, IMessageHandlerContext context)
+                public Task Handle(StartSaga1 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
                     return RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout());
                 }
 
-                public async Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
+                public async Task Timeout(Saga1Timeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     await context.SendLocal(new StartSaga2
                     {
@@ -72,7 +72,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
                     testContext.DidSaga2ReceiveMessage = true;

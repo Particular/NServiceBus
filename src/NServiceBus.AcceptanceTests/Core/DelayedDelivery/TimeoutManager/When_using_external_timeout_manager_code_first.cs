@@ -71,7 +71,7 @@
 
             public class FailingMessageHandler : IHandleMessages<FailingMessage>
             {
-                public Task Handle(FailingMessage message, IMessageHandlerContext context)
+                public Task Handle(FailingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new Exception("please try again");
                 }
@@ -94,14 +94,14 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(DelayedMessage message, IMessageHandlerContext context)
+                public Task Handle(DelayedMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
                     testContext.ExternalTimeoutManagerInvoked = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(FailingMessage message, IMessageHandlerContext context)
+                public Task Handle(FailingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
                     testContext.ExternalTimeoutManagerInvoked = true;

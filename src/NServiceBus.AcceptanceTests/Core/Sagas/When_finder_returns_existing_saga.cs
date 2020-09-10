@@ -70,7 +70,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new SomeOtherMessage
                     {
@@ -78,7 +78,7 @@
                     });
                 }
 
-                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HandledOtherMessage = true;
                     return Task.FromResult(0);

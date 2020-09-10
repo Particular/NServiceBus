@@ -52,7 +52,7 @@
                 testContext = context;
             }
 
-            public Task Handle(object message, IMessageHandlerContext context)
+            public Task Handle(object message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 var myMessage = (MyMessage) message;
                 if (testContext.Id != myMessage.Id)
@@ -74,7 +74,7 @@
                 this.testContext = testContext;
             }
 
-            public Task Handle(dynamic message, IMessageHandlerContext context)
+            public Task Handle(dynamic message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 var myMessage = (MyMessage) message;
                 if (testContext.Id != myMessage.Id)
@@ -97,7 +97,7 @@
                 this.testContext = testContext;
             }
 
-            public Task Handle(IMessage message, IMessageHandlerContext context)
+            public Task Handle(IMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 var myMessage = (MyMessage) message;
                 if (testContext.Id != myMessage.Id)

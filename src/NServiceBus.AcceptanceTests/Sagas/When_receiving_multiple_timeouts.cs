@@ -57,7 +57,7 @@
                     testContext = context;
                 }
 
-                public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
+                public async Task Handle(StartSaga1 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.ContextId != testContext.Id)
                     {
@@ -76,7 +76,7 @@
                     });
                 }
 
-                public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
+                public Task Timeout(Saga1Timeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (state.ContextId == testContext.Id)
                     {
@@ -90,7 +90,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
+                public Task Timeout(Saga2Timeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (state.ContextId == testContext.Id)
                     {
@@ -137,7 +137,7 @@
 
             public class CatchAllMessageHandler : IHandleMessages<object>
             {
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

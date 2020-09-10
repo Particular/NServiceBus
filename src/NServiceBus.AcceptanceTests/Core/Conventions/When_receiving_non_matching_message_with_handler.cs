@@ -50,7 +50,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
                     testContext = context;
                 }
 
-                public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context)
+                public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.GotTheMessage = true;
                     return Task.FromResult(0);

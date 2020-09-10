@@ -30,7 +30,7 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public Task Handle(Message message, IMessageHandlerContext context)
+                public Task Handle(Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException();
                 }
@@ -52,7 +52,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(Message message, IMessageHandlerContext context)
+                public Task Handle(Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageReceived = true;
                     return Task.FromResult(0);

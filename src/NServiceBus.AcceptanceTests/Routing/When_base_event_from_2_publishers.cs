@@ -95,7 +95,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(BaseEvent message, IMessageHandlerContext context)
+                public Task Handle(BaseEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))
                     {

@@ -37,7 +37,7 @@
 
             public class TwoSaga1Saga1 : Saga<TwoSaga1Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageSaga1WillHandle>
             {
-                public Task Handle(StartSaga1 message, IMessageHandlerContext context)
+                public Task Handle(StartSaga1 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
                     return context.SendLocal(new MessageSaga1WillHandle
@@ -46,7 +46,7 @@
                     });
                 }
 
-                public async Task Handle(MessageSaga1WillHandle message, IMessageHandlerContext context)
+                public async Task Handle(MessageSaga1WillHandle message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     await context.SendLocal(new StartSaga2
                     {
@@ -74,7 +74,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
                     testContext.DidSaga2ReceiveMessage = true;

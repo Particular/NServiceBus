@@ -53,7 +53,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyResponse message, IMessageHandlerContext context)
+                public Task Handle(MyResponse message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReplyToAddress = context.MessageHeaders[Headers.ReplyToAddress];
                     return Task.FromResult(0);
@@ -72,7 +72,7 @@
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Task Handle(MyRequest message, IMessageHandlerContext context)
+                public Task Handle(MyRequest message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Reply(new MyResponse());
                 }

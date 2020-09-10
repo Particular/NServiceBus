@@ -64,13 +64,13 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(SomeCommand message, IMessageHandlerContext context)
+                public Task Handle(SomeCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.RegularCommandHandlerInvoked = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(SomeEvent message, IMessageHandlerContext context)
+                public Task Handle(SomeEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.RegularEventHandlerInvoked = true;
                     return Task.FromResult(0);
@@ -87,13 +87,13 @@
                 this.testContext = testContext;
             }
 
-            public Task Handle(SomeCommand message, IMessageHandlerContext context)
+            public Task Handle(SomeCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 testContext.ManuallyRegisteredCommandHandlerInvoked = true;
                 return Task.FromResult(0);
             }
 
-            public Task Handle(SomeEvent message, IMessageHandlerContext context)
+            public Task Handle(SomeEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 testContext.ManuallyRegisteredEventHandlerInvoked = true;
                 return Task.FromResult(0);

@@ -92,7 +92,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent @event, IMessageHandlerContext context)
+                public Task Handle(MyEvent @event, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.GotTheEvent = true;
                     return Task.FromResult(0);

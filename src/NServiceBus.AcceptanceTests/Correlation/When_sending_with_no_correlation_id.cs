@@ -39,7 +39,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyRequest message, IMessageHandlerContext context)
+                public Task Handle(MyRequest message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];
                     testContext.MessageIdReceived = context.MessageId;

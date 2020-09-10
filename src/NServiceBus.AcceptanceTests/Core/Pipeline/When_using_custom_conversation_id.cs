@@ -49,7 +49,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)
+                public Task Handle(MessageWithConversationId message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedConversationId = context.MessageHeaders[Headers.ConversationId];
                     return Task.FromResult(0);

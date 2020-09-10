@@ -71,7 +71,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.IsMessageHandledByTheAuditEndpoint = true;

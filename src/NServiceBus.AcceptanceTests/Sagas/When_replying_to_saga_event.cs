@@ -49,7 +49,7 @@
 
             class DidSomethingHandler : IHandleMessages<DidSomething>
             {
-                public Task Handle(DidSomething message, IMessageHandlerContext context)
+                public Task Handle(DidSomething message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Reply(new DidSomethingResponse
                     {
@@ -77,7 +77,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Publish(new DidSomething
                     {
@@ -85,7 +85,7 @@
                     });
                 }
 
-                public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
+                public Task Handle(DidSomethingResponse message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.CorrelatedResponseReceived = message.ReceivedDataId == Data.DataId;
                     return Task.FromResult(0);

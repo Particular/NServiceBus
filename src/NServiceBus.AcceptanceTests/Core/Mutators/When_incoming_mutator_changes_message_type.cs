@@ -55,7 +55,7 @@
                     TestContext = testContext;
                 }
 
-                public Task Handle(OriginalMessage message, IMessageHandlerContext context)
+                public Task Handle(OriginalMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     TestContext.OriginalMessageHandlerCalled = true;
                     return Task.FromResult(0);
@@ -71,7 +71,7 @@
                     TestContext = testContext;
                 }
 
-                public Task Handle(NewMessage message, IMessageHandlerContext context)
+                public Task Handle(NewMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     TestContext.NewMessageHandlerCalled = true;
                     return Task.FromResult(0);
@@ -87,13 +87,13 @@
                     TestContext = testContext;
                 }
 
-                public Task Handle(NewMessage message, IMessageHandlerContext context)
+                public Task Handle(NewMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     TestContext.NewMessageSagaHandlerCalled = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(OriginalMessage message, IMessageHandlerContext context)
+                public Task Handle(OriginalMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     TestContext.OriginalMessageSagaHandlerCalled = true;
                     return Task.FromResult(0);

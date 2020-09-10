@@ -102,7 +102,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
                     this.scenario = scenario;
                 }
 
-                public Task Handle(AnyMessage message, IMessageHandlerContext context)
+                public Task Handle(AnyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
                     {

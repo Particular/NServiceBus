@@ -52,7 +52,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(V2Message message, IMessageHandlerContext context)
+                public Task Handle(V2Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.V2MessageReceived = true;
 
@@ -69,7 +69,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(V1Message message, IMessageHandlerContext context)
+                public Task Handle(V1Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.V1MessageReceived = true;
 

@@ -68,7 +68,7 @@
                         .ToSaga(saga => saga.CorrelatedProperty);
                 }
 
-                public Task Handle(MessageWithGuidCorrelationProperty message, IMessageHandlerContext context)
+                public Task Handle(MessageWithGuidCorrelationProperty message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new RequestWithGuidCorrelationProperty
                     {
@@ -76,7 +76,7 @@
                     });
                 }
 
-                public Task Handle(RequestWithGuidCorrelationProperty message, IMessageHandlerContext context)
+                public Task Handle(RequestWithGuidCorrelationProperty message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     scenarioContext.MessageCorrelated = true;
                     scenarioContext.CorrelatedId = Data.CorrelatedProperty;

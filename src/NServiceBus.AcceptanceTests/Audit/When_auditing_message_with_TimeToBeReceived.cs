@@ -47,7 +47,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
@@ -71,7 +71,7 @@
                     this.textContext = textContext;
                 }
 
-                public async Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public async Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (textContext.AuditRetries > 0)
                     {

@@ -39,7 +39,7 @@
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -52,7 +52,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(FirstMessage message, IMessageHandlerContext context)
+                public Task Handle(FirstMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.OriginRelatedTo = context.MessageId;
                     testContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
@@ -78,7 +78,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
                     testContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
@@ -92,7 +92,7 @@
 
             public class FirstMessageHandler : IHandleMessages<FirstMessage>
             {
-                public Task Handle(FirstMessage message, IMessageHandlerContext context)
+                public Task Handle(FirstMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

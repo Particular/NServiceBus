@@ -72,7 +72,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.CustomerId = message.CustomerId;
                     testContext.SagaId = Data.Id;

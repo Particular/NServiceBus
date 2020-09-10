@@ -31,7 +31,7 @@
                 //not supported
                 public IMessageSession MessageSession { get; set; }
 
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return MessageSession.Send(new MyMessage());
                 }

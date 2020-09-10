@@ -53,14 +53,14 @@
                     testContext = context;
                 }
 
-                public Task Handle(OtherMessage message, IMessageHandlerContext context)
+                public Task Handle(OtherMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SagaIdWhenOtherMessageReceived = Data.Id;
                     testContext.SecondMessageReceived = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.FirstMessageReceived = true;
                     testContext.SagaIdWhenStartSagaMessageReceived = Data.Id;

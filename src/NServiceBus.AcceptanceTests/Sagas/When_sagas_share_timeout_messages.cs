@@ -54,12 +54,12 @@
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.CorrelationProperty);
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
 
-                public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
+                public Task Timeout(MySagaTimeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Saga1ReceivedTimeout = true;
                     return Task.FromResult(0);
@@ -85,12 +85,12 @@
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.CorrelationProperty);
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return RequestTimeout<MySagaTimeout>(context, TimeSpan.FromSeconds(10));
                 }
 
-                public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
+                public Task Timeout(MySagaTimeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Saga2ReceivedTimeout = true;
                     return Task.FromResult(0);

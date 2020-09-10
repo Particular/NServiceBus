@@ -38,7 +38,7 @@
         {
             public Context TestContext { get; set; }
 
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
+            public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 TestContext.MessageReceived = true;
                 MarkAsComplete();

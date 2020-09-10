@@ -64,7 +64,7 @@
         {
             public IMessageSession MessageSession { get; set; }
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -74,7 +74,7 @@
         {
             public IEndpointInstance EndpointInstance { get; set; }
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -87,7 +87,7 @@
                 MessageSession = messageSession;
             }
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -98,7 +98,7 @@
 
         class HandlerWithInheritedIMessageSessionPropertyDep : HandlerBaseWithIMessageSessionDep, IHandleMessages<MyMessage>
         {
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -111,7 +111,7 @@
                 this.endpointInstance = endpointInstance;
             }
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -127,7 +127,7 @@
                 this.endpointInstance = endpointInstance;
             }
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -157,7 +157,7 @@
         class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
         {
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 HandlerCalled = true;
                 return Task.CompletedTask;
@@ -168,7 +168,7 @@
                 throw new NotImplementedException();
             }
 
-            public Task Timeout(MyMessage state, IMessageHandlerContext context)
+            public Task Timeout(MyMessage state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 TimeoutCalled = true;
                 return Task.CompletedTask;

@@ -42,7 +42,7 @@
                     this.messageCreator = messageCreator;
                 }
 
-                public Task Handle(StartMessage message, IMessageHandlerContext context)
+                public Task Handle(StartMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     var interfaceMessage = messageCreator.CreateInstance<IMyMessage>();
                     return context.Send(interfaceMessage);
@@ -58,7 +58,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(IMyMessage message, IMessageHandlerContext context)
+                public Task Handle(IMyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.GotTheMessage = true;
 

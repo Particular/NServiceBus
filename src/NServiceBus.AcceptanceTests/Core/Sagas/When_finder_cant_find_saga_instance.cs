@@ -67,7 +67,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     // need to set the correlation property manually because the finder doesn't return an existing instance
                     Data.CorrelationProperty = "some value";
@@ -84,7 +84,7 @@
 
                 // This additional, unused, message is required to reprododuce https://github.com/Particular/NServiceBus/issues/4888
 
-                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

@@ -73,7 +73,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
                     testContext = context;
                 }
 
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
+                public Task Handle(MyCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (settings.Get<string>("EndpointInstanceDiscriminator") == Discriminator2)
                     {

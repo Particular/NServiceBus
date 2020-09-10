@@ -425,11 +425,11 @@ namespace NServiceBus
     public interface IEvent : NServiceBus.IMessage { }
     public interface IHandleMessages<T>
     {
-        System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
+        System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken);
     }
     public interface IHandleTimeouts<T>
     {
-        System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
+        System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken);
     }
     public interface IMessage { }
     public interface IMessageConvention

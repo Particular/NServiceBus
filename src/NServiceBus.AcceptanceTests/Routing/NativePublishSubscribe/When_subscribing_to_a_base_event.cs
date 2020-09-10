@@ -60,7 +60,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (messageThatIsEnlisted is SpecificEvent)
                     {

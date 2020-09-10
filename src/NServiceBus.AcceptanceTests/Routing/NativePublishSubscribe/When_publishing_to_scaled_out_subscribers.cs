@@ -69,7 +69,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
+                public Task Handle(MyEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.IncrementSubscriberACounter();
                     return Task.FromResult(0);
@@ -93,7 +93,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
+                public Task Handle(MyEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.IncrementSubscriberBCounter();
                     return Task.FromResult(0);

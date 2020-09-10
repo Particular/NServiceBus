@@ -77,14 +77,14 @@
                     mapper.ConfigureMapping<FinishMsg>(m => m.OrderId).ToSaga(s => s.OrderId);
                 }
 
-                public async Task Handle(StartMsg message, IMessageHandlerContext context)
+                public async Task Handle(StartMsg message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     await context.SendLocal(new ContinueMsg { OrderId = message.OrderId, Index = 1 });
                     await context.SendLocal(new ContinueMsg { OrderId = message.OrderId, Index = 2 });
                     await context.SendLocal(new ContinueMsg { OrderId = message.OrderId, Index = 3 });
                 }
 
-                public Task Handle(ContinueMsg message, IMessageHandlerContext context)
+                public Task Handle(ContinueMsg message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     this.Data.ContinueCount++;
                     this.Data.CollectedIndexes += message.Index.ToString();
@@ -97,7 +97,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(FinishMsg message, IMessageHandlerContext context)
+                public Task Handle(FinishMsg message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     this.MarkAsComplete();
                     testContext.SagaData = this.Data;

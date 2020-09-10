@@ -42,7 +42,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(ICommand message, IMessageHandlerContext context)
+                public Task Handle(ICommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.CatchAllHandlerInvoked = true;
                     return Task.FromResult(0);
@@ -58,7 +58,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(SomeCommand message, IMessageHandlerContext context)
+                public Task Handle(SomeCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SpecificHandlerInvoked = true;
                     return Task.FromResult(0);

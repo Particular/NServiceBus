@@ -40,7 +40,7 @@
 
             public class SagaWithCorrelatedProperty : Saga<SagaDataWithCorrelatedProperty>, IAmStartedByMessages<MessageWithNullCorrelationProperty>
             {
-                public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context)
+                public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

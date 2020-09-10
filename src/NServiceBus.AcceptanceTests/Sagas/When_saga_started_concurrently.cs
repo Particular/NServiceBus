@@ -63,7 +63,7 @@
                     testContext = context;
                 }
 
-                public async Task Handle(StartMessageOne message, IMessageHandlerContext context)
+                public async Task Handle(StartMessageOne message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.Placed = true;
                     await context.SendLocal(new SuccessfulProcessing
@@ -74,7 +74,7 @@
                     CheckForCompletion(context);
                 }
 
-                public async Task Handle(StartMessageTwo message, IMessageHandlerContext context)
+                public async Task Handle(StartMessageTwo message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.Billed = true;
                     await context.SendLocal(new SuccessfulProcessing
@@ -91,7 +91,7 @@
                     mapper.ConfigureMapping<StartMessageTwo>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
                 }
 
-                void CheckForCompletion(IMessageHandlerContext context)
+                void CheckForCompletion(IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (!Data.Billed || !Data.Placed)
                     {
@@ -119,7 +119,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context)
+                public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.Type == nameof(StartMessageOne))
                     {

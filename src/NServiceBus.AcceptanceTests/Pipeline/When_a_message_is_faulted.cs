@@ -44,7 +44,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(FirstMessage message, IMessageHandlerContext context)
+                public Task Handle(FirstMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.OriginRelatedTo = context.MessageId;
                     testContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
@@ -57,7 +57,7 @@
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageThatFails>
             {
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException();
                 }
@@ -78,7 +78,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
                     testContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;

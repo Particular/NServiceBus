@@ -54,7 +54,7 @@
                 // no mapping defined since this saga uses a custom finder
             }
 
-            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -88,7 +88,7 @@
                 // no mapping defined since this saga uses a custom finder
             }
 
-            public Task Handle(AnotherSagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            public Task Handle(AnotherSagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

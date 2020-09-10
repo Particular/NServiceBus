@@ -61,7 +61,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.Id != testContext.Id)
                     {

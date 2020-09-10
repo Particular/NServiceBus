@@ -46,7 +46,7 @@
                 mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
             }
 
-            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

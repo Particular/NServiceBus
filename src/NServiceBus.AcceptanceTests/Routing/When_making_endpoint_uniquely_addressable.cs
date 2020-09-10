@@ -75,7 +75,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Interlocked.Increment(ref testContext.MessagesReceived);
                     return Task.FromResult(0);

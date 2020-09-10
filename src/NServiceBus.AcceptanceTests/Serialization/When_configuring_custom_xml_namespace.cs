@@ -48,7 +48,7 @@
                     this.scenarioContext = scenarioContext;
                 }
 
-                public Task Handle(SimpleMessage message, IMessageHandlerContext context)
+                public Task Handle(SimpleMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     scenarioContext.MessageReceived = true;
                     return Task.FromResult(0);

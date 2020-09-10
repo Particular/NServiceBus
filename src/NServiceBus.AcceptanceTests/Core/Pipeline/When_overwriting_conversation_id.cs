@@ -52,7 +52,7 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Handle(IntermediateMessage message, IMessageHandlerContext context)
+                public async Task Handle(IntermediateMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedMessage = true;
 

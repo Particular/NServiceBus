@@ -43,7 +43,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SomeId = Data.SomeId;
                     return Task.FromResult(0);

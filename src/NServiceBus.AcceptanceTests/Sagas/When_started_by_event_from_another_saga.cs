@@ -64,7 +64,7 @@
                     testContext = context;
                 }
 
-                public async Task Handle(StartSaga message, IMessageHandlerContext context)
+                public async Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
 
@@ -75,7 +75,7 @@
                     await RequestTimeout<Timeout1>(context, TimeSpan.FromMilliseconds(1));
                 }
 
-                public Task Timeout(Timeout1 state, IMessageHandlerContext context)
+                public Task Timeout(Timeout1 state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     MarkAsComplete();
                     testContext.DidSaga1Complete = true;
@@ -121,14 +121,14 @@
                     testContext = context;
                 }
 
-                public Task Handle(SomethingHappenedEvent message, IMessageHandlerContext context)
+                public Task Handle(SomethingHappenedEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.DataId = message.DataId;
                     //Request a timeout
                     return RequestTimeout<Saga2Timeout>(context, TimeSpan.FromMilliseconds(1));
                 }
 
-                public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
+                public Task Timeout(Saga2Timeout state, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     MarkAsComplete();
                     testContext.DidSaga2Complete = true;

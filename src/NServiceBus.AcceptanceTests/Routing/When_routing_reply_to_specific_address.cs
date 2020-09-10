@@ -62,7 +62,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(RequestReplyMessage message, IMessageHandlerContext context)
+                public Task Handle(RequestReplyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReplyToAddress = context.ReplyToAddress;
                     return context.Reply(new ReplyMessage());
@@ -86,7 +86,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(ReplyMessage message, IMessageHandlerContext context)
+                public Task Handle(ReplyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReplyReceived = true;
                     return Task.FromResult(0);

@@ -50,7 +50,7 @@
 
             class FailingMessageHandler : IHandleMessages<FailingMessage>
             {
-                public Task Handle(FailingMessage message, IMessageHandlerContext context)
+                public Task Handle(FailingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException();
                 }

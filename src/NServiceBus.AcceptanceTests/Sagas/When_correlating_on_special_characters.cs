@@ -57,7 +57,7 @@
                     mapper.ConfigureMapping<FollowupMessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
                 }
 
-                public Task Handle(MessageWithSpecialPropertyValues message, IMessageHandlerContext context)
+                public Task Handle(MessageWithSpecialPropertyValues message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new FollowupMessageWithSpecialPropertyValues
                     {
@@ -65,7 +65,7 @@
                     });
                 }
 
-                public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context)
+                public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
                     return Task.FromResult(0);

@@ -52,7 +52,7 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Handle(MyMessage message, IMessageHandlerContext context)
+                public async Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     try
                     {
@@ -69,7 +69,7 @@
                     }
                 }
 
-                public Task Handle(MyOtherMessage message, IMessageHandlerContext context)
+                public Task Handle(MyOtherMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SecondMessageReceived = true;
 

@@ -57,7 +57,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(SomeEvent message, IMessageHandlerContext context)
+                public Task Handle(SomeEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.EventReceived = true;
                     return Task.FromResult(0);
@@ -81,7 +81,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(SomeEvent message, IMessageHandlerContext context)
+                public Task Handle(SomeEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.EventReceived = true;
                     return Task.FromResult(0);

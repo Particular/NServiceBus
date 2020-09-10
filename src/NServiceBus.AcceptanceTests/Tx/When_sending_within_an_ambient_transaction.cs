@@ -97,7 +97,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageThatIsEnlistedHandlerWasCalled = true;
                     testContext.TimesCalled++;
@@ -120,7 +120,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted, IMessageHandlerContext context)
+                public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageThatIsNotEnlistedHandlerWasCalled = true;
                     testContext.NonTransactionalHandlerCalledFirst = !testContext.MessageThatIsEnlistedHandlerWasCalled;

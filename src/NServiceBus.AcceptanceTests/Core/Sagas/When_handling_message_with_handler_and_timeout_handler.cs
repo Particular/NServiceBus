@@ -45,13 +45,13 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HandlerInvoked = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Timeout(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.TimeoutHandlerInvoked = true;
                     return Task.FromResult(0);

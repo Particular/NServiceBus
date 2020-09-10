@@ -53,13 +53,13 @@
 
             public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -78,13 +78,13 @@
 
             public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -132,13 +132,13 @@
 
             public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -164,14 +164,14 @@
                     this.context = context;
                 }
 
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.MessageId = message.Id;
                     this.context.Done = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);

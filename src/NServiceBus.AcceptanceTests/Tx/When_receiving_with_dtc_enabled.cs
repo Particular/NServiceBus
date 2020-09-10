@@ -69,7 +69,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
                     testContext.HandlerInvoked = true;

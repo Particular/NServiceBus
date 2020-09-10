@@ -66,19 +66,19 @@
                     // No mapping for EchoMessage, so saga can't possibly be found
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.StartReceived = true;
                     return context.SendLocal(new OutboundMessage { SomeId = message.SomeId });
                 }
 
-                public Task Handle(MappedEchoMessage message, IMessageHandlerContext context)
+                public Task Handle(MappedEchoMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MappedEchoReceived = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(EchoMessage message, IMessageHandlerContext context)
+                public Task Handle(EchoMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.EchoReceived = true;
                     return Task.FromResult(0);
@@ -99,7 +99,7 @@
                     testContext = context;
                 }
 
-                public async Task Handle(OutboundMessage message, IMessageHandlerContext context)
+                public async Task Handle(OutboundMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.OutboundReceived = true;
                     await context.SendLocal(new EchoMessage { SomeId = message.SomeId });

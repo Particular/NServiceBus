@@ -72,7 +72,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context)
+                public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
                     testContext.MatchingMessageReceived = true;
@@ -89,7 +89,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context)
+                public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.NonMatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
                     testContext.NonMatchingMessageReceived = true;

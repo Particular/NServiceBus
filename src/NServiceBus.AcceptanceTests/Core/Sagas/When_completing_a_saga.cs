@@ -56,14 +56,14 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.StartSagaMessageReceived = true;
 
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     MarkAsComplete();
                     testContext.SagaCompleted = true;

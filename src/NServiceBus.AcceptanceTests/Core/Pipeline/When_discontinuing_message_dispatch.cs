@@ -44,7 +44,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SagaStarted = true;
                     Data.SomeId = message.SomeId;
@@ -72,7 +72,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.InterceptingHandlerCalled = true;
                     context.DoNotContinueDispatchingCurrentMessageToHandlers();

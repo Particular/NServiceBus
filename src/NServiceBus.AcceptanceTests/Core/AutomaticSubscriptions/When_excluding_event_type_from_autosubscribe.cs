@@ -75,7 +75,7 @@
 
             class MyMessageHandler : IHandleMessages<EventToSubscribeTo>
             {
-                public Task Handle(EventToSubscribeTo message, IMessageHandlerContext context)
+                public Task Handle(EventToSubscribeTo message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -83,7 +83,7 @@
 
             public class EventMessageHandler : IHandleMessages<EventToExclude>
             {
-                public Task Handle(EventToExclude message, IMessageHandlerContext context)
+                public Task Handle(EventToExclude message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }
@@ -91,7 +91,7 @@
 
             public class MyEventWithNoRoutingHandler : IHandleMessages<EventWithNoPublisher>
             {
-                public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context)
+                public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

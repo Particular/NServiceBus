@@ -57,7 +57,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (initiatingMessage.Id == testContext.TestRunId)
                     {
@@ -84,7 +84,7 @@
 
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
-                public Task Handle(InitiatingMessage message, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException("message should be moved to the error queue");
                 }
@@ -105,7 +105,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (initiatingMessage.Id == testContext.TestRunId)
                     {
@@ -125,7 +125,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
+                public Task Handle(SubsequentMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.Id == testContext.TestRunId)
                     {

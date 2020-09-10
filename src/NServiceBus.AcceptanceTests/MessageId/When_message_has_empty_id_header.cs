@@ -55,7 +55,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(Message message, IMessageHandlerContext context)
+                public Task Handle(Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageId = context.MessageId;
                     testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);

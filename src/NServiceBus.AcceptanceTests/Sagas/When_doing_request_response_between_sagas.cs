@@ -41,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     testContext = context;
                 }
 
-                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
+                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
                     {
@@ -49,7 +49,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     });
                 }
 
-                public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
+                public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.DidRequestingSagaGetTheResponse = true;
 
@@ -77,7 +77,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 public Context TestContext { get; set; }
 
-                public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
+                public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // we explicitly set the correlation ID to a non-existent saga since auto correlation happens to work for this special case

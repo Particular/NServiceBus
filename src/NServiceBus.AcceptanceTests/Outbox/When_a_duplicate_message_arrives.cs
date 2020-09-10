@@ -60,7 +60,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
+                public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessagesReceivedByDownstreamEndpoint++;
                     if (message.Terminator)
@@ -94,7 +94,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessagesReceivedByOutboxEndpoint++;
                     return context.Send(new SendOrderAcknowledgement

@@ -62,7 +62,7 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new MessageThatFails());
                 }
@@ -71,7 +71,7 @@
                 {
                     public Context TestContext { get; set; }
 
-                    public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                    public Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                     {
                         throw new SimulatedException();
                     }
@@ -93,7 +93,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Headers = context.MessageHeaders;
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
@@ -118,7 +118,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.TimeSentOnTheFailingMessageWhenItWasHandled = DateTimeExtensions.ToUtcDateTime(context.MessageHeaders[Headers.TimeSent]);
                     testContext.FaultHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);

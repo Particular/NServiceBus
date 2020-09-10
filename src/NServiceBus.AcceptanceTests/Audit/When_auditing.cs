@@ -60,7 +60,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
@@ -84,7 +84,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
@@ -108,7 +108,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);

@@ -66,7 +66,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(DelayedMessage message, IMessageHandlerContext context)
+                public Task Handle(DelayedMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedMessageHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return Task.FromResult(0);

@@ -74,7 +74,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Send(new DoSomething
                     {
@@ -82,7 +82,7 @@
                     });
                 }
 
-                public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
+                public Task Handle(DoSomethingResponse message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Done = true;
                     testContext.ResponseRunId = message.RunId;

@@ -47,7 +47,7 @@
 
             public class StartMessageHandler : IHandleMessages<StartMessage>
             {
-                public Task Handle(StartMessage message, IMessageHandlerContext context)
+                public Task Handle(StartMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new LoopMessage());
                 }
@@ -60,7 +60,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(LoopMessage message, IMessageHandlerContext context)
+                public Task Handle(LoopMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.WasCalled = true;
                     return Task.FromResult(0);

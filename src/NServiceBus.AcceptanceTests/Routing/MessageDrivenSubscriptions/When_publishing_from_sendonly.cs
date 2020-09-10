@@ -62,7 +62,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SubscriberGotTheEvent = true;
 

@@ -48,7 +48,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (Transaction.Current != null)
                     {

@@ -59,14 +59,14 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
+                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
 
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context)
+                public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return ReplyToOriginator(context, new MyReplyToOriginator());
                 }
@@ -94,7 +94,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
+                public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
                     testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];

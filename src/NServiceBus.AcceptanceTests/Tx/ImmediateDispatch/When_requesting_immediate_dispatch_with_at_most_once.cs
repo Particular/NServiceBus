@@ -34,7 +34,7 @@
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
-                public async Task Handle(InitiatingMessage message, IMessageHandlerContext context)
+                public async Task Handle(InitiatingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     var options = new SendOptions();
 
@@ -54,7 +54,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageDispatched = true;
                     return Task.FromResult(0);

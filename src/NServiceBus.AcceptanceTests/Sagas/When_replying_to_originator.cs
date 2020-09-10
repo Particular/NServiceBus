@@ -41,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     testContext = context;
                 }
 
-                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
+                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new RequestToRespondingSaga
                     {
@@ -49,7 +49,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     });
                 }
 
-                public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
+                public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.DidRequestingSagaGetTheResponse = true;
 
@@ -76,7 +76,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 IAmStartedByMessages<RequestToRespondingSaga>,
                 IHandleMessages<SendReplyFromNonInitiatingHandler>
             {
-                public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
+                public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new SendReplyFromNonInitiatingHandler
                     {
@@ -84,7 +84,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     });
                 }
 
-                public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context)
+                public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     //reply to originator must be used here since the sender of the incoming message is this saga and not the requesting saga
                     return ReplyToOriginator(context, new ResponseFromOtherSaga

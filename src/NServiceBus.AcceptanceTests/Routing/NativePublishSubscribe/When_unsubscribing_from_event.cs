@@ -85,7 +85,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(Event message, IMessageHandlerContext context)
+                public Task Handle(Event message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Interlocked.Increment(ref testContext.Subscriber1ReceivedMessages);
 
@@ -110,7 +110,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(Event message, IMessageHandlerContext context)
+                public Task Handle(Event message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Interlocked.Increment(ref testContext.Subscriber2ReceivedMessages);
 

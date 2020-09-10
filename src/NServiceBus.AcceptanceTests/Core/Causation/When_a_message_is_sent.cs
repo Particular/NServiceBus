@@ -44,7 +44,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
+                public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
                     testContext.MessageIdOfFirstMessage = context.MessageId;
@@ -62,7 +62,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
+                public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
 

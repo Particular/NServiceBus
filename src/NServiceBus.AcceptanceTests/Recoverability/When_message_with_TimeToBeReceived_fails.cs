@@ -76,7 +76,7 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public async Task Handle(MessageThatFails message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (testContext.ErrorQueueRetries > 0)
                     {

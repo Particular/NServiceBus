@@ -59,7 +59,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
+                public Task Handle(DateTimeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedMessage = message;
 

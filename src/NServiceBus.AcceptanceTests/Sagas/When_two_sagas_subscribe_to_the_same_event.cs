@@ -51,7 +51,7 @@
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
             {
-                public Task Handle(OpenGroupCommand message, IMessageHandlerContext context)
+                public Task Handle(OpenGroupCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Publish(new GroupPendingEvent
                     {
@@ -82,7 +82,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
+                public Task Handle(GroupPendingEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new CompleteSaga1Now
                     {
@@ -90,7 +90,7 @@
                     });
                 }
 
-                public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
+                public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.DidSaga1EventHandlerGetInvoked = true;
 
@@ -122,7 +122,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Send(new OpenGroupCommand
                     {
@@ -130,7 +130,7 @@
                     });
                 }
 
-                public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
+                public Task Handle(GroupPendingEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.DidSaga2EventHandlerGetInvoked = true;
                     MarkAsComplete();

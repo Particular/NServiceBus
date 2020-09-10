@@ -96,7 +96,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(IEventA @event, IMessageHandlerContext context)
+                public Task Handle(IEventA @event, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (@event.ContextId != testContext.Id)
                     {
@@ -117,7 +117,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(IEventB @event, IMessageHandlerContext context)
+                public Task Handle(IEventB @event, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (@event.ContextId != testContext.Id)
                     {

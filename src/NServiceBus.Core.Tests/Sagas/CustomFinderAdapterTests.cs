@@ -54,7 +54,7 @@
         {
         }
 
-        public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+        public Task Handle(StartSagaMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

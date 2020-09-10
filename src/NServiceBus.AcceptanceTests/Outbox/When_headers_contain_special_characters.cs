@@ -81,7 +81,7 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     var sendOrderAcknowledgement = new SendOrderAcknowledgement();
                     var sendOptions = new SendOptions();
@@ -101,7 +101,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
+                public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageReceived = true;
                     testContext.UnicodeHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);

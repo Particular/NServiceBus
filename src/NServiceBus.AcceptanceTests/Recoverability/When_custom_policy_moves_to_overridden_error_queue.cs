@@ -47,7 +47,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException();
                 }
@@ -68,7 +68,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                     testContext = context;
                 }
 
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (initiatingMessage.Id == testContext.TestRunId)
                     {

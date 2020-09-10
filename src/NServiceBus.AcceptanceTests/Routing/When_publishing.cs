@@ -151,7 +151,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Subscriber3GotTheEvent = true;
                     return Task.FromResult(0);
@@ -176,7 +176,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
+                public Task Handle(MyEvent message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     testContext.Subscriber1GotTheEvent = true;
@@ -202,7 +202,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.Subscriber2GotTheEvent = true;
                     return Task.FromResult(0);

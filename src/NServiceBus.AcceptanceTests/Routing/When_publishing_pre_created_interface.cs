@@ -64,7 +64,7 @@
                     this.messageCreator = messageCreator;
                 }
 
-                public Task Handle(StartMessage message, IMessageHandlerContext context)
+                public Task Handle(StartMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.Publish(messageCreator.CreateInstance<MyEvent>());
                 }
@@ -107,7 +107,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent @event, IMessageHandlerContext context)
+                public Task Handle(MyEvent @event, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.GotTheEvent = true;
                     return Task.FromResult(0);

@@ -58,7 +58,7 @@
 
         public class SimpleHandler : IHandleMessages<SimpleMessage>
         {
-            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -66,7 +66,7 @@
 
         public class GenericTypeDefinitionHandler<T> : IHandleMessages<SimpleMessage>
         {
-            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -86,7 +86,7 @@
 
         public abstract class AbstractHandler : IHandleMessages<SimpleMessage>
         {
-            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }

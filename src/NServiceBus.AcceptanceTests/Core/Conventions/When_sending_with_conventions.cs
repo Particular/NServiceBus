@@ -56,7 +56,7 @@
                 testContext = context;
             }
 
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 if (testContext.Id != message.Id)
                 {
@@ -78,7 +78,7 @@
                 testContext = context;
             }
 
-            public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
+            public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 if (testContext.Id != interfaceMessage.Id)
                 {

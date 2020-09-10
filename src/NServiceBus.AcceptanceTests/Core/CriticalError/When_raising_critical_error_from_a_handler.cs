@@ -64,7 +64,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(Message request, IMessageHandlerContext context)
+                public Task Handle(Message request, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (testContext.ContextId == request.ContextId)
                     {

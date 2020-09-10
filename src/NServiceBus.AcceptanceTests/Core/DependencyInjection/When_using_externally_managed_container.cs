@@ -68,7 +68,7 @@
                     testContext.ServiceProvider = serviceProvider;
                 }
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageReceived = true;
                     return Task.FromResult(0);

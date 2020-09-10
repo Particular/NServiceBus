@@ -55,7 +55,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
+                public Task Handle(MyBaseCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.WasCalled1 = true;
                     return Task.Delay(2000); // Just to be sure the other receiver is finished
@@ -79,7 +79,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
+                public Task Handle(MyBaseCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.WasCalled2 = true;
                     return Task.Delay(2000); // Just to be sure the other receiver is finished

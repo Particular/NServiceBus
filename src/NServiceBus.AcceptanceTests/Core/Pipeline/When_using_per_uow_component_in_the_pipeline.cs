@@ -100,7 +100,7 @@
                     this.component = component;
                 }
 
-                public Task Handle(Message message, IMessageHandlerContext context)
+                public Task Handle(Message message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ValueEmpty |= component.ValueFromHeader == null;
                     testContext.OnMessageProcessed();

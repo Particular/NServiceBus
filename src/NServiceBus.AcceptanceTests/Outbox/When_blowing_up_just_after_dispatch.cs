@@ -54,7 +54,7 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return context.SendLocal(new SendOrderAcknowledgment());
                 }
@@ -67,7 +67,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context)
+                public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.OrderAckReceived++;
                     return Task.FromResult(0);

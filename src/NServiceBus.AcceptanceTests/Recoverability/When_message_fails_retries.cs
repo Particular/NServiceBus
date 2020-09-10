@@ -43,7 +43,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MessageWhichFailsRetries message, IMessageHandlerContext context)
+                public Task Handle(MessageWhichFailsRetries message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.PhysicalMessageId = context.MessageId;
                     throw new SimulatedException();

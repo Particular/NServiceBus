@@ -44,7 +44,7 @@
                 // no mapping provided
             }
 
-            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

@@ -69,7 +69,7 @@
             {
                 public Context TestContext { get; set; }
 
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     if (message.Id == TestContext.TestRunId)
                     {

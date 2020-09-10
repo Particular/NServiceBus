@@ -57,7 +57,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageWithRawXml messageWithRawXml, IMessageHandlerContext context)
+                public Task Handle(MessageWithRawXml messageWithRawXml, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.MessageReceived = true;
                     testContext.XmlPropertyValue = messageWithRawXml.Document;

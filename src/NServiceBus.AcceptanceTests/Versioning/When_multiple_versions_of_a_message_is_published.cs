@@ -91,7 +91,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(V1Event message, IMessageHandlerContext context)
+                public Task Handle(V1Event message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.V1SubscriberGotTheMessage = true;
                     return Task.FromResult(0);
@@ -116,7 +116,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(V2Event message, IMessageHandlerContext context)
+                public Task Handle(V2Event message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.V2SubscriberGotTheMessage = true;
                     return Task.FromResult(0);

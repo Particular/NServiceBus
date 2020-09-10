@@ -57,7 +57,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
             class Handler : IHandleMessages<MessageToBeRetried>
             {
-                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     throw new SimulatedException();
                 }

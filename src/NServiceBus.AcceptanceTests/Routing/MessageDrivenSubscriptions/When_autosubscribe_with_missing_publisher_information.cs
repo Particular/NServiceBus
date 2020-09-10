@@ -36,7 +36,7 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Task Handle(MyEvent @event, IMessageHandlerContext context)
+                public Task Handle(MyEvent @event, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

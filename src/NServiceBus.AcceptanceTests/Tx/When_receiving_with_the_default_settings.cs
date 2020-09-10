@@ -41,7 +41,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.AmbientTransactionExists = Transaction.Current != null;
                     testContext.HandlerInvoked = true;

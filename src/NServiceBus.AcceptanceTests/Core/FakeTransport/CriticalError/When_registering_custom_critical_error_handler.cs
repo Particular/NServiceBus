@@ -53,7 +53,7 @@
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Task Handle(MyRequest request, IMessageHandlerContext context)
+                public Task Handle(MyRequest request, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

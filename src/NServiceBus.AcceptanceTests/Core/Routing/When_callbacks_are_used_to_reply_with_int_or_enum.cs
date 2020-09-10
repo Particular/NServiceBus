@@ -46,7 +46,7 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Handle(MyRequest message, IMessageHandlerContext context)
+                public async Task Handle(MyRequest message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     try
                     {

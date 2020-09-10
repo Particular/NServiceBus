@@ -43,7 +43,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.FirstHandlerInvoked = true;
 
@@ -63,7 +63,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.SecondHandlerInvoked = true;
 

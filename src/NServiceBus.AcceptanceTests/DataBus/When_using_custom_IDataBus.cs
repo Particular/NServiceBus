@@ -60,7 +60,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(MyMessageWithLargePayload messageWithLargePayload, IMessageHandlerContext context)
+                public Task Handle(MyMessageWithLargePayload messageWithLargePayload, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedPayload = messageWithLargePayload.Payload.Value;
 

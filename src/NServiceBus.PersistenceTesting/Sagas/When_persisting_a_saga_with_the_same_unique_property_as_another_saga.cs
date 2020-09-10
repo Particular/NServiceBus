@@ -41,7 +41,7 @@
 
         public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
         {
-            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
+            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

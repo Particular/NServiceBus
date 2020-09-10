@@ -48,7 +48,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(SomeCommand message, IMessageHandlerContext context)
+                public Task Handle(SomeCommand message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.ReceivedMessageIds.Enqueue(context.MessageId);
                     return Task.FromResult(0);

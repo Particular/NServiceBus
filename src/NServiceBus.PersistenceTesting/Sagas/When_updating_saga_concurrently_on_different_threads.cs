@@ -63,7 +63,7 @@
 
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            public Task Handle(StartMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

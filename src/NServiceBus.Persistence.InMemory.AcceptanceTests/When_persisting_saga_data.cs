@@ -165,7 +165,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
+                public Task Handle(StartSaga message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     Data.StringArray = StringArray;
                     Data.Collection = Collection;
@@ -186,7 +186,7 @@
                     });
                 }
 
-                public Task Handle(LoadTheSagaAgain message, IMessageHandlerContext context)
+                public Task Handle(LoadTheSagaAgain message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
                 {
                     testContext.LoadedSagaData = Data;
                     testContext.SagaDataLoaded = true;
