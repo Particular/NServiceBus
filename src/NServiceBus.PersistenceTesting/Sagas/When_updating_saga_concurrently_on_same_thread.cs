@@ -25,17 +25,17 @@
             var persister = configuration.SagaStorage;
 
             var winningContext = configuration.GetContextBagForSagaStorage();
-            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
+            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext, CancellationToken.None))
             {
                 var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext, CancellationToken.None);
 
                 losingContext = configuration.GetContextBagForSagaStorage();
-                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext);
+                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext, CancellationToken.None);
                 staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext, CancellationToken.None);
 
                 record.DateTimeProperty = DateTime.UtcNow;
                 await persister.Update(record, winningSaveSession, winningContext, CancellationToken.None);
-                await winningSaveSession.CompleteAsync();
+                await winningSaveSession.CompleteAsync(CancellationToken.None);
             }
 
             try
@@ -43,7 +43,7 @@
                 Assert.CatchAsync<Exception>(async () =>
                 {
                     await persister.Update(staleRecord, losingSaveSession, losingContext, CancellationToken.None);
-                    await losingSaveSession.CompleteAsync();
+                    await losingSaveSession.CompleteAsync(CancellationToken.None);
                 });
             }
             finally

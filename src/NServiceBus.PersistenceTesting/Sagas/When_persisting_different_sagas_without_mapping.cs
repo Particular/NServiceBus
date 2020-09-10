@@ -27,15 +27,15 @@
             };
 
             var savingContextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag, CancellationToken.None))
             {
                 await SaveSagaWithSession(saga1, session, savingContextBag);
                 await SaveSagaWithSession(saga2, session, savingContextBag);
-                await session.CompleteAsync();
+                await session.CompleteAsync(CancellationToken.None);
             }
 
             var readContextBag = configuration.GetContextBagForSagaStorage();
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
+            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag, CancellationToken.None))
             {
                 var saga1Result = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(saga1.Id, readSession, readContextBag, CancellationToken.None);
 
@@ -54,7 +54,7 @@
                 // no mapping defined since this saga uses a custom finder
             }
 
-            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
+            public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

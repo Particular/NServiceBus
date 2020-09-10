@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Persistence;
@@ -26,7 +27,7 @@ namespace NServiceBus
             Transaction = null;
         }
 
-        public Task CompleteAsync()
+        public Task CompleteAsync(CancellationToken cancellationToken)
         {
             if (ownsTransaction)
             {

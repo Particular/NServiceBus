@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -18,16 +19,16 @@
             var messageId = "myId";
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-            using (var transaction = await storage.BeginTransaction(new ContextBag()))
+            using (var transaction = await storage.BeginTransaction(new ContextBag(), CancellationToken.None))
             {
                 await storage.Store(messageToStore, transaction, new ContextBag());
 
-                await transaction.Commit();
+                await transaction.Commit(CancellationToken.None);
             }
 
             await storage.SetAsDispatched(messageId, new ContextBag());
 
-            var message = await storage.Get(messageId, new ContextBag());
+            var message = await storage.Get(messageId, new ContextBag(),CancellationToken.None);
 
             Assert.False(message.TransportOperations.Any());
         }
@@ -41,16 +42,16 @@
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
 
-            using (var transaction = await storage.BeginTransaction(new ContextBag()))
+            using (var transaction = await storage.BeginTransaction(new ContextBag(), CancellationToken.None))
             {
                 await storage.Store(messageToStore, transaction, new ContextBag());
 
-                await transaction.Commit();
+                await transaction.Commit(CancellationToken.None);
             }
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
 
-            var message = await storage.Get(messageId, new ContextBag());
+            var message = await storage.Get(messageId, new ContextBag(), CancellationToken.None);
             Assert.NotNull(message);
         }
 
@@ -64,11 +65,11 @@
             var beforeStore = DateTime.UtcNow;
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-            using (var transaction = await storage.BeginTransaction(new ContextBag()))
+            using (var transaction = await storage.BeginTransaction(new ContextBag(), CancellationToken.None))
             {
                 await storage.Store(messageToStore, transaction, new ContextBag());
 
-                await transaction.Commit();
+                await transaction.Commit(CancellationToken.None);
             }
 
             // Account for the low resolution of DateTime.UtcNow.
@@ -78,12 +79,12 @@
 
             storage.RemoveEntriesOlderThan(beforeStore);
 
-            var message = await storage.Get(messageId, new ContextBag());
+            var message = await storage.Get(messageId, new ContextBag(), CancellationToken.None);
             Assert.NotNull(message);
 
             storage.RemoveEntriesOlderThan(afterStore);
 
-            message = await storage.Get(messageId, new ContextBag());
+            message = await storage.Get(messageId, new ContextBag(), CancellationToken.None);
             Assert.Null(message);
         }
 
@@ -95,7 +96,7 @@
             var messageId = "myId";
 
             var contextBag = new ContextBag();
-            using (var transaction = await storage.BeginTransaction(contextBag))
+            using (var transaction = await storage.BeginTransaction(contextBag, CancellationToken.None))
             {
                 var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
                 await storage.Store(messageToStore, transaction, contextBag);
@@ -103,7 +104,7 @@
                 // do not commit
             }
 
-            var message = await storage.Get(messageId, new ContextBag());
+            var message = await storage.Get(messageId, new ContextBag(), CancellationToken.None);
             Assert.Null(message);
         }
 
@@ -115,15 +116,15 @@
             var messageId = "myId";
 
             var contextBag = new ContextBag();
-            using (var transaction = await storage.BeginTransaction(contextBag))
+            using (var transaction = await storage.BeginTransaction(contextBag, CancellationToken.None))
             {
                 var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
                 await storage.Store(messageToStore, transaction, contextBag);
 
-                await transaction.Commit();
+                await transaction.Commit(CancellationToken.None);
             }
 
-            var message = await storage.Get(messageId, new ContextBag());
+            var message = await storage.Get(messageId, new ContextBag(), CancellationToken.None);
             Assert.NotNull(message);
         }
     }

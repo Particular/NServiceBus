@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Persistence;
@@ -24,7 +25,7 @@ namespace NServiceBus
             sagaFiles.Clear();
         }
 
-        public async Task CompleteAsync()
+        public async Task CompleteAsync(CancellationToken cancellationToken)
         {
             foreach (var action in deferredActions)
             {

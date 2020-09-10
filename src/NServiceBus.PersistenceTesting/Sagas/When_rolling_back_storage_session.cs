@@ -18,7 +18,7 @@
             await SaveSaga(sagaData);
 
             var contextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag, CancellationToken.None))
             {
                 var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag, CancellationToken.None);
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
@@ -44,7 +44,7 @@
             };
 
             var contextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag, CancellationToken.None))
             {
                 await SaveSagaWithSession(sagaData, session, contextBag);
                 // Do not complete
@@ -67,7 +67,7 @@
             await SaveSaga(sagaData);
 
             var contextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag, CancellationToken.None))
             {
                 var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag, CancellationToken.None);
 

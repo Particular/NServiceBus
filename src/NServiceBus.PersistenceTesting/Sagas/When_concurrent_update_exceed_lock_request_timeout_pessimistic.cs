@@ -29,7 +29,7 @@
             async Task FirstSession()
             {
                 var firstSessionContext = configuration.GetContextBagForSagaStorage();
-                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstSessionContext))
+                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstSessionContext, CancellationToken.None))
                 {
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstSessionContext, CancellationToken.None);
                     firstSessionGetDone.SetResult(true);
@@ -39,14 +39,14 @@
 
                     record.SagaProperty = "session 1 value";
                     await persister.Update(record, firstSaveSession, firstSessionContext, CancellationToken.None);
-                    await firstSaveSession.CompleteAsync();
+                    await firstSaveSession.CompleteAsync(CancellationToken.None);
                 }
             }
 
             async Task SecondSession()
             {
                 var secondContext = configuration.GetContextBagForSagaStorage();
-                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext))
+                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext, CancellationToken.None))
                 {
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
@@ -56,7 +56,7 @@
                     var record = await recordTask.ConfigureAwait(false);
                     record.SagaProperty = "session 2 value";
                     await persister.Update(record, secondSession, secondContext, CancellationToken.None);
-                    await secondSession.CompleteAsync();
+                    await secondSession.CompleteAsync(CancellationToken.None);
                 }
             }
 

@@ -14,12 +14,12 @@
             await SaveSaga(saga);
 
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, CancellationToken.None))
             {
                 var sagaData = await configuration.SagaStorage.Get<TestSagaData>(saga.Id, completeSession, context, CancellationToken.None);
 
                 await configuration.SagaStorage.Complete(sagaData, completeSession, context, CancellationToken.None);
-                await completeSession.CompleteAsync();
+                await completeSession.CompleteAsync(CancellationToken.None);
             }
 
             var completedSaga = await GetById<TestSagaData>(saga.Id);
@@ -33,7 +33,7 @@
                 mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
             }
 
-            public Task Handle(StartMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
+            public Task Handle(StartMessage message, IMessageHandlerContext context, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

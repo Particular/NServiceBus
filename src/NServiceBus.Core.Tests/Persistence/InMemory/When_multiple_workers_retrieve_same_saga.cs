@@ -19,7 +19,7 @@
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag(), CancellationToken.None);
-            await insertSession.CompleteAsync();
+            await insertSession.CompleteAsync(CancellationToken.None);
 
             var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag(), CancellationToken.None);
             var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag(), CancellationToken.None);
@@ -40,7 +40,7 @@
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag(), CancellationToken.None);
-            await insertSession.CompleteAsync();
+            await insertSession.CompleteAsync(CancellationToken.None);
 
             var winningContext = new ContextBag();
             var losingContext = new ContextBag();
@@ -52,9 +52,9 @@
             await persister.Update(returnedSaga1, winningSaveSession, winningContext, CancellationToken.None);
             await persister.Update(returnedSaga2, losingSaveSession, losingContext, CancellationToken.None);
 
-            await winningSaveSession.CompleteAsync();
+            await winningSaveSession.CompleteAsync(CancellationToken.None);
 
-            Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
+            Assert.That(async () => await losingSaveSession.CompleteAsync(CancellationToken.None), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
 
         [Test]
@@ -69,7 +69,7 @@
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag(), CancellationToken.None);
-            await insertSession.CompleteAsync();
+            await insertSession.CompleteAsync(CancellationToken.None);
 
             var winningContext = new ContextBag();
             var record = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), winningContext, CancellationToken.None);
@@ -82,9 +82,9 @@
             await persister.Update(record, winningSaveSession, winningContext, CancellationToken.None);
             await persister.Update(staleRecord, losingSaveSession, losingContext, CancellationToken.None);
 
-            await winningSaveSession.CompleteAsync();
+            await winningSaveSession.CompleteAsync(CancellationToken.None);
 
-            Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
+            Assert.That(async () => await losingSaveSession.CompleteAsync(CancellationToken.None), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
 
         [Test]
@@ -97,7 +97,7 @@
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag(), CancellationToken.None);
-            await insertSession.CompleteAsync();
+            await insertSession.CompleteAsync(CancellationToken.None);
 
             var retrievingContext = new ContextBag();
             var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), retrievingContext, CancellationToken.None);
@@ -108,9 +108,9 @@
             await persister.Update(returnedSaga1, winningSaveSession, retrievingContext, CancellationToken.None);
             await persister.Update(returnedSaga1, losingSaveSession, retrievingContext, CancellationToken.None);
 
-            await winningSaveSession.CompleteAsync();
+            await winningSaveSession.CompleteAsync(CancellationToken.None);
 
-            Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
+            Assert.That(async () => await losingSaveSession.CompleteAsync(CancellationToken.None), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
 
         [Test]
@@ -125,7 +125,7 @@
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag(), CancellationToken.None);
-            await insertSession.CompleteAsync();
+            await insertSession.CompleteAsync(CancellationToken.None);
 
             var winningSessionContext = new ContextBag();
             var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), winningSessionContext, CancellationToken.None));
@@ -139,8 +139,8 @@
             await persister.Update(returnedSaga1, winningSaveSession, winningSessionContext, CancellationToken.None);
             await persister.Update(returnedSaga2, losingSaveSession, losingSessionContext, CancellationToken.None);
 
-            await winningSaveSession.CompleteAsync();
-            Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
+            await winningSaveSession.CompleteAsync(CancellationToken.None);
+            Assert.That(async () => await losingSaveSession.CompleteAsync(CancellationToken.None), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
 
             losingSessionContext = new ContextBag();
             var returnedSaga3 = await Task.Run(() => persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), losingSessionContext, CancellationToken.None));
@@ -154,9 +154,9 @@
             await persister.Update(returnedSaga4, winningSaveSession, winningSessionContext, CancellationToken.None);
             await persister.Update(returnedSaga3, losingSaveSession, losingSessionContext, CancellationToken.None);
 
-            await winningSaveSession.CompleteAsync();
+            await winningSaveSession.CompleteAsync(CancellationToken.None);
 
-            Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
+            Assert.That(async () => await losingSaveSession.CompleteAsync(CancellationToken.None), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
     }
 }

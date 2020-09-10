@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
-        public Task<OutboxMessage> Get(string messageId, ContextBag context)
+        public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken)
         {
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {
@@ -18,7 +19,7 @@
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken)
         {
             return Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
         }

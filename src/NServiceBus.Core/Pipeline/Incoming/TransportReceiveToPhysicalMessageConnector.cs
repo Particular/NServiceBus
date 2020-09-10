@@ -25,14 +25,14 @@ namespace NServiceBus
             var messageId = context.Message.MessageId;
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
-            var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
+            var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions, cancellationToken).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
 
             if (deduplicationEntry == null)
             {
                 physicalMessageContext.Extensions.Set(pendingTransportOperations);
 
-                using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
+                using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions, cancellationToken).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
                     await next(physicalMessageContext, cancellationToken).ConfigureAwait(false);
@@ -41,7 +41,7 @@ namespace NServiceBus
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
 
                     context.Extensions.Remove<OutboxTransaction>();
-                    await outboxTransaction.Commit().ConfigureAwait(false);
+                    await outboxTransaction.Commit(cancellationToken).ConfigureAwait(false);
                 }
 
                 physicalMessageContext.Extensions.Remove<PendingTransportOperations>();

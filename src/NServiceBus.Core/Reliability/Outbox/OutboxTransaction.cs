@@ -1,6 +1,7 @@
 namespace NServiceBus.Outbox
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,6 +12,7 @@ namespace NServiceBus.Outbox
         /// <summary>
         /// Commits the outbox transaction.
         /// </summary>
-        Task Commit();
+        /// <param name="cancellationToken"></param>
+        Task Commit(CancellationToken cancellationToken);
     }
 }

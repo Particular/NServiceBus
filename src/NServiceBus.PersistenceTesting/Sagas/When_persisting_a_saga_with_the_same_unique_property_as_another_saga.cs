@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -22,19 +23,19 @@
             };
 
             var winningContextBag = configuration.GetContextBagForSagaStorage();
-            using (var winningSession = await configuration.SynchronizedStorage.OpenSession(winningContextBag))
+            using (var winningSession = await configuration.SynchronizedStorage.OpenSession(winningContextBag, CancellationToken.None))
             {
                 await SaveSagaWithSession(saga1, winningSession, winningContextBag);
-                await winningSession.CompleteAsync();
+                await winningSession.CompleteAsync(CancellationToken.None);
             }
 
             var losingContextBag = configuration.GetContextBagForSagaStorage();
-            using (var losingSession = await configuration.SynchronizedStorage.OpenSession(losingContextBag))
+            using (var losingSession = await configuration.SynchronizedStorage.OpenSession(losingContextBag, CancellationToken.None))
             {
                 Assert.That(async () =>
                 {
                     await SaveSagaWithSession(saga2, losingSession, losingContextBag);
-                    await losingSession.CompleteAsync();
+                    await losingSession.CompleteAsync(CancellationToken.None);
                 }, Throws.InstanceOf<Exception>());
             }
         }

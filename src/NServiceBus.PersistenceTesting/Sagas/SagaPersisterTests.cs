@@ -32,10 +32,10 @@
         protected async Task SaveSaga<TSagaData>(TSagaData saga) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
-            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
+            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag, CancellationToken.None))
             {
                 await SaveSagaWithSession(saga, insertSession, insertContextBag);
-                await insertSession.CompleteAsync();
+                await insertSession.CompleteAsync(CancellationToken.None);
             }
         }
 
@@ -53,11 +53,11 @@
             TSagaData sagaData;
             var persister = configuration.SagaStorage;
 
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, CancellationToken.None))
             {
                 sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, CancellationToken.None);
 
-                await completeSession.CompleteAsync();
+                await completeSession.CompleteAsync(CancellationToken.None);
             }
 
             return sagaData;
@@ -67,11 +67,11 @@
         {
             var readContextBag = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
+            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag, CancellationToken.None))
             {
                 sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, CancellationToken.None);
 
-                await readSession.CompleteAsync();
+                await readSession.CompleteAsync(CancellationToken.None);
             }
 
             return sagaData;

@@ -16,12 +16,12 @@
 
             const string correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, CancellationToken.None))
             {
                 var sagaData = await configuration.SagaStorage.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context, CancellationToken.None);
 
                 await configuration.SagaStorage.Complete(sagaData, completeSession, context, CancellationToken.None);
-                await completeSession.CompleteAsync();
+                await completeSession.CompleteAsync(CancellationToken.None);
             }
 
             var completedSaga = await GetByCorrelationProperty<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData);
@@ -37,7 +37,7 @@
 
         public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
         {
-            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
+            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

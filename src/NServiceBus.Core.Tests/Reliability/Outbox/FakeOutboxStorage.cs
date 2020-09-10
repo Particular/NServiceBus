@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Outbox;
@@ -10,8 +11,8 @@
         public OutboxMessage StoredMessage { get; set; }
 
         public bool WasDispatched { get; set; }
-        
-        public Task<OutboxMessage> Get(string messageId, ContextBag options)
+
+        public Task<OutboxMessage> Get(string messageId, ContextBag options, CancellationToken cancellationToken)
         {
             if (ExistingMessage != null && ExistingMessage.MessageId == messageId)
             {
@@ -33,7 +34,7 @@
             return Task.CompletedTask;
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }

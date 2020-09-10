@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -92,7 +93,7 @@
                 testContext = context;
             }
 
-            public Task<OutboxMessage> Get(string messageId, ContextBag context)
+            public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(default(OutboxMessage));
             }
@@ -108,7 +109,7 @@
                 return Task.FromResult(0);
             }
 
-            public Task<OutboxTransaction> BeginTransaction(ContextBag context)
+            public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult<OutboxTransaction>(new FakeOutboxTransaction());
             }
@@ -121,7 +122,7 @@
                 {
                 }
 
-                public Task Commit()
+                public Task Commit(CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

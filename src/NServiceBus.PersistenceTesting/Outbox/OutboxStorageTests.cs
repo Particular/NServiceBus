@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Outbox
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Outbox;
     using NUnit.Framework;
@@ -35,19 +36,19 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            await storage.Get(messageId, ctx, CancellationToken.None);
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-            using (var transaction = await storage.BeginTransaction(ctx))
+            using (var transaction = await storage.BeginTransaction(ctx, CancellationToken.None))
             {
                 await storage.Store(messageToStore, transaction, ctx);
 
-                await transaction.Commit();
+                await transaction.Commit(CancellationToken.None);
             }
 
             await storage.SetAsDispatched(messageId, configuration.GetContextBagForOutbox());
 
-            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox(), CancellationToken.None);
 
             Assert.That(message, Is.Not.Null);
             CollectionAssert.IsEmpty(message.TransportOperations);
@@ -63,21 +64,21 @@
             var storage = configuration.OutboxStorage;
             var winningContextBag = configuration.GetContextBagForOutbox();
             var losingContextBag = configuration.GetContextBagForOutbox();
-            await storage.Get("MySpecialId", winningContextBag);
-            await storage.Get("MySpecialId", losingContextBag);
+            await storage.Get("MySpecialId", winningContextBag, CancellationToken.None);
+            await storage.Get("MySpecialId", losingContextBag, CancellationToken.None);
 
-            using (var transactionA = await storage.BeginTransaction(winningContextBag))
+            using (var transactionA = await storage.BeginTransaction(winningContextBag, CancellationToken.None))
             {
                 await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionA, winningContextBag);
-                await transactionA.Commit();
+                await transactionA.Commit(CancellationToken.None);
             }
 
             try
             {
-                using (var transactionB = await storage.BeginTransaction(losingContextBag))
+                using (var transactionB = await storage.BeginTransaction(losingContextBag, CancellationToken.None))
                 {
                     await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionB, losingContextBag);
-                    await transactionB.Commit();
+                    await transactionB.Commit(CancellationToken.None);
                 }
             }
             catch (Exception)
@@ -96,9 +97,9 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            await storage.Get(messageId, ctx, CancellationToken.None);
 
-            using (var transaction = await storage.BeginTransaction(ctx))
+            using (var transaction = await storage.BeginTransaction(ctx, CancellationToken.None))
             {
                 var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
                 await storage.Store(messageToStore, transaction, ctx);
@@ -106,7 +107,7 @@
                 // do not commit
             }
 
-            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox(), CancellationToken.None);
             Assert.Null(message);
         }
 
@@ -119,17 +120,17 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            await storage.Get(messageId, ctx, CancellationToken.None);
 
-            using (var transaction = await storage.BeginTransaction(ctx))
+            using (var transaction = await storage.BeginTransaction(ctx, CancellationToken.None))
             {
                 var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
                 await storage.Store(messageToStore, transaction, ctx);
 
-                await transaction.Commit();
+                await transaction.Commit(CancellationToken.None);
             }
 
-            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox(), CancellationToken.None);
             Assert.NotNull(message);
         }
 

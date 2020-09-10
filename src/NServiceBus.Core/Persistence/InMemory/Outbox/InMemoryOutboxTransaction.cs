@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Outbox;
@@ -20,7 +21,7 @@
             Transaction = null;
         }
 
-        public Task Commit()
+        public Task Commit(CancellationToken cancellationToken)
         {
             Transaction.Commit();
             return Task.CompletedTask;

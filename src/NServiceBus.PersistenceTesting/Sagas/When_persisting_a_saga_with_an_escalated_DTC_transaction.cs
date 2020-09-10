@@ -30,7 +30,7 @@
                     transportTransaction.Set(Transaction.Current);
 
                     var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
-                    using (var unenlistedSession = await configuration.SynchronizedStorage.OpenSession(unenlistedContextBag))
+                    using (var unenlistedSession = await configuration.SynchronizedStorage.OpenSession(unenlistedContextBag, CancellationToken.None))
                     {
                         var enlistedContextBag = configuration.GetContextBagForSagaStorage();
                         var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, enlistedContextBag);
@@ -42,7 +42,7 @@
                         await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag, CancellationToken.None);
                         await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag, CancellationToken.None);
 
-                        await unenlistedSession.CompleteAsync();
+                        await unenlistedSession.CompleteAsync(CancellationToken.None);
                     }
 
                     tx.Complete();

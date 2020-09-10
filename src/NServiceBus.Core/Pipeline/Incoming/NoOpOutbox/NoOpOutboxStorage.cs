@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Outbox;
 
     class NoOpOutboxStorage : IOutboxStorage
     {
-        public Task<OutboxMessage> Get(string messageId, ContextBag options)
+        public Task<OutboxMessage> Get(string messageId, ContextBag options, CancellationToken cancellationToken)
         {
             return NoOutboxMessageTask;
         }
@@ -21,7 +22,7 @@
             return Task.CompletedTask;
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken)
         {
             return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
         }
