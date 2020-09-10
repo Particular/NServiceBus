@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -19,10 +20,10 @@
             var contextBag = configuration.GetContextBagForSagaStorage();
             using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
+                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag, CancellationToken.None);
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
 
-                await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
+                await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag, CancellationToken.None);
 
                 // Do not complete
             }
@@ -68,9 +69,9 @@
             var contextBag = configuration.GetContextBagForSagaStorage();
             using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
+                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag, CancellationToken.None);
 
-                await configuration.SagaStorage.Complete(sagaFromStorage, session, contextBag);
+                await configuration.SagaStorage.Complete(sagaFromStorage, session, contextBag, CancellationToken.None);
 
                 // Do not complete
             }

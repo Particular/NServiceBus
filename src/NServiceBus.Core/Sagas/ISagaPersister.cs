@@ -1,6 +1,7 @@
 namespace NServiceBus.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -18,7 +19,8 @@ namespace NServiceBus.Sagas
         /// <param name="correlationProperty">The property to correlate. Can be null.</param>
         /// <param name="session">Storage session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context);
+        /// <param name="cancellationToken"></param>
+        Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates an existing sagaData entity in the persistence store.
@@ -26,7 +28,8 @@ namespace NServiceBus.Sagas
         /// <param name="sagaData">The sagaData data to updated.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context);
+        /// <param name="cancellationToken"></param>
+        Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets a sagaData entity from the persistence store by its Id.
@@ -34,7 +37,8 @@ namespace NServiceBus.Sagas
         /// <param name="sagaId">The Id of the sagaData data to get.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) 
+        /// <param name="cancellationToken"></param>
+        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
             where TSagaData : class, IContainSagaData;
 
         /// <summary>
@@ -44,7 +48,8 @@ namespace NServiceBus.Sagas
         /// <param name="propertyValue">From the data store, look for this value in the identified property.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context)
+        /// <param name="cancellationToken"></param>
+        Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
             where TSagaData : class, IContainSagaData;
 
         /// <summary>
@@ -54,6 +59,7 @@ namespace NServiceBus.Sagas
         /// <param name="sagaData">The sagaData to complete.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context);
+        /// <param name="cancellationToken"></param>
+        Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken);
     }
 }

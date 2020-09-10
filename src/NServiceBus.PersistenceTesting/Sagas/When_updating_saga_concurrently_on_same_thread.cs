@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -26,14 +27,14 @@
             var winningContext = configuration.GetContextBagForSagaStorage();
             using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
             {
-                var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
+                var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext, CancellationToken.None);
 
                 losingContext = configuration.GetContextBagForSagaStorage();
                 losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext);
-                staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext);
+                staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext, CancellationToken.None);
 
                 record.DateTimeProperty = DateTime.UtcNow;
-                await persister.Update(record, winningSaveSession, winningContext);
+                await persister.Update(record, winningSaveSession, winningContext, CancellationToken.None);
                 await winningSaveSession.CompleteAsync();
             }
 
@@ -41,7 +42,7 @@
             {
                 Assert.CatchAsync<Exception>(async () =>
                 {
-                    await persister.Update(staleRecord, losingSaveSession, losingContext);
+                    await persister.Update(staleRecord, losingSaveSession, losingContext, CancellationToken.None);
                     await losingSaveSession.CompleteAsync();
                 });
             }

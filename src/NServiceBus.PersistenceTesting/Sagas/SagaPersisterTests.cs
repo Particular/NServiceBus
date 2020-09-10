@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
@@ -43,7 +44,7 @@
         {
             SetupNewSaga(saga);
             var correlationProperty = GetSagaCorrelationProperty(saga);
-            await configuration.SagaStorage.Save(saga, correlationProperty, session, context);
+            await configuration.SagaStorage.Save(saga, correlationProperty, session, context, CancellationToken.None);
         }
 
         protected async Task<TSagaData> GetByCorrelationProperty<TSagaData>(string correlatedPropertyName, object correlationPropertyData) where TSagaData : class, IContainSagaData, new()
@@ -54,7 +55,7 @@
 
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, CancellationToken.None);
 
                 await completeSession.CompleteAsync();
             }
@@ -68,7 +69,7 @@
             TSagaData sagaData;
             using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
             {
-                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag);
+                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, CancellationToken.None);
 
                 await readSession.CompleteAsync();
             }

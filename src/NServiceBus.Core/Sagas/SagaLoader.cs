@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -7,6 +8,6 @@ namespace NServiceBus
 
     interface SagaLoader
     {
-        Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context);
+        Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken);
     }
 }

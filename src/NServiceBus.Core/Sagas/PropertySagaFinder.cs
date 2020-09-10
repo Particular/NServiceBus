@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -14,7 +15,7 @@ namespace NServiceBus
             this.sagaPersister = sagaPersister;
         }
 
-        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders)
+        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken)
         {
             var propertyAccessor = (Func<object, object>) finderDefinition.Properties["property-accessor"];
             var propertyValue = propertyAccessor(message);
@@ -35,10 +36,10 @@ namespace NServiceBus
 
             if (sagaPropertyName.ToLower() == "id")
             {
-                return await sagaPersister.Get<TSagaData>((Guid) propertyValue, storageSession, context).ConfigureAwait(false);
+                return await sagaPersister.Get<TSagaData>((Guid) propertyValue, storageSession, context, cancellationToken).ConfigureAwait(false);
             }
 
-            return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, storageSession, context).ConfigureAwait(false);
+            return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, storageSession, context, cancellationToken).ConfigureAwait(false);
         }
 
         ISagaPersister sagaPersister;

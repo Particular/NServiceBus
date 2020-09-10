@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -25,13 +26,13 @@
                 var winningContext = configuration.GetContextBagForSagaStorage();
                 using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
                 {
-                    var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
+                    var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext, CancellationToken.None);
 
                     startSecondTaskSync.SetResult(true);
                     await firstTaskCanCompleteSync.Task;
 
                     record.DateTimeProperty = DateTime.UtcNow;
-                    await persister.Update(record, winningSaveSession, winningContext);
+                    await persister.Update(record, winningSaveSession, winningContext, CancellationToken.None);
                     await winningSaveSession.CompleteAsync();
                 }
             });
@@ -43,7 +44,7 @@
                 var losingSaveContext = configuration.GetContextBagForSagaStorage();
                 using (var losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingSaveContext))
                 {
-                    var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext);
+                    var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext, CancellationToken.None);
 
                     firstTaskCanCompleteSync.SetResult(true);
                     await firstTask;
@@ -51,7 +52,7 @@
                     staleRecord.DateTimeProperty = DateTime.UtcNow.AddHours(1);
                     Assert.That(async () =>
                     {
-                        await persister.Update(staleRecord, losingSaveSession, losingSaveContext);
+                        await persister.Update(staleRecord, losingSaveSession, losingSaveContext, CancellationToken.None);
                         await losingSaveSession.CompleteAsync();
                     }, Throws.InstanceOf<Exception>());
                 }

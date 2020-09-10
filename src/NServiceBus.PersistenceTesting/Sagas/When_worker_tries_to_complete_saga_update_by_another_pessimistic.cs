@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -27,11 +28,11 @@
                 var firstContent = configuration.GetContextBagForSagaStorage();
                 using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent))
                 {
-                    var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
+                    var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent, CancellationToken.None);
                     firstSessionGetDone.SetResult(true);
 
                     record.DateTimeProperty = firstSessionDateTimeValue;
-                    await persister.Update(record, firstSaveSession, firstContent);
+                    await persister.Update(record, firstSaveSession, firstContent, CancellationToken.None);
                     await secondSessionGetDone.Task.ConfigureAwait(false);
                     await firstSaveSession.CompleteAsync();
                 }
@@ -44,12 +45,12 @@
                 {
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
-                    var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext));
+                    var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext, CancellationToken.None));
                     secondSessionGetDone.SetResult(true);
 
                     var record = await recordTask.ConfigureAwait(false);
                     record.DateTimeProperty = secondSessionDateTimeValue;
-                    await persister.Update(record, secondSession, secondContext);
+                    await persister.Update(record, secondSession, secondContext, CancellationToken.None);
                     await secondSession.CompleteAsync();
                 }
             }

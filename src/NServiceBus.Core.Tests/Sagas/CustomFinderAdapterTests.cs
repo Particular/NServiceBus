@@ -7,6 +7,7 @@
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
 
     [TestFixture]
@@ -38,7 +39,7 @@
 
             var customerFinderAdapter = new CustomFinderAdapter<TestSaga.SagaData, StartSagaMessage>();
 
-            Assert.That(async () => await customerFinderAdapter.Find(services.BuildServiceProvider(), finderDefinition, new InMemorySynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
+            Assert.That(async () => await customerFinderAdapter.Find(services.BuildServiceProvider(), finderDefinition, new InMemorySynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>(), CancellationToken.None),
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
     }
@@ -64,7 +65,7 @@
 
     class ReturnsNullFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
     {
-        public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+        public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
         {
             return null;
         }

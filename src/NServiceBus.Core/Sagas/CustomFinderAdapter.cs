@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
@@ -10,14 +11,14 @@ namespace NServiceBus
 
     class CustomFinderAdapter<TSagaData, TMessage> : SagaFinder where TSagaData : IContainSagaData
     {
-        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders)
+        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken)
         {
             var customFinderType = (Type) finderDefinition.Properties["custom-finder-clr-type"];
 
             var finder = (IFindSagas<TSagaData>.Using<TMessage>) builder.GetRequiredService(customFinderType);
 
             return await finder
-                .FindBy((TMessage) message, storageSession, context)
+                .FindBy((TMessage) message, storageSession, context, cancellationToken)
                 .ThrowIfNull()
                 .ConfigureAwait(false);
         }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -24,11 +25,11 @@
             var persister = configuration.SagaStorage;
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context, CancellationToken.None);
 
                 sagaData.SomeProperty = updatedValue;
 
-                await persister.Update(sagaData, completeSession, context);
+                await persister.Update(sagaData, completeSession, context, CancellationToken.None);
                 await completeSession.CompleteAsync();
             }
 

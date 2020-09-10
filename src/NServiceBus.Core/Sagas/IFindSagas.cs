@@ -1,5 +1,6 @@
 namespace NServiceBus.Sagas
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -19,7 +20,7 @@ namespace NServiceBus.Sagas
             /// Finds a saga entity of the type T using a message of type M.
             /// </summary>
             /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task&lt;T&gt; or mark the method as <code>async</code>.</exception>
-            Task<T> FindBy(M message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context);
+            Task<T> FindBy(M message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken);
         }
     }
 }

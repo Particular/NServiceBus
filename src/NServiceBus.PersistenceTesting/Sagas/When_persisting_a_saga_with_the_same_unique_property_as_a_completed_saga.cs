@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -19,10 +20,10 @@
             var context1 = configuration.GetContextBagForSagaStorage();
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context1))
             {
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1, CancellationToken.None);
                 Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
 
-                await persister.Complete(sagaData, completeSession, context1);
+                await persister.Complete(sagaData, completeSession, context1, CancellationToken.None);
                 await completeSession.CompleteAsync();
             }
 
@@ -32,10 +33,10 @@
             var context2 = configuration.GetContextBagForSagaStorage();
             using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context2))
             {
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2, CancellationToken.None);
                 Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);
 
-                await persister.Complete(sagaData, completeSession, context2);
+                await persister.Complete(sagaData, completeSession, context2, CancellationToken.None);
                 await completeSession.CompleteAsync();
             }
 

@@ -6,6 +6,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Threading;
     using System.Threading.Tasks;
 
     class HeaderPropertySagaFinder<TSagaData> : SagaFinder where TSagaData : class, IContainSagaData
@@ -17,7 +18,7 @@
             this.persister = persister;
         }
 
-        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders)
+        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken)
         {
             var headerName = (string)finderDefinition.Properties["message-header-name"];
 
@@ -62,10 +63,10 @@
 
             if (correlationPropertyName.ToLower() == "id")
             {
-                return await persister.Get<TSagaData>((Guid)convertedHeaderValue, storageSession, context).ConfigureAwait(false);
+                return await persister.Get<TSagaData>((Guid)convertedHeaderValue, storageSession, context, cancellationToken).ConfigureAwait(false);
             }
 
-            return await persister.Get<TSagaData>(correlationPropertyName, convertedHeaderValue, storageSession, context).ConfigureAwait(false);
+            return await persister.Get<TSagaData>(correlationPropertyName, convertedHeaderValue, storageSession, context, cancellationToken).ConfigureAwait(false);
         }
     }
 }

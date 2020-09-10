@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
@@ -34,12 +35,12 @@
                         var enlistedContextBag = configuration.GetContextBagForSagaStorage();
                         var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, enlistedContextBag);
 
-                        var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
+                        var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag, CancellationToken.None);
 
-                        var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
+                        var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag, CancellationToken.None);
 
-                        await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
-                        await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);
+                        await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag, CancellationToken.None);
+                        await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag, CancellationToken.None);
 
                         await unenlistedSession.CompleteAsync();
                     }

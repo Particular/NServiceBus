@@ -53,7 +53,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                     this.testContext = testContext;
                 }
 
-                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
                 {
                     testContext.ContextBag = context;
                     testContext.FinderUsed = true;

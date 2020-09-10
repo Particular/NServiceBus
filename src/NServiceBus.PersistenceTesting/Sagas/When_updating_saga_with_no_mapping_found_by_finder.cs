@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
@@ -26,10 +27,10 @@
             {
                 // the saga won't be loaded via a persister.Get operation in this case
                 var customFinder = new CustomFinder(saga);
-                var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context);
+                var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context, CancellationToken.None);
                 sagaData.SomeSagaProperty = updateValue;
 
-                await configuration.SagaStorage.Update(sagaData, completeSession, context);
+                await configuration.SagaStorage.Update(sagaData, completeSession, context, CancellationToken.None);
                 await completeSession.CompleteAsync();
             }
 
@@ -61,7 +62,7 @@
                 this.sagaToFind = sagaToFind;
             }
 
-            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(sagaToFind);
             }
