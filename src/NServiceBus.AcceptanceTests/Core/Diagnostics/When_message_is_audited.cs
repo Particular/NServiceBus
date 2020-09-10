@@ -50,7 +50,7 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1, System.Threading.CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

@@ -55,7 +55,7 @@
                     this.context = context;
                 }
 
-                public Task Handle(MyResponse message, IMessageHandlerContext c)
+                public Task Handle(MyResponse message, IMessageHandlerContext c, System.Threading.CancellationToken cancellationToken)
                 {
                     context.CorrelationIdReceived = c.MessageHeaders[Headers.CorrelationId];
                     context.GotResponse = true;

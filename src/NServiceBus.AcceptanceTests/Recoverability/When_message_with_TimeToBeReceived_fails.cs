@@ -52,7 +52,7 @@
                     this.context = context;
                 }
 
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context1)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context1, System.Threading.CancellationToken cancellationToken)
                 {
                     context.MessageFailed = true;
                     throw new SimulatedException();
