@@ -50,12 +50,12 @@ jobs:
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:
-        tfm: [ net452, netcoreapp3.1 ]
+      matrix:      
         os: [ windows-latest, ubuntu-latest ]
+        tfm: [ net452, netcoreapp3.1 ]
         exlude:
-          - tfm: net452
-            os: ubuntu-latest
+          - os: ubuntu-latest
+            tfm: net452
     steps:
       - name: Download tests
         uses: actions/download-artifact@v2
