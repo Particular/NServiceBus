@@ -65,7 +65,7 @@ jobs:
         uses: actions/setup-dotnet@v1.4.0
         with:
           dotnet-version: ${{ matrix.tfm }}
-          config-file: src/nuget.config
+          config-file: nuget.config
       - name: Run tests
         run: dotnet test NServiceBus.sln --configuration Release --nologo --no-build
 
