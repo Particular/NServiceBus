@@ -36,7 +36,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Pipeline.OnReceivePipelineCompleted(e =>
+                    c.Pipeline.OnReceivePipelineCompleted((e, cc) =>
                     {
                         var testContext = (Context)c.GetSettings().Get<ScenarioContext>();
                         testContext.ReceivePipelineCompletedMessage = e;

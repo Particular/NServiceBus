@@ -71,7 +71,7 @@
 
         void TrackFailingMessages(string endpointName, EndpointConfiguration endpointConfiguration)
         {
-            endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(m =>
+            endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue((m, c) =>
             {
                 scenarioContext.FailedMessages.AddOrUpdate(
                     endpointName,

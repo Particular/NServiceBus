@@ -52,7 +52,7 @@
                     config.EnableFeature<TimeoutManager>();
 
                     var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, cancellationToken) =>
                     {
                         testContext.MessageSentToError = true;
                         return Task.FromResult(0);
@@ -60,7 +60,7 @@
                     recoverability.Immediate(settings =>
                     {
                         settings.NumberOfRetries(3);
-                        settings.OnMessageBeingRetried(retry =>
+                        settings.OnMessageBeingRetried((retry, cancellationToken) =>
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                             return Task.FromResult(0);
@@ -70,7 +70,7 @@
                     {
                         settings.NumberOfRetries(2);
                         settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                        settings.OnMessageBeingRetried(retry =>
+                        settings.OnMessageBeingRetried((retry, cancellationToken) =>
                         {
                             testContext.NumberOfDelayedRetriesPerformed++;
                             testContext.LastDelayedRetryInfo = retry;

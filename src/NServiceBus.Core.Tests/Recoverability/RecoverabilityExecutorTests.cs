@@ -170,7 +170,7 @@
         {
             messageRetriedNotifications = new List<MessageToBeRetried>();
             var messageRetryNotification = new Notification<MessageToBeRetried>();
-            messageRetryNotification.Subscribe(e =>
+            messageRetryNotification.Subscribe((e, c) =>
             {
                 messageRetriedNotifications.Add(e);
                 return Task.FromResult(0);
@@ -178,7 +178,7 @@
 
             messageFaultedNotifications = new List<MessageFaulted>();
             var messageFaultedNotification = new Notification<MessageFaulted>();
-            messageFaultedNotification.Subscribe(e =>
+            messageFaultedNotification.Subscribe((e, c) =>
             {
                 messageFaultedNotifications.Add(e);
                 return Task.FromResult(0);

@@ -46,7 +46,7 @@ namespace NServiceBus
                     throw;
                 }
 
-                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
+                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow), cancellationToken).ConfigureAwait(false);
             }
         }
 

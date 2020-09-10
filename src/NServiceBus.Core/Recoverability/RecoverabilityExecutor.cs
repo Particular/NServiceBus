@@ -50,7 +50,7 @@
 
             if (recoveryAction is ImmediateRetry)
             {
-                return RaiseImmediateRetryNotifications(errorContext);
+                return RaiseImmediateRetryNotifications(errorContext, cancellationToken);
             }
 
             // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
@@ -74,7 +74,7 @@
             return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
         }
 
-        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)
+        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
         {
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
@@ -85,7 +85,8 @@
                             attempt: errorContext.ImmediateProcessingFailures - 1,
                             delay: TimeSpan.Zero,
                             immediateRetry: true,
-                            errorContext: errorContext))
+                            errorContext: errorContext),
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -102,7 +103,7 @@
 
             if (raiseNotifications)
             {
-                await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue)).ConfigureAwait(false);
+                await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue), cancellationToken).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.Handled;
@@ -123,7 +124,8 @@
                             attempt: currentDelayedRetriesAttempts,
                             delay: action.Delay,
                             immediateRetry: false,
-                            errorContext: errorContext))
+                            errorContext: errorContext),
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
