@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Transport;
@@ -23,7 +24,7 @@
 
         public readonly List<DispatchedMessage> DispatchedMessages = new List<DispatchedMessage>();
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context, CancellationToken cancellationToken)
         {
             DispatchedMessages.Add(new DispatchedMessage(outgoingMessages, transaction, context));
             return Task.CompletedTask;

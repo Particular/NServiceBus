@@ -21,7 +21,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id));
+            await behavior.Invoke(CreateContext(timeoutData.Id), CancellationToken.None);
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.Null(result);
@@ -34,7 +34,7 @@
             var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()));
+            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), CancellationToken.None);
 
             Assert.AreEqual(0, messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Count());
         }
@@ -48,7 +48,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            Assert.That(async () => await behavior.Invoke(CreateContext(timeoutData.Id)), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(CreateContext(timeoutData.Id), CancellationToken.None), Throws.InstanceOf<Exception>());
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.NotNull(result);
@@ -66,7 +66,7 @@
 
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            Assert.That(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString())), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), CancellationToken.None), Throws.InstanceOf<Exception>());
         }
 
         [Test]
@@ -78,7 +78,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id));
+            await behavior.Invoke(CreateContext(timeoutData.Id), CancellationToken.None);
 
             var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
             Assert.AreEqual(DispatchConsistency.Default, transportOperation.RequiredDispatchConsistency);
@@ -94,7 +94,7 @@
             var context = CreateContext(timeoutData.Id);
 
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
-            await behavior.Invoke(context);
+            await behavior.Invoke(context, CancellationToken.None);
 
             Assert.AreSame(context.TransportTransaction, messageDispatcher.TransportTransactionUsed, "Wrong transport transaction passed to the dispatcher");
         }
@@ -110,7 +110,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id));
+            await behavior.Invoke(CreateContext(timeoutData.Id), CancellationToken.None);
 
             var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
             Assert.AreEqual(DispatchConsistency.Isolated, transportOperation.RequiredDispatchConsistency);
@@ -141,7 +141,7 @@
             public TransportOperations OutgoingTransportOperations { get; private set; } = new TransportOperations();
             public TransportTransaction TransportTransactionUsed { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken)
             {
                 OutgoingTransportOperations = outgoingMessages;
                 TransportTransactionUsed = transportTransaction;
@@ -151,7 +151,7 @@
 
         class FailingMessageDispatcher : IDispatchMessages
         {
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken)
             {
                 throw new Exception("simulated exception");
             }

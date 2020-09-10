@@ -49,27 +49,27 @@
                 subscriptionMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
 
-                subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions, cancellationToken));
             }
 
             await Task.WhenAll(subscribeTasks).ConfigureAwait(false);
         }
 
-        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, CancellationToken cancellationToken, int retriesCount = 0)
         {
             var state = context.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             try
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context, cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < state.MaxRetries)
                 {
                     await Task.Delay(state.RetryDelay).ConfigureAwait(false);
-                    await SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
+                    await SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, cancellationToken, ++retriesCount).ConfigureAwait(false);
                 }
                 else
                 {

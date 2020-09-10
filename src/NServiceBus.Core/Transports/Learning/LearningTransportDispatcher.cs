@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -25,14 +26,14 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context, CancellationToken cancellationToken)
         {
             return Task.WhenAll(
-                DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction),
-                DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction));
+                DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction, cancellationToken),
+                DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction, cancellationToken));
         }
 
-        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction)
+        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken)
         {
             var tasks = new List<Task>();
 
@@ -51,7 +52,7 @@ namespace NServiceBus
                 .ConfigureAwait(false);
         }
 
-        Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction)
+        Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
         {
             return Task.WhenAll(operations.Select(operation =>
             {

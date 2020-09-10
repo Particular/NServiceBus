@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using Extensibility;
@@ -25,7 +26,7 @@
             var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: true);
             var incomingMessage = CreateMessage();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction);
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction, CancellationToken.None);
 
             Assert.AreEqual(dispatcher.Transaction, transportTransaction);
         }
@@ -37,7 +38,7 @@
             var incomingMessage = CreateMessage();
             var delay = TimeSpan.FromSeconds(42);
 
-            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction(), CancellationToken.None);
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
             var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
@@ -54,7 +55,7 @@
             var incomingMessage = CreateMessage();
             var delay = TimeSpan.FromSeconds(42);
 
-            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction(), CancellationToken.None);
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
             var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
@@ -78,7 +79,7 @@
             });
 
             var now = DateTime.UtcNow;
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction(), CancellationToken.None);
 
             var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;
 
@@ -98,7 +99,7 @@
             var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: false);
             var incomingMessage = CreateMessage();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction(), CancellationToken.None);
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
 
@@ -133,7 +134,7 @@
 
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context, CancellationToken cancellationToken)
             {
                 TransportOperations = outgoingMessages;
                 ContextBag = context;

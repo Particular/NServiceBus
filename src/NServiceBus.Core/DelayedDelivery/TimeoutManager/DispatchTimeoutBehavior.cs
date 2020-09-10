@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Routing;
     using Timeout.Core;
@@ -15,7 +16,7 @@ namespace NServiceBus
             dispatchConsistency = GetDispatchConsistency(transportTransactionMode);
         }
 
-        public async Task Invoke(MessageContext context)
+        public async Task Invoke(MessageContext context, CancellationToken cancellationToken)
         {
             var timeoutId = context.Headers["Timeout.Id"];
 
@@ -31,7 +32,7 @@ namespace NServiceBus
 
             var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
             var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
+            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions, cancellationToken).ConfigureAwait(false);
 
             var timeoutRemoved = await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
             if (!timeoutRemoved)

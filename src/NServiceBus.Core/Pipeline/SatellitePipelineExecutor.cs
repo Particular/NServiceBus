@@ -17,7 +17,7 @@
         {
             messageContext.Extensions.Set(messageContext.TransportTransaction);
 
-            return satelliteDefinition.OnMessage(builder, messageContext);
+            return satelliteDefinition.OnMessage(builder, messageContext, cancellationToken);
         }
 
         SatelliteDefinition satelliteDefinition;

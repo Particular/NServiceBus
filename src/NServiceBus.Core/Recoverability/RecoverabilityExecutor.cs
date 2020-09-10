@@ -45,7 +45,7 @@
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
             }
 
             if (recoveryAction is ImmediateRetry)
@@ -57,21 +57,21 @@
             if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
             }
 
             if (recoveryAction is DelayedRetry delayedRetryAction)
             {
-                return DeferMessage(delayedRetryAction, errorContext);
+                return DeferMessage(delayedRetryAction, errorContext, cancellationToken);
             }
 
             if (recoveryAction is MoveToError moveToError)
             {
-                return MoveToError(errorContext, moveToError.ErrorQueue);
+                return MoveToError(errorContext, moveToError.ErrorQueue, cancellationToken);
             }
 
             Logger.Warn("Recoverability policy returned an unsupported recoverability action. Moving message to error queue instead.");
-            return MoveToError(errorContext, configuration.Failed.ErrorQueue);
+            return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
         }
 
         async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)
@@ -92,13 +92,13 @@
             return ErrorHandleResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue)
+        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken)
         {
             var message = errorContext.Message;
 
             Logger.Error($"Moving message '{message.MessageId}' to the error queue '{errorQueue}' because processing failed due to an exception:", errorContext.Exception);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
+            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
@@ -108,13 +108,13 @@
             return ErrorHandleResult.Handled;
         }
 
-        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext)
+        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext, CancellationToken cancellationToken)
         {
             var message = errorContext.Message;
 
             Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
 
-            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction).ConfigureAwait(false);
+            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
 
             if (raiseNotifications)
             {

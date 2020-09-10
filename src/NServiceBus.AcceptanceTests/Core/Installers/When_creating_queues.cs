@@ -157,7 +157,7 @@
                         "MySatelliteAddress",
                         PushRuntimeSettings.Default,
                         (_, __) => throw new NotImplementedException(),
-                        (_, __) => throw new NotImplementedException());
+                        (_, __, ___) => throw new NotImplementedException());
                 }
             }
         }

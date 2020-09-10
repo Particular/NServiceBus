@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
@@ -20,8 +21,8 @@
             var messageAtThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit]);
             var messageAboveThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit + 1]);
 
-            await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction(), new ContextBag());
-            var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction(), new ContextBag()));
+            await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction(), new ContextBag(), CancellationToken.None);
+            var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction(), new ContextBag(), CancellationToken.None));
 
             StringAssert.Contains("The total size of the 'TestMessage' message", ex.Message);
         }

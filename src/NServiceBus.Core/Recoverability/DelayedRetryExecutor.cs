@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -18,7 +19,7 @@
             this.endpointInputQueue = endpointInputQueue;
         }
 
-        public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction)
+        public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction, CancellationToken cancellationToken)
         {
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
@@ -48,7 +49,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag(), cancellationToken).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }

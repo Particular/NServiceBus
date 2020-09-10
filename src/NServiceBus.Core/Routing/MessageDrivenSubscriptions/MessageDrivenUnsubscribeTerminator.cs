@@ -46,26 +46,26 @@
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
 
-                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions, cancellationToken));
             }
             return Task.WhenAll(unsubscribeTasks);
         }
 
-        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, CancellationToken cancellationToken, int retriesCount = 0)
         {
             var state = context.GetOrCreate<Settings>();
             try
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context, cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < state.MaxRetries)
                 {
                     await Task.Delay(state.RetryDelay).ConfigureAwait(false);
-                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
+                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, cancellationToken, ++retriesCount).ConfigureAwait(false);
                 }
                 else
                 {

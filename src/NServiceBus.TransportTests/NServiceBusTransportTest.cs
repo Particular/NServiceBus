@@ -185,7 +185,8 @@
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
             List<DeliveryConstraint> deliveryConstraints = null,
-            DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
+            DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
+            CancellationToken cancellationToken = default)
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
@@ -204,7 +205,7 @@
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchConsistency, deliveryConstraints ?? new List<DeliveryConstraint>());
 
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag(), cancellationToken);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

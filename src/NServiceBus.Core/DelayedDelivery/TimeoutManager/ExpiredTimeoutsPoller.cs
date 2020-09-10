@@ -109,7 +109,7 @@ namespace NServiceBus
                 dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
                 var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag()).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag(), cancellationToken).ConfigureAwait(false);
 
                 if (startSlice < timeoutData.DueTime)
                 {

@@ -90,7 +90,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context, CancellationToken cancellationToken)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

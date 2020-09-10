@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Routing;
     using Timeout.Core;
@@ -16,7 +17,7 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
-        public async Task Invoke(MessageContext context)
+        public async Task Invoke(MessageContext context, CancellationToken cancellationToken)
         {
             var sagaId = Guid.Empty;
 
@@ -62,7 +63,7 @@ namespace NServiceBus
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions, cancellationToken).ConfigureAwait(false);
                     return;
                 }
 
