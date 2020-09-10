@@ -52,7 +52,10 @@ jobs:
     strategy:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
-        tfm: [ 3.1.302 ]
+        tfm: [ net472, netstandard2.0 ]
+        exlcude:
+          - os: ubuntu-latest
+            tfm: net472
     steps:
       - name: Download tests
         uses: actions/download-artifact@v2
@@ -60,13 +63,8 @@ jobs:
           name: tests
       - name: Show files
         run: ls
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v1.4.0
-        with:
-          dotnet-version: ${{ matrix.tfm }}
-          config-file: nuget.config
       - name: Run tests
-        run: dotnet test NServiceBus.sln --configuration Release --nologo
+        run: dotnet test NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }}
 
         
       
