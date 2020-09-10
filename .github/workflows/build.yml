@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
-        tfm: [ net472, netstandard2.0 ]
+        tfm: [ netstandard2.0 ]
         exlcude:
           - os: ubuntu-latest
             tfm: net472
