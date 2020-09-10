@@ -64,7 +64,7 @@ jobs:
       - name: Show files
         run: ls
       - name: Run tests
-        run: dotnet test NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }}
+        run: dotnet test NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }} --no-build
 
         
       
