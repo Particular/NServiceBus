@@ -52,10 +52,10 @@ jobs:
     strategy:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
-        tfm: [ net452, netcoreapp3.1 ]
+        tfm: [ 4.8.04084, 3.1.302 ]
         exlude:
           - os: ubuntu-latest
-            tfm: net452
+            tfm: 4.8.04084
     steps:
       - name: Download tests
         uses: actions/download-artifact@v2
