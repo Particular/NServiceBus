@@ -91,7 +91,7 @@
                     mapper.ConfigureMapping<StartMessageTwo>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
                 }
 
-                void CheckForCompletion(IMessageHandlerContext context, System.Threading.CancellationToken cancellationToken)
+                void CheckForCompletion(IMessageHandlerContext context)
                 {
                     if (!Data.Billed || !Data.Placed)
                     {
