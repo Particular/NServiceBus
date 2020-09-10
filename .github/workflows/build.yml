@@ -61,6 +61,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: tests
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.4.0
+        with:
+          dotnet-version: ${{ matrix.tfm }}
+          config-file: src/nuget.config
       - name: Run tests
         run: dotnet test NServiceBus.sln --configuration Release --nologo --no-build
 
