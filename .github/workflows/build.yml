@@ -25,7 +25,7 @@ jobs:
         uses: nuget/setup-nuget@v1
       - name: Build
         # "normal" verbosity required otherwise GitVersionTask can't output its results in the special format for GitHub to translate into env vars for next steps
-        run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
+        run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal --framework ${{ matrix.tfm }}
       - name: Run tests
         run: dotnet test src/NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }} --no-build
       - name: Create metadata
