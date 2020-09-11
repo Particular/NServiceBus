@@ -5,8 +5,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:      
-        os: [ windows-latest ]
+        os: [ windows-latest, ubuntu-latest ]
         tfm: [ netcoreapp3.1, net472 ]
+        exclude:
+          - os: ubuntu-latest
+            tfm: net472
     steps:
       - name: Checkout
         uses: actions/checkout@v2
