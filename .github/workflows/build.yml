@@ -2,7 +2,11 @@ name: Build
 on: push
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:      
+        os: [ windows-latest ]
+        tfm: [ netcoreapp3.1 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,6 +23,8 @@ jobs:
       - name: Build
         # "normal" verbosity required otherwise GitVersionTask can't output its results in the special format for GitHub to translate into env vars for next steps
         run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
+      - name: Run tests
+        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }} --no-build
       - name: Create metadata
         run: |
           @"
@@ -34,37 +40,8 @@ jobs:
         with:
           name: nugets
           path: nugets/
-      - name: Upload tests
-        uses: actions/upload-artifact@v2
-        with:
-          name: tests
-          path: src/
       - name: Upload metadata
         uses: actions/upload-artifact@v2
         with:
           name: metadata
-          path: Metadata.ps1
-  
-  test:
-    name: Test
-    needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:      
-        os: [ windows-latest, ubuntu-latest ]
-        tfm: [ netcoreapp3.1 ]
-        exlcude:
-          - os: ubuntu-latest
-            tfm: net472
-    steps:
-      - name: Download tests
-        uses: actions/download-artifact@v2
-        with:
-          name: tests
-      - name: Show files
-        run: ls
-      - name: Run tests
-        run: dotnet test NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }} --no-build
-
-        
-      
+          path: Metadata.ps1        
