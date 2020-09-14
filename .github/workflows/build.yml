@@ -6,7 +6,6 @@ jobs:
     strategy:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
-        tfm: [ netcoreapp3.1, net472 ]
       fail-fast: false
     steps:
       - name: Checkout
@@ -24,26 +23,14 @@ jobs:
       - name: Build
         # "normal" verbosity required otherwise GitVersionTask can't output its results in the special format for GitHub to translate into env vars for next steps
         run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
-      - name: Run tests
-        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }} --no-build
-        if: ${{ !((matrix.os == 'ubuntu-latest') && (matrix.tfm == 'net472')) }}
-      - name: Create metadata
-        run: |
-          @"
-          `$Branch = "$env:GitVersion.BranchName"
-          `$Version = "$env:GitVersion.LegacySemVer"
-          `$Product = "$env:ProjectName"
-          `$Major = "$env:GitVersion.Major"
-          `$Minor = "$env:GitVersion.Minor"
-          `$Commit = "$env:GitVersion.Sha"
-          "@ > Metadata.ps1
+      - name: Run Windows tests
+        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build
+        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Run Linux tests
+        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build --framework netcoreapp3.1
+        if: ${{ matrix.os == 'ubuntu-latest' }}
       - name: Upload packages
         uses: actions/upload-artifact@v2
         with:
           name: nugets
-          path: nugets/
-      - name: Upload metadata
-        uses: actions/upload-artifact@v2
-        with:
-          name: metadata
-          path: Metadata.ps1        
+          path: ${{ matrix.os }}/nugets/       
