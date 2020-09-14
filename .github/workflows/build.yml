@@ -26,7 +26,7 @@ jobs:
         run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
       - name: Run tests
         run: dotnet test src/NServiceBus.sln --configuration Release --nologo --framework ${{ matrix.tfm }} --no-build
-        if: (matrix.os != 'ubuntu-latest' && matrix.tfm != 'net472')
+        if: ${{ (matrix.os != 'ubuntu-latest' && matrix.tfm != 'net472') }}
       - name: Create metadata
         run: |
           @"
