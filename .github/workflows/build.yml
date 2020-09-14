@@ -7,9 +7,6 @@ jobs:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
         tfm: [ netcoreapp3.1, net472 ]
-        exclude:
-          - os: ubuntu-latest
-            tfm: net472
       fail-fast: false
     steps:
       - name: Checkout
