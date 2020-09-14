@@ -43,6 +43,6 @@ jobs:
       - name: Get packages
         uses: actions/download-artifact@v2
         with:
-          name: windows-latest-nuget
+          name: windows-latest-nugets
       - name: Show files
         run: ls
