@@ -2,6 +2,7 @@ name: Build
 on: push
 jobs:
   build:
+    name: Build & Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:      
@@ -33,4 +34,15 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}-nugets
-          path: nugets/       
+          path: nugets/  
+  deploy:
+    name: Package & Deploy
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - name: Get packages
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-latest-nuget
+      - name: Show files
+        run: ls
