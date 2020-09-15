@@ -46,5 +46,3 @@ jobs:
           name: windows-latest-nugets
       - name: Show files
         run: ls
-      - name: Show event
-        run: ${{ github.event_name }}
