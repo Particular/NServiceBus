@@ -1,9 +1,10 @@
 name: Build
-on: [push]
+on: [push, workflow_dispatch]
 jobs:
   build:
     name: Build & Test
     runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     strategy:
       matrix:      
         os: [ windows-latest, ubuntu-latest ]
@@ -37,6 +38,7 @@ jobs:
           path: nugets/  
   deploy:
     name: Package & Deploy
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: windows-latest
     needs: build
     steps:
