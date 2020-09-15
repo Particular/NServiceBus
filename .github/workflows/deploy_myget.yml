@@ -1,4 +1,4 @@
-name: Build
+name: Deploy to MyGet
 on: [workflow_dispatch]
 jobs:
   deploy:
