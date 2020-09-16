@@ -21,7 +21,7 @@ namespace NServiceBus.Transport
             Message = message;
             AddressTag = addressTag;
             RequiredDispatchConsistency = requiredDispatchConsistency;
-            DeliveryConstraints = deliveryConstraints ?? DeliveryConstraint.EmptyConstraints;
+            DeliveryConstraints = deliveryConstraints ?? new List<DeliveryConstraint>(0);
         }
 
         /// <summary>
