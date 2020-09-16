@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Tests.Transports
     using System.Collections.Generic;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using NServiceBus.Transport;
+    using Transport;
 
     [TestFixture]
     public class TransportOperationTest
