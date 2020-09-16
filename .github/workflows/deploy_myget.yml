@@ -1,5 +1,5 @@
 name: Deploy to MyGet
-on: [workflow_dispatch]
+on: workflow_dispatch
 jobs:
   deploy:
     name: Package & Deploy
