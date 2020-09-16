@@ -4,7 +4,6 @@ jobs:
   deploy:
     name: Package & Deploy
     runs-on: windows-latest
-    needs: build
     steps:
       - name: Get packages
         uses: actions/download-artifact@v2
