@@ -17,7 +17,7 @@ namespace NServiceBus.Transport
         {
             Message = message;
             MessageType = messageType;
-            DeliveryConstraints = deliveryConstraints ?? DeliveryConstraint.EmptyConstraints;
+            DeliveryConstraints = deliveryConstraints ?? new List<DeliveryConstraint>(0);
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 

@@ -7,6 +7,5 @@
     /// </summary>
     public abstract class DeliveryConstraint
     {
-        internal static List<DeliveryConstraint> EmptyConstraints = new List<DeliveryConstraint>(0);
     }
 }
