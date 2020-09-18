@@ -36,4 +36,4 @@ jobs:
           name: ${{ matrix.os }}-nugets
           path: nugets/  
       - name: Display GitVersion info
-        run: echo Branch ${{ env.GitVersion.BranchName }} ${{ env.GitVersion.Major }}
+        run: echo Branch ${{ env.GitVersion_BranchName }} ${{ env.GitVersion_Major }}
