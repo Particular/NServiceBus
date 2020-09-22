@@ -2,6 +2,7 @@ name: Build
 on:
   push:
     branches:
+      - ci-spike
       - master
       - release-*
   pull_request:
