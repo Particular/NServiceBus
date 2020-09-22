@@ -25,10 +25,10 @@ jobs:
         # "normal" verbosity required otherwise GitVersionTask can't output its results in the special format for GitHub to translate into env vars for next steps
         run: dotnet build src/NServiceBus.sln --configuration Release --nologo -v normal
       - name: Run Windows tests
-        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build
+        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build --logger GitHubActions
         if: ${{ matrix.os == 'windows-latest' }}
       - name: Run Linux tests
-        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build --framework netcoreapp3.1
+        run: dotnet test src/NServiceBus.sln --configuration Release --nologo --no-build --framework netcoreapp3.1 --logger GitHubActions
         if: ${{ matrix.os == 'ubuntu-latest' }}
       - name: Upload packages
         uses: actions/upload-artifact@v2
