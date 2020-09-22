@@ -1,5 +1,10 @@
 name: Build
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - release-*
+  pull_request:
 jobs:
   build:
     name: Build & Test
