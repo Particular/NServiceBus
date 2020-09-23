@@ -32,16 +32,16 @@ jobs:
         # "normal" verbosity required otherwise GitVersionTask can't output its results in the special format for GitHub to translate into env vars for next steps
         run: dotnet build src/NServiceBus.sln --configuration Release -v normal
       - name: Upload packages
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
           name: NuGet packages
           path: nugets/  
       - name: Run Windows tests
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: matrix.os == 'windows-latest'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
       - name: Run Linux tests
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: matrix.os == 'ubuntu-latest'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
       #- name: Display GitVersion info
       #  run: echo Branch ${{ env.GitVersion_BranchName }} ${{ env.GitVersion_Major }}
