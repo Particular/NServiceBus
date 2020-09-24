@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.x
-          config-file: src/nuget.config
       - name: Build
         run: dotnet build src/NServiceBus.sln --configuration Release -v normal
       - name: Upload packages
