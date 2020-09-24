@@ -40,7 +40,8 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 EndpointSetup<DefaultServer>(c =>
                 {
                     //use InMemoryPersistence as custom finder support is required
-                    c.UsePersistence<InMemoryPersistence>();
+                    //TODO: Should be reviewed after InMemory move 
+                    c.UsePersistence<LearningPersistence>();
                     c.Pipeline.Register(new BehaviorWhichAddsThingsToTheContext(), "adds some data to the context");
                 });
             }

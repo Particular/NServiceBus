@@ -37,7 +37,10 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     //use InMemoryPersistence as custom finder support is required
+                    //TODO: Should be reviewed after InMemory move 
+#pragma warning disable CS0619
                     c.UsePersistence<InMemoryPersistence>();
+#pragma warning restore CS0619
                 });
             }
 

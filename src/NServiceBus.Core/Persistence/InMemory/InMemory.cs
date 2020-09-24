@@ -1,19 +1,10 @@
 ﻿namespace NServiceBus
 {
-    using Features;
-    using Persistence;
-
     /// <summary>
     /// Used to enable InMemory persistence.
     /// </summary>
-    public class InMemoryPersistence : PersistenceDefinition
+    [ObsoleteEx(Message = "!!!", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+    public class InMemoryPersistence
     {
-        internal InMemoryPersistence()
-        {
-            Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
-            Supports<StorageType.Timeouts>(s => s.EnableFeatureByDefault<InMemoryTimeoutPersistence>());
-            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<InMemorySubscriptionPersistence>());
-            Supports<StorageType.Outbox>(s => s.EnableFeatureByDefault<InMemoryOutboxPersistence>());
-        }
     }
 }

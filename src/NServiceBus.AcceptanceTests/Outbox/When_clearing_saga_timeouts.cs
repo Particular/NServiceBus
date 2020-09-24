@@ -144,7 +144,8 @@
         public FakeOutboxPersistence()
         {
             Supports<StorageType.Outbox>(s => { });
-            Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
+            //Can't access private class
+            Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<LearningSagaPersistence>());
         }
     }
 }

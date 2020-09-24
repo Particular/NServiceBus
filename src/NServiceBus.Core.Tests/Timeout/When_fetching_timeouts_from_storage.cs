@@ -15,7 +15,10 @@ namespace NServiceBus.Core.Tests.Timeout
         [SetUp]
         public void Setup()
         {
-             persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            //TODO: Should be reviewed after InMemory move 
+#pragma warning disable CS0619
+            persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+#pragma warning restore CS0619
         }
 
         [Test]

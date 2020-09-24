@@ -16,7 +16,10 @@
         {
             breaker = new FakeBreaker();
             dispatcher = new RecordingFakeDispatcher();
+            //TODO: Should be reviewed after InMemory move 
+#pragma warning disable CS0619
             timeouts = new InMemoryTimeoutPersister(() => currentTime);
+#pragma warning restore CS0619
             poller = new ExpiredTimeoutsPoller(timeouts, dispatcher, "test", breaker, () => currentTime);
         }
 
@@ -46,7 +49,7 @@
             await poller.SpinOnce(CancellationToken.None);
 
             Assert.AreEqual(1, dispatcher.DispatchedMessages.Count);
-            Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
+            Assert.AreEqual(currentTime + EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
         [Test]
@@ -64,7 +67,7 @@
             await poller.SpinOnce(CancellationToken.None);
 
             Assert.AreEqual(2, dispatcher.DispatchedMessages.Count);
-            Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
+            Assert.AreEqual(currentTime + EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
         [Test]
@@ -120,9 +123,10 @@
         RecordingFakeDispatcher dispatcher;
         DateTime currentTime = DateTime.UtcNow;
         // ReSharper disable once PossibleLossOfFraction
-        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
+        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
         ExpiredTimeoutsPoller poller;
         InMemoryTimeoutPersister timeouts;
+        static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
 
         class FakeBreaker : ICircuitBreaker
         {

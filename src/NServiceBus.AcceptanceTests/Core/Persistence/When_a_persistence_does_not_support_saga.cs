@@ -26,9 +26,9 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Outbox>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
+                    c.UsePersistence<LearningPersistence, StorageType.Timeouts>();
+                    c.UsePersistence<LearningPersistence, StorageType.Outbox>();
+                    c.UsePersistence<LearningPersistence, StorageType.Subscriptions>();
                 });
             }
         }

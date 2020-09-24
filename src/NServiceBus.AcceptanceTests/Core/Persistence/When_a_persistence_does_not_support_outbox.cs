@@ -24,9 +24,9 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
+                    c.UsePersistence<LearningPersistence, StorageType.Sagas>();
+                    c.UsePersistence<LearningPersistence, StorageType.Timeouts>();
+                    c.UsePersistence<LearningPersistence, StorageType.Subscriptions>();
                     
                     c.EnableOutbox();
                 });

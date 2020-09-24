@@ -26,8 +26,7 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                    
+                    c.UsePersistence<LearningPersistence, StorageType.Subscriptions>();
                     c.SendOnly();
                 });
             }
