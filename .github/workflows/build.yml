@@ -18,8 +18,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Fetch all history for all tags and branches
-        run: git fetch --prune --unshallow
+        with:
+          fetch-depth: 0
+      #- name: Fetch all history for all tags and branches
+      #  run: git fetch --prune --unshallow
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1
         with:
