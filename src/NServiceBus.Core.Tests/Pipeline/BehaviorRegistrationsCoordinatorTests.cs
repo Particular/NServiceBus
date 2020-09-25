@@ -70,6 +70,47 @@ namespace NServiceBus.Core.Tests.Pipeline
             Assert.AreEqual("new", model[0].Description);
             Assert.AreEqual("2", model[1].Description);
         }
+        
+        [Test]
+        public void Registrations_AddOrReplace_WhenDoesNotExist()
+        {
+            addOrReplacements.Add( new AddOrReplaceStep(
+                    RegisterStep.Create("1", typeof(ReplacedBehavior), "new"), 
+                    new ReplaceStep("1", typeof(ReplacedBehavior), "new")));
+            
+            var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+
+            Assert.AreEqual(1, model.Count);
+            Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
+            Assert.AreEqual("new", model[0].Description);
+        }
+        
+        [Test]
+        public void Registrations_AddOrReplace_WhenExists()
+        {
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+            
+            addOrReplacements.Add( new AddOrReplaceStep(
+                RegisterStep.Create("1", typeof(ReplacedBehavior), "new"), 
+                new ReplaceStep("1", typeof(ReplacedBehavior), "new")));
+            
+            var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+
+            Assert.AreEqual(1, model.Count);
+            Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
+            Assert.AreEqual("new", model[0].Description);
+        }
+        
+        [Test]
+        public void Registrations_AddOrReplace_WithDifferentStepIds()
+        {
+            addOrReplacements.Add( new AddOrReplaceStep(
+                RegisterStep.Create("1", typeof(ReplacedBehavior), "new"), 
+                new ReplaceStep("2", typeof(ReplacedBehavior), "new")));
+
+            var exception = Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IRootContext>() );
+            Assert.AreEqual("Encountered AddOrReplace-registrations in the pipeline for which the ID differs between Add and Replace.", exception.Message);
+        }
 
         [Test]
         public void Registrations_Order_with_befores_and_afters()

@@ -28,10 +28,10 @@ namespace NServiceBus
                 throw new Exception("Encountered AddOrReplace-registrations in the pipeline for which the ID differs between Add and Replace.");
             }
 
-            var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.Any(addition => addition.StepId == addOrReplaceStep.StepId))
+            var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
                 .Select(x => x.RegisterStep)
                 .ToList();
-            var totalReplacements = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
+            var totalReplacements = addOrReplaceSteps.Where(addOrReplaceStep => additions.Any(addition => addition.StepId == addOrReplaceStep.StepId))
                 .Select(x => x.ReplaceStep)
                 .ToList();
 
