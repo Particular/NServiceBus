@@ -13,7 +13,7 @@
             }
 
             var transactionOptions = context.Settings.Get<Settings>().TransactionOptions;
-            context.Pipeline.Register("HandlerTransactionScopeWrapper", new TransactionScopeUnitOfWorkBehavior(transactionOptions), "Makes sure that the handlers gets wrapped in a transaction scope");
+            context.Pipeline.Register( new TransactionScopeUnitOfWorkBehavior.Registration(transactionOptions));
         }
 
         public class Settings
