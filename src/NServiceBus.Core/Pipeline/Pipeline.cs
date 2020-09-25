@@ -12,7 +12,7 @@
     {
         public Pipeline(IServiceProvider builder, PipelineModifications pipelineModifications)
         {
-            var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
+            var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements, pipelineModifications.AdditionsOrReplacements);
 
             foreach (var rego in pipelineModifications.Additions)
             {

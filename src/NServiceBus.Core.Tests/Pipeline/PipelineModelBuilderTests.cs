@@ -16,7 +16,7 @@
                 RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("Root1", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc"),
 
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
@@ -34,7 +34,8 @@
             }, new List<RemoveStep>(), new List<ReplaceStep>
             {
                 new ReplaceStep("DoesNotExist", typeof(RootBehavior), "desc"),
-            });
+            },
+            new List<AddOrReplaceStep>());
 
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
@@ -52,8 +53,8 @@
             }, new List<RemoveStep>
             {
                 new RemoveStep("DoesNotExist"),
-            }, new List<ReplaceStep>());
-
+            },
+            new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
@@ -73,8 +74,12 @@
                 someBehaviorRegistration,
                 anotherBehaviorRegistration,
 
-            }, new List<RemoveStep> { new RemoveStep("SomeBehaviorOfParentContext")}, new List<ReplaceStep>());
-
+            },
+            new List<RemoveStep>
+            {
+                new RemoveStep("SomeBehaviorOfParentContext")
+            },
+            new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
@@ -94,7 +99,8 @@
                 someBehaviorRegistration,
                 anotherBehaviorRegistration,
 
-            }, new List<RemoveStep> { new RemoveStep("SomeBehaviorOfParentContext") }, new List<ReplaceStep>());
+            }, new List<RemoveStep> { new RemoveStep("SomeBehaviorOfParentContext") },
+            new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
@@ -109,8 +115,7 @@
             {
                 RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContext), "desc"),
 
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
-
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
@@ -126,8 +131,7 @@
                 RegisterStep.Create("ParentContextToChildContextConnector", typeof(ParentContextToChildContextConnector), "desc"),
                 RegisterStep.Create("ParentContextToChildContextNotInheritedFromParentContextConnector", typeof(ParentContextToChildContextNotInheritedFromParentContextConnector), "desc")
 
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
-
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
@@ -147,8 +151,7 @@
                 someBehaviorRegistration,
                 anotherBehaviorRegistration,
 
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
-
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
@@ -168,7 +171,7 @@
                 someBehaviorRegistration,
                 anotherBehaviorRegistration,
 
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
@@ -184,7 +187,7 @@
                 RegisterStep.Create("Root", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("ParentContextToChildContextNotInheritedFromParentContextConnector", typeof(ParentContextToChildContextNotInheritedFromParentContextConnector), "desc"),
                 RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc")
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
 
             var model = builder.Build();
@@ -200,7 +203,7 @@
                 RegisterStep.Create("Root", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("ParentContextToChildContextConnector", typeof(ParentContextToChildContextConnector), "desc"),
                 RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc")
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
 
             var model = builder.Build();
@@ -218,7 +221,7 @@
                 RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc"),
                 RegisterStep.Create("Terminator", typeof(Terminator), "desc")
 
-            }, new List<RemoveStep>(), new List<ReplaceStep>());
+            }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
 
 
             var model = builder.Build();

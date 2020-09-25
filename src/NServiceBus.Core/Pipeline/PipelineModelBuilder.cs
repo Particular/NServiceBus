@@ -8,12 +8,13 @@ namespace NServiceBus
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceStep> replacements)
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
             this.removals = removals;
             this.replacements = replacements;
+            this.addOrReplaceSteps = addOrReplaceSteps;
         }
 
         public List<RegisterStep> Build()
@@ -22,9 +23,23 @@ namespace NServiceBus
             var listOfBeforeAndAfterIds = new List<string>();
 
             // Let's do some validation too
+            if (addOrReplaceSteps.Any(addOrReplaceStep => addOrReplaceStep.RegisterStep.StepId != addOrReplaceStep.ReplaceStep.ReplaceId))
+            {
+                throw new Exception("Encountered AddOrReplace-registrations in the pipeline for which the ID differs between Add and Replace.");
+            }
+
+            var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.Any(addition => addition.StepId == addOrReplaceStep.StepId))
+                .Select(x => x.RegisterStep)
+                .ToList();
+            var totalReplacements = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
+                .Select(x => x.ReplaceStep)
+                .ToList();
+
+            totalAdditions.AddRange(additions);
+            totalReplacements.AddRange(replacements);
 
             //Step 1: validate that additions are unique
-            foreach (var metadata in additions)
+            foreach (var metadata in totalAdditions)
             {
                 if (!registrations.ContainsKey(metadata.StepId))
                 {
@@ -45,8 +60,17 @@ namespace NServiceBus
                 throw new Exception(message);
             }
 
-            //  Step 2: do replacements
-            foreach (var metadata in replacements)
+            //  Step 2: validate and apply replacements
+            var groupedReplacements = replacements.GroupBy(x => x.ReplaceId);
+            if (groupedReplacements.Any(x => x.Count() > 1))
+            {
+                var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Count() > 1).Select(x => x.Key);
+                var duplicateIdentifiersList = string.Join(",", duplicateReplaceIdentifiers);
+                var message = $"You can only replace an existing step once, '{duplicateIdentifiersList}' were detected more than once in the pipeline replacement process";
+                throw new Exception(message);
+            }
+
+            foreach (var metadata in totalReplacements)
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
@@ -79,8 +103,7 @@ namespace NServiceBus
                 registrations.Remove(metadata.RemoveId);
             }
 
-            var stages = registrations.Values.GroupBy(r => r.GetInputContext())
-                .ToList();
+            var stages = registrations.Values.GroupBy(r => r.GetInputContext()).ToList();
 
             var finalOrder = new List<RegisterStep>();
 
@@ -247,6 +270,7 @@ namespace NServiceBus
         List<RegisterStep> additions;
         List<RemoveStep> removals;
         List<ReplaceStep> replacements;
+        List<AddOrReplaceStep> addOrReplaceSteps;
 
         Type rootContextType;
         static CaseInsensitiveIdComparer idComparer = new CaseInsensitiveIdComparer();

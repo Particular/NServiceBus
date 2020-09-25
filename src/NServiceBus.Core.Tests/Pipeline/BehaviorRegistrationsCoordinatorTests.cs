@@ -14,14 +14,16 @@ namespace NServiceBus.Core.Tests.Pipeline
         StepRegistrationsCoordinator coordinator;
         List<RemoveStep> removals;
         List<ReplaceStep> replacements;
+        List<AddOrReplaceStep> addOrReplacements;
 
         [SetUp]
         public void Setup()
         {
             removals = new List<RemoveStep>();
             replacements = new List<ReplaceStep>();
+            addOrReplacements = new List<AddOrReplaceStep>();
 
-            coordinator = new StepRegistrationsCoordinator(removals, replacements);
+            coordinator = new StepRegistrationsCoordinator(removals, replacements, addOrReplacements);
         }
 
         [Test]
