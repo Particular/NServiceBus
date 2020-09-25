@@ -1,4 +1,4 @@
-#name: Build
+name: Build & Test
 on:
   push:
     branches:
@@ -9,7 +9,6 @@ env:
   DOTNET_NOLOGO: true
 jobs:
   build:
-    #name: Build & Test
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
