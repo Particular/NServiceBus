@@ -80,31 +80,35 @@ namespace NServiceBus.Pipeline
         /// Replaces an existing step behavior with a new one if it exists in the pipeline
         /// </summary>
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
-        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void ReplaceIfExists(string stepId, Type newBehavior, string description = null)
+        public void AddOrReplace(string stepId, Type behavior, string description = null)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
+            EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
+            modifications.AdditionsOrReplacements.Add(new AddOrReplaceStep(RegisterStep.Create(stepId, behavior, description), new ReplaceStep(stepId, behavior, description)));
         }
         
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
-        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void ReplaceIfExists<T>(string stepId, T newBehavior, string description = null)
+        public void AddOrReplace<T>(string stepId, T behavior, string description = null)
             where T : IBehavior
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
+            EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
+            modifications.AdditionsOrReplacements.Add(new AddOrReplaceStep(
+                RegisterStep.Create(stepId, typeof(T), description, builder => behavior), 
+                new ReplaceStep(stepId, typeof(T), description, builder => behavior)));
         }
 
         /// <summary>
@@ -113,14 +117,17 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
         /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void ReplaceIfExists<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
+        public void AddOrReplace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
             where T : IBehavior
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
+            EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
+            modifications.AdditionsOrReplacements.Add(new AddOrReplaceStep(
+                RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)), 
+                new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b))));
         }
 
         /// <summary>
