@@ -43,7 +43,7 @@ namespace NServiceBus.Pipeline
 
             modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
         }
-
+        
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
@@ -67,6 +67,53 @@ namespace NServiceBus.Pipeline
         /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
         /// <param name="description">The description of the new behavior.</param>
         public void Replace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, nameof(Replace));
+
+            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
+        }
+        
+        /// <summary>
+        /// Replaces an existing step behavior with a new one if it exists in the pipeline
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void ReplaceIfExists(string stepId, Type newBehavior, string description = null)
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, nameof(Replace));
+
+            modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
+        }
+        
+        /// <summary>
+        /// Replaces an existing step behavior with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void ReplaceIfExists<T>(string stepId, T newBehavior, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, nameof(Replace));
+
+            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
+        }
+
+        /// <summary>
+        /// Replaces an existing step behavior with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void ReplaceIfExists<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");

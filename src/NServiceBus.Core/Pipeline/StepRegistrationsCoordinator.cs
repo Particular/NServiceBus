@@ -26,10 +26,21 @@ namespace NServiceBus
         public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
         {
             var relevantRemovals = removals.Where(removal => additions.Any(a => a.StepId == removal.RemoveId)).ToList();
-            var relevantReplacements = replacements.Where(removal => additions.Any(a => a.StepId == removal.ReplaceId)).ToList();
+            var relevantReplacements = replacements.Where(replacement => additions.Any(a => a.StepId == replacement.ReplaceId)).ToList();
+
+            var irrelevantReplacementsThatShouldFail = replacements
+                .Where(registeredReplacement => relevantReplacements.All(relevantReplacement => relevantReplacement.ReplaceId != registeredReplacement.ReplaceId))
+                //.Where(replacement => replacement.FailIfStepNotFound)
+                .ToList();
+
+            if (irrelevantReplacementsThatShouldFail.Any())
+            {
+                var replaceIdentifiers = irrelevantReplacementsThatShouldFail.Select(x => x.ReplaceId);
+                var pipelineIdentifiersNotFound = string.Join(",", replaceIdentifiers);
+                throw new InvalidOperationException($"Pipeline replacements were registered for the following ID's: {pipelineIdentifiersNotFound}. These could not be found in the pipeline and could therefore not be replaced. Please verify if the correct ID was used");
+            }
 
             var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, relevantRemovals, relevantReplacements);
-
             return pipelineModelBuilder.Build();
         }
 
