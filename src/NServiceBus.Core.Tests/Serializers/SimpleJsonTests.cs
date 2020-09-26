@@ -303,7 +303,7 @@
         [Ignore("not supported")]
         public void TestKVPEnumerable()
         {
-            var input = new []
+            var input = new[]
             {
                 new KeyValuePair<string, string>("1", "hello"),
                 new KeyValuePair<string, string>("2", "world"),
@@ -330,6 +330,8 @@
 
     enum SampleEnum
     {
-        EnumValue1, EnumValue2, EnumValue3
+        EnumValue1,
+        EnumValue2,
+        EnumValue3,
     }
 }

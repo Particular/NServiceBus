@@ -21,7 +21,7 @@ namespace NServiceBus
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
 
-            var addressLabels = new []{ new UnicastRoutingStrategy(replyToAddress) };
+            var addressLabels = new[] { new UnicastRoutingStrategy(replyToAddress) };
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context);
 
             try

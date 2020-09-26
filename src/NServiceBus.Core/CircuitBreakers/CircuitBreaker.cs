@@ -30,7 +30,6 @@ namespace NServiceBus
         int failureCount;
         int firedTimes;
         int threshold;
-        // ReSharper disable once NotAccessedField.Local
         Timer timer;
     }
 }

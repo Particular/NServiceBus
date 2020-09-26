@@ -1,4 +1,3 @@
-// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
     using System;

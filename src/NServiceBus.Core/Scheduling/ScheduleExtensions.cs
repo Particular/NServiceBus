@@ -36,8 +36,8 @@ namespace NServiceBus
         /// </summary>
         /// <param name="session">The session which allows you to perform message operation.</param>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
-        /// <param name="task">The async function to execute.</param>
         /// <param name="name">The name to used for logging the task being executed.</param>
+        /// <param name="task">The async function to execute.</param>
         public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);

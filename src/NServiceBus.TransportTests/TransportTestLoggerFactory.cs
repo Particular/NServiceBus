@@ -21,9 +21,8 @@
 
         public class LogItem
         {
-            // ReSharper disable once NotAccessedField.Global
             public LogLevel Level;
-            // ReSharper disable once NotAccessedField.Global
+
             public string Message;
         }
 

@@ -277,7 +277,6 @@
                     logger.Debug($"Trying to deserialize message to {baseType.FullName}");
                     return baseType;
                 }
-                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception

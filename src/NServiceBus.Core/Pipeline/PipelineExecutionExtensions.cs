@@ -11,7 +11,6 @@
 
     static class PipelineExecutionExtensions
     {
-        // ReSharper disable once SuggestBaseTypeForParameter
         public static Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(this IBehavior[] behaviors)
             where TRootContext : IBehaviorContext
         {
@@ -64,8 +63,6 @@
 
             return lambdaExpression;
         }
-
-        // ReSharper disable once SuggestBaseTypeForParameter
 
         /// <code>
         /// context{i} => behavior.Invoke(context{i}, context{i+1} => previous)

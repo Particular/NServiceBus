@@ -58,6 +58,8 @@ namespace NServiceBus.Core.Analyzer
             true,
             "Tasks returned by NServiceBus methods must be awaited. Failure to await these Tasks may result in message loss. If the Task is assigned to a variable, this diagnostic is not shown, but the Task must still be awaited.");
 
+        // UniformSession is the only downstream package which can be supported by this analyzer.
+        // All other downstream packages must provide their own analyzer.
         static readonly ImmutableHashSet<string> methods = ImmutableHashSet.Create(
             StringComparer.Ordinal,
             "NServiceBus.IPipelineContext.Send",
@@ -84,9 +86,6 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
             "NServiceBus.IEndpointInstance.Stop",
-
-            // UniformSession is the only downstream package which can be supported by this analyzer.
-            // All other downstream packages must provide their own analyzer.
             "NServiceBus.UniformSession.IUniformSession.Send",
             "NServiceBus.UniformSession.IUniformSession.Publish",
             "NServiceBus.UniformSession.IUniformSessionExtensions.Send",

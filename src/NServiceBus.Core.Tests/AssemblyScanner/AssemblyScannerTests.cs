@@ -1,5 +1,4 @@
-﻿
-#if NETFRAMEWORK
+﻿#if NETFRAMEWORK
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
@@ -43,7 +42,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             }
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Assemblies_with_direct_reference_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core.dll");
@@ -63,7 +63,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.AreEqual(2, result.Assemblies.Count);
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Assemblies_with_no_reference_are_excluded()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -85,7 +86,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.AreEqual(2, result.Assemblies.Count);
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Assemblies_which_reference_older_nsb_version_are_included()
         {
             var busAssemblyV2 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(2, 0, 0), fakeIdentity: true);
@@ -112,7 +114,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.AreEqual(3, result.Assemblies.Count);
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Assemblies_with_transitive_references_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -147,7 +150,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.AreEqual(5, result.Assemblies.Count);
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void AppDomainAssemblies_are_included_when_enabling_ScanAppDomainAssemblies()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -162,7 +166,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Does_not_throw_exception_when_scanning_duplicate_assemblies()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -179,7 +184,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.DoesNotThrow(() => scanner.GetScannableAssemblies());
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Ignore_assembly_loading_errors_when_disabling_ThrowExceptions()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -199,7 +205,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Skipped_dlls_should_be_excluded()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -227,7 +234,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.That(result.Assemblies.Contains(includedAssembly.Assembly));
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Skipped_exes_should_be_excluded()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -255,7 +263,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.That(result.Assemblies.Contains(includedAssembly.Assembly));
         }
 
-        [Test, RunInApplicationDomain]
+        [Test]
+        [RunInApplicationDomain]
         public void Should_not_include_child_type_if_only_handler_for_base_exists()
         {
             var messages =

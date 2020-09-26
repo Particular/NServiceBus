@@ -21,13 +21,10 @@
             headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (e.Data == null)
-            // ReSharper disable HeuristicUnreachableCode
             {
                 return;
             }
-            // ReSharper restore HeuristicUnreachableCode
 #pragma warning disable DE0006
             foreach (DictionaryEntry entry in e.Data)
 #pragma warning restore DE0006

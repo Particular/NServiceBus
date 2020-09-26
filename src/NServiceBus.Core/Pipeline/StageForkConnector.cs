@@ -23,7 +23,8 @@ namespace NServiceBus.Pipeline
             return Invoke(context, next, ctx => ctx.InvokePipeline());
         }
 
-        /// <inheritdoc />
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

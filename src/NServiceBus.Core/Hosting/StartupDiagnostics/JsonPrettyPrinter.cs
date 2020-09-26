@@ -5,7 +5,7 @@ namespace NServiceBus
     static class JsonPrettyPrinter
     {
         const string LINE_INDENT = "  ";
-        
+
         internal static string Print(string input)
         {
             var builder = new StringBuilder(input.Length);
@@ -24,7 +24,7 @@ namespace NServiceBus
                         break;
                     case '}':
                     case ']':
-                        if(!quoted) PrintIndent(builder, --indent);
+                        if (!quoted) PrintIndent(builder, --indent);
                         builder.Append(ch);
                         break;
                     case '"':

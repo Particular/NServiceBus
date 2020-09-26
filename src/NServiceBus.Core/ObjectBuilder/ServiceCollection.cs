@@ -19,10 +19,10 @@ namespace MicrosoftExtensionsDependencyInjection
     /// </summary>
     internal class ServiceCollection : IServiceCollection
     {
-        private readonly List<ServiceDescriptor> _descriptors = new List<ServiceDescriptor>();
+        private readonly List<ServiceDescriptor> descriptors = new List<ServiceDescriptor>();
 
         /// <inheritdoc />
-        public int Count => _descriptors.Count;
+        public int Count => descriptors.Count;
 
         /// <inheritdoc />
         public bool IsReadOnly => false;
@@ -32,47 +32,47 @@ namespace MicrosoftExtensionsDependencyInjection
         {
             get
             {
-                return _descriptors[index];
+                return descriptors[index];
             }
             set
             {
-                _descriptors[index] = value;
+                descriptors[index] = value;
             }
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            _descriptors.Clear();
+            descriptors.Clear();
         }
 
         /// <inheritdoc />
         public bool Contains(ServiceDescriptor item)
         {
-            return _descriptors.Contains(item);
+            return descriptors.Contains(item);
         }
 
         /// <inheritdoc />
         public void CopyTo(ServiceDescriptor[] array, int arrayIndex)
         {
-            _descriptors.CopyTo(array, arrayIndex);
+            descriptors.CopyTo(array, arrayIndex);
         }
 
         /// <inheritdoc />
         public bool Remove(ServiceDescriptor item)
         {
-            return _descriptors.Remove(item);
+            return descriptors.Remove(item);
         }
 
         /// <inheritdoc />
         public IEnumerator<ServiceDescriptor> GetEnumerator()
         {
-            return _descriptors.GetEnumerator();
+            return descriptors.GetEnumerator();
         }
 
         void ICollection<ServiceDescriptor>.Add(ServiceDescriptor item)
         {
-            _descriptors.Add(item);
+            descriptors.Add(item);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -83,19 +83,19 @@ namespace MicrosoftExtensionsDependencyInjection
         /// <inheritdoc />
         public int IndexOf(ServiceDescriptor item)
         {
-            return _descriptors.IndexOf(item);
+            return descriptors.IndexOf(item);
         }
 
         /// <inheritdoc />
         public void Insert(int index, ServiceDescriptor item)
         {
-            _descriptors.Insert(index, item);
+            descriptors.Insert(index, item);
         }
 
         /// <inheritdoc />
         public void RemoveAt(int index)
         {
-            _descriptors.RemoveAt(index);
+            descriptors.RemoveAt(index);
         }
     }
 }
