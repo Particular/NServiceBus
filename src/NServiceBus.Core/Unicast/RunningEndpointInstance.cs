@@ -59,19 +59,19 @@ namespace NServiceBus
             }
         }
 
-        public Task Send(object message, SendOptions options)
+        public Task Send(object message, SendOptions sendOptions)
         {
-            return messageSession.Send(message, options);
+            return messageSession.Send(message, sendOptions);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions)
         {
-            return messageSession.Send(messageConstructor, options);
+            return messageSession.Send(messageConstructor, sendOptions);
         }
 
-        public Task Publish(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions publishOptions)
         {
-            return messageSession.Publish(message, options);
+            return messageSession.Publish(message, publishOptions);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
@@ -79,14 +79,14 @@ namespace NServiceBus
             return messageSession.Publish(messageConstructor, publishOptions);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions)
         {
-            return messageSession.Subscribe(eventType, options);
+            return messageSession.Subscribe(eventType, subscribeOptions);
         }
 
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions)
         {
-            return messageSession.Unsubscribe(eventType, options);
+            return messageSession.Unsubscribe(eventType, unsubscribeOptions);
         }
 
         HostingComponent hostingComponent;

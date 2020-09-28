@@ -11,19 +11,19 @@ namespace NServiceBus
             messageOperations = context.Get<MessageOperations>();
         }
 
-        public Task Send(object message, SendOptions options)
+        public Task Send(object message, SendOptions sendOptions)
         {
-            return messageOperations.Send(context, message, options);
+            return messageOperations.Send(context, message, sendOptions);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions)
         {
-            return messageOperations.Send(context, messageConstructor, options);
+            return messageOperations.Send(context, messageConstructor, sendOptions);
         }
 
-        public Task Publish(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions publishOptions)
         {
-            return messageOperations.Publish(context, message, options);
+            return messageOperations.Publish(context, message, publishOptions);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
@@ -31,14 +31,14 @@ namespace NServiceBus
             return messageOperations.Publish(context, messageConstructor, publishOptions);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions)
         {
-            return messageOperations.Subscribe(context, eventType, options);
+            return messageOperations.Subscribe(context, eventType, subscribeOptions);
         }
 
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions)
         {
-            return messageOperations.Unsubscribe(context, eventType, options);
+            return messageOperations.Unsubscribe(context, eventType, unsubscribeOptions);
         }
 
         RootContext context;
