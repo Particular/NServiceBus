@@ -1,11 +1,13 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
 {
+    using Features;
+
     /// <summary>
     /// Used to configure in memory subscription persistence.
     /// </summary>
-    public class InMemorySubscriptionPersistence : Feature
+    public class AcceptanceTestingSubscriptionPersistence : Feature
     {
-        internal InMemorySubscriptionPersistence()
+        internal AcceptanceTestingSubscriptionPersistence()
         {
             DependsOn<MessageDrivenSubscriptions>();
         }
@@ -15,7 +17,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<AcceptanceTestingSubscriptionStorage>(DependencyLifecycle.SingleInstance);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
 {
     using System;
     using System.Collections.Concurrent;
@@ -8,7 +8,7 @@ namespace NServiceBus
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class InMemorySubscriptionStorage : ISubscriptionStorage
+    class AcceptanceTestingSubscriptionStorage : ISubscriptionStorage
     {
         public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {

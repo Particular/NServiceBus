@@ -1,9 +1,9 @@
-namespace NServiceBus
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
 {
     using System;
     using System.Collections.Generic;
 
-    class InMemoryTransaction
+    class AcceptanceTestingTransaction
     {
         public void Enlist(Action action)
         {

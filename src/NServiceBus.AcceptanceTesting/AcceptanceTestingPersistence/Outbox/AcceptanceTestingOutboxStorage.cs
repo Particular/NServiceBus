@@ -1,12 +1,12 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox
 {
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Extensibility;
-    using Outbox;
+    using NServiceBus.Outbox;
 
-    class InMemoryOutboxStorage : IOutboxStorage
+    class AcceptanceTestingOutboxStorage : IOutboxStorage
     {
         public Task<OutboxMessage> Get(string messageId, ContextBag context)
         {
@@ -20,12 +20,12 @@
 
         public Task<OutboxTransaction> BeginTransaction(ContextBag context)
         {
-            return Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
+            return Task.FromResult<OutboxTransaction>(new AcceptanceTestingOutboxTransaction());
         }
 
         public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
         {
-            var tx = (InMemoryOutboxTransaction) transaction;
+            var tx = (AcceptanceTestingOutboxTransaction) transaction;
             tx.Enlist(() =>
             {
                 if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))

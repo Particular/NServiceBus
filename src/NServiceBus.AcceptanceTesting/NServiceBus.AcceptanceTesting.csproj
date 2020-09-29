@@ -16,6 +16,11 @@
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="6.2.6" PrivateAssets="All" />
+    <PackageReference Include="Janitor.Fody" Version="1.8.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <PropertyGroup>
     <Description>Acceptance testing framework for NServiceBus endpoints. This is an unsupported package.</Description>
   </PropertyGroup>

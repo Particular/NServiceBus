@@ -1,13 +1,14 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister
 {
     using System;
+    using Features;
 
     /// <summary>
     /// Used to configure in memory timeout persistence.
     /// </summary>
-    public class InMemoryTimeoutPersistence : Feature
+    public class AcceptanceTestingTimeoutPersistence : Feature
     {
-        internal InMemoryTimeoutPersistence()
+        internal AcceptanceTestingTimeoutPersistence()
         {
             DependsOn<TimeoutManager>();
         }

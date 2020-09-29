@@ -1,19 +1,19 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox
 {
     using System;
     using System.Threading.Tasks;
     using Janitor;
-    using Outbox;
+    using NServiceBus.Outbox;
 
     [SkipWeaving]
-    class InMemoryOutboxTransaction : OutboxTransaction
+    class AcceptanceTestingOutboxTransaction : OutboxTransaction
     {
-        public InMemoryOutboxTransaction()
+        public AcceptanceTestingOutboxTransaction()
         {
-            Transaction = new InMemoryTransaction();
+            Transaction = new AcceptanceTestingTransaction();
         }
 
-        public InMemoryTransaction Transaction { get; private set; }
+        public AcceptanceTestingTransaction Transaction { get; private set; }
 
         public void Dispose()
         {

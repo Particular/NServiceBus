@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
 {
     using System;
     using System.Collections.Concurrent;
@@ -10,9 +10,9 @@ namespace NServiceBus
     using Persistence;
     using Sagas;
 
-    class InMemorySagaPersister : ISagaPersister
+    class AcceptanceTestingSagaPersister : ISagaPersister
     {
-        public InMemorySagaPersister()
+        public AcceptanceTestingSagaPersister()
         {
             sagas = new ConcurrentDictionary<Guid, Entry>();
             sagasCollection = sagas;
@@ -22,7 +22,7 @@ namespace NServiceBus
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            ((InMemorySynchronizedStorageSession)session).Enlist(() =>
+            ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
                var entry = GetEntry(context, sagaData.Id);
 
@@ -72,7 +72,7 @@ namespace NServiceBus
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
-            ((InMemorySynchronizedStorageSession)session).Enlist(() =>
+            ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
                var correlationId = NoCorrelationId;
                if (correlationProperty != SagaCorrelationProperty.None)
@@ -96,13 +96,13 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            ((InMemorySynchronizedStorageSession)session).Enlist(() =>
+            ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
                var entry = GetEntry(context, sagaData.Id);
 
                if (sagas.TryUpdate(sagaData.Id, entry.UpdateTo(sagaData), entry) == false)
                {
-                   throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
+                   throw new Exception($"AcceptanceTestingSagaPersister concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
                }
            });
 
@@ -135,7 +135,7 @@ namespace NServiceBus
         readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId;
         readonly ICollection<KeyValuePair<Guid, Entry>> sagasCollection;
         readonly ICollection<KeyValuePair<CorrelationId, Guid>> byCorrelationIdCollection;
-        const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
+        const string ContextKey = "NServiceBus.AcceptanceTestingSagaPersistence.Sagas";
         static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
 
         class Entry

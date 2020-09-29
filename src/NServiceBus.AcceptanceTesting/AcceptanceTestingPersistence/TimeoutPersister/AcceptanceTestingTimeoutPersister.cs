@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
@@ -8,9 +8,9 @@ namespace NServiceBus
     using Extensibility;
     using Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
+    class AcceptanceTestingTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
-        public InMemoryTimeoutPersister(Func<DateTime> currentTimeProvider)
+        public AcceptanceTestingTimeoutPersister(Func<DateTime> currentTimeProvider)
         {
             this.currentTimeProvider = currentTimeProvider;
         }

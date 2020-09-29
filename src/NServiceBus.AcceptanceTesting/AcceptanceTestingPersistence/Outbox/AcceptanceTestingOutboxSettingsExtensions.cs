@@ -1,14 +1,13 @@
-namespace NServiceBus.InMemory.Outbox
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox
 {
     using System;
     using Configuration.AdvancedExtensibility;
-    using Features;
     using NServiceBus.Outbox;
 
     /// <summary>
-    /// Contains InMemoryOutbox-related settings extensions.
+    /// Contains AcceptanceTestingOutbox-related settings extensions.
     /// </summary>
-    public static class InMemoryOutboxSettingsExtensions
+    public static class AcceptanceTestingOutboxSettingsExtensions
     {
         /// <summary>
         /// Specifies how long the outbox should keep message data in storage to be able to deduplicate.
@@ -22,7 +21,7 @@ namespace NServiceBus.InMemory.Outbox
         public static OutboxSettings TimeToKeepDeduplicationData(this OutboxSettings settings, TimeSpan time)
         {
             Guard.AgainstNegativeAndZero(nameof(time), time);
-            settings.GetSettings().Set(InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, time);
+            settings.GetSettings().Set(AcceptanceTestingOutboxPersistence.TimeToKeepDeduplicationEntries, time);
             return settings;
         }
     }

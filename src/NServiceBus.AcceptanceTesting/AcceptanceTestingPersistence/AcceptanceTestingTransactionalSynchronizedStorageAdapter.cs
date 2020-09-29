@@ -1,20 +1,21 @@
-namespace NServiceBus
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
 {
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
+    using NServiceBus.Outbox;
     using Outbox;
     using Persistence;
     using Transport;
 
-    class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
+    class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {
-            if (transaction is InMemoryOutboxTransaction inMemOutboxTransaction)
+            if (transaction is AcceptanceTestingOutboxTransaction inMemOutboxTransaction)
             {
-                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction);
+                CompletableSynchronizedStorageSession session = new AcceptanceTestingSynchronizedStorageSession(inMemOutboxTransaction.Transaction);
                 return Task.FromResult(session);
             }
             return EmptyTask;
@@ -24,8 +25,8 @@ namespace NServiceBus
         {
             if (transportTransaction.TryGet(out Transaction ambientTransaction))
             {
-                var transaction = new InMemoryTransaction();
-                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(transaction);
+                var transaction = new AcceptanceTestingTransaction();
+                CompletableSynchronizedStorageSession session = new AcceptanceTestingSynchronizedStorageSession(transaction);
                 ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
                 return Task.FromResult(session);
             }
@@ -36,7 +37,7 @@ namespace NServiceBus
 
         class EnlistmentNotification : IEnlistmentNotification
         {
-            public EnlistmentNotification(InMemoryTransaction transaction)
+            public EnlistmentNotification(AcceptanceTestingTransaction transaction)
             {
                 this.transaction = transaction;
             }
@@ -70,7 +71,7 @@ namespace NServiceBus
                 enlistment.Done();
             }
 
-            InMemoryTransaction transaction;
+            AcceptanceTestingTransaction transaction;
         }
     }
 }

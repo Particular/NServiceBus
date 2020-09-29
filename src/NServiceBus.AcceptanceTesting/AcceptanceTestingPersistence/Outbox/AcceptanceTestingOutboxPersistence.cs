@@ -1,20 +1,21 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Features;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Outbox;
 
     /// <summary>
     /// Used to configure in memory outbox persistence.
     /// </summary>
-    public class InMemoryOutboxPersistence : Feature
+    public class AcceptanceTestingOutboxPersistence : Feature
     {
-        internal InMemoryOutboxPersistence()
+        internal AcceptanceTestingOutboxPersistence()
         {
             DependsOn<Outbox>();
-            Defaults(s => s.EnableFeature(typeof(InMemoryTransactionalStorageFeature)));
+            Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));
         }
 
         /// <summary>
@@ -22,7 +23,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var outboxStorage = new InMemoryOutboxStorage();
+            var outboxStorage = new AcceptanceTestingOutboxStorage();
             context.Container.AddSingleton(typeof(IOutboxStorage), outboxStorage);
 
             var timeSpan = context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries);
@@ -34,10 +35,10 @@
 
         class OutboxCleaner : FeatureStartupTask
         {
-            public OutboxCleaner(InMemoryOutboxStorage storage, TimeSpan timeToKeepDeduplicationData)
+            public OutboxCleaner(AcceptanceTestingOutboxStorage storage, TimeSpan timeToKeepDeduplicationData)
             {
                 this.timeToKeepDeduplicationData = timeToKeepDeduplicationData;
-                inMemoryOutboxStorage = storage;
+                acceptanceTestingOutboxStorage = storage;
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -60,10 +61,10 @@
 
             void PerformCleanup(object state)
             {
-                inMemoryOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
+                acceptanceTestingOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
             }
 
-            readonly InMemoryOutboxStorage inMemoryOutboxStorage;
+            readonly AcceptanceTestingOutboxStorage acceptanceTestingOutboxStorage;
             readonly TimeSpan timeToKeepDeduplicationData;
 
 // ReSharper disable once NotAccessedField.Local

@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
 {
     using System;
     using System.Threading.Tasks;
@@ -6,20 +6,20 @@ namespace NServiceBus
     using Persistence;
 
     [SkipWeaving]
-    class InMemorySynchronizedStorageSession : CompletableSynchronizedStorageSession
+    class AcceptanceTestingSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        public InMemorySynchronizedStorageSession(InMemoryTransaction transaction)
+        public AcceptanceTestingSynchronizedStorageSession(AcceptanceTestingTransaction transaction)
         {
             Transaction = transaction;
         }
 
-        public InMemorySynchronizedStorageSession()
-            : this(new InMemoryTransaction())
+        public AcceptanceTestingSynchronizedStorageSession()
+            : this(new AcceptanceTestingTransaction())
         {
             ownsTransaction = true;
         }
 
-        public InMemoryTransaction Transaction { get; private set; }
+        public AcceptanceTestingTransaction Transaction { get; private set; }
 
         public void Dispose()
         {
