@@ -7,26 +7,13 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// Manages the pipeline configuration.
     /// </summary>
-    public class PipelineSettings : ExposeSettings
+    public partial class PipelineSettings : ExposeSettings
     {
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
         /// </summary>
         internal PipelineSettings(SettingsHolder settings) : base(settings)
         {
-        }
-
-        /// <summary>
-        /// Removes the specified step from the pipeline.
-        /// </summary>
-        /// <param name="stepId">The identifier of the step to remove.</param>
-        public void Remove(string stepId)
-        {
-            // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
-            EnsureWriteEnabled(stepId, nameof(Remove));
-
-            modifications.Removals.Add(new RemoveStep(stepId));
         }
 
         /// <summary>
