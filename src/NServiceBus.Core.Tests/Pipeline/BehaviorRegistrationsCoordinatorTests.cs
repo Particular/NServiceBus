@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.Core.Tests.Pipeline
+﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
     using System.Collections.Generic;
@@ -45,7 +44,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register("2", typeof(FakeBehavior), "2");
             coordinator.Register("3", typeof(FakeBehavior), "3");
 
-            var model =  coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+            var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
             Assert.AreEqual("1", model[0].StepId);
             Assert.AreEqual("2", model[1].StepId);
@@ -156,7 +155,7 @@ namespace NServiceBus.Core.Tests.Pipeline
         {
             coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
 
-            coordinator.Register(new MyCustomRegistration("x","connector",""));
+            coordinator.Register(new MyCustomRegistration("x", "connector", ""));
 
 
             Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IRootContext>());
@@ -197,7 +196,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             }
         }
 
-        class FakeBehavior: IBehavior<IRootContext, IRootContext>
+        class FakeBehavior : IBehavior<IRootContext, IRootContext>
         {
             public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {

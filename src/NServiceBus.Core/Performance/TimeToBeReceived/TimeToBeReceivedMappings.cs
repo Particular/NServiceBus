@@ -26,7 +26,6 @@
             return timeToBeReceived != TimeSpan.MaxValue;
         }
 
-        // ReSharper disable once UnusedParameter.Local
         static TimeSpan GetTimeToBeReceived(Func<Type, TimeSpan> convention, Type messageType, bool doesTransportSupportDiscardIfNotReceivedBefore)
         {
             var timeToBeReceived = convention(messageType);

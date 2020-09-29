@@ -66,7 +66,6 @@
         {
             using (var cts = new CancellationTokenSource())
             {
-                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
                 try
                 {
                     await StartEndpoints(runners, cts).ConfigureAwait(false);
@@ -220,7 +219,7 @@
 
                 return activeEndpoints;
             }
-            set { activeEndpoints = value.ToList(); }
+            set => activeEndpoints = value.ToList();
         }
 
         IList<string> activeEndpoints;

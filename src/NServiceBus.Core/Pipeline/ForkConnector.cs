@@ -12,8 +12,9 @@
         where TFromContext : IBehaviorContext
         where TForkContext : IBehaviorContext
     {
-        /// <inheritdoc />
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public abstract Task Invoke(TFromContext context, Func<Task> next, Func<TForkContext, Task> fork);
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <inheritdoc />
         public sealed override Task Invoke(TFromContext context, Func<Task> next)

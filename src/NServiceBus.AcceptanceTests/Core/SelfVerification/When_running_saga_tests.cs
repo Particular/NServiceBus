@@ -50,7 +50,6 @@
                 .ToArray();
 
             var nestedSagaEntityParents = sagaEntities
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 .Where(t => t.DeclaringType != null)
                 .Select(t => t.DeclaringType)
                 .ToArray();

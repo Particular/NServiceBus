@@ -66,7 +66,6 @@
             readonly InMemoryOutboxStorage inMemoryOutboxStorage;
             readonly TimeSpan timeToKeepDeduplicationData;
 
-// ReSharper disable once NotAccessedField.Local
             Timer cleanupTimer;
         }
     }

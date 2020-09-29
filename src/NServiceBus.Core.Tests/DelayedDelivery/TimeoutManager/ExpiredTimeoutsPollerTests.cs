@@ -39,7 +39,7 @@
             await poller.SpinOnce(CancellationToken.None);
             var nextRetrieval = poller.NextRetrieval;
 
-            RegisterNewTimeout(nextRetrieval - HalfOfDefaultInMemoryPersisterSleep);
+            await RegisterNewTimeoutAsync(nextRetrieval - HalfOfDefaultInMemoryPersisterSleep);
 
             currentTime = poller.NextRetrieval;
 
@@ -54,11 +54,10 @@
         {
             var nextRetrieval = poller.NextRetrieval;
             var timeout1 = nextRetrieval.Subtract(HalfOfDefaultInMemoryPersisterSleep);
-            // ReSharper disable once PossibleLossOfFraction
             var timeout2 = timeout1.Add(TimeSpan.FromMilliseconds(HalfOfDefaultInMemoryPersisterSleep.Milliseconds/2));
 
-            RegisterNewTimeout(timeout1);
-            RegisterNewTimeout(timeout2, false);
+            await RegisterNewTimeoutAsync(timeout1);
+            await RegisterNewTimeoutAsync(timeout2, false);
 
             currentTime = timeout2;
             await poller.SpinOnce(CancellationToken.None);
@@ -73,7 +72,7 @@
             var failingDispatcher = new FailableDispatcher();
             poller = new ExpiredTimeoutsPoller(timeouts, failingDispatcher, "test", breaker, () => currentTime);
 
-            RegisterNewTimeout(currentTime.Subtract(TimeSpan.FromMinutes(5)));
+            await RegisterNewTimeoutAsync(currentTime.Subtract(TimeSpan.FromMinutes(5)));
 
             var dispatchCalls = 0;
             var unicastTransportOperations = new List<UnicastTransportOperation>();
@@ -104,9 +103,9 @@
             Assert.AreEqual(1, unicastTransportOperations.Count);
         }
 
-        void RegisterNewTimeout(DateTime newTimeout, bool withNotification = true)
+        async Task RegisterNewTimeoutAsync(DateTime newTimeout, bool withNotification = true)
         {
-            timeouts.Add(new TimeoutData
+            await timeouts.Add(new TimeoutData
             {
                 Time = newTimeout
             }, null);
@@ -119,7 +118,6 @@
         FakeBreaker breaker;
         RecordingFakeDispatcher dispatcher;
         DateTime currentTime = DateTime.UtcNow;
-        // ReSharper disable once PossibleLossOfFraction
         TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
         ExpiredTimeoutsPoller poller;
         InMemoryTimeoutPersister timeouts;

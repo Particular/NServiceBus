@@ -61,7 +61,7 @@
         {
             public RouteOption Option
             {
-                get { return option; }
+                get => option;
                 set
                 {
                     if (option != RouteOption.None)

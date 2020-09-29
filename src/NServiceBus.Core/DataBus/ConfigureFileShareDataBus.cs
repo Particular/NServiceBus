@@ -8,7 +8,7 @@ namespace NServiceBus
     public static class ConfigureFileShareDataBus
     {
         /// <summary>
-        /// The location to which to write/read serialized properties for the databus.
+        /// Sets the location to which to write/read serialized properties for the databus.
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <param name="basePath">The location to which to write/read serialized properties for the databus.</param>

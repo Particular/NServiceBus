@@ -34,7 +34,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public byte[] OutgoingBody
         {
-            get { return outgoingBody; }
+            get => outgoingBody;
             set
             {
                 Guard.AgainstNull(nameof(value), value);

@@ -21,7 +21,7 @@
         {
             var headerName = (string)finderDefinition.Properties["message-header-name"];
 
-            if(!messageHeaders.TryGetValue(headerName, out var messageHeaderValue))
+            if (!messageHeaders.TryGetValue(headerName, out var messageHeaderValue))
             {
                 var saga = context.Get<ActiveSagaInstance>();
                 var sagaEntityName = saga.Metadata.Name;
@@ -39,7 +39,7 @@
             {
                 convertedHeaderValue = TypeDescriptor.GetConverter(correlationPropertyType).ConvertFromInvariantString(messageHeaderValue);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 var saga = context.Get<ActiveSagaInstance>();
                 var sagaEntityName = saga.Metadata.Name;

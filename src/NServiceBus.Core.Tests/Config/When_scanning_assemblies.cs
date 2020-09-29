@@ -18,7 +18,8 @@ namespace NServiceBus.Core.Tests.Config
                 .ToList();
         }
 
-        [Test, Ignore("Does not work")]
+        [Test]
+        [Ignore("Does not work")]
         public void Should_for_our_code_exclude_everything_but_NServiceBus_by_default()
         {
             CollectionAssert.AreEquivalent(new string[0],

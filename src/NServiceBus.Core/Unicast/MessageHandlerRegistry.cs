@@ -17,17 +17,14 @@
         /// Gets the list of handlers <see cref="Type" />s for the given
         /// <paramref name="messageType" />.
         /// </summary>
-        // ReSharper disable once ReturnTypeCanBeEnumerable.Global
         public List<MessageHandler> GetHandlersFor(Type messageType)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
 
             var messageHandlers = new List<MessageHandler>();
-            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var handlersAndMessages in handlerAndMessagesHandledByHandlerCache)
             {
                 var handlerType = handlersAndMessages.Key;
-                // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var handlerDelegate in handlersAndMessages.Value)
                 {
                     if (handlerDelegate.MessageType.IsAssignableFrom(messageType))
@@ -142,7 +139,6 @@
             return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).Compile();
         }
 
-        // ReSharper disable once ReturnTypeCanBeEnumerable.Local
         static Type[] GetMessageTypesBeingHandledBy(Type type)
         {
             return (from t in type.GetInterfaces()

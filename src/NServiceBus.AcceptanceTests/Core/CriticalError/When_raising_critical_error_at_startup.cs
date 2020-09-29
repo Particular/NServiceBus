@@ -24,8 +24,8 @@
             };
 
             var context = await Scenario.Define<TestContext>()
-                .WithEndpoint<EndpointWithCriticalErrorStartup>(b => { b
-                    .CustomConfig(config => { config.DefineCriticalErrorAction(addCritical); }); })
+                .WithEndpoint<EndpointWithCriticalErrorStartup>(b =>
+                    b.CustomConfig(config => config.DefineCriticalErrorAction(addCritical)))
                 .Done(c => c.CriticalErrorsRaised >= 2 && exceptions.Count >= 2)
                 .Run();
 

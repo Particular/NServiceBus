@@ -151,7 +151,7 @@ namespace NServiceBus.Sagas
 
         void ValidateCorrelationPropertyHaveValue(object currentCorrelationPropertyValue)
         {
-            if(currentCorrelationPropertyValue != null)
+            if (currentCorrelationPropertyValue != null)
             {
                 return;
             }

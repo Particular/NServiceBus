@@ -15,7 +15,8 @@
     {
         // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method
         // is not altered by Fody to throw an ObjectDisposedException if it was disposed
-        [Test, Repeat(2)]
+        [Test]
+        [Repeat(2)]
         public Task ReceiveFeature_should_work_without_ISynchronizedStorage()
         {
             return Scenario.Define<Context>()

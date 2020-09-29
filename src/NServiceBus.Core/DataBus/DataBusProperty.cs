@@ -43,7 +43,6 @@
         /// <summary>
         /// The value.
         /// </summary>
-        // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public T Value => value;
 
         /// <summary>

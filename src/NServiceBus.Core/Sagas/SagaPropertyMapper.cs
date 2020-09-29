@@ -44,7 +44,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(headerName), headerName);
 
-            if(!(sagaMessageFindingConfiguration is IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration))
+            if (!(sagaMessageFindingConfiguration is IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration))
             {
                 throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithMessageHeaders)}.");
             }

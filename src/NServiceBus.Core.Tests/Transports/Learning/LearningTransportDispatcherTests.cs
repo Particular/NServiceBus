@@ -26,7 +26,7 @@
             StringAssert.Contains("The total size of the 'TestMessage' message", ex.Message);
         }
 
-        const int MessageSizeLimit = 64 * 1024 - headerSize;
+        const int MessageSizeLimit = (64 * 1024) - headerSize;
         const int headerSize = 57;
     }
 }

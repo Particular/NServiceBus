@@ -93,7 +93,7 @@
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
-            context.Services.AddTransient(sp => new IMutateIncomingTransportMessages[]{ });
+            context.Services.AddTransient(sp => new IMutateIncomingTransportMessages[] { });
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 

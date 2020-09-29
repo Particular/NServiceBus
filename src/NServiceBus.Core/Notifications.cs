@@ -1,6 +1,4 @@
-// ReSharper disable ConvertToAutoProperty
 // we need writable fields for disposing
-
 namespace NServiceBus
 {
     using Faults;
