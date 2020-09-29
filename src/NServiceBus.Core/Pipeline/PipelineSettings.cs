@@ -43,7 +43,7 @@ namespace NServiceBus.Pipeline
 
             modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
         }
-        
+
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
@@ -75,9 +75,9 @@ namespace NServiceBus.Pipeline
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
         }
-        
+
         /// <summary>
-        /// Replaces an existing step behavior with a new one if it exists in the pipeline
+        /// Replaces an existing step behavior with a new one if it exists in the pipeline.
         /// </summary>
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
         /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
@@ -91,7 +91,7 @@ namespace NServiceBus.Pipeline
 
             modifications.AdditionsOrReplacements.Add(new AddOrReplaceStep(RegisterStep.Create(stepId, behavior, description), new ReplaceStep(stepId, behavior, description)));
         }
-        
+
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
