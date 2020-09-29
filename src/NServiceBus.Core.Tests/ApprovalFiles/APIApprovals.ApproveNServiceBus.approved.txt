@@ -1809,6 +1809,11 @@ namespace NServiceBus.Pipeline
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
+        public void RegisterOrReplace(string stepId, System.Type behavior, string description = null) { }
+        public void RegisterOrReplace<T>(string stepId, T behavior, string description = null)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        public void RegisterOrReplace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description = null)
+            where T : NServiceBus.Pipeline.IBehavior { }
         public void Remove(string stepId) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
