@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -17,7 +18,6 @@
                 RegisterStep.Create("Root1", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc"),
 
             }, new List<RemoveStep>(), new List<ReplaceStep>(), new List<AddOrReplaceStep>());
-
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
@@ -37,11 +37,59 @@
             },
             new List<AddOrReplaceStep>());
 
-
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
             Assert.AreEqual("You can only replace an existing step registration, 'DoesNotExist' registration does not exist.", ex.Message);
         }
+
+        [Test]
+        public void ShouldAddWhenAddingOrReplacingABehaviorThatDoesntYetExist()
+        {
+            var builder = new PipelineModelBuilder(typeof(IParentContext),
+                new List<RegisterStep>()
+                {
+                    RegisterStep.Create("Root1", typeof(RootBehavior), "desc")
+                },
+                new List<RemoveStep>(),
+                new List<ReplaceStep>(),
+                new List<AddOrReplaceStep>()
+                {
+                    AddOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc")
+                });
+
+            var model = builder.Build();
+
+            Assert.That(model.Count, Is.EqualTo(2));
+            var addedBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
+            Assert.That(addedBehavior, Is.Not.Null);
+            Assert.That(addedBehavior.BehaviorType, Is.EqualTo(typeof(SomeBehaviorOfParentContext)));
+        }
+
+        [Test]
+        public void ShouldReplaceWhenAddingOrReplacingABehaviorThatDoesAlreadyExist()
+        {
+            var builder = new PipelineModelBuilder(typeof(IParentContext),
+                new List<RegisterStep>()
+                {
+                    RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
+                    RegisterStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc")
+                },
+                new List<RemoveStep>(),
+                new List<ReplaceStep>(),
+                new List<AddOrReplaceStep>()
+                {
+                    AddOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc")
+                });
+
+
+            var model = builder.Build();
+
+            Assert.That(model.Count, Is.EqualTo(2));
+            var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
+            Assert.That(overriddenBehavior, Is.Not.Null);
+            Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
+        }
+
 
         [Test]
         public void ShouldOnlyAllowRemovalOfExistingRegistrations()
