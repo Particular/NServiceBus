@@ -5,7 +5,7 @@ namespace NServiceBus
 
     class AddOrReplaceStep
     {
-        private AddOrReplaceStep(string stepId, RegisterStep registerStep, ReplaceStep replaceStep)
+        AddOrReplaceStep(string stepId, RegisterStep registerStep, ReplaceStep replaceStep)
         {
             StepId = stepId;
             RegisterStep = registerStep;

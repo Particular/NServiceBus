@@ -43,7 +43,7 @@
         }
 
         [Test]
-        public void ShouldAddWhenAddingOrReplacingABehaviorThatDoesntYetExist()
+        public void ShouldAddWhenAddingOrReplacingABehaviorThatDoesntExist()
         {
             var builder = new PipelineModelBuilder(typeof(IParentContext),
                 new List<RegisterStep>()
@@ -89,7 +89,6 @@
             Assert.That(overriddenBehavior, Is.Not.Null);
             Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
         }
-
 
         [Test]
         public void ShouldOnlyAllowRemovalOfExistingRegistrations()

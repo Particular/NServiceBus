@@ -74,7 +74,7 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_AddOrReplace_WhenDoesNotExist()
         {
-            addOrReplacements.Add( AddOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
+            addOrReplacements.Add(AddOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
 
             var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
