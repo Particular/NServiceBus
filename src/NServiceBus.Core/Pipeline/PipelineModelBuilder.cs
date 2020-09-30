@@ -22,12 +22,6 @@ namespace NServiceBus
             var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
 
-            // Let's do some validation too
-            if (addOrReplaceSteps.Any(addOrReplaceStep => addOrReplaceStep.RegisterStep.StepId != addOrReplaceStep.ReplaceStep.ReplaceId))
-            {
-                throw new Exception("Encountered RegisterOrReplace-registrations in the pipeline for which the ID differs between Add and Replace.");
-            }
-
             var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
                 .Select(x => x.RegisterStep)
                 .ToList();
