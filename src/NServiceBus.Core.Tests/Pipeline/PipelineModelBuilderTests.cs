@@ -32,7 +32,7 @@
 
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
-            Assert.AreEqual("You can only replace an existing step registration, 'DoesNotExist' registration does not exist.", ex.Message);
+            Assert.AreEqual("Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for 'DoesNotExist'.", ex.Message);
         }
 
         [Test]

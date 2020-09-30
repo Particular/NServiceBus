@@ -59,7 +59,7 @@ namespace NServiceBus
             {
                 var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Count() > 1).Select(x => $"'{x.Key}'");
                 var duplicateIdentifiersList = string.Join(", ", duplicateReplaceIdentifiers);
-                var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for: {duplicateIdentifiersList}";
+                var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for: {duplicateIdentifiersList}.";
                 throw new Exception(message);
             }
 
@@ -67,7 +67,7 @@ namespace NServiceBus
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}:";
+                    var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}.";
                     throw new Exception(message);
                 }
 
