@@ -54,10 +54,10 @@ namespace NServiceBus
             }
 
             //  Step 2: validate and apply replacements
-            var groupedReplacements = replacements.GroupBy(x => x.ReplaceId);
-            if (groupedReplacements.Any(x => x.Count() > 1))
+            var groupedReplacements = replacements.GroupBy(x => x.ReplaceId).ToList();
+            if (groupedReplacements.Any(x => x.Any()))
             {
-                var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Count() > 1).Select(x => $"'{x.Key}'");
+                var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Any()).Select(x => $"'{x.Key}'");
                 var duplicateIdentifiersList = string.Join(", ", duplicateReplaceIdentifiers);
                 var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for: {duplicateIdentifiersList}.";
                 throw new Exception(message);
