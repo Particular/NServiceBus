@@ -79,7 +79,7 @@ namespace NServiceBus.Pipeline
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.AdditionsOrReplacements.Add(AddOrReplaceStep.Create(stepId, behavior, description));
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, behavior, description));
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NServiceBus.Pipeline
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.AdditionsOrReplacements.Add(AddOrReplaceStep.Create(stepId, typeof(T), description,builder => behavior));
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, typeof(T), description,builder => behavior));
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace NServiceBus.Pipeline
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.AdditionsOrReplacements.Add(AddOrReplaceStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
         }
 
         /// <summary>

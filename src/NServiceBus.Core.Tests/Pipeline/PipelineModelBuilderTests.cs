@@ -40,7 +40,7 @@
         {
             var builder = ConfigurePipelineModelBuilder.Setup()
                 .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
-                .RegisterOrReplace(AddOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
+                .RegisterOrReplace(RegisterOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
                 .Build(typeof(IParentContext));
 
             var model = builder.Build();
@@ -57,7 +57,7 @@
             var builder = ConfigurePipelineModelBuilder.Setup()
                 .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
                 .Register(RegisterStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
-                .RegisterOrReplace(AddOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc"))
+                .RegisterOrReplace(RegisterOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc"))
                 .Build(typeof(IParentContext));
 
             var model = builder.Build();
@@ -176,7 +176,7 @@
         class ConfigurePipelineModelBuilder
         {
             List<RegisterStep> registrations = new List<RegisterStep>();
-            List<AddOrReplaceStep> registerOrReplacements = new List<AddOrReplaceStep>();
+            List<RegisterOrReplaceStep> registerOrReplacements = new List<RegisterOrReplaceStep>();
             List<ReplaceStep> replacements = new List<ReplaceStep>();
 
             public static ConfigurePipelineModelBuilder Setup()
@@ -196,7 +196,7 @@
                 return this;
             }
 
-            public ConfigurePipelineModelBuilder RegisterOrReplace(AddOrReplaceStep registration)
+            public ConfigurePipelineModelBuilder RegisterOrReplace(RegisterOrReplaceStep registration)
             {
                 registerOrReplacements.Add(registration);
                 return this;

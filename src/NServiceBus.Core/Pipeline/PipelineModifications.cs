@@ -7,6 +7,6 @@
     {
         public List<RegisterStep> Additions = new List<RegisterStep>();
         public List<ReplaceStep> Replacements = new List<ReplaceStep>();
-        public List<AddOrReplaceStep> AdditionsOrReplacements = new List<AddOrReplaceStep>();
+        public List<RegisterOrReplaceStep> AdditionsOrReplacements = new List<RegisterOrReplaceStep>();
     }
 }

@@ -14,14 +14,14 @@ namespace NServiceBus.Core.Tests.Pipeline
         StepRegistrationsCoordinator coordinator;
         List<RemoveStep> removals;
         List<ReplaceStep> replacements;
-        List<AddOrReplaceStep> addOrReplacements;
+        List<RegisterOrReplaceStep> addOrReplacements;
 
         [SetUp]
         public void Setup()
         {
             removals = new List<RemoveStep>();
             replacements = new List<ReplaceStep>();
-            addOrReplacements = new List<AddOrReplaceStep>();
+            addOrReplacements = new List<RegisterOrReplaceStep>();
 
             coordinator = new StepRegistrationsCoordinator(replacements, addOrReplacements);
         }
@@ -74,7 +74,7 @@ namespace NServiceBus.Core.Tests.Pipeline
         [Test]
         public void Registrations_AddOrReplace_WhenDoesNotExist()
         {
-            addOrReplacements.Add(AddOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
+            addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
 
             var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
@@ -88,7 +88,7 @@ namespace NServiceBus.Core.Tests.Pipeline
         {
             coordinator.Register("1", typeof(FakeBehavior), "1");
 
-            addOrReplacements.Add(AddOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
+            addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
 
             var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 

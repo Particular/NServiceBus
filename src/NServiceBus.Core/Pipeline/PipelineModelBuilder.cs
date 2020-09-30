@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
@@ -241,7 +241,7 @@ namespace NServiceBus
 
         List<RegisterStep> additions;
         List<ReplaceStep> replacements;
-        List<AddOrReplaceStep> addOrReplaceSteps;
+        List<RegisterOrReplaceStep> addOrReplaceSteps;
 
         Type rootContextType;
         static CaseInsensitiveIdComparer idComparer = new CaseInsensitiveIdComparer();

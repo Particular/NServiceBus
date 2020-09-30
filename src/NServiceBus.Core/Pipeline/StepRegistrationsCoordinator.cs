@@ -6,7 +6,7 @@ namespace NServiceBus
 
     class StepRegistrationsCoordinator
     {
-        public StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
+        public StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
         {
             this.replacements = replacements;
             this.addOrReplaceSteps = addOrReplaceSteps;
@@ -30,6 +30,6 @@ namespace NServiceBus
 
         List<RegisterStep> additions = new List<RegisterStep>();
         List<ReplaceStep> replacements;
-        List<AddOrReplaceStep> addOrReplaceSteps;
+        List<RegisterOrReplaceStep> addOrReplaceSteps;
     }
 }
