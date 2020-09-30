@@ -68,7 +68,7 @@ namespace NServiceBus
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    var message = $"You can only replace an existing step registration, '{metadata.ReplaceId}' registration does not exist.";
+                    var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}:";
                     throw new Exception(message);
                 }
 
