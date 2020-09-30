@@ -6,9 +6,8 @@ namespace NServiceBus
 
     class StepRegistrationsCoordinator
     {
-        public StepRegistrationsCoordinator(List<RemoveStep> removals, List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
+        public StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
         {
-            this.removals = removals;
             this.replacements = replacements;
             this.addOrReplaceSteps = addOrReplaceSteps;
         }
@@ -25,12 +24,11 @@ namespace NServiceBus
 
         public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
         {
-            var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, removals, replacements, addOrReplaceSteps);
+            var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, replacements, addOrReplaceSteps);
             return pipelineModelBuilder.Build();
         }
 
         List<RegisterStep> additions = new List<RegisterStep>();
-        List<RemoveStep> removals;
         List<ReplaceStep> replacements;
         List<AddOrReplaceStep> addOrReplaceSteps;
     }

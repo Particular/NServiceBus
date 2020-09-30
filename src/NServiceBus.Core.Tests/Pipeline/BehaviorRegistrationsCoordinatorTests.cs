@@ -23,7 +23,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             replacements = new List<ReplaceStep>();
             addOrReplacements = new List<AddOrReplaceStep>();
 
-            coordinator = new StepRegistrationsCoordinator(removals, replacements, addOrReplacements);
+            coordinator = new StepRegistrationsCoordinator(replacements, addOrReplacements);
         }
 
         [Test]

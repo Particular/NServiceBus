@@ -16,7 +16,7 @@
                 .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
                 .Register(RegisterStep.Create("Root1", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc"))
                 .Build(typeof(IParentContext));
-            
+
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
             Assert.AreEqual("Step registration with id 'Root1' is already registered for 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+RootBehavior'.", ex.Message);
@@ -29,7 +29,7 @@
                 .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
                 .Replace(new ReplaceStep("DoesNotExist", typeof(RootBehavior), "desc"))
                 .Build(typeof(IParentContext));
-            
+
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
             Assert.AreEqual("You can only replace an existing step registration, 'DoesNotExist' registration does not exist.", ex.Message);
@@ -42,7 +42,7 @@
                 .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
                 .RegisterOrReplace(AddOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
                 .Build(typeof(IParentContext));
-            
+
             var model = builder.Build();
 
             Assert.That(model.Count, Is.EqualTo(2));
@@ -59,7 +59,7 @@
                 .Register(RegisterStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
                 .RegisterOrReplace(AddOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc"))
                 .Build(typeof(IParentContext));
-           
+
             var model = builder.Build();
 
             Assert.That(model.Count, Is.EqualTo(2));
@@ -69,63 +69,12 @@
         }
 
         [Test]
-        public void ShouldOnlyAllowRemovalOfExistingRegistrations()
-        {
-            var builder = ConfigurePipelineModelBuilder.Setup()
-                .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
-                .Remove(new RemoveStep("DoesNotExist"))
-                .Build(typeof(IParentContext));
-            
-            var ex = Assert.Throws<Exception>(() => builder.Build());
-
-            Assert.AreEqual("You cannot remove step registration with id 'DoesNotExist', registration does not exist.", ex.Message);
-        }
-
-        [Test]
-        public void ShouldOnlyAllowRemovalWhenNoOtherDependsOnItsBeforeRegistration()
-        {
-            var someBehaviorRegistration = RegisterStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc");
-            var anotherBehaviorRegistration = RegisterStep.Create("AnotherBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc");
-
-            anotherBehaviorRegistration.InsertBefore("SomeBehaviorOfParentContext");
-
-            var builder = ConfigurePipelineModelBuilder.Setup()
-                .Register(someBehaviorRegistration)
-                .Register(anotherBehaviorRegistration)
-                .Remove(new RemoveStep("SomeBehaviorOfParentContext"))
-                .Build(typeof(IParentContext));
-            
-            var ex = Assert.Throws<Exception>(() => builder.Build());
-
-            Assert.AreEqual("You cannot remove step registration with id 'SomeBehaviorOfParentContext', registration with id 'AnotherBehaviorOfParentContext' depends on it.", ex.Message);
-        }
-
-        [Test]
-        public void ShouldOnlyAllowRemovalWhenNoOtherDependsOnItsAfterRegistration()
-        {
-            var someBehaviorRegistration = RegisterStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc");
-            var anotherBehaviorRegistration = RegisterStep.Create("AnotherBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc");
-
-            anotherBehaviorRegistration.InsertAfter("SomeBehaviorOfParentContext");
-
-            var builder = ConfigurePipelineModelBuilder.Setup()
-                .Register(someBehaviorRegistration)
-                .Register(anotherBehaviorRegistration)
-                .Remove(new RemoveStep("SomeBehaviorOfParentContext"))
-                .Build(typeof(IParentContext));
-            
-            var ex = Assert.Throws<Exception>(() => builder.Build());
-
-            Assert.AreEqual("You cannot remove step registration with id 'SomeBehaviorOfParentContext', registration with id 'AnotherBehaviorOfParentContext' depends on it.", ex.Message);
-        }
-
-        [Test]
         public void ShouldDetectMissingBehaviorForRootContext()
         {
             var builder = ConfigurePipelineModelBuilder.Setup()
                 .Register(RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContext), "desc"))
                 .Build(typeof(IParentContext));
-            
+
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
             Assert.AreEqual("Can't find any behaviors/connectors for the root context (NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext)", ex.Message);
@@ -157,7 +106,7 @@
                 .Register(someBehaviorRegistration)
                 .Register(anotherBehaviorRegistration)
                 .Build(typeof(IParentContext));
-            
+
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
             Assert.AreEqual("Registration 'DoesNotExist' specified in the insertafter of the 'AnotherBehaviorOfParentContext' step does not exist. Current StepIds: 'SomeBehaviorOfParentContext', 'AnotherBehaviorOfParentContext'", ex.Message);
@@ -175,7 +124,7 @@
                 .Register(someBehaviorRegistration)
                 .Register(anotherBehaviorRegistration)
                 .Build(typeof(IParentContext));
-            
+
             var ex = Assert.Throws<Exception>(() => builder.Build());
 
             Assert.AreEqual("Registration 'DoesNotExist' specified in the insertbefore of the 'AnotherBehaviorOfParentContext' step does not exist. Current StepIds: 'SomeBehaviorOfParentContext', 'AnotherBehaviorOfParentContext'", ex.Message);
@@ -189,7 +138,7 @@
                 .Register(RegisterStep.Create("ParentContextToChildContextNotInheritedFromParentContextConnector", typeof(ParentContextToChildContextNotInheritedFromParentContextConnector), "desc"))
                 .Register(RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc"))
                 .Build(typeof(IParentContext));
-            
+
             var model = builder.Build();
 
             Assert.AreEqual(3, model.Count);
@@ -203,7 +152,7 @@
                 .Register(RegisterStep.Create("ParentContextToChildContextConnector", typeof(ParentContextToChildContextConnector), "desc"))
                 .Register(RegisterStep.Create("Child", typeof(ChildBehaviorOfChildContextNotInheritedFromParentContext), "desc"))
                 .Build(typeof(IParentContext));
-            
+
             var model = builder.Build();
 
             Assert.AreEqual(2, model.Count);
@@ -227,8 +176,7 @@
         class ConfigurePipelineModelBuilder
         {
             List<RegisterStep> registrations = new List<RegisterStep>();
-            List<AddOrReplaceStep> registerOrReplacecements = new List<AddOrReplaceStep>();
-            List<RemoveStep> removals = new List<RemoveStep>();
+            List<AddOrReplaceStep> registerOrReplacements = new List<AddOrReplaceStep>();
             List<ReplaceStep> replacements = new List<ReplaceStep>();
 
             public static ConfigurePipelineModelBuilder Setup()
@@ -241,28 +189,22 @@
                 registrations.Add(registration);
                 return this;
             }
-            
+
             public ConfigurePipelineModelBuilder Replace(ReplaceStep registration)
             {
                 replacements.Add(registration);
                 return this;
             }
-            
-            public ConfigurePipelineModelBuilder Remove(RemoveStep removal)
-            {
-                removals.Add(removal);
-                return this;
-            }
-            
+
             public ConfigurePipelineModelBuilder RegisterOrReplace(AddOrReplaceStep registration)
             {
-                registerOrReplacecements.Add(registration);
+                registerOrReplacements.Add(registration);
                 return this;
             }
 
             public PipelineModelBuilder Build(Type parentContextType)
             {
-                return new PipelineModelBuilder(parentContextType, registrations, removals, replacements, registerOrReplacecements);
+                return new PipelineModelBuilder(parentContextType, registrations, replacements, registerOrReplacements);
             }
         }
 

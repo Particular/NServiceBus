@@ -8,11 +8,10 @@ namespace NServiceBus
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<AddOrReplaceStep> addOrReplaceSteps)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
-            this.removals = removals;
             this.replacements = replacements;
             this.addOrReplaceSteps = addOrReplaceSteps;
         }
@@ -74,27 +73,6 @@ namespace NServiceBus
 
                 var registerStep = registrations[metadata.ReplaceId];
                 registerStep.Replace(metadata);
-            }
-
-            // Step 3: validate the removals
-            foreach (var metadata in removals.Distinct(idComparer))
-            {
-                if (!registrations.ContainsKey(metadata.RemoveId))
-                {
-                    var message = $"You cannot remove step registration with id '{metadata.RemoveId}', registration does not exist.";
-                    throw new Exception(message);
-                }
-
-                if (listOfBeforeAndAfterIds.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase))
-                {
-                    var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
-                                                    (mr.Afters != null && mr.Afters.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
-
-                    var message = $"You cannot remove step registration with id '{metadata.RemoveId}', registration with id '{add.StepId}' depends on it.";
-                    throw new Exception(message);
-                }
-
-                registrations.Remove(metadata.RemoveId);
             }
 
             var stages = registrations.Values.GroupBy(r => r.GetInputContext()).ToList();
@@ -262,7 +240,6 @@ namespace NServiceBus
         }
 
         List<RegisterStep> additions;
-        List<RemoveStep> removals;
         List<ReplaceStep> replacements;
         List<AddOrReplaceStep> addOrReplaceSteps;
 
