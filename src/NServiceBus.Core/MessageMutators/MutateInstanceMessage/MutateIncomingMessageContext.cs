@@ -23,7 +23,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public object Message
         {
-            get { return message; }
+            get => message;
             set
             {
                 Guard.AgainstNull(nameof(value), value);

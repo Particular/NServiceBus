@@ -31,7 +31,6 @@
             return pipeline(context);
         }
 
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         IBehavior[] behaviors;
         Func<TContext, Task> pipeline;
     }

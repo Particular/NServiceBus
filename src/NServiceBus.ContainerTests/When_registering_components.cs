@@ -159,7 +159,8 @@ namespace NServiceBus.ContainerTests
             Assert.True(serviceCollection.HasComponent(typeof(ISomeGenericInterface<string>)));
         }
 
-        [Test, Ignore("Not sure that we should enforce this")]
+        [Test]
+        [Ignore("Not sure that we should enforce this")]
         public void System_interfaces_should_not_be_auto_registered()
         {
             var serviceCollection = new ServiceCollection();

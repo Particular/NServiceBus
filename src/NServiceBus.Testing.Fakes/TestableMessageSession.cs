@@ -1,6 +1,4 @@
-﻿// ReSharper disable PartialTypeWithSinglePart
-
-namespace NServiceBus.Testing
+﻿namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Concurrent;

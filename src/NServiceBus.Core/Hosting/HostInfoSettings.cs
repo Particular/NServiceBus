@@ -24,8 +24,7 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingInstalledFilePath()
         {
-            //This is the default, we don't need to do anything
-
+            // This is the default, we don't need to do anything
             return this;
         }
 

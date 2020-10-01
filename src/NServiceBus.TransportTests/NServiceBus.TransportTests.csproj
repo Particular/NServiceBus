@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.CodeRules" Version="0.7.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -25,6 +26,10 @@
     <Description>Tests for transport seam implementations</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\TestSuppressions.cs" Link="TestSuppressions.cs" />
+  </ItemGroup>
 
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>

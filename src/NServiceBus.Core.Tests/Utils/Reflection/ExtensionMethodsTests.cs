@@ -22,7 +22,6 @@
         public void Should_return_return_different_results_for_different_types()
         {
             // This test verifies whether the added cache doesn't break the execution if called successively for two different types
-
             var customTypeResult = typeof(Target).IsSystemType();
             var systemTypeResult = typeof(string).IsSystemType();
 

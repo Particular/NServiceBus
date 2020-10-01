@@ -250,7 +250,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void CanSerializeMessageWithNullableArray()
         {
             // Issue https://github.com/Particular/NServiceBus/issues/2706
-
             var message = new MessageWithNullableArray
             {
                 SomeInts = new int?[] { null, 1, null, 3, null }

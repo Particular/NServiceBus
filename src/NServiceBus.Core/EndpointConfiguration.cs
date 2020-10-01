@@ -128,12 +128,10 @@ namespace NServiceBus
 
         static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
         {
-            // ReSharper disable HeapView.SlowDelegateCreation
             foreach (var type in types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
             {
                 action(type);
             }
-            // ReSharper restore HeapView.SlowDelegateCreation
         }
 
         static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)

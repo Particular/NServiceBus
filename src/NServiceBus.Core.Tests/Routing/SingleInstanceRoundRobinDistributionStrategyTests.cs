@@ -59,7 +59,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
 
-            var instances = new []
+            var instances = new[]
             {
                 "1",
                 "2",
@@ -69,7 +69,7 @@
             var result = new List<string>();
             result.Add(strategy.SelectDestination(distributionContext));
             result.Add(strategy.SelectDestination(distributionContext));
-            instances = instances.Concat(new [] { "3" }).ToArray(); // add new instance
+            instances = instances.Concat(new[] { "3" }).ToArray(); // add new instance
             distributionContext = new DistributionContext(instances, null, null, null, null, null);
             result.Add(strategy.SelectDestination(distributionContext));
 
@@ -84,7 +84,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
 
-            var instances = new []
+            var instances = new[]
             {
                 "1",
                 "2",

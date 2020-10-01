@@ -49,7 +49,6 @@
         {
             // this is to force compatibility with previous implementation,
             // in particular, to support nested objects with null properties in them.
-
             foreach (var childElement in 
                 from x in document.DescendantNodes().OfType<XElement>()
                 where x.IsEmpty && !x.HasAttributes

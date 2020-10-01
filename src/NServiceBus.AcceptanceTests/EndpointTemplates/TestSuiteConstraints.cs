@@ -19,7 +19,6 @@
         IConfigureEndpointTestExecution CreatePersistenceConfiguration();
     }
 
-    // ReSharper disable once PartialTypeWithSinglePart
     public partial class TestSuiteConstraints : ITestSuiteConstraints
     {
         public static TestSuiteConstraints Current = new TestSuiteConstraints();

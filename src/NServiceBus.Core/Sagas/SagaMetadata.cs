@@ -411,7 +411,6 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 });
             }
 
-            // ReSharper disable once UnusedParameter.Local
             void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
             {
                 if (propertyInfo == null)

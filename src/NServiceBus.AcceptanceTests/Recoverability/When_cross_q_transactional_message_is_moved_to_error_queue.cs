@@ -28,7 +28,8 @@
                 .Run();
 
             Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
-            Assert.IsTrue(context.FailedMessages.Any()); }
+            Assert.IsTrue(context.FailedMessages.Any());
+        }
 
         class Context : ScenarioContext
         {

@@ -12,7 +12,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation" /> instance.
         /// </summary>
-        // ReSharper disable once ParameterTypeCanBeEnumerable.Local
         public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;

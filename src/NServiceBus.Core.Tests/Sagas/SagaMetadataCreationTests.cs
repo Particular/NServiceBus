@@ -92,7 +92,8 @@
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
         }
 
-        [Test, Ignore("Not sure we should enforce this yet")]
+        [Test]
+        [Ignore("Not sure we should enforce this yet")]
         public void RequireFinderForMessagesStartingTheSaga()
         {
             var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));

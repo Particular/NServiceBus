@@ -25,7 +25,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public object OutgoingMessage
         {
-            get { return outgoingMessage; }
+            get => outgoingMessage;
             set
             {
                 Guard.AgainstNull(nameof(value), value);

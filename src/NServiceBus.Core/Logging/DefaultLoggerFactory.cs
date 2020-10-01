@@ -12,11 +12,11 @@ namespace NServiceBus
         {
             this.filterLevel = filterLevel;
             rollingLogger = new RollingLogger(loggingDirectory);
-            isDebugEnabled = LogLevel.Debug >= filterLevel;
-            isInfoEnabled = LogLevel.Info >= filterLevel;
-            isWarnEnabled = LogLevel.Warn >= filterLevel;
-            isErrorEnabled = LogLevel.Error >= filterLevel;
-            isFatalEnabled = LogLevel.Fatal >= filterLevel;
+            isDebugEnabled = filterLevel <= LogLevel.Debug;
+            isInfoEnabled = filterLevel <= LogLevel.Info;
+            isWarnEnabled = filterLevel <= LogLevel.Warn;
+            isErrorEnabled = filterLevel <= LogLevel.Error;
+            isFatalEnabled = filterLevel <= LogLevel.Fatal;
         }
 
         public ILog GetLogger(Type type)

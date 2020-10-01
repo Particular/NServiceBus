@@ -45,37 +45,37 @@ namespace NServiceBus
                 {
                     case 'y':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        year = year * 10 + (digit - '0');
+                        year = (year * 10) + (digit - '0');
                         break;
 
                     case 'M':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        month = month * 10 + (digit - '0');
+                        month = (month * 10) + (digit - '0');
                         break;
 
                     case 'd':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        day = day * 10 + (digit - '0');
+                        day = (day * 10) + (digit - '0');
                         break;
 
                     case 'H':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        hour = hour * 10 + (digit - '0');
+                        hour = (hour * 10) + (digit - '0');
                         break;
 
                     case 'm':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        minute = minute * 10 + (digit - '0');
+                        minute = (minute * 10) + (digit - '0');
                         break;
 
                     case 's':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        second = second * 10 + (digit - '0');
+                        second = (second * 10) + (digit - '0');
                         break;
 
                     case 'f':
                         if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
-                        microSecond = microSecond * 10 + (digit - '0');
+                        microSecond = (microSecond * 10) + (digit - '0');
                         break;
                 }
             }
@@ -85,7 +85,7 @@ namespace NServiceBus
 
         internal static int Microseconds(this DateTime self)
         {
-            return (int)Math.Floor(self.Ticks % TimeSpan.TicksPerMillisecond / (double)ticksPerMicrosecond);
+            return (int)Math.Floor((self.Ticks % TimeSpan.TicksPerMillisecond) / (double)ticksPerMicrosecond);
         }
 
         internal static DateTime AddMicroseconds(this DateTime self, int microseconds)

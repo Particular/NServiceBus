@@ -1,8 +1,4 @@
-﻿// ReSharper disable UnusedTypeParameter
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedParameter.Global
-
-#pragma warning disable 1591
+﻿#pragma warning disable 1591
 
 using System;
 

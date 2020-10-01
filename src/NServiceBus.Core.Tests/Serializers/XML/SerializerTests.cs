@@ -180,7 +180,8 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        [Test, Ignore("ArrayList is not supported")]
+        [Test]
+        [Ignore("ArrayList is not supported")]
         public void Should_deserialize_arrayList()
         {
             var expected = new ArrayList
@@ -194,7 +195,8 @@ namespace NServiceBus.Serializers.XML.Test
             CollectionAssert.AreEqual(expected, result.ArrayList);
         }
 
-        [Test, Ignore("Hashtable is not supported")]
+        [Test]
+        [Ignore("Hashtable is not supported")]
         public void Should_deserialize_hashtable()
         {
             var expected = new Hashtable
@@ -531,8 +533,12 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = XmlReader.Create(stream);
 
                 while (reader.Read())
+                {
                     if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "FirstName"))
+                    {
                         count++;
+                    }
+                }
             }
             Assert.AreEqual(count, 1);
         }
@@ -765,8 +771,12 @@ namespace NServiceBus.Serializers.XML.Test
             };
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var stream = new MemoryStream())
+                {
                     DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, stream);
+                }
+            }
 
             sw.Stop();
             Debug.WriteLine("serialization " + sw.Elapsed);
@@ -785,8 +795,12 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var reader = XmlReader.Create(new MemoryStream(buffer), xmlReaderSettings))
+                {
                     dataContractSerializer.ReadObject(reader);
+                }
+            }
 
             sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
@@ -1016,8 +1030,12 @@ namespace NServiceBus.Serializers.XML.Test
             watch.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var stream = new MemoryStream())
+                {
                     serializer.Serialize(message, stream);
+                }
+            }
 
             watch.Stop();
             Debug.WriteLine("Serializing: " + watch.Elapsed);
@@ -1083,7 +1101,8 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
 
-        [Test, Ignore("We're not supporting this type")]
+        [Test]
+        [Ignore("We're not supporting this type")]
         public void System_classes_with_non_default_constructors_should_be_supported()
         {
             var message = new MailMessage("from@gmail.com", "to@hotmail.com")
@@ -1101,7 +1120,8 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(message.BodyEncoding.EncoderFallback.MaxCharCount, result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount);
         }
 
-        [Test, Ignore("We're currently not supporting polymorphic properties")]
+        [Test]
+        [Ignore("We're currently not supporting polymorphic properties")]
         public void Messages_with_polymorphic_properties_should_be_supported()
         {
             var message = new PolyMessage
@@ -1174,7 +1194,6 @@ namespace NServiceBus.Serializers.XML.Test
         public void Object_property_with_primitive_or_struct_value_should_serialize_correctly()
         {
             // this fixes issue #2796
-
             var serializer = SerializerFactory.Create<SerializedPair>();
             var message = new SerializedPair
             {

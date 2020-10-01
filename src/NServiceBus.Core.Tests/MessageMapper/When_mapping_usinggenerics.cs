@@ -75,7 +75,8 @@ namespace MessageMapperTests
             string SomeProperty { get; set; }
         }
 
-        [Test,Ignore("Does not work.")]
+        [Test]
+        [Ignore("Does not work.")]
         public void Class_abstract_with_methods_should_not_be_mapped()
         {
             var mapper = new MessageMapper();

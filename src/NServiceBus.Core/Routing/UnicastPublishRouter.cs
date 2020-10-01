@@ -49,7 +49,7 @@ namespace NServiceBus
             Dictionary<string, List<string>> groups = null;
             foreach (var subscriber in subscribers)
             {
-                if(subscriber.Endpoint == null)
+                if (subscriber.Endpoint == null)
                 {
                     if (!addresses.ContainsKey(subscriber.TransportAddress))
                     {

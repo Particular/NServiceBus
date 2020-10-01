@@ -309,7 +309,6 @@
         {
             public IPipeline<TContext> Pipeline<TContext>()
                 where TContext : IBehaviorContext
-
             {
                 return (IPipeline<TContext>)new FakeBatchPipeline();
             }

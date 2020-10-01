@@ -203,7 +203,6 @@
             return cache.GetOrAdd(message.GetType(), messageType =>
             {
                 var properties = new List<DataBusPropertyInfo>();
-                // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var propertyInfo in messageType.GetProperties())
                 {
                     if (IsDataBusProperty(propertyInfo))

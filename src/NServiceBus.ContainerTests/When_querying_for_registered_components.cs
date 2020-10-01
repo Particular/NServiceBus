@@ -52,7 +52,6 @@ namespace NServiceBus.ContainerTests
 
         public class ExistingComponentWithUnsatisfiedDependency
         {
-            // ReSharper disable once UnusedParameter.Local
             public ExistingComponentWithUnsatisfiedDependency(NonExistingComponent dependency)
             {
 

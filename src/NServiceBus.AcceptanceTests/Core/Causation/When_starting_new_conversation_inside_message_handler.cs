@@ -74,11 +74,11 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
 
                 public Task Handle(AnyResponseMessage message, IMessageHandlerContext context)
                 {
-                    if(context.MessageHeaders.TryGetValue(Headers.ConversationId ,out var conversationId))
+                    if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
                     {
                         scenario.NewConversationId = conversationId;
                     }
-                    if(context.MessageHeaders.TryGetValue(Headers.PreviousConversationId, out var previousConversationId))
+                    if (context.MessageHeaders.TryGetValue(Headers.PreviousConversationId, out var previousConversationId))
                     {
                         scenario.PreviousConversationId = previousConversationId;
                     }

@@ -18,7 +18,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(errorContext), errorContext);
             Guard.AgainstNull(nameof(config), config);
-            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var unrecoverableExceptionType in config.Failed.UnrecoverableExceptionTypes)
             {
                 if (unrecoverableExceptionType.IsInstanceOfType(errorContext.Exception))
@@ -59,7 +58,7 @@ namespace NServiceBus
                 return false;
             }
 
-            delay = TimeSpan.FromTicks(config.TimeIncrease.Ticks*(delayedDeliveriesPerformed + 1));
+            delay = TimeSpan.FromTicks(config.TimeIncrease.Ticks * (delayedDeliveriesPerformed + 1));
 
             return true;
         }
@@ -86,10 +85,9 @@ namespace NServiceBus
                     return true;
                 }
             }
-                // ReSharper disable once EmptyGeneralCatchClause
-                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason
-                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being
-                // forwarded to the error queue.
+            // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason
+            // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being
+            // forwarded to the error queue.
             catch (Exception)
             {
             }

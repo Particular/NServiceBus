@@ -11,6 +11,7 @@ namespace NServiceBus.Routing
         /// Type of message.
         /// </summary>
         public Type MessageType { get; }
+
         /// <summary>
         /// Route for the message type.
         /// </summary>
