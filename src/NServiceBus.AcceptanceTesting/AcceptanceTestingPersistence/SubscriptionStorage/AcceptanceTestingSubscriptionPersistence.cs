@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
 {
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Used to configure in memory subscription persistence.
@@ -9,7 +10,9 @@
     {
         internal AcceptanceTestingSubscriptionPersistence()
         {
+#pragma warning disable CS0618
             DependsOn<MessageDrivenSubscriptions>();
+#pragma warning restore CS0618
         }
 
         /// <summary>
@@ -17,7 +20,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<AcceptanceTestingSubscriptionStorage>(DependencyLifecycle.SingleInstance);
+            context.Services.AddSingleton(_ => new AcceptanceTestingSubscriptionStorage());
         }
     }
 }

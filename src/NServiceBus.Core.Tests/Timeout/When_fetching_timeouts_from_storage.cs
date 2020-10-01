@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister;
     using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
@@ -10,12 +11,12 @@ namespace NServiceBus.Core.Tests.Timeout
     [TestFixture]
     public class When_fetching_timeouts_from_storage_with_inMemory
     {
-        InMemoryTimeoutPersister persister;
- 
+        AcceptanceTestingTimeoutPersister persister;
+
         [SetUp]
         public void Setup()
         {
-             persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            persister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
         }
 
         [Test]

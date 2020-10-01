@@ -2,6 +2,7 @@
 {
     using System;
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Used to configure in memory timeout persistence.
@@ -18,7 +19,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(_ => new InMemoryTimeoutPersister(() => DateTime.UtcNow), DependencyLifecycle.SingleInstance);
+            context.Services.AddSingleton(_ => new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow));
         }
     }
 }

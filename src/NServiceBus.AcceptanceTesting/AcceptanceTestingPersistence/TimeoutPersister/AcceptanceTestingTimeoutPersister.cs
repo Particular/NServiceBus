@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPers
     using Extensibility;
     using Timeout.Core;
 
-    class AcceptanceTestingTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
+    public class AcceptanceTestingTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
         public AcceptanceTestingTimeoutPersister(Func<DateTime> currentTimeProvider)
         {

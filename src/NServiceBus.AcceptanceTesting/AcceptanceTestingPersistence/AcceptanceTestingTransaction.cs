@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
     using System;
     using System.Collections.Generic;
 
-    class AcceptanceTestingTransaction
+    public class AcceptanceTestingTransaction
     {
         public void Enlist(Action action)
         {

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System.Threading.Tasks;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
     using Outbox;
     using NServiceBus.Transport;
     using NUnit.Framework;
@@ -12,7 +13,7 @@
         [Test]
         public void Should_throw_when_there_are_no_registered_message_handlers()
         {
-            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new InMemorySynchronizedStorage(), new InMemoryTransactionalSynchronizedStorageAdapter());
+            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new AcceptanceTestingSynchronizedStorage(), new AcceptanceTestingTransactionalSynchronizedStorageAdapter());
 
             var context = new TestableIncomingLogicalMessageContext();
 

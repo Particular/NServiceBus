@@ -24,7 +24,8 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var outboxStorage = new AcceptanceTestingOutboxStorage();
-            context.Container.AddSingleton(typeof(IOutboxStorage), outboxStorage);
+
+            context.Services.AddSingleton(typeof(IOutboxStorage), outboxStorage);
 
             var timeSpan = context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries);
 

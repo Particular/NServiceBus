@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
 {
     using Features;
+    using Microsoft.Extensions.DependencyInjection;
 
     class AcceptanceTestingTransactionalStorageFeature : Feature
     {
@@ -9,8 +10,8 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<AcceptanceTestingSynchronizedStorage>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<AcceptanceTestingTransactionalSynchronizedStorageAdapter>(DependencyLifecycle.SingleInstance);
+            context.Services.AddSingleton(_ => new AcceptanceTestingSynchronizedStorage());
+            context.Services.AddSingleton(_ => new AcceptanceTestingTransactionalSynchronizedStorageAdapter());
         }
     }
 }

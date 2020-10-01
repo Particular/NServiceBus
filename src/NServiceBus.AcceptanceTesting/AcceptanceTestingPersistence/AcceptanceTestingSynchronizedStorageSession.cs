@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
     using Persistence;
 
     [SkipWeaving]
-    class AcceptanceTestingSynchronizedStorageSession : CompletableSynchronizedStorageSession
+    public class AcceptanceTestingSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
         public AcceptanceTestingSynchronizedStorageSession(AcceptanceTestingTransaction transaction)
         {

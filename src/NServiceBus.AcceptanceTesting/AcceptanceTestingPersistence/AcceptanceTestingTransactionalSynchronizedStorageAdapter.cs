@@ -9,7 +9,7 @@ namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
     using Persistence;
     using Transport;
 
-    class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
+    public class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {

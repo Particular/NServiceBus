@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
     using NServiceBus.Persistence;
     using NUnit.Framework;
 
@@ -13,7 +14,7 @@
         public void Should_use_all_storages_supported_by_persistence()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
+            config.UsePersistence<AcceptanceTestingPersistence>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
@@ -29,7 +30,7 @@
         public void Should_replace_default_storages_by_overrides()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
+            config.UsePersistence<AcceptanceTestingPersistence>();
             config.UsePersistence<FakePersistence, StorageType.Sagas>();
             config.UsePersistence<FakePersistence, StorageType.Subscriptions>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
@@ -37,7 +38,7 @@
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-                new List<Type> { typeof(StorageType.Subscriptions)}));
+                new List<Type> { typeof(StorageType.Subscriptions) }));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
                 new List<Type> { typeof(StorageType.Sagas) }));
             Assert.That(resultedEnabledPersistences[2].SelectedStorages, Is.EquivalentTo(
@@ -68,7 +69,7 @@
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
-}
+        }
 
         class FakePersistence : PersistenceDefinition
         {
