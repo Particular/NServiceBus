@@ -55,7 +55,6 @@
         {
             var nextRetrieval = poller.NextRetrieval;
             var timeout1 = nextRetrieval.Subtract(HalfOfDefaultInMemoryPersisterSleep);
-            // ReSharper disable once PossibleLossOfFraction
             var timeout2 = timeout1.Add(TimeSpan.FromMilliseconds(HalfOfDefaultInMemoryPersisterSleep.Milliseconds / 2));
 
             await RegisterNewTimeoutAsync(timeout1);
@@ -120,7 +119,6 @@
         FakeBreaker breaker;
         RecordingFakeDispatcher dispatcher;
         DateTime currentTime = DateTime.UtcNow;
-        // ReSharper disable once PossibleLossOfFraction
         TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(AcceptanceTestingTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds / 2);
         ExpiredTimeoutsPoller poller;
         AcceptanceTestingTimeoutPersister timeouts;
