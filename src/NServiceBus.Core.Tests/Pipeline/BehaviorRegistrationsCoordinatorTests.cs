@@ -11,16 +11,16 @@
     class BehaviorRegistrationsCoordinatorTests
     {
         StepRegistrationsCoordinator coordinator;
-        List<RemoveStep> removals;
         List<ReplaceStep> replacements;
+        List<RegisterOrReplaceStep> addOrReplacements;
 
         [SetUp]
         public void Setup()
         {
-            removals = new List<RemoveStep>();
             replacements = new List<ReplaceStep>();
+            addOrReplacements = new List<RegisterOrReplaceStep>();
 
-            coordinator = new StepRegistrationsCoordinator(removals, replacements);
+            coordinator = new StepRegistrationsCoordinator(replacements, addOrReplacements);
         }
 
         [Test]
@@ -30,11 +30,9 @@
             coordinator.Register("2", typeof(FakeBehavior), "2");
             coordinator.Register("3", typeof(FakeBehavior), "3");
 
-            removals.Add(new RemoveStep("1"));
-
             var model = coordinator.BuildPipelineModelFor<IRootContext>();
 
-            Assert.AreEqual(2, model.Count);
+            Assert.AreEqual(3, model.Count);
         }
 
         [Test]
@@ -66,6 +64,32 @@
             Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
             Assert.AreEqual("new", model[0].Description);
             Assert.AreEqual("2", model[1].Description);
+        }
+
+        [Test]
+        public void Registrations_AddOrReplace_WhenDoesNotExist()
+        {
+            addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
+
+            var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+
+            Assert.AreEqual(1, model.Count);
+            Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
+            Assert.AreEqual("new", model[0].Description);
+        }
+
+        [Test]
+        public void Registrations_AddOrReplace_WhenExists()
+        {
+            coordinator.Register("1", typeof(FakeBehavior), "1");
+
+            addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
+
+            var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+
+            Assert.AreEqual(1, model.Count);
+            Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
+            Assert.AreEqual("new", model[0].Description);
         }
 
         [Test]

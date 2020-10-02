@@ -28,7 +28,7 @@ namespace NServiceBus
     {
         [ObsoleteEx(
             Message = "Use the externally managed container mode to integrate with third party dependency injection containers.",
-            RemoveInVersion = "9.0", 
+            RemoveInVersion = "9.0",
             TreatAsErrorFromVersion = "8.0")]
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
@@ -109,8 +109,8 @@ namespace NServiceBus.ObjectBuilder
     using Microsoft.Extensions.DependencyInjection;
 
     [ObsoleteEx(
-        ReplacementTypeOrMember = nameof(IServiceProvider), 
-        TreatAsErrorFromVersion = "8.0.0", 
+        ReplacementTypeOrMember = nameof(IServiceProvider),
+        TreatAsErrorFromVersion = "8.0.0",
         RemoveInVersion = "9.0.0")]
     public interface IBuilder : IDisposable
     {
@@ -353,6 +353,18 @@ namespace NServiceBus.Pipeline
         RemoveInVersion = "9")]
     public interface IForwardingContext : IBehaviorContext
     {
+    }
+
+    public partial class PipelineSettings
+    {
+        [ObsoleteEx(
+            Message = "Removing behaviors from the pipeline is discouraged, to disable a behavior replace the behavior by an empty one. Documentation: https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors ",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public void Remove(string stepId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -2,15 +2,14 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Pipeline;
 
     class StepRegistrationsCoordinator
     {
-        public StepRegistrationsCoordinator(List<RemoveStep> removals, List<ReplaceStep> replacements)
+        public StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
         {
-            this.removals = removals;
             this.replacements = replacements;
+            this.addOrReplaceSteps = addOrReplaceSteps;
         }
 
         public void Register(string pipelineStep, Type behavior, string description)
@@ -25,16 +24,12 @@ namespace NServiceBus
 
         public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
         {
-            var relevantRemovals = removals.Where(removal => additions.Any(a => a.StepId == removal.RemoveId)).ToList();
-            var relevantReplacements = replacements.Where(removal => additions.Any(a => a.StepId == removal.ReplaceId)).ToList();
-
-            var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, relevantRemovals, relevantReplacements);
-
+            var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, replacements, addOrReplaceSteps);
             return pipelineModelBuilder.Build();
         }
 
         List<RegisterStep> additions = new List<RegisterStep>();
-        List<RemoveStep> removals;
         List<ReplaceStep> replacements;
+        List<RegisterOrReplaceStep> addOrReplaceSteps;
     }
 }

@@ -7,7 +7,7 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// Manages the pipeline configuration.
     /// </summary>
-    public class PipelineSettings : ExposeSettings
+    public partial class PipelineSettings : ExposeSettings
     {
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
@@ -17,24 +17,12 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Removes the specified step from the pipeline.
-        /// </summary>
-        /// <param name="stepId">The identifier of the step to remove.</param>
-        public void Remove(string stepId)
-        {
-            // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
-            EnsureWriteEnabled(stepId, nameof(Remove));
-
-            modifications.Removals.Add(new RemoveStep(stepId));
-        }
-
-        /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
         /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
+        /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
         public void Replace(string stepId, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
@@ -50,6 +38,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
         /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
+        /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
         public void Replace<T>(string stepId, T newBehavior, string description = null)
             where T : IBehavior
         {
@@ -66,6 +55,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
         /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
         /// <param name="description">The description of the new behavior.</param>
+        /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
         public void Replace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
             where T : IBehavior
         {
@@ -77,10 +67,61 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
+        /// Registers a new step behavior or replaces the existing one with the same id with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void RegisterOrReplace(string stepId, Type behavior, string description = null)
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, nameof(Replace));
+            EnsureWriteEnabled(stepId, nameof(Register));
+
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, behavior, description));
+        }
+
+        /// <summary>
+        /// Registers a new step behavior or replaces the existing one with the same id with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void RegisterOrReplace<T>(string stepId, T behavior, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, nameof(Replace));
+            EnsureWriteEnabled(stepId, nameof(Register));
+
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, typeof(T), description,builder => behavior));
+        }
+
+        /// <summary>
+        /// Registers a new step behavior or replaces the existing one with the same id with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void RegisterOrReplace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            EnsureWriteEnabled(stepId, nameof(Replace));
+            EnsureWriteEnabled(stepId, nameof(Register));
+
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
+        }
+
+        /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
         /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register(Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
@@ -94,6 +135,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
@@ -110,6 +152,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register<T>(Func<IServiceProvider, T> factoryMethod, string description)
             where T : IBehavior
         {
@@ -124,6 +167,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description)
             where T : IBehavior
         {
@@ -141,6 +185,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         /// <param name="behavior">The behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register<T>(T behavior, string description)
             where T : IBehavior
         {
@@ -155,6 +200,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register<T>(string stepId, T behavior, string description)
             where T : IBehavior
         {
@@ -170,6 +216,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register<TRegisterStep>() where TRegisterStep : RegisterStep, new()
         {
             EnsureWriteEnabled(nameof(TRegisterStep), "register");
@@ -181,6 +228,7 @@ namespace NServiceBus.Pipeline
         /// Register a new step into the pipeline.
         /// </summary>
         /// <param name="registration">The step registration.</param>
+        /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
         public void Register(RegisterStep registration)
         {
             Guard.AgainstNull(nameof(registration), registration);

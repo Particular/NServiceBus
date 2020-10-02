@@ -1809,6 +1809,12 @@ namespace NServiceBus.Pipeline
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
+        public void RegisterOrReplace(string stepId, System.Type behavior, string description = null) { }
+        public void RegisterOrReplace<T>(string stepId, T behavior, string description = null)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        public void RegisterOrReplace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description = null)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        [System.ObsoleteAttribute(@"Removing behaviors from the pipeline is discouraged, to disable a behavior replace the behavior by an empty one. Documentation: https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public void Remove(string stepId) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)

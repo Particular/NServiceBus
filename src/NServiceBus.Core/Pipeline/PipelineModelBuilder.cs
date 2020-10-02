@@ -8,12 +8,12 @@ namespace NServiceBus
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceStep> replacements)
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
-            this.removals = removals;
             this.replacements = replacements;
+            this.addOrReplaceSteps = addOrReplaceSteps;
         }
 
         public List<RegisterStep> Build()
@@ -21,10 +21,18 @@ namespace NServiceBus
             var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
 
-            // Let's do some validation too
+            var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
+                .Select(x => x.RegisterStep)
+                .ToList();
+            var totalReplacements = addOrReplaceSteps.Where(addOrReplaceStep => additions.Any(addition => addition.StepId == addOrReplaceStep.StepId))
+                .Select(x => x.ReplaceStep)
+                .ToList();
+
+            totalAdditions.AddRange(additions);
+            totalReplacements.AddRange(replacements);
 
             //Step 1: validate that additions are unique
-            foreach (var metadata in additions)
+            foreach (var metadata in totalAdditions)
             {
                 if (!registrations.ContainsKey(metadata.StepId))
                 {
@@ -45,12 +53,21 @@ namespace NServiceBus
                 throw new Exception(message);
             }
 
-            //  Step 2: do replacements
-            foreach (var metadata in replacements)
+            //  Step 2: validate and apply replacements
+            var groupedReplacements = replacements.GroupBy(x => x.ReplaceId).ToList();
+            if (groupedReplacements.Any(x => x.Count() > 1))
+            {
+                var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Count() > 1).Select(x => $"'{x.Key}'");
+                var duplicateIdentifiersList = string.Join(", ", duplicateReplaceIdentifiers);
+                var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for: {duplicateIdentifiersList}.";
+                throw new Exception(message);
+            }
+
+            foreach (var metadata in totalReplacements)
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    var message = $"You can only replace an existing step registration, '{metadata.ReplaceId}' registration does not exist.";
+                    var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}'.";
                     throw new Exception(message);
                 }
 
@@ -58,29 +75,7 @@ namespace NServiceBus
                 registerStep.Replace(metadata);
             }
 
-            // Step 3: validate the removals
-            foreach (var metadata in removals.Distinct(idComparer))
-            {
-                if (!registrations.ContainsKey(metadata.RemoveId))
-                {
-                    var message = $"You cannot remove step registration with id '{metadata.RemoveId}', registration does not exist.";
-                    throw new Exception(message);
-                }
-
-                if (listOfBeforeAndAfterIds.Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase))
-                {
-                    var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
-                                                    (mr.Afters != null && mr.Afters.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
-
-                    var message = $"You cannot remove step registration with id '{metadata.RemoveId}', registration with id '{add.StepId}' depends on it.";
-                    throw new Exception(message);
-                }
-
-                registrations.Remove(metadata.RemoveId);
-            }
-
-            var stages = registrations.Values.GroupBy(r => r.GetInputContext())
-                .ToList();
+            var stages = registrations.Values.GroupBy(r => r.GetInputContext()).ToList();
 
             var finalOrder = new List<RegisterStep>();
 
@@ -245,8 +240,8 @@ namespace NServiceBus
         }
 
         List<RegisterStep> additions;
-        List<RemoveStep> removals;
         List<ReplaceStep> replacements;
+        List<RegisterOrReplaceStep> addOrReplaceSteps;
 
         Type rootContextType;
         static CaseInsensitiveIdComparer idComparer = new CaseInsensitiveIdComparer();

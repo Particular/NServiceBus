@@ -18,7 +18,6 @@ namespace NServiceBus.Core.Tests.Pipeline
             pipelineSettings.PreventChanges();
 
             Assert.Throws<InvalidOperationException>(() => pipelineSettings.Register(typeof(Behavior1), "newStep"));
-            Assert.Throws<InvalidOperationException>(() => pipelineSettings.Remove("newStep"));
             Assert.Throws<InvalidOperationException>(() => pipelineSettings.Replace("newStep", typeof(Behavior1)));
         }
 
