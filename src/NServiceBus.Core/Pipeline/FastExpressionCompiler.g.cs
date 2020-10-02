@@ -27,8 +27,6 @@ THE SOFTWARE.
  Public types made internal
 */
 
-// ReSharper disable CoVariantArrayConversion
-
 namespace FastExpressionCompiler
 {
     using System;
@@ -40,7 +38,6 @@ namespace FastExpressionCompiler
 
     /// <summary>Compiles expression to delegate ~20 times faster than Expression.Compile.
     /// Partial to extend with your things when used as source file.</summary>
-    // ReSharper disable once PartialTypeWithSinglePart
     static partial class ExpressionCompiler
     {
         #region Obsolete APIs
