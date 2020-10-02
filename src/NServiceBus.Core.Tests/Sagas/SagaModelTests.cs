@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;
+    using System.Diagnostics.PerformanceData;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus;
@@ -33,7 +34,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         {
             var model = GetModel(typeof(MySaga));
 
-            var metadata = model.FindByEntity(typeof(MySaga.MyEntity));
+            var metadata = model.FindByEntity(typeof(MyEntity));
 
 
             Assert.NotNull(metadata);
@@ -48,8 +49,8 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
             Assert.NotNull(metadata);
 
-            Assert.AreEqual(typeof(MySaga.MyEntity), metadata.SagaEntityType);
-            Assert.AreEqual(typeof(MySaga.MyEntity).FullName, metadata.EntityName);
+            Assert.AreEqual(typeof(MyEntity), metadata.SagaEntityType);
+            Assert.AreEqual(typeof(MyEntity).FullName, metadata.EntityName);
             Assert.AreEqual(typeof(MySaga), metadata.SagaType);
             Assert.AreEqual(typeof(MySaga).FullName, metadata.Name);
 
@@ -84,6 +85,17 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
         }
 
+
+        [Test]
+        public void ValidateIfSagaEntityIsShared()
+        {
+            var ex = Assert.Throws<Exception>(() => GetModel(typeof(MySaga), typeof(MySaga2)));
+
+            const string expectedExceptionMessage = "Best practice violation: Multiple saga types are sharing the same saga state which can result in persisters to physically share the same storage structure.\n\n- Entity 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaModelTests+MyEntity' used by saga types 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaModelTests+MySaga' and 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaModelTests+MySaga2'.";
+            
+            Assert.AreEqual(expectedExceptionMessage, ex.Message);
+        }
+
         class MyHeaderMappedSaga : Saga<MyHeaderMappedSaga.SagaData>, IAmStartedByMessages<Message1>
         {
             public Task Handle(Message1 message, IMessageHandlerContext context)
@@ -103,7 +115,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             }
         }
 
-        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
+        class MySaga : Saga<MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
         {
             public Task Handle(Message1 message, IMessageHandlerContext context)
             {
@@ -120,18 +132,41 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
                 mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
                 mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
+        }
+        public class MyEntity : ContainSagaData
+        {
+            public int UniqueProperty { get; set; }
+        }
 
-            public class MyEntity : ContainSagaData
+        public class MyEntity2 : MyEntity
+        {
+
+        }
+
+        class MySaga2 : Saga<MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
+        {
+            public Task Handle(Message1 message, IMessageHandlerContext context)
             {
-                public int UniqueProperty { get; set; }
+                throw new NotImplementedException();
+            }
+
+            public Task Handle(Message2 message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
+            {
+                mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+                mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
         }
 
-        abstract class AbstractSaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>
+        abstract class AbstractSaga : Saga<MyEntity>, IAmStartedByMessages<Message1>
         {
             public abstract Task Handle(Message1 message, IMessageHandlerContext context);
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga.MyEntity> mapper)
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
             }
         }
