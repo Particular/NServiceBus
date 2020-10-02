@@ -104,7 +104,7 @@
             Assert.AreEqual(1, unicastTransportOperations.Count);
         }
 
-        async Task RegisterNewTimeoutAsync(DateTime newTimeout, bool withNotification = true)
+        async Task RegisterNewTimeoutAsync(DateTimeOffset newTimeout, bool withNotification = true)
         {
             await timeouts.Add(new TimeoutData
             {
@@ -118,7 +118,7 @@
 
         FakeBreaker breaker;
         RecordingFakeDispatcher dispatcher;
-        DateTime currentTime = DateTime.UtcNow;
+        DateTimeOffset currentTime = DateTimeOffset.UtcNow;
         TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(FakeTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
         ExpiredTimeoutsPoller poller;
         FakeTimeoutPersister timeouts;

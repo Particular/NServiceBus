@@ -8,9 +8,9 @@ namespace NServiceBus
     {
         string timeoutManagerAddress;
         string ultimateDestination;
-        DateTime deliverAt;
+        DateTimeOffset deliverAt;
 
-        public TimeoutManagerRoutingStrategy(string timeoutManagerAddress, string ultimateDestination, DateTime deliverAt)
+        public TimeoutManagerRoutingStrategy(string timeoutManagerAddress, string ultimateDestination, DateTimeOffset deliverAt)
         {
             this.ultimateDestination = ultimateDestination;
             this.deliverAt = deliverAt;

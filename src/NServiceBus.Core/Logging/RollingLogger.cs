@@ -91,7 +91,7 @@ namespace NServiceBus
                 .Skip(numberOfArchiveFilesToKeep);
         }
 
-        internal static LogFile GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTime today)
+        internal static LogFile GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTimeOffset today)
         {
             return logFiles.Where(x => x.DatePart == today)
                 .OrderByDescending(x => x.SequenceNumber)
@@ -140,12 +140,12 @@ namespace NServiceBus
             return true;
         }
 
-        static bool TryParseDate(string datePart, out DateTime dateTime)
+        static bool TryParseDate(string datePart, out DateTimeOffset dateTime)
         {
-            return DateTime.TryParseExact(datePart, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
+            return DateTimeOffset.TryParseExact(datePart, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
         }
 
-        void CalculateNewFileName(List<LogFile> logFiles, DateTime today)
+        void CalculateNewFileName(List<LogFile> logFiles, DateTimeOffset today)
         {
             var logFile = GetTodaysNewest(logFiles, today);
             int sequenceNumber;
@@ -175,8 +175,8 @@ namespace NServiceBus
 
         protected string currentfilePath;
         long currentFileSize;
-        internal Func<DateTime> GetDate = () => DateTime.Now.Date;
-        DateTime lastWriteDate;
+        internal Func<DateTimeOffset> GetDate = () => DateTimeOffset.Now.Date;
+        DateTimeOffset lastWriteDate;
         long maxFileSize;
         int numberOfArchiveFilesToKeep;
         string targetDirectory;
@@ -184,7 +184,7 @@ namespace NServiceBus
 
         internal class LogFile
         {
-            public DateTime DatePart;
+            public DateTimeOffset DatePart;
             public string Path;
             public int SequenceNumber;
         }

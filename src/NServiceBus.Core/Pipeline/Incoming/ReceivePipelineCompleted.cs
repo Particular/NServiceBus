@@ -11,7 +11,7 @@ namespace NServiceBus
         /// <summary>
         /// Constructs the event.
         /// </summary>
-        public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTime startedAt, DateTime completedAt)
+        public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTimeOffset startedAt, DateTimeOffset completedAt)
         {
             Guard.AgainstNull(nameof(processedMessage), processedMessage);
             Guard.AgainstNull(nameof(startedAt), startedAt);
@@ -30,11 +30,11 @@ namespace NServiceBus
         /// <summary>
         /// Time when the receive pipeline started.
         /// </summary>
-        public DateTime StartedAt { get; }
+        public DateTimeOffset StartedAt { get; }
 
         /// <summary>
         /// Time when the receive pipeline completed.
         /// </summary>
-        public DateTime CompletedAt { get; }
+        public DateTimeOffset CompletedAt { get; }
     }
 }

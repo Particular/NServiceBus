@@ -58,11 +58,11 @@ namespace NServiceBus
                 timeToBeReceived = MaxMessageTimeToLive;
             }
 
-            var keepMessageUntil = DateTime.MaxValue;
+            var keepMessageUntil = DateTimeOffset.MaxValue;
 
             if (timeToBeReceived < TimeSpan.MaxValue)
             {
-                keepMessageUntil = DateTime.Now + timeToBeReceived;
+                keepMessageUntil = DateTimeOffset.Now + timeToBeReceived;
             }
 
             return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_HH"), Guid.NewGuid().ToString());

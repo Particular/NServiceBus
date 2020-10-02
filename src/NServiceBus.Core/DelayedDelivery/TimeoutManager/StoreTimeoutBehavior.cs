@@ -58,7 +58,7 @@ namespace NServiceBus
                     OwningTimeoutManager = owningTimeoutManager
                 };
 
-                if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
+                if (data.Time.AddSeconds(-1) <= DateTimeOffset.UtcNow)
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));

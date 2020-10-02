@@ -23,7 +23,7 @@
             message.Headers[Headers.DelayedRetries] = currentDelayedRetry.ToString();
         }
 
-        public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTime timestamp)
+        public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTimeOffset timestamp)
         {
             message.Headers[Headers.DelayedRetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(timestamp);
         }

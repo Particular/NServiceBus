@@ -17,7 +17,7 @@ namespace NServiceBus
 
             if (!message.Headers.ContainsKey(Headers.TimeSent))
             {
-                message.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                message.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow);
             }
             return next(context);
         }

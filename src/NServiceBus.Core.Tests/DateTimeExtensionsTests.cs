@@ -22,7 +22,7 @@
         {
             var date = DateTime.UtcNow;
             var dateString = DateTimeExtensions.ToWireFormattedString(date);
-            var result = DateTimeExtensions.ToUtcDateTime(dateString);
+            var result = DateTimeExtensions.ToUtcDateTime(dateString).UtcDateTime;
 
             Assert.AreEqual(date.Year, result.Year);
             Assert.AreEqual(date.Month, result.Month);
@@ -39,7 +39,7 @@
         {
             var dateString = "2016-08-16 10:06:20:123456 Z";
             var date = DateTime.ParseExact(dateString, "yyyy-MM-dd HH:mm:ss:ffffff Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
-            var result = DateTimeExtensions.ToUtcDateTime(dateString);
+            var result = DateTimeExtensions.ToUtcDateTime(dateString).UtcDateTime;
 
             Assert.AreEqual(date.Year, result.Year);
             Assert.AreEqual(date.Month, result.Month);

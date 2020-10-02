@@ -16,7 +16,7 @@
 
             var messageHandler = context.MessageHandler;
 
-            var startTime = DateTime.UtcNow;
+            var startTime = DateTimeOffset.UtcNow;
             try
             {
                 await messageHandler
@@ -29,7 +29,7 @@
                 e.Data["Message type"] = context.MessageMetadata.MessageType.FullName;
                 e.Data["Handler type"] = context.MessageHandler.HandlerType.FullName;
                 e.Data["Handler start time"] = DateTimeExtensions.ToWireFormattedString(startTime);
-                e.Data["Handler failure time"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                e.Data["Handler failure time"] = DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow);
                 throw;
             }
         }

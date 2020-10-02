@@ -76,7 +76,7 @@ namespace NServiceBus
             await AsyncFile.WriteBytes(bodyPath, message.Body)
                 .ConfigureAwait(false);
 
-            DateTime? timeToDeliver = null;
+            DateTimeOffset? timeToDeliver = null;
 
             if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
             {
@@ -84,7 +84,7 @@ namespace NServiceBus
             }
             else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
             {
-                timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
+                timeToDeliver = DateTimeOffset.UtcNow + delayDeliveryWith.Delay;
             }
 
             if (timeToDeliver.HasValue)

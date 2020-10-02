@@ -31,7 +31,7 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// The time at which the timeout expires.
         /// </summary>
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
 
         /// <summary>
         /// The timeout manager that owns this particular timeout.

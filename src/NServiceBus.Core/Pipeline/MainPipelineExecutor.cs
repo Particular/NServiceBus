@@ -19,7 +19,7 @@ namespace NServiceBus
 
         public async Task Invoke(MessageContext messageContext)
         {
-            var pipelineStartedAt = DateTime.UtcNow;
+            var pipelineStartedAt = DateTimeOffset.UtcNow;
 
             using (var childScope = rootBuilder.CreateScope())
             {
@@ -45,7 +45,7 @@ namespace NServiceBus
                     throw;
                 }
 
-                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
+                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow)).ConfigureAwait(false);
             }
         }
 

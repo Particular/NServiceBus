@@ -9,18 +9,18 @@ namespace NServiceBus
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Converts the <see cref="DateTime" /> to a <see cref="string" /> suitable for transport over the wire.
+        /// Converts the <see cref="DateTimeOffset" /> to a <see cref="string" /> suitable for transport over the wire.
         /// </summary>
-        public static string ToWireFormattedString(DateTime dateTime)
+        public static string ToWireFormattedString(DateTimeOffset dateTime)
         {
             return dateTime.ToUniversalTime().ToString(format, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
         /// Converts a wire formatted <see cref="string" /> from <see cref="ToWireFormattedString" /> to a UTC
-        /// <see cref="DateTime" />.
+        /// <see cref="DateTimeOffset" />.
         /// </summary>
-        public static DateTime ToUtcDateTime(string wireFormattedString)
+        public static DateTimeOffset ToUtcDateTime(string wireFormattedString)
         {
             Guard.AgainstNullAndEmpty(nameof(wireFormattedString), wireFormattedString);
 
@@ -80,7 +80,8 @@ namespace NServiceBus
                 }
             }
 
-            return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc).AddMicroseconds(microSecond);
+            var timestamp = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc).AddMicroseconds(microSecond);
+            return new DateTimeOffset(timestamp);
         }
 
         internal static int Microseconds(this DateTime self)

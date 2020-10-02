@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         {
             var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage), new List<Type>(), new Conventions()));
 
-            StringAssert.Contains("DateTime is not supported for correlated properties", ex.Message);
+            StringAssert.Contains("DateTimeOffset or DateTime is not supported for correlated properties", ex.Message);
         }
 
         class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IAmStartedByMessages<Message1>

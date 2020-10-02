@@ -9,12 +9,12 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class ActiveSagaInstance
     {
-        readonly Func<DateTime> currentUtcDateTimeProvider;
+        readonly Func<DateTimeOffset> currentUtcDateTimeProvider;
 
         /// <summary>
         /// Creates a new <see cref="ActiveSagaInstance"/> instance.
         /// </summary>
-        public ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTime> currentUtcDateTimeProvider)
+        public ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTimeOffset> currentUtcDateTimeProvider)
         {
             this.currentUtcDateTimeProvider = currentUtcDateTimeProvider;
             Instance = saga;
@@ -52,12 +52,12 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// UTC timestamp of when the active saga instance was created.
         /// </summary>
-        public DateTime Created { get; }
+        public DateTimeOffset Created { get; }
 
         /// <summary>
         /// UTC timestamp of when the active saga instance was last modified.
         /// </summary>
-        public DateTime Modified { get; private set; }
+        public DateTimeOffset Modified { get; private set; }
 
 
         internal bool TryGetCorrelationProperty(out CorrelationPropertyInfo sagaCorrelationProperty)

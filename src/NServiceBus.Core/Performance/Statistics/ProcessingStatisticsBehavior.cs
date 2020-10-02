@@ -17,7 +17,7 @@
                 state.TimeSent = DateTimeExtensions.ToUtcDateTime(timeSentString);
             }
 
-            state.ProcessingStarted = DateTime.UtcNow;
+            state.ProcessingStarted = DateTimeOffset.UtcNow;
             context.Extensions.Set(state);
             var stopwatch = Stopwatch.StartNew();
             try
@@ -33,9 +33,9 @@
 
         public class State
         {
-            public DateTime? TimeSent { get; set; }
-            public DateTime ProcessingStarted { get; set; }
-            public DateTime ProcessingEnded { get; set; }
+            public DateTimeOffset? TimeSent { get; set; }
+            public DateTimeOffset ProcessingStarted { get; set; }
+            public DateTimeOffset ProcessingEnded { get; set; }
         }
     }
 }
