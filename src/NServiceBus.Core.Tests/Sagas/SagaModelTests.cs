@@ -85,14 +85,15 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
         }
 
-
         [Test]
         public void ValidateIfSagaEntityIsShared()
         {
-            var ex = Assert.Throws<Exception>(() => GetModel(typeof(MySaga), typeof(MySaga2)));
+            var model = GetModel(typeof(MySaga), typeof(MySaga2));
+
+            var ex = Assert.Throws<Exception>(() => model.VerifyIfEntitiesAreShared());
 
             const string expectedExceptionMessage = "Best practice violation: Multiple saga types are sharing the same saga state which can result in persisters to physically share the same storage structure.\n\n- Entity 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaModelTests+MyEntity' used by saga types 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaModelTests+MySaga' and 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaModelTests+MySaga2'.";
-            
+
             Assert.AreEqual(expectedExceptionMessage, ex.Message);
         }
 

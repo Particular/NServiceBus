@@ -48,6 +48,13 @@
             var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
             sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
 
+            var verifyIfEntitiesAreShared = !context.Settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
+
+            if (verifyIfEntitiesAreShared)
+            {
+                sagaMetaModel.VerifyIfEntitiesAreShared();
+            }
+
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
 
             foreach (var t in context.Settings.GetAvailableTypes())
