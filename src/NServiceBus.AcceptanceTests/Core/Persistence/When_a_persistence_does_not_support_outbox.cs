@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_a_persistence_does_not_support_outbox : NServiceBusAcceptanceTest
     {
@@ -24,10 +25,10 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                    
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Timeouts>();
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
+
                     c.EnableOutbox();
                 });
             }

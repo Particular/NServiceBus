@@ -8,6 +8,7 @@
     using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     [TestFixture]
     public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
@@ -37,7 +38,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     //use InMemoryPersistence as custom finder support is required
-                    c.UsePersistence<InMemoryPersistence>();
+                    c.UsePersistence<AcceptanceTestingPersistence>();
                 });
             }
 

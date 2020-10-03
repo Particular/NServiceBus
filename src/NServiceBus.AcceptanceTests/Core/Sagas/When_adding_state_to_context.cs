@@ -10,6 +10,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     [TestFixture]
     public class When_adding_state_to_context : NServiceBusAcceptanceTest
@@ -40,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 EndpointSetup<DefaultServer>(c =>
                 {
                     //use InMemoryPersistence as custom finder support is required
-                    c.UsePersistence<InMemoryPersistence>();
+                    c.UsePersistence<AcceptanceTestingPersistence>();
                     c.Pipeline.Register(new BehaviorWhichAddsThingsToTheContext(), "adds some data to the context");
                 });
             }

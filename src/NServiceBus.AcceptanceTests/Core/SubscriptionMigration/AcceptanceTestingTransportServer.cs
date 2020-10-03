@@ -38,7 +38,7 @@
 
             configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
-            var persistenceConfiguration = new ConfigureEndpointInMemoryPersistence();
+            var persistenceConfiguration = new ConfigureEndpointLearningPersistence();
             await persistenceConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
 

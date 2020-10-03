@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_a_persistence_does_not_support_timeouts : NServiceBusAcceptanceTest
     {
@@ -27,9 +28,9 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Outbox>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
 
                     c.EnableFeature<TimeoutManager>();
                 });

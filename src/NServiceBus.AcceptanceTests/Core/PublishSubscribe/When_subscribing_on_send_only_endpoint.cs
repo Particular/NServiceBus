@@ -48,7 +48,7 @@
                 var template = new DefaultServer
                 {
                     TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true),
-                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                    PersistenceConfiguration = new ConfigureEndpointLearningPersistence()
                 };
 
                 EndpointSetup(template, (configuration, _) => configuration.SendOnly());

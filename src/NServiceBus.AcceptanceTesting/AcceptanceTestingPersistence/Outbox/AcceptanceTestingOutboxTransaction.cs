@@ -6,7 +6,7 @@
     using NServiceBus.Outbox;
 
     [SkipWeaving]
-    class AcceptanceTestingOutboxTransaction : OutboxTransaction
+    public class AcceptanceTestingOutboxTransaction : OutboxTransaction
     {
         public AcceptanceTestingOutboxTransaction()
         {
