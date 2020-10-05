@@ -33,7 +33,7 @@
         /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to register the types in.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IServiceCollection.Add",
+            Message = "'ServiceCollectionExtensions.ConfigureComponent<T>(IServiceCollection, DependencyLifecycle)' is obsolete: 'Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton` or `IServiceCollection.AddTransient` instead.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, DependencyLifecycle dependencyLifecycle)
@@ -49,7 +49,7 @@
         /// <param name="componentFactory">Factory method that returns the given type.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IServiceCollection.Add",
+            Message = "'ServiceCollectionExtensions.ConfigureComponent<T>(IServiceCollection, Func<T>, DependencyLifecycle)' is obsolete: 'Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton` or `IServiceCollection.AddTransient` instead.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
@@ -61,7 +61,7 @@
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IServiceCollection.Add",
+            Message = "'ServiceCollectionExtensions.ConfigureComponent<T>(IServiceCollection, Func<IServiceProvider, T>, DependencyLifecycle)' is obsolete: 'Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton` or `IServiceCollection.AddTransient` instead.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<IServiceProvider, T> componentFactory, DependencyLifecycle dependencyLifecycle)
@@ -77,7 +77,7 @@
         /// for the given type.
         /// </summary>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IServiceCollection.AddSingleton",
+            Message = "'ServiceCollectionExtensions.ConfigureComponent<T>(IServiceCollection, Type, object)' is obsolete: 'Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton` or `IServiceCollection.AddTransient` instead.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void RegisterSingleton(this IServiceCollection serviceCollection, Type lookupType, object instance)
@@ -90,8 +90,8 @@
         /// for the given type.
         /// </summary>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IServiceCollection.AddSingleton", 
-            TreatAsErrorFromVersion = "9.0", 
+            ReplacementTypeOrMember = "IServiceCollection.AddSingleton",
+            TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void RegisterSingleton<T>(this IServiceCollection serviceCollection, T instance)
         {
