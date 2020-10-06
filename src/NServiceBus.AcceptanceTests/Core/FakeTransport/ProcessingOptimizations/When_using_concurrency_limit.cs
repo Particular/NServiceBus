@@ -97,7 +97,6 @@
         {
             public override IEnumerable<Type> DeliveryConstraints { get; } = Enumerable.Empty<Type>();
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
-            public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
             public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
             {

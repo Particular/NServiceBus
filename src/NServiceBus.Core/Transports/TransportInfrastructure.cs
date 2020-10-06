@@ -21,11 +21,6 @@ namespace NServiceBus.Transport
         public abstract TransportTransactionMode TransactionMode { get; }
 
         /// <summary>
-        /// Returns the outbound routing policy selected for the transport.
-        /// </summary>
-        public abstract OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-
-        /// <summary>
         /// Gets the factories to receive message.
         /// </summary>
         public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure();

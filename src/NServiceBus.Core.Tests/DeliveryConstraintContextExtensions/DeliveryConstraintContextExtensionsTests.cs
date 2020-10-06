@@ -82,8 +82,6 @@
             public override IEnumerable<Type> DeliveryConstraints { get; } = new[] { typeof(DelayDeliveryWith) };
 
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
-
-            public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
         }
     }
 }

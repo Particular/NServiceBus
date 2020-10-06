@@ -39,8 +39,6 @@
 
         public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
 
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
-
         static string FindStoragePath()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;

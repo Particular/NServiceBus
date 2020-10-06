@@ -35,8 +35,6 @@
             }
         }
 
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
-
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
         {
             return instance;

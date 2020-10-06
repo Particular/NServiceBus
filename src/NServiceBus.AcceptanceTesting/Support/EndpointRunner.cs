@@ -59,8 +59,7 @@
 
                 startable = await createCallback(endpointConfiguration).ConfigureAwait(false);
 
-                var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
-                scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
+                scenarioContext.HasNativePubSubSupport = true;
             }
             catch (Exception ex)
             {

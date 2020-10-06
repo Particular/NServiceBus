@@ -35,14 +35,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Disables the ability to publish events. This removes the need to provide a subscription storage option. The endpoint can still subscribe to events but isn't allowed to publish its events.
-        /// </summary>
-        public static void DisablePublishing<T>(this TransportExtensions<T> transportExtensions) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
-        {
-            transportExtensions.Settings.Set(MessageDrivenSubscriptions.EnablePublishingSettingsKey, false);
-        }
-
-        /// <summary>
         /// Registers a publisher endpoint for a given event type.
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>

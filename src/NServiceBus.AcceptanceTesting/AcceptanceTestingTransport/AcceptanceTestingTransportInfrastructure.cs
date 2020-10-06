@@ -51,11 +51,6 @@
 
         public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
 
-        public override OutboundRoutingPolicy OutboundRoutingPolicy => new OutboundRoutingPolicy(
-            OutboundRoutingType.Unicast,
-            nativePubSub ? OutboundRoutingType.Multicast : OutboundRoutingType.Unicast,
-            OutboundRoutingType.Unicast);
-
         string FindSolutionRoot()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;
