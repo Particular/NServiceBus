@@ -28,7 +28,7 @@ namespace NServiceBus
     {
         [ObsoleteEx(
             Message = "Use the externally managed container mode to integrate with third party dependency injection containers.",
-            RemoveInVersion = "9.0",
+            RemoveInVersion = "9.0", 
             TreatAsErrorFromVersion = "8.0")]
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
@@ -62,6 +62,22 @@ namespace NServiceBus
             Message = "Not intended for public usage.")]
         public const string HeaderName = "Header";
     }
+
+    [ObsoleteEx(
+        Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
+    public static class InMemoryGatewayPersistenceConfigurationExtensions
+    {
+        [ObsoleteEx(
+            Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
+        public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<InMemoryPersistence> persistenceExtensions, int maxSize)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace NServiceBus.Container
@@ -93,8 +109,8 @@ namespace NServiceBus.ObjectBuilder
     using Microsoft.Extensions.DependencyInjection;
 
     [ObsoleteEx(
-        ReplacementTypeOrMember = nameof(IServiceProvider),
-        TreatAsErrorFromVersion = "8.0.0",
+        ReplacementTypeOrMember = nameof(IServiceProvider), 
+        TreatAsErrorFromVersion = "8.0.0", 
         RemoveInVersion = "9.0.0")]
     public interface IBuilder : IDisposable
     {

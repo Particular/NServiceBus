@@ -6,7 +6,6 @@
     using NServiceBus.Transport;
     using NUnit.Framework;
     using Testing;
-    using NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox;
 
     [TestFixture]
     public class LoadHandlersBehaviorTests
@@ -18,7 +17,7 @@
 
             var context = new TestableIncomingLogicalMessageContext();
 
-            context.Extensions.Set<OutboxTransaction>(new AcceptanceTestingOutboxTransaction());
+            context.Extensions.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
             context.Extensions.Set(new TransportTransaction());
 
             Assert.That(async () => await behavior.Invoke(context, c => Task.CompletedTask), Throws.InvalidOperationException);

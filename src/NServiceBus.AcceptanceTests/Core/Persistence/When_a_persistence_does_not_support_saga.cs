@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTest
     {
@@ -27,9 +26,9 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Timeouts>();
-                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
-                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
+                    c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
+                    c.UsePersistence<InMemoryPersistence, StorageType.Outbox>();
+                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
                 });
             }
         }

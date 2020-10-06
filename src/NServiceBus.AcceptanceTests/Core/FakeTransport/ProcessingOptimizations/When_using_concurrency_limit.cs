@@ -33,7 +33,7 @@
             {
                 var template = new DefaultServer
                 {
-                    PersistenceConfiguration = new ConfigureEndpointLearningPersistence()
+                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
                 };
 
                 EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport<FakeTransport>());

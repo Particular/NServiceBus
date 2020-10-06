@@ -30,13 +30,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\GitVersion.yml = ..\GitVersion.yml
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Persistence.InMemory.AcceptanceTests", "NServiceBus.Persistence.InMemory.AcceptanceTests\NServiceBus.Persistence.InMemory.AcceptanceTests.csproj", "{F853BBB7-27D0-4750-95B5-67542DC482BF}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer", "NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj", "{A5C32904-ECEC-492B-8217-8BFB5CC1443C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer.Tests", "NServiceBus.Core.Analyzer.Tests\NServiceBus.Core.Analyzer.Tests.csproj", "{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzer", "Analyzer", "{6CF85707-290E-4FA1-8444-25D29B6A6BA8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.PersistenceTesting", "NServiceBus.PersistenceTesting\NServiceBus.PersistenceTesting.csproj", "{157D1894-BAE7-45B2-9906-0445B38F3A97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PersistenceTesting", "NServiceBus.PersistenceTesting\NServiceBus.PersistenceTesting.csproj", "{157D1894-BAE7-45B2-9906-0445B38F3A97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.InMemory.PersistenceTests", "NServiceBus.InMemory.PersistenceTests\NServiceBus.InMemory.PersistenceTests.csproj", "{4954B6B7-B881-4C8F-B153-93E17E53B37F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +76,10 @@ Global
 		{65578230-EF42-43A6-A943-624F2DF01E66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65578230-EF42-43A6-A943-624F2DF01E66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65578230-EF42-43A6-A943-624F2DF01E66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F853BBB7-27D0-4750-95B5-67542DC482BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F853BBB7-27D0-4750-95B5-67542DC482BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F853BBB7-27D0-4750-95B5-67542DC482BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F853BBB7-27D0-4750-95B5-67542DC482BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A5C32904-ECEC-492B-8217-8BFB5CC1443C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A5C32904-ECEC-492B-8217-8BFB5CC1443C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5C32904-ECEC-492B-8217-8BFB5CC1443C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -84,6 +92,10 @@ Global
 		{157D1894-BAE7-45B2-9906-0445B38F3A97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{157D1894-BAE7-45B2-9906-0445B38F3A97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{157D1894-BAE7-45B2-9906-0445B38F3A97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,8 +107,10 @@ Global
 		{EE97B7B8-63A8-4ECE-AE81-C4F5617830F2} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{82BB433F-96BB-43D1-98E4-EEDE437D70AE} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{65578230-EF42-43A6-A943-624F2DF01E66} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{F853BBB7-27D0-4750-95B5-67542DC482BF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{A5C32904-ECEC-492B-8217-8BFB5CC1443C} = {6CF85707-290E-4FA1-8444-25D29B6A6BA8}
 		{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{4954B6B7-B881-4C8F-B153-93E17E53B37F} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{157D1894-BAE7-45B2-9906-0445B38F3A97} = {F2D3D789-78D6-42B1-AB4B-DE241C298943}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
