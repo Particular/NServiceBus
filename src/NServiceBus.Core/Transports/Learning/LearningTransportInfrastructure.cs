@@ -11,22 +11,22 @@
     using Settings;
     using Transport;
 
+
     class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public LearningTransportInfrastructure(SettingsHolder settings)
+        public LearningTransportInfrastructure(TransportSettings settings, LearningTransport transportSettings)
         {
             this.settings = settings;
-            if (!settings.TryGet(StorageLocationKey, out storagePath))
+            this.transportSettings = transportSettings;
+
+            if (string.IsNullOrWhiteSpace(storagePath = transportSettings.StorageDirectory))
             {
                 storagePath = FindStoragePath();
             }
 
-            if (settings.TryGet<ReceiveComponent.Settings>(out var receiveSettings))
-            {
-                receiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
-            }
-
-            var errorQueueAddress = settings.ErrorQueueAddress();
+            //TODO: pass push runtime settings as part of the settings but provide information whether it is a core default value or a user provided value.
+            //settings.ReceiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
+            var errorQueueAddress = settings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
         }
 
@@ -77,7 +77,7 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            var maxPayloadSize = settings.GetOrDefault<bool>(NoPayloadSizeRestrictionKey) ? int.MaxValue / 1024 : 64; //64 kB is the max size of the ASQ transport
+            var maxPayloadSize = transportSettings.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
 
             return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
         }
@@ -86,10 +86,10 @@
         {
             return new TransportSubscriptionInfrastructure(() =>
             {
-                var endpointName = settings.EndpointName();
+                var endpointName = settings.EndpointName;
                 PathChecker.ThrowForBadPath(endpointName, "endpoint name");
 
-                var localAddress = settings.LocalAddress();
+                var localAddress = settings.LocalAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
                 return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
@@ -124,8 +124,9 @@
             return address;
         }
 
-        string storagePath;
-        SettingsHolder settings;
+        readonly string storagePath;
+        readonly TransportSettings settings;
+        private readonly LearningTransport transportSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
         public const string StorageLocationKey = "LearningTransport.StoragePath";

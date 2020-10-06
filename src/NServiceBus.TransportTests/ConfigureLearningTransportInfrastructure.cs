@@ -3,20 +3,23 @@ using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Settings;
+using NServiceBus.Transport;
 using NServiceBus.TransportTests;
 
 class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructure
 {
-    public TransportConfigurationResult Configure(SettingsHolder settings, TransportTransactionMode transactionMode)
+    public TransportConfigurationResult Configure(TransportSettings transportSettings)
     {
         storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
-        settings.Set("LearningTransport.StoragePath", storageDir);
 
-        var transportDefinition = new LearningTransport();
+        var transportDefinition = new LearningTransport
+        {
+            StorageDirectory = storageDir
+        };
 
         return new TransportConfigurationResult
         {
-            TransportInfrastructure = transportDefinition.Initialize(settings, ""),
+            TransportInfrastructure = transportDefinition.Initialize(transportSettings),
             PurgeInputQueueOnStartup = true
         };
     }

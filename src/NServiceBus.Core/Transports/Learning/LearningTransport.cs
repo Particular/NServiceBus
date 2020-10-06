@@ -8,6 +8,17 @@
     /// </summary>
     public class LearningTransport : TransportDefinition
     {
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool RestrictPayloadSize { get; set; } = true;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string StorageDirectory { get; set; }
+
         /// <summary>
         /// Used by implementations to control if a connection string is necessary.
         /// </summary>
@@ -24,13 +35,10 @@
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        /// <param name="settings">An instance of the current settings.</param>
-        /// <param name="connectionString">The connection string.</param>
-        /// <returns>The supported factories.</returns>
-        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public override TransportInfrastructure Initialize(TransportSettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return new LearningTransportInfrastructure(settings);
+            return new LearningTransportInfrastructure(settings, this);
         }
     }
 }

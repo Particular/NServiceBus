@@ -81,19 +81,26 @@
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
 
-            var endpointConfiguration = new EndpointConfiguration(InputQueueName);
-            endpointConfiguration.SendFailedMessagesTo(ErrorQueueName);
+#pragma warning disable SA1512
+            //var endpointConfiguration = new EndpointConfiguration(InputQueueName);
+            //endpointConfiguration.SendFailedMessagesTo(ErrorQueueName);
 
-            transportSettings = endpointConfiguration.GetSettings();
+            // Single-line comments should not be followed by blank line
+            //transportSettings = endpointConfiguration.GetSettings();
+#pragma warning restore SA1512 // Single-line comments should not be followed by blank line
 
-
-            var queueBindings = transportSettings.Get<QueueBindings>();
+            var queueBindings = new QueueBindings();
             queueBindings.BindReceiving(InputQueueName);
             queueBindings.BindSending(ErrorQueueName);
 
             Configurer = CreateConfigurer();
 
-            var configuration = Configurer.Configure(transportSettings, transactionMode);
+            var configuration = Configurer.Configure(new TransportSettings()
+            {
+                ErrorQueueAddress = ErrorQueueName,
+                LocalAddress = InputQueueName,
+                EndpointName = InputQueueName
+            });
 
             TransportInfrastructure = configuration.TransportInfrastructure;
 
@@ -255,8 +262,7 @@
 
         string testId;
 
-        List<Type> requiredDeliveryConstraints = new List<Type>();
-        SettingsHolder transportSettings;
+        readonly List<Type> requiredDeliveryConstraints = new List<Type>();
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;

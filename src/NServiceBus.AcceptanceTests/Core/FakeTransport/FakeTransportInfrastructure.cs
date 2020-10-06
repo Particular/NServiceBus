@@ -11,9 +11,10 @@
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {
-        public FakeTransportInfrastructure(ReadOnlySettings settings)
+        public FakeTransportInfrastructure(TransportSettings settings, FakeTransport fakeTransportSettings)
         {
             this.settings = settings;
+            this.fakeTransportSettings = fakeTransportSettings;
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -22,18 +23,8 @@
             typeof(DoNotDeliverBefore)
         };
 
-        public override TransportTransactionMode TransactionMode
-        {
-            get
-            {
-                if (settings.TryGet("FakeTransport.SupportedTransactionMode", out TransportTransactionMode supportedTransactionMode))
-                {
-                    return supportedTransactionMode;
-                }
-
-                return TransportTransactionMode.TransactionScope;
-            }
-        }
+        public override TransportTransactionMode TransactionMode => 
+            fakeTransportSettings.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
         {
@@ -47,57 +38,57 @@
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
+            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
 
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings),
-                () => new FakeQueueCreator(settings),
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(fakeTransportSettings),
+                () => new FakeQueueCreator(fakeTransportSettings),
                 () =>
                 {
-                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck");
+                    fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck");
                     return Task.FromResult(StartupCheckResult.Success);
                 });
         }
 
         public override Task Start()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Start)}");
+            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Start)}");
 
             return Task.FromResult(0);
 
         }
         public override async Task Stop()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Stop)}");
+            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Stop)}");
 
             await Task.Yield();
 
-            if (settings.GetOrDefault<bool>("FakeTransport.ThrowOnInfrastructureStop"))
+            if (fakeTransportSettings.ThrowOnInfrastructureStop)
             {
-                var exception = settings.GetOrDefault<Exception>();
-                throw exception;
+                throw fakeTransportSettings.ExceptionToThrow;
             }
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
+            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
 
             return new TransportSendInfrastructure(() => new FakeDispatcher(),
                 () =>
                 {
-                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
+                    fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
                     return Task.FromResult(StartupCheckResult.Success);
                 });
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
+            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
 
             return new TransportSubscriptionInfrastructure(()=> new FakeSubscriptionManager());
         }
 
-        ReadOnlySettings settings;
+        TransportSettings settings;
+        private readonly FakeTransport fakeTransportSettings;
 
         class FakeSubscriptionManager : IManageSubscriptions
         {

@@ -2,8 +2,5 @@
 {
     class EndpointWithNativePubSub : AcceptanceTestingTransportServer
     {
-        public EndpointWithNativePubSub() : base(true)
-        {
-        }
     }
 }

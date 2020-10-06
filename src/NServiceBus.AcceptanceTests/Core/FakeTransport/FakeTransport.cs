@@ -11,18 +11,30 @@
 
         public override string ExampleConnectionStringForErrorMessage => null;
 
-        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public TransportTransactionMode? SupportedTransactionMode { get; set; }
+
+        public List<string> StartUpSequence { get; } = new List<string>();
+
+        public bool ThrowOnInfrastructureStop { get; set; }
+
+        public bool RaiseCriticalErrorDuringStartup { get; set; }
+
+        public bool ThrowOnPumpStop { get; set; }
+
+        public Exception ExceptionToThrow { get; set; } = new Exception();
+
+        public Action<QueueBindings> OnQueueCreation { get; set; }
+
+        public override TransportInfrastructure Initialize(TransportSettings settings)
         {
-            settings.GetOrCreate<StartUpSequence>().Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
+            StartUpSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
-            if (settings.TryGet<Action<ReadOnlySettings>>("FakeTransport.AssertSettings", out var assertion))
-            {
-                assertion(settings);
-            }
+            //if (settings.TryGet<Action<ReadOnlySettings>>("FakeTransport.AssertSettings", out var assertion))
+            //{
+            //    assertion(settings);
+            //}
 
-            return new FakeTransportInfrastructure(settings);
+            return new FakeTransportInfrastructure(settings, this);
         }
-
-        public class StartUpSequence : List<string> { }
     }
 }

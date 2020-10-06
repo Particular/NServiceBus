@@ -8,46 +8,31 @@
     using DelayedDelivery;
     using Performance.TimeToBeReceived;
     using Routing;
-    using Settings;
     using Transport;
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     {
-        public AcceptanceTestingTransportInfrastructure(SettingsHolder settings)
+        public AcceptanceTestingTransportInfrastructure(TransportSettings settings,
+            AcceptanceTestingTransport acceptanceTestingTransport)
         {
             this.settings = settings;
 
-            if (!settings.TryGet(UseNativeDelayedDeliveryKey, out nativeDelayedDelivery))
-            {
-                nativeDelayedDelivery = true;
-            }
-
-            if (!settings.TryGet(UseNativePubSubKey, out nativePubSub))
-            {
-                nativePubSub = true;
-            }
-
-            if (!settings.TryGet(StorageLocationKey, out storagePath))
+            if (string.IsNullOrWhiteSpace(storagePath = acceptanceTestingTransport.StorageDirectory))
             {
                 var solutionRoot = FindSolutionRoot();
                 storagePath = Path.Combine(solutionRoot, ".attransport");
             }
 
-            var errorQueueAddress = settings.ErrorQueueAddress();
+            var errorQueueAddress = settings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
         }
 
-        public override IEnumerable<Type> DeliveryConstraints => nativeDelayedDelivery
-            ? new[]
-            {
-                typeof(DiscardIfNotReceivedBefore),
-                typeof(DelayDeliveryWith),
-                typeof(DoNotDeliverBefore)
-            }
-            : new[]
-            {
-                typeof(DiscardIfNotReceivedBefore)
-            };
+        public override IEnumerable<Type> DeliveryConstraints => new[]
+        {
+            typeof(DiscardIfNotReceivedBefore),
+            typeof(DelayDeliveryWith),
+            typeof(DoNotDeliverBefore)
+        };
 
         public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
 
@@ -86,17 +71,12 @@
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            if (!nativePubSub)
-            {
-                throw new NotSupportedException();
-            }
-
             return new TransportSubscriptionInfrastructure(() =>
             {
-                var endpointName = settings.EndpointName();
+                var endpointName = settings.EndpointName;
                 PathChecker.ThrowForBadPath(endpointName, "endpoint name");
 
-                var localAddress = settings.LocalAddress();
+                var localAddress = settings.LocalAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
                 return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
@@ -132,12 +112,8 @@
         }
 
         readonly string storagePath;
-        readonly SettingsHolder settings;
-        readonly bool nativePubSub;
-        readonly bool nativeDelayedDelivery;
+        readonly TransportSettings settings;
 
         public const string StorageLocationKey = "AcceptanceTestingTransport.StoragePath";
-        public const string UseNativePubSubKey = "AcceptanceTestingTransport.UseNativePubSub";
-        public const string UseNativeDelayedDeliveryKey = "AcceptanceTestingTransport.UseNativeDelayedDelivery";
     }
 }

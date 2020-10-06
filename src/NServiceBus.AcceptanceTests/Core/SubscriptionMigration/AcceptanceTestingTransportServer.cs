@@ -9,13 +9,6 @@
 
     class AcceptanceTestingTransportServer : IEndpointSetupTemplate
     {
-        readonly bool useNativePubSub;
-
-        public AcceptanceTestingTransportServer(bool useNativePubSub)
-        {
-            this.useNativePubSub = useNativePubSub;
-        }
-
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var types = endpointConfiguration.GetTypesScopedByTestClass();
@@ -32,7 +25,7 @@
             recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
             configuration.SendFailedMessagesTo("error");
 
-            var transportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(useNativePubSub, true);
+            var transportConfiguration = new ConfigureEndpointAcceptanceTestingTransport();
             await transportConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
 

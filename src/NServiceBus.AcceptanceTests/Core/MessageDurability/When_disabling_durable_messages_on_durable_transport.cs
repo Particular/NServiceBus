@@ -27,7 +27,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableDurableMessages();
-                    c.UseTransport<FakeTransport>();
+                    c.UseTransport(new FakeTransport());
                 });
             }
         }

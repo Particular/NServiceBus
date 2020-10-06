@@ -7,12 +7,6 @@ using NUnit.Framework;
 
 public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTestExecution
 {
-    public ConfigureEndpointAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery)
-    {
-        this.useNativePubSub = useNativePubSub;
-        this.useNativeDelayedDelivery = useNativeDelayedDelivery;
-    }
-
     public Task Cleanup()
     {
         if (Directory.Exists(storageDir))
@@ -41,29 +35,14 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
 
         storageDir = Path.Combine(tempDir, testRunId);
 
-        var transportConfig = configuration.UseTransport<AcceptanceTestingTransport>()
-            .StorageDirectory(storageDir)
-            .UseNativePubSub(useNativePubSub)
-            .UseNativeDelayedDelivery(useNativeDelayedDelivery);
-
-        if (!useNativePubSub)
+        var acceptanceTestingTransport = new AcceptanceTestingTransport()
         {
-            //apply publisher registrations required for message driven pub/sub
-            var routingConfig = transportConfig.Routing();
-            foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
-            {
-                foreach (var @event in publisherMetadataPublisher.Events)
-                {
-                    routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
-                }
-            }
-        }
+            StorageDirectory = storageDir
+        };
+        configuration.UseTransport(acceptanceTestingTransport);
 
         return Task.FromResult(0);
     }
-
-    readonly bool useNativePubSub;
-    readonly bool useNativeDelayedDelivery;
 
     string storageDir;
 }

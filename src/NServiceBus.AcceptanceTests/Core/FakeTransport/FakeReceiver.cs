@@ -2,24 +2,18 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System;
     using System.Threading.Tasks;
-    using Settings;
     using Transport;
 
     class FakeReceiver : IPushMessages
     {
-        public FakeReceiver(ReadOnlySettings settings)
+        public FakeReceiver(FakeTransport settings)
         {
             this.settings = settings;
-
-            throwCritical = settings.GetOrDefault<bool>("FakeTransport.ThrowCritical");
-            throwOnStop = settings.GetOrDefault<bool>("FakeTransport.ThrowOnPumpStop");
-
-            exceptionToThrow = settings.GetOrDefault<Exception>();
         }
 
         public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, PushSettings pushSettings)
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(IPushMessages)}.{nameof(Init)}");
+            settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Init)}");
 
             this.criticalError = criticalError;
             return Task.FromResult(0);
@@ -27,30 +21,27 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public void Start(PushRuntimeSettings limitations)
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(IPushMessages)}.{nameof(Start)}");
+            settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Start)}");
 
-            if (throwCritical)
+            if (settings.RaiseCriticalErrorDuringStartup)
             {
-                criticalError.Raise(exceptionToThrow.Message, exceptionToThrow);
+                criticalError.Raise(settings.ExceptionToThrow.Message, settings.ExceptionToThrow);
             }
         }
 
         public async Task Stop()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(IPushMessages)}.{nameof(Stop)}");
+            settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Stop)}");
 
             await Task.Yield();
 
-            if (throwOnStop)
+            if (settings.ThrowOnPumpStop)
             {
-                throw exceptionToThrow;
+                throw settings.ExceptionToThrow;
             }
         }
 
-        ReadOnlySettings settings;
+        FakeTransport settings;
         NServiceBus.CriticalError criticalError;
-        bool throwCritical;
-        bool throwOnStop;
-        Exception exceptionToThrow;
     }
 }

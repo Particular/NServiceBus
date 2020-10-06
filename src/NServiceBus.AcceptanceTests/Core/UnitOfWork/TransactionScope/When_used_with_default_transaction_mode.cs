@@ -16,7 +16,7 @@
                  .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
                  {
                      c.GetSettings().Set("FakeTransport.SupportedTransactionMode", TransportTransactionMode.ReceiveOnly);
-                     c.UseTransport<FakeTransport>();
+                     c.UseTransport(new FakeTransport());
                      c.UnitOfWork()
                          .WrapHandlersInATransactionScope();
                  }))

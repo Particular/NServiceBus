@@ -24,7 +24,7 @@
         {
             public EndpointUsingNonDurableMessage()
             {
-                EndpointSetup<DefaultServer>(c => c.UseTransport<FakeTransport>());
+                EndpointSetup<DefaultServer>(c => c.UseTransport(new FakeTransport()));
             }
         }
 

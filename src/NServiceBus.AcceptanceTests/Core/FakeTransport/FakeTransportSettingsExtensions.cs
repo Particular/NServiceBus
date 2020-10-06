@@ -38,13 +38,6 @@
             return transportExtensions;
         }
 
-        public static TransportExtensions<FakeTransport> CollectStartupSequence(this TransportExtensions<FakeTransport> transportExtensions, FakeTransport.StartUpSequence startUpSequence)
-        {
-            transportExtensions.GetSettings().Set(startUpSequence);
-
-            return transportExtensions;
-        }
-
         public static TransportExtensions<FakeTransport> AssertSettings(this TransportExtensions<FakeTransport> transportExtensions, Action<ReadOnlySettings> assertion)
         {
             transportExtensions.GetSettings().Set("FakeTransport.AssertSettings", assertion);

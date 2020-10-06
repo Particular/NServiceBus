@@ -1,3 +1,5 @@
+using NServiceBus.Transport;
+
 namespace NServiceBus.TransportTests
 {
     using System.Threading.Tasks;
@@ -12,10 +14,8 @@ namespace NServiceBus.TransportTests
         /// <summary>
         /// Gives the transport a chance to configure before the test starts.
         /// </summary>
-        /// <param name="settings">The settings to be passed into the infrastructure.</param>
-        /// <param name="transactionMode">Transaction mode for which transport seam should be configured.</param>
         /// <returns>Transport configuration result <see cref="TransportConfigurationResult"/></returns>
-        TransportConfigurationResult Configure(SettingsHolder settings, TransportTransactionMode transactionMode);
+        TransportConfigurationResult Configure(TransportSettings transportSettings);
 
         /// <summary>
         /// Gives the transport chance to clean up after the test is complete. Implementations of this class may store

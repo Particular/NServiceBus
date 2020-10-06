@@ -159,7 +159,7 @@
     {
         public override string ExampleConnectionStringForErrorMessage { get; }
 
-        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public override TransportInfrastructure Initialize(TransportSettings settings)
         {
             throw new NotImplementedException();
         }

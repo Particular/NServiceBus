@@ -36,7 +36,7 @@
                     PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
                 };
 
-                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport<FakeTransport>());
+                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport(new Core.FakeTransport.FakeTransport()));
             }
         }
 
@@ -87,7 +87,7 @@
 
             public override bool RequiresConnectionString => false;
 
-            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+            public override TransportInfrastructure Initialize(TransportSettings settings)
             {
                 return new FakeTransportInfrastructure();
             }

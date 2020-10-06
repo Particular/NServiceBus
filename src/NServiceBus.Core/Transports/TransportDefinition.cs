@@ -23,9 +23,28 @@ namespace NServiceBus.Transport
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        /// <param name="settings">An instance of the current settings.</param>
-        /// <param name="connectionString">The connection string.</param>
-        /// <returns>The supported factories.</returns>
-        public abstract TransportInfrastructure Initialize(SettingsHolder settings, string connectionString);
+        public abstract TransportInfrastructure Initialize(TransportSettings settings);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class TransportSettings
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ErrorQueueAddress { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string EndpointName { get; set; }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string LocalAddress { get; set; }
     }
 }

@@ -18,9 +18,7 @@
         public void Should_be_able_to_determine_if_delivery_constraint_is_supported()
         {
             var settings = new SettingsHolder();
-            var fakeTransportDefinition = new FakeTransportDefinition();
-            settings.Set<TransportDefinition>(fakeTransportDefinition);
-            settings.Set(fakeTransportDefinition.Initialize(settings, null));
+            settings.Set(new FakeTransportInfrastructure());
 
             var context = new FeatureConfigurationContext(settings, null, null, null, null);
             var result = context.Settings.DoesTransportSupportConstraint<DeliveryConstraint>();
@@ -39,16 +37,6 @@
 
             Assert.IsFalse(resultBeforeAdd);
             Assert.IsTrue(resultAfterAdd);
-        }
-
-        class FakeTransportDefinition : TransportDefinition
-        {
-            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
-            {
-                return new FakeTransportInfrastructure();
-            }
-
-            public override string ExampleConnectionStringForErrorMessage { get; } = string.Empty;
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure

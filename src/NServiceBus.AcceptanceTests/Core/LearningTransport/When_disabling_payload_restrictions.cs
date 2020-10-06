@@ -32,8 +32,10 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UseTransport<LearningTransport>()
-                        .NoPayloadSizeRestriction();
+                    c.UseTransport(new LearningTransport
+                    {
+                        RestrictPayloadSize = false
+                    });
                 });
             }
 

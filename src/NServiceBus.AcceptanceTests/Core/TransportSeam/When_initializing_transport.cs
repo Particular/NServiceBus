@@ -55,7 +55,7 @@
 
         class Context : ScenarioContext
         {
-            public FakeTransport.StartUpSequence StartUpSequence { get; } = new FakeTransport.StartUpSequence();
+            public List<string> StartUpSequence { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -64,8 +64,9 @@
             {
                 EndpointSetup<DefaultServer, Context>((endpointConfig, context) =>
                 {
-                    endpointConfig.UseTransport<FakeTransport>()
-                        .CollectStartupSequence(context.StartUpSequence);
+                    var fakeTransport = new FakeTransport();
+                    context.StartUpSequence = fakeTransport.StartUpSequence;
+                    endpointConfig.UseTransport(fakeTransport);
                 });
             }
         }
