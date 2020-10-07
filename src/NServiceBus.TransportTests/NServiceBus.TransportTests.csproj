@@ -34,6 +34,7 @@
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
+    <_PackageFiles Remove="When_starting_transport_outside_of_an_endpoint.cs" />
   </ItemGroup>
   <!-- End Workaround -->
 
