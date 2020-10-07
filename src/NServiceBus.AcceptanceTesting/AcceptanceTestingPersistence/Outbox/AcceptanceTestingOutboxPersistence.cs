@@ -7,9 +7,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Outbox;
 
-    /// <summary>
-    /// Used to configure in memory outbox persistence.
-    /// </summary>
     class AcceptanceTestingOutboxPersistence : Feature
     {
         internal AcceptanceTestingOutboxPersistence()
@@ -18,9 +15,6 @@
             Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));
         }
 
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var outboxStorage = new AcceptanceTestingOutboxStorage();

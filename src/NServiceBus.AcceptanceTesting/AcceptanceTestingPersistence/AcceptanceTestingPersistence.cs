@@ -6,9 +6,6 @@
     using SagaPersister;
     using TimeoutPersister;
 
-    /// <summary>
-    /// Used to enable AcceptanceTesting persistence.
-    /// </summary>
     class AcceptanceTestingPersistence : PersistenceDefinition
     {
         internal AcceptanceTestingPersistence()
