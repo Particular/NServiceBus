@@ -29,10 +29,10 @@
         {
             StartUpSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
-            //if (settings.TryGet<Action<ReadOnlySettings>>("FakeTransport.AssertSettings", out var assertion))
-            //{
-            //    assertion(settings);
-            //}
+            ////if (settings.TryGet<Action<ReadOnlySettings>>("FakeTransport.AssertSettings", out var assertion))
+            ////{
+            ////    assertion(settings);
+            ////}
 
             return new FakeTransportInfrastructure(settings, this);
         }

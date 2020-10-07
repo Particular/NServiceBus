@@ -1,3 +1,5 @@
+using System;
+
 namespace NServiceBus.Transport
 {
     using Settings;
@@ -34,17 +36,48 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public string ErrorQueueAddress { get; set; }
+        public string ErrorQueueAddress { get; set; } //TODO would be good to know if we're using the default or user provided value
 
         /// <summary>
         /// 
         /// </summary>
-        public string EndpointName { get; set; }
-
+        public EndpointName EndpointName { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         public string LocalAddress { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public StartupDiagnosticEntries StartupDiagnostic { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Action<string, Exception> CriticalErrorAction { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool SendOnly { get; set; } // not 100% sure we really need this, but probably won't hurt.
+        
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class EndpointName
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string HostDisplayName { get; set; }
     }
 }

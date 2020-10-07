@@ -17,9 +17,9 @@
             var transportDefinition = transportSettings.TransportDefinition;
             var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
 
-            var transportInfrastructure = transportDefinition.Initialize(new TransportSettings()
+            var transportInfrastructure = transportDefinition.Initialize(new TransportSettings
             {
-                EndpointName = "TODO",
+                EndpointName = new EndpointName(){Name = "TODO", HostDisplayName = "TODO"},
                 ErrorQueueAddress = "TODO",
                 LocalAddress = "TODO"
             });

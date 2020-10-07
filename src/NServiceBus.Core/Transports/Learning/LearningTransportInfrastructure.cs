@@ -87,12 +87,12 @@
             return new TransportSubscriptionInfrastructure(() =>
             {
                 var endpointName = settings.EndpointName;
-                PathChecker.ThrowForBadPath(endpointName, "endpoint name");
+                PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
 
                 var localAddress = settings.LocalAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
-                return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
+                return new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);
             });
         }
 

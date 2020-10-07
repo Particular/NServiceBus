@@ -1,3 +1,5 @@
+using NServiceBus.Settings;
+
 namespace NServiceBus.Transport
 {
     using System;
@@ -34,6 +36,16 @@ namespace NServiceBus.Transport
         /// Gets the factory to manage subscriptions.
         /// </summary>
         public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual Task ValidateNServiceBusSettings(ReadOnlySettings settings)
+        {
+            // this is only called when the transport is hosted as part of NServiceBus. No need to call this as "raw users".
+            // pass a settings type that only allows "tryGet".
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Returns the discriminator for this endpoint instance.

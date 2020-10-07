@@ -99,7 +99,11 @@
             {
                 ErrorQueueAddress = ErrorQueueName,
                 LocalAddress = InputQueueName,
-                EndpointName = InputQueueName
+                EndpointName = new EndpointName
+                {
+                    Name = InputQueueName,
+                    HostDisplayName = InputQueueName
+                }
             });
 
             TransportInfrastructure = configuration.TransportInfrastructure;
