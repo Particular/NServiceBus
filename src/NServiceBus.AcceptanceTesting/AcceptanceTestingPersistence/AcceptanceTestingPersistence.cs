@@ -10,11 +10,6 @@
     {
         internal AcceptanceTestingPersistence()
         {
-            Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<AcceptanceTestingSagaPersistence>());
-            Supports<StorageType.Timeouts>(s => s.EnableFeatureByDefault<AcceptanceTestingTimeoutPersistence>());
-            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<AcceptanceTestingSubscriptionPersistence>());
-            Supports<StorageType.Outbox>(s => s.EnableFeatureByDefault<AcceptanceTestingOutboxPersistence>());
-
             Supports<StorageType.Sagas>(s =>
             {
                 s.EnableFeatureByDefault<AcceptanceTestingSagaPersistence>();

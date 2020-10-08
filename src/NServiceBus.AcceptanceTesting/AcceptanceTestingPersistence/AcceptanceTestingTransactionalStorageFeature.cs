@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
+﻿using NServiceBus.Persistence;
+
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
 {
     using Features;
     using Microsoft.Extensions.DependencyInjection;
@@ -7,8 +9,8 @@
     {
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Services.AddSingleton(_ => new AcceptanceTestingSynchronizedStorage());
-            context.Services.AddSingleton(_ => new AcceptanceTestingTransactionalSynchronizedStorageAdapter());
+            context.Services.AddSingleton<ISynchronizedStorage, AcceptanceTestingSynchronizedStorage>();
+            context.Services.AddSingleton<ISynchronizedStorageAdapter, AcceptanceTestingTransactionalSynchronizedStorageAdapter>();
         }
     }
 }
