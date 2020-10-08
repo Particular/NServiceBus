@@ -93,9 +93,9 @@
             public override IEnumerable<Type> DeliveryConstraints { get; } = Enumerable.Empty<Type>();
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
 
-            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
+            public override IReadOnlyDictionary<string, string> LocalEndpointProperties()
             {
-                return instance;
+                return new Dictionary<string, string>();
             }
 
             public override string ToTransportAddress(LogicalAddress logicalAddress)

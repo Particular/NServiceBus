@@ -42,7 +42,7 @@
         class FakeTransportInfrastructure : TransportInfrastructure
         {
 
-            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
+            public override IReadOnlyDictionary<string, string> LocalEndpointProperties()
             {
                 throw new NotImplementedException();
             }

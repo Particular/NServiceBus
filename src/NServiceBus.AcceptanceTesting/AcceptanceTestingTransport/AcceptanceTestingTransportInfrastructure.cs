@@ -83,7 +83,7 @@
             });
         }
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance;
+        public override IReadOnlyDictionary<string, string>  LocalEndpointProperties() => new Dictionary<string, string>();
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {

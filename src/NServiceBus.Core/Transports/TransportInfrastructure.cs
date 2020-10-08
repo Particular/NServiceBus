@@ -50,9 +50,9 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// Returns the discriminator for this endpoint instance.
+        /// Returns address properties for the local endpoint
         /// </summary>
-        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance);
+        public abstract IReadOnlyDictionary<string, string> LocalEndpointProperties();
 
         /// <summary>
         /// Converts a given logical address to the transport address.

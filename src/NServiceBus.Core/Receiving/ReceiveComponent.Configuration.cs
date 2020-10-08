@@ -25,8 +25,7 @@ namespace NServiceBus
 
             var transportInfrastructure = transportSeam.TransportInfrastructure;
 
-            //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
-            var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
+            var mainInstanceProperties = transportInfrastructure.LocalEndpointProperties();
 
             var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
 
