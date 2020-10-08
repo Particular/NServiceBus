@@ -41,6 +41,7 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="Core\**\*.cs" />
     <_PackageFiles Remove="AssemblyInfo.cs" />
+    <_PackageFiles Remove="ConfigureEndpointAcceptanceTestingPersistence.cs" />
   </ItemGroup>
   <!-- End Workaround -->
 
