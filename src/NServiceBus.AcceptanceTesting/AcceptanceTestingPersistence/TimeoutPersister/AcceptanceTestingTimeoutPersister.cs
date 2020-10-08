@@ -134,6 +134,7 @@ namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPers
         Func<DateTime> currentTimeProvider;
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
         List<TimeoutData> storage = new List<TimeoutData>();
-        public static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
+
+        static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
     }
 }

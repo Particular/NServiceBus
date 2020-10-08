@@ -6,7 +6,7 @@
 
     class AcceptanceTestingTimeoutPersistence : Feature
     {
-        internal AcceptanceTestingTimeoutPersistence()
+        public AcceptanceTestingTimeoutPersistence()
         {
             DependsOn<TimeoutManager>();
         }

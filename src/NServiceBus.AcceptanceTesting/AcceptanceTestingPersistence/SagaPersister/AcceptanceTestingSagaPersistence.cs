@@ -8,7 +8,7 @@
 
     class AcceptanceTestingSagaPersistence : Feature
     {
-        internal AcceptanceTestingSagaPersistence()
+        public AcceptanceTestingSagaPersistence()
         {
             DependsOn<Sagas>();
             Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));

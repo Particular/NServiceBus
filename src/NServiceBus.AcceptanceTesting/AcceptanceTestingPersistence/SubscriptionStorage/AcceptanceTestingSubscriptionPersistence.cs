@@ -5,7 +5,7 @@
 
     class AcceptanceTestingSubscriptionPersistence : Feature
     {
-        internal AcceptanceTestingSubscriptionPersistence()
+        public AcceptanceTestingSubscriptionPersistence()
         {
 #pragma warning disable CS0618
             DependsOn<MessageDrivenSubscriptions>();
