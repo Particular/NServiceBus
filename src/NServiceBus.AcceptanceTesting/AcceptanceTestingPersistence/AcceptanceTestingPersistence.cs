@@ -6,7 +6,7 @@
     using SagaPersister;
     using TimeoutPersister;
 
-    class AcceptanceTestingPersistence : PersistenceDefinition
+    public class AcceptanceTestingPersistence : PersistenceDefinition
     {
         internal AcceptanceTestingPersistence()
         {
@@ -14,6 +14,20 @@
             Supports<StorageType.Timeouts>(s => s.EnableFeatureByDefault<AcceptanceTestingTimeoutPersistence>());
             Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<AcceptanceTestingSubscriptionPersistence>());
             Supports<StorageType.Outbox>(s => s.EnableFeatureByDefault<AcceptanceTestingOutboxPersistence>());
+
+            Supports<StorageType.Sagas>(s =>
+            {
+                s.EnableFeatureByDefault<AcceptanceTestingSagaPersistence>();
+                s.EnableFeatureByDefault<AcceptanceTestingTransactionalStorageFeature>();
+            });
+
+            Supports<StorageType.Timeouts>(s => s.EnableFeatureByDefault<AcceptanceTestingTimeoutPersistence>());
+            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<AcceptanceTestingSubscriptionPersistence>());
+            Supports<StorageType.Outbox>(s =>
+            {
+                s.EnableFeatureByDefault<AcceptanceTestingOutboxPersistence>();
+                s.EnableFeatureByDefault<AcceptanceTestingTransactionalStorageFeature>();
+            });
         }
     }
 }

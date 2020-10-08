@@ -82,7 +82,7 @@
                 var template = new DefaultServer
                 {
                     TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true),
-                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                    PersistenceConfiguration = new ConfigureEndpointAcceptanceTestingPersistence()
                 };
 
                 EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>

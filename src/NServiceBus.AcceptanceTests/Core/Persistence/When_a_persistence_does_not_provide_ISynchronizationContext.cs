@@ -25,9 +25,9 @@
                 .Run();
         }
 
-        class InMemoryNoSyncContextPersistence : PersistenceDefinition
+        class AcceptanceTestingNoSyncContextPersistence : PersistenceDefinition
         {
-            public InMemoryNoSyncContextPersistence()
+            public AcceptanceTestingNoSyncContextPersistence()
             {
                 Supports<StorageType.Timeouts>(s => { });
                 Supports<StorageType.Sagas>(s => { });
@@ -60,7 +60,7 @@
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
                     c.RegisterComponents(container => container.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>());
-                    c.UsePersistence<InMemoryNoSyncContextPersistence>();
+                    c.UsePersistence<AcceptanceTestingNoSyncContextPersistence>();
                 });
             }
         }

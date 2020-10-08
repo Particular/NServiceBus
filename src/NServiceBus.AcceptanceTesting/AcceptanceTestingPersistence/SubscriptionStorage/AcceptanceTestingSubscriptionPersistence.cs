@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
+﻿using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
 {
     using Features;
     using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +16,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Services.AddSingleton(_ => new AcceptanceTestingSubscriptionStorage());
+            context.Services.AddSingleton<ISubscriptionStorage, AcceptanceTestingSubscriptionStorage>();
         }
     }
 }

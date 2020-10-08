@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_saga_scanned_send_only_and_no_saga_storage : NServiceBusAcceptanceTest
     {
@@ -26,8 +27,8 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                    
+                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
+
                     c.SendOnly();
                 });
             }
