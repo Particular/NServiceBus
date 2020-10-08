@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister
+﻿using NServiceBus.Timeout.Core;
+
+namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister
 {
     using System;
     using Features;
@@ -13,7 +15,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Services.AddSingleton(_ => new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow));
+            context.Services.AddSingleton<IQueryTimeouts, AcceptanceTestingTimeoutPersister>();
         }
     }
 }
