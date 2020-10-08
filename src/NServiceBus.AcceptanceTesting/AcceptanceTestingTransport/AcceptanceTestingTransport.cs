@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus
 {
     using AcceptanceTesting;
-    using Routing;
-    using Settings;
     using Transport;
 
-    public class AcceptanceTestingTransport : TransportDefinition, IMessageDrivenSubscriptionTransport
+    public class AcceptanceTestingTransport : TransportDefinition
     {
         public string StorageDirectory { get; set; }
 
