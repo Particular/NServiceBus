@@ -13,10 +13,8 @@ namespace NServiceBus
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings,
             IPipelineExecutor pipelineExecutor,
-            RecoverabilityExecutor recoverabilityExecutor,
-            CriticalError criticalError)
+            RecoverabilityExecutor recoverabilityExecutor)
         {
-            this.criticalError = criticalError;
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
             this.pipelineExecutor = pipelineExecutor;
@@ -30,7 +28,7 @@ namespace NServiceBus
 
         public Task Init()
         {
-            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
+            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), pushSettings);
         }
 
         public Task Start()
@@ -70,8 +68,6 @@ namespace NServiceBus
                 isStarted = false;
             }
         }
-
-        readonly CriticalError criticalError;
 
         bool isStarted;
         PushRuntimeSettings pushRuntimeSettings;

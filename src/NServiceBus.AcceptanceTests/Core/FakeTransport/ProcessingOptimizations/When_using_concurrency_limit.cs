@@ -43,7 +43,7 @@
         {
             PushSettings pushSettings;
 
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings settings)
             {
                 pushSettings = settings;
                 return Task.FromResult(0);

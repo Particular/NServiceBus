@@ -61,7 +61,7 @@
             var errorQueueAddress = receiveSettings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
-            return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()

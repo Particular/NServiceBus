@@ -6,16 +6,16 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     class FakeReceiver : IPushMessages
     {
-        public FakeReceiver(FakeTransport settings)
+        public FakeReceiver(FakeTransport settings, Action<string, Exception> criticalErrorAction)
         {
             this.settings = settings;
+            this.criticalErrorAction = criticalErrorAction;
         }
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, PushSettings pushSettings)
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings pushSettings)
         {
             settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Init)}");
 
-            this.criticalError = criticalError;
             return Task.FromResult(0);
         }
 
@@ -25,7 +25,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
             if (settings.RaiseCriticalErrorDuringStartup)
             {
-                criticalError.Raise(settings.ExceptionToThrow.Message, settings.ExceptionToThrow);
+                criticalErrorAction(settings.ExceptionToThrow.Message, settings.ExceptionToThrow);
             }
         }
 
@@ -42,6 +42,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         FakeTransport settings;
-        NServiceBus.CriticalError criticalError;
+        private readonly Action<string, Exception> criticalErrorAction;
     }
 }

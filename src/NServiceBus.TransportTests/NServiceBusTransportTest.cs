@@ -154,7 +154,6 @@
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                new FakeCriticalError(onCriticalError),
                 new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
 
             result = await SendInfrastructure.PreStartupCheck();

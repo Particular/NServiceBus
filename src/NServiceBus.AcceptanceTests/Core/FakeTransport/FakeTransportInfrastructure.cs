@@ -39,7 +39,7 @@
         {
             fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
 
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(fakeTransportSettings),
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(fakeTransportSettings, settings.CriticalErrorAction),
                 () => new FakeQueueCreator(fakeTransportSettings),
                 () =>
                 {

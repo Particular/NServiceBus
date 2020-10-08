@@ -12,16 +12,17 @@
 
     class LearningTransportMessagePump : IPushMessages
     {
-        public LearningTransportMessagePump(string basePath)
+        public LearningTransportMessagePump(string basePath, Action<string, Exception> criticalErrorAction)
         {
             this.basePath = basePath;
+            this.criticalErrorAction = criticalErrorAction;
         }
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
+        //TODO remove critical error?
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings settings)
         {
             this.onMessage = onMessage;
             this.onError = onError;
-            this.criticalError = criticalError;
 
             transactionMode = settings.RequiredTransactionMode;
 
@@ -136,7 +137,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalError.Raise("Failure to process messages", ex);
+                    criticalErrorAction("Failure to process messages", ex);
                 }
             }
         }
@@ -297,7 +298,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalError.Raise($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex);
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
@@ -337,7 +338,7 @@
         string committedTransactionDir;
         string delayedDir;
 
-        CriticalError criticalError;
+        Action<string, Exception> criticalErrorAction;
 
 
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
