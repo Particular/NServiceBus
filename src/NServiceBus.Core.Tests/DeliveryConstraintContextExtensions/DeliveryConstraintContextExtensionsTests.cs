@@ -41,10 +41,9 @@
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
-
-            public override IReadOnlyDictionary<string, string> LocalEndpointProperties()
+            public override LogicalAddress BuildLocalAddress(string queueName)
             {
-                throw new NotImplementedException();
+                return LogicalAddress.CreateLocalAddress(string.Empty, new Dictionary<string, string>());
             }
 
             public override string ToTransportAddress(LogicalAddress logicalAddress)

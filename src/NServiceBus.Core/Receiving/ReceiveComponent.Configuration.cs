@@ -25,9 +25,7 @@ namespace NServiceBus
 
             var transportInfrastructure = transportSeam.TransportInfrastructure;
 
-            var mainInstanceProperties = transportInfrastructure.LocalEndpointProperties();
-
-            var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
+            var logicalAddress = transportInfrastructure.BuildLocalAddress(queueNameBase);
 
             var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
 

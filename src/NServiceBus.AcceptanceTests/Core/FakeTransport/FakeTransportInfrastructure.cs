@@ -25,9 +25,9 @@
         public override TransportTransactionMode TransactionMode => 
             fakeTransportSettings.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
 
-        public override IReadOnlyDictionary<string, string> LocalEndpointProperties()
+        public override LogicalAddress BuildLocalAddress(string queueName)
         {
-            return new Dictionary<string, string>();
+            return LogicalAddress.CreateLocalAddress(string.Empty, new Dictionary<string, string>());
         }
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)

@@ -83,7 +83,7 @@
             });
         }
 
-        public override IReadOnlyDictionary<string, string>  LocalEndpointProperties() => new Dictionary<string, string>();
+        public override LogicalAddress  BuildLocalAddress(string queueName) => LogicalAddress.CreateLocalAddress(queueName, new Dictionary<string, string>());
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
