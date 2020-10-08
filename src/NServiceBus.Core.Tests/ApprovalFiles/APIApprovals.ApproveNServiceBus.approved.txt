@@ -466,12 +466,12 @@ namespace NServiceBus
     }
     public interface IMessageSession
     {
-        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
+        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
-        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
+        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions sendOptions);
+        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions);
+        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions);
+        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions);
     }
     public class static IMessageSessionExtensions
     {

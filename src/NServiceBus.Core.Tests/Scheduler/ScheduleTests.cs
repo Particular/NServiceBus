@@ -56,19 +56,19 @@
 
             public TaskDefinition ScheduledDefinition { get; private set; }
 
-            public Task Send(object message, SendOptions options)
+            public Task Send(object message, SendOptions sendOptions)
             {
-                ScheduledDefinition = options.Context.Get<ScheduleBehavior.State>().TaskDefinition;
+                ScheduledDefinition = sendOptions.Context.Get<ScheduleBehavior.State>().TaskDefinition;
                 defaultScheduler.Schedule(ScheduledDefinition);
                 return defaultScheduler.Start(ScheduledDefinition.Id, new TestablePipelineContext());
             }
 
-            public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+            public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Publish(object message, PublishOptions options)
+            public Task Publish(object message, PublishOptions publishOptions)
             {
                 throw new NotImplementedException();
             }
@@ -78,12 +78,12 @@
                 throw new NotImplementedException();
             }
 
-            public Task Subscribe(Type eventType, SubscribeOptions options)
+            public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+            public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions)
             {
                 throw new NotImplementedException();
             }
