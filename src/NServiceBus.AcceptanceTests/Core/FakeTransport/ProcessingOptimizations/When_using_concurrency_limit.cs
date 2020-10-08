@@ -10,7 +10,6 @@
     using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using Settings;
     using Transport;
     using CriticalError = NServiceBus.CriticalError;
 
@@ -104,7 +103,7 @@
                 return logicalAddress.ToString();
             }
 
-            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
             {
                 return new TransportReceiveInfrastructure(() => new FakeReceiver(), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
             }
@@ -114,7 +113,7 @@
                 return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
             }
 
-            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
             {
                 throw new NotImplementedException();
             }

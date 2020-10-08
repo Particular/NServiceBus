@@ -52,7 +52,7 @@
                 throw new NotImplementedException();
             }
 
-            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
             {
                 throw new NotImplementedException();
             }
@@ -62,7 +62,7 @@
                 throw new NotImplementedException();
             }
 
-            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
             {
                 throw new NotImplementedException();
             }

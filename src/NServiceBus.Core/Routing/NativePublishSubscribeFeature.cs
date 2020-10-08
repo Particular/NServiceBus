@@ -12,13 +12,15 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
             context.Pipeline.Register("MulticastPublishRouterBehavior", new MulticastPublishConnector(), "Determines how the published messages should be routed");
 
-            if (canReceive)
+            if (!context.Receiving.IsSendOnlyEndpoint)
             {
-                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
+                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure(new SubscriptionSettings
+                {
+                    LocalAddress = context.Receiving.LocalAddress
+                });
                 var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
 
                 context.Pipeline.Register(new NativeSubscribeTerminator(subscriptionManager), "Requests the transport to subscribe to a given message type");

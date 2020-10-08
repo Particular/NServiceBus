@@ -24,10 +24,9 @@
                 storagePath = FindStoragePath();
             }
 
-            //TODO: pass push runtime settings as part of the settings but provide information whether it is a core default value or a user provided value.
-            //settings.ReceiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
-            var errorQueueAddress = settings.ErrorQueueAddress;
-            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+            ////TODO: pass push runtime settings as part of the settings but provide information whether it is a core default value or a user provided value.
+            ////settings.ReceiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
+
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -70,8 +69,11 @@
             }
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
         {
+            var errorQueueAddress = receiveSettings.ErrorQueueAddress;
+            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+
             return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
@@ -82,14 +84,14 @@
             return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
         }
 
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
         {
             return new TransportSubscriptionInfrastructure(() =>
             {
                 var endpointName = settings.EndpointName;
                 PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
 
-                var localAddress = settings.LocalAddress;
+                var localAddress = subscriptionSettings.LocalAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
                 return new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);
@@ -129,7 +131,5 @@
         private readonly LearningTransport transportSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
-        public const string StorageLocationKey = "LearningTransport.StoragePath";
-        public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
     }
 }

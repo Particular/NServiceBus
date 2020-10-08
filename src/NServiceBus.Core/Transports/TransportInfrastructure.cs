@@ -25,17 +25,19 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Gets the factories to receive message.
         /// </summary>
-        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
+        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings);
 
         /// <summary>
         /// Gets the factories to send message.
         /// </summary>
         public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
 
+        //// TODO does this need to be standalone or can this be added into receive/subscription infrastructure?
+        
         /// <summary>
         /// Gets the factory to manage subscriptions.
         /// </summary>
-        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
+        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings);
 
         /// <summary>
         /// 
@@ -85,5 +87,32 @@ namespace NServiceBus.Transport
         {
             return Task.CompletedTask;
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SubscriptionSettings
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string LocalAddress { get; set; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ReceiveSettings
+    {        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ErrorQueueAddress { get; set; } //TODO would be good to know if we're using the default or user provided value
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string LocalAddress { get; set; }
     }
 }

@@ -22,9 +22,6 @@
                 var solutionRoot = FindSolutionRoot();
                 storagePath = Path.Combine(solutionRoot, ".attransport");
             }
-
-            var errorQueueAddress = settings.ErrorQueueAddress;
-            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
         }
 
         public override IEnumerable<Type> DeliveryConstraints => new[]
@@ -59,8 +56,11 @@
             }
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
         {
+            var errorQueueAddress = receiveSettings.ErrorQueueAddress;
+            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+
             return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
@@ -69,14 +69,14 @@
             return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, int.MaxValue / 1024), () => Task.FromResult(StartupCheckResult.Success));
         }
 
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
         {
             return new TransportSubscriptionInfrastructure(() =>
             {
                 var endpointName = settings.EndpointName;
                 PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
 
-                var localAddress = settings.LocalAddress;
+                var localAddress = subscriptionSettings.LocalAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
                 return new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);

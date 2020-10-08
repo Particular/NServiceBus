@@ -6,7 +6,6 @@
     using NServiceBus.DelayedDelivery;
     using Extensibility;
     using NServiceBus.Routing;
-    using Settings;
     using Transport;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
@@ -36,7 +35,7 @@
             return logicalAddress.ToString();
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
         {
             fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
 
@@ -80,7 +79,7 @@
                 });
         }
 
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
         {
             fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
 

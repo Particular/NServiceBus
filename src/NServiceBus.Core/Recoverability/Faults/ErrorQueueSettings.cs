@@ -4,6 +4,8 @@ namespace NServiceBus
     using Logging;
     using Settings;
 
+    //// TODO We should remove those public settings based extensions. Or maybe keep this public so that users can retrieve information about the error queue which isn't available anywhere else. Transports can't access this because the don't get a reference to the settings.
+
     /// <summary>
     /// Utility class used to find the configured error queue for an endpoint.
     /// </summary>

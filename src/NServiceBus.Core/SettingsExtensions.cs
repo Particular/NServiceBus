@@ -4,6 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using Settings;
 
+    ////TODO remove these public extensions
+    
     /// <summary>
     /// Provides extensions to the settings holder.
     /// </summary>
@@ -40,21 +42,6 @@ namespace NServiceBus
             }
 
             return receiveConfiguration.LogicalAddress;
-        }
-
-        /// <summary>
-        /// Returns the shared queue name of this endpoint.
-        /// </summary>
-        public static string LocalAddress(this ReadOnlySettings settings)
-        {
-            Guard.AgainstNull(nameof(settings), settings);
-
-            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
-            {
-                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
-            }
-
-            return receiveConfiguration.LocalAddress;
         }
 
         /// <summary>

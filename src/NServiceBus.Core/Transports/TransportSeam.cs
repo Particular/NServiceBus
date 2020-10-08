@@ -18,9 +18,13 @@
 
             var transportInfrastructure = transportDefinition.Initialize(new TransportSettings
             {
-                EndpointName = new EndpointName(){Name = "TODO", HostDisplayName = "TODO"},
-                ErrorQueueAddress = "TODO",
-                LocalAddress = "TODO"
+                EndpointName = new EndpointName
+                {
+                    Name = hostingConfiguration.EndpointName, 
+                    HostDisplayName = hostingConfiguration.HostInformation.DisplayName // add HostInformation to the settings instead?
+                },
+                StartupDiagnostic = hostingConfiguration.StartupDiagnostics,
+                CriticalErrorAction = hostingConfiguration.CriticalError.Raise
             });
 
             //RegisterTransportInfrastructureForBackwardsCompatibility

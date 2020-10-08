@@ -35,7 +35,13 @@ namespace NServiceBus
 
             if (!configuration.IsSendOnlyEndpoint)
             {
-                transportReceiveInfrastructure = configuration.transportSeam.TransportInfrastructure.ConfigureReceiveInfrastructure();
+                transportReceiveInfrastructure =
+                    configuration.transportSeam.TransportInfrastructure.ConfigureReceiveInfrastructure(
+                        new ReceiveSettings
+                        {
+                            ErrorQueueAddress = errorQueue,
+                            LocalAddress = configuration.LocalAddress,
+                        });
 
                 if (configuration.CreateQueues)
                 {

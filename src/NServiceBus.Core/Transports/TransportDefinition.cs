@@ -26,17 +26,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public string ErrorQueueAddress { get; set; } //TODO would be good to know if we're using the default or user provided value
-
-        /// <summary>
-        /// 
-        /// </summary>
         public EndpointName EndpointName { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string LocalAddress { get; set; }
 
         /// <summary>
         /// 
@@ -48,11 +38,6 @@ namespace NServiceBus.Transport
         /// </summary>
         public Action<string, Exception> CriticalErrorAction { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool SendOnly { get; set; } // not 100% sure we really need this, but probably won't hurt.
-        
     }
 
     /// <summary>

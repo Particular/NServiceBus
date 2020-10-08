@@ -95,15 +95,17 @@
 
             Configurer = CreateConfigurer();
 
-            var configuration = Configurer.Configure(new TransportSettings()
+            ////TODO provide all mandatory values
+
+            var configuration = Configurer.Configure(new TransportSettings
             {
-                ErrorQueueAddress = ErrorQueueName,
-                LocalAddress = InputQueueName,
                 EndpointName = new EndpointName
                 {
                     Name = InputQueueName,
                     HostDisplayName = InputQueueName
-                }
+                },
+                CriticalErrorAction = (msg, ex) => { },
+                StartupDiagnostic = new StartupDiagnosticEntries()
             });
 
             TransportInfrastructure = configuration.TransportInfrastructure;
@@ -111,7 +113,11 @@
             IgnoreUnsupportedTransactionModes(transactionMode);
             IgnoreUnsupportedDeliveryConstraints();
 
-            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
+            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure(new ReceiveSettings
+            {
+                ErrorQueueAddress = ErrorQueueName,
+                LocalAddress = InputQueueName,
+            });
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
             var userName = GetUserName();
