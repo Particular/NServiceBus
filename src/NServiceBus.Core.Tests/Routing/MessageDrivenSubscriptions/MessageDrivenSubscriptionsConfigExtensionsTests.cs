@@ -157,8 +157,6 @@
 
     public class MessageDrivenTransportDefinition : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
-        public override string ExampleConnectionStringForErrorMessage { get; }
-
         public override TransportInfrastructure Initialize(TransportSettings settings)
         {
             throw new NotImplementedException();

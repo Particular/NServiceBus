@@ -83,10 +83,6 @@
 
         class FakeTransport : TransportDefinition
         {
-            public override string ExampleConnectionStringForErrorMessage => null;
-
-            public override bool RequiresConnectionString => false;
-
             public override TransportInfrastructure Initialize(TransportSettings settings)
             {
                 return new FakeTransportInfrastructure();

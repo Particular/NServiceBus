@@ -20,16 +20,6 @@
         public string StorageDirectory { get; set; }
 
         /// <summary>
-        /// Used by implementations to control if a connection string is necessary.
-        /// </summary>
-        public override bool RequiresConnectionString => false;
-
-        /// <summary>
-        /// Gets an example connection string to use when reporting the lack of a configured connection string to the user.
-        /// </summary>
-        public override string ExampleConnectionStringForErrorMessage { get; } = "";
-
-        /// <summary>
         /// Initializes all the factories and supported features for the transport. This method is called right before all features
         /// are activated and the settings will be locked down. This means you can use the SettingsHolder both for providing
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot

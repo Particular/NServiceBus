@@ -9,15 +9,11 @@
     {
         public string StorageDirectory { get; set; }
 
-        public override bool RequiresConnectionString => false;
-
         public override TransportInfrastructure Initialize(TransportSettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
             return new AcceptanceTestingTransportInfrastructure(settings, this);
         }
-
-        public override string ExampleConnectionStringForErrorMessage { get; } = "";
     }
 }
