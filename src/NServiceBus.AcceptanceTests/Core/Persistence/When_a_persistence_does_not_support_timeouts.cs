@@ -29,7 +29,6 @@
                 {
                     c.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Outbox>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
 
                     c.EnableFeature<TimeoutManager>();
                 });

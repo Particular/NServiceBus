@@ -31,13 +31,13 @@
             var config = new EndpointConfiguration("MyEndpoint");
             config.UsePersistence<InMemoryPersistence>();
             config.UsePersistence<FakePersistence, StorageType.Sagas>();
-            config.UsePersistence<FakePersistence, StorageType.Subscriptions>();
+            config.UsePersistence<FakePersistence, StorageType.Outbox>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-                new List<Type> { typeof(StorageType.Subscriptions)}));
+                new List<Type> { typeof(StorageType.Outbox)}));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
                 new List<Type> { typeof(StorageType.Sagas) }));
             Assert.That(resultedEnabledPersistences[2].SelectedStorages, Is.EquivalentTo(
@@ -49,7 +49,7 @@
             public FakePersistence()
             {
                 Supports<StorageType.Sagas>(settings => { });
-                Supports<StorageType.Subscriptions>(settings => { });
+                Supports<StorageType.Outbox>(settings => { });
                 Supports<StorageType.Timeouts>(settings => { });
             }
         }
@@ -67,7 +67,7 @@
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
-            Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
+            Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox))));
 }
 
         class FakePersistence : PersistenceDefinition
@@ -75,7 +75,7 @@
             public FakePersistence()
             {
                 Supports<StorageType.Sagas>(settings => { });
-                Supports<StorageType.Subscriptions>(settings => { });
+                Supports<StorageType.Outbox>(settings => { });
             }
         }
     }

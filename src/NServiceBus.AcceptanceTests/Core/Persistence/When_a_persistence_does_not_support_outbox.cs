@@ -26,7 +26,6 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 {
                     c.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
                     
                     c.EnableOutbox();
                 });

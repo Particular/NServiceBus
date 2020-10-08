@@ -19,7 +19,7 @@
         {
             public PartialPersistence()
             {
-                Supports<StorageType.Subscriptions>(s =>
+                Supports<StorageType.Sagas>(s =>
                 {
                 });
             }
@@ -32,14 +32,14 @@
         [Test]
         public void Should_not_throw_exception()
         {
-            Assert.DoesNotThrow(() => new PersistenceExtensions(typeof(PartialPersistence), new SettingsHolder(), typeof(StorageType.Subscriptions)));
+            Assert.DoesNotThrow(() => new PersistenceExtensions(typeof(PartialPersistence), new SettingsHolder(), typeof(StorageType.Sagas)));
         }
 
         public class PartialPersistence : PersistenceDefinition
         {
             public PartialPersistence()
             {
-                Supports<StorageType.Subscriptions>(s =>
+                Supports<StorageType.Sagas>(s =>
                 {
                 });
             }

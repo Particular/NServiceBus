@@ -38,16 +38,6 @@
         }
 
         /// <summary>
-        /// Storage for subscriptions.
-        /// </summary>
-        public sealed class Subscriptions : StorageType
-        {
-            internal Subscriptions() : base("Subscriptions")
-            {
-            }
-        }
-
-        /// <summary>
         /// Storage for sagas.
         /// </summary>
         public sealed class Sagas : StorageType

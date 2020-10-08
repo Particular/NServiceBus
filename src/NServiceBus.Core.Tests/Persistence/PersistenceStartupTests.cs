@@ -14,7 +14,7 @@
         {
             var settings = new SettingsHolder();
 
-            var supported = PersistenceStartup.HasSupportFor<StorageType.Subscriptions>(settings);
+            var supported = PersistenceStartup.HasSupportFor<StorageType.Outbox>(settings);
 
             Assert.IsFalse(supported);
         }
