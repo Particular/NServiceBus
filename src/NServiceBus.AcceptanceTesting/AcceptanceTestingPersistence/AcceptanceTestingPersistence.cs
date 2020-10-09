@@ -1,10 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
+﻿namespace NServiceBus
 {
     using Features;
-    using Outbox;
+    using AcceptanceTesting;
     using Persistence;
-    using SagaPersister;
-    using TimeoutPersister;
 
     public class AcceptanceTestingPersistence : PersistenceDefinition
     {

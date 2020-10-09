@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence;
 using NServiceBus.AcceptanceTesting.Support;
 
 public class ConfigureEndpointAcceptanceTestingPersistence : IConfigureEndpointTestExecution

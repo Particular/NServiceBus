@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_a_persistence_does_not_support_outbox : NServiceBusAcceptanceTest
     {

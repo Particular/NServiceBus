@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Threading;
@@ -9,7 +9,7 @@
 
     class AcceptanceTestingOutboxPersistence : Feature
     {
-        internal AcceptanceTestingOutboxPersistence()
+        public AcceptanceTestingOutboxPersistence()
         {
             DependsOn<Outbox>();
             Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));
@@ -21,12 +21,8 @@
 
             context.Services.AddSingleton(typeof(IOutboxStorage), outboxStorage);
 
-            var timeSpan = context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries);
-
-            context.RegisterStartupTask(new OutboxCleaner(outboxStorage, timeSpan));
+            context.RegisterStartupTask(new OutboxCleaner(outboxStorage, TimeSpan.FromDays(5)));
         }
-
-        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
 
         class OutboxCleaner : FeatureStartupTask
         {

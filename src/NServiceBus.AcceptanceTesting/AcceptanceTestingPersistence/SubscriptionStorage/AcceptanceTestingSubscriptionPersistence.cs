@@ -1,9 +1,8 @@
-﻿using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
-
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using Features;
     using Microsoft.Extensions.DependencyInjection;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class AcceptanceTestingSubscriptionPersistence : Feature
     {

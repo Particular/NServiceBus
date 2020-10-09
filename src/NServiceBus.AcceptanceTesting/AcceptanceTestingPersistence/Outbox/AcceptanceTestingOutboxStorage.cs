@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.Outbox
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Collections.Concurrent;
@@ -58,7 +58,6 @@
                 }
             }
         }
-
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
         static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult(default(OutboxMessage));

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister
+namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Collections.Generic;

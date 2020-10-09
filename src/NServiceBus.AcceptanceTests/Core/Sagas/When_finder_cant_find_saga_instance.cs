@@ -1,6 +1,4 @@
-﻿using NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence;
-
-namespace NServiceBus.AcceptanceTests.Core.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;

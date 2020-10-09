@@ -1,9 +1,7 @@
-﻿using NServiceBus.Sagas;
-
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
+﻿namespace NServiceBus.AcceptanceTesting
 {
-    using AcceptanceTesting.AcceptanceTestingPersistence;
     using Features;
+    using Sagas;
     using Microsoft.Extensions.DependencyInjection;
 
     class AcceptanceTestingSagaPersistence : Feature

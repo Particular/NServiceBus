@@ -1,9 +1,7 @@
-﻿using NServiceBus.Timeout.Core;
-
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.TimeoutPersister
+﻿namespace NServiceBus.AcceptanceTesting
 {
-    using System;
     using Features;
+    using Timeout.Core;
     using Microsoft.Extensions.DependencyInjection;
 
     class AcceptanceTestingTimeoutPersistence : Feature

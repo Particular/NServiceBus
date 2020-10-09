@@ -1,8 +1,7 @@
-﻿using NServiceBus.Persistence;
-
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using Features;
+    using Persistence;
     using Microsoft.Extensions.DependencyInjection;
 
     class AcceptanceTestingTransactionalStorageFeature : Feature

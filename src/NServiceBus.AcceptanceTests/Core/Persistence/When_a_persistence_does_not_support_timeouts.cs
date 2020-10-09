@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_a_persistence_does_not_support_timeouts : NServiceBusAcceptanceTest
     {

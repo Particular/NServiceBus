@@ -9,9 +9,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus;
     using NServiceBus.Outbox;
-    using Persistence;
     using NUnit.Framework;
-    using NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {

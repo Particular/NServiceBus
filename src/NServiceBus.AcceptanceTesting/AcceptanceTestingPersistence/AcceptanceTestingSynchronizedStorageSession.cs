@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence
+namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Threading.Tasks;

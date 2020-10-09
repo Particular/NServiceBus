@@ -10,7 +10,6 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using AcceptanceTesting.AcceptanceTestingPersistence;
 
     [TestFixture]
     public class When_adding_state_to_context : NServiceBusAcceptanceTest

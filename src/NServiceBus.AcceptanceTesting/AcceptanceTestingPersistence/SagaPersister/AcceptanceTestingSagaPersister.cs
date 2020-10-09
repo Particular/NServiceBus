@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence.SagaPersister
+namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Collections.Concurrent;
