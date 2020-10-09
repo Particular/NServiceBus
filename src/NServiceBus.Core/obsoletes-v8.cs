@@ -427,7 +427,7 @@ namespace NServiceBus
 
 
     [ObsoleteEx(
-            Message = "The builtin scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
+            Message = "The built-in scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
     public static class ScheduleExtensions
