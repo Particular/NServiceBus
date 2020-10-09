@@ -11,6 +11,7 @@
     using NServiceBus.Outbox;
     using Persistence;
     using NUnit.Framework;
+    using NServiceBus.AcceptanceTesting.AcceptanceTestingPersistence;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
@@ -45,7 +46,8 @@
                     b =>
                     {
                         b.EnableFeature<TimeoutManager>();
-                        b.UsePersistence<FakeOutboxPersistence>();
+                        b.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
+                        b.UsePersistence<AcceptanceTestingPersistence, StorageType.Timeouts>();
                         b.RegisterComponents(c => c.AddSingleton<IOutboxStorage, FakeOutbox>());
                     });
             }
@@ -139,12 +141,4 @@
         }
     }
 
-    public class FakeOutboxPersistence : PersistenceDefinition
-    {
-        public FakeOutboxPersistence()
-        {
-            Supports<StorageType.Outbox>(s => { });
-            Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
-        }
-    }
 }
