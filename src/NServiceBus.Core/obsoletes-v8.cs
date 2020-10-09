@@ -406,4 +406,55 @@ namespace NServiceBus.Unicast
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+
+    [ObsoleteEx(
+            Message = "The built-in scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+    public class ScheduledTask
+    {
+        internal ScheduledTask() => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+
+    [ObsoleteEx(
+            Message = "The built-in scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+    public static class ScheduleExtensions
+    {
+        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelineContext, Task> task)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)
+        {
+            throw new NotImplementedException();
+
+        }
+    }
+}
+
+namespace NServiceBus.Features
+{
+
+    [ObsoleteEx(
+            Message = "The built-in scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+    public class Scheduler
+    {
+    }
+}
+
 #pragma warning restore 1591

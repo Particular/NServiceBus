@@ -58,10 +58,6 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IMessageSession", "obj.Unsubscribe(typeof(object));")]
         [TestCase("IMessageSession", "obj.Unsubscribe<object>();")]
 
-        // ScheduleExtensions
-        [TestCase("IMessageSession", "obj.ScheduleEvery(TimeSpan.Zero, _ => Task.FromResult(0));")]
-        [TestCase("IMessageSession", "obj.ScheduleEvery(TimeSpan.Zero, \"name\", _ => Task.FromResult(0));")]
-
         // Endpoint
         [TestCase("EndpointConfiguration", "Endpoint.Create(obj);")]
         [TestCase("EndpointConfiguration", "Endpoint.Start(obj);")]

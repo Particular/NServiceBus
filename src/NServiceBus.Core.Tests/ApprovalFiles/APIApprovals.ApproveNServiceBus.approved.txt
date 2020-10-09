@@ -834,18 +834,16 @@ namespace NServiceBus
         protected override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
+    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
+        "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
     public class static ScheduleExtensions
     {
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
-    public class ScheduledTask : NServiceBus.IMessage
-    {
-        public ScheduledTask() { }
-        public System.TimeSpan Every { get; set; }
-        public string Name { get; set; }
-        public System.Guid TaskId { get; set; }
-    }
+    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
+        "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
+    public class ScheduledTask { }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions() { }
@@ -1324,9 +1322,11 @@ namespace NServiceBus.Features
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class Scheduler : NServiceBus.Features.Feature
+    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
+        "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
+    public class Scheduler
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        public Scheduler() { }
     }
     public class static SettingsExtensions
     {

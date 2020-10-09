@@ -79,16 +79,7 @@
                         continue;
                     }
 
-                    MessageMetadata metadata;
-
-                    if (IsV4OrBelowScheduledTask(typeString))
-                    {
-                        metadata = messageMetadataRegistry.GetMessageMetadata(typeof(ScheduledTask));
-                    }
-                    else
-                    {
-                        metadata = messageMetadataRegistry.GetMessageMetadata(typeString);
-                    }
+                    var metadata = messageMetadataRegistry.GetMessageMetadata(typeString);
 
                     if (metadata == null)
                     {
@@ -129,11 +120,6 @@
         static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
         {
             return existingTypeString.Contains("__impl");
-        }
-
-        static bool IsV4OrBelowScheduledTask(string existingTypeString)
-        {
-            return existingTypeString.StartsWith("NServiceBus.Scheduling.Messages.ScheduledTask, NServiceBus.Core");
         }
 
         readonly MessageDeserializerResolver deserializerResolver;
