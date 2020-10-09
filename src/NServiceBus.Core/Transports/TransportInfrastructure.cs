@@ -62,17 +62,6 @@ namespace NServiceBus.Transport
         public abstract string ToTransportAddress(LogicalAddress logicalAddress);
 
         /// <summary>
-        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and
-        /// de-duplicated.
-        /// </summary>
-        /// <param name="transportAddress">A transport address.</param>
-        public virtual string MakeCanonicalForm(string transportAddress)
-        {
-            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
-            return transportAddress;
-        }
-
-        /// <summary>
         /// Performs any action required to warm up the transport infrastructure before starting the endpoint.
         /// </summary>
         public virtual Task Start()
