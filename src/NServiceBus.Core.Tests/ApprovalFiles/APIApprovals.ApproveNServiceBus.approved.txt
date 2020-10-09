@@ -841,7 +841,7 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
-    [System.ObsoleteAttribute("The builtin scheduler is no longer supported, see our upgrade guide for details o" +
+    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details o" +
         "n how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
     public class ScheduledTask { }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
