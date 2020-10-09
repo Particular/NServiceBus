@@ -15,7 +15,7 @@ namespace NServiceBus.Transport
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(logicalAddress), logicalAddress);
-            return settings.Get<TransportInfrastructure>().ToTransportAddress(logicalAddress);
+            return settings.Get<TransportInfrastructure>().ToTransportAddress(logicalAddress.ToEndpointAddress());
         }
     }
 }

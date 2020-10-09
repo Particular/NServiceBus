@@ -50,7 +50,7 @@ namespace NServiceBus
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,
-                i => transportSeam.TransportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                i => transportSeam.TransportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i).ToEndpointAddress()));
 
             if (configuration.EnforceBestPractices)
             {

@@ -52,14 +52,14 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Returns address properties for the local endpoint
         /// </summary>
-        public abstract LogicalAddress BuildLocalAddress(string queueName);
+        public abstract EndpointAddress BuildLocalAddress(string queueName);
 
         /// <summary>
         /// Converts a given logical address to the transport address.
         /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
+        /// <param name="endpointAddress">The logical address.</param>
         /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Performs any action required to warm up the transport infrastructure before starting the endpoint.
@@ -75,6 +75,58 @@ namespace NServiceBus.Transport
         public virtual Task Stop()
         {
             return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class EndpointAddress
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Endpoint { get; }
+
+        /// <summary>
+        /// A specific discriminator for scale-out purposes.
+        /// </summary>
+        public string Discriminator { get; }
+
+        /// <summary>
+        /// Returns all the differentiating properties of this instance.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Properties { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Qualifier { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public EndpointAddress(string endpoint, string discriminator, IReadOnlyDictionary<string, string> properties, string qualifier)
+        {
+            Endpoint = endpoint;
+            Discriminator = discriminator;
+            Properties = properties;
+            Qualifier = qualifier;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public LogicalAddress ToLogicalAddress()
+        {
+            var logicalAddress = LogicalAddress.CreateRemoteAddress(new EndpointInstance(Endpoint, Discriminator, Properties));
+
+            if (Qualifier != null)
+            {
+                return logicalAddress.CreateQualifiedAddress(Qualifier);
+            }
+
+            return logicalAddress;
         }
     }
 

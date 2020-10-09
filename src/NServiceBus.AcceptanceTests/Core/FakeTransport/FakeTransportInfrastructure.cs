@@ -25,12 +25,12 @@
         public override TransportTransactionMode TransactionMode => 
             fakeTransportSettings.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
 
-        public override LogicalAddress BuildLocalAddress(string queueName)
+        public override EndpointAddress BuildLocalAddress(string queueName)
         {
-            return LogicalAddress.CreateLocalAddress(string.Empty, new Dictionary<string, string>());
+            return new EndpointAddress(string.Empty, null, new Dictionary<string, string>(), null);
         }
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(EndpointAddress logicalAddress)
         {
             return logicalAddress.ToString();
         }

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transport;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -149,6 +151,14 @@
         public static bool operator !=(LogicalAddress left, LogicalAddress right)
         {
             return !Equals(left, right);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public EndpointAddress ToEndpointAddress()
+        {
+            return new EndpointAddress(EndpointInstance.Endpoint, EndpointInstance.Discriminator, EndpointInstance.Properties, Qualifier);
         }
     }
 }

@@ -100,14 +100,14 @@ namespace NServiceBus
             });
         }
 
-        public override LogicalAddress BuildLocalAddress(string queueName) => LogicalAddress.CreateLocalAddress(queueName, new Dictionary<string, string>());
+        public override EndpointAddress BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(EndpointAddress endpointAddress)
         {
-            var address = logicalAddress.EndpointInstance.Endpoint;
+            var address = endpointAddress.Endpoint;
             PathChecker.ThrowForBadPath(address, "endpoint name");
 
-            var discriminator = logicalAddress.EndpointInstance.Discriminator;
+            var discriminator = endpointAddress.Discriminator;
 
             if (!string.IsNullOrEmpty(discriminator))
             {
@@ -116,7 +116,7 @@ namespace NServiceBus
                 address += "-" + discriminator;
             }
 
-            var qualifier = logicalAddress.Qualifier;
+            var qualifier = endpointAddress.Qualifier;
 
             if (!string.IsNullOrEmpty(qualifier))
             {

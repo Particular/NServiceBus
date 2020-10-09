@@ -25,14 +25,14 @@ namespace NServiceBus
 
             var transportInfrastructure = transportSeam.TransportInfrastructure;
 
-            var logicalAddress = transportInfrastructure.BuildLocalAddress(queueNameBase);
+            var logicalAddress = transportInfrastructure.BuildLocalAddress(queueNameBase).ToLogicalAddress();
 
-            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
+            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress.ToEndpointAddress());
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
+                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator).ToEndpointAddress());
             }
 
             var transactionMode = GetRequiredTransactionMode(settings, transportInfrastructure);

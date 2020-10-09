@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using DelayedDelivery;
     using Performance.TimeToBeReceived;
-    using Routing;
     using Transport;
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
@@ -83,14 +82,14 @@
             });
         }
 
-        public override LogicalAddress  BuildLocalAddress(string queueName) => LogicalAddress.CreateLocalAddress(queueName, new Dictionary<string, string>());
+        public override EndpointAddress  BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(EndpointAddress logicalAddress)
         {
-            var address = logicalAddress.EndpointInstance.Endpoint;
+            var address = logicalAddress.Endpoint;
             PathChecker.ThrowForBadPath(address, "endpoint name");
 
-            var discriminator = logicalAddress.EndpointInstance.Discriminator;
+            var discriminator = logicalAddress.Discriminator;
 
             if (!string.IsNullOrEmpty(discriminator))
             {
