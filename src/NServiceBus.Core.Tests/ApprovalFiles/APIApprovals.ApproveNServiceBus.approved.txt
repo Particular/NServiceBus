@@ -834,7 +834,7 @@ namespace NServiceBus
         protected override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
-    [System.ObsoleteAttribute("The builtin scheduler is no longer supported, see our upgrade guide for details o" +
+    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details o" +
         "n how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
     public class static ScheduleExtensions
     {
