@@ -104,7 +104,7 @@
                     Name = InputQueueName,
                     HostDisplayName = InputQueueName
                 },
-                CriticalErrorAction = (msg, ex) => { },
+                CriticalErrorAction = onCriticalError,
                 StartupDiagnostic = new StartupDiagnosticEntries()
             });
 
