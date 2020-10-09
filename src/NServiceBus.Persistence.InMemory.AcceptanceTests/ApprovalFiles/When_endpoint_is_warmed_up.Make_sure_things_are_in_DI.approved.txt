@@ -12,6 +12,9 @@ NServiceBus.CriticalError - Singleton
 NServiceBus.Hosting.HostInformation - Singleton
 NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInjection.When_endpoint_is_warmed_up+SomeMessage, NServiceBus.Persistence.InMemory.AcceptanceTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] - Scoped
 NServiceBus.IMessageCreator - Singleton
+NServiceBus.InMemorySubscriptionStorage - Singleton
+NServiceBus.InMemorySynchronizedStorage - Singleton
+NServiceBus.InMemoryTransactionalSynchronizedStorageAdapter - Singleton
 NServiceBus.MessageInterfaces.IMessageMapper - Singleton
 NServiceBus.NoOpCanceling - Singleton
 NServiceBus.Notifications - Singleton
