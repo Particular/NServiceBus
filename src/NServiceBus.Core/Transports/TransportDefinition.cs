@@ -2,8 +2,6 @@ using System;
 
 namespace NServiceBus.Transport
 {
-    using Settings;
-
     /// <summary>
     /// Defines a transport.
     /// </summary>
@@ -19,7 +17,7 @@ namespace NServiceBus.Transport
     }
 
     /// <summary>
-    /// 
+    /// TODO: rename to EndpointSettings, HostSettings, or something like that?
     /// </summary>
     public class TransportSettings
     {
