@@ -37,7 +37,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     //use InMemoryPersistence as custom finder support is required
-                    c.UsePersistence<InMemoryPersistence>();
+                    c.UsePersistence<AcceptanceTestingPersistence>();
                 });
             }
 

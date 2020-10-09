@@ -40,7 +40,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.UsePersistence<InMemoryPersistence>();
+                    config.UsePersistence<AcceptanceTestingPersistence>();
                     config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
                 });
             }
