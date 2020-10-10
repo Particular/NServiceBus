@@ -13,7 +13,7 @@
         public void Should_use_all_storages_supported_by_persistence()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
+            config.UsePersistence<LearningPersistence>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
@@ -29,7 +29,7 @@
         public void Should_replace_default_storages_by_overrides()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
+            config.UsePersistence<AcceptanceTestingPersistence>();
             config.UsePersistence<FakePersistence, StorageType.Sagas>();
             config.UsePersistence<FakePersistence, StorageType.Subscriptions>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");

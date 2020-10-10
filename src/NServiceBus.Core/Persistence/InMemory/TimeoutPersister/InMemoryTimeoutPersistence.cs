@@ -1,23 +1,10 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
-
     /// <summary>
     /// Used to configure in memory timeout persistence.
     /// </summary>
-    public class InMemoryTimeoutPersistence : Feature
+    [ObsoleteEx(Message = "!!!", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+    public class InMemoryTimeoutPersistence
     {
-        internal InMemoryTimeoutPersistence()
-        {
-            DependsOn<TimeoutManager>();
-        }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.Container.ConfigureComponent(_ => new InMemoryTimeoutPersister(() => DateTime.UtcNow), DependencyLifecycle.SingleInstance);
-        }
     }
 }

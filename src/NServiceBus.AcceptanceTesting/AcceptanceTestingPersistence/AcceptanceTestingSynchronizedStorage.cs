@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTesting
     using Extensibility;
     using Persistence;
 
-    class AcceptanceTestingSynchronizedStorage : ISynchronizedStorage
+    public class AcceptanceTestingSynchronizedStorage : ISynchronizedStorage
     {
         public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {

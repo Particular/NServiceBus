@@ -4,11 +4,11 @@ namespace NServiceBus.AcceptanceTesting
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
-    using NServiceBus.Outbox;
+    using Outbox;
     using Persistence;
     using Transport;
 
-    class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
+    public class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {

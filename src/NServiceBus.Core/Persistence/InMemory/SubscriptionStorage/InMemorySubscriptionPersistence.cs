@@ -3,19 +3,8 @@
     /// <summary>
     /// Used to configure in memory subscription persistence.
     /// </summary>
-    public class InMemorySubscriptionPersistence : Feature
+    [ObsoleteEx(Message = "!!!", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+    public class InMemorySubscriptionPersistence
     {
-        internal InMemorySubscriptionPersistence()
-        {
-            DependsOn<MessageDrivenSubscriptions>();
-        }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.Container.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);
-        }
     }
 }

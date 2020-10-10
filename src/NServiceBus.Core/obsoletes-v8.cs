@@ -73,7 +73,7 @@ namespace NServiceBus
             Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
             RemoveInVersion = "9.0.0",
             TreatAsErrorFromVersion = "8.0.0")]
-        public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<InMemoryPersistence> persistenceExtensions, int maxSize)
+        public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<LearningPersistence> persistenceExtensions, int maxSize)
         {
             throw new NotImplementedException();
         }
