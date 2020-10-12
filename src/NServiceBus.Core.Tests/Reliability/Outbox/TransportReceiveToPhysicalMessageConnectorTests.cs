@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
     using System;
     using System.Collections.Generic;
@@ -28,7 +30,6 @@
 
             options["Destination"] = "test";
 
-            options["NonDurable"] = true.ToString();
             options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(deliverTime);
             options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
             options["TimeToBeReceived"] = maxTime.ToString();
@@ -42,16 +43,16 @@
 
             await Invoke(context);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.Any(c => c is NonDurableDelivery));
+            var transportProperties = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties();
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith));
-            Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
+            Assert.IsNotNull(transportProperties.DelayDeliveryWith);
+            Assert.AreEqual(TimeSpan.FromSeconds(10), transportProperties.DelayDeliveryWith.Delay);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore));
-            Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
+            Assert.IsNotNull(transportProperties.DoNotDeliverBefore);
+            Assert.AreEqual(deliverTime.ToString(), transportProperties.DoNotDeliverBefore.At);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore discard));
-            Assert.AreEqual(maxTime, discard.MaxTime);
+            Assert.IsNotNull(transportProperties.DiscardIfNotReceivedBefore);
+            Assert.AreEqual(maxTime, transportProperties.DiscardIfNotReceivedBefore.MaxTime);
 
             Assert.Null(fakeOutbox.StoredMessage);
         }

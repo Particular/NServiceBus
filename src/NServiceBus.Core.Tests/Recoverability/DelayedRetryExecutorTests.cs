@@ -40,11 +40,13 @@
             await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
-            var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
+            var deliveryConstraintText = transportOperation.Properties[typeof(DelayDeliveryWith).FullName];
 
             Assert.AreEqual(transportOperation.Destination, EndpointInputQueue);
-            Assert.IsNotNull(deliveryConstraint);
-            Assert.AreEqual(delay, deliveryConstraint.Delay);
+            Assert.IsNotNull(deliveryConstraintText);
+
+            var deliveryDelay = TimeSpan.Parse(deliveryConstraintText);
+            Assert.AreEqual(delay, deliveryDelay);
         }
 
         [Test]
@@ -57,9 +59,9 @@
             await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
-            var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
+            var deliveryConstraintText = transportOperation.Properties[typeof(DelayDeliveryWith).FullName];
 
-            Assert.IsNull(deliveryConstraint);
+            Assert.IsNull(deliveryConstraintText);
             Assert.AreEqual(EndpointInputQueue, transportOperation.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
             Assert.That(DateTimeExtensions.ToUtcDateTime(transportOperation.Message.Headers[TimeoutManagerHeaders.Expire]), Is.GreaterThan(DateTime.UtcNow).And.LessThanOrEqualTo(DateTime.UtcNow + delay));
             Assert.AreEqual(TimeoutManagerAddress, transportOperation.Destination);
@@ -129,14 +131,11 @@
 
             public List<UnicastTransportOperation> UnicastTransportOperations => TransportOperations.UnicastTransportOperations;
 
-            public ContextBag ContextBag { get; private set; }
-
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 TransportOperations = outgoingMessages;
-                ContextBag = context;
                 Transaction = transaction;
                 return Task.FromResult(0);
             }

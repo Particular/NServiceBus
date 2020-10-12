@@ -271,7 +271,7 @@
         {
             public TransportOperations TransportOperations { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 TransportOperations = outgoingMessages;
                 return Task.CompletedTask;
