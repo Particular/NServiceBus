@@ -28,27 +28,16 @@
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTime.UtcNow);
 
             UnicastAddressTag messageDestination;
-            List<DeliveryConstraint> deliveryConstraints = null;
-            if (timeoutManagerAddress == null)
+            Dictionary<string, string> properties = new Dictionary<string, string>
             {
-                // transport supports native deferred messages, directly send to input queue with delay constraint:
-                deliveryConstraints = new List<DeliveryConstraint>(1)
-                {
-                    new DelayDeliveryWith(delay)
-                };
-                messageDestination = new UnicastAddressTag(endpointInputQueue);
-            }
-            else
-            {
-                // transport doesn't support native deferred messages, reroute to timeout manager:
-                outgoingMessage.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = endpointInputQueue;
-                outgoingMessage.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow + delay);
-                messageDestination = new UnicastAddressTag(timeoutManagerAddress);
-            }
+                {typeof(DelayDeliveryWith).FullName, delay.ToString("c")}
+            };
+            // transport supports native deferred messages, directly send to input queue with delay constraint:
+            messageDestination = new UnicastAddressTag(endpointInputQueue);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, properties));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }

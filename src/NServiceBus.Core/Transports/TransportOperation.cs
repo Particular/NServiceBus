@@ -14,14 +14,14 @@ namespace NServiceBus.Transport
         /// </summary>
         /// <param name="message">The message to dispatch.</param>
         /// <param name="addressTag">The address to use when routing this message.</param>
+        /// <param name="properties">bla.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
-        /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        public TransportOperation(OutgoingMessage message, AddressTag addressTag, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
+        public TransportOperation(OutgoingMessage message, AddressTag addressTag, Dictionary<string, string> properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             AddressTag = addressTag;
+            Properties = properties;
             RequiredDispatchConsistency = requiredDispatchConsistency;
-            DeliveryConstraints = deliveryConstraints ?? new List<DeliveryConstraint>(0);
         }
 
         /// <summary>
@@ -35,10 +35,9 @@ namespace NServiceBus.Transport
         public AddressTag AddressTag { get; }
 
         /// <summary>
-        /// The delivery constraints that must be honored by the transport.
+        /// 
         /// </summary>
-        /// <remarks>The delivery constraints should only ever be read. When there are no delivery constraints you'll get a cached empty constraints list.</remarks>
-        public List<DeliveryConstraint> DeliveryConstraints { get; }
+        public Dictionary<string, string> Properties { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

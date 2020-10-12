@@ -1,7 +1,8 @@
 namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
-    using DeliveryConstraints;
+
+    ////TODO: should we make this a base class instead of an interface?
 
     /// <summary>
     /// Represents a transport operation.
@@ -14,13 +15,13 @@ namespace NServiceBus.Transport
         OutgoingMessage Message { get; }
 
         /// <summary>
-        /// The delivery constraints that must be honored by the transport.
-        /// </summary>
-        List<DeliveryConstraint> DeliveryConstraints { get; }
-
-        /// <summary>
         /// The dispatch consistency the must be honored by the transport.
         /// </summary>
         DispatchConsistency RequiredDispatchConsistency { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Dictionary<string, string> Properties { get; }
     }
 }

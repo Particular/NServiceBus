@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NServiceBus
 {
     using System;
@@ -61,8 +63,8 @@ namespace NServiceBus
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
-                    var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
+                    var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination), new Dictionary<string, string>());
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction).ConfigureAwait(false);
                     return;
                 }
 

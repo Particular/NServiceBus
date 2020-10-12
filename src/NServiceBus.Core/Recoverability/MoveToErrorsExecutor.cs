@@ -35,9 +35,9 @@
 
             headerCustomizations(headers);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress), new Dictionary<string, string>()));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag());
+            return dispatcher.Dispatch(transportOperations, transportTransaction);
         }
 
         IDispatchMessages dispatcher;

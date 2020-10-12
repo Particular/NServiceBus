@@ -12,11 +12,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation" /> instance.
         /// </summary>
-        public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
+        public MulticastTransportOperation(OutgoingMessage message, Type messageType, Dictionary<string, string> properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             MessageType = messageType;
-            DeliveryConstraints = deliveryConstraints ?? new List<DeliveryConstraint>(0);
+            Properties = properties;
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 
@@ -24,12 +24,6 @@ namespace NServiceBus.Transport
         /// Defines the message type which needs to be multicasted.
         /// </summary>
         public Type MessageType { get; }
-
-        /// <summary>
-        /// The delivery constraints that must be honored by the transport.
-        /// </summary>
-        /// <remarks>The delivery constraints should only ever be read. When there are no delivery constraints a cached empty constraints list is returned.</remarks>
-        public List<DeliveryConstraint> DeliveryConstraints { get; }
 
         /// <summary>
         /// The message to be sent over the transport.
@@ -40,5 +34,10 @@ namespace NServiceBus.Transport
         /// The dispatch consistency the must be honored by the transport.
         /// </summary>
         public DispatchConsistency RequiredDispatchConsistency { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Dictionary<string, string> Properties { get; }
     }
 }

@@ -70,8 +70,8 @@ namespace NServiceBus
                     new Transport.TransportOperation(
                         message,
                         DeserializeRoutingStrategy(operation.Options),
-                        DispatchConsistency.Isolated,
-                        DeserializeConstraints(operation.Options)));
+                        operation.Options,
+                        DispatchConsistency.Isolated));
             }
         }
 
@@ -81,16 +81,9 @@ namespace NServiceBus
             var index = 0;
             foreach (var operation in operations)
             {
-                var options = new Dictionary<string, string>();
+                SerializeRoutingStrategy(operation.AddressTag, operation.Properties);
 
-                foreach (var constraint in operation.DeliveryConstraints)
-                {
-                    SerializeDeliveryConstraint(constraint, options);
-                }
-
-                SerializeRoutingStrategy(operation.AddressTag, options);
-
-                transportOperations[index] = new TransportOperation(operation.Message.MessageId, options, operation.Message.Body, operation.Message.Headers);
+                transportOperations[index] = new TransportOperation(operation.Message.MessageId, operation.Properties, operation.Message.Body, operation.Message.Headers);
                 index++;
             }
             return transportOperations;

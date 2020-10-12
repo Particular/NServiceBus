@@ -60,9 +60,9 @@
             var state = context.GetOrCreate<MessageDrivenUnsubscribeTerminator.Settings>();
             try
             {
-                var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
+                var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination), new Dictionary<string, string>());
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

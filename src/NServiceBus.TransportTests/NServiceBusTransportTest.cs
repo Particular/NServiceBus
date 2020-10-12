@@ -185,7 +185,7 @@
         protected Task SendMessage(string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
-            List<DeliveryConstraint> deliveryConstraints = null,
+            Dictionary<string, string> messageProperties = null,
             DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
@@ -203,9 +203,9 @@
                 transportTransaction = new TransportTransaction();
             }
 
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchConsistency, deliveryConstraints ?? new List<DeliveryConstraint>());
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), messageProperties ?? new Dictionary<string, string>(), dispatchConsistency);
 
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

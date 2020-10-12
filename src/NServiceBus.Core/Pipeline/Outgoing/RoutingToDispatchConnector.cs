@@ -1,4 +1,8 @@
-﻿namespace NServiceBus
+﻿using System.Collections.Generic;
+using NServiceBus.DelayedDelivery;
+using NServiceBus.Performance.TimeToBeReceived;
+
+namespace NServiceBus
 {
     using System;
     using System.Text;
@@ -22,7 +26,24 @@
             {
                 var addressLabel = strategy.Apply(context.Message.Headers);
                 var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-                operations[index] = new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
+                var deliverConstraints = context.Extensions.GetDeliveryConstraints();
+                var properties = new Dictionary<string, string>();
+                foreach (var deliveryConstraint in deliverConstraints)
+                {
+                    switch (deliveryConstraint)
+                    {
+                        case DelayDeliveryWith delayWith:
+                            properties.Add(typeof(DelayDeliveryWith).FullName, delayWith.Delay.ToString("c"));
+                            break;
+                        case DoNotDeliverBefore doNotDeliverBefore:
+                            properties.Add(typeof(DoNotDeliverBefore).FullName, doNotDeliverBefore.At.ToString("O"));
+                            break;
+                        case DiscardIfNotReceivedBefore ttbr:
+                            properties.Add(typeof(DiscardIfNotReceivedBefore).FullName, ttbr.MaxTime.ToString("c"));
+                            break;
+                    }
+                }
+                operations[index] = new TransportOperation(message, addressLabel, properties, dispatchConsistency);
                 index++;
             }
 

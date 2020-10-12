@@ -25,7 +25,7 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
         {
             return Task.WhenAll(
                 DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction),
@@ -78,13 +78,13 @@ namespace NServiceBus
 
             DateTime? timeToDeliver = null;
 
-            if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
+            if (transportOperation.Properties.TryGetValue(typeof(DoNotDeliverBefore).FullName, out var doNotDeliverBeforeText))
             {
-                timeToDeliver = doNotDeliverBefore.At;
+                timeToDeliver = DateTime.Parse(doNotDeliverBeforeText);
             }
-            else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
+            else if (transportOperation.Properties.TryGetValue(typeof(DelayDeliveryWith).FullName, out var delayDeliverWithText))
             {
-                timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
+                timeToDeliver = DateTime.UtcNow + TimeSpan.Parse(delayDeliverWithText);
             }
 
             if (timeToDeliver.HasValue)
@@ -101,14 +101,18 @@ namespace NServiceBus
                 Directory.CreateDirectory(destinationPath);
             }
 
-            if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
+            if (transportOperation.Properties.TryGetValue(typeof(DiscardIfNotReceivedBefore).FullName, out var ttbrText))
             {
-                if (timeToDeliver.HasValue)
+                var ttbr = TimeSpan.Parse(ttbrText);
+                if (ttbr < TimeSpan.MaxValue)
                 {
-                    throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{message.Headers[Headers.EnclosedMessageTypes]}'.");
-                }
+                    if (timeToDeliver.HasValue)
+                    {
+                        throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{message.Headers[Headers.EnclosedMessageTypes]}'.");
+                    }
 
-                message.Headers[LearningTransportHeaders.TimeToBeReceived] = timeToBeReceived.MaxTime.ToString();
+                    message.Headers[LearningTransportHeaders.TimeToBeReceived] = ttbr.ToString();
+                }
             }
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
@@ -191,6 +195,7 @@ namespace NServiceBus
         static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
         int maxMessageSizeKB;
+
         string basePath;
     }
 }

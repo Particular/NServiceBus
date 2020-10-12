@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NServiceBus
 {
     using System;
@@ -30,8 +32,8 @@ namespace NServiceBus
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
             var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
-            var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
+            var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), new Dictionary<string, string>(), dispatchConsistency);
+            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction).ConfigureAwait(false);
 
             var timeoutRemoved = await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
             if (!timeoutRemoved)

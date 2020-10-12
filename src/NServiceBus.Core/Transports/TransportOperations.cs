@@ -24,16 +24,16 @@ namespace NServiceBus.Transport
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
                         ((MulticastAddressTag) transportOperation.AddressTag).MessageType,
-                        transportOperation.RequiredDispatchConsistency,
-                        transportOperation.DeliveryConstraints));
+                        transportOperation.Properties,
+                        transportOperation.RequiredDispatchConsistency));
                 }
                 else if (transportOperation.AddressTag is UnicastAddressTag)
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
                         ((UnicastAddressTag) transportOperation.AddressTag).Destination,
-                        transportOperation.RequiredDispatchConsistency,
-                        transportOperation.DeliveryConstraints));
+                        transportOperation.Properties,
+                        transportOperation.RequiredDispatchConsistency));
                 }
                 else
                 {

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NServiceBus
 {
     using System;
@@ -108,8 +110,9 @@ namespace NServiceBus
 
                 dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag()).ConfigureAwait(false);
+                //TODO: do we need to rehydrate any message properties? Ignoring this as timeout manager is being removed anyway.
+                var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress), new Dictionary<string, string>(0));
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction()).ConfigureAwait(false);
 
                 if (startSlice < timeoutData.DueTime)
                 {
