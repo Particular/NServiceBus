@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace NServiceBus
 {
     using System;
@@ -80,7 +82,7 @@ namespace NServiceBus
 
             if (transportOperation.Properties.TryGetValue(typeof(DoNotDeliverBefore).FullName, out var doNotDeliverBeforeText))
             {
-                timeToDeliver = DateTime.Parse(doNotDeliverBeforeText);
+                timeToDeliver = DateTime.Parse(doNotDeliverBeforeText, null, DateTimeStyles.RoundtripKind);
             }
             else if (transportOperation.Properties.TryGetValue(typeof(DelayDeliveryWith).FullName, out var delayDeliverWithText))
             {
