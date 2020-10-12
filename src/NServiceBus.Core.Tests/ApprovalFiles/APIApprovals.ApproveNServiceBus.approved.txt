@@ -466,12 +466,12 @@ namespace NServiceBus
     }
     public interface IMessageSession
     {
-        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions sendOptions);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions);
-        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions);
-        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions);
+        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
+        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IMessageSessionExtensions
     {
@@ -834,16 +834,22 @@ namespace NServiceBus
         protected override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
-    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
-        "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
+    public class static SagasConfigExtensions
+    {
+        public static NServiceBus.Sagas.SagaSettings Sagas(this NServiceBus.EndpointConfiguration config) { }
+    }
     public class static ScheduleExtensions
     {
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
-    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
-        "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
-    public class ScheduledTask { }
+    public class ScheduledTask : NServiceBus.IMessage
+    {
+        public ScheduledTask() { }
+        public System.TimeSpan Every { get; set; }
+        public string Name { get; set; }
+        public System.Guid TaskId { get; set; }
+    }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions() { }
@@ -1322,11 +1328,9 @@ namespace NServiceBus.Features
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
-        "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
-    public class Scheduler
+    public class Scheduler : NServiceBus.Features.Feature
     {
-        public Scheduler() { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class static SettingsExtensions
     {
@@ -1809,12 +1813,6 @@ namespace NServiceBus.Pipeline
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
-        public void RegisterOrReplace(string stepId, System.Type behavior, string description = null) { }
-        public void RegisterOrReplace<T>(string stepId, T behavior, string description = null)
-            where T : NServiceBus.Pipeline.IBehavior { }
-        public void RegisterOrReplace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description = null)
-            where T : NServiceBus.Pipeline.IBehavior { }
-        [System.ObsoleteAttribute(@"Removing behaviors from the pipeline is discouraged, to disable a behavior replace the behavior by an empty one. Documentation: https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public void Remove(string stepId) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
@@ -2082,6 +2080,10 @@ namespace NServiceBus.Sagas
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+    }
+    public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+    {
+        public void DisableBestPracticeValidation() { }
     }
 }
 namespace NServiceBus.Serialization
