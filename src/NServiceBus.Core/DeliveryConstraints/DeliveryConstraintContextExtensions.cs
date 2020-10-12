@@ -106,10 +106,9 @@ namespace NServiceBus.DeliveryConstraints
             return constraint != null;
         }
 
-        internal static bool DoesTransportSupportConstraint<T>(this ReadOnlySettings settings) where T : DeliveryConstraint
+        internal static bool SupportsTTBR(this ReadOnlySettings settings)
         {
-            return settings.Get<TransportInfrastructure>()
-                .DeliveryConstraints.Any(t => typeof(T).IsAssignableFrom(t));
+            return settings.Get<TransportInfrastructure>().SupportsTTBR;
         }
     }
 }

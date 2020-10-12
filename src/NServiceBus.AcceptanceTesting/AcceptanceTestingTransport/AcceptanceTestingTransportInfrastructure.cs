@@ -23,12 +23,7 @@
             }
         }
 
-        public override IEnumerable<Type> DeliveryConstraints => new[]
-        {
-            typeof(DiscardIfNotReceivedBefore),
-            typeof(DelayDeliveryWith),
-            typeof(DoNotDeliverBefore)
-        };
+        public override bool SupportsTTBR { get; } = true;
 
         public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
 

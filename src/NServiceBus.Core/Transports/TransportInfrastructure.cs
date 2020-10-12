@@ -13,9 +13,9 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure
     {
         /// <summary>
-        /// Returns the list of supported delivery constraints for this transport.
+        /// 
         /// </summary>
-        public abstract IEnumerable<Type> DeliveryConstraints { get; }
+        public abstract bool SupportsTTBR { get; }
 
         /// <summary>
         /// Gets the highest supported transaction mode for the this transport.

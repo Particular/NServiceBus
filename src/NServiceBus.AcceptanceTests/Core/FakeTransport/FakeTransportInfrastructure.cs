@@ -16,11 +16,7 @@
             this.fakeTransportSettings = fakeTransportSettings;
         }
 
-        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
-        {
-            typeof(DelayDeliveryWith),
-            typeof(DoNotDeliverBefore)
-        };
+        public override bool SupportsTTBR { get; } = false;
 
         public override TransportTransactionMode TransactionMode => 
             fakeTransportSettings.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;

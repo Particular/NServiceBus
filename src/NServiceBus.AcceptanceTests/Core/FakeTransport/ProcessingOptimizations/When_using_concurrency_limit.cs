@@ -90,7 +90,7 @@
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
-            public override IEnumerable<Type> DeliveryConstraints { get; } = Enumerable.Empty<Type>();
+            public override bool SupportsTTBR { get; } = false;
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
 
             public override EndpointAddress BuildLocalAddress(string queueName)

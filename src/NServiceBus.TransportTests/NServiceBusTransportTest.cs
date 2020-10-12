@@ -111,7 +111,6 @@
             TransportInfrastructure = configuration.TransportInfrastructure;
 
             IgnoreUnsupportedTransactionModes(transactionMode);
-            IgnoreUnsupportedDeliveryConstraints();
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure(new ReceiveSettings
             {
@@ -175,19 +174,6 @@
             return Environment.UserName;
         }
 
-        void IgnoreUnsupportedDeliveryConstraints()
-        {
-            var supportedDeliveryConstraints = TransportInfrastructure.DeliveryConstraints.ToList();
-            var unsupportedDeliveryConstraints = requiredDeliveryConstraints.Where(required => !supportedDeliveryConstraints.Contains(required))
-                .ToList();
-
-            if (unsupportedDeliveryConstraints.Any())
-            {
-                var unsupported = string.Join(",", unsupportedDeliveryConstraints.Select(c => c.Name));
-                Assert.Ignore($"Transport doesn't support required delivery constraint(s) {unsupported}");
-            }
-        }
-
         void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
         {
             if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
@@ -229,11 +215,6 @@
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
 
-        protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint
-        {
-            requiredDeliveryConstraints.Add(typeof(T));
-        }
-
         static string GetTestName()
         {
             var index = 1;
@@ -271,7 +252,6 @@
 
         string testId;
 
-        readonly List<Type> requiredDeliveryConstraints = new List<Type>();
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;

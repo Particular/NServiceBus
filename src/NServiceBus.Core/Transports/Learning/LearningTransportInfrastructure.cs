@@ -1,16 +1,10 @@
-﻿using System.Collections.ObjectModel;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using Performance.TimeToBeReceived;
-    using Routing;
-    using Settings;
     using Transport;
 
 
@@ -31,12 +25,7 @@ namespace NServiceBus
 
         }
 
-        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
-        {
-            typeof(DiscardIfNotReceivedBefore),
-            typeof(DelayDeliveryWith),
-            typeof(DoNotDeliverBefore)
-        };
+        public override bool SupportsTTBR { get; } = true;
 
         public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
 
