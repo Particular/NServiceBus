@@ -1,6 +1,4 @@
-﻿using NServiceBus.AcceptanceTesting;
-
-namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
+﻿namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
 {
     using System;
     using System.Collections.Generic;
@@ -11,6 +9,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using Transport;
+    using NServiceBus.Core.Tests.Fakes;
 
     public class DispatchTimeoutBehaviorTest
     {
@@ -18,7 +17,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         public async Task Invoke_when_message_dispatched_should_remove_timeout_from_timeout_storage()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutPersister = new FakeTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
@@ -33,7 +32,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         public async Task Invoke_when_timeout_not_in_storage_should_process_successfully()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutPersister = new FakeTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
             await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()));
@@ -45,7 +44,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         public async Task Invoke_when_dispatching_message_fails_should_keep_timeout_in_storage()
         {
             var messageDispatcher = new FailingMessageDispatcher();
-            var timeoutPersister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutPersister = new FakeTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
@@ -75,7 +74,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         public async Task Invoke_when_using_dtc_should_enlist_dispatch_in_transaction()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutPersister = new FakeTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
@@ -90,7 +89,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         public async Task Invoke_should_pass_transport_transaction_from_message_context()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutPersister = new FakeTimeoutPersister(() => DateTime.UtcNow);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
             var context = CreateContext(timeoutData.Id);
@@ -107,7 +106,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         public async Task Invoke_when_not_using_dtc_transport_should_not_enlist_dispatch_in_transaction(TransportTransactionMode nonDtcTxSettings)
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutPersister = new FakeTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, nonDtcTxSettings);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);

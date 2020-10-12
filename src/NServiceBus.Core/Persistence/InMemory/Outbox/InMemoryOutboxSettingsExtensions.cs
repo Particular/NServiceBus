@@ -6,7 +6,7 @@ namespace NServiceBus.InMemory.Outbox
     /// <summary>
     /// Contains InMemoryOutbox-related settings extensions.
     /// </summary>
-    [ObsoleteEx(Message = "!!!", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+    [ObsoleteEx(Message = "The InMemoryPersistence has been moved to a dedicated Nuget Package called NServiceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
     public static class InMemoryOutboxSettingsExtensions
     {
         /// <summary>
@@ -18,7 +18,7 @@ namespace NServiceBus.InMemory.Outbox
         /// For example, if <code>TimeSpan.FromDays(1)</code> is used, the deduplication entries are kept for no longer than one day.
         /// It is not possible to use a negative or zero TimeSpan value.
         /// </param>
-        [ObsoleteEx(Message = "!!!", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(Message = "The InMemoryPersistence has been moved to a dedicated Nuget Package called NServiceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         public static OutboxSettings TimeToKeepDeduplicationData(this OutboxSettings settings, TimeSpan time)
         {
             throw new NotSupportedException();

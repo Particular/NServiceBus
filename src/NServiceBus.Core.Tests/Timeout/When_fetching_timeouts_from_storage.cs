@@ -6,17 +6,17 @@ namespace NServiceBus.Core.Tests.Timeout
     using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    using AcceptanceTesting;
+    using Fakes;
 
     [TestFixture]
     public class When_fetching_timeouts_from_storage_with_inMemory
     {
-        AcceptanceTestingTimeoutPersister persister;
+        FakeTimeoutPersister persister;
 
         [SetUp]
         public void Setup()
         {
-             persister = new AcceptanceTestingTimeoutPersister(() => DateTime.UtcNow);
+             persister = new FakeTimeoutPersister(() => DateTime.UtcNow);
         }
 
         [Test]

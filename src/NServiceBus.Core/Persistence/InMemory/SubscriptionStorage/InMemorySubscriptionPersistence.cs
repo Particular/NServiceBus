@@ -3,7 +3,7 @@
     /// <summary>
     /// Used to configure in memory subscription persistence.
     /// </summary>
-    [ObsoleteEx(Message = "!!!", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+    [ObsoleteEx(Message = "The InMemoryPersistence has been moved to a dedicated Nuget Package called NServiceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
     public class InMemorySubscriptionPersistence
     {
     }
