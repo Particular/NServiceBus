@@ -73,7 +73,7 @@ namespace NServiceBus
             Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
             RemoveInVersion = "9.0.0",
             TreatAsErrorFromVersion = "8.0.0")]
-        public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<LearningPersistence> persistenceExtensions, int maxSize)
+        public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<InMemoryPersistence> persistenceExtensions, int maxSize)
         {
             throw new NotImplementedException();
         }
@@ -460,9 +460,10 @@ namespace NServiceBus.Features
 namespace NServiceBus
 {
     using Outbox;
+    using Persistence;
 
     [ObsoleteEx(Message = "The InMemoryPersistence has been moved to a dedicated Nuget Package called NServiceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
-    public class InMemoryPersistence
+    public class InMemoryPersistence : PersistenceDefinition
     {
     }
 

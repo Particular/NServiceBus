@@ -553,7 +553,7 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
             "n 9.0.0.", true)]
-        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> persistenceExtensions, int maxSize) { }
+        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.InMemoryPersistence> persistenceExtensions, int maxSize) { }
     }
     [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
         "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
@@ -575,7 +575,7 @@ namespace NServiceBus
     [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
         "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
         " be removed in version 9.0.0.", true)]
-    public class InMemoryPersistence
+    public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition
     {
         public InMemoryPersistence() { }
     }
