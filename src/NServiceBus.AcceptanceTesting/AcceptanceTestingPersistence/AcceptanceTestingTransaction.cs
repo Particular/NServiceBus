@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTesting
     using System;
     using System.Collections.Generic;
 
-    public class AcceptanceTestingTransaction
+    class AcceptanceTestingTransaction
     {
         public void Enlist(Action action)
         {

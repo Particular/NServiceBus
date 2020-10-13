@@ -553,9 +553,15 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
             "n 9.0.0.", true)]
-        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.InMemoryPersistence> persistenceExtensions, int maxSize) { }
+        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> persistenceExtensions, int maxSize) { }
     }
-    public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+        "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+        " be removed in version 9.0.0.", true)]
+    public class InMemoryPersistence
+    {
+        public InMemoryPersistence() { }
+    }
     public class static InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
@@ -1297,21 +1303,33 @@ namespace NServiceBus.Features
     [System.ObsoleteAttribute("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
     public class InMemoryGatewayPersistence { }
-    public class InMemoryOutboxPersistence : NServiceBus.Features.Feature
+    [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+        "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+        " be removed in version 9.0.0.", true)]
+    public class InMemoryOutboxPersistence
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        public InMemoryOutboxPersistence() { }
     }
-    public class InMemorySagaPersistence : NServiceBus.Features.Feature
+    [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+        "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+        " be removed in version 9.0.0.", true)]
+    public class InMemorySagaPersistence
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        public InMemorySagaPersistence() { }
     }
-    public class InMemorySubscriptionPersistence : NServiceBus.Features.Feature
+    [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+        "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+        " be removed in version 9.0.0.", true)]
+    public class InMemorySubscriptionPersistence
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        public InMemorySubscriptionPersistence() { }
     }
-    public class InMemoryTimeoutPersistence : NServiceBus.Features.Feature
+    [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+        "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+        " be removed in version 9.0.0.", true)]
+    public class InMemoryTimeoutPersistence
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        public InMemoryTimeoutPersistence() { }
     }
     [System.ObsoleteAttribute(@"It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
@@ -1391,8 +1409,14 @@ namespace NServiceBus.Hosting
 }
 namespace NServiceBus.InMemory.Outbox
 {
+    [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+        "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+        " be removed in version 9.0.0.", true)]
     public class static InMemoryOutboxSettingsExtensions
     {
+        [System.ObsoleteAttribute("The InMemoryPersistence has been moved to a dedicated Nuget Package called NServi" +
+            "ceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence. Will" +
+            " be removed in version 9.0.0.", true)]
         public static NServiceBus.Outbox.OutboxSettings TimeToKeepDeduplicationData(this NServiceBus.Outbox.OutboxSettings settings, System.TimeSpan time) { }
     }
 }
