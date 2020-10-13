@@ -13,7 +13,7 @@
         [Test]
         public void Should_throw_when_there_are_no_registered_message_handlers()
         {
-            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new AcceptanceTestingSynchronizedStorage(), new FakeTransactionalSynchronizedStorageAdapter());
+            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new FakeSynchronizedStorage(), new FakeTransactionalSynchronizedStorageAdapter());
 
             var context = new TestableIncomingLogicalMessageContext();
 
