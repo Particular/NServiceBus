@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Tests.Fakes
 
     public class FakeTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
-        public FakeTimeoutPersister(Func<DateTime> currentTimeProvider)
+        public FakeTimeoutPersister(Func<DateTimeOffset> currentTimeProvider)
         {
             this.currentTimeProvider = currentTimeProvider;
         }
