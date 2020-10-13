@@ -137,5 +137,4 @@
 
         public static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
     }
-
 }
