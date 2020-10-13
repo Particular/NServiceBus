@@ -24,7 +24,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="properties"></param>
         public TransportProperties(Dictionary<string, string> properties)
         {
             Properties = properties;
