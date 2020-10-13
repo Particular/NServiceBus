@@ -7,19 +7,32 @@ using NServiceBus.Performance.TimeToBeReceived;
 
 namespace NServiceBus.Transports
 {
-    class TransportProperties
+    /// <summary>
+    /// 
+    /// </summary>
+    public class TransportProperties
     {
         static string DoNotDeliverBeforeKeyName = typeof(DoNotDeliverBefore).FullName;
         static string DelayDeliveryWithKeyName = typeof(DelayDeliveryWith).FullName;
         static string DiscardIfNotReceivedBeforeKeyName = typeof(DiscardIfNotReceivedBefore).FullName;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public Dictionary<string, string> Properties { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="properties"></param>
         public TransportProperties(Dictionary<string, string> properties)
         {
             Properties = properties;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DoNotDeliverBefore DoNotDeliverBefore
         {
             get => Properties.ContainsKey(DoNotDeliverBeforeKeyName) 
@@ -29,6 +42,9 @@ namespace NServiceBus.Transports
             set => Properties[DoNotDeliverBeforeKeyName] = value.At.ToString(CultureInfo.InvariantCulture);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DelayDeliveryWith DelayDeliveryWith
         {
             get => Properties.ContainsKey(DelayDeliveryWithKeyName) 
@@ -38,6 +54,9 @@ namespace NServiceBus.Transports
             set => Properties[DelayDeliveryWithKeyName] = value.Delay.ToString();
         } 
         
+        /// <summary>
+        /// 
+        /// </summary>
         public DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore
         {
             get => Properties.ContainsKey(DiscardIfNotReceivedBeforeKeyName) 
@@ -48,13 +67,22 @@ namespace NServiceBus.Transports
         }
     }
 
-    static class ContextBagExtensions
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class ContextBagExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static TransportProperties GetTransportProperties(this ContextBag bag)
         {
             return bag.Get<TransportProperties>();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static TransportProperties AsTransportProperties(this Dictionary<string, string> properties)
         {
             return new TransportProperties(properties);
