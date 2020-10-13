@@ -1,9 +1,9 @@
-namespace NServiceBus
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
     using System.Collections.Generic;
 
-    class InMemoryTransaction
+    public class FakeTransaction
     {
         public void Enlist(Action action)
         {

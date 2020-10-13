@@ -1,20 +1,20 @@
-namespace NServiceBus
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
     using Outbox;
-    using Persistence;
+    using NServiceBus.Persistence;
     using Transport;
 
-    class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
+    public class FakeTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {
-            if (transaction is InMemoryOutboxTransaction inMemOutboxTransaction)
+            if (transaction is FakeOutboxTransaction inMemOutboxTransaction)
             {
-                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction);
+                CompletableSynchronizedStorageSession session = new FakeSynchronizedStorageSession(inMemOutboxTransaction.Transaction);
                 return Task.FromResult(session);
             }
             return EmptyTask;
@@ -24,8 +24,8 @@ namespace NServiceBus
         {
             if (transportTransaction.TryGet(out Transaction ambientTransaction))
             {
-                var transaction = new InMemoryTransaction();
-                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(transaction);
+                var transaction = new FakeTransaction();
+                CompletableSynchronizedStorageSession session = new FakeSynchronizedStorageSession(transaction);
                 ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
                 return Task.FromResult(session);
             }
@@ -36,7 +36,7 @@ namespace NServiceBus
 
         class EnlistmentNotification : IEnlistmentNotification
         {
-            public EnlistmentNotification(InMemoryTransaction transaction)
+            public EnlistmentNotification(FakeTransaction transaction)
             {
                 this.transaction = transaction;
             }
@@ -70,7 +70,7 @@ namespace NServiceBus
                 enlistment.Done();
             }
 
-            InMemoryTransaction transaction;
+            FakeTransaction transaction;
         }
     }
 }

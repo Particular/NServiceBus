@@ -8,6 +8,7 @@
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using Transport;
+    using Fakes;
 
     public class ExpiredTimeoutsPollerTests
     {
@@ -16,7 +17,7 @@
         {
             breaker = new FakeBreaker();
             dispatcher = new RecordingFakeDispatcher();
-            timeouts = new InMemoryTimeoutPersister(() => currentTime);
+            timeouts = new FakeTimeoutPersister(() => currentTime);
             poller = new ExpiredTimeoutsPoller(timeouts, dispatcher, "test", breaker, () => currentTime);
         }
 
@@ -46,7 +47,7 @@
             await poller.SpinOnce(CancellationToken.None);
 
             Assert.AreEqual(1, dispatcher.DispatchedMessages.Count);
-            Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
+            Assert.AreEqual(currentTime + FakeTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
         [Test]
@@ -63,7 +64,7 @@
             await poller.SpinOnce(CancellationToken.None);
 
             Assert.AreEqual(2, dispatcher.DispatchedMessages.Count);
-            Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
+            Assert.AreEqual(currentTime + FakeTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
         [Test]
@@ -118,9 +119,9 @@
         FakeBreaker breaker;
         RecordingFakeDispatcher dispatcher;
         DateTime currentTime = DateTime.UtcNow;
-        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
+        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(FakeTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
         ExpiredTimeoutsPoller poller;
-        InMemoryTimeoutPersister timeouts;
+        FakeTimeoutPersister timeouts;
 
         class FakeBreaker : ICircuitBreaker
         {

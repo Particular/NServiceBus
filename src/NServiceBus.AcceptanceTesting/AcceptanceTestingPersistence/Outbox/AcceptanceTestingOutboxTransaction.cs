@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Outbox;
+    using Outbox;
 
     class AcceptanceTestingOutboxTransaction : OutboxTransaction
     {

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Persistence
+﻿using NServiceBus.Core.Tests.Fakes;
+
+namespace NServiceBus.Core.Tests.Persistence
 {
     using System;
     using System.Collections.Generic;
@@ -13,12 +15,23 @@
         public void Should_use_all_storages_supported_by_persistence()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
+            config.UsePersistence<FakePersistence>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(StorageType.GetAvailableStorageTypes()));
+        }
+
+        class FakePersistence : PersistenceDefinition
+        {
+            public FakePersistence()
+            {
+                Supports<StorageType.Sagas>(settings => { });
+                Supports<StorageType.Outbox>(settings => { });
+                Supports<StorageType.Subscriptions>(settings => { });
+                Supports<StorageType.Timeouts>(settings => { });
+            }
         }
     }
 
@@ -29,19 +42,29 @@
         public void Should_replace_default_storages_by_overrides()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
-            config.UsePersistence<FakePersistence, StorageType.Sagas>();
-            config.UsePersistence<FakePersistence, StorageType.Subscriptions>();
+            config.UsePersistence<FakePersistence>();
+            config.UsePersistence<FakePersistence2, StorageType.Sagas>();
+            config.UsePersistence<FakePersistence2, StorageType.Subscriptions>();
             var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-                new List<Type> { typeof(StorageType.Subscriptions)}));
+                new List<Type> {typeof(StorageType.Subscriptions)}));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
-                new List<Type> { typeof(StorageType.Sagas) }));
+                new List<Type> {typeof(StorageType.Sagas)}));
             Assert.That(resultedEnabledPersistences[2].SelectedStorages, Is.EquivalentTo(
-                new List<Type> { typeof(StorageType.Outbox), typeof(StorageType.Timeouts) }));
+                new List<Type> {typeof(StorageType.Outbox), typeof(StorageType.Timeouts)}));
+        }
+
+        class FakePersistence2 : PersistenceDefinition
+        {
+            public FakePersistence2()
+            {
+                Supports<StorageType.Sagas>(settings => { });
+                Supports<StorageType.Subscriptions>(settings => { });
+                Supports<StorageType.Timeouts>(settings => { });
+            }
         }
 
         class FakePersistence : PersistenceDefinition
@@ -49,6 +72,7 @@
             public FakePersistence()
             {
                 Supports<StorageType.Sagas>(settings => { });
+                Supports<StorageType.Outbox>(settings => { });
                 Supports<StorageType.Subscriptions>(settings => { });
                 Supports<StorageType.Timeouts>(settings => { });
             }

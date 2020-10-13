@@ -1,19 +1,17 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
     using System.Threading.Tasks;
-    using Janitor;
     using Outbox;
 
-    [SkipWeaving]
-    class InMemoryOutboxTransaction : OutboxTransaction
+    public class FakeOutboxTransaction : OutboxTransaction
     {
-        public InMemoryOutboxTransaction()
+        public FakeOutboxTransaction()
         {
-            Transaction = new InMemoryTransaction();
+            Transaction = new FakeTransaction();
         }
 
-        public InMemoryTransaction Transaction { get; private set; }
+        public FakeTransaction Transaction { get; private set; }
 
         public void Dispose()
         {

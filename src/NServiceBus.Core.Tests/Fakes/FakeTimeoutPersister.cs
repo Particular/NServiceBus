@@ -1,4 +1,4 @@
-namespace NServiceBus
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
     using System.Collections.Generic;
@@ -6,11 +6,11 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
-    using Timeout.Core;
+    using NServiceBus.Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
+    public class FakeTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
-        public InMemoryTimeoutPersister(Func<DateTime> currentTimeProvider)
+        public FakeTimeoutPersister(Func<DateTime> currentTimeProvider)
         {
             this.currentTimeProvider = currentTimeProvider;
         }
@@ -134,6 +134,7 @@ namespace NServiceBus
         Func<DateTime> currentTimeProvider;
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
         List<TimeoutData> storage = new List<TimeoutData>();
+
         public static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
     }
 }

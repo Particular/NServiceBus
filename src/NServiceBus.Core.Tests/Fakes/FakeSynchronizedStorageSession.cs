@@ -1,25 +1,23 @@
-namespace NServiceBus
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
     using System.Threading.Tasks;
-    using Janitor;
-    using Persistence;
+    using NServiceBus.Persistence;
 
-    [SkipWeaving]
-    class InMemorySynchronizedStorageSession : CompletableSynchronizedStorageSession
+    public class FakeSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        public InMemorySynchronizedStorageSession(InMemoryTransaction transaction)
+        public FakeSynchronizedStorageSession(FakeTransaction transaction)
         {
             Transaction = transaction;
         }
 
-        public InMemorySynchronizedStorageSession()
-            : this(new InMemoryTransaction())
+        public FakeSynchronizedStorageSession()
+            : this(new FakeTransaction())
         {
             ownsTransaction = true;
         }
 
-        public InMemoryTransaction Transaction { get; private set; }
+        public FakeTransaction Transaction { get; private set; }
 
         public void Dispose()
         {

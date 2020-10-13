@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTesting
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
-    using NServiceBus.Outbox;
+    using Outbox;
     using Persistence;
     using Transport;
 
