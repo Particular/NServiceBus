@@ -1,12 +1,11 @@
-﻿using NServiceBus.Core.Tests.Fakes;
-
-namespace NServiceBus.Unicast.Tests
+﻿namespace NServiceBus.Unicast.Tests
 {
     using System.Threading.Tasks;
     using Outbox;
     using NServiceBus.Transport;
     using NUnit.Framework;
     using Testing;
+    using Core.Tests.Fakes;
 
     [TestFixture]
     public class LoadHandlersBehaviorTests
