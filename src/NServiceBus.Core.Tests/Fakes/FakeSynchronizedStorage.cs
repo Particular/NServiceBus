@@ -4,7 +4,7 @@
     using Extensibility;
     using NServiceBus.Persistence;
 
-    public class AcceptanceTestingSynchronizedStorage : ISynchronizedStorage
+    public class FakeSynchronizedStorage : ISynchronizedStorage
     {
         public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {
