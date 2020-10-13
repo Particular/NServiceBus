@@ -29,12 +29,12 @@ namespace NServiceBus
     using Sagas;
 
     /// <summary>
-    /// Config methods for the outbox.
+    /// Configuration methods for Sagas.
     /// </summary>
     public static class SagasConfigExtensions
     {
         /// <summary>
-        /// Enables the outbox feature.
+        /// Configures the saga feature.
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static SagaSettings Sagas(this EndpointConfiguration config)
