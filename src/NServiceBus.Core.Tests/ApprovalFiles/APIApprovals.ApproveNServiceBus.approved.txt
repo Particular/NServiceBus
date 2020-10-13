@@ -834,6 +834,10 @@ namespace NServiceBus
         protected override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
+    public class static SagasConfigExtensions
+    {
+        public static NServiceBus.Sagas.SagaSettings Sagas(this NServiceBus.EndpointConfiguration config) { }
+    }
     [System.ObsoleteAttribute("The built-in scheduler is no longer supported, see our upgrade guide for details " +
         "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
     public class static ScheduleExtensions
@@ -2082,6 +2086,10 @@ namespace NServiceBus.Sagas
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+    }
+    public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+    {
+        public void DisableBestPracticeValidation() { }
     }
 }
 namespace NServiceBus.Serialization
