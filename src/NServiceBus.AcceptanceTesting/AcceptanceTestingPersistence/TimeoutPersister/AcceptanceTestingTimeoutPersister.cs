@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTesting
     using Extensibility;
     using Timeout.Core;
 
-    public class AcceptanceTestingTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
+    class AcceptanceTestingTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
         public AcceptanceTestingTimeoutPersister(Func<DateTime> currentTimeProvider)
         {
@@ -135,6 +135,6 @@ namespace NServiceBus.AcceptanceTesting
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
         List<TimeoutData> storage = new List<TimeoutData>();
 
-        public static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
+        static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
     }
 }
