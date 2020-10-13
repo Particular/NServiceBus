@@ -115,11 +115,6 @@ namespace NServiceBus
 
         static void SerializeDeliveryConstraint(DeliveryConstraint constraint, Dictionary<string, string> options)
         {
-            if (constraint is NonDurableDelivery)
-            {
-                options["NonDurable"] = true.ToString();
-                return;
-            }
             if (constraint is DoNotDeliverBefore doNotDeliverBefore)
             {
                 options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(doNotDeliverBefore.At);
@@ -144,10 +139,6 @@ namespace NServiceBus
         static List<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
         {
             var constraints = new List<DeliveryConstraint>(4);
-            if (options.ContainsKey("NonDurable"))
-            {
-                constraints.Add(new NonDurableDelivery());
-            }
 
             if (options.TryGetValue("DeliverAt", out var deliverAt))
             {

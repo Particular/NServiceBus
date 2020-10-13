@@ -245,12 +245,16 @@ namespace NServiceBus
         Send = 0,
         Publish = 1,
     }
+    [System.ObsoleteAttribute("Non-durable delivery support has been moved to the transports that can support it" +
+        ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
     public class static DurableMessagesConfig
     {
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
         public static bool DurableMessagesEnabled(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static void EnableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
     }
+    [System.ObsoleteAttribute("Non-durable delivery support has been moved to the transports that can support it" +
+        ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
     public class static DurableMessagesConventionExtensions
     {
         public static NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, bool> definesExpressMessageType) { }
@@ -302,6 +306,8 @@ namespace NServiceBus
         public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string errorQueue) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
+    [System.ObsoleteAttribute("Non-durable delivery support has been moved to the transports that can support it" +
+        ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
     public sealed class ExpressAttribute : System.Attribute
     {
         public ExpressAttribute() { }
@@ -345,6 +351,8 @@ namespace NServiceBus
         public const string MessageId = "NServiceBus.MessageId";
         public const string MessageIntent = "NServiceBus.MessageIntent";
         public const string NServiceBusVersion = "NServiceBus.Version";
+        [System.ObsoleteAttribute("Non-durable delivery support has been moved to the transports that can support it" +
+            ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
         public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
         public const string OriginatingEndpoint = "NServiceBus.OriginatingEndpoint";
@@ -692,9 +700,11 @@ namespace NServiceBus
         public bool IsEventType(System.Type type) { }
         public bool IsMessageType(System.Type type) { }
     }
-    public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
+    [System.ObsoleteAttribute("Non-durable delivery support has been moved to the transports that can support it" +
+        ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
+    public class NonDurableDelivery2 : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
-        public NonDurableDelivery() { }
+        public NonDurableDelivery2() { }
     }
     public class Notifications
     {

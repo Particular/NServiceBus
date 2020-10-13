@@ -61,6 +61,12 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "8.0",
             Message = "Not intended for public usage.")]
         public const string HeaderName = "Header";
+
+        [ObsoleteEx(
+            Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
     }
 
     [ObsoleteEx(
@@ -494,6 +500,72 @@ namespace NServiceBus
 
     [ObsoleteEx(Message = "The InMemoryPersistence has been moved to a dedicated Nuget Package called NServiceBus.Persistence.NonDurable and has been renamed to NonDurablePersistence", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
     public class InMemoryOutboxPersistence
+    using DeliveryConstraints;
+
+    [ObsoleteEx(
+        Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class NonDurableDelivery2 : DeliveryConstraint
+    {
+    }
+}
+
+namespace NServiceBus
+{
+    using Settings;
+    using System;
+
+    [ObsoleteEx(
+        Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class DurableMessagesConfig
+    {
+        public static void EnableDurableMessages(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void DisableDurableMessages(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool DurableMessagesEnabled(this ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    [ObsoleteEx(
+        Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class DurableMessagesConventionExtensions
+    {
+        public static ConventionsBuilder DefiningExpressMessagesAs(this ConventionsBuilder builder, Func<Type, bool> definesExpressMessageType)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    [ObsoleteEx(
+        Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+    public sealed class ExpressAttribute : Attribute
     {
     }
 }

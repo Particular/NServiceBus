@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Transports
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;
@@ -15,7 +16,7 @@ namespace NServiceBus.Core.Tests.Transports
             var transportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), new UnicastAddressTag("destination"));
             var secondTransportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), new UnicastAddressTag("destination2"));
 
-            transportOperation.DeliveryConstraints.Add(new NonDurableDelivery());
+            transportOperation.DeliveryConstraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1)));
 
             Assert.IsEmpty(secondTransportOperation.DeliveryConstraints);
             Assert.IsNotEmpty(transportOperation.DeliveryConstraints);

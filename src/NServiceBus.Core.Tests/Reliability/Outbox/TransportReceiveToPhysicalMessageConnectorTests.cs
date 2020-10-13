@@ -28,7 +28,6 @@
 
             options["Destination"] = "test";
 
-            options["NonDurable"] = true.ToString();
             options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(deliverTime);
             options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
             options["TimeToBeReceived"] = maxTime.ToString();
@@ -41,8 +40,6 @@
             var context = CreateContext(fakeBatchPipeline, messageId);
 
             await Invoke(context);
-
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.Any(c => c is NonDurableDelivery));
 
             Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith));
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
