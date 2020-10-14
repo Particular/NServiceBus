@@ -8,8 +8,7 @@
     {
         public static Func<ScenarioContext, ILoggerFactory> GetLoggerFactory = _ => new ContextAppenderFactory();
 
-        public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new()
-        {
+        public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new() {
             return new ScenarioWithContext<T>(c => { });
         }
 
