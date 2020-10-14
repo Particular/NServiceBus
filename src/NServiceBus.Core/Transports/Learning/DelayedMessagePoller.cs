@@ -20,7 +20,7 @@
         {
             foreach (var delayDir in new DirectoryInfo(delayedRootDirectory).EnumerateDirectories())
             {
-                var timeToTrigger = DateTimeOffset.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
+                var timeToTrigger = DateTimeOffset.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
 
                 if (DateTimeOffset.UtcNow >= timeToTrigger)
                 {
