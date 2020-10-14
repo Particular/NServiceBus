@@ -10,7 +10,7 @@
         [Test]
         public void When_roundtripping_constructed_date_should_be_equal()
         {
-            var date = new DateTime(2016, 8, 29, 16, 37, 25, 75, DateTimeKind.Utc);
+            var date = new DateTimeOffset(2016, 8, 29, 16, 37, 25, 75, TimeSpan.Zero);
             var dateString = DateTimeExtensions.ToWireFormattedString(date);
             var result = DateTimeExtensions.ToUtcDateTime(dateString);
 
