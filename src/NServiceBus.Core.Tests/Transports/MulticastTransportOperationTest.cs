@@ -15,7 +15,8 @@ namespace NServiceBus.Core.Tests.Transports
             var transportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), typeof(Guid));
             var secondTransportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), typeof(Guid));
 
-            transportOperation.DeliveryConstraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1)));
+            var randomConstraint = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
+            transportOperation.DeliveryConstraints.Add(randomConstraint);
 
             Assert.IsEmpty(secondTransportOperation.DeliveryConstraints);
             Assert.IsNotEmpty(transportOperation.DeliveryConstraints);
