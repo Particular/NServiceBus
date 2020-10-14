@@ -80,7 +80,7 @@ namespace NServiceBus
 
             if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
             {
-                timeToDeliver = doNotDeliverBefore.At;
+                timeToDeliver = doNotDeliverBefore.At.ToUniversalTime();
             }
             else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
             {
