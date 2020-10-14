@@ -218,10 +218,5 @@
         /// of the message can be known.
         /// </summary>
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
-
-        /// <summary>
-        /// Indicates that the message was sent as a non-durable message.
-        /// </summary>
-        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
     }
 }
