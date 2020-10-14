@@ -12,7 +12,7 @@ namespace NServiceBus
         /// Sends the provided message.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        /// <param name="sendOptions">The sendOptions for the send.</param>
+        /// <param name="sendOptions">The options for the send.</param>
         Task Send(object message, SendOptions sendOptions);
 
         /// <summary>
@@ -20,14 +20,14 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="sendOptions">The sendOptions for the send.</param>
+        /// <param name="sendOptions">The options for the send.</param>
         Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions);
 
         /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
         /// <param name="message">The message to publish.</param>
-        /// <param name="publishOptions">The sendOptions for the publish.</param>
+        /// <param name="publishOptions">The options for the publish.</param>
         Task Publish(object message, PublishOptions publishOptions);
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="publishOptions">Specific sendOptions for this event.</param>
+        /// <param name="publishOptions">Specific options for this event.</param>
         Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
 
         /// <summary>
