@@ -22,7 +22,7 @@
                     options.DelayDeliveryWith(delay);
                     options.RouteToThisEndpoint();
 
-                    c.SentAt = DateTime.UtcNow;
+                    c.SentAt = DateTimeOffset.UtcNow;
 
                     return session.Send(new MyMessage(), options);
                 }))
@@ -35,8 +35,8 @@
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
-            public DateTime SentAt { get; set; }
-            public DateTime ReceivedAt { get; set; }
+            public DateTimeOffset SentAt { get; set; }
+            public DateTimeOffset ReceivedAt { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -55,7 +55,7 @@
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    testContext.ReceivedAt = DateTime.UtcNow;
+                    testContext.ReceivedAt = DateTimeOffset.UtcNow;
                     testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }

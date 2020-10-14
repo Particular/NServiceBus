@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_contain_processing_stats_headers()
         {
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())).DoNotFailOnErrorMessages())
@@ -28,16 +28,16 @@
             var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
             var timeSentWhenFailedMessageWasSentToTheErrorQueue = DateTimeExtensions.ToUtcDateTime(context.FaultHeaders[Headers.TimeSent]);
 
-            Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded));
-            Assert.That(timeSent, Is.LessThanOrEqualTo(timeSentWhenFailedMessageWasSentToTheErrorQueue));
+            Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingStarted));
+            Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingEnded));
+            Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(timeSent));
+            Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
+            Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded), nameof(processingEnded));
+            Assert.That(timeSent, Is.LessThanOrEqualTo(timeSentWhenFailedMessageWasSentToTheErrorQueue), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
 
-            Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(context.TimeSentOnTheFailingMessageWhenItWasHandled));
-            Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded));
-            Assert.IsTrue(context.IsMessageHandledByTheFaultEndpoint);
+            Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(context.TimeSentOnTheFailingMessageWhenItWasHandled), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
+            Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded), nameof(processingStarted));
+            Assert.IsTrue(context.IsMessageHandledByTheFaultEndpoint, nameof(context.IsMessageHandledByTheFaultEndpoint));
         }
 
         public class Context : ScenarioContext

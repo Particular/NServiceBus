@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_contain_processing_stats_headers()
         {
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
@@ -26,12 +26,12 @@
             var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
             var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
 
-            Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded));
-            Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded));
-            Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
+            Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingStarted));
+            Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingEnded));
+            Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(timeSent));
+            Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded), nameof(processingStarted));
+            Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded), nameof(timeSent));
+            Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint, nameof(context.IsMessageHandledByTheAuditEndpoint));
         }
 
         public class Context : ScenarioContext
