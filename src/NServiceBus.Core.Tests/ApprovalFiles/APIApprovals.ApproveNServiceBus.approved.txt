@@ -702,9 +702,9 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Non-durable delivery support has been moved to the transports that can support it" +
         ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
-    public class NonDurableDelivery2 : NServiceBus.DeliveryConstraints.DeliveryConstraint
+    public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
-        public NonDurableDelivery2() { }
+        public NonDurableDelivery() { }
     }
     public class Notifications
     {
