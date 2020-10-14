@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;
@@ -7,14 +9,14 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_saga_is_correlated_on_a_unsupported_property_type
+    public class When_saga_is_correlated_on_a_unsupported_datetime_property_type
     {
         [Test]
         public void Should_throw()
         {
             var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage), new List<Type>(), new Conventions()));
 
-            StringAssert.Contains("DateTimeOffset or DateTime is not supported for correlated properties", ex.Message);
+            StringAssert.Contains("DateTime is not supported for correlated properties", ex.Message);
         }
 
         class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IAmStartedByMessages<Message1>
