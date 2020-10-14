@@ -1,17 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
+﻿using System;
+
+namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Extensibility;
-    using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;
-    using CriticalError = NServiceBus.CriticalError;
 
     public class When_using_concurrency_limit : NServiceBusAcceptanceTest
     {
@@ -43,13 +40,12 @@
         {
             PushSettings pushSettings;
 
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings settings)
+            public FakeReceiver(PushSettings pushSettings)
             {
-                pushSettings = settings;
-                return Task.FromResult(0);
+                this.pushSettings = pushSettings;
             }
 
-            public void Start(PushRuntimeSettings limitations)
+            public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
@@ -62,6 +58,8 @@
             {
                 return Task.FromResult(0);
             }
+
+            public IManageSubscriptions Subscriptions { get; }
         }
 
         class FakeQueueCreator : ICreateQueues
@@ -103,19 +101,14 @@
                 return logicalAddress.ToString();
             }
 
-            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
+            public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
             {
-                return new TransportReceiveInfrastructure(() => new FakeReceiver(), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+                return Task.FromResult<IPushMessages>(new FakeReceiver(receiveSettings.settings));
             }
 
             public override TransportSendInfrastructure ConfigureSendInfrastructure()
             {
                 return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
-            }
-
-            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
-            {
-                throw new NotImplementedException();
             }
         }
     }

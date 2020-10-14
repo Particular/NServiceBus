@@ -25,19 +25,13 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Gets the factories to receive message.
         /// </summary>
-        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings);
+        public abstract Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings);
 
         /// <summary>
         /// Gets the factories to send message.
         /// </summary>
         public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
 
-        //// TODO does this need to be standalone or can this be added into receive/subscription infrastructure?
-        
-        /// <summary>
-        /// Gets the factory to manage subscriptions.
-        /// </summary>
-        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings);
 
         /// <summary>
         /// 
@@ -60,22 +54,6 @@ namespace NServiceBus.Transport
         /// <param name="endpointAddress">The logical address.</param>
         /// <returns>The transport address.</returns>
         public abstract string ToTransportAddress(EndpointAddress endpointAddress);
-
-        /// <summary>
-        /// Performs any action required to warm up the transport infrastructure before starting the endpoint.
-        /// </summary>
-        public virtual Task Start()
-        {
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Performs any action required to cool down the transport infrastructure when the endpoint is stopping.
-        /// </summary>
-        public virtual Task Stop()
-        {
-            return Task.CompletedTask;
-        }
     }
 
     /// <summary>
@@ -155,5 +133,20 @@ namespace NServiceBus.Transport
         /// 
         /// </summary>
         public string LocalAddress { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public PushSettings settings { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool UsePublishSubscribe { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool PurgeOnStartup { get; set; }
     }
 }

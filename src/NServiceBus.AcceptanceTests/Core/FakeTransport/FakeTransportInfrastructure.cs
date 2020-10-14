@@ -3,9 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
     using Extensibility;
-    using NServiceBus.Routing;
     using Transport;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
@@ -31,36 +29,12 @@
             return logicalAddress.ToString();
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
+        public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
-            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
+            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(CreateReceiver)}");
 
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(fakeTransportSettings, settings.CriticalErrorAction),
-                () => new FakeQueueCreator(fakeTransportSettings),
-                () =>
-                {
-                    fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck");
-                    return Task.FromResult(StartupCheckResult.Success);
-                });
-        }
-
-        public override Task Start()
-        {
-            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Start)}");
-
-            return Task.FromResult(0);
-
-        }
-        public override async Task Stop()
-        {
-            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Stop)}");
-
-            await Task.Yield();
-
-            if (fakeTransportSettings.ThrowOnInfrastructureStop)
-            {
-                throw fakeTransportSettings.ExceptionToThrow;
-            }
+            return Task.FromResult<IPushMessages>(new FakeReceiver(fakeTransportSettings,
+                settings.CriticalErrorAction));
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
@@ -73,13 +47,6 @@
                     fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
                     return Task.FromResult(StartupCheckResult.Success);
                 });
-        }
-
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
-        {
-            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
-
-            return new TransportSubscriptionInfrastructure(()=> new FakeSubscriptionManager());
         }
 
         TransportSettings settings;

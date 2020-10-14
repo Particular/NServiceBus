@@ -36,6 +36,10 @@ namespace NServiceBus.Transport
         /// </summary>
         public Action<string, Exception> CriticalErrorAction { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool InstallersEnabled { get; set; }
     }
 
     /// <summary>

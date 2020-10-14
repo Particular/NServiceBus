@@ -12,30 +12,30 @@
 
     class LearningTransportMessagePump : IPushMessages
     {
-        public LearningTransportMessagePump(string basePath, Action<string, Exception> criticalErrorAction)
+        public LearningTransportMessagePump(
+            string basePath, 
+            Action<string, Exception> criticalErrorAction,
+            IManageSubscriptions subscriptionManager,
+            ReceiveSettings receiveSettings)
         {
             this.basePath = basePath;
             this.criticalErrorAction = criticalErrorAction;
+            this.subscriptionManager = subscriptionManager;
+            this.receiveSettings = receiveSettings;
         }
 
-        //TODO remove critical error?
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings settings)
+        public void Init()
         {
-            this.onMessage = onMessage;
-            this.onError = onError;
+            PathChecker.ThrowForBadPath(receiveSettings.LocalAddress, "InputQueue");
 
-            transactionMode = settings.RequiredTransactionMode;
-
-            PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
-
-            messagePumpBasePath = Path.Combine(basePath, settings.InputQueue);
+            messagePumpBasePath = Path.Combine(basePath, receiveSettings.LocalAddress);
             bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
             delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
 
             pendingTransactionDir = Path.Combine(messagePumpBasePath, PendingDirName);
             committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
-            if (settings.PurgeOnStartup)
+            if (receiveSettings.PurgeOnStartup)
             {
                 if (Directory.Exists(messagePumpBasePath))
                 {
@@ -44,12 +44,15 @@
             }
 
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
-
-            return Task.CompletedTask;
         }
 
-        public void Start(PushRuntimeSettings limitations)
+        public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
+            this.onMessage = onMessage;
+            this.onError = onError;
+
+            Init();
+
             maxConcurrency = limitations.MaxConcurrency;
             concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
             cancellationTokenSource = new CancellationTokenSource();
@@ -84,9 +87,11 @@
             concurrencyLimiter.Dispose();
         }
 
+        public IManageSubscriptions Subscriptions => subscriptionManager;
+
         void RecoverPendingTransactions()
         {
-            if (transactionMode != TransportTransactionMode.None)
+            if (receiveSettings.settings.RequiredTransactionMode != TransportTransactionMode.None)
             {
                 DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(messagePumpBasePath, PendingDirName, CommittedDirName);
             }
@@ -115,7 +120,7 @@
             Directory.CreateDirectory(delayedDir);
             Directory.CreateDirectory(pendingTransactionDir);
 
-            if (transactionMode != TransportTransactionMode.None)
+            if (receiveSettings.settings.RequiredTransactionMode != TransportTransactionMode.None)
             {
                 Directory.CreateDirectory(committedTransactionDir);
             }
@@ -194,7 +199,7 @@
 
         ILearningTransportTransaction GetTransaction()
         {
-            if (transactionMode == TransportTransactionMode.None)
+            if (receiveSettings.settings.RequiredTransactionMode == TransportTransactionMode.None)
             {
                 return new NoTransaction(messagePumpBasePath, PendingDirName);
             }
@@ -268,7 +273,7 @@
 
             var transportTransaction = new TransportTransaction();
 
-            if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            if (receiveSettings.settings.RequiredTransactionMode == TransportTransactionMode.SendsAtomicWithReceive)
             {
                 transportTransaction.Set(transaction);
             }
@@ -325,13 +330,10 @@
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
         Task messagePumpTask;
-        Func<MessageContext, Task> onMessage;
-        Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
         string basePath;
         DelayedMessagePoller delayedMessagePoller;
-        TransportTransactionMode transactionMode;
         int maxConcurrency;
         string bodyDir;
         string pendingTransactionDir;
@@ -339,9 +341,13 @@
         string delayedDir;
 
         Action<string, Exception> criticalErrorAction;
+        private readonly IManageSubscriptions subscriptionManager;
+        private readonly ReceiveSettings receiveSettings;
 
 
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
+        private Func<MessageContext, Task> onMessage;
+        private Func<ErrorContext, Task<ErrorHandleResult>> onError;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";

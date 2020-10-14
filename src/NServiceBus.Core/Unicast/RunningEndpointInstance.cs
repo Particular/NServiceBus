@@ -40,8 +40,6 @@ namespace NServiceBus
                 // Cannot throw by design
                 await receiveComponent.Stop().ConfigureAwait(false);
                 await featureComponent.Stop().ConfigureAwait(false);
-                // Can throw
-                await transportInfrastructure.Stop().ConfigureAwait(false);
             }
             catch (Exception exception)
             {

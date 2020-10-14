@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace NServiceBus
 {
     using System;
@@ -23,12 +25,13 @@ namespace NServiceBus
         {
             var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
 
-            endpointCreator.Initialize();
+            //TODO to keep changes limited for now. The API needs to be switched to async. Maybe rename Create?
+            endpointCreator.Initialize().GetAwaiter().GetResult();
 
             return endpointCreator;
         }
 
-        void Initialize()
+        async Task Initialize()
         {
             ConfigureMessageTypes();
 
@@ -72,11 +75,11 @@ namespace NServiceBus
 
             hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            receiveComponent = ReceiveComponent.Initialize(
+            receiveComponent = await ReceiveComponent.Initialize(
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
-                pipelineSettings);
+                pipelineSettings).ConfigureAwait(false);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 

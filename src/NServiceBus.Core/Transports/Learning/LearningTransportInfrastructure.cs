@@ -60,12 +60,20 @@
             }
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
+        public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             var errorQueueAddress = receiveSettings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
-            return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            PathChecker.ThrowForBadPath(settings.EndpointName.Name, "endpoint name");
+
+            IManageSubscriptions subscriptionManager = null;
+            if (receiveSettings.UsePublishSubscribe)
+            {
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.EndpointName.Name, receiveSettings.LocalAddress);
+            }
+            var pump = new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
+            return Task.FromResult<IPushMessages>(pump);
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
@@ -73,20 +81,6 @@
             var maxPayloadSize = transportSettings.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
 
             return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
-        }
-
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
-        {
-            return new TransportSubscriptionInfrastructure(() =>
-            {
-                var endpointName = settings.EndpointName;
-                PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
-
-                var localAddress = subscriptionSettings.LocalAddress;
-                PathChecker.ThrowForBadPath(localAddress, "localAddress");
-
-                return new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);
-            });
         }
 
         public override EndpointAddress BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);

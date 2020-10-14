@@ -72,7 +72,6 @@
         {
             testCancellationTokenSource?.Dispose();
             MessagePump?.Stop().GetAwaiter().GetResult();
-            TransportInfrastructure?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
@@ -112,29 +111,18 @@
 
             IgnoreUnsupportedTransactionModes(transactionMode);
 
-            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure(new ReceiveSettings
-            {
-                ErrorQueueAddress = ErrorQueueName,
-                LocalAddress = InputQueueName,
-            });
-
-            var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-            var userName = GetUserName();
-            await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
-
-            var result = await ReceiveInfrastructure.PreStartupCheck();
-            if (result.Succeeded == false)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-
-            await TransportInfrastructure.Start();
-
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
             lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
 
-            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
-            await MessagePump.Init(
+            MessagePump = await TransportInfrastructure.CreateReceiver(new ReceiveSettings()
+            {
+                ErrorQueueAddress = ErrorQueueName,
+                LocalAddress = InputQueueName,
+                settings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
+                UsePublishSubscribe = true
+            });
+
+            MessagePump.Start(configuration.PushRuntimeSettings,
                 context =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
@@ -143,25 +131,16 @@
                     }
 
                     return Task.FromResult(0);
-                },
-                context =>
+                }, context =>
                 {
-                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Message.Headers[TestIdHeaderName] == testId)
                     {
                         return onError(context);
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                },
-                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
-
-            result = await SendInfrastructure.PreStartupCheck();
-            if (result.Succeeded == false)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-
-            MessagePump.Start(configuration.PushRuntimeSettings);
+                });
         }
 
         string GetUserName()
@@ -253,7 +232,6 @@
         string testId;
 
         Lazy<IDispatchMessages> lazyDispatcher;
-        TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;
         TransportInfrastructure TransportInfrastructure;
         IPushMessages MessagePump;

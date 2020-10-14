@@ -12,14 +12,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             this.criticalErrorAction = criticalErrorAction;
         }
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings pushSettings)
-        {
-            settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Init)}");
 
-            return Task.FromResult(0);
-        }
-
-        public void Start(PushRuntimeSettings limitations)
+        public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Start)}");
 
@@ -40,6 +34,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
                 throw settings.ExceptionToThrow;
             }
         }
+
+        public IManageSubscriptions Subscriptions { get; }
 
         FakeTransport settings;
         private readonly Action<string, Exception> criticalErrorAction;

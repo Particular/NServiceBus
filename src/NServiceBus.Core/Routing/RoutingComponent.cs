@@ -32,6 +32,8 @@ namespace NServiceBus
 
             configuration.ConfiguredUnicastRoutes?.Apply(unicastRoutingTable, conventions);
 
+            pipelineSettings.Register("MulticastPublishRouterBehavior", new MulticastPublishConnector(), "Determines how the published messages should be routed");
+
             var isSendOnlyEndpoint = receiveConfiguration.IsSendOnlyEndpoint;
             if (!isSendOnlyEndpoint)
             {

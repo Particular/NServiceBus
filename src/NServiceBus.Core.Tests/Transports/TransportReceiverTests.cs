@@ -13,13 +13,13 @@
         {
             pump = new Pump();
 
-            receiver = new TransportReceiver("FakeReceiver", pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null);
+            receiver = new TransportReceiver("FakeReceiver", pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings());
         }
 
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start();
+            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.IsTrue(pump.Started);
         }
@@ -29,13 +29,13 @@
         {
             pump.ThrowOnStart = true;
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start());
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled)));
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start();
+            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -47,7 +47,7 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start();
+            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
@@ -55,7 +55,7 @@
         [Test]
         public async Task Stop_should_dispose_pump() // for container backward compat reasons
         {
-            await receiver.Start();
+            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -74,12 +74,8 @@
             public bool Stopped { get; private set; }
             public bool Disposed { get; private set; }
 
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, PushSettings settings)
-            {
-                throw new NotImplementedException();
-            }
 
-            public void Start(PushRuntimeSettings limitations)
+            public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 if (ThrowOnStart)
                 {
@@ -100,6 +96,8 @@
 
                 return Task.CompletedTask;
             }
+
+            public IManageSubscriptions Subscriptions { get; }
 
             public void Dispose()
             {

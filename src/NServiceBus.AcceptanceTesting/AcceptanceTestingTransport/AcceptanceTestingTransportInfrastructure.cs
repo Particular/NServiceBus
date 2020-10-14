@@ -50,31 +50,31 @@
             }
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(ReceiveSettings receiveSettings)
+        public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             var errorQueueAddress = receiveSettings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
-            return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            IManageSubscriptions subscriptionManager = null;
+            if (receiveSettings.UsePublishSubscribe)
+            {
+                var endpointName = settings.EndpointName;
+                PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
+
+                var localAddress = receiveSettings.LocalAddress;
+                PathChecker.ThrowForBadPath(localAddress, "localAddress");
+
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);
+            }
+
+            var pump = new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings);
+
+            return Task.FromResult<IPushMessages>(pump);
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
             return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, int.MaxValue / 1024), () => Task.FromResult(StartupCheckResult.Success));
-        }
-
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure(SubscriptionSettings subscriptionSettings)
-        {
-            return new TransportSubscriptionInfrastructure(() =>
-            {
-                var endpointName = settings.EndpointName;
-                PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
-
-                var localAddress = subscriptionSettings.LocalAddress;
-                PathChecker.ThrowForBadPath(localAddress, "localAddress");
-
-                return new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);
-            });
         }
 
         public override EndpointAddress  BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);
@@ -107,7 +107,5 @@
 
         readonly string storagePath;
         readonly TransportSettings settings;
-
-        public const string StorageLocationKey = "AcceptanceTestingTransport.StoragePath";
     }
 }

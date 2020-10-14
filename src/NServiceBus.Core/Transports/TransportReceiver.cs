@@ -11,27 +11,19 @@ namespace NServiceBus
             string id,
             IPushMessages pushMessages,
             PushSettings pushSettings,
-            PushRuntimeSettings pushRuntimeSettings,
-            IPipelineExecutor pipelineExecutor,
-            RecoverabilityExecutor recoverabilityExecutor)
+            PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.pipelineExecutor = pipelineExecutor;
-            this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
 
             receiver = pushMessages;
         }
 
+        //TODO add to IPushMessages
         public string Id { get; }
 
-        public Task Init()
-        {
-            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), pushSettings);
-        }
-
-        public Task Start()
+        public Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             if (isStarted)
             {
@@ -40,7 +32,7 @@ namespace NServiceBus
 
             Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
 
-            receiver.Start(pushRuntimeSettings);
+            receiver.Start(pushRuntimeSettings, onMessage, onError);
 
             isStarted = true;
 
@@ -71,10 +63,10 @@ namespace NServiceBus
 
         bool isStarted;
         PushRuntimeSettings pushRuntimeSettings;
-        IPipelineExecutor pipelineExecutor;
-        RecoverabilityExecutor recoverabilityExecutor;
         PushSettings pushSettings;
-        IPushMessages receiver;
+
+        //hack: make this accessible more easily for now so we can access the subscription storage
+        internal IPushMessages receiver;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }
