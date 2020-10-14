@@ -80,16 +80,17 @@ namespace NServiceBus
                 }
             }
 
-            var timestamp = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc).AddMicroseconds(microSecond);
-            return new DateTimeOffset(timestamp);
+            var timestamp = new DateTimeOffset(year, month, day, hour, minute, second, TimeSpan.Zero);
+            timestamp = timestamp.AddMicroseconds(microSecond);
+            return timestamp;
         }
 
-        internal static int Microseconds(this DateTime self)
+        internal static int Microseconds(this DateTimeOffset self)
         {
             return (int)Math.Floor((self.Ticks % TimeSpan.TicksPerMillisecond) / (double)ticksPerMicrosecond);
         }
 
-        internal static DateTime AddMicroseconds(this DateTime self, int microseconds)
+        internal static DateTimeOffset AddMicroseconds(this DateTimeOffset self, int microseconds)
         {
             return self.AddTicks(microseconds * ticksPerMicrosecond);
         }
