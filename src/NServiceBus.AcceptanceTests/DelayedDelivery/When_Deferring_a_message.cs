@@ -29,7 +29,8 @@
                 .Done(c => c.WasCalled)
                 .Run();
 
-            Assert.GreaterOrEqual(context.ReceivedAt - context.SentAt, delay);
+            var sendReceiveDifference = context.ReceivedAt - context.SentAt;
+            Assert.GreaterOrEqual(sendReceiveDifference, delay);
         }
 
         public class Context : ScenarioContext
