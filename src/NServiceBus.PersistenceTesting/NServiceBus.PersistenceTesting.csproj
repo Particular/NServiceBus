@@ -26,7 +26,7 @@
   <ItemGroup>
     <_PackageFiles Include="**\*.cs;..\NServiceBus.Core\IdGeneration\CombGuid.cs;..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs">
       <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.PersistenceTests\</PackagePath>
+      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.PersistenceTests\%(RecursiveDir)%(Filename).g%(Extension)</PackagePath>
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
