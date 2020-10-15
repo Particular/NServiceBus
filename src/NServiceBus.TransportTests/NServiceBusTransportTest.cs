@@ -94,18 +94,8 @@
 
             Configurer = CreateConfigurer();
 
-            ////TODO provide all mandatory values
-
-            var configuration = await Configurer.Configure(new TransportSettings
-            {
-                EndpointName = new EndpointName
-                {
-                    Name = InputQueueName,
-                    HostDisplayName = InputQueueName
-                },
-                CriticalErrorAction = onCriticalError,
-                StartupDiagnostic = new StartupDiagnosticEntries()
-            });
+            var configuration = await Configurer.Configure(new Settings(InputQueueName, InputQueueName,
+                new StartupDiagnosticEntries(), onCriticalError, true));
 
             TransportInfrastructure = configuration.TransportInfrastructure;
 

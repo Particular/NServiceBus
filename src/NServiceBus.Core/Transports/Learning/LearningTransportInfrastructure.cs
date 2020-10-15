@@ -10,7 +10,7 @@
 
     class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public LearningTransportInfrastructure(TransportSettings settings, LearningTransport transportSettings)
+        public LearningTransportInfrastructure(Transport.Settings settings, LearningTransport transportSettings)
         {
             this.settings = settings;
             this.transportSettings = transportSettings;
@@ -65,12 +65,12 @@
             var errorQueueAddress = receiveSettings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
-            PathChecker.ThrowForBadPath(settings.EndpointName.Name, "endpoint name");
+            PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
             IManageSubscriptions subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe)
             {
-                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.EndpointName.Name, receiveSettings.LocalAddress);
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.LocalAddress);
             }
             var pump = new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
             return Task.FromResult<IPushMessages>(pump);
@@ -112,7 +112,7 @@
         }
 
         readonly string storagePath;
-        readonly TransportSettings settings;
+        readonly Transport.Settings settings;
         private readonly LearningTransport transportSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";

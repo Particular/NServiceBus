@@ -11,7 +11,7 @@
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     {
-        public AcceptanceTestingTransportInfrastructure(TransportSettings settings,
+        public AcceptanceTestingTransportInfrastructure(Settings settings,
             AcceptanceTestingTransport acceptanceTestingTransport)
         {
             this.settings = settings;
@@ -58,13 +58,13 @@
             IManageSubscriptions subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe)
             {
-                var endpointName = settings.EndpointName;
-                PathChecker.ThrowForBadPath(endpointName.Name, "endpoint name");
+                var endpointName = settings.Name;
+                PathChecker.ThrowForBadPath(endpointName, "endpoint name");
 
                 var localAddress = receiveSettings.LocalAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
-                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, endpointName.Name, localAddress);
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
             }
 
             var pump = new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings);
@@ -106,6 +106,6 @@
         }
 
         readonly string storagePath;
-        readonly TransportSettings settings;
+        readonly Settings settings;
     }
 }

@@ -18,16 +18,11 @@ namespace NServiceBus
         {
             var transportDefinition = transportSettings.TransportDefinition;
 
-            var transportInfrastructure = await transportDefinition.Initialize(new TransportSettings
-            {
-                EndpointName = new EndpointName
-                {
-                    Name = hostingConfiguration.EndpointName, 
-                    HostDisplayName = hostingConfiguration.HostInformation.DisplayName // add HostInformation to the settings instead?
-                },
-                StartupDiagnostic = hostingConfiguration.StartupDiagnostics,
-                CriticalErrorAction = hostingConfiguration.CriticalError.Raise
-            }).ConfigureAwait(false);
+            var transportInfrastructure = await transportDefinition.Initialize(
+                    new Transport.Settings(hostingConfiguration.EndpointName,
+                        hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                        hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers))
+                .ConfigureAwait(false);
 
             //RegisterTransportInfrastructureForBackwardsCompatibility
             transportSettings.settings.Set(transportInfrastructure);

@@ -27,7 +27,7 @@ namespace NServiceBus
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        public override Task<TransportInfrastructure> Initialize(TransportSettings settings)
+        public override Task<TransportInfrastructure> Initialize(Transport.Settings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
             var learningTransportInfrastructure = new LearningTransportInfrastructure(settings, this);

@@ -1,6 +1,6 @@
 namespace NServiceBus.Transport
 {
-    using Settings;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Extension methods for access to various transport address helpers.

@@ -9,7 +9,7 @@ namespace NServiceBus
     {
         public string StorageDirectory { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(TransportSettings settings)
+        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 

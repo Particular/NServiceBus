@@ -8,7 +8,7 @@
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {
-        public FakeTransportInfrastructure(TransportSettings settings, FakeTransport fakeTransportSettings)
+        public FakeTransportInfrastructure(Settings settings, FakeTransport fakeTransportSettings)
         {
             this.settings = settings;
             this.fakeTransportSettings = fakeTransportSettings;
@@ -38,7 +38,7 @@
                 settings.CriticalErrorAction));
         }
 
-        TransportSettings settings;
+        Settings settings;
         private readonly FakeTransport fakeTransportSettings;
 
         class FakeSubscriptionManager : IManageSubscriptions

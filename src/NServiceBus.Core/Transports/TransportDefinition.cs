@@ -14,48 +14,47 @@ namespace NServiceBus.Transport
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        public abstract Task<TransportInfrastructure> Initialize(TransportSettings settings);
+        public abstract Task<TransportInfrastructure> Initialize(Settings settings);
     }
 
     /// <summary>
-    /// TODO: rename to EndpointSettings, HostSettings, or something like that?
     /// </summary>
-    public class TransportSettings
+    public class Settings
     {
         /// <summary>
-        /// 
         /// </summary>
-        public EndpointName EndpointName { get; set; }
+        public Settings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure)
+        {
+            Name = name;
+            HostDisplayName = hostDisplayName;
+            StartupDiagnostic = startupDiagnostic;
+            CriticalErrorAction = criticalErrorAction;
+            SetupInfrastructure = setupInfrastructure;
+        }
 
         /// <summary>
         /// 
         /// </summary>
-        public StartupDiagnosticEntries StartupDiagnostic { get; set; }
+        public string Name { get; }
+
+        /// <summary>
+        /// TODO: rethink the whole name properties. Which ones do we really need?
+        /// </summary>
+        public string HostDisplayName { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public Action<string, Exception> CriticalErrorAction { get; set; }
+        public StartupDiagnosticEntries StartupDiagnostic { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public bool InstallersEnabled { get; set; }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class EndpointName
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Name { get; set; }
+        public Action<string, Exception> CriticalErrorAction { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public string HostDisplayName { get; set; }
+        public bool SetupInfrastructure { get;  }
     }
 }

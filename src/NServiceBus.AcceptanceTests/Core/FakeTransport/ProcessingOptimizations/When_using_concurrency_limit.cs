@@ -80,7 +80,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeTransport : TransportDefinition
         {
-            public override Task<TransportInfrastructure> Initialize(TransportSettings settings)
+            public override Task<TransportInfrastructure> Initialize(Settings settings)
             {
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure());
             }

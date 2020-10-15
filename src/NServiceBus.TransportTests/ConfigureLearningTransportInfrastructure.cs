@@ -8,7 +8,7 @@ using NServiceBus.TransportTests;
 
 class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructure
 {
-    public async Task<TransportConfigurationResult> Configure(TransportSettings transportSettings)
+    public async Task<TransportConfigurationResult> Configure(Settings settings)
     {
         storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
 
@@ -19,7 +19,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
 
         return new TransportConfigurationResult
         {
-            TransportInfrastructure = await transportDefinition.Initialize(transportSettings).ConfigureAwait(false),
+            TransportInfrastructure = await transportDefinition.Initialize(settings).ConfigureAwait(false),
             PurgeInputQueueOnStartup = true
         };
     }

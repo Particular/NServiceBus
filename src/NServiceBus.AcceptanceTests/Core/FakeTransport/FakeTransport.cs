@@ -24,7 +24,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public Action<QueueBindings> OnQueueCreation { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(TransportSettings settings)
+        public override async Task<TransportInfrastructure> Initialize(Settings settings)
         {
             StartUpSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
