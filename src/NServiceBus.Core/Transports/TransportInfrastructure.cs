@@ -43,11 +43,6 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// Returns address properties for the local endpoint
-        /// </summary>
-        public abstract EndpointAddress BuildLocalAddress(string queueName);
-
-        /// <summary>
         /// Converts a given logical address to the transport address.
         /// </summary>
         /// <param name="endpointAddress">The logical address.</param>

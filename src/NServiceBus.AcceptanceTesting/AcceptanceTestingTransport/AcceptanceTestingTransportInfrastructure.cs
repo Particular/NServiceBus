@@ -77,8 +77,6 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
-        public override EndpointAddress  BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);
-
         public override string ToTransportAddress(EndpointAddress logicalAddress)
         {
             var address = logicalAddress.Endpoint;

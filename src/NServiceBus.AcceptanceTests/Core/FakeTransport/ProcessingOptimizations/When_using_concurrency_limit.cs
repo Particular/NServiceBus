@@ -96,10 +96,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             public override bool SupportsTTBR { get; } = false;
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
 
-            public override EndpointAddress BuildLocalAddress(string queueName)
-            {
-                return new EndpointAddress(string.Empty, null, new Dictionary<string, string>(), null);
-            }
 
             public override string ToTransportAddress(EndpointAddress logicalAddress)
             {
