@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="6.2.6" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="6.3.0" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.8.0" PrivateAssets="All" />
     <PackageReference Include="LightInject.Source" Version="5.0.3" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
