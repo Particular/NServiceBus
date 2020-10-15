@@ -34,8 +34,6 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            await sendComponent.SendPreStartupChecks().ConfigureAwait(false);
-
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);

@@ -12,6 +12,7 @@
         {
             this.settings = settings;
             this.fakeTransportSettings = fakeTransportSettings;
+            Dispatcher = new FakeDispatcher();
         }
 
         public override bool SupportsTTBR { get; } = false;
@@ -35,18 +36,6 @@
 
             return Task.FromResult<IPushMessages>(new FakeReceiver(fakeTransportSettings,
                 settings.CriticalErrorAction));
-        }
-
-        public override TransportSendInfrastructure ConfigureSendInfrastructure()
-        {
-            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
-
-            return new TransportSendInfrastructure(() => new FakeDispatcher(),
-                () =>
-                {
-                    fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
-                    return Task.FromResult(StartupCheckResult.Success);
-                });
         }
 
         TransportSettings settings;

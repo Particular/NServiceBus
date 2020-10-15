@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Threading.Tasks;
+
+namespace NServiceBus
 {
     using System;
     using Settings;
@@ -12,11 +14,11 @@
             QueueBindings = queueBindings;
         }
 
-        public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
+        public static async Task<TransportSeam> Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
         {
             var transportDefinition = transportSettings.TransportDefinition;
 
-            var transportInfrastructure = transportDefinition.Initialize(new TransportSettings
+            var transportInfrastructure = await transportDefinition.Initialize(new TransportSettings
             {
                 EndpointName = new EndpointName
                 {
@@ -25,7 +27,7 @@
                 },
                 StartupDiagnostic = hostingConfiguration.StartupDiagnostics,
                 CriticalErrorAction = hostingConfiguration.CriticalError.Raise
-            });
+            }).ConfigureAwait(false);
 
             //RegisterTransportInfrastructureForBackwardsCompatibility
             transportSettings.settings.Set(transportInfrastructure);

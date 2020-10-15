@@ -45,7 +45,7 @@ namespace NServiceBus
             // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
             featureComponent.RegisterFeatureEnabledStatusInSettings(hostingConfiguration);
 
-            transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
+            transportSeam = await TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration).ConfigureAwait(false);
 
             var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
                 settings.Get<ReceiveComponent.Settings>(),
@@ -71,7 +71,7 @@ namespace NServiceBus
                 settings.Get<Conventions>(),
                 pipelineSettings);
 
-            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
+            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam.TransportInfrastructure.Dispatcher);
 
             hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 

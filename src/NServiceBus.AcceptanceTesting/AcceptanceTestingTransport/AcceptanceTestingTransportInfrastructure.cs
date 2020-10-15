@@ -72,9 +72,9 @@
             return Task.FromResult<IPushMessages>(pump);
         }
 
-        public override TransportSendInfrastructure ConfigureSendInfrastructure()
+        public void ConfigureSendInfrastructure()
         {
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, int.MaxValue / 1024), () => Task.FromResult(StartupCheckResult.Success));
+            Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
         public override EndpointAddress  BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);

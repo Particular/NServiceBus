@@ -96,7 +96,7 @@
 
             ////TODO provide all mandatory values
 
-            var configuration = Configurer.Configure(new TransportSettings
+            var configuration = await Configurer.Configure(new TransportSettings
             {
                 EndpointName = new EndpointName
                 {
@@ -110,9 +110,6 @@
             TransportInfrastructure = configuration.TransportInfrastructure;
 
             IgnoreUnsupportedTransactionModes(transactionMode);
-
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
 
             MessagePump = await TransportInfrastructure.CreateReceiver(new ReceiveSettings()
             {
@@ -175,7 +172,7 @@
                 message.Headers.Add(TestIdHeaderName, testId);
             }
 
-            var dispatcher = lazyDispatcher.Value;
+            var dispatcher = TransportInfrastructure.Dispatcher;
 
             if (transportTransaction == null)
             {
@@ -231,8 +228,6 @@
 
         string testId;
 
-        Lazy<IDispatchMessages> lazyDispatcher;
-        TransportSendInfrastructure SendInfrastructure;
         TransportInfrastructure TransportInfrastructure;
         IPushMessages MessagePump;
         CancellationTokenSource testCancellationTokenSource;

@@ -80,14 +80,19 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeTransport : TransportDefinition
         {
-            public override TransportInfrastructure Initialize(TransportSettings settings)
+            public override Task<TransportInfrastructure> Initialize(TransportSettings settings)
             {
-                return new FakeTransportInfrastructure();
+                return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure());
             }
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
+            public FakeTransportInfrastructure()
+            {
+                Dispatcher = new FakeDispatcher();
+            }
+
             public override bool SupportsTTBR { get; } = false;
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
 
@@ -104,11 +109,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
             {
                 return Task.FromResult<IPushMessages>(new FakeReceiver(receiveSettings.settings));
-            }
-
-            public override TransportSendInfrastructure ConfigureSendInfrastructure()
-            {
-                return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
             }
         }
     }

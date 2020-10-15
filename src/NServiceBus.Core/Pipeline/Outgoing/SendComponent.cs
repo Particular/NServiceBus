@@ -9,13 +9,12 @@
 
     class SendComponent
     {
-        SendComponent(IMessageMapper messageMapper, TransportInfrastructure transportInfrastructure)
+        SendComponent(IMessageMapper messageMapper)
         {
             this.messageMapper = messageMapper;
-            this.transportInfrastructure = transportInfrastructure;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, TransportSeam transportSeam)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, IDispatchMessages dispatcher)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
@@ -30,21 +29,11 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            var sendComponent = new SendComponent(messageMapper, transportSeam.TransportInfrastructure);
-            sendComponent.transportSendInfrastructure = sendComponent.transportInfrastructure.ConfigureSendInfrastructure();
+            var sendComponent = new SendComponent(messageMapper);
 
-            hostingConfiguration.Services.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Services.AddSingleton(dispatcher);
 
             return sendComponent;
-        }
-
-        public async Task SendPreStartupChecks()
-        {
-            var sendResult = await transportSendInfrastructure.PreStartupCheck().ConfigureAwait(false);
-            if (!sendResult.Succeeded)
-            {
-                throw new Exception($"Pre start-up check failed: {sendResult.ErrorMessage}");
-            }
         }
 
         public MessageOperations CreateMessageOperations(IServiceProvider builder, PipelineComponent pipelineComponent)
@@ -58,13 +47,6 @@
                 pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder));
         }
 
-        IDispatchMessages GetDispatcher()
-        {
-            return this.transportSendInfrastructure.DispatcherFactory();
-        }
-
-        TransportSendInfrastructure transportSendInfrastructure;
         readonly IMessageMapper messageMapper;
-        readonly TransportInfrastructure transportInfrastructure;
     }
 }

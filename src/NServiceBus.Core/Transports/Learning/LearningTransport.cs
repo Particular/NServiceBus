@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Threading.Tasks;
+
+namespace NServiceBus
 {
     using Settings;
     using Transport;
@@ -25,10 +27,13 @@
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        public override TransportInfrastructure Initialize(TransportSettings settings)
+        public override Task<TransportInfrastructure> Initialize(TransportSettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return new LearningTransportInfrastructure(settings, this);
+            var learningTransportInfrastructure = new LearningTransportInfrastructure(settings, this);
+            // here async initialzation of the sender could happen
+            learningTransportInfrastructure.ConfigureSendInfrastructure();
+            return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
         }
     }
 }

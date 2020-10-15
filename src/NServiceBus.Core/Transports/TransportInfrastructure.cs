@@ -28,10 +28,9 @@ namespace NServiceBus.Transport
         public abstract Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings);
 
         /// <summary>
-        /// Gets the factories to send message.
+        /// 
         /// </summary>
-        public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
-
+        public IDispatchMessages Dispatcher { get; protected set; }
 
         /// <summary>
         /// 

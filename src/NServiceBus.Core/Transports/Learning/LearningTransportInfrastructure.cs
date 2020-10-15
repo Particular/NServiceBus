@@ -76,11 +76,11 @@
             return Task.FromResult<IPushMessages>(pump);
         }
 
-        public override TransportSendInfrastructure ConfigureSendInfrastructure()
+        public void ConfigureSendInfrastructure()
         {
             var maxPayloadSize = transportSettings.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
 
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
+            Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
         }
 
         public override EndpointAddress BuildLocalAddress(string queueName) => new EndpointAddress(queueName, null, new Dictionary<string, string>(), null);
