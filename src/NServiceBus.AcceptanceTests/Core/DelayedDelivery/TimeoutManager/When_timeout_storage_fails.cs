@@ -100,9 +100,9 @@
                     throw new NotImplementedException();
                 }
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                public Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice)
                 {
-                    return Task.FromResult(new TimeoutsChunk(new TimeoutsChunk.Timeout[0], DateTime.UtcNow + TimeSpan.FromSeconds(10)));
+                    return Task.FromResult(new TimeoutsChunk(new TimeoutsChunk.Timeout[0], DateTimeOffset.UtcNow + TimeSpan.FromSeconds(10)));
                 }
 
                 Context testContext;

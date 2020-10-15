@@ -12,7 +12,7 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="dueTimeouts">timeouts that are due.</param>
         /// <param name="nextTimeToQuery">the next time to query for due timeouts again.</param>
-        public TimeoutsChunk(Timeout[] dueTimeouts, DateTime nextTimeToQuery)
+        public TimeoutsChunk(Timeout[] dueTimeouts, DateTimeOffset nextTimeToQuery)
         {
             DueTimeouts = dueTimeouts;
             NextTimeToQuery = nextTimeToQuery;
@@ -26,7 +26,7 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// the next time to query for due timeouts again.
         /// </summary>
-        public DateTime NextTimeToQuery { get; }
+        public DateTimeOffset NextTimeToQuery { get; }
 
         /// <summary>
         /// Represents a timeout.
@@ -38,7 +38,7 @@ namespace NServiceBus.Timeout.Core
             /// </summary>
             /// <param name="id">The id of the timeout.</param>
             /// <param name="dueTime">The due time of the timeout.</param>
-            public Timeout(string id, DateTime dueTime)
+            public Timeout(string id, DateTimeOffset dueTime)
             {
                 Id = id;
                 DueTime = dueTime;
@@ -52,7 +52,7 @@ namespace NServiceBus.Timeout.Core
             /// <summary>
             /// The due time of the timeout.
             /// </summary>
-            public DateTime DueTime { get; }
+            public DateTimeOffset DueTime { get; }
         }
     }
 }

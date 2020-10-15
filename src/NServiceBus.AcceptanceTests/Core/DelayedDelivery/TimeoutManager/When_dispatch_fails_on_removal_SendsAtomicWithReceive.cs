@@ -136,7 +136,7 @@
                     throw new NotImplementedException();
                 }
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                public Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice)
                 {
                     var timeouts = timeoutData != null
                         ? new[]
@@ -145,7 +145,7 @@
                         }
                         : new TimeoutsChunk.Timeout[0];
 
-                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
+                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTimeOffset.UtcNow + TimeSpan.FromSeconds(10)));
                 }
 
                 TimeoutData timeoutData;

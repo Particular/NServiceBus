@@ -54,7 +54,7 @@
                     waitTime,
                     ex => criticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
-                return new ExpiredTimeoutsPoller(b.GetRequiredService<IQueryTimeouts>(), b.GetRequiredService<IDispatchMessages>(), dispatcherAddress, circuitBreaker, () => DateTime.UtcNow);
+                return new ExpiredTimeoutsPoller(b.GetRequiredService<IQueryTimeouts>(), b.GetRequiredService<IDispatchMessages>(), dispatcherAddress, circuitBreaker, () => DateTimeOffset.UtcNow);
             }, DependencyLifecycle.SingleInstance);
 
             context.RegisterStartupTask(b => new TimeoutPollerRunner(b.GetRequiredService<ExpiredTimeoutsPoller>()));

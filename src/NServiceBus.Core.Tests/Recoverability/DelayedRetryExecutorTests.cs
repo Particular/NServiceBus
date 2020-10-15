@@ -61,7 +61,7 @@
 
             Assert.IsNull(deliveryConstraint);
             Assert.AreEqual(EndpointInputQueue, transportOperation.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
-            Assert.That(DateTimeExtensions.ToUtcDateTime(transportOperation.Message.Headers[TimeoutManagerHeaders.Expire]), Is.GreaterThan(DateTime.UtcNow).And.LessThanOrEqualTo(DateTime.UtcNow + delay));
+            Assert.That(DateTimeExtensions.ToUtcDateTime(transportOperation.Message.Headers[TimeoutManagerHeaders.Expire]), Is.GreaterThan(DateTimeOffset.UtcNow).And.LessThanOrEqualTo(DateTimeOffset.UtcNow + delay));
             Assert.AreEqual(TimeoutManagerAddress, transportOperation.Destination);
         }
 

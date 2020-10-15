@@ -9,18 +9,18 @@ namespace NServiceBus
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Converts the <see cref="DateTime" /> to a <see cref="string" /> suitable for transport over the wire.
+        /// Converts the <see cref="DateTimeOffset" /> to a <see cref="string" /> suitable for transport over the wire.
         /// </summary>
-        public static string ToWireFormattedString(DateTime dateTime)
+        public static string ToWireFormattedString(DateTimeOffset dateTime)
         {
             return dateTime.ToUniversalTime().ToString(format, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
         /// Converts a wire formatted <see cref="string" /> from <see cref="ToWireFormattedString" /> to a UTC
-        /// <see cref="DateTime" />.
+        /// <see cref="DateTimeOffset" />.
         /// </summary>
-        public static DateTime ToUtcDateTime(string wireFormattedString)
+        public static DateTimeOffset ToUtcDateTime(string wireFormattedString)
         {
             Guard.AgainstNullAndEmpty(nameof(wireFormattedString), wireFormattedString);
 
@@ -80,15 +80,17 @@ namespace NServiceBus
                 }
             }
 
-            return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc).AddMicroseconds(microSecond);
+            var timestamp = new DateTimeOffset(year, month, day, hour, minute, second, TimeSpan.Zero);
+            timestamp = timestamp.AddMicroseconds(microSecond);
+            return timestamp;
         }
 
-        internal static int Microseconds(this DateTime self)
+        internal static int Microseconds(this DateTimeOffset self)
         {
             return (int)Math.Floor((self.Ticks % TimeSpan.TicksPerMillisecond) / (double)ticksPerMicrosecond);
         }
 
-        internal static DateTime AddMicroseconds(this DateTime self, int microseconds)
+        internal static DateTimeOffset AddMicroseconds(this DateTimeOffset self, int microseconds)
         {
             return self.AddTicks(microseconds * ticksPerMicrosecond);
         }

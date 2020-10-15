@@ -13,6 +13,6 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="startSlice">The time where to start retrieving the next slice, the slice should exclude this date.</param>
         /// <returns>Returns the next range of timeouts that are due.</returns>
-        Task<TimeoutsChunk> GetNextChunk(DateTime startSlice);
+        Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice);
     }
 }

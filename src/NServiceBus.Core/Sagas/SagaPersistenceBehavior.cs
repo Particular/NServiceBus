@@ -71,7 +71,7 @@
                 }
             }
 
-            var sagaInstanceState = new ActiveSagaInstance(saga, currentSagaMetadata, () => DateTime.UtcNow);
+            var sagaInstanceState = new ActiveSagaInstance(saga, currentSagaMetadata, () => DateTimeOffset.UtcNow);
 
             //so that other behaviors can access the saga
             context.Extensions.Set(sagaInstanceState);

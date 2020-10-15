@@ -36,7 +36,7 @@ namespace NServiceBus
             return next(context);
         }
 
-        RoutingStrategy RerouteToTimeoutManager(RoutingStrategy routingStrategy, IRoutingContext context, DateTime deliverAt)
+        RoutingStrategy RerouteToTimeoutManager(RoutingStrategy routingStrategy, IRoutingContext context, DateTimeOffset deliverAt)
         {
             var headers = new Dictionary<string, string>(context.Message.Headers);
             var originalTag = routingStrategy.Apply(headers);
@@ -47,9 +47,9 @@ namespace NServiceBus
             return new TimeoutManagerRoutingStrategy(timeoutManagerAddress, unicastTag.Destination, deliverAt);
         }
 
-        static bool IsDeferred(IExtendable context, out DateTime deliverAt)
+        static bool IsDeferred(IExtendable context, out DateTimeOffset deliverAt)
         {
-            deliverAt = DateTime.MinValue;
+            deliverAt = DateTimeOffset.MinValue;
             if (context.Extensions.TryRemoveDeliveryConstraint(out DoNotDeliverBefore doNotDeliverBefore))
             {
                 deliverAt = doNotDeliverBefore.At;
@@ -57,7 +57,7 @@ namespace NServiceBus
             }
             if (context.Extensions.TryRemoveDeliveryConstraint(out DelayDeliveryWith delayDeliveryWith))
             {
-                deliverAt = DateTime.UtcNow + delayDeliveryWith.Delay;
+                deliverAt = DateTimeOffset.UtcNow + delayDeliveryWith.Delay;
                 return true;
             }
             return false;

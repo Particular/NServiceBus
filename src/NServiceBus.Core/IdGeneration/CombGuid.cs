@@ -17,7 +17,7 @@ namespace NServiceBus
         {
             var guidArray = Guid.NewGuid().ToByteArray();
 
-            var now = DateTime.UtcNow;
+            var now = DateTime.UtcNow; // Internal use, no need for DateTimeOffset
 
             // Get the days and milliseconds which will be used to build the byte string
             var days = new TimeSpan(now.Ticks - BaseDateTicks);

@@ -52,7 +52,7 @@
                 throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DelayDeliveryWith)}' API.");
             }
 
-            options.DelayedDeliveryConstraint = new DoNotDeliverBefore(at.UtcDateTime);
+            options.DelayedDeliveryConstraint = new DoNotDeliverBefore(at);
         }
 
         /// <summary>

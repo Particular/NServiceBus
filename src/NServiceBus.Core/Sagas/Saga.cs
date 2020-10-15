@@ -33,8 +33,8 @@ namespace NServiceBus
         /// Request for a timeout to occur at the given <see cref="DateTime" />.
         /// </summary>
         /// <param name="context">The context which is used to send the timeout.</param>
-        /// <param name="at"><see cref="DateTime" /> to send timeout <typeparamref name="TTimeoutMessageType" />.</param>
-        protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTime at) where TTimeoutMessageType : new()
+        /// <param name="at"><see cref="DateTimeOffset" /> to send timeout <typeparamref name="TTimeoutMessageType" />.</param>
+        protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at) where TTimeoutMessageType : new()
         {
             return RequestTimeout(context, at, new TTimeoutMessageType());
         }
@@ -43,15 +43,10 @@ namespace NServiceBus
         /// Request for a timeout to occur at the given <see cref="DateTime" />.
         /// </summary>
         /// <param name="context">The context which is used to send the timeout.</param>
-        /// <param name="at"><see cref="DateTime" /> to send timeout <paramref name="timeoutMessage" />.</param>
+        /// <param name="at"><see cref="DateTimeOffset" /> to send timeout <paramref name="timeoutMessage" />.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at" /> is reached.</param>
-        protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTime at, TTimeoutMessageType timeoutMessage)
+        protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at, TTimeoutMessageType timeoutMessage)
         {
-            if (at.Kind == DateTimeKind.Unspecified)
-            {
-                throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
-            }
-
             VerifySagaCanHandleTimeout(timeoutMessage);
 
             var options = new SendOptions();

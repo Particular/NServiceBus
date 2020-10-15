@@ -11,7 +11,7 @@
         /// Initializes a new instance of <see cref="DoNotDeliverBefore" />.
         /// </summary>
         /// <param name="at">The earliest time this message should be made available to its consumers.</param>
-        public DoNotDeliverBefore(DateTime at)
+        public DoNotDeliverBefore(DateTimeOffset at)
         {
             At = at;
         }
@@ -19,6 +19,6 @@
         /// <summary>
         /// The actual time when the message can be available to the recipient.
         /// </summary>
-        public DateTime At { get; }
+        public DateTimeOffset At { get; }
     }
 }

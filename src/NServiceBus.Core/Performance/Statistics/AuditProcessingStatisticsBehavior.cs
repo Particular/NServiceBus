@@ -12,7 +12,7 @@
             {
                 context.AddAuditData(Headers.ProcessingStarted, DateTimeExtensions.ToWireFormattedString(state.ProcessingStarted));
                 // We can't take the processing time from the state since we don't know it yet.
-                context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
+                context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow));
             }
 
             return next(context);

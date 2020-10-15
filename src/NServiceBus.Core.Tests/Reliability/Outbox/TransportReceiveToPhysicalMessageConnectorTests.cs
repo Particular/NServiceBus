@@ -23,7 +23,7 @@
         {
             var messageId = "id";
             var options = new Dictionary<string, string>();
-            var deliverTime = DateTime.UtcNow.AddDays(1);
+            var deliverTime = DateTimeOffset.UtcNow.AddDays(1);
             var maxTime = TimeSpan.FromDays(1);
 
             options["Destination"] = "test";

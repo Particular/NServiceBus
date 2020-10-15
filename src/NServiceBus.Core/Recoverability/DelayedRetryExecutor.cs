@@ -25,7 +25,7 @@
             var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
 
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
-            outgoingMessage.SetDelayedDeliveryTimestamp(DateTime.UtcNow);
+            outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
             UnicastAddressTag messageDestination;
             List<DeliveryConstraint> deliveryConstraints = null;
@@ -42,7 +42,7 @@
             {
                 // transport doesn't support native deferred messages, reroute to timeout manager:
                 outgoingMessage.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = endpointInputQueue;
-                outgoingMessage.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow + delay);
+                outgoingMessage.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow + delay);
                 messageDestination = new UnicastAddressTag(timeoutManagerAddress);
             }
 

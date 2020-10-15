@@ -56,7 +56,7 @@
             return Task.FromResult<TimeoutData>(null);
         }
 
-        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+        public Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice)
         {
             ThrowExceptionUntilWaitTimeReached();
 
@@ -71,16 +71,16 @@
                 }
             }
 
-            var chunk = new TimeoutsChunk(timeoutsDue.ToArray(), DateTime.UtcNow.AddSeconds(1));
+            var chunk = new TimeoutsChunk(timeoutsDue.ToArray(), DateTimeOffset.UtcNow.AddSeconds(1));
 
             return Task.FromResult(chunk);
         }
 
         void ThrowExceptionUntilWaitTimeReached()
         {
-            if (NextChangeTime <= DateTime.UtcNow)
+            if (NextChangeTime <= DateTimeOffset.UtcNow)
             {
-                NextChangeTime = DateTime.UtcNow.AddSeconds(secondsToWait);
+                NextChangeTime = DateTimeOffset.UtcNow.AddSeconds(secondsToWait);
                 isAvailable = !isAvailable;
             }
 
@@ -90,11 +90,11 @@
             }
         }
 
-        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
+        public IEnumerable<Tuple<string, DateTimeOffset>> GetNextChunk(DateTimeOffset startSlice, out DateTimeOffset nextTimeToRunQuery)
         {
             ThrowExceptionUntilWaitTimeReached();
-            nextTimeToRunQuery = DateTime.UtcNow.AddSeconds(1);
-            return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
+            nextTimeToRunQuery = DateTimeOffset.UtcNow.AddSeconds(1);
+            return Enumerable.Empty<Tuple<string, DateTimeOffset>>().ToList();
         }
 
         public Task Add(TimeoutData timeout)
@@ -104,7 +104,7 @@
         }
 
         Task completedTask = Task.FromResult(0);
-        DateTime NextChangeTime;
+        DateTimeOffset NextChangeTime;
         int secondsToWait;
         ConcurrentDictionary<string, TimeoutData> storage = new ConcurrentDictionary<string, TimeoutData>();
 

@@ -15,7 +15,7 @@
         {
             using (var tempPath = new TempPath())
             {
-                var dateTime = new DateTime(2010, 10, 1);
+                DateTimeOffset dateTime = new DateTime(2010, 10, 1);
                 var logger1 = new RollingLogger(tempPath.TempDirectory)
                 {
                     GetDate = () => dateTime
@@ -112,7 +112,7 @@
         {
             using (var tempPath = new TempPath())
             {
-                var dateTime = new DateTime(2010, 10, 1);
+                DateTimeOffset dateTime = new DateTime(2010, 10, 1);
                 var logger1 = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
                     GetDate = () => dateTime

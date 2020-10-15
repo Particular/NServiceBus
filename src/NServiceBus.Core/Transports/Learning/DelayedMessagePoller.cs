@@ -20,9 +20,9 @@
         {
             foreach (var delayDir in new DirectoryInfo(delayedRootDirectory).EnumerateDirectories())
             {
-                var timeToTrigger = DateTime.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
+                var timeToTrigger = DateTimeOffset.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
 
-                if (DateTime.UtcNow >= timeToTrigger)
+                if (DateTimeOffset.UtcNow >= timeToTrigger)
                 {
                     foreach (var fileInfo in delayDir.EnumerateFiles())
                     {
@@ -31,7 +31,7 @@
                 }
 
                 //wait a bit more so we can safely delete the dir
-                if (DateTime.UtcNow >= timeToTrigger.AddSeconds(10))
+                if (DateTimeOffset.UtcNow >= timeToTrigger.AddSeconds(10))
                 {
                     Directory.Delete(delayDir.FullName);
                 }

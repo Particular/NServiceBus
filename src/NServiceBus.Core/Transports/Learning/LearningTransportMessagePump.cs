@@ -250,7 +250,7 @@
                 //file.move preserves create time
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
-                var utcNow = DateTime.UtcNow;
+                var utcNow = DateTimeOffset.UtcNow;
                 if (sentTime + ttbr < utcNow)
                 {
                     await transaction.Commit()

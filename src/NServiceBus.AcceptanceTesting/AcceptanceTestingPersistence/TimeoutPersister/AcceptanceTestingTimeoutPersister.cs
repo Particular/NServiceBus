@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTesting
 
     class AcceptanceTestingTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
-        public AcceptanceTestingTimeoutPersister(Func<DateTime> currentTimeProvider)
+        public AcceptanceTestingTimeoutPersister(Func<DateTimeOffset> currentTimeProvider)
         {
             this.currentTimeProvider = currentTimeProvider;
         }
@@ -96,10 +96,10 @@ namespace NServiceBus.AcceptanceTesting
             return Task.CompletedTask;
         }
 
-        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+        public Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice)
         {
             var now = currentTimeProvider();
-            var nextTimeToRunQuery = DateTime.MaxValue;
+            var nextTimeToRunQuery = DateTimeOffset.MaxValue;
             var dueTimeouts = new List<TimeoutsChunk.Timeout>();
 
             try
@@ -123,7 +123,7 @@ namespace NServiceBus.AcceptanceTesting
                 readerWriterLock.ExitReadLock();
             }
 
-            if (nextTimeToRunQuery == DateTime.MaxValue)
+            if (nextTimeToRunQuery == DateTimeOffset.MaxValue)
             {
                 nextTimeToRunQuery = now.Add(EmptyResultsNextTimeToRunQuerySpan);
             }
@@ -131,7 +131,7 @@ namespace NServiceBus.AcceptanceTesting
             return Task.FromResult(new TimeoutsChunk(dueTimeouts.ToArray(), nextTimeToRunQuery));
         }
 
-        Func<DateTime> currentTimeProvider;
+        Func<DateTimeOffset> currentTimeProvider;
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
         List<TimeoutData> storage = new List<TimeoutData>();
 

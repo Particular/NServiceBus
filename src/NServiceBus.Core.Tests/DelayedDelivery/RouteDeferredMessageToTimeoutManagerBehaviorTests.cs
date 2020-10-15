@@ -72,14 +72,14 @@
                 return Task.CompletedTask;
             });
 
-            Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(headers[TimeoutManagerHeaders.Expire]), DateTime.UtcNow + delay);
+            Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(headers[TimeoutManagerHeaders.Expire]), DateTimeOffset.UtcNow + delay);
         }
 
         [Test]
         public async Task Should_set_the_expiry_header_to_a_absolute_utc_time()
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
-            var at = DateTime.UtcNow + TimeSpan.FromDays(1);
+            var at = DateTimeOffset.UtcNow + TimeSpan.FromDays(1);
 
             var headers = new Dictionary<string, string>();
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DoNotDeliverBefore(at));
