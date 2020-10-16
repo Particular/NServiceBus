@@ -61,7 +61,7 @@
 
             Assert.IsNull(deliveryConstraint);
             Assert.AreEqual(EndpointInputQueue, transportOperation.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
-            Assert.That(DateTimeExtensions.ToUtcDateTime(transportOperation.Message.Headers[TimeoutManagerHeaders.Expire]), Is.GreaterThan(DateTimeOffset.UtcNow).And.LessThanOrEqualTo(DateTimeOffset.UtcNow + delay));
+            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset(transportOperation.Message.Headers[TimeoutManagerHeaders.Expire]), Is.GreaterThan(DateTimeOffset.UtcNow).And.LessThanOrEqualTo(DateTimeOffset.UtcNow + delay));
             Assert.AreEqual(TimeoutManagerAddress, transportOperation.Destination);
         }
 
@@ -69,7 +69,7 @@
         public async Task Should_update_retry_headers_when_present()
         {
             var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: true);
-            var originalHeadersTimestamp = DateTimeExtensions.ToWireFormattedString(new DateTime(2012, 12, 12, 0, 0, 0, DateTimeKind.Utc));
+            var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTime(2012, 12, 12, 0, 0, 0, DateTimeKind.Utc));
 
             var incomingMessage = CreateMessage(new Dictionary<string, string>
             {
@@ -85,9 +85,9 @@
             Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
             Assert.AreEqual("2", incomingMessage.Headers[Headers.DelayedRetries]);
 
-            var utcDateTime = DateTimeExtensions.ToUtcDateTime(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
+            var utcDateTime = DateTimeOffsetHelper.ToDateTimeOffset(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
             // the serialization removes precision which may lead to now being greater than the deserialized header value
-            var adjustedNow = DateTimeExtensions.ToUtcDateTime(DateTimeExtensions.ToWireFormattedString(now));
+            var adjustedNow = DateTimeOffsetHelper.ToDateTimeOffset(DateTimeOffsetHelper.ToWireFormattedString(now));
             Assert.That(utcDateTime, Is.GreaterThanOrEqualTo(adjustedNow));
             Assert.AreEqual(originalHeadersTimestamp, incomingMessage.Headers[Headers.DelayedRetriesTimestamp]);
         }

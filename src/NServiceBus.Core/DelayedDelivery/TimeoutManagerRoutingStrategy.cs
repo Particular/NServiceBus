@@ -20,7 +20,7 @@ namespace NServiceBus
         public override AddressTag Apply(Dictionary<string, string> headers)
         {
             headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
-            headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
+            headers[TimeoutManagerHeaders.Expire] = DateTimeOffsetHelper.ToWireFormattedString(deliverAt);
 
             return new UnicastAddressTag(timeoutManagerAddress);
         }

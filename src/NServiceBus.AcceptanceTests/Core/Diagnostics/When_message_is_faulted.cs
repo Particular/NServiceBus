@@ -23,10 +23,10 @@
                 .Done(c => c.IsMessageHandledByTheAuditEndpoint && c.IsMessageHandledByTheFaultEndpoint)
                 .Run();
 
-            var processingStarted = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingStarted]);
-            var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
-            var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
-            var timeSentWhenFailedMessageWasSentToTheErrorQueue = DateTimeExtensions.ToUtcDateTime(context.FaultHeaders[Headers.TimeSent]);
+            var processingStarted = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingStarted]);
+            var processingEnded = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingEnded]);
+            var timeSent = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.TimeSent]);
+            var timeSentWhenFailedMessageWasSentToTheErrorQueue = DateTimeOffsetHelper.ToDateTimeOffset(context.FaultHeaders[Headers.TimeSent]);
 
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingStarted));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingEnded));
@@ -120,7 +120,7 @@
 
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
-                    testContext.TimeSentOnTheFailingMessageWhenItWasHandled = DateTimeExtensions.ToUtcDateTime(context.MessageHeaders[Headers.TimeSent]);
+                    testContext.TimeSentOnTheFailingMessageWhenItWasHandled = DateTimeOffsetHelper.ToDateTimeOffset(context.MessageHeaders[Headers.TimeSent]);
                     testContext.FaultHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.IsMessageHandledByTheFaultEndpoint = true;
 

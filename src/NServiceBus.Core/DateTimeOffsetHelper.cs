@@ -1,12 +1,12 @@
+﻿using System;
+using System.Globalization;
+
 namespace NServiceBus
 {
-    using System;
-    using System.Globalization;
-
     /// <summary>
     /// Common date time extensions.
     /// </summary>
-    public static class DateTimeExtensions
+    public static class DateTimeOffsetHelper
     {
         /// <summary>
         /// Converts the <see cref="DateTimeOffset" /> to a <see cref="string" /> suitable for transport over the wire.
@@ -20,7 +20,7 @@ namespace NServiceBus
         /// Converts a wire formatted <see cref="string" /> from <see cref="ToWireFormattedString" /> to a UTC
         /// <see cref="DateTimeOffset" />.
         /// </summary>
-        public static DateTimeOffset ToUtcDateTime(string wireFormattedString)
+        public static DateTimeOffset ToDateTimeOffset(string wireFormattedString)
         {
             Guard.AgainstNullAndEmpty(nameof(wireFormattedString), wireFormattedString);
 
@@ -85,18 +85,7 @@ namespace NServiceBus
             return timestamp;
         }
 
-        internal static int Microseconds(this DateTimeOffset self)
-        {
-            return (int)Math.Floor((self.Ticks % TimeSpan.TicksPerMillisecond) / (double)ticksPerMicrosecond);
-        }
-
-        internal static DateTimeOffset AddMicroseconds(this DateTimeOffset self, int microseconds)
-        {
-            return self.AddTicks(microseconds * ticksPerMicrosecond);
-        }
-
         const string format = "yyyy-MM-dd HH:mm:ss:ffffff Z";
         const string errorMessage = "String was not recognized as a valid DateTime.";
-        const int ticksPerMicrosecond = 10;
     }
 }

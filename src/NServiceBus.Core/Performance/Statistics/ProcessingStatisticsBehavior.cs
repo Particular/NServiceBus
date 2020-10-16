@@ -14,7 +14,7 @@
             var headers = context.Message.Headers;
             if (headers.TryGetValue(Headers.TimeSent, out var timeSentString))
             {
-                state.TimeSent = DateTimeExtensions.ToUtcDateTime(timeSentString);
+                state.TimeSent = DateTimeOffsetHelper.ToDateTimeOffset(timeSentString);
             }
 
             state.ProcessingStarted = DateTimeOffset.UtcNow;

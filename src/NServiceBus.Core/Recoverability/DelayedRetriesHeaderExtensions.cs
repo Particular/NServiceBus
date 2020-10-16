@@ -25,7 +25,7 @@
 
         public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTimeOffset timestamp)
         {
-            message.Headers[Headers.DelayedRetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(timestamp);
+            message.Headers[Headers.DelayedRetriesTimestamp] = DateTimeOffsetHelper.ToWireFormattedString(timestamp);
         }
     }
 }

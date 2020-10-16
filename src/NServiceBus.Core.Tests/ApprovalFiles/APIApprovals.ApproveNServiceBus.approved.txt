@@ -187,9 +187,25 @@ namespace NServiceBus
         public object GetValue() { }
         public void SetValue(object valueToSet) { }
     }
+    [System.ObsoleteAttribute("Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for " +
+        "more details. Use `NServiceBus.DateTimeOffsetExtensions` instead. Will be remove" +
+        "d in version 9.0.0.", true)]
     public class static DateTimeExtensions
     {
-        public static System.DateTimeOffset ToUtcDateTime(string wireFormattedString) { }
+        [System.ObsoleteAttribute("Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for " +
+            "more details. Use `NServiceBus.DateTimeOffsetHelper.ToDateTimeOffset` instead. T" +
+            "he member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
+        public static System.DateTime ToUtcDateTime(string wireFormattedString) { }
+        [System.ObsoleteAttribute("Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for " +
+            "more details. Use `NServiceBus.DateTimeOffsetHelper.ToWireFormattedString` inste" +
+            "ad. The member currently throws a NotImplementedException. Will be removed in ve" +
+            "rsion 9.0.0.", true)]
+        public static string ToWireFormattedString(System.DateTime dateTime) { }
+    }
+    public class static DateTimeOffsetHelper
+    {
+        public static System.DateTimeOffset ToDateTimeOffset(string wireFormattedString) { }
         public static string ToWireFormattedString(System.DateTimeOffset dateTime) { }
     }
     public class static DefaultRecoverabilityPolicy
@@ -2027,7 +2043,7 @@ namespace NServiceBus.Sagas
 {
     public class ActiveSagaInstance
     {
-        public ActiveSagaInstance(NServiceBus.Saga saga, NServiceBus.Sagas.SagaMetadata metadata, System.Func<System.DateTimeOffset> currentUtcDateTimeProvider) { }
+        public ActiveSagaInstance(NServiceBus.Saga saga, NServiceBus.Sagas.SagaMetadata metadata, System.Func<System.DateTimeOffset> currentDateTimeOffsetProvider) { }
         public System.DateTimeOffset Created { get; }
         public NServiceBus.Saga Instance { get; }
         public bool IsNew { get; }

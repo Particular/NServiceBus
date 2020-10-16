@@ -53,7 +53,7 @@ namespace NServiceBus
                     Destination = destination,
                     SagaId = sagaId,
                     State = context.Body,
-                    Time = DateTimeExtensions.ToUtcDateTime(expire),
+                    Time = DateTimeOffsetHelper.ToDateTimeOffset(expire),
                     Headers = context.Headers,
                     OwningTimeoutManager = owningTimeoutManager
                 };

@@ -42,7 +42,7 @@
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint;
-                unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow);
+                unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));

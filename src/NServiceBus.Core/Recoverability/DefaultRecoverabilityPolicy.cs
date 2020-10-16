@@ -77,7 +77,7 @@ namespace NServiceBus
 
             try
             {
-                var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
+                var handledAt = DateTimeOffsetHelper.ToDateTimeOffset(timestampHeader);
 
                 var now = DateTimeOffset.UtcNow;
                 if (now > handledAt.AddDays(1))

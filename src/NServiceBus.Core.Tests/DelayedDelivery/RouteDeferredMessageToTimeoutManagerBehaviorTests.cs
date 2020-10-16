@@ -72,7 +72,7 @@
                 return Task.CompletedTask;
             });
 
-            Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(headers[TimeoutManagerHeaders.Expire]), DateTimeOffset.UtcNow + delay);
+            Assert.LessOrEqual(DateTimeOffsetHelper.ToDateTimeOffset(headers[TimeoutManagerHeaders.Expire]), DateTimeOffset.UtcNow + delay);
         }
 
         [Test]
@@ -90,7 +90,7 @@
                 return Task.CompletedTask;
             });
 
-            Assert.AreEqual(headers[TimeoutManagerHeaders.Expire], DateTimeExtensions.ToWireFormattedString(at));
+            Assert.AreEqual(headers[TimeoutManagerHeaders.Expire], DateTimeOffsetHelper.ToWireFormattedString(at));
         }
 
         TestableRoutingContext CreateContext(RoutingStrategy routingStrategy, params DeliveryConstraint[] deliveryConstraints)

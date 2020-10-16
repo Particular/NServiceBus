@@ -9,18 +9,18 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class ActiveSagaInstance
     {
-        readonly Func<DateTimeOffset> currentUtcDateTimeProvider;
+        readonly Func<DateTimeOffset> currentDateTimeOffsetProvider;
 
         /// <summary>
         /// Creates a new <see cref="ActiveSagaInstance"/> instance.
         /// </summary>
-        public ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTimeOffset> currentUtcDateTimeProvider)
+        public ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTimeOffset> currentDateTimeOffsetProvider)
         {
-            this.currentUtcDateTimeProvider = currentUtcDateTimeProvider;
+            this.currentDateTimeOffsetProvider = currentDateTimeOffsetProvider;
             Instance = saga;
             Metadata = metadata;
 
-            Created = currentUtcDateTimeProvider();
+            Created = currentDateTimeOffsetProvider();
             Modified = Created;
         }
 
@@ -111,7 +111,7 @@ namespace NServiceBus.Sagas
 
         void UpdateModified()
         {
-            Modified = currentUtcDateTimeProvider();
+            Modified = currentDateTimeOffsetProvider();
         }
 
         internal void MarkAsNotFound()
