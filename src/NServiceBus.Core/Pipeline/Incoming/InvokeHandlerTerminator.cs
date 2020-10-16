@@ -28,8 +28,8 @@
             {
                 e.Data["Message type"] = context.MessageMetadata.MessageType.FullName;
                 e.Data["Handler type"] = context.MessageHandler.HandlerType.FullName;
-                e.Data["Handler start time"] = DateTimeExtensions.ToWireFormattedString(startTime);
-                e.Data["Handler failure time"] = DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow);
+                e.Data["Handler start time"] = DateTimeOffsetHelper.ToWireFormattedString(startTime);
+                e.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 throw;
             }
         }

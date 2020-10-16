@@ -149,7 +149,7 @@
             var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
             var headers = new Dictionary<string, string>
             {
-                {Headers.DelayedRetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
+                {Headers.DelayedRetriesTimestamp, DateTimeOffsetHelper.ToWireFormattedString(moreThanADayAgo)}
             };
 
             var errorContext = CreateErrorContext(headers: headers);

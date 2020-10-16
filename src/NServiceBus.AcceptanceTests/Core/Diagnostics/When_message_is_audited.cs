@@ -22,9 +22,9 @@
                 .Done(c => c.IsMessageHandledByTheAuditEndpoint)
                 .Run();
 
-            var processingStarted = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingStarted]);
-            var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
-            var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
+            var processingStarted = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingStarted]);
+            var processingEnded = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingEnded]);
+            var timeSent = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.TimeSent]);
 
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingStarted));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingEnded));

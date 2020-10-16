@@ -100,8 +100,8 @@
             Assert.AreSame(thrownException, caughtException);
             Assert.AreEqual("System.Object", caughtException.Data["Message type"]);
             Assert.AreEqual("NServiceBus.Core.Tests.Pipeline.Incoming.InvokeHandlerTerminatorTest+FakeMessageHandler", caughtException.Data["Handler type"]);
-            Assert.That(DateTimeExtensions.ToUtcDateTime((string)caughtException.Data["Handler start time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
-            Assert.That(DateTimeExtensions.ToUtcDateTime((string)caughtException.Data["Handler failure time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
+            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset((string)caughtException.Data["Handler start time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
+            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset((string)caughtException.Data["Handler failure time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
         }
 
         [Test]

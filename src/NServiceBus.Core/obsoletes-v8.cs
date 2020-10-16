@@ -576,4 +576,34 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        Message = "Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for more details.",
+        ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetExtensions",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class DateTimeExtensions
+    {
+        [ObsoleteEx(
+            Message = "Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for more details.",
+            ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetHelper.ToWireFormattedString",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static string ToWireFormattedString(DateTime dateTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for more details.",
+            ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetHelper.ToDateTimeOffset",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static DateTime ToUtcDateTime(string wireFormattedString)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
 #pragma warning restore 1591

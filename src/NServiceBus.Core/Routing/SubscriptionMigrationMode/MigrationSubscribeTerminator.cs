@@ -45,7 +45,7 @@
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
                 subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
                 subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint;
-                subscriptionMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTimeOffset.UtcNow);
+                subscriptionMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
 
                 subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));

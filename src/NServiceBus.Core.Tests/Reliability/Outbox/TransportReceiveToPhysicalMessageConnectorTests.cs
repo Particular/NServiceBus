@@ -28,7 +28,7 @@
 
             options["Destination"] = "test";
 
-            options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(deliverTime);
+            options["DeliverAt"] = DateTimeOffsetHelper.ToWireFormattedString(deliverTime);
             options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
             options["TimeToBeReceived"] = maxTime.ToString();
 

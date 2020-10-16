@@ -117,7 +117,7 @@ namespace NServiceBus
         {
             if (constraint is DoNotDeliverBefore doNotDeliverBefore)
             {
-                options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(doNotDeliverBefore.At);
+                options["DeliverAt"] = DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore.At);
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace NServiceBus
 
             if (options.TryGetValue("DeliverAt", out var deliverAt))
             {
-                constraints.Add(new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt)));
+                constraints.Add(new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(deliverAt)));
             }
 
             if (options.TryGetValue("DelayDeliveryFor", out var delay))
