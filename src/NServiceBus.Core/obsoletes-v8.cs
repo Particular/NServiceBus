@@ -120,25 +120,25 @@ namespace NServiceBus.ObjectBuilder
         RemoveInVersion = "9.0.0")]
     public interface IBuilder : IDisposable
     {
-        [ObsoleteEx(Message = "The Build method is not supported anymore.", ReplacementTypeOrMember = nameof(IServiceProvider.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(ReplacementTypeOrMember = nameof(IServiceProvider.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         object Build(Type typeToBuild);
 
-        [ObsoleteEx(Message = "The CreateChildBuilder method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.CreateScope), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.CreateScope), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IBuilder CreateChildBuilder();
 
-        [ObsoleteEx(Message = "The Build<T> method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetService), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         T Build<T>();
 
-        [ObsoleteEx(Message = "The BuildAll<T> method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IEnumerable<T> BuildAll<T>();
 
-        [ObsoleteEx(Message = "The BuildAll method is not supported anymore.", ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(ReplacementTypeOrMember = nameof(ServiceProviderServiceExtensions.GetServices), TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         IEnumerable<object> BuildAll(Type typeToBuild);
 
-        [ObsoleteEx(Message = "The Release method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         void Release(object instance);
 
-        [ObsoleteEx(Message = "The BuildAndDispatch method is not supported anymore.", TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "8.0.0", RemoveInVersion = "9.0.0")]
         void BuildAndDispatch(Type typeToBuild, Action<object> action);
     }
 
@@ -203,7 +203,7 @@ namespace NServiceBus.ObjectBuilder.Common
     using System;
 
     [ObsoleteEx(
-        Message = "The NServiceBus dependency injection container API has been deprecated. Use the externally managed container mode to use custom containers.",
+        Message = "Use the externally managed container mode to use custom containers.",
         RemoveInVersion = "9.0.0",
         TreatAsErrorFromVersion = "8.0.0")]
     public interface IContainer : IDisposable

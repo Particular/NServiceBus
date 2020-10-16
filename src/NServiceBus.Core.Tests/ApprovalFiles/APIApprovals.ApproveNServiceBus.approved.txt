@@ -1574,9 +1574,8 @@ namespace NServiceBus.MessageMutator
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
-    [System.ObsoleteAttribute("The NServiceBus dependency injection container API has been deprecated. Use the e" +
-        "xternally managed container mode to use custom containers. Will be removed in ve" +
-        "rsion 9.0.0.", true)]
+    [System.ObsoleteAttribute("Use the externally managed container mode to use custom containers. Will be remov" +
+        "ed in version 9.0.0.", true)]
     public interface IContainer : System.IDisposable { }
 }
 namespace NServiceBus.ObjectBuilder
@@ -1584,25 +1583,19 @@ namespace NServiceBus.ObjectBuilder
     [System.ObsoleteAttribute("Use `IServiceProvider` instead. Will be removed in version 9.0.0.", true)]
     public interface IBuilder : System.IDisposable
     {
-        [System.ObsoleteAttribute("The Build method is not supported anymore. Use `GetService` instead. Will be remo" +
-            "ved in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `GetService` instead. Will be removed in version 9.0.0.", true)]
         object Build(System.Type typeToBuild);
-        [System.ObsoleteAttribute("The Build<T> method is not supported anymore. Use `GetService` instead. Will be r" +
-            "emoved in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `GetService` instead. Will be removed in version 9.0.0.", true)]
         T Build<T>();
-        [System.ObsoleteAttribute("The BuildAll<T> method is not supported anymore. Use `GetServices` instead. Will " +
-            "be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `GetServices` instead. Will be removed in version 9.0.0.", true)]
         System.Collections.Generic.IEnumerable<T> BuildAll<T>();
-        [System.ObsoleteAttribute("The BuildAll method is not supported anymore. Use `GetServices` instead. Will be " +
-            "removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `GetServices` instead. Will be removed in version 9.0.0.", true)]
         System.Collections.Generic.IEnumerable<object> BuildAll(System.Type typeToBuild);
-        [System.ObsoleteAttribute("The BuildAndDispatch method is not supported anymore. Will be removed in version " +
-            "9.0.0.", true)]
+        [System.ObsoleteAttribute("Will be removed in version 9.0.0.", true)]
         void BuildAndDispatch(System.Type typeToBuild, System.Action<object> action);
-        [System.ObsoleteAttribute("The CreateChildBuilder method is not supported anymore. Use `CreateScope` instead" +
-            ". Will be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Use `CreateScope` instead. Will be removed in version 9.0.0.", true)]
         NServiceBus.ObjectBuilder.IBuilder CreateChildBuilder();
-        [System.ObsoleteAttribute("The Release method is not supported anymore. Will be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("Will be removed in version 9.0.0.", true)]
         void Release(object instance);
     }
     [System.ObsoleteAttribute("Use `IServiceCollection` instead. Will be removed in version 9.0.0.", true)]
