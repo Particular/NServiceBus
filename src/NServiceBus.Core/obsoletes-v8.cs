@@ -606,4 +606,188 @@ namespace NServiceBus
         }
     }
 }
+
+namespace NServiceBus
+{
+    public abstract partial class StorageType
+    {
+        [ObsoleteEx(
+            Message = "",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public sealed class Timeouts : StorageType
+        {
+            internal Timeouts() : base("Timeouts")
+            {
+            }
+        }
+    }
+
+    public class TimeoutManagerConfiguration
+    {
+        [ObsoleteEx(
+            Message = "",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        internal TimeoutManagerConfiguration() => throw new NotImplementedException();
+    }
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class TimeoutManagerConfigurationExtensions
+    {
+        [ObsoleteEx(
+            Message = "",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static TimeoutManagerConfiguration TimeoutManager(this EndpointConfiguration endpointConfiguration)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void LimitMessageProcessingConcurrencyTo(this TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class ConfigurationTimeoutExtensions
+    {
+        [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+        public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this EndpointConfiguration config, TimeSpan timeToWait)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+    Message = "",
+    TreatAsErrorFromVersion = "8",
+    RemoveInVersion = "9")]
+    public class TimeoutManager
+    {
+        internal TimeoutManager() => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Timeout.Core
+{
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Extensibility;
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IPersistTimeouts
+    {
+        Task Add(TimeoutData timeout, ContextBag context);
+
+        Task<bool> TryRemove(string timeoutId, ContextBag context);
+
+        Task<TimeoutData> Peek(string timeoutId, ContextBag context);
+
+        Task RemoveTimeoutBy(Guid sagaId, ContextBag context);
+    }
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IQueryTimeouts
+    {
+        Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice);
+    }
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class TimeoutData
+    {
+        public string Id { get; set; }
+
+        public string Destination { get; set; }
+
+        public Guid SagaId { get; set; }
+
+        public byte[] State { get; set; }
+
+        public DateTimeOffset Time { get; set; }
+
+        public string OwningTimeoutManager { get; set; }
+
+        public Dictionary<string, string> Headers { get; set; }
+    }
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class TimeoutsChunk
+    {
+        public TimeoutsChunk(Timeout[] dueTimeouts, DateTimeOffset nextTimeToQuery)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Timeout[] DueTimeouts { get; }
+
+        public DateTimeOffset NextTimeToQuery { get; }
+
+        [ObsoleteEx(
+            Message = "",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public struct Timeout
+        {
+            public Timeout(string id, DateTimeOffset dueTime)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string Id { get; }
+
+            public DateTimeOffset DueTime { get; }
+        }
+    }
+}
+
+namespace NServiceBus.DelayedDelivery
+{
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public static class ExternalTimeoutManagerConfigurationExtensions
+    {
+        [ObsoleteEx(
+            Message = "",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void UseExternalTimeoutManager(this EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 #pragma warning restore 1591

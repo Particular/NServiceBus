@@ -73,9 +73,7 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn
-                                          && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
-
+            var delayedRetriesAvailable = transactionsOn && settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -98,12 +96,7 @@
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(
-                        localAddress,
-                        builder.GetRequiredService<IDispatchMessages>(),
-                        settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
-                            ? null
-                            : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IDispatchMessages>());
                 }
 
                 return null;

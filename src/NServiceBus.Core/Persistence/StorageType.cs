@@ -28,16 +28,6 @@
         string storage;
 
         /// <summary>
-        /// Storage for timeouts.
-        /// </summary>
-        public sealed class Timeouts : StorageType
-        {
-            internal Timeouts() : base("Timeouts")
-            {
-            }
-        }
-
-        /// <summary>
         /// Storage for subscriptions.
         /// </summary>
         public sealed class Subscriptions : StorageType

@@ -11,9 +11,8 @@
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher, string timeoutManagerAddress = null)
+        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher)
         {
-            this.timeoutManagerAddress = timeoutManagerAddress;
             this.dispatcher = dispatcher;
             this.endpointInputQueue = endpointInputQueue;
         }
@@ -27,24 +26,8 @@
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            UnicastAddressTag messageDestination;
-            List<DeliveryConstraint> deliveryConstraints = null;
-            if (timeoutManagerAddress == null)
-            {
-                // transport supports native deferred messages, directly send to input queue with delay constraint:
-                deliveryConstraints = new List<DeliveryConstraint>(1)
-                {
-                    new DelayDeliveryWith(delay)
-                };
-                messageDestination = new UnicastAddressTag(endpointInputQueue);
-            }
-            else
-            {
-                // transport doesn't support native deferred messages, reroute to timeout manager:
-                outgoingMessage.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = endpointInputQueue;
-                outgoingMessage.Headers[TimeoutManagerHeaders.Expire] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow + delay);
-                messageDestination = new UnicastAddressTag(timeoutManagerAddress);
-            }
+            var deliveryConstraints = new List<DeliveryConstraint>(1) { new DelayDeliveryWith(delay) };
+            var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
 
@@ -55,6 +38,5 @@
 
         IDispatchMessages dispatcher;
         string endpointInputQueue;
-        string timeoutManagerAddress;
     }
 }

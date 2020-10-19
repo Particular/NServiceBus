@@ -222,7 +222,7 @@
                 return false;
             }
 
-            if (headers.TryGetValue(TimeoutManagerHeaders.Expire, out var expire))
+            if (headers.TryGetValue("NServiceBus.Timeout.Expire", out var expire))
             {
                 if (string.IsNullOrEmpty(expire))
                 {
