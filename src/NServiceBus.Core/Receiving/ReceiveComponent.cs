@@ -78,8 +78,9 @@ namespace NServiceBus
                 result.mainReceiver,
                 result.instanceReceiver);
 
-            pipelineSettings.Register(new NativeSubscribeTerminator(result.mainReceiver.receiver.Subscriptions), "Requests the transport to subscribe to a given message type");
-            pipelineSettings.Register(new NativeUnsubscribeTerminator(result.mainReceiver.receiver.Subscriptions), "Requests the transport to unsubscribe to a given message type");
+            //TODO needs better way to access receivers (via ID or some kind of reference), what about receiveSettings.GetReceiver(transportInfrastructure) that wraps the ID lookup?
+            pipelineSettings.Register(new NativeSubscribeTerminator(transportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to subscribe to a given message type");
+            pipelineSettings.Register(new NativeUnsubscribeTerminator(transportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to unsubscribe to a given message type");
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
