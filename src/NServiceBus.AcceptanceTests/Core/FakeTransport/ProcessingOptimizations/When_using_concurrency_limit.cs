@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
@@ -32,7 +33,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                     PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
                 };
 
-                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport(new Core.FakeTransport.FakeTransport()));
+                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport(new FakeTransport()));
             }
         }
 
@@ -40,8 +41,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
         {
             PushSettings pushSettings;
 
-            public FakeReceiver(PushSettings pushSettings)
+            public FakeReceiver(PushSettings pushSettings, string id)
             {
+                Id = id;
                 this.pushSettings = pushSettings;
             }
 
@@ -63,14 +65,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             public string Id { get; }
         }
 
-        class FakeQueueCreator : ICreateQueues
-        {
-            public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
-            {
-                return Task.FromResult(0);
-            }
-        }
-
         class FakeDispatcher : IDispatchMessages
         {
             public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
@@ -83,7 +77,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
         {
             public override Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receiveSettings)
             {
-                return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure());
+                return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receiveSettings));
             }
 
             public override string ToTransportAddress(EndpointAddress address)
@@ -99,16 +93,13 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
-            public FakeTransportInfrastructure()
+            public FakeTransportInfrastructure(ReceiveSettings[] receiveSettingses)
             {
-                Dispatcher = new FakeDispatcher();
+                Receivers = receiveSettingses.Select(s => new FakeReceiver(s.settings, s.Id)).ToArray();
             }
 
-
-            public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
-            {
-                return Task.FromResult<IPushMessages>(new FakeReceiver(receiveSettings.settings));
-            }
+            public override IDispatchMessages Dispatcher => new FakeDispatcher();
+            public override IPushMessages[] Receivers { get; protected set; }
         }
     }
 }
