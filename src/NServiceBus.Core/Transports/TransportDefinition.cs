@@ -15,6 +15,11 @@ namespace NServiceBus.Transport
         /// provide information anymore at this stage).
         /// </summary>
         public abstract Task<TransportInfrastructure> Initialize(Settings settings);
+
+
+        /// <summary>
+        /// </summary>
+        public abstract string ToTransportAddress(EndpointAddress address);
     }
 
     /// <summary>

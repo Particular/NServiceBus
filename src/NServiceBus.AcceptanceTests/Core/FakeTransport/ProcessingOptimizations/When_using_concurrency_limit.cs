@@ -84,6 +84,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             {
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure());
             }
+
+            public override string ToTransportAddress(EndpointAddress address)
+            {
+                return address.ToString();
+            }
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
@@ -95,12 +100,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
             public override bool SupportsTTBR { get; } = false;
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
-
-
-            public override string ToTransportAddress(EndpointAddress logicalAddress)
-            {
-                return logicalAddress.ToString();
-            }
 
             public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
             {

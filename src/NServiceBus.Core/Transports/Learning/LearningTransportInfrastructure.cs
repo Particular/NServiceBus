@@ -83,35 +83,9 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
         }
 
-        public override string ToTransportAddress(EndpointAddress endpointAddress)
-        {
-            var address = endpointAddress.Endpoint;
-            PathChecker.ThrowForBadPath(address, "endpoint name");
-
-            var discriminator = endpointAddress.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                address += "-" + discriminator;
-            }
-
-            var qualifier = endpointAddress.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
-                address += "-" + qualifier;
-            }
-
-            return address;
-        }
-
         readonly string storagePath;
         readonly Transport.Settings settings;
-        private readonly LearningTransport transportSettings;
+        readonly LearningTransport transportSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
     }

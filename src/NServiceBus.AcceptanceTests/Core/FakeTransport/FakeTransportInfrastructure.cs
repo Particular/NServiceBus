@@ -20,12 +20,6 @@
         public override TransportTransactionMode TransactionMode => 
             fakeTransportSettings.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
 
-
-        public override string ToTransportAddress(EndpointAddress logicalAddress)
-        {
-            return logicalAddress.ToString();
-        }
-
         public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(CreateReceiver)}");

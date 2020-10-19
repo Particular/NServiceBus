@@ -35,5 +35,10 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
             return new FakeTransportInfrastructure(settings, this);
         }
+
+        public override string ToTransportAddress(EndpointAddress logicalAddress)
+        {
+            return logicalAddress.ToString();
+        }
     }
 }

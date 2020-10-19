@@ -23,19 +23,19 @@ namespace NServiceBus
             var queueNameBase = settings.CustomLocalAddress ?? endpointName;
             var purgeOnStartup = settings.PurgeOnStartup;
 
-            var transportInfrastructure = transportSeam.TransportInfrastructure;
+            var transportDefinition = transportSeam.TransportDefinition;
 
             LogicalAddress logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, new Dictionary<string, string>());
 
-            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress.ToEndpointAddress());
+            var localAddress = transportDefinition.ToTransportAddress(logicalAddress.ToEndpointAddress());
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator).ToEndpointAddress());
+                instanceSpecificQueue = transportDefinition.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator).ToEndpointAddress());
             }
 
-            var transactionMode = GetRequiredTransactionMode(settings, transportInfrastructure);
+            var transactionMode = GetRequiredTransactionMode(settings, transportSeam.TransportInfrastructure);
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 

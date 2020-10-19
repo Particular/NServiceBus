@@ -77,32 +77,6 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
-        public override string ToTransportAddress(EndpointAddress logicalAddress)
-        {
-            var address = logicalAddress.Endpoint;
-            PathChecker.ThrowForBadPath(address, "endpoint name");
-
-            var discriminator = logicalAddress.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                address += "-" + discriminator;
-            }
-
-            var qualifier = logicalAddress.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
-                address += "-" + qualifier;
-            }
-
-            return address;
-        }
-
         readonly string storagePath;
         readonly Settings settings;
     }

@@ -2,7 +2,6 @@
 
 namespace NServiceBus
 {
-    using Settings;
     using Transport;
 
     /// <summary>
@@ -34,6 +33,34 @@ namespace NServiceBus
             // here async initialzation of the sender could happen
             learningTransportInfrastructure.ConfigureSendInfrastructure();
             return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
+        }
+
+        /// <summary>
+        /// </summary>
+        public override string ToTransportAddress(EndpointAddress endpointAddress)
+        {
+            var address = endpointAddress.Endpoint;
+            PathChecker.ThrowForBadPath(address, "endpoint name");
+
+            var discriminator = endpointAddress.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
+                address += "-" + discriminator;
+            }
+
+            var qualifier = endpointAddress.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
+                address += "-" + qualifier;
+            }
+
+            return address;
         }
     }
 }

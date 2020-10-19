@@ -2,7 +2,6 @@ using NServiceBus.Settings;
 
 namespace NServiceBus.Transport
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Routing;
@@ -41,13 +40,6 @@ namespace NServiceBus.Transport
             // pass a settings type that only allows "tryGet".
             return Task.CompletedTask;
         }
-
-        /// <summary>
-        /// Converts a given logical address to the transport address.
-        /// </summary>
-        /// <param name="endpointAddress">The logical address.</param>
-        /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(EndpointAddress endpointAddress);
     }
 
     /// <summary>

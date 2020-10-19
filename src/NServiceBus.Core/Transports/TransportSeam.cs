@@ -8,8 +8,12 @@ namespace NServiceBus
 
     class TransportSeam
     {
-        protected TransportSeam(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        public TransportDefinition TransportDefinition { get;  }
+
+        protected TransportSeam(TransportDefinition transportDefinition,
+            TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
         {
+            TransportDefinition = transportDefinition;
             TransportInfrastructure = transportInfrastructure;
             QueueBindings = queueBindings;
         }
@@ -26,6 +30,7 @@ namespace NServiceBus
 
             //RegisterTransportInfrastructureForBackwardsCompatibility
             transportSettings.settings.Set(transportInfrastructure);
+            transportSettings.settings.Set(transportDefinition);
 
             hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
             {
@@ -33,7 +38,7 @@ namespace NServiceBus
                 Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
             });
 
-            return new TransportSeam(transportInfrastructure, transportSettings.QueueBindings);
+            return new TransportSeam(transportDefinition, transportInfrastructure, transportSettings.QueueBindings);
         }
 
         public TransportInfrastructure TransportInfrastructure { get; }
