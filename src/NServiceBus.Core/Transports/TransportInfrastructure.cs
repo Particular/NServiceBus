@@ -14,11 +14,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public IDispatchMessages Dispatcher { get; protected set; }
+        public virtual IDispatchMessages Dispatcher { get; protected set; }
 
         /// <summary>
         /// </summary>
-        public IPushMessages[] Receivers { get; protected set; }
+        public virtual IPushMessages[] Receivers { get; protected set; }
 
         /// <summary>
         /// 
