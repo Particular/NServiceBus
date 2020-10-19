@@ -15,9 +15,8 @@
             Dispatcher = new FakeDispatcher();
         }
 
-        public override bool SupportsTTBR { get; } = false;
 
-        public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
+        public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(CreateReceiver)}");
 

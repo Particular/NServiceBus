@@ -14,17 +14,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public abstract bool SupportsTTBR { get; }
-
-        /// <summary>
-        /// Gets the factories to receive message.
-        /// </summary>
-        public abstract Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings);
-
-        /// <summary>
-        /// 
-        /// </summary>
         public IDispatchMessages Dispatcher { get; protected set; }
+
+        /// <summary>
+        /// </summary>
+        public IPushMessages[] Receivers { get; protected set; }
 
         /// <summary>
         /// 

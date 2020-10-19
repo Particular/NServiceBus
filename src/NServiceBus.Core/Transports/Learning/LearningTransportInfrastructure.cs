@@ -10,7 +10,8 @@
 
     class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public LearningTransportInfrastructure(Transport.Settings settings, LearningTransport transportSettings)
+        public LearningTransportInfrastructure(Transport.Settings settings, LearningTransport transportSettings,
+            ReceiveSettings[] receivers)
         {
             this.settings = settings;
             this.transportSettings = transportSettings;
@@ -23,9 +24,9 @@
             ////TODO: pass push runtime settings as part of the settings but provide information whether it is a core default value or a user provided value.
             ////settings.ReceiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
 
+            this.receiveSettings = receivers;
         }
 
-        public override bool SupportsTTBR { get; } = true;
 
         static string FindStoragePath()
         {
@@ -58,7 +59,7 @@
             }
         }
 
-        public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
+        public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             var errorQueueAddress = receiveSettings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
@@ -70,7 +71,7 @@
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.LocalAddress);
             }
-            var pump = new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
             return Task.FromResult<IPushMessages>(pump);
         }
 
@@ -81,9 +82,22 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
         }
 
+        public async Task ConfigureReceiveInfrastructure()
+        {
+            var pumps = new List<IPushMessages>();
+
+            foreach (var receiveSetting in receiveSettings)
+            {
+                pumps.Add(await CreateReceiver(receiveSetting).ConfigureAwait(false));
+            }
+
+            Receivers = pumps.ToArray();
+        }
+
         readonly string storagePath;
         readonly Transport.Settings settings;
         readonly LearningTransport transportSettings;
+        ReceiveSettings[] receiveSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
     }

@@ -11,9 +11,10 @@
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     {
-        public AcceptanceTestingTransportInfrastructure(Settings settings,
+        public AcceptanceTestingTransportInfrastructure(ReceiveSettings[] receiveSettings, Settings settings,
             AcceptanceTestingTransport acceptanceTestingTransport)
         {
+            this.receiveSettings = receiveSettings;
             this.settings = settings;
 
             if (string.IsNullOrWhiteSpace(storagePath = acceptanceTestingTransport.StorageDirectory))
@@ -23,7 +24,6 @@
             }
         }
 
-        public override bool SupportsTTBR { get; } = true;
         string FindSolutionRoot()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;
@@ -47,7 +47,7 @@
             }
         }
 
-        public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
+        public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             var errorQueueAddress = receiveSettings.ErrorQueueAddress;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
@@ -64,7 +64,7 @@
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
             }
 
-            var pump = new LearningTransportMessagePump(storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings);
 
             return Task.FromResult<IPushMessages>(pump);
         }
@@ -74,7 +74,22 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
+        public async Task ConfigureReceiveInfrastructure()
+        {
+            var pumps = new List<IPushMessages>();
+
+            foreach (var receiveSetting in receiveSettings)
+            {
+                var pump = await CreateReceiver(receiveSetting).ConfigureAwait(false);
+
+                pumps.Add(pump);
+            }
+
+            Receivers = pumps.ToArray();
+        }
+
         readonly string storagePath;
+        readonly ReceiveSettings[] receiveSettings;
         readonly Settings settings;
     }
 }

@@ -32,21 +32,24 @@ namespace NServiceBus
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
-
-            var transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
-                    new Transport.Settings(hostingConfiguration.EndpointName,
-                        hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                        hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers)
-                )
-                .ConfigureAwait(false);
-
-            //RegisterTransportInfrastructureForBackwardsCompatibility
-            settings.settings.Set(transportInfrastructure);
+            TransportInfrastructure transportInfrastructure;
 
             if (configuration.IsSendOnlyEndpoint)
             {
+                transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
+                        new Transport.Settings(hostingConfiguration.EndpointName,
+                            hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                            hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
+                        new ReceiveSettings[0]
+                    )
+                    .ConfigureAwait(false);
+
                 pipelineSettings.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 pipelineSettings.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
+
+                //RegisterTransportInfrastructureForBackwardsCompatibility
+                settings.settings.Set(transportInfrastructure);
+
                 return new ReceiveComponent(
                     transportInfrastructure,
                     configuration,
@@ -55,16 +58,28 @@ namespace NServiceBus
                     null);
             }
 
-            var receivers = await AddReceivers(transportInfrastructure, configuration, errorQueue).ConfigureAwait(false);
+            var result = AddReceivers(configuration, errorQueue);
+
+            transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
+                    new Transport.Settings(hostingConfiguration.EndpointName,
+                        hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                        hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
+                    result.receiveSettings.ToArray()
+                )
+                .ConfigureAwait(false);
+
+            //RegisterTransportInfrastructureForBackwardsCompatibility
+            settings.settings.Set(transportInfrastructure);
+
             var receiveComponent = new ReceiveComponent(
                 transportInfrastructure,
                 configuration,
                 errorQueue,
-                receivers.mainReceiver,
-                receivers.instanceReceiver);
+                result.mainReceiver,
+                result.instanceReceiver);
 
-            pipelineSettings.Register(new NativeSubscribeTerminator(receivers.mainReceiver.receiver.Subscriptions), "Requests the transport to subscribe to a given message type");
-            pipelineSettings.Register(new NativeUnsubscribeTerminator(receivers.mainReceiver.receiver.Subscriptions), "Requests the transport to unsubscribe to a given message type");
+            pipelineSettings.Register(new NativeSubscribeTerminator(result.mainReceiver.receiver.Subscriptions), "Requests the transport to subscribe to a given message type");
+            pipelineSettings.Register(new NativeUnsubscribeTerminator(result.mainReceiver.receiver.Subscriptions), "Requests the transport to unsubscribe to a given message type");
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
@@ -146,9 +161,6 @@ namespace NServiceBus
             return requestedTransportTransactionMode;
         }
 
-        
-
-
         public async Task Start(IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
@@ -166,11 +178,16 @@ namespace NServiceBus
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
 
-            await this.mainReceiver.Start(mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
+
+            var mainPump = TransportInfrastructure.Receivers.First(r => r.Id == MainReceiverId);
+
+            await this.mainReceiver.Start(mainPump, mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
             if (instanceReceiver != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
-                await this.instanceReceiver.Start(mainPipelineExecutor.Invoke, instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
+                var instanceSpecificPump = TransportInfrastructure.Receivers.First(r => r.Id == $"{MainReceiverId}-IS");
+
+                await this.instanceReceiver.Start(instanceSpecificPump, mainPipelineExecutor.Invoke, instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
             }
             
             foreach (var satellite in configuration.SatelliteDefinitions)
@@ -178,7 +195,8 @@ namespace NServiceBus
                 try
                 {
                     //TODO use Wrap Satellite in a TransportReceiver too (or eliminate TransportReceiver completely)
-                    satellite.Start(builder, recoverabilityExecutorFactory);
+                    var satellitePump = TransportInfrastructure.Receivers.First(r => r.Id == satellite.Name);
+                    satellite.Start(satellitePump, builder, recoverabilityExecutorFactory);
                 }
                 catch (Exception ex)
                 {
@@ -223,45 +241,57 @@ namespace NServiceBus
             }
         }
 
-        static async Task<(TransportReceiver mainReceiver, TransportReceiver instanceReceiver)> AddReceivers(TransportInfrastructure transportInfrastructure, Configuration configuration, string errorQueue)
+        static (List<ReceiveSettings> receiveSettings, TransportReceiver mainReceiver, TransportReceiver instanceReceiver) AddReceivers(Configuration configuration, string errorQueue)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            var mainPump = await transportInfrastructure.CreateReceiver(new ReceiveSettings
+            var allReceivers = new List<ReceiveSettings>();
+
+            allReceivers.Add(new ReceiveSettings
             {
+                Id = MainReceiverId,
                 ErrorQueueAddress = errorQueue,
                 LocalAddress = configuration.LocalAddress,
                 settings = pushSettings,
                 UsePublishSubscribe = true
-            }).ConfigureAwait(false);
-            var mainReceiver = new TransportReceiver(MainReceiverId, mainPump, pushSettings, dequeueLimitations);
+            });
+
+            //var mainPump = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
+            var mainReceiver = new TransportReceiver(MainReceiverId, pushSettings, dequeueLimitations);
 
             TransportReceiver instanceReceiver = null;
+
+            //TransportReceiver instanceReceiver = null;
             if (configuration.InstanceSpecificQueue != null)
             {
                 var instanceSpecificQueue = configuration.InstanceSpecificQueue;
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                var instanceSpecificPump = await transportInfrastructure.CreateReceiver(new ReceiveSettings
+                allReceivers.Add(new ReceiveSettings
                 {
+                    Id = $"{MainReceiverId}-IS",
                     ErrorQueueAddress = errorQueue,
                     LocalAddress = instanceSpecificQueue,
                     settings = sharedReceiverPushSettings,
                     UsePublishSubscribe = false
-                }).ConfigureAwait(false);
-                instanceReceiver = new TransportReceiver(MainReceiverId, instanceSpecificPump, sharedReceiverPushSettings, dequeueLimitations);
+                });
+
+                //var instanceSpecificPump = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
+                instanceReceiver = new TransportReceiver($"{MainReceiverId}-IS", sharedReceiverPushSettings, dequeueLimitations);
             }
 
             foreach (var satelliteDefinition in configuration.SatelliteDefinitions)
             {
-                await satelliteDefinition.Setup(transportInfrastructure, errorQueue,
-                    configuration.PurgeOnStartup).ConfigureAwait(false);
+                var satelliteReceiverSettings = satelliteDefinition.Setup(errorQueue,
+                    configuration.PurgeOnStartup);
+
+                allReceivers.Add(satelliteReceiverSettings);
             }
 
-            return (mainReceiver, instanceReceiver);
+            return (allReceivers, mainReceiver, instanceReceiver);
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)

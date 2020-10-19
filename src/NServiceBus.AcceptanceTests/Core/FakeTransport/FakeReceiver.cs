@@ -36,6 +36,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         public IManageSubscriptions Subscriptions { get; }
+        public string Id { get; }
 
         FakeTransport settings;
         private readonly Action<string, Exception> criticalErrorAction;

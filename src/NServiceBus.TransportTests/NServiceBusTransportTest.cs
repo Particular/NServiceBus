@@ -94,21 +94,28 @@
 
             Configurer = CreateConfigurer();
 
-            var configuration = await Configurer.Configure(new Settings(InputQueueName, InputQueueName,
-                new StartupDiagnosticEntries(), onCriticalError, true));
+            var settings = new Settings(InputQueueName, InputQueueName,
+                new StartupDiagnosticEntries(), onCriticalError, true);
+
+            var configuration = Configurer.Configure(settings);
 
             TransportDefinition = configuration.TransportDefinition;
-            TransportInfrastructure = configuration.TransportInfrastructure;
+            TransportInfrastructure = await configuration.TransportDefinition.Initialize(
+                settings, new[] 
+                {
+                    new ReceiveSettings()
+                    {
+                        Id = "MainPump",
+                        ErrorQueueAddress = ErrorQueueName,
+                        LocalAddress = InputQueueName,
+                        settings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
+                        UsePublishSubscribe = true
+                    }
+                }).ConfigureAwait(false);
 
             IgnoreUnsupportedTransactionModes(transactionMode);
 
-            MessagePump = await TransportInfrastructure.CreateReceiver(new ReceiveSettings()
-            {
-                ErrorQueueAddress = ErrorQueueName,
-                LocalAddress = InputQueueName,
-                settings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
-                UsePublishSubscribe = true
-            });
+            MessagePump = TransportInfrastructure.Receivers[0];
 
             MessagePump.Start(configuration.PushRuntimeSettings,
                 context =>

@@ -9,22 +9,21 @@ namespace NServiceBus
     {
         public TransportReceiver(
             string id,
-            IPushMessages pushMessages,
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
             this.pushSettings = pushSettings;
-
-            receiver = pushMessages;
         }
 
         //TODO add to IPushMessages
         public string Id { get; }
 
-        public Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Start(IPushMessages receiver, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
+            this.receiver = receiver;
+
             if (isStarted)
             {
                 throw new InvalidOperationException("The transport is already started");

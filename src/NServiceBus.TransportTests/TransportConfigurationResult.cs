@@ -7,12 +7,6 @@
     /// </summary>
     public class TransportConfigurationResult
     {
-
-        /// <summary>
-        /// Transport infrastructure.
-        /// </summary>
-        public TransportInfrastructure TransportInfrastructure { get; set; }
-
         /// <summary>
         /// </summary>
         public TransportDefinition TransportDefinition { get; set; }

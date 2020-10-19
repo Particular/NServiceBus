@@ -24,7 +24,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public Action<QueueBindings> OnQueueCreation { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(Settings settings)
+        public override async Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receiveSettings)
         {
             StartUpSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
@@ -42,6 +42,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         public override TransportTransactionMode MaxSupportedTransactionMode => this.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
+
+        /// <summary>
+        /// </summary>
+        public override bool SupportsTTBR { get; } = false;
+
 
     }
 }

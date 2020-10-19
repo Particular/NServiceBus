@@ -27,5 +27,10 @@
         /// 
         /// </summary>
         IManageSubscriptions Subscriptions { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string Id { get; }
     }
 }

@@ -108,7 +108,7 @@ namespace NServiceBus.DeliveryConstraints
 
         internal static bool SupportsTTBR(this ReadOnlySettings settings)
         {
-            return settings.Get<TransportInfrastructure>().SupportsTTBR;
+            return settings.Get<TransportDefinition>().SupportsTTBR;
         }
     }
 }

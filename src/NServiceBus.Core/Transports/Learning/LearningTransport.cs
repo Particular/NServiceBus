@@ -26,13 +26,16 @@ namespace NServiceBus
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        public override Task<TransportInfrastructure> Initialize(Transport.Settings settings)
+        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings, ReceiveSettings[] receivers)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            var learningTransportInfrastructure = new LearningTransportInfrastructure(settings, this);
+            var learningTransportInfrastructure = new LearningTransportInfrastructure(settings, this, receivers);
             // here async initialzation of the sender could happen
             learningTransportInfrastructure.ConfigureSendInfrastructure();
-            return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
+
+            await learningTransportInfrastructure.ConfigureReceiveInfrastructure().ConfigureAwait(false);
+
+            return learningTransportInfrastructure;
         }
 
         /// <summary>
@@ -66,5 +69,11 @@ namespace NServiceBus
         /// <summary>
         /// </summary>
         public override TransportTransactionMode MaxSupportedTransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public override bool SupportsTTBR { get; } = true;
+
     }
 }

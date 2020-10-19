@@ -60,6 +60,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             }
 
             public IManageSubscriptions Subscriptions { get; }
+            public string Id { get; }
         }
 
         class FakeQueueCreator : ICreateQueues
@@ -80,7 +81,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeTransport : TransportDefinition
         {
-            public override Task<TransportInfrastructure> Initialize(Settings settings)
+            public override Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receiveSettings)
             {
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure());
             }
@@ -92,6 +93,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
             public override TransportTransactionMode MaxSupportedTransactionMode { get; } = TransportTransactionMode.None;
 
+            public override bool SupportsTTBR { get; } = false;
+
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
@@ -101,9 +104,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 Dispatcher = new FakeDispatcher();
             }
 
-            public override bool SupportsTTBR { get; } = false;
 
-            public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
+            public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
             {
                 return Task.FromResult<IPushMessages>(new FakeReceiver(receiveSettings.settings));
             }

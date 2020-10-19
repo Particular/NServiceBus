@@ -13,13 +13,13 @@
         {
             pump = new Pump();
 
-            receiver = new TransportReceiver("FakeReceiver", pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings());
+            receiver = new TransportReceiver("FakeReceiver", new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings());
         }
 
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(pump, context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.IsTrue(pump.Started);
         }
@@ -29,13 +29,13 @@
         {
             pump.ThrowOnStart = true;
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled)));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start(pump, context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled)));
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(pump, context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -47,7 +47,7 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(pump, context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
@@ -55,7 +55,7 @@
         [Test]
         public async Task Stop_should_dispose_pump() // for container backward compat reasons
         {
-            await receiver.Start(context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(pump, context => Task.CompletedTask, context => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -98,6 +98,7 @@
             }
 
             public IManageSubscriptions Subscriptions { get; }
+            public string Id { get; }
 
             public void Dispose()
             {

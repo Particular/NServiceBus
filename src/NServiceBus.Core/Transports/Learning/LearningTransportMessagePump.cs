@@ -13,11 +13,13 @@
     class LearningTransportMessagePump : IPushMessages
     {
         public LearningTransportMessagePump(
+            string id,
             string basePath, 
             Action<string, Exception> criticalErrorAction,
             IManageSubscriptions subscriptionManager,
             ReceiveSettings receiveSettings)
         {
+            Id = id;
             this.basePath = basePath;
             this.criticalErrorAction = criticalErrorAction;
             this.subscriptionManager = subscriptionManager;
@@ -88,6 +90,7 @@
         }
 
         public IManageSubscriptions Subscriptions => subscriptionManager;
+        public string Id { get; }
 
         void RecoverPendingTransactions()
         {

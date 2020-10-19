@@ -15,7 +15,7 @@ namespace NServiceBus.TransportTests
         /// Gives the transport a chance to configure before the test starts.
         /// </summary>
         /// <returns>Transport configuration result <see cref="TransportConfigurationResult"/></returns>
-        Task<TransportConfigurationResult> Configure(Transport.Settings settings);
+        TransportConfigurationResult Configure(Transport.Settings settings);
 
         /// <summary>
         /// Gives the transport chance to clean up after the test is complete. Implementations of this class may store

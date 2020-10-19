@@ -9,12 +9,14 @@ namespace NServiceBus
     {
         public string StorageDirectory { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings)
+        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings, ReceiveSettings[] receiveSettings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            var acceptanceTestingTransportInfrastructure = new AcceptanceTestingTransportInfrastructure(settings, this);
+            var acceptanceTestingTransportInfrastructure = new AcceptanceTestingTransportInfrastructure(receiveSettings, settings, this);
             acceptanceTestingTransportInfrastructure.ConfigureSendInfrastructure();
+
+            await acceptanceTestingTransportInfrastructure.ConfigureReceiveInfrastructure().ConfigureAwait(false);
             return acceptanceTestingTransportInfrastructure;
         }
 
@@ -45,6 +47,11 @@ namespace NServiceBus
         }
 
         public override TransportTransactionMode MaxSupportedTransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public override bool SupportsTTBR { get; } = true;
 
     }
 }
