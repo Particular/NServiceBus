@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_using_special_characters_in_headers : NServiceBusAcceptanceTest
@@ -58,7 +57,6 @@
             {
                 EndpointSetup<DefaultServer>(e =>
                 {
-                    e.EnableFeature<TimeoutManager>();
                     e.Recoverability()
                         .Immediate(ir => ir
                             .NumberOfRetries(0))

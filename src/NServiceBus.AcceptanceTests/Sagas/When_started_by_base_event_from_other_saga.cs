@@ -58,7 +58,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
                     c.DisableFeature<AutoSubscribe>();
                 },
                 metadata => metadata.RegisterPublisherFor<BaseEvent>(typeof(Publisher)));

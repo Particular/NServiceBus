@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_using_special_characters_in_headers : NServiceBusAcceptanceTest
@@ -56,7 +55,7 @@
         {
             public EndpointHandlingDelayedMessages()
             {
-                EndpointSetup<DefaultServer>(e => e.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             class DelayedMessageHandler : IHandleMessages<DelayedMessage>

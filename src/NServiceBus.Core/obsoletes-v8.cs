@@ -615,10 +615,11 @@ namespace NServiceBus
             Message = "",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public sealed class Timeouts : StorageType
+        public sealed class Timeouts
         {
-            internal Timeouts() : base("Timeouts")
+            internal Timeouts()
             {
+                throw new NotImplementedException();
             }
         }
     }

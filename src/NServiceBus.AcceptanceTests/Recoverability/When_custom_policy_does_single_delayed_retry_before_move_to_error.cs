@@ -43,7 +43,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
                     configure.Recoverability()
                         .CustomPolicy(RetryPolicy);
                 });

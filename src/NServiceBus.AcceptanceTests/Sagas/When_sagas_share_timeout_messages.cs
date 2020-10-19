@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
@@ -34,10 +33,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.EnableFeature<TimeoutManager>();
-                });
+                EndpointSetup<DefaultServer>();
             }
 
             public class TimeoutSharingSaga1 : Saga<TimeoutSharingSaga1.TimeoutSharingSagaData1>,

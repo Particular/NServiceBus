@@ -11,8 +11,8 @@
         [Test]
         public void Should_throw_exception()
         {
-            var ex = Assert.Throws<Exception>(() => new PersistenceExtensions(typeof(PartialPersistence), new SettingsHolder(), typeof(StorageType.Timeouts)));
-            Assert.That(ex.Message, Does.StartWith("PartialPersistence does not support storage type Timeouts."));
+            var ex = Assert.Throws<Exception>(() => new PersistenceExtensions(typeof(PartialPersistence), new SettingsHolder(), typeof(StorageType.Sagas)));
+            Assert.That(ex.Message, Does.StartWith("PartialPersistence does not support storage type Sagas."));
         }
 
         public class PartialPersistence : PersistenceDefinition

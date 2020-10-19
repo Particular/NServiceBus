@@ -29,7 +29,6 @@
         {
             public FakeNoSyncContextPersistence()
             {
-                Supports<StorageType.Timeouts>(s => { });
                 Supports<StorageType.Sagas>(s => { });
                 Supports<StorageType.Subscriptions>(s => { });
             }

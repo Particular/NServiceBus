@@ -7,7 +7,6 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBusAcceptanceTest
@@ -45,7 +44,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<TimeoutManager>();
                     var recoverability = config.Recoverability();
                     recoverability.Delayed(settings =>
                     {

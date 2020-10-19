@@ -26,7 +26,6 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
-                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Timeouts>();
                     c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
                     c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
                 });

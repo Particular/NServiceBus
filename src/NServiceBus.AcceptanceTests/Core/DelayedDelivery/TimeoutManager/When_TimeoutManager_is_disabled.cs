@@ -42,7 +42,7 @@
             public Endpoint()
             {
                 // Explicitly disable TimeoutManager, although this should be default anyway
-                EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>());
+                //EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>());
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>

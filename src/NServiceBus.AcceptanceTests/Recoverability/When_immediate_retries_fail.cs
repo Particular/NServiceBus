@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_immediate_retries_fail : NServiceBusAcceptanceTest
@@ -42,7 +41,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<TimeoutManager>();
                     config.Recoverability().Immediate(i => i.NumberOfRetries(0));
                     config.Recoverability()
                         .Delayed(settings =>

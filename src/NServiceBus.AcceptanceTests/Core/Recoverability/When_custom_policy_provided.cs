@@ -42,7 +42,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 {
                     var testContext = (Context) context.ScenarioContext;
 
-                    config.EnableFeature<TimeoutManager>();
                     config.Recoverability()
                         .Immediate(immediate => immediate.NumberOfRetries(MaxImmediateRetries))
                         .Delayed(delayed => delayed.NumberOfRetries(MaxDelayedRetries).TimeIncrease(DelayedRetryDelayIncrease))

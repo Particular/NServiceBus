@@ -44,7 +44,6 @@
                 {
                     var testContext = (Context) context.ScenarioContext;
 
-                    config.EnableFeature<TimeoutManager>();
                     config.Recoverability()
                         .CustomPolicy((cfg, errorContext) =>
                         {

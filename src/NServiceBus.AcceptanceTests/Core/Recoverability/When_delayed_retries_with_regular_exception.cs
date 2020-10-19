@@ -37,7 +37,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer,Context>((config, context) =>
                 {
-                    config.EnableFeature<TimeoutManager>();
                     config.RegisterMessageMutator(new BodyMutator(context));
                     var recoverability = config.Recoverability();
                     recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));

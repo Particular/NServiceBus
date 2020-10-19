@@ -49,7 +49,6 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var testContext = (Context)context.ScenarioContext;
-                    config.EnableFeature<TimeoutManager>();
 
                     var recoverability = config.Recoverability();
                     recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>

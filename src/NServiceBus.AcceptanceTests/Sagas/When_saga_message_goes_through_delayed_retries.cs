@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     //repro for issue: https://github.com/NServiceBus/NServiceBus/issues/1020
@@ -35,7 +34,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
                     var recoverability = b.Recoverability();
                     recoverability.Delayed(settings =>
                     {

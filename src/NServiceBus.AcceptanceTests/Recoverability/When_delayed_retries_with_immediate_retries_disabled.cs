@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusAcceptanceTest
@@ -37,7 +36,6 @@
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
                     var recoverability = configure.Recoverability();
                     recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)).NumberOfRetries(ConfiguredNumberOfDelayedRetries));
                     recoverability.Immediate(settings => settings.NumberOfRetries(0));
