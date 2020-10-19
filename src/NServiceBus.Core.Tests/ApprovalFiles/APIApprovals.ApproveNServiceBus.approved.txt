@@ -46,8 +46,11 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IUnsubscribeContext context) { }
         public static bool IgnoredBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public class static ConfigurationTimeoutExtensions
     {
+        [System.ObsoleteAttribute(". The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 9.0.0.", true)]
         public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this NServiceBus.EndpointConfiguration config, System.TimeSpan timeToWait) { }
     }
     public class static ConfigureAudit
@@ -1001,7 +1004,8 @@ namespace NServiceBus
         public sealed class Outbox : NServiceBus.StorageType { }
         public sealed class Sagas : NServiceBus.StorageType { }
         public sealed class Subscriptions : NServiceBus.StorageType { }
-        public sealed class Timeouts : NServiceBus.StorageType { }
+        [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
+        public sealed class Timeouts { }
     }
     public class SubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1025,13 +1029,15 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
-    public class TimeoutManagerConfiguration
-    {
-        public TimeoutManagerConfiguration(NServiceBus.Settings.SettingsHolder settings) { }
-    }
+    public class TimeoutManagerConfiguration { }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public class static TimeoutManagerConfigurationExtensions
     {
+        [System.ObsoleteAttribute(". The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 9.0.0.", true)]
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency) { }
+        [System.ObsoleteAttribute(". The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 9.0.0.", true)]
         public static NServiceBus.TimeoutManagerConfiguration TimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public class ToSagaExpression<TSagaData, TMessage>
@@ -1189,8 +1195,11 @@ namespace NServiceBus.DelayedDelivery
         public DoNotDeliverBefore(System.DateTimeOffset at) { }
         public System.DateTimeOffset At { get; }
     }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public class static ExternalTimeoutManagerConfigurationExtensions
     {
+        [System.ObsoleteAttribute(". The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 9.0.0.", true)]
         public static void UseExternalTimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress) { }
     }
 }
@@ -1398,10 +1407,8 @@ namespace NServiceBus.Features
         public static bool IsFeatureActive(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
         public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
     }
-    public class TimeoutManager : NServiceBus.Features.Feature
-    {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
+    public class TimeoutManager { }
 }
 namespace NServiceBus.Gateway.Deduplication
 {
@@ -2219,6 +2226,7 @@ namespace NServiceBus.Support
 }
 namespace NServiceBus.Timeout.Core
 {
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public interface IPersistTimeouts
     {
         System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Extensibility.ContextBag context);
@@ -2226,10 +2234,12 @@ namespace NServiceBus.Timeout.Core
         System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task<bool> TryRemove(string timeoutId, NServiceBus.Extensibility.ContextBag context);
     }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public interface IQueryTimeouts
     {
         System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutsChunk> GetNextChunk(System.DateTimeOffset startSlice);
     }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public class TimeoutData
     {
         public TimeoutData() { }
@@ -2240,13 +2250,14 @@ namespace NServiceBus.Timeout.Core
         public System.Guid SagaId { get; set; }
         public byte[] State { get; set; }
         public System.DateTimeOffset Time { get; set; }
-        public override string ToString() { }
     }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public class TimeoutsChunk
     {
         public TimeoutsChunk(Timeout[] dueTimeouts, System.DateTimeOffset nextTimeToQuery) { }
         public Timeout[] DueTimeouts { get; }
         public System.DateTimeOffset NextTimeToQuery { get; }
+        [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
         public struct Timeout
         {
             public Timeout(string id, System.DateTimeOffset dueTime) { }
