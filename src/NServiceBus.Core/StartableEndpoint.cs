@@ -14,7 +14,6 @@ namespace NServiceBus
         public StartableEndpoint(SettingsHolder settings,
             FeatureComponent featureComponent,
             ReceiveComponent receiveComponent,
-            TransportInfrastructure transportInfrastructure,
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
@@ -24,7 +23,6 @@ namespace NServiceBus
             this.settings = settings;
             this.featureComponent = featureComponent;
             this.receiveComponent = receiveComponent;
-            this.transportInfrastructure = transportInfrastructure;
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
@@ -49,7 +47,7 @@ namespace NServiceBus
 #endif
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession);
 
             await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
 
@@ -64,6 +62,5 @@ namespace NServiceBus
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;
-        readonly TransportInfrastructure transportInfrastructure;
     }
 }

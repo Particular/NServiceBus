@@ -27,8 +27,6 @@
 
         public override bool SupportsTTBR { get; } = true;
 
-        public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
-
         static string FindStoragePath()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;

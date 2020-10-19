@@ -17,9 +17,6 @@
 
         public override bool SupportsTTBR { get; } = false;
 
-        public override TransportTransactionMode TransactionMode => 
-            fakeTransportSettings.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
-
         public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
             fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(CreateReceiver)}");

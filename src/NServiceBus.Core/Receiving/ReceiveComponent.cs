@@ -14,37 +14,50 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
-        ReceiveComponent(
+        ReceiveComponent(TransportInfrastructure transportInfrastructure, 
             Configuration configuration,
             string errorQueue,
             TransportReceiver mainReceiver,
             TransportReceiver instanceReceiver)
         {
+            TransportInfrastructure = transportInfrastructure;
             this.configuration = configuration;
             this.errorQueue = errorQueue;
             this.mainReceiver = mainReceiver;
             this.instanceReceiver = instanceReceiver;
         }
 
-        public static async Task<ReceiveComponent> Initialize(
-            Configuration configuration,
+        public static async Task<ReceiveComponent> Initialize(TransportSeam.Settings settings, Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
+
+            var transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
+                    new Transport.Settings(hostingConfiguration.EndpointName,
+                        hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                        hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers)
+                )
+                .ConfigureAwait(false);
+
+            //RegisterTransportInfrastructureForBackwardsCompatibility
+            settings.settings.Set(transportInfrastructure);
+
             if (configuration.IsSendOnlyEndpoint)
             {
                 pipelineSettings.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 pipelineSettings.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
                 return new ReceiveComponent(
+                    transportInfrastructure,
                     configuration,
                     errorQueue,
                     null,
                     null);
             }
 
-            var receivers = await AddReceivers(configuration.transportSeam.TransportInfrastructure, configuration, errorQueue).ConfigureAwait(false);
+            var receivers = await AddReceivers(transportInfrastructure, configuration, errorQueue).ConfigureAwait(false);
             var receiveComponent = new ReceiveComponent(
+                transportInfrastructure,
                 configuration,
                 errorQueue,
                 receivers.mainReceiver,
@@ -113,9 +126,9 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportInfrastructure transportInfrastructure)
+        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportTransactionMode maxSupportedTransactionMode)
         {
-            var transportTransactionSupport = transportInfrastructure.TransactionMode;
+            var transportTransactionSupport = maxSupportedTransactionMode;
 
             //if user haven't asked for a explicit level use what the transport supports
             if (!settings.UserHasProvidedTransportTransactionMode)
@@ -293,5 +306,8 @@ namespace NServiceBus
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         private TransportReceiver mainReceiver;
         private TransportReceiver instanceReceiver;
+
+
+        public TransportInfrastructure TransportInfrastructure { get; private set; }
     }
 }

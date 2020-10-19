@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Routing;
     using Transport;
     using Unicast;
 
@@ -35,7 +34,7 @@ namespace NServiceBus
                 instanceSpecificQueue = transportDefinition.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator).ToEndpointAddress());
             }
 
-            var transactionMode = GetRequiredTransactionMode(settings, transportSeam.TransportInfrastructure);
+            var transactionMode = GetRequiredTransactionMode(settings, transportSeam.TransportDefinition.MaxSupportedTransactionMode);
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 

@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Settings;
 using NServiceBus.Transport;
 using NServiceBus.TransportTests;
 
@@ -19,6 +18,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
 
         return new TransportConfigurationResult
         {
+            TransportDefinition = transportDefinition,
             TransportInfrastructure = await transportDefinition.Initialize(settings).ConfigureAwait(false),
             PurgeInputQueueOnStartup = true
         };

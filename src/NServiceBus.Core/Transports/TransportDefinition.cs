@@ -20,6 +20,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// </summary>
         public abstract string ToTransportAddress(EndpointAddress address);
+
+        /// <summary>
+        /// Gets the highest supported transaction mode for the this transport.
+        /// </summary>
+        public abstract TransportTransactionMode MaxSupportedTransactionMode { get; }
     }
 
     /// <summary>

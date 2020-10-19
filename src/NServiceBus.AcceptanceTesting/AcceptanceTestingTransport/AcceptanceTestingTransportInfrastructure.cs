@@ -24,9 +24,6 @@
         }
 
         public override bool SupportsTTBR { get; } = true;
-
-        public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
-
         string FindSolutionRoot()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;

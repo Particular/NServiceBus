@@ -62,5 +62,9 @@ namespace NServiceBus
 
             return address;
         }
+
+        /// <summary>
+        /// </summary>
+        public override TransportTransactionMode MaxSupportedTransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
     }
 }

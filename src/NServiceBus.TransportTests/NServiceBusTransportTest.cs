@@ -97,6 +97,7 @@
             var configuration = await Configurer.Configure(new Settings(InputQueueName, InputQueueName,
                 new StartupDiagnosticEntries(), onCriticalError, true));
 
+            TransportDefinition = configuration.TransportDefinition;
             TransportInfrastructure = configuration.TransportInfrastructure;
 
             IgnoreUnsupportedTransactionModes(transactionMode);
@@ -142,7 +143,7 @@
 
         void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
         {
-            if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
+            if (TransportDefinition.MaxSupportedTransactionMode < requestedTransactionMode)
             {
                 Assert.Ignore($"Only relevant for transports supporting {requestedTransactionMode} or higher");
             }
@@ -218,6 +219,7 @@
 
         string testId;
 
+        TransportDefinition TransportDefinition;
         TransportInfrastructure TransportInfrastructure;
         IPushMessages MessagePump;
         CancellationTokenSource testCancellationTokenSource;

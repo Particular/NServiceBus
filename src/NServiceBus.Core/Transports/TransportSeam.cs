@@ -10,38 +10,20 @@ namespace NServiceBus
     {
         public TransportDefinition TransportDefinition { get;  }
 
-        protected TransportSeam(TransportDefinition transportDefinition,
-            TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        protected TransportSeam(TransportDefinition transportDefinition, QueueBindings queueBindings)
         {
             TransportDefinition = transportDefinition;
-            TransportInfrastructure = transportInfrastructure;
             QueueBindings = queueBindings;
         }
 
-        public static async Task<TransportSeam> Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
+        public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
         {
             var transportDefinition = transportSettings.TransportDefinition;
 
-            var transportInfrastructure = await transportDefinition.Initialize(
-                    new Transport.Settings(hostingConfiguration.EndpointName,
-                        hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                        hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers))
-                .ConfigureAwait(false);
-
-            //RegisterTransportInfrastructureForBackwardsCompatibility
-            transportSettings.settings.Set(transportInfrastructure);
             transportSettings.settings.Set(transportDefinition);
 
-            hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
-            {
-                Type = transportInfrastructure.GetType().FullName,
-                Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
-            });
-
-            return new TransportSeam(transportDefinition, transportInfrastructure, transportSettings.QueueBindings);
+            return new TransportSeam(transportDefinition, transportSettings.QueueBindings);
         }
-
-        public TransportInfrastructure TransportInfrastructure { get; }
 
         public QueueBindings QueueBindings { get; }
 

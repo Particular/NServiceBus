@@ -89,6 +89,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             {
                 return address.ToString();
             }
+
+            public override TransportTransactionMode MaxSupportedTransactionMode { get; } = TransportTransactionMode.None;
+
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
@@ -99,7 +102,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             }
 
             public override bool SupportsTTBR { get; } = false;
-            public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
 
             public override Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
             {

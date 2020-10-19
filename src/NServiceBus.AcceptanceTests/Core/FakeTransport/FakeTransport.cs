@@ -40,5 +40,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         {
             return logicalAddress.ToString();
         }
+
+        public override TransportTransactionMode MaxSupportedTransactionMode => this.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
+
     }
 }

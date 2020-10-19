@@ -17,8 +17,7 @@
                 new HostingComponent(null, true),
                 null,
                 new FeatureComponent(settings),
-                new MessageSession(new FakeRootContext()),
-                null);
+                new MessageSession(new FakeRootContext()));
 
             await testee.Stop();
 

@@ -9,14 +9,13 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession)
         {
             this.settings = settings;
             this.hostingComponent = hostingComponent;
             this.receiveComponent = receiveComponent;
             this.featureComponent = featureComponent;
             this.messageSession = messageSession;
-            this.transportInfrastructure = transportInfrastructure;
         }
 
         public async Task Stop()
@@ -91,7 +90,6 @@ namespace NServiceBus
         ReceiveComponent receiveComponent;
         FeatureComponent featureComponent;
         IMessageSession messageSession;
-        readonly TransportInfrastructure transportInfrastructure;
 
         SettingsHolder settings;
 

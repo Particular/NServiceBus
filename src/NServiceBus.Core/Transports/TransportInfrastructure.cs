@@ -17,11 +17,6 @@ namespace NServiceBus.Transport
         public abstract bool SupportsTTBR { get; }
 
         /// <summary>
-        /// Gets the highest supported transaction mode for the this transport.
-        /// </summary>
-        public abstract TransportTransactionMode TransactionMode { get; }
-
-        /// <summary>
         /// Gets the factories to receive message.
         /// </summary>
         public abstract Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings);
@@ -109,7 +104,11 @@ namespace NServiceBus.Transport
     /// 
     /// </summary>
     public class ReceiveSettings
-    {        
+    {       
+        /// <summary>
+        /// </summary>
+        public string Id { get; set; }
+        
         /// <summary>
         /// 
         /// </summary>
