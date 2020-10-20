@@ -8,28 +8,21 @@ namespace NServiceBus
     class TransportReceiver
     {
         public TransportReceiver(
-            string id,
-            PushSettings pushSettings,
+            IPushMessages receiver,
             PushRuntimeSettings pushRuntimeSettings)
         {
-            Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.pushSettings = pushSettings;
+            this.receiver = receiver;
         }
 
-        //TODO add to IPushMessages
-        public string Id { get; }
-
-        public Task Start(IPushMessages receiver, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
-            this.receiver = receiver;
-
             if (isStarted)
             {
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
+            Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
             receiver.Start(pushRuntimeSettings, onMessage, onError);
 
@@ -52,7 +45,7 @@ namespace NServiceBus
             }
             catch (Exception exception)
             {
-                Logger.Warn($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
+                Logger.Warn($"Receiver {receiver.Id} threw an exception on stopping.", exception);
             }
             finally
             {
@@ -62,7 +55,6 @@ namespace NServiceBus
 
         bool isStarted;
         PushRuntimeSettings pushRuntimeSettings;
-        PushSettings pushSettings;
 
         //hack: make this accessible more easily for now so we can access the subscription storage
         internal IPushMessages receiver;

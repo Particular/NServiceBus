@@ -15,16 +15,10 @@ namespace NServiceBus
     partial class ReceiveComponent
     {
         ReceiveComponent(TransportInfrastructure transportInfrastructure, 
-            Configuration configuration,
-            string errorQueue,
-            TransportReceiver mainReceiver,
-            TransportReceiver instanceReceiver)
+            Configuration configuration)
         {
             TransportInfrastructure = transportInfrastructure;
             this.configuration = configuration;
-            this.errorQueue = errorQueue;
-            this.mainReceiver = mainReceiver;
-            this.instanceReceiver = instanceReceiver;
         }
 
         public static async Task<ReceiveComponent> Initialize(TransportSeam.Settings settings, Configuration configuration,
@@ -52,19 +46,16 @@ namespace NServiceBus
 
                 return new ReceiveComponent(
                     transportInfrastructure,
-                    configuration,
-                    errorQueue,
-                    null,
-                    null);
+                    configuration);
             }
 
-            var result = AddReceivers(configuration, errorQueue);
+            var receivers = AddReceivers(configuration, errorQueue);
 
             transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
                     new Transport.Settings(hostingConfiguration.EndpointName,
                         hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
                         hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
-                    result.receiveSettings.ToArray()
+                    receivers
                 )
                 .ConfigureAwait(false);
 
@@ -73,10 +64,7 @@ namespace NServiceBus
 
             var receiveComponent = new ReceiveComponent(
                 transportInfrastructure,
-                configuration,
-                errorQueue,
-                result.mainReceiver,
-                result.instanceReceiver);
+                configuration);
 
             //TODO needs better way to access receivers (via ID or some kind of reference), what about receiveSettings.GetReceiver(transportInfrastructure) that wraps the ID lookup?
             pipelineSettings.Register(new NativeSubscribeTerminator(transportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to subscribe to a given message type");
@@ -180,15 +168,17 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
 
-            var mainPump = TransportInfrastructure.Receivers.First(r => r.Id == MainReceiverId);
+            var mainPump = TransportInfrastructure.FindReceiver(MainReceiverId);
+            this.mainReceiver = new TransportReceiver(mainPump, configuration.PushRuntimeSettings);
+            await this.mainReceiver.Start(mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
 
-            await this.mainReceiver.Start(mainPump, mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
-            if (instanceReceiver != null)
+            var instanceSpecificPump = TransportInfrastructure.FindReceiver(InstanceSpecificReceiverId);
+            if (instanceSpecificPump != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
-                var instanceSpecificPump = TransportInfrastructure.Receivers.First(r => r.Id == $"{MainReceiverId}-IS");
 
-                await this.instanceReceiver.Start(instanceSpecificPump, mainPipelineExecutor.Invoke, instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
+                this.instanceReceiver = new TransportReceiver(instanceSpecificPump, configuration.PushRuntimeSettings);
+                await this.instanceReceiver.Start(mainPipelineExecutor.Invoke, instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
             }
             
             foreach (var satellite in configuration.SatelliteDefinitions)
@@ -242,12 +232,11 @@ namespace NServiceBus
             }
         }
 
-        static (List<ReceiveSettings> receiveSettings, TransportReceiver mainReceiver, TransportReceiver instanceReceiver) AddReceivers(Configuration configuration, string errorQueue)
+        static ReceiveSettings[] AddReceivers(Configuration configuration, string errorQueue)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
-            var dequeueLimitations = configuration.PushRuntimeSettings;
 
             var allReceivers = new List<ReceiveSettings>();
 
@@ -260,11 +249,6 @@ namespace NServiceBus
                 UsePublishSubscribe = true
             });
 
-            //var mainPump = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
-            var mainReceiver = new TransportReceiver(MainReceiverId, pushSettings, dequeueLimitations);
-
-            TransportReceiver instanceReceiver = null;
-
             //TransportReceiver instanceReceiver = null;
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -273,15 +257,12 @@ namespace NServiceBus
 
                 allReceivers.Add(new ReceiveSettings
                 {
-                    Id = $"{MainReceiverId}-IS",
+                    Id = InstanceSpecificReceiverId,
                     ErrorQueueAddress = errorQueue,
                     LocalAddress = instanceSpecificQueue,
                     settings = sharedReceiverPushSettings,
                     UsePublishSubscribe = false
                 });
-
-                //var instanceSpecificPump = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
-                instanceReceiver = new TransportReceiver($"{MainReceiverId}-IS", sharedReceiverPushSettings, dequeueLimitations);
             }
 
             foreach (var satelliteDefinition in configuration.SatelliteDefinitions)
@@ -292,7 +273,7 @@ namespace NServiceBus
                 allReceivers.Add(satelliteReceiverSettings);
             }
 
-            return (allReceivers, mainReceiver, instanceReceiver);
+            return allReceivers.ToArray();
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)
@@ -329,9 +310,9 @@ namespace NServiceBus
         }
 
         Configuration configuration;
-        string errorQueue;
 
         const string MainReceiverId = "Main";
+        const string InstanceSpecificReceiverId = "Main-IS";
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();

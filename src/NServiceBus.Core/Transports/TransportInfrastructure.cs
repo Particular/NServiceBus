@@ -1,10 +1,10 @@
+using System.Linq;
 using NServiceBus.Settings;
 
 namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Routing;
 
     /// <summary>
     /// Transport infrastructure definitions.
@@ -28,6 +28,14 @@ namespace NServiceBus.Transport
             // this is only called when the transport is hosted as part of NServiceBus. No need to call this as "raw users".
             // pass a settings type that only allows "tryGet".
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IPushMessages FindReceiver(string receiverId)
+        {
+            return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }
     }
 
@@ -59,39 +67,14 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public EndpointAddress(string endpoint, string discriminator, IReadOnlyDictionary<string, string> properties, string qualifier)
+        public EndpointAddress(string endpoint, string discriminator, IReadOnlyDictionary<string, string> properties,
+            string qualifier)
         {
             Endpoint = endpoint;
             Discriminator = discriminator;
             Properties = properties;
             Qualifier = qualifier;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public LogicalAddress ToLogicalAddress()
-        {
-            var logicalAddress = LogicalAddress.CreateRemoteAddress(new EndpointInstance(Endpoint, Discriminator, Properties));
-
-            if (Qualifier != null)
-            {
-                return logicalAddress.CreateQualifiedAddress(Qualifier);
-            }
-
-            return logicalAddress;
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class SubscriptionSettings
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string LocalAddress { get; set; }
     }
 
     /// <summary>
