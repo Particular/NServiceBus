@@ -791,4 +791,19 @@ namespace NServiceBus.DelayedDelivery
     }
 }
 
+namespace NServiceBus.Transport
+{
+    using System.Threading.Tasks;
+    using Pipeline;
+
+    [ObsoleteEx(
+        Message = "",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface ICancelDeferredMessages
+    {
+        Task CancelDeferredMessages(string messageKey, IBehaviorContext context);
+    }
+}
+
 #pragma warning restore 1591

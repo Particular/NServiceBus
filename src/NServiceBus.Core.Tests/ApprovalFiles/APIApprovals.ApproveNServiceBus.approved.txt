@@ -2289,6 +2289,7 @@ namespace NServiceBus.Transport
         Handled = 0,
         RetryRequired = 1,
     }
+    [System.ObsoleteAttribute(". Will be removed in version 9.0.0.", true)]
     public interface ICancelDeferredMessages
     {
         System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.IBehaviorContext context);
