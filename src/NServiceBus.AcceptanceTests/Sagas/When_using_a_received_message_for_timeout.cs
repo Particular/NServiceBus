@@ -11,6 +11,8 @@
         [Test]
         public async Task Timeout_should_be_received_after_expiration()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage
                 {
