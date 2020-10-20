@@ -11,6 +11,8 @@
         [Test]
         public async Task Should_delay_delivery()
         {
+            Requires.NativeDeferralSupport();
+
             var delay = TimeSpan.FromSeconds(2);
 
             var context = await Scenario.Define<Context>()

@@ -11,6 +11,8 @@
         [Test]
         public async Task Should_match_different_saga()
         {
+            Requires.NativeDeferralSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga1
                 {

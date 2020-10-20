@@ -12,6 +12,8 @@
         [Test]
         public async Task Should_not_fire_notfound_for_tm()
         {
+            Requires.NativeDeferralSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga
                 {

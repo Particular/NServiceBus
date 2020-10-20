@@ -15,6 +15,8 @@
         [Test]
         public async Task Should_provide_error_context_to_policy()
         {
+            Requires.NativeDeferralSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))

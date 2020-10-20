@@ -11,6 +11,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
         [Test]
         public async Task Should_route_the_message_to_the_endpoint_starting_the_saga()
         {
+            Requires.NativeDeferralSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
                 .Done(c => c.DidRequestingSagaGetTheResponse)

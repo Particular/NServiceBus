@@ -13,6 +13,8 @@
         [Test]
         public async Task Message_should_be_received()
         {
+            Requires.NativeDeferralSupport();
+
             var delay = TimeSpan.FromSeconds(2);
 
             var context = await Scenario.Define<Context>()

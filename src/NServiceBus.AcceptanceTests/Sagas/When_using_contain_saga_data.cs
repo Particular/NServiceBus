@@ -11,6 +11,8 @@
         [Test]
         public async Task Should_handle_timeouts_properly()
         {
+            Requires.NativeDeferralSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointThatHostsASaga>(
                     b => b.When(session => session.SendLocal(new StartSaga
