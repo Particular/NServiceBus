@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_delay_delivery()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var delay = TimeSpan.FromSeconds(2);
 

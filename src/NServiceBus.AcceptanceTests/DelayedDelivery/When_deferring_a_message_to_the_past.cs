@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_deliver_message()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((bus, c) =>

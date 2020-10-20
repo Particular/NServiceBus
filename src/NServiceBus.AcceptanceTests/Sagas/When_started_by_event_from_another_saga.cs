@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_start_the_saga_and_request_a_timeout()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>

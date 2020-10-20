@@ -14,7 +14,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
         [Test]
         public async Task Should_execute_twice_and_send_to_error_queue()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var messageId = Guid.NewGuid().ToString();
             var context = await Scenario.Define<Context>()

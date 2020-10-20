@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_do_delayed_retries()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<DelayedRetryEndpoint>(b => b

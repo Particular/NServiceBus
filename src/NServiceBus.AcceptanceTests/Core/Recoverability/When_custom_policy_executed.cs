@@ -15,7 +15,7 @@
         [Test]
         public async Task Should_provide_error_context_to_policy()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>

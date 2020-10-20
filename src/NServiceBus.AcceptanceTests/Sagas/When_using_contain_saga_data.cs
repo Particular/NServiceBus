@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_handle_timeouts_properly()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointThatHostsASaga>(

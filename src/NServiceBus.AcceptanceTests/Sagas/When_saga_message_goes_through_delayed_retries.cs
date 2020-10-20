@@ -12,7 +12,7 @@
         [Test]
         public Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             return Scenario.Define<Context>()
                 .WithEndpoint<DelayedRetryEndpoint>(b => b

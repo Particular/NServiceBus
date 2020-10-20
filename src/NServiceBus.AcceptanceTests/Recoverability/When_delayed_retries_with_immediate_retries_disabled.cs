@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_reschedule_message_the_configured_number_of_times()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b

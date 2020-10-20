@@ -13,7 +13,7 @@
         [Test]
         public async Task Message_should_be_received()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var delay = TimeSpan.FromSeconds(2);
 

@@ -36,11 +36,11 @@
             }
         }
 
-        public static void NativeDeferralSupport()
+        public static void DelayedDelivery()
         {
-            if (!TestSuiteConstraints.Current.SupportsNativeDeferral)
+            if (!TestSuiteConstraints.Current.SupportsDelayedDelivery)
             {
-                Assert.Ignore("Ignoring this test because it requires native deferral support from the transport.");
+                Assert.Ignore("Ignoring this test because it requires delayed delivery support from the transport.");
             }
         }
 

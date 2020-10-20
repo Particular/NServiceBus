@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_trigger_notification_on_delayed_retry()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<DelayedRetriesEndpoint>(b =>

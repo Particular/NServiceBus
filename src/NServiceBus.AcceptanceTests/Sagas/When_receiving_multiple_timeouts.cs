@@ -13,7 +13,7 @@
         [Test]
         public async Task It_should_not_invoke_SagaNotFound_handler()
         {
-            Requires.NativeDeferralSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1
