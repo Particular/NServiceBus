@@ -36,11 +36,11 @@
             }
         }
 
-        public static void TimeoutStorage()
+        public static void NativeDeferralSupport()
         {
-            if (TestSuiteConstraints.Current.SupportsNativeDeferral)
+            if (!TestSuiteConstraints.Current.SupportsNativeDeferral)
             {
-                Assert.Ignore("Ignoring this test because it requires the timeout manager but this transport provides native deferral.");
+                Assert.Ignore("Ignoring this test because it requires native deferral support from the transport.");
             }
         }
 
