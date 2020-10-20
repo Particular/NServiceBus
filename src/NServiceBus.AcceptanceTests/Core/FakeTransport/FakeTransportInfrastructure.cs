@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
+﻿using System.Linq;
+
+namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System;
     using System.Collections.Generic;
@@ -8,36 +10,12 @@
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {
-        public FakeTransportInfrastructure(Settings settings, FakeTransport fakeTransportSettings)
+        public FakeTransportInfrastructure(Settings settings, FakeTransport fakeTransportSettings,
+            ReceiveSettings[] receiveSettingses)
         {
-            this.settings = settings;
-            this.fakeTransportSettings = fakeTransportSettings;
             Dispatcher = new FakeDispatcher();
-        }
-
-
-        public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
-        {
-            fakeTransportSettings.StartUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(CreateReceiver)}");
-
-            return Task.FromResult<IPushMessages>(new FakeReceiver(fakeTransportSettings,
-                settings.CriticalErrorAction));
-        }
-
-        Settings settings;
-        private readonly FakeTransport fakeTransportSettings;
-
-        class FakeSubscriptionManager : IManageSubscriptions
-        {
-            public Task Subscribe(Type eventType, ContextBag context)
-            {
-                return Task.FromResult(0);
-            }
-
-            public Task Unsubscribe(Type eventType, ContextBag context)
-            {
-                return Task.FromResult(0);
-            }
+            Receivers = receiveSettingses
+                .Select(s => new FakeReceiver(fakeTransportSettings, settings.CriticalErrorAction, s.Id)).ToArray();
         }
     }
 }

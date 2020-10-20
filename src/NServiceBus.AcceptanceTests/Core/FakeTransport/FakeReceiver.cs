@@ -6,10 +6,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     class FakeReceiver : IPushMessages
     {
-        public FakeReceiver(FakeTransport settings, Action<string, Exception> criticalErrorAction)
+        public FakeReceiver(FakeTransport settings, Action<string, Exception> criticalErrorAction, string id)
         {
             this.settings = settings;
             this.criticalErrorAction = criticalErrorAction;
+            Id = id;
         }
 
 
