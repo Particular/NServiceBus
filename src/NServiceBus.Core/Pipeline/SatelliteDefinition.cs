@@ -37,7 +37,6 @@ namespace NServiceBus
             return new ReceiveSettings
             {
                 Id = Name,
-                ErrorQueueAddress = errorQueue,
                 LocalAddress = ReceiveAddress,
                 settings = satellitePushSettings,
                 UsePublishSubscribe = false

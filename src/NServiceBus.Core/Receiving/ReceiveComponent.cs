@@ -243,7 +243,6 @@ namespace NServiceBus
             allReceivers.Add(new ReceiveSettings
             {
                 Id = MainReceiverId,
-                ErrorQueueAddress = errorQueue,
                 LocalAddress = configuration.LocalAddress,
                 settings = pushSettings,
                 UsePublishSubscribe = true
@@ -258,7 +257,6 @@ namespace NServiceBus
                 allReceivers.Add(new ReceiveSettings
                 {
                     Id = InstanceSpecificReceiverId,
-                    ErrorQueueAddress = errorQueue,
                     LocalAddress = instanceSpecificQueue,
                     settings = sharedReceiverPushSettings,
                     UsePublishSubscribe = false

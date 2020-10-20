@@ -85,11 +85,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// </summary>
         public string Id { get; set; }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public string ErrorQueueAddress { get; set; } //TODO would be good to know if we're using the default or user provided value
 
         /// <summary>
         /// 

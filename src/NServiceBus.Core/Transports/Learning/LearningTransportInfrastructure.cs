@@ -61,7 +61,7 @@
 
         public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
-            var errorQueueAddress = receiveSettings.ErrorQueueAddress;
+            var errorQueueAddress = receiveSettings.settings.ErrorQueue;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");

@@ -106,7 +106,6 @@
                     new ReceiveSettings()
                     {
                         Id = "MainPump",
-                        ErrorQueueAddress = ErrorQueueName,
                         LocalAddress = InputQueueName,
                         settings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
                         UsePublishSubscribe = true

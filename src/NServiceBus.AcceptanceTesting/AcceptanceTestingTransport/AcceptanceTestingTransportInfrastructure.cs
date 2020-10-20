@@ -49,7 +49,7 @@
 
         public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
-            var errorQueueAddress = receiveSettings.ErrorQueueAddress;
+            var errorQueueAddress = receiveSettings.settings.ErrorQueue;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
             IManageSubscriptions subscriptionManager = null;
