@@ -73,7 +73,7 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn && settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
+            var delayedRetriesAvailable = transactionsOn;
 
             var immediateRetriesAvailable = transactionsOn;
 
