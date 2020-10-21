@@ -71,7 +71,7 @@ namespace NServiceBus
             IManageSubscriptions subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe)
             {
-                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.LocalAddress);
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
             var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
             return Task.FromResult<IPushMessages>(pump);

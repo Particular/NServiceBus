@@ -28,9 +28,9 @@
 
         public void Init()
         {
-            PathChecker.ThrowForBadPath(receiveSettings.LocalAddress, "InputQueue");
+            PathChecker.ThrowForBadPath(receiveSettings.ReceiveAddress, "InputQueue");
 
-            messagePumpBasePath = Path.Combine(basePath, receiveSettings.LocalAddress);
+            messagePumpBasePath = Path.Combine(basePath, receiveSettings.ReceiveAddress);
             bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
             delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
 

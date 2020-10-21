@@ -96,7 +96,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public string LocalAddress { get; set; }
+        public string ReceiveAddress { get; set; }
 
         /// <summary>
         /// 

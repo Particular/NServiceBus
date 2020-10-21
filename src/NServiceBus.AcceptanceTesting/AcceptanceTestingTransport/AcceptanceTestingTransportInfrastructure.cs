@@ -58,7 +58,7 @@
                 var endpointName = settings.Name;
                 PathChecker.ThrowForBadPath(endpointName, "endpoint name");
 
-                var localAddress = receiveSettings.LocalAddress;
+                var localAddress = receiveSettings.ReceiveAddress;
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
 
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
