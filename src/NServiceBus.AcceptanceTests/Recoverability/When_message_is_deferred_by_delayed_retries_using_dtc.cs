@@ -15,6 +15,7 @@
         public async Task Should_not_commit_distributed_transaction()
         {
             Requires.DtcSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()

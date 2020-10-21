@@ -13,6 +13,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         [Test]
         public void Should_move_to_error_queue_without_retries()
         {
+            Requires.DelayedDelivery();
+
             Context context = null;
 
             var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
