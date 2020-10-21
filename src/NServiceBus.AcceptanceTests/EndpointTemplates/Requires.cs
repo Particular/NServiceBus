@@ -38,10 +38,10 @@
 
         public static void DelayedDelivery()
         {
-            if (!TestSuiteConstraints.Current.SupportsDelayedDelivery)
-            {
-                Assert.Ignore("Ignoring this test because it requires delayed delivery support from the transport.");
-            }
+            //if (!TestSuiteConstraints.Current.SupportsDelayedDelivery)
+            //{
+            //    Assert.Ignore("Ignoring this test because it requires delayed delivery support from the transport.");
+            //}
         }
 
         public static void OutboxPersistence()
