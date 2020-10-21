@@ -17,5 +17,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             Receivers = receiveSettingses
                 .Select(s => new FakeReceiver(fakeTransportSettings, settings.CriticalErrorAction, s.Id)).ToArray();
         }
+
+        public override void Dispose()
+        {
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using Janitor;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +9,7 @@
     using System.Threading.Tasks;
     using Transport;
 
-
+    [SkipWeaving]
     class LearningTransportInfrastructure : TransportInfrastructure
     {
         public LearningTransportInfrastructure(Transport.Settings settings, LearningTransport transportSettings,
@@ -100,5 +102,8 @@
         ReceiveSettings[] receiveSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
+        public override void Dispose()
+        {
+        }
     }
 }

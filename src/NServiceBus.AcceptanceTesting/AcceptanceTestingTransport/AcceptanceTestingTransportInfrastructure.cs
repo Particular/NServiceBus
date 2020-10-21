@@ -91,5 +91,9 @@
         readonly string storagePath;
         readonly ReceiveSettings[] receiveSettings;
         readonly Settings settings;
+        public override void Dispose()
+        {
+            
+        }
     }
 }

@@ -100,6 +100,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
             public override IDispatchMessages Dispatcher => new FakeDispatcher();
             public override IPushMessages[] Receivers { get; protected set; }
+            public override void Dispose()
+            {
+            }
         }
     }
 }

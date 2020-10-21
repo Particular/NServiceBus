@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using Janitor;
 using NServiceBus.Settings;
 
 namespace NServiceBus.Transport
@@ -9,7 +11,8 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Transport infrastructure definitions.
     /// </summary>
-    public abstract class TransportInfrastructure
+    [SkipWeaving]
+    public abstract class TransportInfrastructure : IDisposable
     {
         /// <summary>
         /// 
@@ -37,6 +40,10 @@ namespace NServiceBus.Transport
         {
             return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }
+
+        /// <summary>
+        /// </summary>
+        public abstract void Dispose();
     }
 
     /// <summary>
