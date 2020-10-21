@@ -1,3 +1,5 @@
+using System;
+
 namespace NServiceBus
 {
     using System.Threading.Tasks;
@@ -6,16 +8,16 @@ namespace NServiceBus
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public NativeSubscribeTerminator(IManageSubscriptions subscriptionManager)
+        public NativeSubscribeTerminator(Func<IManageSubscriptions> subscriptionManager)
         {
             this.subscriptionManager = subscriptionManager;
         }
 
         protected override Task Terminate(ISubscribeContext context)
         {
-            return subscriptionManager.Subscribe(context.EventType, context.Extensions);
+            return subscriptionManager().Subscribe(context.EventType, context.Extensions);
         }
 
-        readonly IManageSubscriptions subscriptionManager;
+        readonly Func<IManageSubscriptions> subscriptionManager;
     }
 }

@@ -12,6 +12,7 @@ namespace NServiceBus
     class StartableEndpoint : IStartableEndpoint
     {
         public StartableEndpoint(SettingsHolder settings,
+            TransportSeam transportSeam,
             FeatureComponent featureComponent,
             ReceiveComponent receiveComponent,
             PipelineComponent pipelineComponent,
@@ -21,6 +22,7 @@ namespace NServiceBus
             IServiceProvider builder)
         {
             this.settings = settings;
+            this.transportSeam = transportSeam;
             this.featureComponent = featureComponent;
             this.receiveComponent = receiveComponent;
             this.pipelineComponent = pipelineComponent;
@@ -32,6 +34,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
+            await transportSeam.Initialize().ConfigureAwait(false);
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);
@@ -61,6 +64,7 @@ namespace NServiceBus
         readonly IServiceProvider builder;
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
+        readonly TransportSeam transportSeam;
         readonly ReceiveComponent receiveComponent;
     }
 }

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Threading.Tasks;
     using MessageInterfaces;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -14,7 +13,7 @@
             this.messageMapper = messageMapper;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, IDispatchMessages dispatcher)
+        public static SendComponent Configure(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, Func<IDispatchMessages> dispatcher)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
@@ -31,7 +30,7 @@
 
             var sendComponent = new SendComponent(messageMapper);
 
-            hostingConfiguration.Services.AddSingleton(dispatcher);
+            hostingConfiguration.Services.AddSingleton<IDispatchMessages>(sp => dispatcher());
 
             return sendComponent;
         }

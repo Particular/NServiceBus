@@ -14,61 +14,56 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
-        ReceiveComponent(TransportInfrastructure transportInfrastructure, 
+        ReceiveComponent(TransportSeam transportSeam, 
             Configuration configuration)
         {
-            TransportInfrastructure = transportInfrastructure;
+            TransportSeam = transportSeam;
             this.configuration = configuration;
         }
 
-        public static async Task<ReceiveComponent> Initialize(TransportSeam.Settings settings, Configuration configuration,
+        public static  ReceiveComponent Configure(TransportSeam.Settings settings, Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
-            TransportInfrastructure transportInfrastructure;
+            var seam = configuration.transportSeam;
+
+            //RegisterTransportInfrastructureForBackwardsCompatibility
+            settings.settings.Set(configuration.transportSeam);
 
             if (configuration.IsSendOnlyEndpoint)
             {
-                transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
+                configuration.transportSeam.Configure(
                         new Transport.Settings(hostingConfiguration.EndpointName,
                             hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
                             hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
                         new ReceiveSettings[0]
-                    )
-                    .ConfigureAwait(false);
+                    );
 
                 pipelineSettings.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 pipelineSettings.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
 
-                //RegisterTransportInfrastructureForBackwardsCompatibility
-                settings.settings.Set(transportInfrastructure);
-
                 return new ReceiveComponent(
-                    transportInfrastructure,
+                    configuration.transportSeam,
                     configuration);
             }
 
             var receivers = AddReceivers(configuration, errorQueue);
 
-            transportInfrastructure = await configuration.transportSeam.TransportDefinition.Initialize(
+            configuration.transportSeam.Configure(
                     new Transport.Settings(hostingConfiguration.EndpointName,
                         hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
                         hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
                     receivers
-                )
-                .ConfigureAwait(false);
-
-            //RegisterTransportInfrastructureForBackwardsCompatibility
-            settings.settings.Set(transportInfrastructure);
+                );
 
             var receiveComponent = new ReceiveComponent(
-                transportInfrastructure,
+                configuration.transportSeam,
                 configuration);
 
             //TODO needs better way to access receivers (via ID or some kind of reference), what about receiveSettings.GetReceiver(transportInfrastructure) that wraps the ID lookup?
-            pipelineSettings.Register(new NativeSubscribeTerminator(transportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to subscribe to a given message type");
-            pipelineSettings.Register(new NativeUnsubscribeTerminator(transportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to unsubscribe to a given message type");
+            pipelineSettings.Register(new NativeSubscribeTerminator(() => seam.TransportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to subscribe to a given message type");
+            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => seam.TransportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to unsubscribe to a given message type");
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
@@ -168,11 +163,11 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
 
-            var mainPump = TransportInfrastructure.FindReceiver(MainReceiverId);
+            var mainPump = TransportSeam.TransportInfrastructure.FindReceiver(MainReceiverId);
             this.mainReceiver = new TransportReceiver(mainPump, configuration.PushRuntimeSettings);
             await this.mainReceiver.Start(mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
 
-            var instanceSpecificPump = TransportInfrastructure.FindReceiver(InstanceSpecificReceiverId);
+            var instanceSpecificPump = TransportSeam.TransportInfrastructure.FindReceiver(InstanceSpecificReceiverId);
             if (instanceSpecificPump != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
@@ -186,7 +181,7 @@ namespace NServiceBus
                 try
                 {
                     //TODO use Wrap Satellite in a TransportReceiver too (or eliminate TransportReceiver completely)
-                    var satellitePump = TransportInfrastructure.Receivers.First(r => r.Id == satellite.Name);
+                    var satellitePump = TransportSeam.TransportInfrastructure.Receivers.First(r => r.Id == satellite.Name);
                     satellite.Start(satellitePump, builder, recoverabilityExecutorFactory);
                 }
                 catch (Exception ex)
@@ -318,6 +313,6 @@ namespace NServiceBus
         private TransportReceiver instanceReceiver;
 
 
-        public TransportInfrastructure TransportInfrastructure { get; private set; }
+        public TransportSeam TransportSeam { get; private set; }
     }
 }

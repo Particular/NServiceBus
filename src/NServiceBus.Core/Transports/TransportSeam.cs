@@ -8,12 +8,27 @@ namespace NServiceBus
 
     class TransportSeam
     {
+        Transport.Settings transportSettings;
+        ReceiveSettings[] receivers;
         public TransportDefinition TransportDefinition { get;  }
+        public TransportInfrastructure TransportInfrastructure { get; private set; }
 
         protected TransportSeam(TransportDefinition transportDefinition, QueueBindings queueBindings)
         {
             TransportDefinition = transportDefinition;
             QueueBindings = queueBindings;
+        }
+
+        public void Configure(Transport.Settings transportSettings, ReceiveSettings[] receivers)
+        {
+            this.transportSettings = transportSettings;
+            this.receivers = receivers;
+        }
+
+        public async Task Initialize()
+        {
+            TransportInfrastructure = await TransportDefinition.Initialize(transportSettings, receivers)
+                .ConfigureAwait(false);
         }
 
         public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
@@ -24,6 +39,7 @@ namespace NServiceBus
 
             return new TransportSeam(transportDefinition, transportSettings.QueueBindings);
         }
+
 
         public QueueBindings QueueBindings { get; }
 
