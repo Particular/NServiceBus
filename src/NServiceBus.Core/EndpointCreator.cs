@@ -79,7 +79,7 @@ namespace NServiceBus
                 hostingConfiguration,
                 pipelineSettings);
 
-            sendComponent = SendComponent.Configure(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, () => transportSeam.TransportInfrastructure.Dispatcher);
+            sendComponent = SendComponent.Configure(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 

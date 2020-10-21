@@ -14,56 +14,40 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
-        ReceiveComponent(TransportSeam transportSeam, 
-            Configuration configuration)
+        ReceiveComponent(Configuration configuration)
         {
-            TransportSeam = transportSeam;
             this.configuration = configuration;
         }
 
-        public static  ReceiveComponent Configure(TransportSeam.Settings settings, Configuration configuration,
+        public static  ReceiveComponent Configure(
+            TransportSeam.Settings settings, 
+            Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
-            var seam = configuration.transportSeam;
-
             //RegisterTransportInfrastructureForBackwardsCompatibility
             settings.settings.Set(configuration.transportSeam);
 
             if (configuration.IsSendOnlyEndpoint)
             {
-                configuration.transportSeam.Configure(
-                        new Transport.Settings(hostingConfiguration.EndpointName,
-                            hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                            hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
-                        new ReceiveSettings[0]
-                    );
+                configuration.transportSeam.Configure(new ReceiveSettings[0]);
 
                 pipelineSettings.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 pipelineSettings.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
 
-                return new ReceiveComponent(
-                    configuration.transportSeam,
-                    configuration);
+                return new ReceiveComponent(configuration);
             }
 
             var receivers = AddReceivers(configuration, errorQueue);
 
-            configuration.transportSeam.Configure(
-                    new Transport.Settings(hostingConfiguration.EndpointName,
-                        hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                        hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers),
-                    receivers
-                );
+            configuration.transportSeam.Configure(receivers);
 
-            var receiveComponent = new ReceiveComponent(
-                configuration.transportSeam,
-                configuration);
+            var receiveComponent = new ReceiveComponent(configuration);
 
             //TODO needs better way to access receivers (via ID or some kind of reference), what about receiveSettings.GetReceiver(transportInfrastructure) that wraps the ID lookup?
-            pipelineSettings.Register(new NativeSubscribeTerminator(() => seam.TransportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to subscribe to a given message type");
-            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => seam.TransportInfrastructure.Receivers[0].Subscriptions), "Requests the transport to unsubscribe to a given message type");
+            pipelineSettings.Register(new NativeSubscribeTerminator(() => receiveComponent.transportInfrastructure.FindReceiver(MainReceiverId).Subscriptions), "Requests the transport to subscribe to a given message type");
+            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => receiveComponent.transportInfrastructure.FindReceiver(MainReceiverId).Subscriptions), "Requests the transport to unsubscribe to a given message type");
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
@@ -149,12 +133,15 @@ namespace NServiceBus
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
-            IPipelineCache pipelineCache)
+            IPipelineCache pipelineCache,
+            TransportInfrastructure transportInfrastructure)
         {
             if (configuration.IsSendOnlyEndpoint)
             {
                 return;
             }
+
+            this.transportInfrastructure = transportInfrastructure;
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
@@ -163,11 +150,11 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
 
-            var mainPump = TransportSeam.TransportInfrastructure.FindReceiver(MainReceiverId);
+            var mainPump = transportInfrastructure.FindReceiver(MainReceiverId);
             this.mainReceiver = new TransportReceiver(mainPump, configuration.PushRuntimeSettings);
             await this.mainReceiver.Start(mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
 
-            var instanceSpecificPump = TransportSeam.TransportInfrastructure.FindReceiver(InstanceSpecificReceiverId);
+            var instanceSpecificPump = transportInfrastructure.FindReceiver(InstanceSpecificReceiverId);
             if (instanceSpecificPump != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
@@ -181,7 +168,7 @@ namespace NServiceBus
                 try
                 {
                     //TODO use Wrap Satellite in a TransportReceiver too (or eliminate TransportReceiver completely)
-                    var satellitePump = TransportSeam.TransportInfrastructure.Receivers.First(r => r.Id == satellite.Name);
+                    var satellitePump = transportInfrastructure.Receivers.First(r => r.Id == satellite.Name);
                     satellite.Start(satellitePump, builder, recoverabilityExecutorFactory);
                 }
                 catch (Exception ex)
@@ -311,8 +298,7 @@ namespace NServiceBus
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         private TransportReceiver mainReceiver;
         private TransportReceiver instanceReceiver;
+        private TransportInfrastructure transportInfrastructure;
 
-
-        public TransportSeam TransportSeam { get; private set; }
     }
 }

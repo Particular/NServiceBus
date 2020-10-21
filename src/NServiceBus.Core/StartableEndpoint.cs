@@ -34,8 +34,9 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            await transportSeam.Initialize().ConfigureAwait(false);
+            var transportInfrastructure = await transportSeam.Initialize().ConfigureAwait(false);
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
+            sendComponent.RegisterDispatcher(transportInfrastructure);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);
             var messageSession = new MessageSession(rootContext);
@@ -52,7 +53,7 @@ namespace NServiceBus
 
             var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession);
 
-            await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
+            await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
 
             return runningInstance;
         }

@@ -13,7 +13,7 @@
             this.messageMapper = messageMapper;
         }
 
-        public static SendComponent Configure(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, Func<IDispatchMessages> dispatcher)
+        public static SendComponent Configure(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
@@ -30,9 +30,14 @@
 
             var sendComponent = new SendComponent(messageMapper);
 
-            hostingConfiguration.Services.AddSingleton<IDispatchMessages>(sp => dispatcher());
+            hostingConfiguration.Services.AddSingleton<IDispatchMessages>(sp => sendComponent.dispatcher);
 
             return sendComponent;
+        }
+
+        public void RegisterDispatcher(TransportInfrastructure transportInfrastructure)
+        {
+            this.dispatcher = transportInfrastructure.Dispatcher;
         }
 
         public MessageOperations CreateMessageOperations(IServiceProvider builder, PipelineComponent pipelineComponent)
@@ -47,5 +52,6 @@
         }
 
         readonly IMessageMapper messageMapper;
+        private IDispatchMessages dispatcher;
     }
 }

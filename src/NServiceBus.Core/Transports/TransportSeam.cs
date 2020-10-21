@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 namespace NServiceBus
 {
@@ -10,34 +11,37 @@ namespace NServiceBus
     {
         Transport.Settings transportSettings;
         ReceiveSettings[] receivers;
-        public TransportDefinition TransportDefinition { get;  }
-        public TransportInfrastructure TransportInfrastructure { get; private set; }
 
-        protected TransportSeam(TransportDefinition transportDefinition, QueueBindings queueBindings)
+        public TransportDefinition TransportDefinition { get;  }
+
+        protected TransportSeam(TransportDefinition transportDefinition, Transport.Settings transportSettings)
         {
             TransportDefinition = transportDefinition;
-            QueueBindings = queueBindings;
+            this.transportSettings = transportSettings;
         }
 
-        public void Configure(Transport.Settings transportSettings, ReceiveSettings[] receivers)
+        //TODO can also be moved to Initialize
+        public void Configure(ReceiveSettings[] receivers)
         {
-            this.transportSettings = transportSettings;
             this.receivers = receivers;
         }
 
-        public async Task Initialize()
+        public async Task<TransportInfrastructure> Initialize()
         {
-            TransportInfrastructure = await TransportDefinition.Initialize(transportSettings, receivers)
+            return await TransportDefinition.Initialize(transportSettings, receivers)
                 .ConfigureAwait(false);
         }
 
         public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
         {
             var transportDefinition = transportSettings.TransportDefinition;
-
             transportSettings.settings.Set(transportDefinition);
 
-            return new TransportSeam(transportDefinition, transportSettings.QueueBindings);
+            var settings = new Transport.Settings(hostingConfiguration.EndpointName,
+                hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers, transportSettings.QueueBindings.SendingAddresses.ToArray());
+
+            return new TransportSeam(transportDefinition, settings);
         }
 
 
