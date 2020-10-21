@@ -38,13 +38,14 @@ namespace NServiceBus.Transport
     {
         /// <summary>
         /// </summary>
-        public Settings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure)
+        public Settings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, string[] mandatoryDestinationQueues = null)
         {
             Name = name;
             HostDisplayName = hostDisplayName;
             StartupDiagnostic = startupDiagnostic;
             CriticalErrorAction = criticalErrorAction;
             SetupInfrastructure = setupInfrastructure;
+            MandatoryDestinationQueues = mandatoryDestinationQueues ?? Array.Empty<string>();
         }
 
         /// <summary>
@@ -71,5 +72,10 @@ namespace NServiceBus.Transport
         /// 
         /// </summary>
         public bool SetupInfrastructure { get;  }
+
+        /// <summary>
+        /// Defines a set of queue addresses that this endpoint is going to send messages to and that need to be setup by this endpoint.
+        /// </summary>
+        public string[] MandatoryDestinationQueues { get; }
     }
 }
