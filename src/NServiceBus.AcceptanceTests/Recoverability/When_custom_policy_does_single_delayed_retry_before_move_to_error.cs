@@ -30,7 +30,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.AreEqual(context.Count, 2);
+            Assert.AreEqual(2, context.Count);
             Assert.AreEqual(messageId, context.FailedMessages.Single().Value.Single().MessageId);
         }
 

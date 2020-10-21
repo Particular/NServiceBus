@@ -27,7 +27,7 @@
                 .Done(c => c.MessageSentToError)
                 .Run();
 
-            Assert.IsInstanceOf<SimulatedException>(context.LastDelayedRetryInfo.Exception);
+            Assert.IsInstanceOf<SimulatedException>(context.LastDelayedRetryInfo?.Exception);
             // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
             Assert.AreEqual(4 * 3, context.TotalNumberOfHandlerInvocations);
             Assert.AreEqual(2, context.NumberOfDelayedRetriesPerformed);

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -20,10 +21,10 @@
                         Id = ctx.Id
                     }))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.NumberOfRetriesAttempted >= 1)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.GreaterOrEqual(1, context.NumberOfRetriesAttempted, "Should retry one or more times");
+            Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 1, "Should retry one or more times");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);

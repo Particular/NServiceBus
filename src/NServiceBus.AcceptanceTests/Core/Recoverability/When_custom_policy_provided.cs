@@ -13,6 +13,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         [Test]
         public async Task Should_pass_recoverability_configuration()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
