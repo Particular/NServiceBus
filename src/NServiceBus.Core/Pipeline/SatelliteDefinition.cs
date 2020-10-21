@@ -44,13 +44,13 @@ namespace NServiceBus
             //satelliteReceiver = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
         }
 
-        public void Start(IPushMessages satelliteReceiver, IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
+        public Task Start(IPushMessages satelliteReceiver, IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
         {
             this.satelliteReceiver = satelliteReceiver;
 
             var satellitePipeline = new SatellitePipelineExecutor(builder, this);
             var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(RecoverabilityPolicy, ReceiveAddress);
-            satelliteReceiver.Start(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke);
+            return satelliteReceiver.Start(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke);
         }
 
         public Task Stop()

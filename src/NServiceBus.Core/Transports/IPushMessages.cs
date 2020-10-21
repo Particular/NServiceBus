@@ -16,7 +16,7 @@
         /// <summary>
         /// Starts pushing messages.
         /// </summary>
-        void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError);
+        Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError);
 
         /// <summary>
         /// Stops pushing messages.

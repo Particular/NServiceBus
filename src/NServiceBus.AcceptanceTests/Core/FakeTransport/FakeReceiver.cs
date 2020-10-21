@@ -14,7 +14,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
 
-        public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Start)}");
 
@@ -22,6 +22,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             {
                 criticalErrorAction(settings.ExceptionToThrow.Message, settings.ExceptionToThrow);
             }
+
+            return Task.CompletedTask;
         }
 
         public async Task Stop()

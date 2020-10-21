@@ -144,8 +144,6 @@ namespace NServiceBus
                 return;
             }
 
-            this.transportInfrastructure = transportInfrastructure;
-
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
@@ -172,7 +170,7 @@ namespace NServiceBus
                 {
                     //TODO use Wrap Satellite in a TransportReceiver too (or eliminate TransportReceiver completely)
                     var satellitePump = transportInfrastructure.Receivers.First(r => r.Id == satellite.Name);
-                    satellite.Start(satellitePump, builder, recoverabilityExecutorFactory);
+                    await satellite.Start(satellitePump, builder, recoverabilityExecutorFactory).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -281,7 +279,6 @@ namespace NServiceBus
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         private TransportReceiver mainReceiver;
         private TransportReceiver instanceReceiver;
-        private TransportInfrastructure transportInfrastructure;
         private IManageSubscriptions subscriptionManager;
     }
 }

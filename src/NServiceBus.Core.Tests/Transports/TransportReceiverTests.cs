@@ -75,7 +75,7 @@
             public bool Disposed { get; private set; }
 
 
-            public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 if (ThrowOnStart)
                 {
@@ -83,6 +83,8 @@
                 }
 
                 Started = true;
+
+                return Task.CompletedTask;
             }
 
             public Task Stop()

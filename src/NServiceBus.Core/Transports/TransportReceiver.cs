@@ -15,7 +15,7 @@ namespace NServiceBus
             this.receiver = receiver;
         }
 
-        public Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public async Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             if (isStarted)
             {
@@ -24,11 +24,9 @@ namespace NServiceBus
 
             Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
-            receiver.Start(pushRuntimeSettings, onMessage, onError);
+            await receiver.Start(pushRuntimeSettings, onMessage, onError).ConfigureAwait(false);
 
             isStarted = true;
-
-            return Task.FromResult(0);
         }
 
         public async Task Stop()

@@ -47,13 +47,15 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 this.pushSettings = pushSettings;
             }
 
-            public void Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
                 {
                     Assert.AreEqual(10, limitations.MaxConcurrency);
                 }
+
+                return Task.CompletedTask;
             }
 
             public Task Stop()

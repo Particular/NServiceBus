@@ -115,7 +115,7 @@
 
             MessagePump = TransportInfrastructure.Receivers[0];
 
-            MessagePump.Start(configuration.PushRuntimeSettings,
+            await MessagePump.Start(configuration.PushRuntimeSettings,
                 context =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
