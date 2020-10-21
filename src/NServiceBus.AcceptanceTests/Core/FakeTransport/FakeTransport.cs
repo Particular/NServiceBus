@@ -24,7 +24,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public Action<QueueBindings> OnQueueCreation { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receiveSettings)
+        public override async Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receivers, string[] SendingAddresses)
         {
             StartUpSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
@@ -33,7 +33,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             ////    assertion(settings);
             ////}
 
-            return new FakeTransportInfrastructure(settings, this, receiveSettings);
+            return new FakeTransportInfrastructure(settings, this, receivers);
         }
 
         public override string ToTransportAddress(EndpointAddress logicalAddress)

@@ -110,7 +110,7 @@
                         settings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
                         UsePublishSubscribe = true
                     }
-                }).ConfigureAwait(false);
+                }, queueBindings.SendingAddresses.ToArray()).ConfigureAwait(false);
 
             IgnoreUnsupportedTransactionModes(transactionMode);
 

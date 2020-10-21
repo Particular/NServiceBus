@@ -9,11 +9,11 @@ namespace NServiceBus
     {
         public string StorageDirectory { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings, ReceiveSettings[] receiveSettings)
+        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings, ReceiveSettings[] receivers, string[] SendingAddresses)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            var acceptanceTestingTransportInfrastructure = new AcceptanceTestingTransportInfrastructure(receiveSettings, settings, this);
+            var acceptanceTestingTransportInfrastructure = new AcceptanceTestingTransportInfrastructure(receivers, settings, this);
             acceptanceTestingTransportInfrastructure.ConfigureSendInfrastructure();
 
             await acceptanceTestingTransportInfrastructure.ConfigureReceiveInfrastructure().ConfigureAwait(false);

@@ -37,6 +37,7 @@ namespace NServiceBus
             var transportInfrastructure = await transportSeam.Initialize().ConfigureAwait(false);
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             sendComponent.RegisterDispatcher(transportInfrastructure);
+            receiveComponent.ConfigureSubscriptionManager(transportInfrastructure);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);
             var messageSession = new MessageSession(rootContext);

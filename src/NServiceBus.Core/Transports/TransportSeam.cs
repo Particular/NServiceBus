@@ -14,9 +14,11 @@ namespace NServiceBus
 
         public TransportDefinition TransportDefinition { get;  }
 
-        protected TransportSeam(TransportDefinition transportDefinition, Transport.Settings transportSettings)
+        protected TransportSeam(TransportDefinition transportDefinition, Transport.Settings transportSettings,
+            QueueBindings queueBindings)
         {
             TransportDefinition = transportDefinition;
+            QueueBindings = queueBindings;
             this.transportSettings = transportSettings;
         }
 
@@ -28,20 +30,20 @@ namespace NServiceBus
 
         public async Task<TransportInfrastructure> Initialize()
         {
-            return await TransportDefinition.Initialize(transportSettings, receivers)
+            return await TransportDefinition.Initialize(transportSettings, receivers, QueueBindings.SendingAddresses.ToArray())
                 .ConfigureAwait(false);
         }
 
-        public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
+        public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
         {
-            var transportDefinition = transportSettings.TransportDefinition;
-            transportSettings.settings.Set(transportDefinition);
+            var transportDefinition = transportSeamSettings.TransportDefinition;
+            transportSeamSettings.settings.Set(transportDefinition);
 
             var settings = new Transport.Settings(hostingConfiguration.EndpointName,
                 hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers, transportSettings.QueueBindings.SendingAddresses.ToArray());
+                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers);
 
-            return new TransportSeam(transportDefinition, settings);
+            return new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
         }
 
 

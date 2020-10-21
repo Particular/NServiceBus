@@ -46,8 +46,8 @@ namespace NServiceBus
             var receiveComponent = new ReceiveComponent(configuration);
 
             //TODO needs better way to access receivers (via ID or some kind of reference), what about receiveSettings.GetReceiver(transportInfrastructure) that wraps the ID lookup?
-            pipelineSettings.Register(new NativeSubscribeTerminator(() => receiveComponent.transportInfrastructure.FindReceiver(MainReceiverId).Subscriptions), "Requests the transport to subscribe to a given message type");
-            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => receiveComponent.transportInfrastructure.FindReceiver(MainReceiverId).Subscriptions), "Requests the transport to unsubscribe to a given message type");
+            pipelineSettings.Register(new NativeSubscribeTerminator(() => receiveComponent.subscriptionManager), "Requests the transport to subscribe to a given message type");
+            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => receiveComponent.subscriptionManager), "Requests the transport to unsubscribe to a given message type");
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
@@ -127,6 +127,11 @@ namespace NServiceBus
             }
 
             return requestedTransportTransactionMode;
+        }
+
+        public void ConfigureSubscriptionManager(TransportInfrastructure transportInfrastructure)
+        {
+            this.subscriptionManager = transportInfrastructure.FindReceiver(MainReceiverId)?.Subscriptions;
         }
 
         public async Task Start(IServiceProvider builder,
@@ -291,14 +296,14 @@ namespace NServiceBus
 
         Configuration configuration;
 
-        const string MainReceiverId = "Main";
-        const string InstanceSpecificReceiverId = "Main-IS";
+        public const string MainReceiverId = "Main";
+        public const string InstanceSpecificReceiverId = "Main-IS";
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         private TransportReceiver mainReceiver;
         private TransportReceiver instanceReceiver;
         private TransportInfrastructure transportInfrastructure;
-
+        private IManageSubscriptions subscriptionManager;
     }
 }
