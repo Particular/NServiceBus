@@ -141,6 +141,12 @@
                 return new DelayedConfig(0, TimeSpan.Zero);
             }
 
+            if (!settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
+            {
+                Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when the transport does not support delayed delivery.");
+                return new DelayedConfig(0, TimeSpan.Zero);
+            }
+
             var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
 
