@@ -120,35 +120,38 @@
 
         ImmediateConfig GetImmediateRetryConfig()
         {
-            if (!transactionsOn)
+            var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
+
+            if (!transactionsOn && maxImmediateRetries > 0)
             {
                 Logger.Warn("Immediate Retries will be disabled. Immediate Retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
                 //Transactions must be enabled since Immediate Retries requires the transport to be able to rollback
                 return new ImmediateConfig(0);
             }
 
-            var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
-
             return new ImmediateConfig(maxImmediateRetries);
         }
 
         DelayedConfig GetDelayedRetryConfig()
         {
-            if (!transactionsOn)
-            {
-                Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
-                //Transactions must be enabled since Delayed Retries requires the transport to be able to rollback
-                return new DelayedConfig(0, TimeSpan.Zero);
-            }
-
-            if (!settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
-            {
-                Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when the transport does not support delayed delivery.");
-                return new DelayedConfig(0, TimeSpan.Zero);
-            }
-
             var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
+
+            if (numberOfRetries > 0)
+            {
+                if (!settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
+                {
+                    Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when the transport does not support delayed delivery.");
+                    return new DelayedConfig(0, TimeSpan.Zero);
+                }
+
+                if (!transactionsOn)
+                {
+                    Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
+                    //Transactions must be enabled since Delayed Retries requires the transport to be able to rollback
+                    return new DelayedConfig(0, TimeSpan.Zero);
+                }
+            }
 
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }
