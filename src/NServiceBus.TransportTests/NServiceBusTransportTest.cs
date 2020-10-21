@@ -89,7 +89,6 @@
 #pragma warning restore SA1512 // Single-line comments should not be followed by blank line
 
             var queueBindings = new QueueBindings();
-            queueBindings.BindReceiving(InputQueueName);
             queueBindings.BindSending(ErrorQueueName);
 
             Configurer = CreateConfigurer();

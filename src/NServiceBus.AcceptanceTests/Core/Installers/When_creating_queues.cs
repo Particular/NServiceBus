@@ -97,15 +97,6 @@
                "myAudit",
                "error"
             }, context.SendingAddresses);
-
-            var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
-
-            CollectionAssert.AreEqual(new List<string>
-            {
-                endpointName, //main input queue
-                $"{endpointName}-{instanceDiscriminator}", // instance-specific queue
-                "MySatelliteAddress"
-            }, context.ReceivingAddresses);
         }
 
         class Context : ScenarioContext
@@ -113,7 +104,6 @@
             public bool DoNotCreateQueues { get; set; }
             public bool EnableInstallers { get; set; }
             public bool QueuesCreated { get; set; }
-            public List<string> ReceivingAddresses { get; set; }
             public List<string> SendingAddresses { get; set; }
         }
 
@@ -128,7 +118,6 @@
                         OnQueueCreation = bindings =>
                         {
                             t.SendingAddresses = bindings.SendingAddresses.ToList();
-                            t.ReceivingAddresses = bindings.ReceivingAddresses.ToList();
                             t.QueuesCreated = true;
                         }
                     });

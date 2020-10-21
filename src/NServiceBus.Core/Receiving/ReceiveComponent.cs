@@ -49,8 +49,6 @@ namespace NServiceBus
             pipelineSettings.Register(new NativeSubscribeTerminator(() => receiveComponent.subscriptionManager), "Requests the transport to subscribe to a given message type");
             pipelineSettings.Register(new NativeUnsubscribeTerminator(() => receiveComponent.subscriptionManager), "Requests the transport to unsubscribe to a given message type");
 
-            receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
-
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
                 var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
@@ -197,26 +195,6 @@ namespace NServiceBus
             }
 
             return Task.WhenAll(stopTasks);
-        }
-
-        void BindQueues(QueueBindings queueBindings)
-        {
-            if (configuration.IsSendOnlyEndpoint)
-            {
-                return;
-            }
-
-            queueBindings.BindReceiving(configuration.LocalAddress);
-
-            if (configuration.InstanceSpecificQueue != null)
-            {
-                queueBindings.BindReceiving(configuration.InstanceSpecificQueue);
-            }
-
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
-            {
-                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
-            }
         }
 
         static ReceiveSettings[] AddReceivers(Configuration configuration, string errorQueue)
