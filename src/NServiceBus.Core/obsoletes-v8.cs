@@ -286,36 +286,6 @@ namespace NServiceBus.Settings
     }
 }
 
-namespace NServiceBus
-{
-    using System;
-
-    public partial class TransportExtensions<T>
-    {
-        [ObsoleteEx(
-            Message = "Loading named connection strings is no longer supported",
-            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionStringName(string name)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public partial class TransportExtensions
-    {
-        [ObsoleteEx(
-            Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
-            ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "9.0")]
-        public TransportExtensions ConnectionStringName(string name)
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
 
 namespace NServiceBus
 {

@@ -54,6 +54,13 @@ namespace NServiceBus
         public PipelineSettings Pipeline { get; }
 
         /// <summary>
+        /// </summary>
+        public void Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            Settings.Set(transportTransactionMode);
+        }
+
+        /// <summary>
         /// Used to configure components in the container.
         /// </summary>
         public void RegisterComponents(Action<IServiceCollection> registration)
