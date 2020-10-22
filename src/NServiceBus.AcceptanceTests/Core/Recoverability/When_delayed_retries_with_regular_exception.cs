@@ -14,6 +14,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         [Test]
         public async Task Should_preserve_the_original_body_for_regular_exceptions()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(session => session.SendLocal(new MessageToBeRetried()))
@@ -39,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 {
                     config.RegisterMessageMutator(new BodyMutator(context));
                     var recoverability = config.Recoverability();
-                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                    recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
                 });
             }
 
