@@ -10,20 +10,10 @@
         /// <summary>
         /// Configures the routing.
         /// </summary>
-        public static RoutingSettings Routing(this TransportExtensions config)
+        public static RoutingSettings Routing(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
             return new RoutingSettings(config.Settings);
-        }
-
-        /// <summary>
-        /// Configures the routing.
-        /// </summary>
-        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
-            where T : TransportDefinition
-        {
-            Guard.AgainstNull(nameof(config), config);
-            return new RoutingSettings<T>(config.Settings);
         }
     }
 }

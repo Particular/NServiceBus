@@ -35,7 +35,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Endpoint)));
+                EndpointSetup<DefaultServer>(c => c.Routing().RouteToEndpoint(typeof(MyCommand), typeof(Endpoint)));
             }
 
             public class Handler : IHandleMessages<MyCommand>

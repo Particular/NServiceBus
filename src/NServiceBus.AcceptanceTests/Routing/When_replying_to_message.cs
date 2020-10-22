@@ -70,7 +70,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
+                    c.Routing().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
                 });
             }
 

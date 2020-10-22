@@ -59,7 +59,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue");
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                    c.Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
                 });
             }
         }

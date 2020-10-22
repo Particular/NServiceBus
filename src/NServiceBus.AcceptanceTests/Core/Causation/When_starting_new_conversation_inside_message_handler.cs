@@ -58,8 +58,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
             public Sender()
             {
                 EndpointSetup<DefaultServer>(
-                    c => c.ConfigureTransport()
-                          .Routing()
+                    c => c.Routing()
                           .RouteToEndpoint(typeof(AnyMessage), typeof(Receiver)));
             }
 
@@ -95,9 +94,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
                 EndpointSetup<DefaultServer>(
                     c =>
                     {
-                        c.ConfigureTransport()
-                              .Routing()
-                              .RouteToEndpoint(typeof(AnyResponseMessage), typeof(Sender));
+                        c.Routing().RouteToEndpoint(typeof(AnyResponseMessage), typeof(Sender));
 
                         c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId));
                     });

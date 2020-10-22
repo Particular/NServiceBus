@@ -40,7 +40,7 @@
                 CustomEndpointName("SenderForEnsureProperHeadersTest");
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                    c.Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
                 });
             }
         }

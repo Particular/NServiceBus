@@ -23,7 +23,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    var routing = c.ConfigureTransport().Routing();
+                    var routing = c.Routing();
                     routing.DoNotEnforceBestPractices();
                     routing.RouteToEndpoint(typeof(MyEvent), typeof(Endpoint));
                 });

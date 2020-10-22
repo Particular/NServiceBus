@@ -32,7 +32,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnableFeature<FeatureEnabledByUser>();
-                    c.ConfigureTransport().Transactions(TransportTransactionMode.ReceiveOnly);
+                    ////c.ConfigureTransport().Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
 

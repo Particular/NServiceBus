@@ -64,7 +64,7 @@
                         return TimeSpan.MaxValue;
                     });
                     c.EnableFeature<SendMessageWhileStarting>();
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
+                    c.Routing().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
                 }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }

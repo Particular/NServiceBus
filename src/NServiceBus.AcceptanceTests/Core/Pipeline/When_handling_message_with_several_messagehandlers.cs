@@ -35,7 +35,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Endpoint)));
+                EndpointSetup<DefaultServer>(c => c.Routing().RouteToEndpoint(typeof(MyMessage), typeof(Endpoint)));
             }
         }
 

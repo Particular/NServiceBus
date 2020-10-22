@@ -41,7 +41,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.UseDataBus(typeof(MyDataBus));
-                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(ReceiverViaFluent));
+                    b.Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(ReceiverViaFluent));
                 });
             }
         }

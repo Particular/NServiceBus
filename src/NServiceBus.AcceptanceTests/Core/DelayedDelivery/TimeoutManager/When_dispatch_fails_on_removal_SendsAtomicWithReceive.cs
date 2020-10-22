@@ -64,7 +64,7 @@
                     });
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);
-                    config.ConfigureTransport().Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+                    ////config.ConfigureTransport().Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 });
             }
 

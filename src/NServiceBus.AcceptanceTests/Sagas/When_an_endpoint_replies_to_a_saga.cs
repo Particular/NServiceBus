@@ -60,7 +60,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnableFeature<TimeoutManager>();
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
+                    c.Routing().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
                 });
             }
 

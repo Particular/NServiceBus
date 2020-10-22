@@ -47,7 +47,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.SendOnly();
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                    c.Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
                 });
             }
         }

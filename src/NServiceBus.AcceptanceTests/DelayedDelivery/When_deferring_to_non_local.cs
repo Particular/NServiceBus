@@ -47,7 +47,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                    config.Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
                 });
             }
         }

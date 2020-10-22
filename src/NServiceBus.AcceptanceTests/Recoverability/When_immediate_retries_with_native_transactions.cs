@@ -53,8 +53,8 @@
                     recoverability.Immediate(immediate => immediate.NumberOfRetries(numberOfRetries));
                     recoverability.Delayed(delayed => delayed.NumberOfRetries(0)); //disable the delayed retries
 
-                    config.ConfigureTransport()
-                        .Transactions(TransportTransactionMode.ReceiveOnly);
+                    ////config.ConfigureTransport()
+                    ////    .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
 

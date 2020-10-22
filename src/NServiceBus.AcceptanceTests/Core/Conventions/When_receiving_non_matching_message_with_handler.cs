@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(NonMatchingMessageWithHandler), typeof(Receiver));
+                    c.Routing().RouteToEndpoint(typeof(NonMatchingMessageWithHandler), typeof(Receiver));
                 });
             }
         }

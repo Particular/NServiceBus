@@ -68,7 +68,7 @@
                 EndpointSetup<DefaultServer>(c =>
                     {
                         c.EnableFeature<TimeoutManager>();
-                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
+                        c.Routing().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
                     },
                     metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)));
             }

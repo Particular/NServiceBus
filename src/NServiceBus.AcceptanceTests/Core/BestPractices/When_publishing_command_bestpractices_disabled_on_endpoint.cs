@@ -32,7 +32,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    var routing = c.ConfigureTransport().Routing();
+                    var routing = c.Routing();
                     routing.DoNotEnforceBestPractices();
                     routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
                 });
