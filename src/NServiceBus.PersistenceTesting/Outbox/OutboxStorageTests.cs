@@ -45,7 +45,7 @@
                 await transaction.Commit();
             }
 
-            await storage.SetAsDispatched(messageId, configuration.GetContextBagForOutbox());
+            await storage.SetAsDispatched(messageId, ctx);
 
             var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
