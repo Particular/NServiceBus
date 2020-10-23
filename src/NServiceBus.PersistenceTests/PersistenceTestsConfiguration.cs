@@ -16,7 +16,7 @@
 
         public bool SupportsFinders => false;
 
-        public bool SupportsPessimisticConcurrency => true;
+        public bool SupportsPessimisticConcurrency => false;
 
         public ISagaIdGenerator SagaIdGenerator { get; private set; }
 
