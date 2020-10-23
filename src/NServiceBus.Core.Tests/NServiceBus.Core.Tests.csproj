@@ -38,7 +38,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" />
     <PackageReference Include="Particular.CodeRules" Version="0.7.0" PrivateAssets="All" />
-    <PackageReference Include="PublicApiGenerator" Version="9.3.0" />
+    <PackageReference Include="PublicApiGenerator" Version="10.2.0" />
   </ItemGroup>
 
   <ItemGroup>
