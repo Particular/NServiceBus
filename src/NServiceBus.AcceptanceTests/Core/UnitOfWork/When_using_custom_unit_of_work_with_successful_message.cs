@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
@@ -37,7 +36,7 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.RegisterComponents(services => services.AddSingleton<IManageUnitsOfWork, CustomUnitOfWork>());
+                    c.RegisterComponents(container => container.ConfigureComponent<CustomUnitOfWork>(DependencyLifecycle.InstancePerCall));
                 });
             }
 
@@ -51,14 +50,14 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
                 public Task Begin()
                 {
                     testContext.BeginCalled = true;
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 }
 
                 public Task End(Exception ex = null)
                 {
                     testContext.EndCalled = true;
                     testContext.EndException = ex;
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 }
 
                 Context testContext;

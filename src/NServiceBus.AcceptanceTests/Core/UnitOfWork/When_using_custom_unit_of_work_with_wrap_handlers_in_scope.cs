@@ -6,7 +6,6 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
@@ -41,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
                 {
                     c.UnitOfWork().WrapHandlersInATransactionScope();
 
-                    c.RegisterComponents(services => services.AddSingleton<IManageUnitsOfWork, CustomUnitOfWork>());
+                    c.RegisterComponents(container => container.ConfigureComponent<CustomUnitOfWork>(DependencyLifecycle.InstancePerCall));
                 });
             }
 
@@ -52,19 +51,19 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
                 {
                     // this only works because we are not using the async state machine
                     transactionScope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled);
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 }
 
                 public Task End(Exception ex = null)
                 {
                     transactionScope.Complete();
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 }
             }
 
             class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                Context testContext;
+                readonly Context testContext;
 
                 public MyMessageHandler(Context testContext)
                 {
@@ -74,7 +73,7 @@ namespace NServiceBus.AcceptanceTests.UnitOfWork
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     testContext.ShouldNeverBeCalled = true;
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 }
             }
         }
