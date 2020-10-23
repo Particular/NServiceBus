@@ -39,18 +39,17 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeReceiver : IPushMessages
         {
-            PushSettings pushSettings;
+            private readonly ReceiveSettings receveSettings;
 
-            public FakeReceiver(PushSettings pushSettings, string id)
+            public FakeReceiver(ReceiveSettings receveSettings, string id)
             {
-                Id = id;
-                this.pushSettings = pushSettings;
+                this.receveSettings = receveSettings;
             }
 
             public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
-                if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
+                if (receveSettings.ReceiveAddress == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
                 {
                     Assert.AreEqual(10, limitations.MaxConcurrency);
                 }
@@ -64,7 +63,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             }
 
             public IManageSubscriptions Subscriptions { get; }
-            public string Id { get; }
+
+            public string Id => receveSettings.Id;
+
         }
 
         class FakeDispatcher : IDispatchMessages
@@ -97,7 +98,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
         {
             public FakeTransportInfrastructure(ReceiveSettings[] receiveSettingses)
             {
-                Receivers = receiveSettingses.Select(s => new FakeReceiver(s.settings, s.Id)).ToArray();
+                Receivers = receiveSettingses.Select(s => new FakeReceiver(s, s.Id)).ToArray();
             }
 
             public override IDispatchMessages Dispatcher => new FakeDispatcher();

@@ -96,7 +96,7 @@
 
         void RecoverPendingTransactions()
         {
-            if (receiveSettings.settings.RequiredTransactionMode != TransportTransactionMode.None)
+            if (receiveSettings.RequiredTransactionMode != TransportTransactionMode.None)
             {
                 DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(messagePumpBasePath, PendingDirName, CommittedDirName);
             }
@@ -125,7 +125,7 @@
             Directory.CreateDirectory(delayedDir);
             Directory.CreateDirectory(pendingTransactionDir);
 
-            if (receiveSettings.settings.RequiredTransactionMode != TransportTransactionMode.None)
+            if (receiveSettings.RequiredTransactionMode != TransportTransactionMode.None)
             {
                 Directory.CreateDirectory(committedTransactionDir);
             }
@@ -204,7 +204,7 @@
 
         ILearningTransportTransaction GetTransaction()
         {
-            if (receiveSettings.settings.RequiredTransactionMode == TransportTransactionMode.None)
+            if (receiveSettings.RequiredTransactionMode == TransportTransactionMode.None)
             {
                 return new NoTransaction(messagePumpBasePath, PendingDirName);
             }
@@ -278,7 +278,7 @@
 
             var transportTransaction = new TransportTransaction();
 
-            if (receiveSettings.settings.RequiredTransactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            if (receiveSettings.RequiredTransactionMode == TransportTransactionMode.SendsAtomicWithReceive)
             {
                 transportTransaction.Set(transaction);
             }

@@ -88,7 +88,19 @@ namespace NServiceBus.Transport
     /// 
     /// </summary>
     public class ReceiveSettings
-    {       
+    {
+        /// <summary>
+        /// </summary>
+        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue, TransportTransactionMode requiredTransactionMode)
+        {
+            Id = id;
+            ReceiveAddress = receiveAddress;
+            UsePublishSubscribe = usePublishSubscribe;
+            PurgeOnStartup = purgeOnStartup;
+            ErrorQueue = errorQueue;
+            RequiredTransactionMode = requiredTransactionMode;
+        }
+
         /// <summary>
         /// </summary>
         public string Id { get; set; }
@@ -101,16 +113,21 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public PushSettings settings { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public bool UsePublishSubscribe { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         public bool PurgeOnStartup { get; set; }
+
+        /// <summary>
+        /// The native queue where to send corrupted messages to.
+        /// </summary>
+        public string ErrorQueue { get; }
+
+        /// <summary>
+        /// The transaction mode required for receive operations.
+        /// </summary>
+        public TransportTransactionMode RequiredTransactionMode { get; }
     }
 }

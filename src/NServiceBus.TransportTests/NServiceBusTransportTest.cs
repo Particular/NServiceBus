@@ -102,13 +102,7 @@
             TransportInfrastructure = await configuration.TransportDefinition.Initialize(
                 settings, new[] 
                 {
-                    new ReceiveSettings()
-                    {
-                        Id = "MainPump",
-                        ReceiveAddress = InputQueueName,
-                        settings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode),
-                        UsePublishSubscribe = true
-                    }
+                    new ReceiveSettings("MainPump", InputQueueName, true, configuration.PurgeInputQueueOnStartup, ErrorQueueName, transactionMode)
                 }, queueBindings.SendingAddresses.ToArray()).ConfigureAwait(false);
 
             IgnoreUnsupportedTransactionModes(transactionMode);

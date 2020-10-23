@@ -63,7 +63,7 @@ namespace NServiceBus
 
         public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
         {
-            var errorQueueAddress = receiveSettings.settings.ErrorQueue;
+            var errorQueueAddress = receiveSettings.ErrorQueue;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");

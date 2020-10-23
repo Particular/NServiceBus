@@ -32,15 +32,8 @@ namespace NServiceBus
 
         public ReceiveSettings Setup(string errorQueue, bool purgeOnStartup)
         {
-            var satellitePushSettings = new PushSettings(ReceiveAddress, errorQueue, purgeOnStartup, RequiredTransportTransactionMode);
-
-            return new ReceiveSettings
-            {
-                Id = Name,
-                ReceiveAddress = ReceiveAddress,
-                settings = satellitePushSettings,
-                UsePublishSubscribe = false
-            };
+            return new ReceiveSettings(Name, ReceiveAddress, false, purgeOnStartup, errorQueue,
+                RequiredTransportTransactionMode);
             //satelliteReceiver = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
         }
 

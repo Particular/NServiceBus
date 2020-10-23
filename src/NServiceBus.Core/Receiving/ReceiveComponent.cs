@@ -199,31 +199,17 @@ namespace NServiceBus
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
-            var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
-
             var allReceivers = new List<ReceiveSettings>();
 
-            allReceivers.Add(new ReceiveSettings
-            {
-                Id = MainReceiverId,
-                ReceiveAddress = configuration.LocalAddress,
-                settings = pushSettings,
-                UsePublishSubscribe = true
-            });
+            allReceivers.Add(new ReceiveSettings(MainReceiverId, configuration.LocalAddress, true,
+                configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport));
 
             //TransportReceiver instanceReceiver = null;
             if (configuration.InstanceSpecificQueue != null)
             {
                 var instanceSpecificQueue = configuration.InstanceSpecificQueue;
-                var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
-
-                allReceivers.Add(new ReceiveSettings
-                {
-                    Id = InstanceSpecificReceiverId,
-                    ReceiveAddress = instanceSpecificQueue,
-                    settings = sharedReceiverPushSettings,
-                    UsePublishSubscribe = false
-                });
+                allReceivers.Add(new ReceiveSettings(InstanceSpecificReceiverId, instanceSpecificQueue, false,
+                    configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport));
             }
 
             foreach (var satelliteDefinition in configuration.SatelliteDefinitions)
