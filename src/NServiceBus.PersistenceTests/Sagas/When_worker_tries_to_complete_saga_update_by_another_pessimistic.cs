@@ -6,6 +6,12 @@
 
     public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : SagaPersisterTests
     {
+        public override async Task OneTimeSetUp()
+        {
+            configuration = new PersistenceTestsConfiguration(param, TimeSpan.FromSeconds(5));
+            await configuration.Configure();
+        }
+
         [Test]
         public async Task Should_complete()
         {

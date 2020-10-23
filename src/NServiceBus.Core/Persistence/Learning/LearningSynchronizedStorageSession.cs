@@ -69,7 +69,7 @@ namespace NServiceBus
         {
             var sagaManifest = sagaManifests.GetForEntityType(entityType);
 
-            var sagaStorageFile = await SagaStorageFile.Open(sagaId, sagaManifest)
+            var sagaStorageFile = await SagaStorageFile.Open(sagaId, sagaManifest, sagaManifests.MaxRetry)
                 .ConfigureAwait(false);
 
             if (sagaStorageFile != null)

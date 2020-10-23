@@ -30,7 +30,7 @@ namespace NServiceBus
             fileStream = null;
         }
 
-        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest)
+        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest, TimeSpan? maxRetry)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
@@ -39,19 +39,19 @@ namespace NServiceBus
                 return noSagaFoundResult;
             }
 
-            return OpenWithRetryOnConcurrency(filePath, FileMode.Open);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.Open, maxRetry);
         }
 
-        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
+        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest, TimeSpan? maxRetry)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew, maxRetry);
         }
 
-        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess)
+        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, TimeSpan? maxRetry)
         {
-            var retries = 0;
+            var start = DateTimeOffset.UtcNow;
 
             while (true)
             {
@@ -61,9 +61,7 @@ namespace NServiceBus
                 }
                 catch (IOException)
                 {
-                    retries++;
-
-                    if (retries > 9)
+                    if (!maxRetry.HasValue || DateTimeOffset.UtcNow > (start + maxRetry))
                     {
                         throw;
                     }

@@ -14,7 +14,7 @@ namespace NServiceBus
             var sagaId = sagaData.Id;
             var sagaManifest = sagaManifests.GetForEntityType(sagaData.GetType());
 
-            var sagaFile = await SagaStorageFile.Create(sagaId, sagaManifest)
+            var sagaFile = await SagaStorageFile.Create(sagaId, sagaManifest, sagaManifests.MaxRetry)
                 .ConfigureAwait(false);
 
             sagaFiles.RegisterSagaFile(sagaFile, sagaId, sagaManifest.SagaEntityType);
