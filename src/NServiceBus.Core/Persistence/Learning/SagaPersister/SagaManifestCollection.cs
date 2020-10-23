@@ -7,11 +7,12 @@
 
     class SagaManifestCollection
     {
-        public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation)
+        public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter)
         {
             foreach (var metadata in sagas)
             {
-                var sagaStorageDir = Path.Combine(storageLocation, metadata.SagaType.FullName.Replace("+", ""));
+                //var sagaStorageDir = Path.Combine(storageLocation, metadata.SagaType.FullName.Replace("+", ""));
+                var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName));
 
                 if (!Directory.Exists(sagaStorageDir))
                 {
