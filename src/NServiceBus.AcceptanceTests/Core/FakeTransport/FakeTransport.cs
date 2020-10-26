@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 #pragma warning disable 1998
 
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
@@ -24,7 +25,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public Action<QueueBindings> OnQueueCreation { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receivers, string[] SendingAddresses)
+        public override async Task<TransportInfrastructure> Initialize(Settings settings, ReceiveSettings[] receivers, string[] SendingAddresses, CancellationToken cancellationToken)
         {
             StartUpSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 

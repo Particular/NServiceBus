@@ -103,7 +103,7 @@
                 settings, new[] 
                 {
                     new ReceiveSettings("MainPump", InputQueueName, true, configuration.PurgeInputQueueOnStartup, ErrorQueueName, transactionMode)
-                }, queueBindings.SendingAddresses.ToArray()).ConfigureAwait(false);
+                }, queueBindings.SendingAddresses.ToArray(), CancellationToken.None).ConfigureAwait(false);
 
             IgnoreUnsupportedTransactionModes(transactionMode);
 

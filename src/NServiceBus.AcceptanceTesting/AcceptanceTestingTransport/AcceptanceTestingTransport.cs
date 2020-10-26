@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace NServiceBus
 {
@@ -9,7 +10,7 @@ namespace NServiceBus
     {
         public string StorageDirectory { get; set; }
 
-        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings, ReceiveSettings[] receivers, string[] SendingAddresses)
+        public override async Task<TransportInfrastructure> Initialize(Transport.Settings settings, ReceiveSettings[] receivers, string[] SendingAddresses, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(settings), settings);
 

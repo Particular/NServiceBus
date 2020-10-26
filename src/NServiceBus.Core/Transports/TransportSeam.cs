@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NServiceBus
@@ -30,7 +31,7 @@ namespace NServiceBus
 
         public async Task<TransportInfrastructure> Initialize()
         {
-            return await TransportDefinition.Initialize(transportSettings, receivers, QueueBindings.SendingAddresses.ToArray())
+            return await TransportDefinition.Initialize(transportSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
                 .ConfigureAwait(false);
         }
 
