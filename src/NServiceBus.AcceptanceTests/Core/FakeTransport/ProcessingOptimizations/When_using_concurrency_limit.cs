@@ -47,7 +47,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 this.receveSettings = receveSettings;
             }
 
-            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (receveSettings.ReceiveAddress == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
@@ -58,7 +58,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 return Task.CompletedTask;
             }
 
-            public Task Stop()
+            public Task Stop(CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

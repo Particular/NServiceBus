@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace NServiceBus
 {
@@ -43,12 +44,12 @@ namespace NServiceBus
 
             var satellitePipeline = new SatellitePipelineExecutor(builder, this);
             var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(RecoverabilityPolicy, ReceiveAddress);
-            return satelliteReceiver.Start(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke);
+            return satelliteReceiver.Start(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke, CancellationToken.None);
         }
 
         public Task Stop()
         {
-            return satelliteReceiver.Stop();
+            return satelliteReceiver.Stop(CancellationToken.None);
         }
 
         private IPushMessages satelliteReceiver;

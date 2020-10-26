@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Transport
+﻿using System.Threading;
+
+namespace NServiceBus.Transport
 {
     using System;
     using System.Threading.Tasks;
@@ -9,19 +11,16 @@
     public interface IPushMessages
     {
        ////TODO rename to StartReceive & StopReceive
-       ////TODO can we move PushRUntimeSettings to the receivesettings too?
        
-       ////TODO Start should become async to handle init/setup work
-
-        /// <summary>
+       /// <summary>
         /// Starts pushing messages.
         /// </summary>
-        Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError);
+        Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken);
 
         /// <summary>
         /// Stops pushing messages.
         /// </summary>
-        Task Stop();
+        Task Stop(CancellationToken cancellationToken);
 
         /// <summary>
         /// 

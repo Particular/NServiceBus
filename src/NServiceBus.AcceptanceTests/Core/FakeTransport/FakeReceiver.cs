@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System;
@@ -14,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
 
-        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
         {
             settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Start)}");
 
@@ -26,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             return Task.CompletedTask;
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Stop)}");
 

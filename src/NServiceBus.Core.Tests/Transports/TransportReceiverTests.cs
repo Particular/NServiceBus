@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Transports
+﻿using System.Threading;
+
+namespace NServiceBus.Core.Tests.Transports
 {
     using System;
     using System.Threading.Tasks;
@@ -75,7 +77,7 @@
             public bool Disposed { get; private set; }
 
 
-            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
             {
                 if (ThrowOnStart)
                 {
@@ -87,7 +89,7 @@
                 return Task.CompletedTask;
             }
 
-            public Task Stop()
+            public Task Stop(CancellationToken cancellationToken)
             {
                 if (ThrowOnStop)
                 {

@@ -48,7 +48,7 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -72,7 +72,7 @@
             return Task.CompletedTask;
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             cancellationTokenSource.Cancel();
 

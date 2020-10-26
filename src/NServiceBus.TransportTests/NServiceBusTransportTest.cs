@@ -71,7 +71,7 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            MessagePump?.Stop().GetAwaiter().GetResult();
+            MessagePump?.Stop(CancellationToken.None).GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
@@ -127,7 +127,7 @@
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                });
+                }, CancellationToken.None);
         }
 
         string GetUserName()
