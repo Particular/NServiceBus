@@ -71,10 +71,5 @@ namespace NServiceBus.Transport
         /// 
         /// </summary>
         public bool SetupInfrastructure { get;  }
-
-        /// <summary>
-        /// Defines a set of queue addresses that this endpoint is going to send messages to and that need to be setup by this endpoint.
-        /// </summary>
-        public string[] MandatoryDestinationQueues { get; }
     }
 }
