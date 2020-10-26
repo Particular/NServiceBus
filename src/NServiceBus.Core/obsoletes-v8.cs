@@ -519,8 +519,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
-    using Settings;
     using System;
+    using Settings;
 
     [ObsoleteEx(
         Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
@@ -612,7 +612,7 @@ namespace NServiceBus
     public abstract partial class StorageType
     {
         [ObsoleteEx(
-            Message = "",
+            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public sealed class Timeouts
@@ -627,20 +627,20 @@ namespace NServiceBus
     public class TimeoutManagerConfiguration
     {
         [ObsoleteEx(
-            Message = "",
+            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         internal TimeoutManagerConfiguration() => throw new NotImplementedException();
     }
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public static class TimeoutManagerConfigurationExtensions
     {
         [ObsoleteEx(
-            Message = "",
+            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static TimeoutManagerConfiguration TimeoutManager(this EndpointConfiguration endpointConfiguration)
@@ -649,7 +649,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "",
+            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void LimitMessageProcessingConcurrencyTo(this TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency)
@@ -659,15 +659,15 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public static class ConfigurationTimeoutExtensions
     {
         [ObsoleteEx(
-        Message = "",
-        TreatAsErrorFromVersion = "8",
-        RemoveInVersion = "9")]
+            Message = "The timeout manager has been removed. See the upgrade guide for more details",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this EndpointConfiguration config, TimeSpan timeToWait)
         {
             throw new NotImplementedException();
@@ -679,9 +679,9 @@ namespace NServiceBus
 namespace NServiceBus.Features
 {
     [ObsoleteEx(
-    Message = "",
-    TreatAsErrorFromVersion = "8",
-    RemoveInVersion = "9")]
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
     public class TimeoutManager
     {
         internal TimeoutManager() => throw new NotImplementedException();
@@ -695,7 +695,7 @@ namespace NServiceBus.Timeout.Core
     using Extensibility;
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface IPersistTimeouts
@@ -710,7 +710,7 @@ namespace NServiceBus.Timeout.Core
     }
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface IQueryTimeouts
@@ -719,28 +719,28 @@ namespace NServiceBus.Timeout.Core
     }
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public class TimeoutData
     {
-        public string Id { get; set; }
+        public string Id => throw new NotImplementedException();
 
-        public string Destination { get; set; }
+        public string Destination => throw new NotImplementedException();
 
-        public Guid SagaId { get; set; }
+        public Guid SagaId => throw new NotImplementedException();
 
-        public byte[] State { get; set; }
+        public byte[] State => throw new NotImplementedException();
 
-        public DateTimeOffset Time { get; set; }
+        public DateTimeOffset Time => throw new NotImplementedException();
 
-        public string OwningTimeoutManager { get; set; }
+        public string OwningTimeoutManager => throw new NotImplementedException();
 
-        public Dictionary<string, string> Headers { get; set; }
+        public Dictionary<string, string> Headers => throw new NotImplementedException();
     }
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public class TimeoutsChunk
@@ -750,12 +750,12 @@ namespace NServiceBus.Timeout.Core
             throw new NotImplementedException();
         }
 
-        public Timeout[] DueTimeouts { get; }
+        public Timeout[] DueTimeouts => throw new NotImplementedException();
 
-        public DateTimeOffset NextTimeToQuery { get; }
+        public DateTimeOffset NextTimeToQuery => throw new NotImplementedException();
 
         [ObsoleteEx(
-            Message = "",
+            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public struct Timeout
@@ -765,9 +765,9 @@ namespace NServiceBus.Timeout.Core
                 throw new NotImplementedException();
             }
 
-            public string Id { get; }
+            public string Id => throw new NotImplementedException();
 
-            public DateTimeOffset DueTime { get; }
+            public DateTimeOffset DueTime => throw new NotImplementedException();
         }
     }
 }
@@ -775,13 +775,13 @@ namespace NServiceBus.Timeout.Core
 namespace NServiceBus.DelayedDelivery
 {
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public static class ExternalTimeoutManagerConfigurationExtensions
     {
         [ObsoleteEx(
-            Message = "",
+            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void UseExternalTimeoutManager(this EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress)
@@ -797,7 +797,7 @@ namespace NServiceBus.Transport
     using Pipeline;
 
     [ObsoleteEx(
-        Message = "",
+        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface ICancelDeferredMessages
