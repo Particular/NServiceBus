@@ -53,9 +53,9 @@
             var errorQueue = settings.ErrorQueueAddress();
             transportSeam.QueueBindings.BindSending(errorQueue);
 
-            var delayedRetryConfig = GetDelayedRetryConfig();
-
             var immediateRetryConfig = GetImmediateRetryConfig();
+
+            var delayedRetryConfig = GetDelayedRetryConfig();
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
