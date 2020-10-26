@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Threading;
 
 namespace NServiceBus
 {
@@ -9,8 +10,6 @@ namespace NServiceBus
     using System.Text;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using DeliveryConstraints;
-    using Extensibility;
     using Performance.TimeToBeReceived;
     using Transport;
 
@@ -27,7 +26,7 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
         {
             return Task.WhenAll(
                 DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction),

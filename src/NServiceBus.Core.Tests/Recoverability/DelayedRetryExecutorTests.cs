@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Recoverability
+﻿using System.Threading;
+
+namespace NServiceBus.Core.Tests.Recoverability
 {
     using System;
     using System.Collections.Generic;
@@ -133,7 +135,7 @@
 
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 TransportOperations = outgoingMessages;
                 Transaction = transaction;

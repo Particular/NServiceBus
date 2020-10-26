@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace NServiceBus.Core.Tests.Timeout
 {
     using System.Threading.Tasks;
@@ -12,7 +14,7 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, CancellationToken cancellationToken)
         {
             MessagesSent += outgoingMessages.MulticastTransportOperations.Count + outgoingMessages.UnicastTransportOperations.Count;
             return Task.CompletedTask;

@@ -138,7 +138,7 @@
         {
             public Func<TransportOperations, Task> DispatcherAction { get; set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 return DispatcherAction(outgoingMessages);
             }

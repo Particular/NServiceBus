@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Core.Tests.Transports.Learning
+﻿using System.Threading;
+
+namespace NServiceBus.Core.Tests.Transports.Learning
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;
@@ -20,8 +21,8 @@
             var messageAtThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit]);
             var messageAboveThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit + 1]);
 
-            await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"), new Dictionary<string, string>())), new TransportTransaction());
-            var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"), new Dictionary<string, string>())), new TransportTransaction()));
+            await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"), new Dictionary<string, string>())), new TransportTransaction(), CancellationToken.None);
+            var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"), new Dictionary<string, string>())), new TransportTransaction(), CancellationToken.None));
 
             StringAssert.Contains("The total size of the 'TestMessage' message", ex.Message);
         }

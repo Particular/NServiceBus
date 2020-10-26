@@ -171,7 +171,7 @@
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), messageProperties ?? new Dictionary<string, string>(), dispatchConsistency);
 
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

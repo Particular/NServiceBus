@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Routing
+﻿using System.Threading;
+
+namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;
@@ -89,7 +91,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

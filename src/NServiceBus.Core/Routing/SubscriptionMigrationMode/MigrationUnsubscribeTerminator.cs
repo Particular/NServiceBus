@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -62,7 +64,7 @@
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination), new Dictionary<string, string>());
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

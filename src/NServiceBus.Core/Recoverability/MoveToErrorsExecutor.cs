@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -37,7 +39,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress), new Dictionary<string, string>()));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction);
+            return dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None);
         }
 
         IDispatchMessages dispatcher;

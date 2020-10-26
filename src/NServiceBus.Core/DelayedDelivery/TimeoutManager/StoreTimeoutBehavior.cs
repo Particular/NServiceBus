@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NServiceBus
 {
@@ -64,7 +65,7 @@ namespace NServiceBus
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination), new Dictionary<string, string>());
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, CancellationToken.None).ConfigureAwait(false);
                     return;
                 }
 

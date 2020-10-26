@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -37,7 +39,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, properties));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }

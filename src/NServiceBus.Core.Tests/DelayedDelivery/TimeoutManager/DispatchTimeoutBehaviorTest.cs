@@ -141,7 +141,7 @@
             public TransportOperations OutgoingTransportOperations { get; private set; } = new TransportOperations();
             public TransportTransaction TransportTransactionUsed { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, CancellationToken cancellationToken)
             {
                 OutgoingTransportOperations = outgoingMessages;
                 TransportTransactionUsed = transportTransaction;
@@ -151,7 +151,7 @@
 
         class FailingMessageDispatcher : IDispatchMessages
         {
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, CancellationToken cancellationToken)
             {
                 throw new Exception("simulated exception");
             }

@@ -112,7 +112,7 @@ namespace NServiceBus
 
                 //TODO: do we need to rehydrate any message properties? Ignoring this as timeout manager is being removed anyway.
                 var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress), new Dictionary<string, string>(0));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction()).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), CancellationToken.None).ConfigureAwait(false);
 
                 if (startSlice < timeoutData.DueTime)
                 {
