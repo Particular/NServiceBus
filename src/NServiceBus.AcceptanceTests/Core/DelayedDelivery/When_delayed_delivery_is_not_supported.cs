@@ -11,6 +11,11 @@
         [Test]
         public async Task Trying_to_delay_should_throw()
         {
+            if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
+            {
+                Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
+            }
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
@@ -38,9 +43,7 @@
         {
             public Endpoint()
             {
-                var template = new DefaultServer();
-                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, false);
-                EndpointSetup(template, (configuration, _) => { });
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
