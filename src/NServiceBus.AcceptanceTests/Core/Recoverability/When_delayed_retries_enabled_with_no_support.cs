@@ -1,21 +1,26 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability
 {
     using System;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_transactions_off_and_immediate_retries_enabled : NServiceBusAcceptanceTest
+    public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_throw_on_startup()
         {
+            if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
+            {
+                Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
+            }
+
             var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<StartedEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            StringAssert.Contains("Immediate retries are not supported", exception.ToString());
+            StringAssert.Contains("Delayed retries are not supported when the transport does not support delayed delivery.", exception.ToString());
         }
 
         public class StartedEndpoint : EndpointConfigurationBuilder
@@ -24,9 +29,8 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.ConfigureTransport().Transactions(TransportTransactionMode.None);
                     var recoverability = config.Recoverability();
-                    recoverability.Immediate(i => i.NumberOfRetries(3));
+                    recoverability.Delayed(i => i.NumberOfRetries(1));
                 });
             }
         }
