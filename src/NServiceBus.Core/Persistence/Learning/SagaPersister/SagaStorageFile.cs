@@ -62,12 +62,13 @@ namespace NServiceBus
                 catch (IOException)
                 {
                     numRetries++;
-                    if (numRetries > 9) // given the 100ms delay below we wait rougly 1 second for the file to become unlocked
+
+                    if (numRetries > 9) // Given the 100ms delay below, we wait roughly 1 second for the file to become unlocked
                     {
                         throw;
                     }
 
-                    // give the other task some time to complete the saga to avoid retrying to much
+                    // Give the other task some time to complete the saga to avoid retrying too much
                     await Task.Delay(100)
                         .ConfigureAwait(false);
                 }

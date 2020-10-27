@@ -35,7 +35,7 @@
 
             var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"),
-                name=>DeterministicGuid.Create(name).ToString());
+                name => DeterministicGuid.Create(name).ToString());
 
             SynchronizedStorage = new LearningSynchronizedStorage(sagaManifests);
 
