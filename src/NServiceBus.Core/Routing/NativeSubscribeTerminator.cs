@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace NServiceBus
 {
@@ -15,7 +16,7 @@ namespace NServiceBus
 
         protected override Task Terminate(ISubscribeContext context)
         {
-            return subscriptionManager().Subscribe(context.EventType, context.Extensions);
+            return subscriptionManager().Subscribe(context.EventType, context.Extensions, CancellationToken.None);
         }
 
         readonly Func<IManageSubscriptions> subscriptionManager;

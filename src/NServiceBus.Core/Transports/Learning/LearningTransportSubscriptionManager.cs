@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+
+namespace NServiceBus
 {
     using System;
     using System.IO;
@@ -15,7 +17,7 @@
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public async Task Subscribe(Type eventType, ContextBag context)
+        public async Task Subscribe(Type eventType, ContextBag context, CancellationToken cancellationToken)
         {
             var eventDir = GetEventDirectory(eventType);
 
@@ -50,7 +52,7 @@
             }
         }
 
-        public async Task Unsubscribe(Type eventType, ContextBag context)
+        public async Task Unsubscribe(Type eventType, ContextBag context, CancellationToken cancellationToken)
         {
             var eventDir = GetEventDirectory(eventType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);

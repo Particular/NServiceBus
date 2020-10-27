@@ -28,7 +28,7 @@ namespace NServiceBus
         {
             var eventType = context.EventType;
 
-            await subscriptionManager.Unsubscribe(eventType, context.Extensions).ConfigureAwait(false);
+            await subscriptionManager.Unsubscribe(eventType, context.Extensions, CancellationToken.None).ConfigureAwait(false);
 
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Transport
+﻿using System.Threading;
+
+namespace NServiceBus.Transport
 {
     using System;
     using System.Threading.Tasks;
@@ -12,15 +14,11 @@
         /// <summary>
         /// Subscribes to the given event.
         /// </summary>
-        /// <param name="eventType">The event type.</param>
-        /// <param name="context">The current context.</param>
-        Task Subscribe(Type eventType, ContextBag context);
+        Task Subscribe(Type eventType, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Unsubscribes from the given event.
         /// </summary>
-        /// <param name="eventType">The event type.</param>
-        /// <param name="context">The current context.</param>
-        Task Unsubscribe(Type eventType, ContextBag context);
+        Task Unsubscribe(Type eventType, ContextBag context, CancellationToken cancellationToken);
     }
 }

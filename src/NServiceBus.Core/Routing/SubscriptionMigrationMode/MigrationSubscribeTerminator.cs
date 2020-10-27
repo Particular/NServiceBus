@@ -29,7 +29,7 @@ namespace NServiceBus
         {
             var eventType = context.EventType;
 
-            await subscriptionManager.Subscribe(eventType, context.Extensions).ConfigureAwait(false);
+            await subscriptionManager.Subscribe(eventType, context.Extensions, CancellationToken.None).ConfigureAwait(false);
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
