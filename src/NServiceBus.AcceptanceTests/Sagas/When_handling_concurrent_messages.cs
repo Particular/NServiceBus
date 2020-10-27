@@ -32,10 +32,6 @@
                         cfg.Recoverability().Immediate(x => x.NumberOfRetries(5));
                     });
                     b.When((session, ctx) => session.SendLocal(new StartMsg { OrderId = "12345" }));
-
-                    var timeout = DateTime.UtcNow.AddSeconds(15);
-
-                    b.When(c => DateTime.UtcNow > timeout, (session, ctx) => session.SendLocal(new FinishMsg { OrderId = "12345" }));
                 })
                 .Done(c => c.SagaData != null)
                 .Run();
