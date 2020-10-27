@@ -15,12 +15,12 @@ namespace NServiceBus.Transport
        /// <summary>
         /// Starts pushing messages.
         /// </summary>
-        Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken);
+        Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stops pushing messages.
         /// </summary>
-        Task Stop(CancellationToken cancellationToken);
+        Task Stop(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 
