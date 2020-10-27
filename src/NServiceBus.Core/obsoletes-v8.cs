@@ -715,7 +715,7 @@ namespace NServiceBus.Timeout.Core
         RemoveInVersion = "9")]
     public interface IQueryTimeouts
     {
-        Task<TimeoutsChunk> GetNextChunk(DateTimeOffset startSlice);
+        Task<TimeoutsChunk> GetNextChunk(DateTime startSlice);
     }
 
     [ObsoleteEx(
@@ -732,7 +732,7 @@ namespace NServiceBus.Timeout.Core
 
         public byte[] State => throw new NotImplementedException();
 
-        public DateTimeOffset Time => throw new NotImplementedException();
+        public DateTime Time => throw new NotImplementedException();
 
         public string OwningTimeoutManager => throw new NotImplementedException();
 
@@ -745,14 +745,14 @@ namespace NServiceBus.Timeout.Core
         RemoveInVersion = "9")]
     public class TimeoutsChunk
     {
-        public TimeoutsChunk(Timeout[] dueTimeouts, DateTimeOffset nextTimeToQuery)
+        public TimeoutsChunk(Timeout[] dueTimeouts, DateTime nextTimeToQuery)
         {
             throw new NotImplementedException();
         }
 
         public Timeout[] DueTimeouts => throw new NotImplementedException();
 
-        public DateTimeOffset NextTimeToQuery => throw new NotImplementedException();
+        public DateTime NextTimeToQuery => throw new NotImplementedException();
 
         [ObsoleteEx(
             Message = "The timeout manager has been removed. See the upgrade guide for more details.",
@@ -760,14 +760,14 @@ namespace NServiceBus.Timeout.Core
             RemoveInVersion = "9")]
         public struct Timeout
         {
-            public Timeout(string id, DateTimeOffset dueTime)
+            public Timeout(string id, DateTime dueTime)
             {
                 throw new NotImplementedException();
             }
 
             public string Id => throw new NotImplementedException();
 
-            public DateTimeOffset DueTime => throw new NotImplementedException();
+            public DateTime DueTime => throw new NotImplementedException();
         }
     }
 }
