@@ -46,8 +46,9 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IUnsubscribeContext context) { }
         public static bool IgnoredBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public class static ConfigurationTimeoutExtensions
     {
         [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. The" +
@@ -1006,8 +1007,9 @@ namespace NServiceBus
         public sealed class Outbox : NServiceBus.StorageType { }
         public sealed class Sagas : NServiceBus.StorageType { }
         public sealed class Subscriptions : NServiceBus.StorageType { }
-        [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-            "l be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+            "provided by transports. See the upgrade guide for more details. Will be removed " +
+            "in version 9.0.0.", true)]
         public sealed class Timeouts { }
     }
     public class SubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
@@ -1037,13 +1039,13 @@ namespace NServiceBus
         "l be removed in version 9.0.0.", true)]
     public class static TimeoutManagerConfigurationExtensions
     {
-        [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. The" +
-            " member currently throws a NotImplementedException. Will be removed in version 9" +
-            ".0.0.", true)]
+        [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+            "provided by transports. See the upgrade guide for more details. The member curre" +
+            "ntly throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency) { }
-        [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. The" +
-            " member currently throws a NotImplementedException. Will be removed in version 9" +
-            ".0.0.", true)]
+        [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+            "provided by transports. See the upgrade guide for more details. The member curre" +
+            "ntly throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.TimeoutManagerConfiguration TimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public class ToSagaExpression<TSagaData, TMessage>
@@ -1201,13 +1203,14 @@ namespace NServiceBus.DelayedDelivery
         public DoNotDeliverBefore(System.DateTimeOffset at) { }
         public System.DateTimeOffset At { get; }
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public class static ExternalTimeoutManagerConfigurationExtensions
     {
-        [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. The" +
-            " member currently throws a NotImplementedException. Will be removed in version 9" +
-            ".0.0.", true)]
+        [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+            "provided by transports. See the upgrade guide for more details. The member curre" +
+            "ntly throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void UseExternalTimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress) { }
     }
 }
@@ -1415,8 +1418,9 @@ namespace NServiceBus.Features
         public static bool IsFeatureActive(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
         public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public class TimeoutManager { }
 }
 namespace NServiceBus.Gateway.Deduplication
@@ -2235,8 +2239,9 @@ namespace NServiceBus.Support
 }
 namespace NServiceBus.Timeout.Core
 {
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public interface IPersistTimeouts
     {
         System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Extensibility.ContextBag context);
@@ -2244,14 +2249,16 @@ namespace NServiceBus.Timeout.Core
         System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task<bool> TryRemove(string timeoutId, NServiceBus.Extensibility.ContextBag context);
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public interface IQueryTimeouts
     {
         System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutsChunk> GetNextChunk(System.DateTime startSlice);
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public class TimeoutData
     {
         public TimeoutData() { }
@@ -2263,15 +2270,17 @@ namespace NServiceBus.Timeout.Core
         public byte[] State { get; }
         public System.DateTime Time { get; }
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public class TimeoutsChunk
     {
         public TimeoutsChunk(Timeout[] dueTimeouts, System.DateTime nextTimeToQuery) { }
         public Timeout[] DueTimeouts { get; }
         public System.DateTime NextTimeToQuery { get; }
-        [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-            "l be removed in version 9.0.0.", true)]
+        [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+            "provided by transports. See the upgrade guide for more details. Will be removed " +
+            "in version 9.0.0.", true)]
         public struct Timeout
         {
             public Timeout(string id, System.DateTime dueTime) { }
@@ -2303,8 +2312,9 @@ namespace NServiceBus.Transport
         Handled = 0,
         RetryRequired = 1,
     }
-    [System.ObsoleteAttribute("The timeout manager has been removed. See the upgrade guide for more details. Wil" +
-        "l be removed in version 9.0.0.", true)]
+    [System.ObsoleteAttribute("The timeout manager has been removed in favor of native delayed delivery support " +
+        "provided by transports. See the upgrade guide for more details. Will be removed " +
+        "in version 9.0.0.", true)]
     public interface ICancelDeferredMessages
     {
         System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.IBehaviorContext context);

@@ -612,7 +612,7 @@ namespace NServiceBus
     public abstract partial class StorageType
     {
         [ObsoleteEx(
-            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+            Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public sealed class Timeouts
@@ -627,7 +627,7 @@ namespace NServiceBus
     public class TimeoutManagerConfiguration
     {
         [ObsoleteEx(
-            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+            Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         internal TimeoutManagerConfiguration() => throw new NotImplementedException();
@@ -640,7 +640,7 @@ namespace NServiceBus
     public static class TimeoutManagerConfigurationExtensions
     {
         [ObsoleteEx(
-            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+            Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static TimeoutManagerConfiguration TimeoutManager(this EndpointConfiguration endpointConfiguration)
@@ -649,7 +649,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+            Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void LimitMessageProcessingConcurrencyTo(this TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency)
@@ -659,7 +659,7 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public static class ConfigurationTimeoutExtensions
@@ -679,7 +679,7 @@ namespace NServiceBus
 namespace NServiceBus.Features
 {
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public class TimeoutManager
@@ -695,7 +695,7 @@ namespace NServiceBus.Timeout.Core
     using Extensibility;
 
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface IPersistTimeouts
@@ -710,7 +710,7 @@ namespace NServiceBus.Timeout.Core
     }
 
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface IQueryTimeouts
@@ -719,7 +719,7 @@ namespace NServiceBus.Timeout.Core
     }
 
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public class TimeoutData
@@ -740,7 +740,7 @@ namespace NServiceBus.Timeout.Core
     }
 
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public class TimeoutsChunk
@@ -755,7 +755,7 @@ namespace NServiceBus.Timeout.Core
         public DateTime NextTimeToQuery => throw new NotImplementedException();
 
         [ObsoleteEx(
-            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+            Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public struct Timeout
@@ -775,13 +775,13 @@ namespace NServiceBus.Timeout.Core
 namespace NServiceBus.DelayedDelivery
 {
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public static class ExternalTimeoutManagerConfigurationExtensions
     {
         [ObsoleteEx(
-            Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+            Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void UseExternalTimeoutManager(this EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress)
@@ -797,7 +797,7 @@ namespace NServiceBus.Transport
     using Pipeline;
 
     [ObsoleteEx(
-        Message = "The timeout manager has been removed. See the upgrade guide for more details.",
+        Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface ICancelDeferredMessages
