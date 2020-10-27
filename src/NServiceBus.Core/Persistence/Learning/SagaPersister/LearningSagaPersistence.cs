@@ -21,8 +21,7 @@
 
             var sagaManifests = new SagaManifestCollection(allSagas,
                 storageLocation,
-                sagaName=> sagaName.Replace("+", ""),
-                TimeSpan.FromSeconds(1));
+                sagaName=> sagaName.Replace("+", ""));
 
             context.Container.ConfigureComponent(b => new LearningSynchronizedStorage(sagaManifests), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<LearningStorageAdapter>(DependencyLifecycle.SingleInstance);

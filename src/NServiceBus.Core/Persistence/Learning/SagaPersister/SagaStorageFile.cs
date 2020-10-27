@@ -30,7 +30,7 @@ namespace NServiceBus
             fileStream = null;
         }
 
-        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest, TimeSpan? maxRetry)
+        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
@@ -39,19 +39,19 @@ namespace NServiceBus
                 return noSagaFoundResult;
             }
 
-            return OpenWithRetryOnConcurrency(filePath, FileMode.Open, maxRetry);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.Open);
         }
 
-        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest, TimeSpan? maxRetry)
+        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew, maxRetry);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew);
         }
 
-        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, TimeSpan? maxRetry)
+        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess)
         {
-            var start = DateTimeOffset.UtcNow;
+            var numRetries = 0;
 
             while (true)
             {
@@ -61,7 +61,8 @@ namespace NServiceBus
                 }
                 catch (IOException)
                 {
-                    if (!maxRetry.HasValue || DateTimeOffset.UtcNow > (start + maxRetry))
+                    numRetries++;
+                    if (numRetries > 9) // given the 100ms delay below we wait rougly 1 second for the file to become unlocked
                     {
                         throw;
                     }

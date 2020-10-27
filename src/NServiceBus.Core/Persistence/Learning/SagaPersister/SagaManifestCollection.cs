@@ -7,10 +7,8 @@
 
     class SagaManifestCollection
     {
-        public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter, TimeSpan? maxRetry)
+        public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter)
         {
-            MaxRetry = maxRetry;
-
             foreach (var metadata in sagas)
             {
                 var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName));
@@ -29,8 +27,6 @@
                 sagaManifests[metadata.SagaEntityType] = manifest;
             }
         }
-
-        public TimeSpan? MaxRetry { get; private set; }
 
         public SagaManifest GetForEntityType(Type type)
         {
