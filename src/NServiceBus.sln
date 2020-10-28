@@ -38,7 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzer", "Analyzer", "{6C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.PersistenceTests", "NServiceBus.PersistenceTests\NServiceBus.PersistenceTests.csproj", "{157D1894-BAE7-45B2-9906-0445B38F3A97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Learning.AcceptanceTests", "NServiceBus.Learning.AcceptanceTests\NServiceBus.Learning.AcceptanceTests.csproj", "{360438BD-AEDE-48AC-BE75-FBB6BF2F004D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Learning.AcceptanceTests", "NServiceBus.Learning.AcceptanceTests\NServiceBus.Learning.AcceptanceTests.csproj", "{360438BD-AEDE-48AC-BE75-FBB6BF2F004D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -104,7 +104,7 @@ Global
 		{A5C32904-ECEC-492B-8217-8BFB5CC1443C} = {6CF85707-290E-4FA1-8444-25D29B6A6BA8}
 		{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{157D1894-BAE7-45B2-9906-0445B38F3A97} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
-                {360438BD-AEDE-48AC-BE75-FBB6BF2F004D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{360438BD-AEDE-48AC-BE75-FBB6BF2F004D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A32A19A8-C700-4AC8-8A34-1D56DA9CDF95}
