@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusAcceptanceTest
@@ -13,6 +12,8 @@
         [Test]
         public async Task Should_reschedule_message_the_configured_number_of_times()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, ctx) => session.SendLocal(new MessageToBeRetried {Id = ctx.Id}))
@@ -37,7 +38,6 @@
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
                     var recoverability = configure.Recoverability();
                     recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)).NumberOfRetries(ConfiguredNumberOfDelayedRetries));
                     recoverability.Immediate(settings => settings.NumberOfRetries(0));

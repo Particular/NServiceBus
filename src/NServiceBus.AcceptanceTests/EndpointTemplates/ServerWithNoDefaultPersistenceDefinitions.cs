@@ -29,7 +29,6 @@
             builder.TypesToIncludeInScan(typesToInclude);
             builder.EnableInstallers();
 
-            builder.DisableFeature<TimeoutManager>();
             builder.Recoverability()
                 .Delayed(delayed => delayed.NumberOfRetries(0))
                 .Immediate(immediate => immediate.NumberOfRetries(0));

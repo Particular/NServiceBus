@@ -13,6 +13,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         [Test]
         public async Task Should_pass_recoverability_configuration()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
@@ -42,7 +44,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 {
                     var testContext = (Context) context.ScenarioContext;
 
-                    config.EnableFeature<TimeoutManager>();
                     config.Recoverability()
                         .Immediate(immediate => immediate.NumberOfRetries(MaxImmediateRetries))
                         .Delayed(delayed => delayed.NumberOfRetries(MaxDelayedRetries).TimeIncrease(DelayedRetryDelayIncrease))

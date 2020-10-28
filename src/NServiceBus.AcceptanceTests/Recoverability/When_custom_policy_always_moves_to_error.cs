@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
@@ -43,7 +42,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
                     configure.Recoverability()
                         .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue));
                 });

@@ -27,7 +27,6 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 {
                     c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
                     c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
-                    c.UsePersistence<AcceptanceTestingPersistence, StorageType.Timeouts>();
                 });
             }
         }

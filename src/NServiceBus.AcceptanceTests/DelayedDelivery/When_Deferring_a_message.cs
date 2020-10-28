@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_deferring_a_message : NServiceBusAcceptanceTest
@@ -12,6 +11,8 @@
         [Test]
         public async Task Should_delay_delivery()
         {
+            Requires.DelayedDelivery();
+
             var delay = TimeSpan.FromSeconds(2);
 
             var context = await Scenario.Define<Context>()
@@ -44,7 +45,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

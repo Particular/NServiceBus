@@ -1,18 +1,20 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
+﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
-    public class When_TimeoutManager_is_disabled : NServiceBusAcceptanceTest
+    public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Bus_Defer_should_throw()
+        public async Task Trying_to_delay_should_throw()
         {
-            Requires.TimeoutStorage();
+            if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
+            {
+                Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
+            }
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
@@ -41,8 +43,7 @@
         {
             public Endpoint()
             {
-                // Explicitly disable TimeoutManager, although this should be default anyway
-                EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
@@ -80,11 +81,9 @@
             }
         }
 
-
         public class MyMessage : IMessage
         {
         }
-
 
         public class MyOtherMessage : IMessage
         {

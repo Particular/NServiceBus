@@ -30,7 +30,6 @@ namespace NServiceBus.Core.Tests.Persistence
                 Supports<StorageType.Sagas>(settings => { });
                 Supports<StorageType.Outbox>(settings => { });
                 Supports<StorageType.Subscriptions>(settings => { });
-                Supports<StorageType.Timeouts>(settings => { });
             }
         }
     }
@@ -53,8 +52,6 @@ namespace NServiceBus.Core.Tests.Persistence
                 new List<Type> {typeof(StorageType.Subscriptions)}));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
                 new List<Type> {typeof(StorageType.Sagas)}));
-            Assert.That(resultedEnabledPersistences[2].SelectedStorages, Is.EquivalentTo(
-                new List<Type> {typeof(StorageType.Outbox), typeof(StorageType.Timeouts)}));
         }
 
         class FakePersistence2 : PersistenceDefinition
@@ -63,7 +60,6 @@ namespace NServiceBus.Core.Tests.Persistence
             {
                 Supports<StorageType.Sagas>(settings => { });
                 Supports<StorageType.Subscriptions>(settings => { });
-                Supports<StorageType.Timeouts>(settings => { });
             }
         }
 
@@ -74,7 +70,6 @@ namespace NServiceBus.Core.Tests.Persistence
                 Supports<StorageType.Sagas>(settings => { });
                 Supports<StorageType.Outbox>(settings => { });
                 Supports<StorageType.Subscriptions>(settings => { });
-                Supports<StorageType.Timeouts>(settings => { });
             }
         }
     }

@@ -14,6 +14,8 @@
         [Test]
         public async Task Should_retain_exception_details_over_immediate_and_delayed_retries()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<DelayedRetriesEndpoint>(b =>
                 {
@@ -52,7 +54,6 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var testContext = (Context)context.ScenarioContext;
-                    config.EnableFeature<TimeoutManager>();
 
                     var recoverability = config.Recoverability();
                     recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>

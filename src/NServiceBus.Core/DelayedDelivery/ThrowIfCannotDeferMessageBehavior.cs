@@ -12,9 +12,10 @@
         public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
             var deliveryConstraints = context.Extensions.GetDeliveryConstraints();
+
             if (deliveryConstraints.Any(constraint => constraint is DelayedDeliveryConstraint))
             {
-                throw new InvalidOperationException("Cannot delay delivery of messages when TimeoutManager is disabled or there is no infrastructure support for delayed messages.");
+                throw new InvalidOperationException("Cannot delay delivery of messages when there is no infrastructure support for delayed messages.");
             }
 
             return next(context);

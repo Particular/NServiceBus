@@ -22,7 +22,7 @@
         public async Task Should_float_transport_transaction_to_dispatcher()
         {
             var transportTransaction = new TransportTransaction();
-            var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: true);
+            var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
 
             await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction);
@@ -33,7 +33,7 @@
         [Test]
         public async Task When_native_delayed_delivery_should_add_delivery_constraint()
         {
-            var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: true);
+            var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
             var delay = TimeSpan.FromSeconds(42);
 
@@ -48,27 +48,9 @@
         }
 
         [Test]
-        public async Task When_no_native_delayed_delivery_should_route_message_to_timeout_manager()
-        {
-            var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: false);
-            var incomingMessage = CreateMessage();
-            var delay = TimeSpan.FromSeconds(42);
-
-            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
-
-            var transportOperation = dispatcher.UnicastTransportOperations.Single();
-            var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
-
-            Assert.IsNull(deliveryConstraint);
-            Assert.AreEqual(EndpointInputQueue, transportOperation.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
-            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset(transportOperation.Message.Headers[TimeoutManagerHeaders.Expire]), Is.GreaterThan(DateTimeOffset.UtcNow).And.LessThanOrEqualTo(DateTimeOffset.UtcNow + delay));
-            Assert.AreEqual(TimeoutManagerAddress, transportOperation.Destination);
-        }
-
-        [Test]
         public async Task Should_update_retry_headers_when_present()
         {
-            var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: true);
+            var delayedRetryExecutor = CreateExecutor();
             var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTime(2012, 12, 12, 0, 0, 0, DateTimeKind.Utc));
 
             var incomingMessage = CreateMessage(new Dictionary<string, string>
@@ -95,7 +77,7 @@
         [Test]
         public async Task Should_add_retry_headers_when_not_present()
         {
-            var delayedRetryExecutor = CreateExecutor(nativeDeferralsOn: false);
+            var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
 
             await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
@@ -113,9 +95,9 @@
             return new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), new byte[0]);
         }
 
-        DelayedRetryExecutor CreateExecutor(bool nativeDeferralsOn = true)
+        DelayedRetryExecutor CreateExecutor()
         {
-            return new DelayedRetryExecutor(EndpointInputQueue, dispatcher, nativeDeferralsOn ? null : TimeoutManagerAddress);
+            return new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
         }
 
         FakeDispatcher dispatcher;

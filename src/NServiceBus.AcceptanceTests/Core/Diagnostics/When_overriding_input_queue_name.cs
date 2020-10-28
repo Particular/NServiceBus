@@ -27,7 +27,6 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
                 EndpointSetup<DefaultServer>((c, d) =>
                 {
                     c.OverrideLocalAddress("OverriddenInputQueue");
-                    c.EnableFeature<TimeoutManager>();
                 });
             }
         }

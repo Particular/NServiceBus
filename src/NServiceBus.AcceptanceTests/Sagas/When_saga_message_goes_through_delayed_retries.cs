@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     //repro for issue: https://github.com/NServiceBus/NServiceBus/issues/1020
@@ -13,6 +12,8 @@
         [Test]
         public Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
+            Requires.DelayedDelivery();
+
             return Scenario.Define<Context>()
                 .WithEndpoint<DelayedRetryEndpoint>(b => b
                     .When(session => session.SendLocal(new StartSagaMessage
@@ -35,7 +36,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
                     var recoverability = b.Recoverability();
                     recoverability.Delayed(settings =>
                     {

@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277
@@ -44,7 +43,6 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
                     b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
                 });
             }
@@ -67,7 +65,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        c.EnableFeature<TimeoutManager>();
                         c.ConfigureTransport().Routing().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
                     },
                     metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)));

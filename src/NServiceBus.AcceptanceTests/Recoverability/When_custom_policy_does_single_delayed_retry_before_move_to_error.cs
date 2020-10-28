@@ -14,6 +14,8 @@ namespace NServiceBus.AcceptanceTests.Recoverability
         [Test]
         public async Task Should_execute_twice_and_send_to_error_queue()
         {
+            Requires.DelayedDelivery();
+
             var messageId = Guid.NewGuid().ToString();
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -28,7 +30,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.AreEqual(context.Count, 2);
+            Assert.AreEqual(2, context.Count);
             Assert.AreEqual(messageId, context.FailedMessages.Single().Value.Single().MessageId);
         }
 
@@ -43,7 +45,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
                     configure.Recoverability()
                         .CustomPolicy(RetryPolicy);
                 });

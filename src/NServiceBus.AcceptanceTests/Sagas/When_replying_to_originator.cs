@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_replying_to_originator : NServiceBusAcceptanceTest
@@ -29,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class RequestResponseRequestingSaga2 : Saga<RequestResponseRequestingSaga2.RequestResponseRequestingSagaData2>,

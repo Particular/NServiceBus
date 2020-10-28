@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
@@ -12,6 +11,8 @@
         [Test]
         public async Task Should_invoke_instance_that_requested_the_timeout()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(e => e.When(s => s.SendLocal(new StartSagaMessage
                 {
@@ -34,10 +35,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.EnableFeature<TimeoutManager>();
-                });
+                EndpointSetup<DefaultServer>();
             }
 
             public class TimeoutSharingSaga1 : Saga<TimeoutSharingSaga1.TimeoutSharingSagaData1>,

@@ -53,9 +53,9 @@
             var errorQueue = settings.ErrorQueueAddress();
             transportSeam.QueueBindings.BindSending(errorQueue);
 
-            var delayedRetryConfig = GetDelayedRetryConfig();
-
             var immediateRetryConfig = GetImmediateRetryConfig();
+
+            var delayedRetryConfig = GetDelayedRetryConfig();
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
@@ -73,9 +73,7 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn
-                                          && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
-
+            var delayedRetriesAvailable = transactionsOn && settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -98,12 +96,7 @@
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(
-                        localAddress,
-                        builder.GetRequiredService<IDispatchMessages>(),
-                        settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
-                            ? null
-                            : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IDispatchMessages>());
                 }
 
                 return null;
@@ -127,29 +120,33 @@
 
         ImmediateConfig GetImmediateRetryConfig()
         {
-            if (!transactionsOn)
-            {
-                Logger.Warn("Immediate Retries will be disabled. Immediate Retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
-                //Transactions must be enabled since Immediate Retries requires the transport to be able to rollback
-                return new ImmediateConfig(0);
-            }
-
             var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
+
+            if (!transactionsOn && maxImmediateRetries > 0)
+            {
+                throw new Exception("Immediate retries are not supported when running with TransportTransactionMode.None.");
+            }
 
             return new ImmediateConfig(maxImmediateRetries);
         }
 
         DelayedConfig GetDelayedRetryConfig()
         {
-            if (!transactionsOn)
-            {
-                Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
-                //Transactions must be enabled since Delayed Retries requires the transport to be able to rollback
-                return new DelayedConfig(0, TimeSpan.Zero);
-            }
-
             var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
+
+            if (numberOfRetries > 0)
+            {
+                if (!settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
+                {
+                    throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery.");
+                }
+
+                if (!transactionsOn)
+                {
+                    throw new Exception("Delayed retries are not supported when running with TransportTransactionMode.None.");
+                }
+            }
 
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }

@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -14,6 +13,8 @@
         [Test]
         public async Task It_should_not_invoke_SagaNotFound_handler()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1
                 {
@@ -41,7 +42,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
                     c.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                 });

@@ -13,6 +13,8 @@
         [Test]
         public async Task Should_start_the_saga_and_request_a_timeout()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
@@ -50,7 +52,6 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
                     b.OnEndpointSubscribed<Context>((s, context) => { context.IsEventSubscriptionReceived = true; });
                 });
             }
@@ -106,7 +107,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
                     c.DisableFeature<AutoSubscribe>();
                 },
                 metadata => metadata.RegisterPublisherFor<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent)));

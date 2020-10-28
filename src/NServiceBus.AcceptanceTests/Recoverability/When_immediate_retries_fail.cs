@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_immediate_retries_fail : NServiceBusAcceptanceTest
@@ -12,6 +12,8 @@
         [Test]
         public async Task Should_do_delayed_retries()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<DelayedRetryEndpoint>(b => b
                     .When((session, ctx) => session.SendLocal(new MessageToBeRetried
@@ -19,10 +21,10 @@
                         Id = ctx.Id
                     }))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.NumberOfRetriesAttempted >= 1)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.GreaterOrEqual(1, context.NumberOfRetriesAttempted, "Should retry one or more times");
+            Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 1, "Should retry one or more times");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
@@ -42,7 +44,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<TimeoutManager>();
                     config.Recoverability().Immediate(i => i.NumberOfRetries(0));
                     config.Recoverability()
                         .Delayed(settings =>

@@ -7,7 +7,6 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBusAcceptanceTest
@@ -16,6 +15,7 @@
         public async Task Should_not_commit_distributed_transaction()
         {
             Requires.DtcSupport();
+            Requires.DelayedDelivery();
 
             var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
@@ -45,7 +45,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<TimeoutManager>();
                     var recoverability = config.Recoverability();
                     recoverability.Delayed(settings =>
                     {

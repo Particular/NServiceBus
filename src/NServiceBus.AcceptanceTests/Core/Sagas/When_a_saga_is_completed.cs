@@ -50,7 +50,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
                     b.ExecuteTheseHandlersFirst(typeof(TestSaga12));
                     b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
                 });

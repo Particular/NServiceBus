@@ -10,7 +10,7 @@
 
         bool SupportsNativePubSub { get; }
 
-        bool SupportsNativeDeferral { get; }
+        bool SupportsDelayedDelivery { get; }
 
         bool SupportsOutbox { get; }
 

@@ -1,13 +1,11 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
 NServiceBus.InferredMessageTypeEnricherBehavior - Transient
-NServiceBus.Persistence.ISynchronizedStorage - Singleton
-NServiceBus.Persistence.ISynchronizedStorageAdapter - Singleton
 NServiceBus.Transport.IDispatchMessages - Singleton
 NServiceBus.Unicast.MessageHandlerRegistry - Singleton
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
 NServiceBus.CriticalError - Singleton
 NServiceBus.Hosting.HostInformation - Singleton
-NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInjection.When_endpoint_is_warmed_up+SomeMessage, NServiceBus.AcceptanceTests, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null]] - Scoped
+NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInjection.When_endpoint_is_warmed_up+SomeMessage, NServiceBus.Learning.AcceptanceTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] - Scoped
 NServiceBus.IMessageCreator - Singleton
 NServiceBus.MessageInterfaces.IMessageMapper - Singleton
 NServiceBus.Notifications - Singleton

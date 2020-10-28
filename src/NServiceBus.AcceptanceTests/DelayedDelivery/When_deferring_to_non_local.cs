@@ -13,6 +13,8 @@
         [Test]
         public async Task Message_should_be_received()
         {
+            Requires.DelayedDelivery();
+
             var delay = TimeSpan.FromSeconds(2);
 
             var context = await Scenario.Define<Context>()
@@ -46,7 +48,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<TimeoutManager>();
                     config.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
                 });
             }

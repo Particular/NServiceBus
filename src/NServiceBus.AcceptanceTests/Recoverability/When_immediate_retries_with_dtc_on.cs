@@ -56,7 +56,6 @@
                     }));
                     var recoverability = b.Recoverability();
                     recoverability.Immediate(settings => settings.NumberOfRetries(maxretries));
-                    recoverability.Delayed(settings => settings.NumberOfRetries(0));
                 });
             }
 

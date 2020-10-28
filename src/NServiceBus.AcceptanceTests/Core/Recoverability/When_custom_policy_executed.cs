@@ -15,6 +15,8 @@
         [Test]
         public async Task Should_provide_error_context_to_policy()
         {
+            Requires.DelayedDelivery();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
@@ -44,7 +46,6 @@
                 {
                     var testContext = (Context) context.ScenarioContext;
 
-                    config.EnableFeature<TimeoutManager>();
                     config.Recoverability()
                         .CustomPolicy((cfg, errorContext) =>
                         {
