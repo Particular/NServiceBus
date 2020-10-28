@@ -39,29 +39,39 @@ namespace NServiceBus
                 return noSagaFoundResult;
             }
 
-            return OpenWithDelayOnConcurrency(filePath, FileMode.Open);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.Open);
         }
 
         public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return OpenWithDelayOnConcurrency(filePath, FileMode.CreateNew);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew);
         }
 
-        static async Task<SagaStorageFile> OpenWithDelayOnConcurrency(string filePath, FileMode fileAccess)
+        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess)
         {
-            try
-            {
-                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous));
-            }
-            catch (IOException)
-            {
-                // give the other task some time to complete the saga to avoid retrying to much
-                await Task.Delay(100)
-                    .ConfigureAwait(false);
+            var numRetries = 0;
 
-                throw;
+            while (true)
+            {
+                try
+                {
+                    return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous));
+                }
+                catch (IOException)
+                {
+                    numRetries++;
+
+                    if (numRetries > 4) // Given the 100ms delay below, we wait roughly 500 ms for the file to become unlocked
+                    {
+                        throw;
+                    }
+
+                    // Give the other task some time to complete the saga to avoid retrying too much
+                    await Task.Delay(100)
+                        .ConfigureAwait(false);
+                }
             }
         }
 
