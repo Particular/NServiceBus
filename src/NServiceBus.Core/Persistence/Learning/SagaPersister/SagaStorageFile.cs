@@ -63,7 +63,7 @@ namespace NServiceBus
                 {
                     numRetries++;
 
-                    if (numRetries > 9) // Given the 100ms delay below, we wait roughly 1 second for the file to become unlocked
+                    if (numRetries > 4) // Given the 100ms delay below, we wait roughly 500 ms for the file to become unlocked
                     {
                         throw;
                     }
