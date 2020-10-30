@@ -29,7 +29,11 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) => { config.ConfigureTransport().Transactions(TransportTransactionMode.None); });
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.ConfigureTransport().Transactions(TransportTransactionMode.None);
+                    config.Recoverability().Immediate(x => x.NumberOfRetries(0));
+                });
             }
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
