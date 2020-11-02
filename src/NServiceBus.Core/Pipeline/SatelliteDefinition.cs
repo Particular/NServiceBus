@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
 {
@@ -34,7 +35,7 @@ namespace NServiceBus
         public ReceiveSettings Setup(string errorQueue, bool purgeOnStartup)
         {
             return new ReceiveSettings(Name, ReceiveAddress, false, purgeOnStartup, errorQueue,
-                RequiredTransportTransactionMode);
+                RequiredTransportTransactionMode, new MessageMetadata[0]);
             //satelliteReceiver = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
         }
 

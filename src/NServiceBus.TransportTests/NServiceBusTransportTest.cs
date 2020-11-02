@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.TransportTests
+﻿using NServiceBus.Unicast.Messages;
+
+namespace NServiceBus.TransportTests
 {
     using System;
     using System.Collections.Generic;
@@ -102,7 +104,7 @@
             TransportInfrastructure = await configuration.TransportDefinition.Initialize(
                 settings, new[] 
                 {
-                    new ReceiveSettings("MainPump", InputQueueName, true, configuration.PurgeInputQueueOnStartup, ErrorQueueName, transactionMode)
+                    new ReceiveSettings("MainPump", InputQueueName, true, configuration.PurgeInputQueueOnStartup, ErrorQueueName, transactionMode, new MessageMetadata[0])
                 }, queueBindings.SendingAddresses.ToArray(), CancellationToken.None).ConfigureAwait(false);
 
             IgnoreUnsupportedTransactionModes(transactionMode);

@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace NServiceBus
 {
     using System;
@@ -32,7 +30,7 @@ namespace NServiceBus
 
         void Configure()
         {
-            ConfigureMessageTypes();
+            var messageMetadataRegistry = ConfigureMessageTypes();
 
             var pipelineSettings = settings.Get<PipelineSettings>();
 
@@ -77,7 +75,9 @@ namespace NServiceBus
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
-                pipelineSettings);
+                pipelineSettings, 
+                messageMetadataRegistry,
+                conventions);
 
             sendComponent = SendComponent.Configure(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
@@ -100,7 +100,7 @@ namespace NServiceBus
             );
         }
 
-        void ConfigureMessageTypes()
+        MessageMetadataRegistry ConfigureMessageTypes()
         {
             var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
 
@@ -117,6 +117,8 @@ namespace NServiceBus
                 NumberOfMessagesFoundAtStartup = foundMessages.Count,
                 Messages = foundMessages.Select(m => m.MessageType.FullName)
             });
+
+            return messageMetadataRegistry;
         }
 
         public IStartableEndpoint CreateStartableEndpoint(IServiceProvider builder, HostingComponent hostingComponent)

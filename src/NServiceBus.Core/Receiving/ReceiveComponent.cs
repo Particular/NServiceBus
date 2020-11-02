@@ -1,3 +1,5 @@
+using NServiceBus.Unicast.Messages;
+
 namespace NServiceBus
 {
     using System;
@@ -19,12 +21,13 @@ namespace NServiceBus
             this.configuration = configuration;
         }
 
-        public static  ReceiveComponent Configure(
-            TransportSeam.Settings settings, 
+        public static ReceiveComponent Configure(TransportSeam.Settings settings,
             Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
-            PipelineSettings pipelineSettings)
+            PipelineSettings pipelineSettings, 
+            MessageMetadataRegistry messageMetadataRegistry,
+            Conventions conventions)
         {
             //RegisterTransportInfrastructureForBackwardsCompatibility
             settings.settings.Set(configuration.transportSeam);
@@ -39,7 +42,30 @@ namespace NServiceBus
                 return new ReceiveComponent(configuration);
             }
 
-            var receivers = AddReceivers(configuration, errorQueue);
+            ////TODO: support for external MessageHandlerRegistry injection via DI container can no longer be supported
+            ////var externalHandlerRegistryUsed = hostingConfiguration.Services.HasComponent<MessageHandlerRegistry>();
+
+
+            ////if (!externalHandlerRegistryUsed)
+            ////{
+
+            ////}
+
+            var handlerDiagnostics = new Dictionary<string, List<string>>();
+            var messageHandlerRegistry = configuration.messageHandlerRegistry;
+
+            RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
+
+            foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
+            {
+                handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
+                    .Select(handler => handler.HandlerType.FullName)
+                    .ToList();
+            }
+
+            var messageTypesHandled = GetEventTypesHandledByThisEndpoint(messageHandlerRegistry, conventions);
+            var handledMessagesMetadata = messageTypesHandled.Select(t => messageMetadataRegistry.GetMessageMetadata(t));
+            var receivers = AddReceivers(configuration, errorQueue, handledMessagesMetadata);
 
             configuration.transportSeam.Configure(receivers);
 
@@ -67,22 +93,7 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            var externalHandlerRegistryUsed = hostingConfiguration.Services.HasComponent<MessageHandlerRegistry>();
-            var handlerDiagnostics = new Dictionary<string, List<string>>();
 
-            if (!externalHandlerRegistryUsed)
-            {
-                var messageHandlerRegistry = configuration.messageHandlerRegistry;
-
-                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
-
-                foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
-                {
-                    handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
-                        .Select(handler => handler.HandlerType.FullName)
-                        .ToList();
-                }
-            }
 
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
             {
@@ -100,7 +111,6 @@ namespace NServiceBus
                     TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
                     s.RuntimeSettings.MaxConcurrency
                 }).ToArray(),
-                ExternalHandlerRegistry = externalHandlerRegistryUsed,
                 MessageHandlers = handlerDiagnostics
             });
 
@@ -195,21 +205,21 @@ namespace NServiceBus
             return Task.WhenAll(stopTasks);
         }
 
-        static ReceiveSettings[] AddReceivers(Configuration configuration, string errorQueue)
+        static ReceiveSettings[] AddReceivers(Configuration configuration, string errorQueue, IEnumerable<MessageMetadata> eventTypes)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
             var allReceivers = new List<ReceiveSettings>();
 
             allReceivers.Add(new ReceiveSettings(MainReceiverId, configuration.LocalAddress, true,
-                configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport));
+                configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport, eventTypes.ToList().AsReadOnly()));
 
             //TransportReceiver instanceReceiver = null;
             if (configuration.InstanceSpecificQueue != null)
             {
                 var instanceSpecificQueue = configuration.InstanceSpecificQueue;
                 allReceivers.Add(new ReceiveSettings(InstanceSpecificReceiverId, instanceSpecificQueue, false,
-                    configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport));
+                    configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport, new MessageMetadata[0]));
             }
 
             foreach (var satelliteDefinition in configuration.SatelliteDefinitions)
@@ -254,6 +264,20 @@ namespace NServiceBus
                 .Where(@interface => @interface.IsGenericType)
                 .Select(@interface => @interface.GetGenericTypeDefinition())
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
+        }
+
+        static List<Type> GetEventTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions)
+        {
+            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
+                .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
+                .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
+                .Where(t => conventions.IsEventType(t)) //only events unless the user asked for all messages
+                //TODO: respect SubscribeSettings.AutoSubscribeSagas setting
+                //.Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
+                .ToList();
+
+            //TODO respect SubscribeSettings.ExcludedTypes
+            return messageTypesHandled;
         }
 
         Configuration configuration;
