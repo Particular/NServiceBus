@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
 {
@@ -17,9 +18,9 @@ namespace NServiceBus
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public async Task Subscribe(Type eventType, ContextBag context, CancellationToken cancellationToken)
+        public async Task Subscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
         {
-            var eventDir = GetEventDirectory(eventType);
+            var eventDir = GetEventDirectory(eventType.MessageType);
 
             // the subscription directory and the subscription information will be created no matter if there's a publisher for the event assuming that the publisher haven’t started yet
             Directory.CreateDirectory(eventDir);
@@ -52,9 +53,9 @@ namespace NServiceBus
             }
         }
 
-        public async Task Unsubscribe(Type eventType, ContextBag context, CancellationToken cancellationToken)
+        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
         {
-            var eventDir = GetEventDirectory(eventType);
+            var eventDir = GetEventDirectory(eventType.MessageType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
 
             var attempts = 0;

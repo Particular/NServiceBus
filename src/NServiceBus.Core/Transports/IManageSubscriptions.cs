@@ -1,8 +1,8 @@
 ﻿using System.Threading;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.Transport
 {
-    using System;
     using System.Threading.Tasks;
     using Extensibility;
 
@@ -14,11 +14,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Subscribes to the given event.
         /// </summary>
-        Task Subscribe(Type eventType, ContextBag context, CancellationToken cancellationToken = default);
+        Task Subscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Unsubscribes from the given event.
         /// </summary>
-        Task Unsubscribe(Type eventType, ContextBag context, CancellationToken cancellationToken = default);
+        Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default);
     }
 }

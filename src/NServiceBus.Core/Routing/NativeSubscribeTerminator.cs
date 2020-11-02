@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
 {
@@ -9,16 +10,19 @@ namespace NServiceBus
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public NativeSubscribeTerminator(Func<IManageSubscriptions> subscriptionManager)
+        public NativeSubscribeTerminator(Func<IManageSubscriptions> subscriptionManager, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.subscriptionManager = subscriptionManager;
+            this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
         protected override Task Terminate(ISubscribeContext context)
         {
-            return subscriptionManager().Subscribe(context.EventType, context.Extensions, CancellationToken.None);
+            var metadata = messageMetadataRegistry.GetMessageMetadata(context.EventType);
+            return subscriptionManager().Subscribe(metadata, context.Extensions, CancellationToken.None);
         }
 
         readonly Func<IManageSubscriptions> subscriptionManager;
+        private readonly MessageMetadataRegistry messageMetadataRegistry;
     }
 }

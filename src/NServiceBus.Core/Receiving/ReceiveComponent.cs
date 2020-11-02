@@ -72,8 +72,8 @@ namespace NServiceBus
             var receiveComponent = new ReceiveComponent(configuration);
 
             //TODO needs better way to access receivers (via ID or some kind of reference), what about receiveSettings.GetReceiver(transportInfrastructure) that wraps the ID lookup?
-            pipelineSettings.Register(new NativeSubscribeTerminator(() => receiveComponent.subscriptionManager), "Requests the transport to subscribe to a given message type");
-            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => receiveComponent.subscriptionManager), "Requests the transport to unsubscribe to a given message type");
+            pipelineSettings.Register(new NativeSubscribeTerminator(() => receiveComponent.subscriptionManager, messageMetadataRegistry), "Requests the transport to subscribe to a given message type");
+            pipelineSettings.Register(new NativeUnsubscribeTerminator(() => receiveComponent.subscriptionManager, messageMetadataRegistry), "Requests the transport to unsubscribe to a given message type");
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {

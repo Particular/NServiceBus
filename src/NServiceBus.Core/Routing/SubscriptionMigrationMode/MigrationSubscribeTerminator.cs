@@ -14,6 +14,7 @@ namespace NServiceBus
     using Unicast.Queuing;
     using Unicast.Transport;
 
+    ////TODO: not supported anymore
     class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
         public MigrationSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
@@ -29,7 +30,7 @@ namespace NServiceBus
         {
             var eventType = context.EventType;
 
-            await subscriptionManager.Subscribe(eventType, context.Extensions, CancellationToken.None).ConfigureAwait(false);
+            await subscriptionManager.Subscribe(null, context.Extensions, CancellationToken.None).ConfigureAwait(false);
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
