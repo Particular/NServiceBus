@@ -85,7 +85,7 @@
                 pumps.Add(pump);
             }
 
-            Receivers = pumps.ToArray();
+            Receivers = Array.AsReadOnly(pumps.ToArray());
         }
 
         readonly string storagePath;

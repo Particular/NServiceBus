@@ -93,7 +93,7 @@ namespace NServiceBus
                 pumps.Add(await CreateReceiver(receiveSetting).ConfigureAwait(false));
             }
 
-            Receivers = pumps.ToArray();
+            Receivers = Array.AsReadOnly(pumps.ToArray());
         }
 
         readonly string storagePath;

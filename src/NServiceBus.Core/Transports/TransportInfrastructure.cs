@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Janitor;
 using NServiceBus.Settings;
@@ -22,7 +23,7 @@ namespace NServiceBus.Transport
 
         /// <summary>
         /// </summary>
-        public virtual IPushMessages[] Receivers { get; protected set; }
+        public virtual ReadOnlyCollection<IPushMessages> Receivers { get; protected set; }
 
         /// <summary>
         /// 
