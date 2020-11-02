@@ -9,6 +9,8 @@
     using Unicast;
     using Unicast.Queuing;
 
+    ////TODO: will be removed and handled by the transport
+
     /// <summary>
     /// Used to configure auto subscriptions.
     /// </summary>
@@ -16,7 +18,7 @@
     {
         internal AutoSubscribe()
         {
-            EnableByDefault();
+            //EnableByDefault();
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
         }
 
