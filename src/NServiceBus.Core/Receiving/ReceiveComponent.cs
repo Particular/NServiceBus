@@ -129,7 +129,7 @@ namespace NServiceBus
 
         public void ConfigureSubscriptionManager(TransportInfrastructure transportInfrastructure)
         {
-            this.subscriptionManager = transportInfrastructure.FindReceiver(MainReceiverId)?.Subscriptions;
+            this.subscriptionManager = transportInfrastructure.GetReceiver(MainReceiverId)?.Subscriptions;
         }
 
         public async Task Start(IServiceProvider builder,
@@ -151,11 +151,11 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
 
-            var mainPump = transportInfrastructure.FindReceiver(MainReceiverId);
+            var mainPump = transportInfrastructure.GetReceiver(MainReceiverId);
             this.mainReceiver = new TransportReceiver(mainPump, configuration.PushRuntimeSettings);
             await this.mainReceiver.Start(mainPipelineExecutor.Invoke, recoverability.Invoke).ConfigureAwait(false);
 
-            var instanceSpecificPump = transportInfrastructure.FindReceiver(InstanceSpecificReceiverId);
+            var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
             if (instanceSpecificPump != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);

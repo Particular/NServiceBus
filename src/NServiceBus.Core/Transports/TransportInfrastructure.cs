@@ -36,7 +36,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public IPushMessages FindReceiver(string receiverId)
+        public IPushMessages GetReceiver(string receiverId)
         {
             return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }
