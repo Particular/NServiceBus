@@ -2308,12 +2308,12 @@ namespace NServiceBus.Transport
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.Settings settings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] SendingAddresses, System.Threading.CancellationToken cancellationToken = null);
         public abstract string ToTransportAddress(NServiceBus.Transport.EndpointAddress address);
     }
-    public abstract class TransportInfrastructure : System.IDisposable
+    public abstract class TransportInfrastructure : System.IAsyncDisposable
     {
         protected TransportInfrastructure() { }
         public virtual NServiceBus.Transport.IDispatchMessages Dispatcher { get; set; }
         public virtual NServiceBus.Transport.IPushMessages[] Receivers { get; set; }
-        public abstract void Dispose();
+        public abstract System.Threading.Tasks.ValueTask DisposeAsync();
         public NServiceBus.Transport.IPushMessages GetReceiver(string receiverId) { }
         public virtual System.Threading.Tasks.Task ValidateNServiceBusSettings(NServiceBus.Settings.ReadOnlySettings settings) { }
     }

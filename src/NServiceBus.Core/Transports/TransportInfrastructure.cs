@@ -13,7 +13,7 @@ namespace NServiceBus.Transport
     /// Transport infrastructure definitions.
     /// </summary>
     [SkipWeaving]
-    public abstract class TransportInfrastructure : IDisposable
+    public abstract class TransportInfrastructure : IAsyncDisposable
     {
         /// <summary>
         /// 
@@ -42,9 +42,10 @@ namespace NServiceBus.Transport
             return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }
 
+
         /// <summary>
         /// </summary>
-        public abstract void Dispose();
+        public abstract ValueTask DisposeAsync();
     }
 
     /// <summary>

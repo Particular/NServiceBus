@@ -102,8 +102,9 @@ namespace NServiceBus
         ReceiveSettings[] receiveSettings;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
-        public override void Dispose()
+        public override ValueTask DisposeAsync()
         {
+            return new ValueTask();
         }
     }
 }
