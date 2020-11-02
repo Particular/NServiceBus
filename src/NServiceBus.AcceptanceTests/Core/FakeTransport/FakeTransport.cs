@@ -6,11 +6,18 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System;
     using System.Collections.Generic;
-    using Settings;
     using Transport;
 
     public class FakeTransport : TransportDefinition
     {
+        public FakeTransport()
+        {
+            SupportedTransactionModes = new[]
+            {
+                SupportedTransactionMode ?? TransportTransactionMode.TransactionScope
+            };
+        }
+
         public TransportTransactionMode? SupportedTransactionMode { get; set; }
 
         public List<string> StartUpSequence { get; } = new List<string>();
@@ -42,12 +49,10 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             return logicalAddress.ToString();
         }
 
-        public override TransportTransactionMode MaxSupportedTransactionMode => this.SupportedTransactionMode ?? TransportTransactionMode.TransactionScope;
+        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
 
         /// <summary>
         /// </summary>
         public override bool SupportsTTBR { get; } = false;
-
-
     }
 }

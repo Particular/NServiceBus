@@ -107,9 +107,9 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportTransactionMode maxSupportedTransactionMode)
+        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, IReadOnlyCollection<TransportTransactionMode> supportedTransactionModes)
         {
-            var transportTransactionSupport = maxSupportedTransactionMode;
+            var transportTransactionSupport = supportedTransactionModes.Max();
 
             //if user haven't asked for a explicit level use what the transport supports
             if (!settings.UserHasProvidedTransportTransactionMode)
@@ -119,9 +119,9 @@ namespace NServiceBus
 
             var requestedTransportTransactionMode = settings.UserTransportTransactionMode;
 
-            if (requestedTransportTransactionMode > transportTransactionSupport)
+            if (!supportedTransactionModes.Contains(requestedTransportTransactionMode))
             {
-                throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
+                throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport does not support this mode.");
             }
 
             return requestedTransportTransactionMode;

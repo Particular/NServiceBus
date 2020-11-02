@@ -34,7 +34,7 @@ namespace NServiceBus
                 instanceSpecificQueue = transportDefinition.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator).ToEndpointAddress());
             }
 
-            var transactionMode = GetRequiredTransactionMode(settings, transportSeam.TransportDefinition.MaxSupportedTransactionMode);
+            var transactionMode = GetRequiredTransactionMode(settings, transportSeam.TransportDefinition.SupportedTransactionModes);
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 

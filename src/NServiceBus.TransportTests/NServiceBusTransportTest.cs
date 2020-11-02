@@ -142,7 +142,7 @@
 
         void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
         {
-            if (TransportDefinition.MaxSupportedTransactionMode < requestedTransactionMode)
+            if (!TransportDefinition.SupportedTransactionModes.Contains(requestedTransactionMode))
             {
                 Assert.Ignore($"Only relevant for transports supporting {requestedTransactionMode} or higher");
             }

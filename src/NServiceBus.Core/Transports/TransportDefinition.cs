@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,9 +24,8 @@ namespace NServiceBus.Transport
         public abstract string ToTransportAddress(EndpointAddress address);
 
         /// <summary>
-        /// Gets the highest supported transaction mode for the this transport.
         /// </summary>
-        public abstract TransportTransactionMode MaxSupportedTransactionMode { get; }
+        public abstract IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
 
         /// <summary>
         /// 

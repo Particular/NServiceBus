@@ -89,7 +89,10 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 return address.ToString();
             }
 
-            public override TransportTransactionMode MaxSupportedTransactionMode { get; } = TransportTransactionMode.None;
+            public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; } = new[]
+            {
+                TransportTransactionMode.None
+            };
 
             public override bool SupportsTTBR { get; } = false;
 

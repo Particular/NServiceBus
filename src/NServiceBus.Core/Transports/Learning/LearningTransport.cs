@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NServiceBus
@@ -69,7 +70,12 @@ namespace NServiceBus
 
         /// <summary>
         /// </summary>
-        public override TransportTransactionMode MaxSupportedTransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
+        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; } = new[]
+        {
+            TransportTransactionMode.None,
+            TransportTransactionMode.ReceiveOnly,
+            TransportTransactionMode.SendsAtomicWithReceive
+        };
 
         /// <summary>
         /// 
