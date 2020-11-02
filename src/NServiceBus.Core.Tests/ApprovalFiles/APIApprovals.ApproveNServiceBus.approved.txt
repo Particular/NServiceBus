@@ -569,9 +569,11 @@ namespace NServiceBus
     public class LearningTransport : NServiceBus.Transport.TransportDefinition
     {
         public LearningTransport() { }
-        public override NServiceBus.TransportTransactionMode MaxSupportedTransactionMode { get; }
         public bool RestrictPayloadSize { get; set; }
         public string StorageDirectory { get; set; }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> SupportedTransactionModes { get; set; }
+        public override bool SupportsDelayedDelivery { get; }
+        public override bool SupportsPublishSubscribe { get; }
         public override bool SupportsTTBR { get; }
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.Settings settings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] SendingAddresses, System.Threading.CancellationToken cancellationToken) { }
         public override string ToTransportAddress(NServiceBus.Transport.EndpointAddress endpointAddress) { }
@@ -2186,8 +2188,8 @@ namespace NServiceBus.Transport
     }
     public interface IManageSubscriptions
     {
-        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = null);
-        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = null);
+        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = null);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = null);
     }
     public interface IOutgoingTransportOperation
     {
@@ -2271,8 +2273,9 @@ namespace NServiceBus.Transport
     }
     public class ReceiveSettings
     {
-        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue, NServiceBus.TransportTransactionMode requiredTransactionMode) { }
+        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue, NServiceBus.TransportTransactionMode requiredTransactionMode, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> events) { }
         public string ErrorQueue { get; }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> Events { get; }
         public string Id { get; set; }
         public bool PurgeOnStartup { get; set; }
         public string ReceiveAddress { get; set; }
@@ -2298,7 +2301,9 @@ namespace NServiceBus.Transport
     public abstract class TransportDefinition
     {
         protected TransportDefinition() { }
-        public abstract NServiceBus.TransportTransactionMode MaxSupportedTransactionMode { get; }
+        public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> SupportedTransactionModes { get; set; }
+        public abstract bool SupportsDelayedDelivery { get; }
+        public abstract bool SupportsPublishSubscribe { get; }
         public abstract bool SupportsTTBR { get; }
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.Settings settings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] SendingAddresses, System.Threading.CancellationToken cancellationToken = null);
         public abstract string ToTransportAddress(NServiceBus.Transport.EndpointAddress address);
@@ -2309,7 +2314,7 @@ namespace NServiceBus.Transport
         public virtual NServiceBus.Transport.IDispatchMessages Dispatcher { get; set; }
         public virtual NServiceBus.Transport.IPushMessages[] Receivers { get; set; }
         public abstract void Dispose();
-        public NServiceBus.Transport.IPushMessages FindReceiver(string receiverId) { }
+        public NServiceBus.Transport.IPushMessages GetReceiver(string receiverId) { }
         public virtual System.Threading.Tasks.Task ValidateNServiceBusSettings(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class TransportOperation
