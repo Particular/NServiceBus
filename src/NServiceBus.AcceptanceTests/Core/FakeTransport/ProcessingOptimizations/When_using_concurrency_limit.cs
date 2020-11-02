@@ -96,6 +96,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
             public override bool SupportsTTBR { get; } = false;
 
+            public override bool SupportsDelayedDelivery { get; } = true;
+
+            public override bool SupportsPublishSubscribe { get; } = true;
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure

@@ -57,9 +57,15 @@ namespace NServiceBus
             };
 
         /// <summary>
-        /// 
         /// </summary>
         public override bool SupportsTTBR { get; } = true;
 
+        /// <summary>
+        /// </summary>
+        public override bool SupportsDelayedDelivery { get; } = true;
+
+        /// <summary>
+        /// </summary>
+        public override bool SupportsPublishSubscribe { get; } = true;
     }
 }

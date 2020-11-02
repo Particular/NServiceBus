@@ -54,5 +54,13 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         /// <summary>
         /// </summary>
         public override bool SupportsTTBR { get; } = false;
+
+        /// <summary>
+        /// </summary>
+        public override bool SupportsDelayedDelivery { get; } = true;
+
+        /// <summary>
+        /// </summary>
+        public override bool SupportsPublishSubscribe { get; } = true;
     }
 }
