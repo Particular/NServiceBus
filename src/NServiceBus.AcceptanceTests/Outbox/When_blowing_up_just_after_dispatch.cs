@@ -18,15 +18,15 @@
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b
                     .DoNotFailOnErrorMessages() // PlaceOrder should fail due to exception after dispatch
                     .When(session => session.SendLocal(new PlaceOrder())))
-                .Done(c => c.OrderAckReceived == 1)
+                .Done(c => c.OrderAckReceived)
                 .Run(TimeSpan.FromSeconds(20));
 
-            Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
+            Assert.IsTrue(context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
         }
 
         public class Context : ScenarioContext
         {
-            public int OrderAckReceived { get; set; }
+            public bool OrderAckReceived { get; set; }
         }
 
         public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
@@ -68,7 +68,7 @@
 
                 public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context)
                 {
-                    testContext.OrderAckReceived++;
+                    testContext.OrderAckReceived = true;
                     return Task.FromResult(0);
                 }
 
