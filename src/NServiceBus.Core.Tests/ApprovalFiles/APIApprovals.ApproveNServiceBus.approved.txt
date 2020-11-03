@@ -2182,27 +2182,27 @@ namespace NServiceBus.Transport
     {
         System.Threading.Tasks.Task CreateQueueIfNecessary(NServiceBus.Transport.QueueBindings queueBindings, string identity);
     }
-    public interface IDispatchMessages
-    {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken = null);
-    }
     public interface IManageSubscriptions
     {
         System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = null);
         System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = null);
+    }
+    public interface IMessageDispatcher
+    {
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken = null);
+    }
+    public interface IMessageReceiver
+    {
+        string Id { get; }
+        NServiceBus.Transport.IManageSubscriptions Subscriptions { get; }
+        System.Threading.Tasks.Task StartReceive(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Threading.CancellationToken cancellationToken = null);
+        System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken = null);
     }
     public interface IOutgoingTransportOperation
     {
         NServiceBus.Transport.OutgoingMessage Message { get; }
         System.Collections.Generic.Dictionary<string, string> Properties { get; }
         NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
-    }
-    public interface IPushMessages
-    {
-        string Id { get; }
-        NServiceBus.Transport.IManageSubscriptions Subscriptions { get; }
-        System.Threading.Tasks.Task Start(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Threading.CancellationToken cancellationToken = null);
-        System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = null);
     }
     public class IncomingMessage
     {
@@ -2311,10 +2311,10 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure : System.IAsyncDisposable
     {
         protected TransportInfrastructure() { }
-        public virtual NServiceBus.Transport.IDispatchMessages Dispatcher { get; set; }
-        public virtual NServiceBus.Transport.IPushMessages[] Receivers { get; set; }
+        public virtual NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
+        public virtual System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.ValueTask DisposeAsync();
-        public NServiceBus.Transport.IPushMessages GetReceiver(string receiverId) { }
+        public NServiceBus.Transport.IMessageReceiver GetReceiver(string receiverId) { }
         public virtual System.Threading.Tasks.Task ValidateNServiceBusSettings(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class TransportOperation
@@ -2333,15 +2333,15 @@ namespace NServiceBus.Transport
     }
     public class TransportReceiveInfrastructure
     {
-        public TransportReceiveInfrastructure(System.Func<NServiceBus.Transport.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transport.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
-        public System.Func<NServiceBus.Transport.IPushMessages> MessagePumpFactory { get; }
+        public TransportReceiveInfrastructure(System.Func<NServiceBus.Transport.IMessageReceiver> messagePumpFactory, System.Func<NServiceBus.Transport.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transport.IMessageReceiver> MessagePumpFactory { get; }
         public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
         public System.Func<NServiceBus.Transport.ICreateQueues> QueueCreatorFactory { get; }
     }
     public class TransportSendInfrastructure
     {
-        public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
-        public System.Func<NServiceBus.Transport.IDispatchMessages> DispatcherFactory { get; }
+        public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IMessageDispatcher> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transport.IMessageDispatcher> DispatcherFactory { get; }
         public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
     }
     public class TransportSubscriptionInfrastructure
