@@ -52,7 +52,7 @@
             var errorQueueAddress = receiveSettings.ErrorQueue;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
-            IManageSubscriptions subscriptionManager = null;
+            ISubscriptionManager subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe)
             {
                 var endpointName = settings.Name;

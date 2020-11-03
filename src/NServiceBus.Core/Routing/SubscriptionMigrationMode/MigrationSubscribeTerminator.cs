@@ -17,7 +17,7 @@ namespace NServiceBus
     ////TODO: not supported anymore
     class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MigrationSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IMessageDispatcher dispatcher, string subscriberAddress, string subscriberEndpoint)
+        public MigrationSubscribeTerminator(ISubscriptionManager subscriptionManager, SubscriptionRouter subscriptionRouter, IMessageDispatcher dispatcher, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
             this.subscriptionRouter = subscriptionRouter;
@@ -89,7 +89,7 @@ namespace NServiceBus
         readonly string subscriberEndpoint;
         readonly IMessageDispatcher dispatcher;
 
-        readonly IManageSubscriptions subscriptionManager;
+        readonly ISubscriptionManager subscriptionManager;
         static ILog Logger = LogManager.GetLogger<MigrationSubscribeTerminator>();
     }
 }

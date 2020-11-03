@@ -16,7 +16,7 @@
             string id,
             string basePath, 
             Action<string, Exception> criticalErrorAction,
-            IManageSubscriptions subscriptionManager,
+            ISubscriptionManager subscriptionManager,
             ReceiveSettings receiveSettings)
         {
             Id = id;
@@ -91,7 +91,7 @@
             concurrencyLimiter.Dispose();
         }
 
-        public IManageSubscriptions Subscriptions => subscriptionManager;
+        public ISubscriptionManager Subscriptions => subscriptionManager;
         public string Id { get; }
 
         void RecoverPendingTransactions()
@@ -346,7 +346,7 @@
         string delayedDir;
 
         Action<string, Exception> criticalErrorAction;
-        private readonly IManageSubscriptions subscriptionManager;
+        private readonly ISubscriptionManager subscriptionManager;
         private readonly ReceiveSettings receiveSettings;
 
 

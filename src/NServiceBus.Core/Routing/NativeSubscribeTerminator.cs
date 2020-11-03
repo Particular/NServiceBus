@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public NativeSubscribeTerminator(Func<IManageSubscriptions> subscriptionManager, MessageMetadataRegistry messageMetadataRegistry)
+        public NativeSubscribeTerminator(Func<ISubscriptionManager> subscriptionManager, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.subscriptionManager = subscriptionManager;
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -22,7 +22,7 @@ namespace NServiceBus
             return subscriptionManager().Subscribe(metadata, context.Extensions, CancellationToken.None);
         }
 
-        readonly Func<IManageSubscriptions> subscriptionManager;
+        readonly Func<ISubscriptionManager> subscriptionManager;
         private readonly MessageMetadataRegistry messageMetadataRegistry;
     }
 }

@@ -40,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             }
         }
 
-        public IManageSubscriptions Subscriptions { get; }
+        public ISubscriptionManager Subscriptions { get; }
         public string Id { get; }
 
         FakeTransport settings;

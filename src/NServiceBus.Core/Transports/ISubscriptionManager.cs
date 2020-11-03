@@ -9,7 +9,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Implemented by transports to provide pub/sub capabilities.
     /// </summary>
-    public interface IManageSubscriptions
+    public interface ISubscriptionManager
     {
         /// <summary>
         /// Subscribes to the given event.

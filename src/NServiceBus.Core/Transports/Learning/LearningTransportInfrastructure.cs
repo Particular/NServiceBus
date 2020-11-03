@@ -68,7 +68,7 @@ namespace NServiceBus
 
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
-            IManageSubscriptions subscriptionManager = null;
+            ISubscriptionManager subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe)
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);

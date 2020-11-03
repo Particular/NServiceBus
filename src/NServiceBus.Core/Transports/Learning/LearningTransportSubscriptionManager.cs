@@ -9,7 +9,7 @@ namespace NServiceBus
     using Extensibility;
     using Transport;
 
-    class LearningTransportSubscriptionManager : IManageSubscriptions
+    class LearningTransportSubscriptionManager : ISubscriptionManager
     {
         public LearningTransportSubscriptionManager(string basePath, string endpointName, string localAddress)
         {

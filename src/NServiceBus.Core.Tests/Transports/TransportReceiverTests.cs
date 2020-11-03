@@ -101,7 +101,7 @@ namespace NServiceBus.Core.Tests.Transports
                 return Task.CompletedTask;
             }
 
-            public IManageSubscriptions Subscriptions { get; }
+            public ISubscriptionManager Subscriptions { get; }
             public string Id { get; }
 
             public void Dispose()

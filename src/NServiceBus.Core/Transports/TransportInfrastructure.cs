@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Janitor;
 using NServiceBus.Settings;
 using NServiceBus.Unicast.Messages;

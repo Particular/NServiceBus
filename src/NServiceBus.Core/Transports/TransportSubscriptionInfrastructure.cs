@@ -10,12 +10,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates new result object.
         /// </summary>
-        public TransportSubscriptionInfrastructure(Func<IManageSubscriptions> subscriptionManagerFactory)
+        public TransportSubscriptionInfrastructure(Func<ISubscriptionManager> subscriptionManagerFactory)
         {
             Guard.AgainstNull(nameof(subscriptionManagerFactory), subscriptionManagerFactory);
             SubscriptionManagerFactory = subscriptionManagerFactory;
         }
 
-        internal Func<IManageSubscriptions> SubscriptionManagerFactory { get; }
+        internal Func<ISubscriptionManager> SubscriptionManagerFactory { get; }
     }
 }

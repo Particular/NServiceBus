@@ -289,6 +289,6 @@ namespace NServiceBus
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         private TransportReceiver mainReceiver;
         private TransportReceiver instanceReceiver;
-        private IManageSubscriptions subscriptionManager;
+        private ISubscriptionManager subscriptionManager;
     }
 }

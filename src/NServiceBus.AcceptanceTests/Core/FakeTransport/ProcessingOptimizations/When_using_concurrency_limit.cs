@@ -64,7 +64,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 return Task.FromResult(0);
             }
 
-            public IManageSubscriptions Subscriptions { get; }
+            public ISubscriptionManager Subscriptions { get; }
 
             public string Id => receveSettings.Id;
 

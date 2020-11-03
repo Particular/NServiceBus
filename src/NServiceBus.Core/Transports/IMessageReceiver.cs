@@ -23,7 +23,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        IManageSubscriptions Subscriptions { get; }
+        ISubscriptionManager Subscriptions { get; }
 
         /// <summary>
         /// 
