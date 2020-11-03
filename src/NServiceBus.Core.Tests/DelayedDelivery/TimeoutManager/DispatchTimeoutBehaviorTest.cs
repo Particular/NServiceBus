@@ -136,7 +136,7 @@
             return new MessageContext(messageId, headers, new byte[0], new TransportTransaction(), new CancellationTokenSource(), new ContextBag());
         }
 
-        class FakeMessageDispatcher : IDispatchMessages
+        class FakeMessageDispatcher : IMessageDispatcher
         {
             public TransportOperations OutgoingTransportOperations { get; private set; } = new TransportOperations();
             public TransportTransaction TransportTransactionUsed { get; private set; }
@@ -149,7 +149,7 @@
             }
         }
 
-        class FailingMessageDispatcher : IDispatchMessages
+        class FailingMessageDispatcher : IMessageDispatcher
         {
             public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, CancellationToken cancellationToken)
             {

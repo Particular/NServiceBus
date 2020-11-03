@@ -10,7 +10,7 @@
     using Logging;
     using Transport;
 
-    class LearningTransportMessagePump : IPushMessages
+    class LearningTransportMessagePump : IMessageReceiver
     {
         public LearningTransportMessagePump(
             string id,
@@ -48,7 +48,7 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
+        public Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -72,7 +72,7 @@
             return Task.CompletedTask;
         }
 
-        public async Task Stop(CancellationToken cancellationToken)
+        public async Task StopReceive(CancellationToken cancellationToken)
         {
             cancellationTokenSource.Cancel();
 

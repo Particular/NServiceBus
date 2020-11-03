@@ -78,7 +78,7 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             int? numberOfTimes;
 

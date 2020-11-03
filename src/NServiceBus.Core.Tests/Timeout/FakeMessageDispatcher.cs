@@ -6,7 +6,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using Extensibility;
     using Transport;
 
-    public class FakeMessageDispatcher : IDispatchMessages
+    public class FakeMessageDispatcher : IMessageDispatcher
     {
         public int MessagesSent
         {

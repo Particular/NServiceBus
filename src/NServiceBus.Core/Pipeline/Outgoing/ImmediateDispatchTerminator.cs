@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class ImmediateDispatchTerminator : PipelineTerminator<IDispatchContext>
     {
-        public ImmediateDispatchTerminator(IDispatchMessages dispatcher)
+        public ImmediateDispatchTerminator(IMessageDispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
         }
@@ -23,6 +23,6 @@ namespace NServiceBus
             return dispatcher.Dispatch(new TransportOperations(operations), transaction, CancellationToken.None);
         }
 
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
     }
 }

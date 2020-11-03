@@ -13,7 +13,7 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Transport;
 
-    class LearningTransportDispatcher : IDispatchMessages
+    class LearningTransportDispatcher : IMessageDispatcher
     {
         public LearningTransportDispatcher(string basePath, int maxMessageSizeKB)
         {

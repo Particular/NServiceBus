@@ -269,7 +269,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         {
         }
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 

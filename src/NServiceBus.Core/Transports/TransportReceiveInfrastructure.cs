@@ -15,7 +15,7 @@ namespace NServiceBus.Transport
         /// <param name="preStartupCheck">Callback to perform checks before the transport starts receiving messages.</param>
         /// </summary>
         public TransportReceiveInfrastructure(
-            Func<IPushMessages> messagePumpFactory,
+            Func<IMessageReceiver> messagePumpFactory,
             Func<ICreateQueues> queueCreatorFactory,
             Func<Task<StartupCheckResult>> preStartupCheck)
         {
@@ -31,7 +31,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Factory for creating a message pump for each queue to be consumed from.
         /// </summary>
-        public Func<IPushMessages> MessagePumpFactory { get; }
+        public Func<IMessageReceiver> MessagePumpFactory { get; }
 
         /// <summary>
         /// Factory for the queue creator.

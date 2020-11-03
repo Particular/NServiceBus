@@ -73,7 +73,7 @@ namespace NServiceBus.TransportTests
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            MessagePump?.Stop(CancellationToken.None).GetAwaiter().GetResult();
+            MessagePump?.StopReceive(CancellationToken.None).GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
@@ -111,7 +111,7 @@ namespace NServiceBus.TransportTests
 
             MessagePump = TransportInfrastructure.Receivers[0];
 
-            await MessagePump.Start(configuration.PushRuntimeSettings,
+            await MessagePump.StartReceive(configuration.PushRuntimeSettings,
                 context =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
@@ -222,7 +222,7 @@ namespace NServiceBus.TransportTests
 
         TransportDefinition TransportDefinition;
         TransportInfrastructure TransportInfrastructure;
-        IPushMessages MessagePump;
+        IMessageReceiver MessagePump;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
 

@@ -13,7 +13,7 @@ namespace NServiceBus
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher, string timeoutManagerAddress = null)
+        public DelayedRetryExecutor(string endpointInputQueue, IMessageDispatcher dispatcher, string timeoutManagerAddress = null)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
             this.dispatcher = dispatcher;
@@ -44,7 +44,7 @@ namespace NServiceBus
             return currentDelayedRetriesAttempt;
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         string endpointInputQueue;
         string timeoutManagerAddress;
     }

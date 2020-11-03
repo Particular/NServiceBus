@@ -30,8 +30,8 @@
                 $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
                 $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",
                 //$"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StartReceive)}",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StopReceive)}",
             }, context.StartUpSequence);
         }
 

@@ -67,7 +67,7 @@ namespace NServiceBus.Core.Tests.Transports
         Pump pump;
         TransportReceiver receiver;
 
-        class Pump : IPushMessages, IDisposable
+        class Pump : IMessageReceiver, IDisposable
         {
             public bool ThrowOnStart { private get; set; }
             public bool ThrowOnStop { private get; set; }
@@ -77,7 +77,7 @@ namespace NServiceBus.Core.Tests.Transports
             public bool Disposed { get; private set; }
 
 
-            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
+            public Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
             {
                 if (ThrowOnStart)
                 {
@@ -89,7 +89,7 @@ namespace NServiceBus.Core.Tests.Transports
                 return Task.CompletedTask;
             }
 
-            public Task Stop(CancellationToken cancellationToken)
+            public Task StopReceive(CancellationToken cancellationToken)
             {
                 if (ThrowOnStop)
                 {

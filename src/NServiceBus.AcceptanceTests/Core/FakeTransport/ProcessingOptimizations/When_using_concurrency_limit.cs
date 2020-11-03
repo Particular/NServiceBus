@@ -39,7 +39,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             }
         }
 
-        class FakeReceiver : IPushMessages
+        class FakeReceiver : IMessageReceiver
         {
             private readonly ReceiveSettings receveSettings;
 
@@ -48,7 +48,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 this.receveSettings = receveSettings;
             }
 
-            public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
+            public Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (receveSettings.ReceiveAddress == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
@@ -59,7 +59,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                 return Task.CompletedTask;
             }
 
-            public Task Stop(CancellationToken cancellationToken)
+            public Task StopReceive(CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }
@@ -70,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         }
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
@@ -106,11 +106,12 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
         {
             public FakeTransportInfrastructure(ReceiveSettings[] receiveSettingses)
             {
-                Receivers = receiveSettingses.Select(s => new FakeReceiver(s, s.Id)).ToArray();
+                Receivers = receiveSettingses.Select<ReceiveSettings, IMessageReceiver>(s => new FakeReceiver(s, s.Id))
+                    .ToList().AsReadOnly();
             }
 
-            public override IDispatchMessages Dispatcher => new FakeDispatcher();
-            public override IPushMessages[] Receivers { get; protected set; }
+            public override IMessageDispatcher Dispatcher => new FakeDispatcher();
+            public override ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
 
             public override ValueTask DisposeAsync()
             {

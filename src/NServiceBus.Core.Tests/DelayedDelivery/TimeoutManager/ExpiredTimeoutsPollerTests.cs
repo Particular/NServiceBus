@@ -134,7 +134,7 @@
             }
         }
 
-        class FailableDispatcher : IDispatchMessages
+        class FailableDispatcher : IMessageDispatcher
         {
             public Func<TransportOperations, Task> DispatcherAction { get; set; }
 

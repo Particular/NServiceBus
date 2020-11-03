@@ -47,7 +47,7 @@
             }
         }
 
-        public Task<IPushMessages> CreateReceiver(ReceiveSettings receiveSettings)
+        public Task<IMessageReceiver> CreateReceiver(ReceiveSettings receiveSettings)
         {
             var errorQueueAddress = receiveSettings.ErrorQueue;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
@@ -66,7 +66,7 @@
 
             var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings);
 
-            return Task.FromResult<IPushMessages>(pump);
+            return Task.FromResult<IMessageReceiver>(pump);
         }
 
         public void ConfigureSendInfrastructure()
@@ -76,7 +76,7 @@
 
         public async Task ConfigureReceiveInfrastructure()
         {
-            var pumps = new List<IPushMessages>();
+            var pumps = new List<IMessageReceiver>();
 
             foreach (var receiveSetting in receiveSettings)
             {

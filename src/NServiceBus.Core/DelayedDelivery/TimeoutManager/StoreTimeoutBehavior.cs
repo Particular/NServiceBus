@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class StoreTimeoutBehavior
     {
-        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IDispatchMessages dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
+        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IMessageDispatcher dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
         {
             this.poller = poller;
             this.dispatcher = dispatcher;
@@ -80,7 +80,7 @@ namespace NServiceBus
             return context.Headers.TryGetValue(Headers.ReplyToAddress, out var replyToAddress) ? replyToAddress : null;
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         string owningTimeoutManager;
         IPersistTimeouts persister;
 

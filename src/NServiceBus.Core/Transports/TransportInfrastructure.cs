@@ -19,11 +19,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public virtual IDispatchMessages Dispatcher { get; protected set; }
+        public virtual IMessageDispatcher Dispatcher { get; protected set; }
 
         /// <summary>
         /// </summary>
-        public virtual ReadOnlyCollection<IPushMessages> Receivers { get; protected set; }
+        public virtual ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
 
         /// <summary>
         /// 
@@ -38,7 +38,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// 
         /// </summary>
-        public IPushMessages GetReceiver(string receiverId)
+        public IMessageReceiver GetReceiver(string receiverId)
         {
             return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }

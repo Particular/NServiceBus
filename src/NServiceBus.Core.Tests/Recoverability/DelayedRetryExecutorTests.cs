@@ -127,7 +127,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         const string TimeoutManagerAddress = "timeout handling endpoint";
         const string EndpointInputQueue = "endpoint input queue";
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 

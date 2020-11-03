@@ -89,7 +89,7 @@ namespace NServiceBus.Core.Tests.Routing
         SubscriptionRouter router;
         MessageDrivenSubscribeTerminator subscribeTerminator;
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public int FailedNumberOfTimes { get; private set; }
 

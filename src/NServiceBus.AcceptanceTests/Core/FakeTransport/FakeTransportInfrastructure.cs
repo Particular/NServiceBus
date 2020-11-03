@@ -15,7 +15,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         {
             Dispatcher = new FakeDispatcher();
             Receivers = receiveSettingses
-                .Select(s => new FakeReceiver(fakeTransportSettings, settings.CriticalErrorAction, s.Id)).ToArray();
+                .Select<ReceiveSettings, IMessageReceiver>(s => new FakeReceiver(fakeTransportSettings, settings.CriticalErrorAction, s.Id)).ToList().AsReadOnly();
         }
 
         public override ValueTask DisposeAsync()

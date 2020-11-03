@@ -10,7 +10,7 @@ namespace NServiceBus
     class TransportReceiver
     {
         public TransportReceiver(
-            IPushMessages receiver,
+            IMessageReceiver receiver,
             PushRuntimeSettings pushRuntimeSettings)
         {
             this.pushRuntimeSettings = pushRuntimeSettings;
@@ -26,7 +26,7 @@ namespace NServiceBus
 
             Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
-            await receiver.Start(pushRuntimeSettings, onMessage, onError, CancellationToken.None).ConfigureAwait(false);
+            await receiver.StartReceive(pushRuntimeSettings, onMessage, onError, CancellationToken.None).ConfigureAwait(false);
 
             isStarted = true;
         }
@@ -40,7 +40,7 @@ namespace NServiceBus
 
             try
             {
-                await receiver.Stop(CancellationToken.None).ConfigureAwait(false);
+                await receiver.StopReceive(CancellationToken.None).ConfigureAwait(false);
                 (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)
@@ -57,7 +57,7 @@ namespace NServiceBus
         PushRuntimeSettings pushRuntimeSettings;
 
         //hack: make this accessible more easily for now so we can access the subscription storage
-        internal IPushMessages receiver;
+        internal IMessageReceiver receiver;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }

@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class DispatchTimeoutBehavior
     {
-        public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
+        public DispatchTimeoutBehavior(IMessageDispatcher dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
         {
             this.dispatcher = dispatcher;
             this.persister = persister;
@@ -54,7 +54,7 @@ namespace NServiceBus
 
         readonly DispatchConsistency dispatchConsistency;
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         IPersistTimeouts persister;
     }
 }

@@ -140,7 +140,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         Dictionary<string, string> staticFaultMetadata;
         const string ErrorQueueAddress = "errorQ";
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 

@@ -39,20 +39,20 @@ namespace NServiceBus
             //satelliteReceiver = await transportInfrastructure.CreateReceiver().ConfigureAwait(false);
         }
 
-        public Task Start(IPushMessages satelliteReceiver, IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
+        public Task Start(IMessageReceiver satelliteReceiver, IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
         {
             this.satelliteReceiver = satelliteReceiver;
 
             var satellitePipeline = new SatellitePipelineExecutor(builder, this);
             var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(RecoverabilityPolicy, ReceiveAddress);
-            return satelliteReceiver.Start(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke, CancellationToken.None);
+            return satelliteReceiver.StartReceive(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke, CancellationToken.None);
         }
 
         public Task Stop()
         {
-            return satelliteReceiver.Stop(CancellationToken.None);
+            return satelliteReceiver.StopReceive(CancellationToken.None);
         }
 
-        private IPushMessages satelliteReceiver;
+        private IMessageReceiver satelliteReceiver;
     }
 }

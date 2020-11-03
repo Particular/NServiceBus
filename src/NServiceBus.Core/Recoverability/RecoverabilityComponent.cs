@@ -90,7 +90,7 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.GetRequiredService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
@@ -99,7 +99,7 @@
                 {
                     return new DelayedRetryExecutor(
                         localAddress,
-                        builder.GetRequiredService<IDispatchMessages>());
+                        builder.GetRequiredService<IMessageDispatcher>());
                 }
 
                 return null;

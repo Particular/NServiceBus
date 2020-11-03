@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IDispatchMessages dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
         {
             this.dispatcher = dispatcher;
             this.staticFaultMetadata = staticFaultMetadata;
@@ -42,7 +42,7 @@ namespace NServiceBus
             return dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None);
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
         Action<Dictionary<string, string>> headerCustomizations;
     }

@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
     using Extensibility;
     using Transport;
 
-    class FakeDispatcher : IDispatchMessages
+    class FakeDispatcher : IMessageDispatcher
     {
         public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
         {

@@ -14,7 +14,7 @@ namespace NServiceBus
 
     class ExpiredTimeoutsPoller : IDisposable
     {
-        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IDispatchMessages dispatcher, string dispatcherAddress, ICircuitBreaker circuitBreaker, Func<DateTime> currentTimeProvider)
+        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IMessageDispatcher dispatcher, string dispatcherAddress, ICircuitBreaker circuitBreaker, Func<DateTime> currentTimeProvider)
         {
             this.timeoutsFetcher = timeoutsFetcher;
             this.dispatcher = dispatcher;
@@ -139,7 +139,7 @@ namespace NServiceBus
 
         ICircuitBreaker circuitBreaker;
         Func<DateTime> currentTimeProvider;
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         string dispatcherAddress;
         object lockObject = new object();
         DateTime startSlice;

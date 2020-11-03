@@ -8,19 +8,17 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Allows the transport to push messages to the core.
     /// </summary>
-    public interface IPushMessages
+    public interface IMessageReceiver
     {
-       ////TODO rename to StartReceive & StopReceive
-       
        /// <summary>
         /// Starts pushing messages.
         /// </summary>
-        Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken = default);
+        Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stops pushing messages.
         /// </summary>
-        Task Stop(CancellationToken cancellationToken = default);
+        Task StopReceive(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 

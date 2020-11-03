@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
     using System.Threading.Tasks;
     using Transport;
 
-    class FakeReceiver : IPushMessages
+    class FakeReceiver : IMessageReceiver
     {
         public FakeReceiver(FakeTransport settings, Action<string, Exception> criticalErrorAction, string id)
         {
@@ -16,9 +16,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
 
-        public Task Start(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
+        public Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
         {
-            settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Start)}");
+            settings.StartUpSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StartReceive)}");
 
             if (settings.RaiseCriticalErrorDuringStartup)
             {
@@ -28,9 +28,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             return Task.CompletedTask;
         }
 
-        public async Task Stop(CancellationToken cancellationToken)
+        public async Task StopReceive(CancellationToken cancellationToken)
         {
-            settings.StartUpSequence.Add($"{nameof(IPushMessages)}.{nameof(Stop)}");
+            settings.StartUpSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StopReceive)}");
 
             await Task.Yield();
 

@@ -7,7 +7,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
     using Extensibility;
     using Transport;
 
-    public class RecordingFakeDispatcher : IDispatchMessages
+    public class RecordingFakeDispatcher : IMessageDispatcher
     {
         public class DispatchedMessage
         {
