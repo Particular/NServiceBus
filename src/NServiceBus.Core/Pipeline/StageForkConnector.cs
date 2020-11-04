@@ -23,8 +23,12 @@ namespace NServiceBus.Pipeline
             return Invoke(context, next, ctx => ctx.InvokePipeline());
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        /// <summary>
+        /// Called when the stage fork connector is executed.
+        /// </summary>
+        /// <param name="context">The current context.</param>
+        /// <param name="stage">The next <see cref="!:IBehavior{TToContext}" /> in the chain to stage and execute.</param>
+        /// <param name="fork">The next <see cref="!:IBehavior{TForkContext}" /> in the chain to fork and execute.</param>
         public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }
