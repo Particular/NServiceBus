@@ -27,8 +27,8 @@ namespace NServiceBus.Pipeline
         /// Called when the stage fork connector is executed.
         /// </summary>
         /// <param name="context">The current context.</param>
-        /// <param name="stage">The next <see cref="!:IBehavior{TToContext}" /> in the chain to stage and execute.</param>
-        /// <param name="fork">The next <see cref="!:IBehavior{TForkContext}" /> in the chain to fork and execute.</param>
+        /// <param name="stage">The next <see cref="IBehavior{TToContext,TToContext}" /> in the chain to stage and execute.</param>
+        /// <param name="fork">The next <see cref="IBehavior{TForkContext,TForkContext}" /> in the chain to fork and execute.</param>
         public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
     }
 }
