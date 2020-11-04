@@ -13,7 +13,7 @@
         {
             Requires.DelayedDelivery();
 
-            var delay = TimeSpan.FromSeconds(20); // High value needed as most transports have multi second delay latency by default/
+            var delay = TimeSpan.FromSeconds(5); // High value needed as most transports have multi second delay latency by default
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
