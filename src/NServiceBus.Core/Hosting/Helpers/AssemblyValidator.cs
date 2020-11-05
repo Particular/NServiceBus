@@ -111,6 +111,7 @@
                 case "cc7b13ffcd2ddd51":
                 case "adb9793829ddae60":
                 case "7e34167dcc6d6d8c": // Microsoft.Azure.ServiceBus
+                case "23ec7fc2d6eaa4a5": // Microsoft.Data.SqlClient
                     return true;
                 default:
                     return false;
