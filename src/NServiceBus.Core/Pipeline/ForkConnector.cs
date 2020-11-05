@@ -12,9 +12,13 @@
         where TFromContext : IBehaviorContext
         where TForkContext : IBehaviorContext
     {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        /// <summary>
+        /// Called when the fork connector is executed.
+        /// </summary>
+        /// <param name="context">The current context.</param>
+        /// <param name="next">The next <see cref="IBehavior{TFromContext,TFromContext}" /> in the chain to execute.</param>
+        /// <param name="fork">The next <see cref="IBehavior{TForkContext,TForkContext}" /> in the chain to fork and execute.</param>
         public abstract Task Invoke(TFromContext context, Func<Task> next, Func<TForkContext, Task> fork);
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <inheritdoc />
         public sealed override Task Invoke(TFromContext context, Func<Task> next)
