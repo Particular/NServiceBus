@@ -161,7 +161,6 @@ namespace NServiceBus.AcceptanceTesting
 
             public IContainSagaData GetSagaCopy()
             {
-                // ReSharper disable once ConvertClosureToMethodGroup, no allocations are needed!
                 var canBeShallowCopied = canBeShallowCopiedCache.GetOrAdd(data.GetType(), type => CanBeShallowCopied(type));
                 return canBeShallowCopied ? shallowCopy(data) : DeepCopy(data);
             }
