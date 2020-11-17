@@ -8,6 +8,9 @@
 
         public bool SupportsCrossQueueTransactions => true;
 
+        // Disable native pub-sub for tests that require message-driven pub-sub. The tests in the "Core"
+        // folder are not shipped to downstreams and therefore are only executed on this test project and
+        // "NServiceBus.Learning.AcceptanceTests" (which is running the tests using native pub-sub).
         public bool SupportsNativePubSub => false;
 
         public bool SupportsDelayedDelivery => false;
