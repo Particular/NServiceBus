@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" PrivateAssets="All" />
