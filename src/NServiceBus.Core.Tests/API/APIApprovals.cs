@@ -11,7 +11,7 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void ApproveNServiceBus()
         {
-            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly);
+            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new []{ "System.Reflection.AssemblyMetadataAttribute" });
             TestApprover.Verify(publicApi);
         }
     }
