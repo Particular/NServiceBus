@@ -11,7 +11,7 @@
         [Test]
         public void ApproveNServiceBus()
         {
-            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute" });
+            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute", "System.Reflection.AssemblyMetadataAttribute" });
             Approver.Verify(publicApi, scenario: "netframework");
         }
 #endif
@@ -20,7 +20,7 @@
         [Test]
         public void ApproveNServiceBus()
         {
-            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute" });
+            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute", "System.Reflection.AssemblyMetadataAttribute" });
             Approver.Verify(publicApi, scenario: "netstandard");
         }
 #endif
