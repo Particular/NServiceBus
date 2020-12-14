@@ -16,6 +16,11 @@
 
         public Task Start(IServiceProvider builder, IMessageSession messageSession)
         {
+            if (Log.IsDebugEnabled)
+            {
+                Log.Debug($"Starting {nameof(FeatureStartupTask)} '{Name}'.");
+            }
+
             instance = factory(builder);
             return instance.PerformStartup(messageSession);
         }
