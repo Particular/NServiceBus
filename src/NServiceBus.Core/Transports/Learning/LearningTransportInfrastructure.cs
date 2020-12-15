@@ -1,45 +1,32 @@
-﻿namespace NServiceBus
+﻿using System.Collections.Generic;
+using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using Performance.TimeToBeReceived;
-    using Routing;
     using Settings;
     using Transport;
 
     class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public LearningTransportInfrastructure(SettingsHolder settings)
+        public LearningTransportInfrastructure(HostSettings settings, LearningTransport transport, ReceiveSettings[] receivers)
         {
             this.settings = settings;
-            if (!settings.TryGet(StorageLocationKey, out storagePath))
+            this.transport = transport;
+
+            if (string.IsNullOrWhiteSpace(storagePath = transport.StorageDirectory))
             {
                 storagePath = FindStoragePath();
             }
 
-            if (settings.TryGet<ReceiveComponent.Settings>(out var receiveSettings))
-            {
-                receiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
-            }
+            ////TODO: pass push runtime settings as part of the settings but provide information whether it is a core default value or a user provided value.
+            ////settings.ReceiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
 
-            var errorQueueAddress = settings.ErrorQueueAddress();
-            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+            this.receivers = receivers;
         }
-
-        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
-        {
-            typeof(DiscardIfNotReceivedBefore),
-            typeof(DelayDeliveryWith),
-            typeof(DoNotDeliverBefore)
-        };
-
-        public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
-
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
 
         static string FindStoragePath()
         {
@@ -72,65 +59,53 @@
             }
         }
 
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
+        public async Task ConfigureReceiveInfrastructure()
         {
-            return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
-        }
+            var pumps = new List<IMessageReceiver>();
 
-        public override TransportSendInfrastructure ConfigureSendInfrastructure()
-        {
-            var maxPayloadSize = settings.GetOrDefault<bool>(NoPayloadSizeRestrictionKey) ? int.MaxValue / 1024 : 64; //64 kB is the max size of the ASQ transport
-
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
-        }
-
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
-        {
-            return new TransportSubscriptionInfrastructure(() =>
+            foreach (var receiver in receivers)
             {
-                var endpointName = settings.EndpointName();
-                PathChecker.ThrowForBadPath(endpointName, "endpoint name");
-
-                var localAddress = settings.LocalAddress();
-                PathChecker.ThrowForBadPath(localAddress, "localAddress");
-
-                return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
-            });
-        }
-
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance;
-
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
-        {
-            var address = logicalAddress.EndpointInstance.Endpoint;
-            PathChecker.ThrowForBadPath(address, "endpoint name");
-
-            var discriminator = logicalAddress.EndpointInstance.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                address += "-" + discriminator;
+                pumps.Add(await CreateReceiver(receiver).ConfigureAwait(false));
             }
 
-            var qualifier = logicalAddress.Qualifier;
+            Receivers = Array.AsReadOnly(pumps.ToArray());
+        }
 
-            if (!string.IsNullOrEmpty(qualifier))
+        public Task<IMessageReceiver> CreateReceiver(ReceiveSettings receiveSettings)
+        {
+            var errorQueueAddress = receiveSettings.ErrorQueue;
+            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+
+            PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
+
+            ISubscriptionManager subscriptionManager = null;
+            if (receiveSettings.UsePublishSubscribe)
             {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
-                address += "-" + qualifier;
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
+            return Task.FromResult<IMessageReceiver>(pump);
+        }
 
-            return address;
+        public void ConfigureSendInfrastructure()
+        {
+            var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
+
+            Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
         }
 
         string storagePath;
-        SettingsHolder settings;
+        HostSettings settings;
+        ReceiveSettings[] receivers;
+        LearningTransport transport;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
         public const string StorageLocationKey = "LearningTransport.StoragePath";
         public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
+
+        public override Task DisposeAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

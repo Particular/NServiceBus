@@ -1,3 +1,6 @@
+using System.Threading;
+using NServiceBus.Transports;
+
 namespace NServiceBus
 {
     using System;
@@ -8,11 +11,10 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
-    using Extensibility;
     using Performance.TimeToBeReceived;
     using Transport;
 
-    class LearningTransportDispatcher : IDispatchMessages
+    class LearningTransportDispatcher : IMessageDispatcher
     {
         public LearningTransportDispatcher(string basePath, int maxMessageSizeKB)
         {
@@ -25,7 +27,7 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             return Task.WhenAll(
                 DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction),

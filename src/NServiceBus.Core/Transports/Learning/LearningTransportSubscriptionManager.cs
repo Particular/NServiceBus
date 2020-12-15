@@ -1,12 +1,15 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+using NServiceBus.Transports;
+using NServiceBus.Unicast.Messages;
+
+namespace NServiceBus
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
     using Extensibility;
-    using Transport;
 
-    class LearningTransportSubscriptionManager : IManageSubscriptions
+    class LearningTransportSubscriptionManager : ISubscriptionManager
     {
         public LearningTransportSubscriptionManager(string basePath, string endpointName, string localAddress)
         {
@@ -15,9 +18,9 @@
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public async Task Subscribe(Type eventType, ContextBag context)
+        public async Task Subscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
         {
-            var eventDir = GetEventDirectory(eventType);
+            var eventDir = GetEventDirectory(eventType.MessageType);
 
             // the subscription directory and the subscription information will be created no matter if there's a publisher for the event assuming that the publisher haven’t started yet
             Directory.CreateDirectory(eventDir);
@@ -50,9 +53,9 @@
             }
         }
 
-        public async Task Unsubscribe(Type eventType, ContextBag context)
+        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
         {
-            var eventDir = GetEventDirectory(eventType);
+            var eventDir = GetEventDirectory(eventType.MessageType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
 
             var attempts = 0;
