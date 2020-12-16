@@ -183,7 +183,7 @@
         internal static readonly DiagnosticDescriptor MustImplementDiagnostic = new DiagnosticDescriptor(
             id: "NSB0002",
             title: "Must implement handler method",
-            messageFormat: "Must create a {0} or {0}Async method on classes implementing {1}<T>.",
+            messageFormat: "Must create a {0} or {0}Async method on classes implementing {1}.",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true,
