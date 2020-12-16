@@ -155,6 +155,35 @@ public class MyData : ContainSagaData {}";
             await VerifyFix(test, fixTest, allowNewCompilerDiagnostics: true);
         }
 
+        [Test]
+        public async Task SagaTimeout()
+        {
+            string test =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
+public class MySaga : Saga<MyData>, IHandleTimeouts<Message>
+{
+}
+
+public class MyData : ContainSagaData {}";
+
+            string fixTest =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
+public class MySaga : Saga<MyData>, IHandleTimeouts<Message>
+{
+    public async Task Timeout(Message message, IMessageHandlerContext context)
+    {
+    }
+}
+
+public class MyData : ContainSagaData {}";
+
+            await VerifyFix(test, fixTest, allowNewCompilerDiagnostics: true);
+        }
+
         protected override DiagnosticAnalyzer GetAnalyzer() => new MustImplementIHandleMessagesAnalyzer();
 
         protected override CodeFixProvider GetCodeFixProvider() => new ImplementIHandleMessagesFixer();

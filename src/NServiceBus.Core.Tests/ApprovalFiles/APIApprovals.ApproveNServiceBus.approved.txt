@@ -455,10 +455,7 @@ namespace NServiceBus
     }
     public interface IEvent : NServiceBus.IMessage { }
     public interface IHandleMessages<T> { }
-    public interface IHandleTimeouts<T>
-    {
-        System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
-    }
+    public interface IHandleTimeouts<T> { }
     public interface IMessage { }
     public interface IMessageConvention
     {

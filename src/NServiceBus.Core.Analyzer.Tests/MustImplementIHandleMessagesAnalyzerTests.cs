@@ -109,6 +109,29 @@ public class MsgType2 : ICommand {}
         }
 
         [Test]
+        public Task SagaMissingTimeout()
+        {
+            var source =
+@"using NServiceBus;
+using System.Threading.Tasks;
+public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType>, IHandleTimeouts<MsgType2>
+{
+    public Task Handle(MsgType message, IMessageHandlerContext context)
+    {
+        return Task.CompletedTask;
+    }
+}
+
+public class MsgType : ICommand {}
+public class MsgType2 : ICommand {}
+";
+
+            var expected = NotImplementedAt(3, 66);
+
+            return Verify(source, expected);
+        }
+
+        [Test]
         public Task SagaMissingIAmStartedBy()
         {
             var source =
@@ -225,11 +248,6 @@ public class MsgType : ICommand {}
 
 
 
-
-
-
-
-
         DiagnosticResult NotImplementedAt(int line, int character)
         {
             return new DiagnosticResult
@@ -339,8 +357,23 @@ public class MsgType2 : ICommand {}
 ", Description = "Implements 2 message handlers")]
 
         [TestCase(@"
+using NotNSB;
+public class Foo : IHandleMessages<MsgType1>, IHandleMessages<MsgType2>
+{
+}
+
+public class MsgType1 : ICommand {}
+public class MsgType2 : ICommand {}
+
+namespace NotNSB
+{
+    public interface IHandleMessages<T> {}
+}
+", Description = "Not NServiceBus IHandle")]
+
+        [TestCase(@"
 using NServiceBus;
-public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType1>, IHandleMessages<MsgType2>
+public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType1>, IHandleMessages<MsgType2>, IHandleTimeouts<MsgType3>
 {
     public Task Handle(MsgType1 message, IMessageHandlerContext context)
     {
@@ -351,11 +384,17 @@ public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType1>, IHandleMessage
     {
         return Task.CompletedTask;
     }
+
+    public Task Timeout(MsgType3 message, IMessageHandlerContext context)
+    {
+        return Task.CompletedTask;
+    }
 }
 
 public class FooData : ContainSagaData {}
 public class MsgType1 : ICommand {}
 public class MsgType2 : ICommand {}
+public class MsgType3 : ICommand {}
 ", Description = "Valid Saga example")]
         public Task NoDiagnosticIsReported(string source) => Verify(source);
 

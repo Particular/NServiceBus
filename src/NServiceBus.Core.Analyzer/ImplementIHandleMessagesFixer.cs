@@ -37,6 +37,7 @@
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
             var diagnostic = context.Diagnostics.First();
+            var methodName = diagnostic.Properties["FixerMethodName"];
             var messageType = diagnostic.Properties["MessageType"];
             var sourceLocation = diagnostic.Location;
             var diagnosticSpan = sourceLocation.SourceSpan;
@@ -50,10 +51,10 @@
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
               CodeAction.Create(title, c =>
-              ImplementIHandleMessages(context.Document, classDeclaration, messageType, c), equivalenceKey: title), diagnostic);
+              ImplementIHandleMessages(context.Document, classDeclaration, methodName, messageType, c), equivalenceKey: title), diagnostic);
         }
 
-        private async Task<Document> ImplementIHandleMessages(Document document, ClassDeclarationSyntax classDeclaration, string messageType, CancellationToken cancellationToken)
+        private async Task<Document> ImplementIHandleMessages(Document document, ClassDeclarationSyntax classDeclaration, string methodName, string messageType, CancellationToken cancellationToken)
         {
             var parameterList = new SeparatedSyntaxList<ParameterSyntax>()
                 .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("message")).WithType(SyntaxFactory.ParseTypeName(messageType)))
@@ -64,7 +65,7 @@
                 parameterList = parameterList.Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("cancellationToken")).WithType(SyntaxFactory.ParseTypeName("CancellationToken")));
             }
 
-            var newMethodDeclaration = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName("Task"), "Handle")
+            var newMethodDeclaration = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName("Task"), methodName)
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.AsyncKeyword))
                 .WithParameterList(SyntaxFactory.ParameterList(parameterList))
                 .WithBody(SyntaxFactory.Block())

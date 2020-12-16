@@ -56,6 +56,6 @@
             return invocation(Instance, message, handlerContext, cancellationToken);
         }
 
-        Func<object, object, IMessageHandlerContext, CancellationToken, Task> invocation;
+        readonly Func<object, object, IMessageHandlerContext, CancellationToken, Task> invocation;
     }
 }
