@@ -41,6 +41,7 @@
             var test =
 @"using NServiceBus;
 using System.Threading.Tasks;
+
 public class Foo : IHandleMessages<MsgType>
 {
 }
@@ -51,6 +52,7 @@ public class MsgType : ICommand {}
             string fixedTest =
 @"using NServiceBus;
 using System.Threading.Tasks;
+
 public class Foo : IHandleMessages<MsgType>
 {
     public async Task Handle(MsgType message, IMessageHandlerContext context)
@@ -66,7 +68,10 @@ public class MsgType : ICommand {}
         [Test]
         public async Task KeepExistingMethods()
         {
-            string test = @"
+            string test =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
 public class C : IHandleMessages<Message>
 {
     private void Foo() {}
@@ -74,7 +79,10 @@ public class C : IHandleMessages<Message>
     private void Bar() {}
 }";
 
-            string fixTest = @"
+            string fixTest =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
 public class C : IHandleMessages<Message>
 {
     private void Foo() {}
@@ -92,14 +100,20 @@ public class C : IHandleMessages<Message>
         [Test]
         public async Task SagaIHandle()
         {
-            string test = @"
+            string test =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
 public class MySaga : Saga<MyData>, IHandleMessages<Message>
 {
 }
 
 public class MyData : ContainSagaData {}";
 
-            string fixTest = @"
+            string fixTest =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
 public class MySaga : Saga<MyData>, IHandleMessages<Message>
 {
     public async Task Handle(Message message, IMessageHandlerContext context)
@@ -115,14 +129,20 @@ public class MyData : ContainSagaData {}";
         [Test]
         public async Task SagaIAmStarted()
         {
-            string test = @"
+            string test =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Message>
 {
 }
 
 public class MyData : ContainSagaData {}";
 
-            string fixTest = @"
+            string fixTest =
+@"using NServiceBus;
+using System.Threading.Tasks;
+
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Message>
 {
     public async Task Handle(Message message, IMessageHandlerContext context)

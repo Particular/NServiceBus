@@ -43,7 +43,7 @@
             {
                 if (childNode is BaseTypeSyntax baseTypeSyntax)
                 {
-                    if (BaseTypeIsHandlerSignature(baseTypeSyntax, out var messageIdentifier))
+                    if (BaseTypeIsHandlerSignature(context, baseTypeSyntax, out var messageIdentifier))
                     {
                         if (!HasImplementationDefined(context, classDeclaration, messageIdentifier))
                         {
@@ -57,40 +57,34 @@
             }
         }
 
-        private static bool BaseTypeIsHandlerSignature(BaseTypeSyntax baseTypeSyntax, out string messageIdentifier)
+        private static bool BaseTypeIsHandlerSignature(SyntaxNodeAnalysisContext context, BaseTypeSyntax baseTypeSyntax, out string messageIdentifier)
         {
             messageIdentifier = null;
 
-            var namePart = baseTypeSyntax.GetFirstToken();
-            if (namePart == null)
+            var interfaceGenericNameSyntax = baseTypeSyntax.ChildNodes().OfType<GenericNameSyntax>().FirstOrDefault();
+            if (interfaceGenericNameSyntax == null)
             {
                 return false;
             }
 
-            if (namePart.Text != "IHandleMessages" && namePart.Text != "IAmStartedByMessages")
+            var simpleName = interfaceGenericNameSyntax.Identifier.ValueText;
+            if (simpleName != "IHandleMessages" && simpleName != "IAmStartedByMessages")
             {
                 return false;
             }
 
-            var lessThanToken = namePart.GetNextToken();
-            if (lessThanToken == null || lessThanToken.Text != "<")
+            var symbolInfo = context.SemanticModel.GetSymbolInfo(interfaceGenericNameSyntax);
+            if (!(symbolInfo.Symbol is INamedTypeSymbol type))
             {
                 return false;
             }
 
-            var tClassToken = lessThanToken.GetNextToken();
-            if (tClassToken == null)
-            {
-                return false;
-            }
-            messageIdentifier = tClassToken.Text;
-
-            var gtToken = tClassToken.GetNextToken();
-            if (gtToken == null || gtToken.Text != ">")
+            if (type.ContainingNamespace.Name != "NServiceBus" || type.ContainingModule.Name != "NServiceBus.Core.dll")
             {
                 return false;
             }
 
+            messageIdentifier = type.TypeArguments[0].Name;
             return true;
         }
 
