@@ -21,6 +21,17 @@
         }
 
         /// <summary>
+        /// Creates a new instance of the message handler with predefined invocation delegate and handler type.
+        /// </summary>
+        /// <param name="invocation">The invocation with context delegate.</param>
+        /// <param name="handlerType">The handler type.</param>
+        [ObsoleteEx(Message = "Use method overload that includes CancellationToken", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+        public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// The actual instance, can be a saga, a timeout or just a plain handler.
         /// </summary>
         public object Instance { get; set; }
@@ -38,7 +49,7 @@
         /// <param name="message">the message to pass to the handler.</param>
         /// <param name="handlerContext">the context to pass to the handler.</param>
         /// <param name="cancellationToken">A cancellation token to pass to the handler.</param>
-        public Task Invoke(object message, IMessageHandlerContext handlerContext, CancellationToken cancellationToken = default(CancellationToken))
+        public Task Invoke(object message, IMessageHandlerContext handlerContext, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(handlerContext), handlerContext);

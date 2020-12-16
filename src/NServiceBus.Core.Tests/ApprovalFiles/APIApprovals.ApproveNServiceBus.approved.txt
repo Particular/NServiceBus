@@ -454,10 +454,7 @@ namespace NServiceBus
         System.Threading.Tasks.Task Stop();
     }
     public interface IEvent : NServiceBus.IMessage { }
-    public interface IHandleMessages<T>
-    {
-        System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
-    }
+    public interface IHandleMessages<T> { }
     public interface IHandleTimeouts<T>
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
@@ -1860,10 +1857,13 @@ namespace NServiceBus.Pipeline
     }
     public class MessageHandler
     {
+        [System.Obsolete("Use method overload that includes CancellationToken. The member currently throws " +
+            "a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
+        public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
         public System.Type HandlerType { get; }
         public object Instance { get; set; }
-        public System.Threading.Tasks.Task Invoke(object message, NServiceBus.IMessageHandlerContext handlerContext) { }
+        public System.Threading.Tasks.Task Invoke(object message, NServiceBus.IMessageHandlerContext handlerContext, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class OutgoingLogicalMessage
     {
