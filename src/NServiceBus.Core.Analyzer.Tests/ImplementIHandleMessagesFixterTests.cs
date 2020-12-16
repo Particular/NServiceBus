@@ -89,6 +89,52 @@ public class C : IHandleMessages<Message>
             await VerifyFix(test, fixTest, allowNewCompilerDiagnostics: true);
         }
 
+        [Test]
+        public async Task SagaIHandle()
+        {
+            string test = @"
+public class MySaga : Saga<MyData>, IHandleMessages<Message>
+{
+}
+
+public class MyData : ContainSagaData {}";
+
+            string fixTest = @"
+public class MySaga : Saga<MyData>, IHandleMessages<Message>
+{
+    public async Task Handle(Message message, IMessageHandlerContext context)
+    {
+    }
+}
+
+public class MyData : ContainSagaData {}";
+
+            await VerifyFix(test, fixTest, allowNewCompilerDiagnostics: true);
+        }
+
+        [Test]
+        public async Task SagaIAmStarted()
+        {
+            string test = @"
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Message>
+{
+}
+
+public class MyData : ContainSagaData {}";
+
+            string fixTest = @"
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Message>
+{
+    public async Task Handle(Message message, IMessageHandlerContext context)
+    {
+    }
+}
+
+public class MyData : ContainSagaData {}";
+
+            await VerifyFix(test, fixTest, allowNewCompilerDiagnostics: true);
+        }
+
         protected override DiagnosticAnalyzer GetAnalyzer() => new MustImplementIHandleMessagesAnalyzer();
 
         protected override CodeFixProvider GetCodeFixProvider() => new ImplementIHandleMessagesFixer();

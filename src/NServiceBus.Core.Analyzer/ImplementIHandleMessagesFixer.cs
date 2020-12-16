@@ -16,8 +16,6 @@
     [Shared]
     public class ImplementIHandleMessagesFixer : AbstractImplementIHandleMessagesFixer
     {
-        protected override string Title => "Implement IHandleMessages<T>";
-
         protected override bool UseCancellation => false;
     }
 
@@ -25,15 +23,11 @@
     [Shared]
     public class ImplementIHandleMessagesWithCancellationFixer : AbstractImplementIHandleMessagesFixer
     {
-        protected override string Title => "Implement IHandleMessages<T> with Cancellation";
-
         protected override bool UseCancellation => true;
     }
 
     public abstract class AbstractImplementIHandleMessagesFixer : CodeFixProvider
     {
-        protected abstract string Title { get; }
-
         protected abstract bool UseCancellation { get; }
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(MustImplementIHandleMessagesAnalyzer.MustImplementDiagnostic.Id);
@@ -44,15 +38,19 @@
 
             var diagnostic = context.Diagnostics.First();
             var messageType = diagnostic.Properties["MessageType"];
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
+            var sourceLocation = diagnostic.Location;
+            var diagnosticSpan = sourceLocation.SourceSpan;
+            var interfaceName = sourceLocation.SourceTree.ToString().Substring(diagnosticSpan.Start, diagnosticSpan.Length);
 
             var interfaceNameToken = root.FindToken(diagnosticSpan.Start);
             var classDeclaration = interfaceNameToken.Parent.Ancestors().OfType<ClassDeclarationSyntax>().First();
 
+            var title = "Implement " + interfaceName + (UseCancellation ? " with Cancellation" : "");
+
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
-              CodeAction.Create(Title, c =>
-              ImplementIHandleMessages(context.Document, classDeclaration, messageType, c), equivalenceKey: Title), diagnostic);
+              CodeAction.Create(title, c =>
+              ImplementIHandleMessages(context.Document, classDeclaration, messageType, c), equivalenceKey: title), diagnostic);
         }
 
         private async Task<Document> ImplementIHandleMessages(Document document, ClassDeclarationSyntax classDeclaration, string messageType, CancellationToken cancellationToken)
