@@ -121,7 +121,7 @@
                 return null;
             }
 
-            var methodInfo = GetMethodForIHandleMessagesType(targetType, messageType);
+            var methodInfo = GetMethodForIHandleMessagesType(targetType, interfaceType, messageType);
             if (methodInfo == null)
             {
                 return null;
@@ -149,10 +149,14 @@
             }
         }
 
-        static MethodInfo GetMethodForIHandleMessagesType(Type handlerType, Type messageType)
+        static readonly string[] handlerMethodNames = new[] { "Handle", "HandleAsync" };
+        static readonly string[] timeoutMethodNames = new[] { "Timeout", "TimeoutAsync" };
+
+        static MethodInfo GetMethodForIHandleMessagesType(Type handlerType, Type interfaceType, Type messageType)
         {
+            var methodNames = (interfaceType.GetGenericTypeDefinition() == typeof(IHandleTimeouts<>) ? timeoutMethodNames : handlerMethodNames);
             var eligibleMethods = handlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
-                .Where(methodInfo => CanBeHandleMethod(methodInfo, messageType))
+                .Where(methodInfo => CanBeHandleMethod(methodInfo, methodNames, messageType))
                 .ToArray();
 
             if (eligibleMethods.Length == 0)
@@ -169,9 +173,9 @@
             return eligibleMethods[0];
         }
 
-        static bool CanBeHandleMethod(MethodInfo method, Type messageType)
+        static bool CanBeHandleMethod(MethodInfo method, string[] methodNames, Type messageType)
         {
-            if (method.Name != "Handle" && method.Name != "HandleAsync" || method.ReturnType != typeof(Task))
+            if (method.ReturnType != typeof(Task) || !methodNames.Contains(method.Name))
             {
                 return false;
             }
