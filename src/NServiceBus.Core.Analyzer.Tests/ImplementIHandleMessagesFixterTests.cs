@@ -4,15 +4,37 @@
     using Microsoft.CodeAnalysis.Diagnostics;
     using NServiceBus.Core.Analyzer.Tests.Helpers;
     using NUnit.Framework;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
+
+    [TestFixture]
+    public class ImplementIHandleMessagesWithCancellationFixerTests : ImplementIHandleMessagesFixerTests
+    {
+        protected override string AmendFixedHandlerParams(string sourcecode)
+        {
+            return sourcecode.Replace(", IMessageHandlerContext context)", ", IMessageHandlerContext context, CancellationToken cancellationToken)");
+        }
+
+        protected override CodeFixProvider GetCodeFixProvider()
+        {
+            return new ImplementIHandleMessagesWithCancellationFixer();
+        }
+    }
 
     [TestFixture]
     public class ImplementIHandleMessagesFixerTests : CodeFixVerifier
     {
+        protected override Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        {
+            newSource = AmendFixedHandlerParams(newSource);
+            return base.VerifyFix(oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+        }
+
+        protected virtual string AmendFixedHandlerParams(string sourcecode)
+        {
+            // This class tests without CancellationToken, do nothing
+            return sourcecode;
+        }
+
         [Test]
         public async Task SimpleTest()
         {

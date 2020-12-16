@@ -15,7 +15,7 @@
     {
         protected abstract CodeFixProvider GetCodeFixProvider();
 
-        protected async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        protected virtual async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
         {
             var analyzer = GetAnalyzer();
             var codeFixProvider = GetCodeFixProvider();

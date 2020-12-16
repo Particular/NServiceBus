@@ -14,9 +14,39 @@
 
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ImplementIHandleMessagesFixer))]
     [Shared]
-    public class ImplementIHandleMessagesFixer : CodeFixProvider
+    public class ImplementIHandleMessagesFixer : AbstractImplementIHandleMessagesFixer
     {
-        private const string title = "Implement IHandleMessages<T>";
+        protected override string Title => "Implement IHandleMessages<T>";
+
+        protected override string GetInsertCode(string messageType)
+        {
+            return @"
+public async Task Handle(" + messageType + @" message, IMessageHandlerContext context)
+{
+}";
+        }
+    }
+
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ImplementIHandleMessagesFixer))]
+    [Shared]
+    public class ImplementIHandleMessagesWithCancellationFixer : AbstractImplementIHandleMessagesFixer
+    {
+        protected override string Title => "Implement IHandleMessages<T> with Cancellation";
+
+        protected override string GetInsertCode(string messageType)
+        {
+            return @"
+public async Task Handle(" + messageType + @" message, IMessageHandlerContext context, CancellationToken cancellationToken)
+{
+}";
+        }
+    }
+
+    public abstract class AbstractImplementIHandleMessagesFixer : CodeFixProvider
+    {
+        protected abstract string Title { get; }
+
+        protected abstract string GetInsertCode(string messageType);
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(MustImplementIHandleMessagesAnalyzer.MustImplementDiagnostic.Id);
 
@@ -33,16 +63,13 @@
 
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
-              CodeAction.Create(title, c =>
-              ImplementIHandleMessages(context.Document, classDeclaration, messageType, c), equivalenceKey: title), diagnostic);
+              CodeAction.Create(Title, c =>
+              ImplementIHandleMessages(context.Document, classDeclaration, messageType, c), equivalenceKey: Title), diagnostic);
         }
 
         private async Task<Document> ImplementIHandleMessages(Document document, ClassDeclarationSyntax classDeclaration, string messageType, CancellationToken cancellationToken)
         {
-            var insertCode = @"
-public async Task Handle(" + messageType + @" message, IMessageHandlerContext context)
-{
-}";
+            var insertCode = GetInsertCode(messageType);
 
             var newSyntaxTree = CSharpSyntaxTree.ParseText(insertCode, cancellationToken: cancellationToken);
             var newMethodDeclaration = (await newSyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false))
