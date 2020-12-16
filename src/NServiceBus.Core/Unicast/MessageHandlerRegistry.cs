@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
@@ -110,7 +112,7 @@
             methodList.Add(delegateHolder);
         }
 
-        static Func<object, object, IMessageHandlerContext, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+        static Func<object, object, IMessageHandlerContext, CancellationToken, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
@@ -119,7 +121,7 @@
                 return null;
             }
 
-            var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
+            var methodInfo = GetMethodForIHandleMessagesType(targetType, messageType);
             if (methodInfo == null)
             {
                 return null;
@@ -133,10 +135,64 @@
 
             var methodParameters = methodInfo.GetParameters();
             var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
+            var cancellationTokenParam = Expression.Parameter(typeof(CancellationToken));
 
-            Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam);
+            if (methodParameters.Length == 3)
+            {
+                Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam, cancellationTokenParam);
+                return Expression.Lambda<Func<object, object, IMessageHandlerContext, CancellationToken, Task>>(body, target, messageParam, contextParam, cancellationTokenParam).Compile();
+            }
+            else
+            {
+                Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam);
+                return Expression.Lambda<Func<object, object, IMessageHandlerContext, CancellationToken, Task>>(body, target, messageParam, contextParam, cancellationTokenParam).Compile();
+            }
+        }
 
-            return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).Compile();
+        static MethodInfo GetMethodForIHandleMessagesType(Type handlerType, Type messageType)
+        {
+            var eligibleMethods = handlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
+                .Where(methodInfo => CanBeHandleMethod(methodInfo, messageType))
+                .ToArray();
+
+            if (eligibleMethods.Length == 0)
+            {
+                return null;
+            }
+
+            if (eligibleMethods.Length > 1)
+            {
+                // TODO: Better exception message
+                throw new Exception("Too many Handle/HandleAsync methods for one message type.");
+            }
+
+            return eligibleMethods[0];
+        }
+
+        static bool CanBeHandleMethod(MethodInfo method, Type messageType)
+        {
+            if (method.Name != "Handle" && method.Name != "HandleAsync" || method.ReturnType != typeof(Task))
+            {
+                return false;
+            }
+
+            var parameters = method.GetParameters();
+            if (parameters.Length != 2 && parameters.Length != 3)
+            {
+                return false;
+            }
+
+            if (parameters[0].ParameterType != messageType || parameters[1].ParameterType != typeof(IMessageHandlerContext))
+            {
+                return false;
+            }
+
+            if (parameters.Length == 3 && parameters[2].ParameterType != typeof(CancellationToken))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         static Type[] GetMessageTypesBeingHandledBy(Type type)
@@ -174,7 +230,7 @@
         {
             public bool IsTimeoutHandler { get; set; }
             public Type MessageType;
-            public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
+            public Func<object, object, IMessageHandlerContext, CancellationToken, Task> MethodDelegate;
         }
     }
 }

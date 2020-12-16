@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,7 +14,7 @@
         /// </summary>
         /// <param name="invocation">The invocation with context delegate.</param>
         /// <param name="handlerType">The handler type.</param>
-        public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
+        public MessageHandler(Func<object, object, IMessageHandlerContext, CancellationToken, Task> invocation, Type handlerType)
         {
             HandlerType = handlerType;
             this.invocation = invocation;
@@ -36,13 +37,14 @@
         /// </summary>
         /// <param name="message">the message to pass to the handler.</param>
         /// <param name="handlerContext">the context to pass to the handler.</param>
-        public Task Invoke(object message, IMessageHandlerContext handlerContext)
+        /// <param name="cancellationToken">A cancellation token to pass to the handler.</param>
+        public Task Invoke(object message, IMessageHandlerContext handlerContext, CancellationToken cancellationToken = default(CancellationToken))
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(handlerContext), handlerContext);
-            return invocation(Instance, message, handlerContext);
+            return invocation(Instance, message, handlerContext, cancellationToken);
         }
 
-        Func<object, object, IMessageHandlerContext, Task> invocation;
+        Func<object, object, IMessageHandlerContext, CancellationToken, Task> invocation;
     }
 }

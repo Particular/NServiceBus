@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Sagas;
@@ -20,7 +21,8 @@
             try
             {
                 await messageHandler
-                    .Invoke(context.MessageBeingHandled, context)
+                    // TODO: CancellationToken.None is temporary
+                    .Invoke(context.MessageBeingHandled, context, CancellationToken.None)
                     .ThrowIfNull()
                     .ConfigureAwait(false);
             }
