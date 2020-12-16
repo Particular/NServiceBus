@@ -53,7 +53,6 @@ public class MsgType : ICommand {}
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<MsgType>
 {
-
     public async Task Handle(MsgType message, IMessageHandlerContext context)
     {
     }

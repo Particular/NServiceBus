@@ -18,13 +18,7 @@
     {
         protected override string Title => "Implement IHandleMessages<T>";
 
-        protected override string GetInsertCode(string messageType)
-        {
-            return @"
-public async Task Handle(" + messageType + @" message, IMessageHandlerContext context)
-{
-}";
-        }
+        protected override bool UseCancellation => false;
     }
 
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ImplementIHandleMessagesFixer))]
@@ -33,20 +27,14 @@ public async Task Handle(" + messageType + @" message, IMessageHandlerContext co
     {
         protected override string Title => "Implement IHandleMessages<T> with Cancellation";
 
-        protected override string GetInsertCode(string messageType)
-        {
-            return @"
-public async Task Handle(" + messageType + @" message, IMessageHandlerContext context, CancellationToken cancellationToken)
-{
-}";
-        }
+        protected override bool UseCancellation => true;
     }
 
     public abstract class AbstractImplementIHandleMessagesFixer : CodeFixProvider
     {
         protected abstract string Title { get; }
 
-        protected abstract string GetInsertCode(string messageType);
+        protected abstract bool UseCancellation { get; }
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(MustImplementIHandleMessagesAnalyzer.MustImplementDiagnostic.Id);
 
@@ -69,11 +57,19 @@ public async Task Handle(" + messageType + @" message, IMessageHandlerContext co
 
         private async Task<Document> ImplementIHandleMessages(Document document, ClassDeclarationSyntax classDeclaration, string messageType, CancellationToken cancellationToken)
         {
-            var insertCode = GetInsertCode(messageType);
+            var parameterList = new SeparatedSyntaxList<ParameterSyntax>()
+                .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("message")).WithType(SyntaxFactory.ParseTypeName(messageType)))
+                .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("context")).WithType(SyntaxFactory.ParseTypeName("IMessageHandlerContext")));
 
-            var newSyntaxTree = CSharpSyntaxTree.ParseText(insertCode, cancellationToken: cancellationToken);
-            var newMethodDeclaration = (await newSyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false))
-                .ChildNodes().OfType<MethodDeclarationSyntax>().First()
+            if (UseCancellation)
+            {
+                parameterList = parameterList.Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("cancellationToken")).WithType(SyntaxFactory.ParseTypeName("CancellationToken")));
+            }
+
+            var newMethodDeclaration = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName("Task"), "Handle")
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.AsyncKeyword))
+                .WithParameterList(SyntaxFactory.ParameterList(parameterList))
+                .WithBody(SyntaxFactory.Block())
                 .WithAdditionalAnnotations(Formatter.Annotation);
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
