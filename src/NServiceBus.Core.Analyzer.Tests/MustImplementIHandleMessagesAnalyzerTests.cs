@@ -303,7 +303,7 @@ public class Foo : IHandleMessages<TestMessage>
             return new DiagnosticResult
             {
                 Id = "NSB0006",
-                Severity = DiagnosticSeverity.Warning,
+                Severity = DiagnosticSeverity.Info,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, character) }
             };
         }

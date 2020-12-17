@@ -252,7 +252,7 @@
             title: "Consider adding a CancellationToken",
             messageFormat: "Consider adding a CancellationToken parameter to this method.",
             category: "NServiceBus.Code",
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: @"NServiceBus message handlers can include a CancellationToken in the handler method to support cooperative cancellation when the process shuts down.");
 
