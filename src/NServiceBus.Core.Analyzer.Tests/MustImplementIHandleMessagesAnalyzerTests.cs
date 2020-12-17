@@ -93,7 +93,7 @@ public class MsgType2 : ICommand {}
 using System.Threading.Tasks;
 public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType>, IHandleMessages<MsgType2>
 {
-    public Task Handle(MsgType message, IMessageHandlerContext context)
+    public Task Handle(MsgType message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
@@ -116,7 +116,7 @@ public class MsgType2 : ICommand {}
 using System.Threading.Tasks;
 public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType>, IHandleTimeouts<MsgType2>
 {
-    public Task Handle(MsgType message, IMessageHandlerContext context)
+    public Task Handle(MsgType message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
@@ -139,7 +139,7 @@ public class MsgType2 : ICommand {}
 using System.Threading.Tasks;
 public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType>, IHandleMessages<MsgType2>
 {
-    public Task Handle(MsgType2 message, IMessageHandlerContext context)
+    public Task Handle(MsgType2 message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
@@ -176,9 +176,10 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var expected = TooManyHandlesAt((5, 17), (10, 17));
+            var noCancellation = this.NoCancellationAt(5, 5);
+            var expectedTooMany = TooManyHandlesAt((5, 17), (10, 17));
 
-            return Verify(source, expected);
+            return Verify(source, noCancellation, expectedTooMany);
         }
 
         [Test]
@@ -203,9 +204,10 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var expected = TooManyHandlesAt((5, 17), (10, 17));
+            var noCancellation = this.NoCancellationAt(5, 5);
+            var expectedTooMany = TooManyHandlesAt((5, 17), (10, 17));
 
-            return Verify(source, expected);
+            return Verify(source, noCancellation, expectedTooMany);
         }
 
         [Test]
@@ -240,12 +242,40 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var expected = TooManyHandlesAt((5, 17), (10, 17), (15, 17), (20, 17));
+            var expectedNoCancellation1 = NoCancellationAt(5, 5);
+            var expectedTooMany = TooManyHandlesAt((5, 17), (10, 17), (15, 17), (20, 17));
+            var expectedNoCancellation2 = NoCancellationAt(15, 5);
+
+            return Verify(source, expectedNoCancellation1, expectedTooMany, expectedNoCancellation2);
+        }
+
+        [TestCase(@"
+using NServiceBus;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public Task HandleAsync(TestMessage message, IMessageHandlerContext context)
+    {
+        return Task.CompletedTask;
+    }
+}
+", Description = "Found HandleAsync - no cancellation token")]
+
+        [TestCase(@"
+using NServiceBus;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        return Task.CompletedTask;
+    }
+}
+", Description = "Found Handle - no cancellation token")]
+        public Task OnlyCancellationTokenWarning(string source)
+        {
+            var expected = NoCancellationAt(5, 5);
 
             return Verify(source, expected);
         }
-
-
 
 
         DiagnosticResult NotImplementedAt(string diagnosticId, int line, int character)
@@ -268,6 +298,16 @@ public class MsgType : ICommand {}
             };
         }
 
+        DiagnosticResult NoCancellationAt(int line, int character)
+        {
+            return new DiagnosticResult
+            {
+                Id = "NSB0006",
+                Severity = DiagnosticSeverity.Warning,
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, character) }
+            };
+        }
+
         static class Interface
         {
             public static string IHandle = "NSB0002";
@@ -279,34 +319,12 @@ public class MsgType : ICommand {}
 using NServiceBus;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        return Task.CompletedTask;
-    }
-}
-", Description = "Found Handle - no cancellation token")]
-
-        [TestCase(@"
-using NServiceBus;
-public class Foo : IHandleMessages<TestMessage>
-{
     public Task Handle(TestMessage message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
 }
 ", Description = "Found Handle - with cancellation token")]
-
-        [TestCase(@"
-using NServiceBus;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public Task HandleAsync(TestMessage message, IMessageHandlerContext context)
-    {
-        return Task.CompletedTask;
-    }
-}
-", Description = "Found HandleAsync - no cancellation token")]
 
         [TestCase(@"
 using NServiceBus;
@@ -348,7 +366,7 @@ public class Bar {}
 using NServiceBus;
 public class Foo : IHandleMessages<MsgType1>, IHandleMessages<MsgType2>
 {
-    public Task Handle(MsgType1 message, IMessageHandlerContext context)
+    public Task Handle(MsgType1 message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
@@ -382,7 +400,7 @@ namespace NotNSB
 using NServiceBus;
 public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType1>, IHandleMessages<MsgType2>, IHandleTimeouts<MsgType3>
 {
-    public Task Handle(MsgType1 message, IMessageHandlerContext context)
+    public Task Handle(MsgType1 message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
@@ -392,7 +410,7 @@ public class Foo : Saga<FooData>, IAmStartedByMessages<MsgType1>, IHandleMessage
         return Task.CompletedTask;
     }
 
-    public Task Timeout(MsgType3 message, IMessageHandlerContext context)
+    public Task Timeout(MsgType3 message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

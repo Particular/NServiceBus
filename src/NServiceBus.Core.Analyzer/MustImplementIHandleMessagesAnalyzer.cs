@@ -22,7 +22,9 @@
             MustImplementIHandleMessagesDiagnostic,
             MustImplementIAmStartedByMessagesDiagnostic,
             MustImplementIHandleTimeoutsDiagnostic,
-            tooManyHandleMethodsDiagnostic);
+            tooManyHandleMethodsDiagnostic,
+            noCancellationTokenWarningDiagnostic
+        );
 
         /// <summary>
         ///     Initializes the specified analyzer on the <paramref name="context" />.
@@ -129,7 +131,7 @@
             {
                 if (member is MethodDeclarationSyntax methodDeclaration)
                 {
-                    if (IsMethodAHandleMethod(methodDeclaration, isTimeout, messageIdentifier))
+                    if (IsMethodAHandleMethod(context, methodDeclaration, isTimeout, messageIdentifier))
                     {
                         if (!foundHandler)
                         {
@@ -159,7 +161,7 @@
             return foundHandler;
         }
 
-        static bool IsMethodAHandleMethod(MethodDeclarationSyntax methodDeclaration, bool isTimeout, string messageIdentifier)
+        static bool IsMethodAHandleMethod(SyntaxNodeAnalysisContext context, MethodDeclarationSyntax methodDeclaration, bool isTimeout, string messageIdentifier)
         {
             var allowableMethodNames = (isTimeout ? timeoutMethodNames : handlerMethodNames);
             var methodName = methodDeclaration.Identifier.Text;
@@ -191,6 +193,11 @@
                 {
                     return false;
                 }
+            }
+            else
+            {
+                var diagnostic = Diagnostic.Create(noCancellationTokenWarningDiagnostic, methodDeclaration.GetLocation());
+                context.ReportDiagnostic(diagnostic);
             }
 
             return true;
@@ -239,6 +246,15 @@
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: @"In an NServiceBus message handler or saga, only one method can handle each message type.");
+
+        static readonly DiagnosticDescriptor noCancellationTokenWarningDiagnostic = new DiagnosticDescriptor(
+            id: "NSB0006",
+            title: "Consider adding a CancellationToken",
+            messageFormat: "Consider adding a CancellationToken parameter to this method.",
+            category: "NServiceBus.Code",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: @"NServiceBus message handlers can include a CancellationToken in the handler method to support cooperative cancellation when the process shuts down.");
 
     }
 }
