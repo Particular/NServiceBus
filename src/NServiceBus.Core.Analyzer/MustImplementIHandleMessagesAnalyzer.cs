@@ -23,7 +23,7 @@
             MustImplementIAmStartedByMessagesDiagnostic,
             MustImplementIHandleTimeoutsDiagnostic,
             tooManyHandleMethodsDiagnostic,
-            noCancellationTokenWarningDiagnostic
+            NoCancellationTokenWarningDiagnostic
         );
 
         /// <summary>
@@ -196,7 +196,7 @@
             }
             else
             {
-                var diagnostic = Diagnostic.Create(noCancellationTokenWarningDiagnostic, methodDeclaration.GetLocation());
+                var diagnostic = Diagnostic.Create(NoCancellationTokenWarningDiagnostic, methodDeclaration.GetLocation());
                 context.ReportDiagnostic(diagnostic);
             }
 
@@ -247,7 +247,7 @@
             isEnabledByDefault: true,
             description: @"In an NServiceBus message handler or saga, only one method can handle each message type.");
 
-        static readonly DiagnosticDescriptor noCancellationTokenWarningDiagnostic = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor NoCancellationTokenWarningDiagnostic = new DiagnosticDescriptor(
             id: "NSB0006",
             title: "Consider adding a CancellationToken",
             messageFormat: "Consider adding a CancellationToken parameter to this method.",
