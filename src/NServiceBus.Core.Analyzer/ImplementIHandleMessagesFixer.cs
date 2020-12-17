@@ -12,6 +12,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ImplementIHandleMessagesFixer))]
+    [Shared]
     public class ImplementIHandleMessagesFixer : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(

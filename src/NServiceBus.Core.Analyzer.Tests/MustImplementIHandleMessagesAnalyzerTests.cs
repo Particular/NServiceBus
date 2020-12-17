@@ -176,7 +176,7 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var noCancellation = this.NoCancellationAt(5, 5);
+            var noCancellation = this.NoCancellationAt(5, 17);
             var expectedTooMany = TooManyHandlesAt((5, 17), (10, 17));
 
             return Verify(source, noCancellation, expectedTooMany);
@@ -204,7 +204,7 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var noCancellation = this.NoCancellationAt(5, 5);
+            var noCancellation = this.NoCancellationAt(5, 17);
             var expectedTooMany = TooManyHandlesAt((5, 17), (10, 17));
 
             return Verify(source, noCancellation, expectedTooMany);
@@ -242,9 +242,9 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var expectedNoCancellation1 = NoCancellationAt(5, 5);
+            var expectedNoCancellation1 = NoCancellationAt(5, 17);
             var expectedTooMany = TooManyHandlesAt((5, 17), (10, 17), (15, 17), (20, 17));
-            var expectedNoCancellation2 = NoCancellationAt(15, 5);
+            var expectedNoCancellation2 = NoCancellationAt(15, 17);
 
             return Verify(source, expectedNoCancellation1, expectedTooMany, expectedNoCancellation2);
         }
@@ -272,7 +272,7 @@ public class Foo : IHandleMessages<TestMessage>
 ", Description = "Found Handle - no cancellation token")]
         public Task OnlyCancellationTokenWarning(string source)
         {
-            var expected = NoCancellationAt(5, 5);
+            var expected = NoCancellationAt(5, 17);
 
             return Verify(source, expected);
         }

@@ -196,7 +196,7 @@
             }
             else
             {
-                var diagnostic = Diagnostic.Create(NoCancellationTokenWarningDiagnostic, methodDeclaration.GetLocation());
+                var diagnostic = Diagnostic.Create(NoCancellationTokenWarningDiagnostic, methodDeclaration.Identifier.GetLocation());
                 context.ReportDiagnostic(diagnostic);
             }
 
