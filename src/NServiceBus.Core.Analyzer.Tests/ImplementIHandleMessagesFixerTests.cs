@@ -7,34 +7,8 @@
     using System.Threading.Tasks;
 
     [TestFixture]
-    public class ImplementIHandleMessagesWithCancellationFixerTests : ImplementIHandleMessagesFixerTests
-    {
-        protected override string AmendFixedHandlerParams(string sourcecode)
-        {
-            return sourcecode.Replace(", IMessageHandlerContext context)", ", IMessageHandlerContext context, CancellationToken cancellationToken)");
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new ImplementIHandleMessagesWithCancellationFixer();
-        }
-    }
-
-    [TestFixture]
     public class ImplementIHandleMessagesFixerTests : CodeFixVerifier
     {
-        protected override Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
-        {
-            newSource = AmendFixedHandlerParams(newSource);
-            return base.VerifyFix(oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
-        }
-
-        protected virtual string AmendFixedHandlerParams(string sourcecode)
-        {
-            // This class tests without CancellationToken, do nothing
-            return sourcecode;
-        }
-
         [Test]
         public async Task SimpleTest()
         {
@@ -55,7 +29,7 @@ using System.Threading.Tasks;
 
 public class Foo : IHandleMessages<MsgType>
 {
-    public async Task Handle(MsgType message, IMessageHandlerContext context)
+    public async Task Handle(MsgType message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
     }
 }
@@ -89,7 +63,7 @@ public class C : IHandleMessages<Message>
 
     private void Bar() {}
 
-    public async Task Handle(Message message, IMessageHandlerContext context)
+    public async Task Handle(Message message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
     }
 }";
@@ -116,7 +90,7 @@ using System.Threading.Tasks;
 
 public class MySaga : Saga<MyData>, IHandleMessages<Message>
 {
-    public async Task Handle(Message message, IMessageHandlerContext context)
+    public async Task Handle(Message message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
     }
 }
@@ -145,7 +119,7 @@ using System.Threading.Tasks;
 
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Message>
 {
-    public async Task Handle(Message message, IMessageHandlerContext context)
+    public async Task Handle(Message message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
     }
 }
@@ -174,7 +148,7 @@ using System.Threading.Tasks;
 
 public class MySaga : Saga<MyData>, IHandleTimeouts<Message>
 {
-    public async Task Timeout(Message message, IMessageHandlerContext context)
+    public async Task Timeout(Message message, IMessageHandlerContext context, CancellationToken cancellationToken)
     {
     }
 }

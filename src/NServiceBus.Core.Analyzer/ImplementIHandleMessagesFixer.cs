@@ -12,25 +12,13 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ImplementIHandleMessagesFixer))]
-    [Shared]
-    public class ImplementIHandleMessagesFixer : AbstractImplementIHandleMessagesFixer
+    public class ImplementIHandleMessagesFixer : CodeFixProvider
     {
-        protected override bool UseCancellation => false;
-    }
-
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ImplementIHandleMessagesFixer))]
-    [Shared]
-    public class ImplementIHandleMessagesWithCancellationFixer : AbstractImplementIHandleMessagesFixer
-    {
-        protected override bool UseCancellation => true;
-    }
-
-    public abstract class AbstractImplementIHandleMessagesFixer : CodeFixProvider
-    {
-        protected abstract bool UseCancellation { get; }
-
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(MustImplementIHandleMessagesAnalyzer.MustImplementDiagnostic.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(
+            MustImplementIHandleMessagesAnalyzer.MustImplementIHandleMessagesDiagnostic.Id,
+            MustImplementIHandleMessagesAnalyzer.MustImplementIAmStartedByMessagesDiagnostic.Id,
+            MustImplementIHandleMessagesAnalyzer.MustImplementIHandleTimeoutsDiagnostic.Id
+        );
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -46,7 +34,7 @@
             var interfaceNameToken = root.FindToken(diagnosticSpan.Start);
             var classDeclaration = interfaceNameToken.Parent.Ancestors().OfType<ClassDeclarationSyntax>().First();
 
-            var title = "Implement " + interfaceName + (UseCancellation ? " with Cancellation" : "");
+            var title = "Implement " + interfaceName;
 
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
@@ -58,12 +46,8 @@
         {
             var parameterList = new SeparatedSyntaxList<ParameterSyntax>()
                 .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("message")).WithType(SyntaxFactory.ParseTypeName(messageType)))
-                .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("context")).WithType(SyntaxFactory.ParseTypeName("IMessageHandlerContext")));
-
-            if (UseCancellation)
-            {
-                parameterList = parameterList.Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("cancellationToken")).WithType(SyntaxFactory.ParseTypeName("CancellationToken")));
-            }
+                .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("context")).WithType(SyntaxFactory.ParseTypeName("IMessageHandlerContext")))
+                .Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier("cancellationToken")).WithType(SyntaxFactory.ParseTypeName("CancellationToken")));
 
             var newMethodDeclaration = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName("Task"), methodName)
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.AsyncKeyword))

@@ -24,7 +24,7 @@ public class Foo : IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var expected = NotImplementedAt(3, 20);
+            var expected = NotImplementedAt(Interface.IHandle, 3, 20);
 
             return Verify(source, expected);
         }
@@ -42,7 +42,7 @@ public class Foo : Bar, IHandleMessages<MsgType>
 public class MsgType : ICommand {}
 ";
 
-            var expected = NotImplementedAt(3, 25);
+            var expected = NotImplementedAt(Interface.IHandle, 3, 25);
 
             return Verify(source, expected);
         }
@@ -60,7 +60,7 @@ public class Foo : Bar, IHandleMessages    <      MsgType      >
 public class MsgType : ICommand {}
 ";
 
-            var expected = NotImplementedAt(3, 25);
+            var expected = NotImplementedAt(Interface.IHandle, 3, 25);
 
             return Verify(source, expected);
         }
@@ -79,8 +79,8 @@ public class MsgType : ICommand {}
 public class MsgType2 : ICommand {}
 ";
 
-            var expected1 = NotImplementedAt(3, 20);
-            var expected2 = NotImplementedAt(3, 46);
+            var expected1 = NotImplementedAt(Interface.IHandle, 3, 20);
+            var expected2 = NotImplementedAt(Interface.IHandle, 3, 46);
 
             return Verify(source, expected1, expected2);
         }
@@ -103,7 +103,7 @@ public class MsgType : ICommand {}
 public class MsgType2 : ICommand {}
 ";
 
-            var expected = NotImplementedAt(3, 66);
+            var expected = NotImplementedAt(Interface.IHandle, 3, 66);
 
             return Verify(source, expected);
         }
@@ -126,7 +126,7 @@ public class MsgType : ICommand {}
 public class MsgType2 : ICommand {}
 ";
 
-            var expected = NotImplementedAt(3, 66);
+            var expected = NotImplementedAt(Interface.Timeouts, 3, 66);
 
             return Verify(source, expected);
         }
@@ -149,7 +149,7 @@ public class MsgType : ICommand {}
 public class MsgType2 : ICommand {}
 ";
 
-            var expected = NotImplementedAt(3, 35);
+            var expected = NotImplementedAt(Interface.IAmStarted, 3, 35);
 
             return Verify(source, expected);
         }
@@ -248,11 +248,11 @@ public class MsgType : ICommand {}
 
 
 
-        DiagnosticResult NotImplementedAt(int line, int character)
+        DiagnosticResult NotImplementedAt(string diagnosticId, int line, int character)
         {
             return new DiagnosticResult
             {
-                Id = "NSB0002",
+                Id = diagnosticId,
                 Severity = DiagnosticSeverity.Error,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, character) }
             };
@@ -262,10 +262,17 @@ public class MsgType : ICommand {}
         {
             return new DiagnosticResult
             {
-                Id = "NSB0003",
+                Id = "NSB0005",
                 Severity = DiagnosticSeverity.Error,
                 Locations = lineCharacterPairs.Select(tuple => new DiagnosticResultLocation("Test0.cs", tuple.Item1, tuple.Item2)).ToArray()
             };
+        }
+
+        static class Interface
+        {
+            public static string IHandle = "NSB0002";
+            public const string IAmStarted = "NSB0003";
+            public const string Timeouts = "NSB0004";
         }
 
         [TestCase(@"

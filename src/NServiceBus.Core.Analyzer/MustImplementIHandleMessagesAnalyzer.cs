@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
@@ -18,7 +19,9 @@
         ///     The supported diagnostics.
         /// </value>
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            MustImplementDiagnostic,
+            MustImplementIHandleMessagesDiagnostic,
+            MustImplementIAmStartedByMessagesDiagnostic,
+            MustImplementIHandleTimeoutsDiagnostic,
             tooManyHandleMethodsDiagnostic);
 
         /// <summary>
@@ -43,12 +46,14 @@
             {
                 if (childNode is BaseTypeSyntax baseTypeSyntax)
                 {
-                    if (BaseTypeIsHandlerSignature(context, baseTypeSyntax, out bool isTimeout, out var messageIdentifier))
+                    if (BaseTypeIsHandlerSignature(context, baseTypeSyntax, out string simpleInterfaceName, out var messageIdentifier))
                     {
+                        var isTimeout = (simpleInterfaceName == "IHandleTimeouts");
                         if (!HasImplementationDefined(context, classDeclaration, isTimeout, messageIdentifier))
                         {
                             var location = baseTypeSyntax.GetLocation();
                             var fixerMethodName = (isTimeout ? "Timeout" : "Handle");
+                            var diagnosticDescriptor = GetMustHandleDiagnostic(simpleInterfaceName);
 
                             var properties = new Dictionary<string, string>
                             {
@@ -56,7 +61,7 @@
                                 { "FixerMethodName", fixerMethodName }
                             }.ToImmutableDictionary();
 
-                            var diagnostic = Diagnostic.Create(MustImplementDiagnostic, location, properties, fixerMethodName, baseTypeSyntax.ToString());
+                            var diagnostic = Diagnostic.Create(diagnosticDescriptor, location, properties, baseTypeSyntax.ToString());
                             context.ReportDiagnostic(diagnostic);
                         }
                     }
@@ -64,10 +69,28 @@
             }
         }
 
-        private static bool BaseTypeIsHandlerSignature(SyntaxNodeAnalysisContext context, BaseTypeSyntax baseTypeSyntax, out bool isTimeout, out string messageIdentifier)
+        private static DiagnosticDescriptor GetMustHandleDiagnostic(string simpleInterfaceName)
+        {
+            switch (simpleInterfaceName)
+            {
+                case "IHandleMessages":
+                    return MustImplementIHandleMessagesDiagnostic;
+
+                case "IAmStartedByMessages":
+                    return MustImplementIAmStartedByMessagesDiagnostic;
+
+                case "IHandleTimeouts":
+                    return MustImplementIHandleTimeoutsDiagnostic;
+
+                default:
+                    throw new Exception("Unknown handler marker interface.");
+            }
+        }
+
+        private static bool BaseTypeIsHandlerSignature(SyntaxNodeAnalysisContext context, BaseTypeSyntax baseTypeSyntax, out string simpleName, out string messageIdentifier)
         {
             messageIdentifier = null;
-            isTimeout = false;
+            simpleName = null;
 
             var interfaceGenericNameSyntax = baseTypeSyntax.ChildNodes().OfType<GenericNameSyntax>().FirstOrDefault();
             if (interfaceGenericNameSyntax == null)
@@ -75,7 +98,7 @@
                 return false;
             }
 
-            var simpleName = interfaceGenericNameSyntax.Identifier.ValueText;
+            simpleName = interfaceGenericNameSyntax.Identifier.ValueText;
             if (simpleName != "IHandleMessages" && simpleName != "IAmStartedByMessages" && simpleName != "IHandleTimeouts")
             {
                 return false;
@@ -92,7 +115,6 @@
                 return false;
             }
 
-            isTimeout = (simpleName == "IHandleTimeouts");
             messageIdentifier = type.TypeArguments[0].Name;
             return true;
         }
@@ -178,51 +200,45 @@
         static readonly string[] timeoutMethodNames = new[] { "Timeout", "TimeoutAsync" };
 
 
-        // {0} = Handle/Timeout
-        // {1} = IHandleMessages / IAmStartedByMessages / IHandleTimeouts
-        internal static readonly DiagnosticDescriptor MustImplementDiagnostic = new DiagnosticDescriptor(
+        // {0} = Specific interface i.e. IHandleMessages<MyMessageClass>
+        internal static readonly DiagnosticDescriptor MustImplementIHandleMessagesDiagnostic = new DiagnosticDescriptor(
             id: "NSB0002",
-            title: "Must implement handler method",
-            messageFormat: "Must create a {0} or {0}Async method on classes implementing {1}.",
+            title: "Must implement IHandleMessages<T>",
+            messageFormat: "Must create a Handle method on classes implementing {0}.",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: @"An NServiceBus message handler or saga must implement a handler method for the message type identified by T.
+            description: "An NServiceBus message handler or saga must contain a message handler method when implementing IHandleMessages<T>. Use the code fixer to create the required method.");
 
-When implementing IHandleMessages<T> or IAmStartedByMessages<T> use only one of:
-  - public async Task Handle(T message, IMessageHandlerContext context)
-  - public async Task Handle(T message, IMessageHandlerContext context, CancellationToken cancellationToken)
-  - public async Task HandleAsync(T message, IMessageHandlerContext context)
-  - public async Task HandleAsync(T message, IMessageHandlerContext context, CancellationToken cancellationToken)
-
-When implementing IHandleTimeouts<T> on a Saga use only one of:
-  - public async Task Timeout(T message, IMessageHandlerContext context)
-  - public async Task Timeout(T message, IMessageHandlerContext context, CancellationToken cancellationToken)
-  - public async Task TimeoutAsync(T message, IMessageHandlerContext context)
-  - public async Task TimeoutAsync(T message, IMessageHandlerContext context, CancellationToken cancellationToken)");
-
-        // {0} = Handle/Timeout
-        // {1} = Message Type
-        static readonly DiagnosticDescriptor tooManyHandleMethodsDiagnostic = new DiagnosticDescriptor(
+        // {0} = Specific interface i.e. IAmStartedByMessages<MyMessageClass>
+        internal static readonly DiagnosticDescriptor MustImplementIAmStartedByMessagesDiagnostic = new DiagnosticDescriptor(
             id: "NSB0003",
-            title: "Too many Handle/HandleAsync methods",
-            messageFormat: "Duplicate {0}/{0}Async methods for the message type {1}.",
+            title: "Must implement IAmStartedByMessages<T>",
+            messageFormat: "Must create a Handle method on classes implementing {0}.",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: @"In an NServiceBus message handler or saga, only one method can handle each message type.
+            description: "An NServiceBus saga must contain a message handler method when implementing IHandleMessages<T>. Use the code fixer to create the required method.");
 
-When implementing IHandleMessages<T> or IAmStartedByMessages<T> use only one of:
-  - public async Task Handle(T message, IMessageHandlerContext context)
-  - public async Task Handle(T message, IMessageHandlerContext context, CancellationToken cancellationToken)
-  - public async Task HandleAsync(T message, IMessageHandlerContext context)
-  - public async Task HandleAsync(T message, IMessageHandlerContext context, CancellationToken cancellationToken)
+        // {0} = Specific interface i.e. IHandleTimeouts<MyTimeoutClass>
+        internal static readonly DiagnosticDescriptor MustImplementIHandleTimeoutsDiagnostic = new DiagnosticDescriptor(
+            id: "NSB0004",
+            title: "Must implement IHandleTimeouts<T>",
+            messageFormat: "Must create a Timeout method on classes implementing {0}.",
+            category: "NServiceBus.Code",
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "An NServiceBus saga must contain a Timeout handler method when implementing IHandleTimeouts<T>. Use the code fixer to create the required method.");
 
-When implementing IHandleTimeouts<T> on a Saga use only one of:
-  - public async Task Timeout(T message, IMessageHandlerContext context)
-  - public async Task Timeout(T message, IMessageHandlerContext context, CancellationToken cancellationToken)
-  - public async Task TimeoutAsync(T message, IMessageHandlerContext context)
-  - public async Task TimeoutAsync(T message, IMessageHandlerContext context, CancellationToken cancellationToken)");
+        // {0} = Message Type
+        static readonly DiagnosticDescriptor tooManyHandleMethodsDiagnostic = new DiagnosticDescriptor(
+            id: "NSB0005",
+            title: "Too many handler methods",
+            messageFormat: "Duplicate handler methods for the message type {0}.",
+            category: "NServiceBus.Code",
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: @"In an NServiceBus message handler or saga, only one method can handle each message type.");
 
     }
 }
