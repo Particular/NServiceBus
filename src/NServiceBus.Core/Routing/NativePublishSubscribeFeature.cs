@@ -1,3 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Unicast.Messages;
+
 namespace NServiceBus.Features
 {
     using Transport;
@@ -7,7 +10,7 @@ namespace NServiceBus.Features
         public NativePublishSubscribeFeature()
         {
             EnableByDefault();
-            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
+            Prerequisite(c => c.Settings.Get<TransportDefinition>().SupportsPublishSubscribe, "The transport does not support native pub sub");
             Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled subscription migration mode");
         }
 
@@ -20,11 +23,11 @@ namespace NServiceBus.Features
 
             if (canReceive)
             {
-                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
-                var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
+                var mainReceiver = context.Settings.Get<TransportInfrastructure>().GetReceiver(ReceiveComponent.MainReceiverId);
+                var subscriptionManager = mainReceiver.Subscriptions;
 
-                context.Pipeline.Register(new NativeSubscribeTerminator(subscriptionManager), "Requests the transport to subscribe to a given message type");
-                context.Pipeline.Register(new NativeUnsubscribeTerminator(subscriptionManager), "Requests the transport to unsubscribe to a given message type");
+                context.Pipeline.Register(b => new NativeSubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to subscribe to a given message type");
+                context.Pipeline.Register(b => new NativeUnsubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to unsubscribe to a given message type");
             }
             else
             {

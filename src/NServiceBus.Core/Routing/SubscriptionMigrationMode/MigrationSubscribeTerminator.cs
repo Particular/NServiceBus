@@ -1,4 +1,7 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+using NServiceBus.Unicast.Messages;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -13,9 +16,12 @@
 
     class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MigrationSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
+        public MigrationSubscribeTerminator(ISubscriptionManager subscriptionManager,
+            MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter,
+            IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
+            this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionRouter = subscriptionRouter;
             this.dispatcher = dispatcher;
             this.subscriberAddress = subscriberAddress;
@@ -26,7 +32,8 @@
         {
             var eventType = context.EventType;
 
-            await subscriptionManager.Subscribe(eventType, context.Extensions).ConfigureAwait(false);
+            var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);
+            await subscriptionManager.Subscribe(eventMetadata, context.Extensions).ConfigureAwait(false);
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
@@ -85,7 +92,8 @@
         readonly string subscriberEndpoint;
         readonly IDispatchMessages dispatcher;
 
-        readonly IManageSubscriptions subscriptionManager;
+        readonly ISubscriptionManager subscriptionManager;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
         static ILog Logger = LogManager.GetLogger<MigrationSubscribeTerminator>();
     }
 }

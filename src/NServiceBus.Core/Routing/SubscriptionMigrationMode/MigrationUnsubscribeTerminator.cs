@@ -1,4 +1,7 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+using NServiceBus.Unicast.Messages;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -13,9 +16,10 @@
 
     class MigrationUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MigrationUnsubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string replyToAddress, string endpoint)
+        public MigrationUnsubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string replyToAddress, string endpoint)
         {
             this.subscriptionManager = subscriptionManager;
+            this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionRouter = subscriptionRouter;
             this.dispatcher = dispatcher;
             this.replyToAddress = replyToAddress;
@@ -25,8 +29,9 @@
         protected override async Task Terminate(IUnsubscribeContext context)
         {
             var eventType = context.EventType;
+            var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);
 
-            await subscriptionManager.Unsubscribe(eventType, context.Extensions).ConfigureAwait(false);
+            await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions).ConfigureAwait(false);
 
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
@@ -80,7 +85,8 @@
             }
         }
 
-        readonly IManageSubscriptions subscriptionManager;
+        readonly ISubscriptionManager subscriptionManager;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
 
         readonly string endpoint;
         readonly IDispatchMessages dispatcher;

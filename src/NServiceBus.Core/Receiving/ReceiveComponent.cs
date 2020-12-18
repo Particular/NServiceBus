@@ -303,7 +303,7 @@ namespace NServiceBus
         CriticalError criticalError;
         string errorQueue;
 
-        const string MainReceiverId = "Main";
+        public const string MainReceiverId = "Main";
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
