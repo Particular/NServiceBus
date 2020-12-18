@@ -15,7 +15,6 @@
         public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
         {
             var transportDefinition = transportSettings.TransportDefinition;
-            var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
 
             var transportInfrastructure = transportDefinition.Initialize(transportSettings.settings, connectionString);
 
@@ -41,7 +40,6 @@
             {
                 this.settings = settings;
 
-                settings.SetDefault(TransportConnectionString.Default);
                 settings.Set(new QueueBindings());
             }
 
@@ -56,12 +54,6 @@
 
                     return settings.Get<TransportDefinition>();
                 }
-                set => settings.Set(value);
-            }
-
-            public TransportConnectionString TransportConnectionString
-            {
-                get => settings.Get<TransportConnectionString>();
                 set => settings.Set(value);
             }
 

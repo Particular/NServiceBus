@@ -301,9 +301,27 @@ namespace NServiceBus
         [ObsoleteEx(
             Message = "Loading named connection strings is no longer supported",
             ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "7.0",
+            TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public new TransportExtensions<T> ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public new TransportExtensions<T> ConnectionString(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
         {
             throw new NotImplementedException();
         }
@@ -320,6 +338,26 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions ConnectionString(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions ConnectionString(Func<string> connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }
 
