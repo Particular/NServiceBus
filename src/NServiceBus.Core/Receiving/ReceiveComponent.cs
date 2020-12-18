@@ -1,3 +1,5 @@
+using NServiceBus.Unicast.Messages;
+
 namespace NServiceBus
 {
     using System;
@@ -14,49 +16,28 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
-        ReceiveComponent(Configuration configuration,
-            CriticalError criticalError,
-            string errorQueue,
-            TransportReceiveInfrastructure transportReceiveInfrastructure)
+        ReceiveComponent(Configuration configuration)
         {
             this.configuration = configuration;
-            this.criticalError = criticalError;
-            this.errorQueue = errorQueue;
-            this.transportReceiveInfrastructure = transportReceiveInfrastructure;
         }
 
-        public static ReceiveComponent Initialize(
+        public static ReceiveComponent Configure(
             Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
-            TransportReceiveInfrastructure transportReceiveInfrastructure = null;
-
             if (!configuration.IsSendOnlyEndpoint)
             {
-                transportReceiveInfrastructure = configuration.transportSeam.TransportInfrastructure.ConfigureReceiveInfrastructure();
+                configuration.transportSeam.Configure(new ReceiveSettings[0]);
 
-                if (configuration.CreateQueues)
-                {
-                    hostingConfiguration.AddInstaller(identity =>
-                    {
-                        var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
-                        return queueCreator.CreateQueueIfNecessary(configuration.transportSeam.QueueBindings, identity);
-                    });
-                }
+                pipelineSettings.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
+                pipelineSettings.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
+
+                return new ReceiveComponent(configuration);
             }
 
-            var receiveComponent = new ReceiveComponent(
-                configuration,
-                hostingConfiguration.CriticalError,
-                errorQueue,
-                transportReceiveInfrastructure);
-
-            if (configuration.IsSendOnlyEndpoint)
-            {
-                return receiveComponent;
-            }
+            var receiveComponent = new ReceiveComponent(configuration);
 
             receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
 
@@ -116,6 +97,34 @@ namespace NServiceBus
             });
 
             return receiveComponent;
+        }
+
+        static ReceiveSettings[] AddReceivers(Configuration configuration, string errorQueue, IEnumerable<MessageMetadata> eventTypes)
+        {
+            var requiredTransactionSupport = configuration.TransactionMode;
+
+            var allReceivers = new List<ReceiveSettings>();
+
+            allReceivers.Add(new ReceiveSettings(MainReceiverId, configuration.LocalAddress, true,
+                configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport, eventTypes.ToList().AsReadOnly()));
+
+            //TransportReceiver instanceReceiver = null;
+            if (configuration.InstanceSpecificQueue != null)
+            {
+                var instanceSpecificQueue = configuration.InstanceSpecificQueue;
+                allReceivers.Add(new ReceiveSettings(InstanceSpecificReceiverId, instanceSpecificQueue, false,
+                    configuration.PurgeOnStartup, errorQueue, requiredTransactionSupport, new MessageMetadata[0]));
+            }
+
+            foreach (var satelliteDefinition in configuration.SatelliteDefinitions)
+            {
+                var satelliteReceiverSettings = satelliteDefinition.Setup(errorQueue,
+                    configuration.PurgeOnStartup);
+
+                allReceivers.Add(satelliteReceiverSettings);
+            }
+
+            return allReceivers.ToArray();
         }
 
         static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportInfrastructure transportInfrastructure)
@@ -250,7 +259,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(InstanceSpecificReceiverId, messagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -304,6 +313,7 @@ namespace NServiceBus
         string errorQueue;
 
         public const string MainReceiverId = "Main";
+        public const string InstanceSpecificReceiverId = "InstanceSpecific";
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();

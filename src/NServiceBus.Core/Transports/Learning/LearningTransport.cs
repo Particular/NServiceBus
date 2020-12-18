@@ -26,6 +26,11 @@ namespace NServiceBus
 
             await learningTransportInfrastructure.ConfigureReceiveInfrastructure().ConfigureAwait(false);
 
+            //TODO: create queues
+            /*
+             * var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
+                        return queueCreator.CreateQueueIfNecessary(configuration.transportSeam.QueueBindings, identity);
+             */
             return learningTransportInfrastructure;
         }
 

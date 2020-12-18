@@ -1,4 +1,8 @@
-﻿namespace NServiceBus
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace NServiceBus
 {
     using System;
     using Settings;
@@ -6,31 +10,42 @@
 
     class TransportSeam
     {
-        protected TransportSeam(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        HostSettings hostSettings;
+        ReceiveSettings[] receivers;
+
+        protected TransportSeam(TransportDefinition transportDefinition, HostSettings hostSettings,
+            QueueBindings queueBindings)
         {
-            TransportInfrastructure = transportInfrastructure;
+            TransportDefinition = transportDefinition;
             QueueBindings = queueBindings;
+            this.hostSettings = hostSettings;
         }
 
-        public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
+        public void Configure(ReceiveSettings[] receivers)
         {
-            var transportDefinition = transportSettings.TransportDefinition;
+            this.receivers = receivers;
+        }
 
-            var transportInfrastructure = transportDefinition.Initialize(transportSettings.settings, connectionString);
+        public async Task<TransportInfrastructure> Initialize()
+        {
+            return await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
+                .ConfigureAwait(false);
+        }
 
-            //RegisterTransportInfrastructureForBackwardsCompatibility
-            transportSettings.settings.Set(transportInfrastructure);
+        public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
+        {
+            var transportDefinition = transportSeamSettings.TransportDefinition;
+            transportSeamSettings.settings.Set(transportDefinition);
 
-            hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
-            {
-                Type = transportInfrastructure.GetType().FullName,
-                Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
-            });
+            var settings = new HostSettings(hostingConfiguration.EndpointName,
+                hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers);
 
-            return new TransportSeam(transportInfrastructure, transportSettings.QueueBindings);
+            return new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
         }
 
         public TransportInfrastructure TransportInfrastructure { get; }
+        public TransportDefinition TransportDefinition { get; }
 
         public QueueBindings QueueBindings { get; }
 
