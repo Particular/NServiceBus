@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;

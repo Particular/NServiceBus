@@ -10,7 +10,7 @@ namespace NServiceBus.Transport
     {
         /// <summary>
         /// </summary>
-        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue, TransportTransactionMode requiredTransactionMode, IReadOnlyCollection<MessageMetadata> events)
+        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue, TransportTransactionMode requiredTransactionMode)
         {
             Id = id;
             ReceiveAddress = receiveAddress;
@@ -18,7 +18,6 @@ namespace NServiceBus.Transport
             PurgeOnStartup = purgeOnStartup;
             ErrorQueue = errorQueue;
             RequiredTransactionMode = requiredTransactionMode;
-            Events = events;
         }
 
         /// <summary>
@@ -49,10 +48,5 @@ namespace NServiceBus.Transport
         /// The transaction mode required for receive operations.
         /// </summary>
         public TransportTransactionMode RequiredTransactionMode { get; }
-
-        /// <summary>
-        /// A list of events that this endpoint is handling.
-        /// </summary>
-        public IReadOnlyCollection<MessageMetadata> Events { get; }
     }
 }

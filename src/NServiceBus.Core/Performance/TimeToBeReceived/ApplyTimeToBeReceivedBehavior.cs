@@ -1,8 +1,9 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using Performance.TimeToBeReceived;
     using Pipeline;
 
@@ -17,7 +18,7 @@
         {
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
             {
-                context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
+                context.Extensions.Get<TransportProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived);
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 

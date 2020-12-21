@@ -1,4 +1,6 @@
-﻿using NServiceBus.Transports;
+﻿using System.Collections.Generic;
+using NServiceBus.Transports;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
 {
@@ -50,7 +52,7 @@ namespace NServiceBus
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -59,15 +61,21 @@ namespace NServiceBus
 
             maxConcurrency = limitations.MaxConcurrency;
             concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
-            cancellationTokenSource = new CancellationTokenSource();
-
-            cancellationToken = cancellationTokenSource.Token;
 
             RecoverPendingTransactions();
 
             EnsureDirectoriesExists();
 
-            messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        public Task StartReceive(CancellationToken cancellationToken)
+        {
+            cancellationTokenSource = new CancellationTokenSource();
+
+            this.cancellationToken = cancellationTokenSource.Token;
+
+            messagePumpTask = Task.Run(ProcessMessages, this.cancellationToken);
 
             delayedMessagePoller.Start();
 

@@ -34,10 +34,10 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
+            //TODO: move this inside the seam
             await sendComponent.SendPreStartupChecks().ConfigureAwait(false);
             await receiveComponent.ReceivePreStartupChecks().ConfigureAwait(false);
 
-            await transportInfrastructure.Start().ConfigureAwait(false);
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
@@ -52,13 +52,11 @@ namespace NServiceBus
 #else
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 #endif
-            await receiveComponent.PrepareToStart(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
-
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
-            await receiveComponent.Start().ConfigureAwait(false);
+            await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
 
             return runningInstance;
         }

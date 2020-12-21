@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
@@ -27,7 +28,7 @@ namespace NServiceBus
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
-            if (!configuration.IsSendOnlyEndpoint)
+            if (configuration.IsSendOnlyEndpoint)
             {
                 configuration.transportSeam.Configure(new ReceiveSettings[0]);
 
@@ -62,6 +63,7 @@ namespace NServiceBus
             var externalHandlerRegistryUsed = hostingConfiguration.Services.HasComponent<MessageHandlerRegistry>();
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
+            
             if (!externalHandlerRegistryUsed)
             {
                 var messageHandlerRegistry = configuration.messageHandlerRegistry;
@@ -99,6 +101,104 @@ namespace NServiceBus
             return receiveComponent;
         }
 
+        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportInfrastructure transportInfrastructure)
+        {
+            var transportTransactionSupport = transportInfrastructure.TransactionMode;
+
+            //if user haven't asked for a explicit level use what the transport supports
+            if (!settings.UserHasProvidedTransportTransactionMode)
+            {
+                return transportTransactionSupport;
+            }
+
+            var requestedTransportTransactionMode = settings.UserTransportTransactionMode;
+
+            if (requestedTransportTransactionMode > transportTransactionSupport)
+            {
+                throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
+            }
+
+            return requestedTransportTransactionMode;
+        }
+
+        public async Task ReceivePreStartupChecks()
+        {
+            if (transportReceiveInfrastructure != null)
+            {
+                var result = await transportReceiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task Start(IServiceProvider builder,
+            RecoverabilityComponent recoverabilityComponent,
+            MessageOperations messageOperations,
+            PipelineComponent pipelineComponent,
+            IPipelineCache pipelineCache,
+            TransportInfrastructure transportInfrastructure)
+        {
+            if (configuration.IsSendOnlyEndpoint)
+            {
+                return;
+            }
+
+            var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
+            var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
+            var recoverability = recoverabilityExecutorFactory
+                .CreateDefault(configuration.LocalAddress);
+
+            var mainPump = transportInfrastructure.GetReceiver(MainReceiverId);
+            mainReceiver = new TransportReceiver(mainPump, configuration.PushRuntimeSettings);
+
+            var messageMetadataRegistry = builder.GetRequiredService<MessageMetadataRegistry>();
+            var messageTypesHandled = GetEventTypesHandledByThisEndpoint(builder.GetRequiredService<MessageHandlerRegistry>(), builder.GetRequiredService<Conventions>());
+            var mainReceiverEvents = messageTypesHandled.Select(t => messageMetadataRegistry.GetMessageMetadata(t)).ToList().AsReadOnly();
+            await mainReceiver.Start(mainPipelineExecutor.Invoke, recoverability.Invoke, mainReceiverEvents).ConfigureAwait(false);
+
+            var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
+            if (instanceSpecificPump != null)
+            {
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
+
+                instanceReceiver = new TransportReceiver(instanceSpecificPump, configuration.PushRuntimeSettings);
+                await instanceReceiver.Start(mainPipelineExecutor.Invoke, instanceSpecificRecoverabilityExecutor.Invoke, new ReadOnlyCollection<MessageMetadata>()).ConfigureAwait(false);
+            }
+            
+            foreach (var satellite in configuration.SatelliteDefinitions)
+            {
+                try
+                {
+                    //TODO use Wrap Satellite in a TransportReceiver too (or eliminate TransportReceiver completely)
+                    var satellitePump = transportInfrastructure.GetReceiver(satellite.Name);
+                    await satellite.Start(satellitePump, builder, recoverabilityExecutorFactory).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal("Satellite failed to start.", ex);
+                    throw;
+                }
+            }
+        }
+
+         static List<Type> GetEventTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions)
+         {
+            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
+                .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
+                .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
+                .Where(t => conventions.IsEventType(t)) //only events unless the user asked for all messages
+                //TODO: respect SubscribeSettings.AutoSubscribeSagas setting
+                //.Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
+                .ToList();
+
+            //TODO respect SubscribeSettings.ExcludedTypes
+            return messageTypesHandled;
+         }
+
         static ReceiveSettings[] AddReceivers(Configuration configuration, string errorQueue, IEnumerable<MessageMetadata> eventTypes)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
@@ -126,91 +226,6 @@ namespace NServiceBus
 
             return allReceivers.ToArray();
         }
-
-        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportInfrastructure transportInfrastructure)
-        {
-            var transportTransactionSupport = transportInfrastructure.TransactionMode;
-
-            //if user haven't asked for a explicit level use what the transport supports
-            if (!settings.UserHasProvidedTransportTransactionMode)
-            {
-                return transportTransactionSupport;
-            }
-
-            var requestedTransportTransactionMode = settings.UserTransportTransactionMode;
-
-            if (requestedTransportTransactionMode > transportTransactionSupport)
-            {
-                throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
-            }
-
-            return requestedTransportTransactionMode;
-        }
-
-        public async Task PrepareToStart(IServiceProvider builder,
-            RecoverabilityComponent recoverabilityComponent,
-            MessageOperations messageOperations,
-            PipelineComponent pipelineComponent,
-            IPipelineCache pipelineCache)
-        {
-            if (configuration.IsSendOnlyEndpoint)
-            {
-                return;
-            }
-
-            var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
-
-            if (configuration.PurgeOnStartup)
-            {
-                Logger.Warn("All queues owned by the endpoint will be purged on startup.");
-            }
-
-            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory);
-
-            foreach (var receiver in receivers)
-            {
-                try
-                {
-                    await receiver.Init().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Fatal($"Receiver {receiver.Id} failed to initialize.", ex);
-                    throw;
-                }
-            }
-        }
-
-        public async Task ReceivePreStartupChecks()
-        {
-            if (transportReceiveInfrastructure != null)
-            {
-                var result = await transportReceiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
-
-                if (!result.Succeeded)
-                {
-                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-                }
-            }
-        }
-
-        public async Task Start()
-        {
-            foreach (var receiver in receivers)
-            {
-                try
-                {
-                    await receiver.Start().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Fatal($"Receiver {receiver.Id} failed to start.", ex);
-                    throw;
-                }
-            }
-        }
-
         public Task Stop()
         {
             var receiverStopTasks = receivers.Select(async receiver =>
@@ -317,5 +332,7 @@ namespace NServiceBus
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+        TransportReceiver mainReceiver;
+        TransportReceiver instanceReceiver;
     }
 }

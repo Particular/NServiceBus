@@ -544,13 +544,11 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
-    using DeliveryConstraints;
-
     [ObsoleteEx(
         Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
-    public class NonDurableDelivery : DeliveryConstraint
+    public class NonDurableDelivery 
     {
     }
 }

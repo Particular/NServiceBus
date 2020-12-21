@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.Transport;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.Transports
 {
@@ -11,12 +13,17 @@ namespace NServiceBus.Transports
     public interface IMessageReceiver
     {
         /// <summary>
-        /// Starts pushing messages.
+        /// Initializes the receiver.
         /// </summary>
-        Task StartReceive(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CancellationToken cancellationToken = default);
+        Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Stops pushing messages.
+        /// Starts receiving messages from the input queue.
+        /// </summary>
+        Task StartReceive(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Stops receiving messages.
         /// </summary>
         Task StopReceive(CancellationToken cancellationToken = default);
 

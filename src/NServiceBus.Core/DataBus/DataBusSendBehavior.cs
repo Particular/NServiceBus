@@ -1,13 +1,13 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
     using System.Transactions;
     using DataBus;
-    using DeliveryConstraints;
     using Microsoft.Extensions.DependencyInjection;
-    using Performance.TimeToBeReceived;
     using Pipeline;
 
     class DataBusSendBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
@@ -23,9 +23,9 @@
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
-            if (context.Extensions.TryGetDeliveryConstraint(out DiscardIfNotReceivedBefore constraint))
+            if (context.Extensions.TryGet<TransportProperties>(out var properties) && properties.DiscardIfNotReceivedBefore != null)
             {
-                timeToBeReceived = constraint.MaxTime;
+                timeToBeReceived = properties.DiscardIfNotReceivedBefore.MaxTime;
             }
 
             var message = context.Message.Instance;

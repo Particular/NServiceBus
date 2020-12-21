@@ -1,10 +1,11 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using DeliveryConstraints;
     using Outbox;
     using Performance.TimeToBeReceived;
     using Pipeline;
@@ -70,8 +71,9 @@ namespace NServiceBus
                     new Transport.TransportOperation(
                         message,
                         DeserializeRoutingStrategy(operation.Options),
-                        DispatchConsistency.Isolated,
-                        DeserializeConstraints(operation.Options)));
+                        operation.Options,
+                        DispatchConsistency.Isolated
+                        ));
             }
         }
 
@@ -81,12 +83,7 @@ namespace NServiceBus
             var index = 0;
             foreach (var operation in operations)
             {
-                var options = new Dictionary<string, string>();
-
-                foreach (var constraint in operation.DeliveryConstraints)
-                {
-                    SerializeDeliveryConstraint(constraint, options);
-                }
+                var options = new Dictionary<string, string>(operation.Properties);
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
 
@@ -113,59 +110,17 @@ namespace NServiceBus
             throw new Exception($"Unknown routing strategy {addressTag.GetType().FullName}");
         }
 
-        static void SerializeDeliveryConstraint(DeliveryConstraint constraint, Dictionary<string, string> options)
-        {
-            if (constraint is DoNotDeliverBefore doNotDeliverBefore)
-            {
-                options["DeliverAt"] = DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore.At);
-                return;
-            }
-
-            if (constraint is DelayDeliveryWith delayDeliveryWith)
-            {
-                options["DelayDeliveryFor"] = delayDeliveryWith.Delay.ToString();
-                return;
-            }
-
-            if (constraint is DiscardIfNotReceivedBefore discard)
-            {
-                options["TimeToBeReceived"] = discard.MaxTime.ToString();
-                return;
-            }
-
-            throw new Exception($"Unknown delivery constraint {constraint.GetType().FullName}");
-        }
-
-        static List<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
-        {
-            var constraints = new List<DeliveryConstraint>(4);
-
-            if (options.TryGetValue("DeliverAt", out var deliverAt))
-            {
-                constraints.Add(new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(deliverAt)));
-            }
-
-            if (options.TryGetValue("DelayDeliveryFor", out var delay))
-            {
-                constraints.Add(new DelayDeliveryWith(TimeSpan.Parse(delay)));
-            }
-
-            if (options.TryGetValue("TimeToBeReceived", out var ttbr))
-            {
-                constraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr)));
-            }
-            return constraints;
-        }
-
         static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
         {
             if (options.TryGetValue("Destination", out var destination))
             {
+                options.Remove("Destination");
                 return new UnicastAddressTag(destination);
             }
 
             if (options.TryGetValue("EventType", out var eventType))
             {
+                options.Remove("EventType");
                 return new MulticastAddressTag(Type.GetType(eventType, true));
             }
 
