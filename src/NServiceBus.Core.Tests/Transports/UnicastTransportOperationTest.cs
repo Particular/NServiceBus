@@ -16,10 +16,10 @@ namespace NServiceBus.Core.Tests.Transports
             var secondTransportOperation = new UnicastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), "destination2");
 
             var randomConstraint = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
-            transportOperation.DeliveryConstraints.Add(randomConstraint);
+            transportOperation.Properties.Add(randomConstraint);
 
-            Assert.IsEmpty(secondTransportOperation.DeliveryConstraints);
-            Assert.IsNotEmpty(transportOperation.DeliveryConstraints);
+            Assert.IsEmpty(secondTransportOperation.Properties);
+            Assert.IsNotEmpty(transportOperation.Properties);
         }
     }
 }

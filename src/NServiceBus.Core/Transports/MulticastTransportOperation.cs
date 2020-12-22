@@ -1,8 +1,8 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Transport
 {
     using System;
-    using System.Collections.Generic;
-    using DeliveryConstraints;
 
     /// <summary>
     /// Represents a transport operation which should be delivered to multiple receivers.
@@ -12,11 +12,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation" /> instance.
         /// </summary>
-        public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
+        public MulticastTransportOperation(OutgoingMessage message, Type messageType, TransportProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             MessageType = messageType;
-            DeliveryConstraints = deliveryConstraints ?? new List<DeliveryConstraint>(0);
+            Properties = properties;
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 
@@ -26,10 +26,10 @@ namespace NServiceBus.Transport
         public Type MessageType { get; }
 
         /// <summary>
-        /// The delivery constraints that must be honored by the transport.
+        /// Properties that must be honored by the transport.
         /// </summary>
-        /// <remarks>The delivery constraints should only ever be read. When there are no delivery constraints a cached empty constraints list is returned.</remarks>
-        public List<DeliveryConstraint> DeliveryConstraints { get; }
+        /// <remarks>Properties should only ever be read. When there are no delivery constraints a cached empty constraints list is returned.</remarks>
+        public TransportProperties Properties { get; }
 
         /// <summary>
         /// The message to be sent over the transport.

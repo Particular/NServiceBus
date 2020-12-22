@@ -1,9 +1,10 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using MessageInterfaces;
     using Pipeline;
 
@@ -109,11 +110,11 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            if (options.DelayedDeliveryConstraint != null)
+            if (options.TransportProperties != null)
             {
                 // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
                 // and the delivery constraints might be removed by the TimeoutManager logic.
-                outgoingContext.AddDeliveryConstraint(options.DelayedDeliveryConstraint);
+                outgoingContext.AddTransportProperties(options.TransportProperties);
             }
 
             return sendPipeline.Invoke(outgoingContext);

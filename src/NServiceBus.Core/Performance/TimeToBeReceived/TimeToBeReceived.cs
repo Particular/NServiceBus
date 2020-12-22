@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Features
+﻿using NServiceBus.Transport;
+
+namespace NServiceBus.Features
 {
     using System.Linq;
-    using DeliveryConstraints;
-    using Performance.TimeToBeReceived;
     using Unicast.Messages;
 
     class TimeToBeReceived : Feature
@@ -31,7 +31,7 @@
                 convention = userDefinedConvention.GetTimeToBeReceivedForMessage;
             }
 
-            var doesTransportSupportDiscardIfNotReceivedBefore = context.Settings.DoesTransportSupportConstraint<DiscardIfNotReceivedBefore>();
+            var doesTransportSupportDiscardIfNotReceivedBefore = context.Settings.Get<TransportDefinition>().SupportsTTBR;
             return new TimeToBeReceivedMappings(knownMessages, convention, doesTransportSupportDiscardIfNotReceivedBefore);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using NServiceBus.DelayedDelivery;
 using NServiceBus.Extensibility;
 using NServiceBus.Performance.TimeToBeReceived;
@@ -20,6 +21,13 @@ namespace NServiceBus.Transports
         /// 
         /// </summary>
         public Dictionary<string, string> Properties { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TransportProperties() : this(new Dictionary<string, string>())
+        {
+        }
 
         /// <summary>
         /// 
@@ -76,7 +84,40 @@ namespace NServiceBus.Transports
         /// </summary>
         public static TransportProperties GetTransportProperties(this ContextBag bag)
         {
-            return bag.Get<TransportProperties>();
+            Guard.AgainstNull(nameof(bag), bag);
+
+            if (bag.TryGet(out TransportProperties properties))
+            {
+                return properties;
+            }
+
+            return new TransportProperties(new Dictionary<string, string>());
+        }
+
+        /// <summary>
+        /// Adds a <see cref="TransportProperties" /> to a <see cref="ContextBag" />.
+        /// </summary>
+        public static void AddTransportProperties(this ContextBag context, TransportProperties properties)
+        {
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(properties), properties);
+
+            if (!context.TryGet(out TransportProperties contextProperties))
+            {
+                contextProperties = new TransportProperties(properties.Properties);
+
+                context.Set(contextProperties);
+            }
+
+            foreach (var property in properties.Properties)
+            {
+                if (contextProperties.Properties.Any(kv => kv.Key == property.Key))
+                {
+                    throw new InvalidOperationException($"Property of type {property.Key} already exists");
+                }
+
+                contextProperties.Properties.Add(property.Key, property.Value);
+            }
         }
 
         /// <summary>

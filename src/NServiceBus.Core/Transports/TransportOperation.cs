@@ -1,7 +1,6 @@
 namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
-    using DeliveryConstraints;
     using Routing;
 
     /// <summary>
@@ -16,11 +15,11 @@ namespace NServiceBus.Transport
         /// <param name="addressTag">The address to use when routing this message.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
         /// <param name="properties">Delivery properties of the message</param>
-        public TransportOperation(OutgoingMessage message, AddressTag addressTag, Dictionary<string, string> properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public TransportOperation(OutgoingMessage message, AddressTag addressTag, Dictionary<string, string> properties = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             AddressTag = addressTag;
-            Properties = properties;
+            Properties = properties ?? new Dictionary<string, string>();
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 

@@ -1,9 +1,10 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Text;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using Logging;
     using Pipeline;
     using Routing;
@@ -22,7 +23,8 @@
             {
                 var addressLabel = strategy.Apply(context.Message.Headers);
                 var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-                operations[index] = new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
+                var properties = context.Extensions.GetTransportProperties();
+                operations[index] = new TransportOperation(message, addressLabel, properties.Properties, dispatchConsistency);
                 index++;
             }
 

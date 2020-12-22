@@ -33,5 +33,9 @@ namespace NServiceBus.Transport
         /// <summary>
         /// </summary>
         public abstract bool SupportsPublishSubscribe { get; }
+        
+        /// <summary>
+        /// </summary>
+        public abstract bool SupportsTTBR { get; }
     }
 }

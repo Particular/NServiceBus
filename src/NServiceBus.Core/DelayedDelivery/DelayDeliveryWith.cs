@@ -5,7 +5,7 @@
     /// <summary>
     /// Represent a constraint that the message can't be delivered before the specified delay has elapsed.
     /// </summary>
-    public class DelayDeliveryWith : DelayedDeliveryConstraint
+    public class DelayDeliveryWith
     {
         /// <summary>
         /// Initializes a new instance of <see cref="DelayDeliveryWith" />.

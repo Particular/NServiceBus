@@ -1,3 +1,5 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus
 {
     using System;
@@ -27,16 +29,16 @@ namespace NServiceBus
                 }
             }
 
-            var deliveryConstraints = new List<DeliveryConstraint>();
+            var transportProperties = new TransportProperties();
 
             if (timeToBeReceived.HasValue)
             {
-                deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
+                transportProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
             }
 
             var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
-            dispatchContext.Extensions.Set(deliveryConstraints);
+            dispatchContext.Extensions.Set(transportProperties);
 
             return stage(dispatchContext);
         }

@@ -84,6 +84,10 @@ namespace NServiceBus
 
         /// <summary>
         /// </summary>
+        public override bool SupportsTTBR { get; } = true;
+
+        /// <summary>
+        /// </summary>
         public string StorageDirectory { get; set; }
 
         /// <summary>

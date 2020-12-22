@@ -40,7 +40,7 @@
             await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
-            var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
+            var deliveryConstraint = transportOperation.Properties.OfType<DelayDeliveryWith>().SingleOrDefault();
 
             Assert.AreEqual(transportOperation.Destination, EndpointInputQueue);
             Assert.IsNotNull(deliveryConstraint);

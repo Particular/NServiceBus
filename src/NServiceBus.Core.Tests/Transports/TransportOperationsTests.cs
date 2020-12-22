@@ -34,7 +34,7 @@
             var unicastOp = result.UnicastTransportOperations.Single();
             Assert.AreEqual(unicastOperation.Message, unicastOp.Message);
             Assert.AreEqual((unicastOperation.AddressTag as UnicastAddressTag)?.Destination, unicastOp.Destination);
-            Assert.AreEqual(unicastOperation.DeliveryConstraints, unicastOp.DeliveryConstraints);
+            Assert.AreEqual(unicastOperation.DeliveryConstraints, unicastOp.Properties);
             Assert.AreEqual(unicastOperation.RequiredDispatchConsistency, unicastOp.RequiredDispatchConsistency);
         }
 

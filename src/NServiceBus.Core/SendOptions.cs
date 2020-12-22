@@ -1,6 +1,7 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus
 {
-    using DelayedDelivery;
     using Extensibility;
 
     /// <summary>
@@ -11,6 +12,6 @@ namespace NServiceBus
     /// </remarks>
     public class SendOptions : ExtendableOptions
     {
-        internal DelayedDeliveryConstraint DelayedDeliveryConstraint { get; set; }
+        internal TransportProperties TransportProperties { get; set; }
     }
 }

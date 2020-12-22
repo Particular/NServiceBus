@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using Faults;
     using Hosting;
     using Logging;
@@ -73,7 +71,7 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn && settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var delayedRetriesAvailable = transactionsOn && settings.Get<TransportSeam.Settings>().TransportDefinition.SupportsDelayedDelivery;
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -137,7 +135,7 @@
 
             if (numberOfRetries > 0)
             {
-                if (!settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
+                if (!settings.Get<TransportSeam.Settings>().TransportDefinition.SupportsDelayedDelivery)
                 {
                     throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery.");
                 }

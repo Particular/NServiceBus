@@ -1,10 +1,11 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using DeliveryConstraints;
     using Extensibility;
     using Routing;
     using Transport;
@@ -26,10 +27,10 @@
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var deliveryConstraints = new List<DeliveryConstraint>(1) { new DelayDeliveryWith(delay) };
+            var messageProperties = new TransportProperties {DelayDeliveryWith = new DelayDeliveryWith(delay)};
             var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties.Properties));
 
             await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
 

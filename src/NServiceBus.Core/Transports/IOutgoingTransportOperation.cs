@@ -1,7 +1,7 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Transport
 {
-    using System.Collections.Generic;
-    using DeliveryConstraints;
 
     /// <summary>
     /// Represents a transport operation.
@@ -14,9 +14,9 @@ namespace NServiceBus.Transport
         OutgoingMessage Message { get; }
 
         /// <summary>
-        /// The delivery constraints that must be honored by the transport.
+        /// The delivery properties that must be honored by the transport.
         /// </summary>
-        List<DeliveryConstraint> DeliveryConstraints { get; }
+        TransportProperties Properties { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.
