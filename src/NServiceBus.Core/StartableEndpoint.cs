@@ -14,7 +14,7 @@ namespace NServiceBus
         public StartableEndpoint(SettingsHolder settings,
             FeatureComponent featureComponent,
             ReceiveComponent receiveComponent,
-            TransportInfrastructure transportInfrastructure,
+            TransportSeam transportSeam,
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
@@ -24,7 +24,7 @@ namespace NServiceBus
             this.settings = settings;
             this.featureComponent = featureComponent;
             this.receiveComponent = receiveComponent;
-            this.transportInfrastructure = transportInfrastructure;
+            this.transportSeam = transportSeam;
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
@@ -34,10 +34,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            //TODO: move this inside the seam
-            await sendComponent.SendPreStartupChecks().ConfigureAwait(false);
-            await receiveComponent.ReceivePreStartupChecks().ConfigureAwait(false);
-
+            await transportSeam.Initialize().ConfigureAwait(false);
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
@@ -54,9 +51,9 @@ namespace NServiceBus
 #endif
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportSeam.TransportInfrastructure);
 
-            await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
+            await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache).ConfigureAwait(false);
 
             return runningInstance;
         }
@@ -69,6 +66,6 @@ namespace NServiceBus
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;
-        readonly TransportInfrastructure transportInfrastructure;
+        readonly TransportSeam transportSeam;
     }
 }

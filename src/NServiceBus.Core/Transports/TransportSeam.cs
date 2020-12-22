@@ -26,9 +26,9 @@ namespace NServiceBus
             this.receivers = receivers;
         }
 
-        public async Task<TransportInfrastructure> Initialize()
+        public async Task Initialize()
         {
-            return await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
+            TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
                 .ConfigureAwait(false);
         }
 
@@ -44,7 +44,7 @@ namespace NServiceBus
             return new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
         }
 
-        public TransportInfrastructure TransportInfrastructure { get; }
+        public TransportInfrastructure TransportInfrastructure { get; private set; }
         public TransportDefinition TransportDefinition { get; }
 
         public QueueBindings QueueBindings { get; }

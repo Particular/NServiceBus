@@ -12,8 +12,6 @@ namespace NServiceBus
 
     class SatelliteDefinition
     {
-        IMessageReceiver satelliteReceiver;
-
         public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
         {
             Name = name;
@@ -22,18 +20,6 @@ namespace NServiceBus
             RuntimeSettings = runtimeSettings;
             RecoverabilityPolicy = recoverabilityPolicy;
             OnMessage = onMessage;
-        }
-
-        public async Task Start(IMessageReceiver satelliteReceiver, IServiceProvider builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
-        {
-            this.satelliteReceiver = satelliteReceiver;
-
-            var satellitePipeline = new SatellitePipelineExecutor(builder, this);
-            var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(RecoverabilityPolicy, ReceiveAddress);
-            
-            await satelliteReceiver.Initialize(RuntimeSettings, satellitePipeline.Invoke, satelliteRecoverabilityExecutor.Invoke, new ReadOnlyCollection<MessageMetadata>(new List<MessageMetadata>()), CancellationToken.None).ConfigureAwait(false);
-
-            await satelliteReceiver.StartReceive(CancellationToken.None).ConfigureAwait(false);
         }
 
         public string Name { get; }

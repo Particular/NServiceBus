@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
@@ -9,10 +11,10 @@
 
     class SendComponent
     {
-        SendComponent(IMessageMapper messageMapper, TransportInfrastructure transportInfrastructure)
+        SendComponent(IMessageMapper messageMapper, TransportSeam transportSeam)
         {
             this.messageMapper = messageMapper;
-            this.transportInfrastructure = transportInfrastructure;
+            this.transportSeam = transportSeam;
         }
 
         public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, TransportSeam transportSeam)
@@ -30,21 +32,11 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IDispatchMessages>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            var sendComponent = new SendComponent(messageMapper, transportSeam.TransportInfrastructure);
-            sendComponent.transportSendInfrastructure = sendComponent.transportInfrastructure.ConfigureSendInfrastructure();
+            var sendComponent = new SendComponent(messageMapper, transportSeam);
 
-            hostingConfiguration.Services.ConfigureComponent(() => sendComponent.GetDispatcher(), DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Services.ConfigureComponent(() => sendComponent.transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
 
             return sendComponent;
-        }
-
-        public async Task SendPreStartupChecks()
-        {
-            var sendResult = await transportSendInfrastructure.PreStartupCheck().ConfigureAwait(false);
-            if (!sendResult.Succeeded)
-            {
-                throw new Exception($"Pre start-up check failed: {sendResult.ErrorMessage}");
-            }
         }
 
         public MessageOperations CreateMessageOperations(IServiceProvider builder, PipelineComponent pipelineComponent)
@@ -58,13 +50,7 @@
                 pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder));
         }
 
-        IDispatchMessages GetDispatcher()
-        {
-            return this.transportSendInfrastructure.DispatcherFactory();
-        }
-
-        TransportSendInfrastructure transportSendInfrastructure;
         readonly IMessageMapper messageMapper;
-        readonly TransportInfrastructure transportInfrastructure;
+        readonly TransportSeam transportSeam;
     }
 }

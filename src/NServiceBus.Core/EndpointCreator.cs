@@ -73,19 +73,12 @@ namespace NServiceBus
             hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             receiveComponent = ReceiveComponent.Configure(
-                settings.Get<TransportSeam.Settings>(),
-                receiveConfiguration,
-                settings.ErrorQueueAddress(),
-                hostingConfiguration,
-                pipelineSettings, 
-                messageMetadataRegistry,
-                conventions);
-
-            receiveComponent = ReceiveComponent.Initialize(
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
                 pipelineSettings);
+
+            receiveComponent.Initialize(transportSeam);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 
@@ -130,7 +123,7 @@ namespace NServiceBus
             return new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
-                transportSeam.TransportInfrastructure,
+                transportSeam,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
