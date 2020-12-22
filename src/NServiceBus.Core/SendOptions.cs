@@ -12,6 +12,6 @@ namespace NServiceBus
     /// </remarks>
     public class SendOptions : ExtendableOptions
     {
-        internal TransportProperties TransportProperties { get; set; }
+        internal TransportProperties TransportProperties { get; } = new TransportProperties();
     }
 }

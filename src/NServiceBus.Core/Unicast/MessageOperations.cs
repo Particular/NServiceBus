@@ -18,11 +18,11 @@ namespace NServiceBus
         readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
 
         public MessageOperations(
-            IMessageMapper messageMapper, 
-            IPipeline<IOutgoingPublishContext> publishPipeline, 
-            IPipeline<IOutgoingSendContext> sendPipeline, 
-            IPipeline<IOutgoingReplyContext> replyPipeline, 
-            IPipeline<ISubscribeContext> subscribePipeline, 
+            IMessageMapper messageMapper,
+            IPipeline<IOutgoingPublishContext> publishPipeline,
+            IPipeline<IOutgoingSendContext> sendPipeline,
+            IPipeline<IOutgoingReplyContext> replyPipeline,
+            IPipeline<ISubscribeContext> subscribePipeline,
             IPipeline<IUnsubscribeContext> unsubscribePipeline)
         {
             this.messageMapper = messageMapper;
@@ -110,12 +110,8 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            if (options.TransportProperties != null)
-            {
-                // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
-                // and the delivery constraints might be removed by the TimeoutManager logic.
-                outgoingContext.AddTransportProperties(options.TransportProperties);
-            }
+            // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
+            outgoingContext.AddTransportProperties(options.TransportProperties);
 
             return sendPipeline.Invoke(outgoingContext);
         }

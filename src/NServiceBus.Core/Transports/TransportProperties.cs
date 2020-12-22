@@ -42,8 +42,8 @@ namespace NServiceBus.Transports
         /// </summary>
         public DoNotDeliverBefore DoNotDeliverBefore
         {
-            get => Properties.ContainsKey(DoNotDeliverBeforeKeyName) 
-                ? new DoNotDeliverBefore(DateTime.Parse(Properties[DoNotDeliverBeforeKeyName])) 
+            get => Properties.ContainsKey(DoNotDeliverBeforeKeyName)
+                ? new DoNotDeliverBefore(DateTime.Parse(Properties[DoNotDeliverBeforeKeyName]))
                 : null;
 
             set => Properties[DoNotDeliverBeforeKeyName] = value.At.ToString(CultureInfo.InvariantCulture);
@@ -54,20 +54,20 @@ namespace NServiceBus.Transports
         /// </summary>
         public DelayDeliveryWith DelayDeliveryWith
         {
-            get => Properties.ContainsKey(DelayDeliveryWithKeyName) 
-                ? new DelayDeliveryWith(TimeSpan.Parse(Properties[DelayDeliveryWithKeyName])) 
+            get => Properties.ContainsKey(DelayDeliveryWithKeyName)
+                ? new DelayDeliveryWith(TimeSpan.Parse(Properties[DelayDeliveryWithKeyName]))
                 : null;
 
             set => Properties[DelayDeliveryWithKeyName] = value.Delay.ToString();
-        } 
-        
+        }
+
         /// <summary>
         /// 
         /// </summary>
         public DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore
         {
-            get => Properties.ContainsKey(DiscardIfNotReceivedBeforeKeyName) 
-                ? new DiscardIfNotReceivedBefore(TimeSpan.Parse(Properties[DiscardIfNotReceivedBeforeKeyName])) 
+            get => Properties.ContainsKey(DiscardIfNotReceivedBeforeKeyName)
+                ? new DiscardIfNotReceivedBefore(TimeSpan.Parse(Properties[DiscardIfNotReceivedBeforeKeyName]))
                 : null;
 
             set => Properties[DiscardIfNotReceivedBeforeKeyName] = value.MaxTime.ToString();
@@ -102,22 +102,8 @@ namespace NServiceBus.Transports
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(properties), properties);
 
-            if (!context.TryGet(out TransportProperties contextProperties))
-            {
-                contextProperties = new TransportProperties(properties.Properties);
-
-                context.Set(contextProperties);
-            }
-
-            foreach (var property in properties.Properties)
-            {
-                if (contextProperties.Properties.Any(kv => kv.Key == property.Key))
-                {
-                    throw new InvalidOperationException($"Property of type {property.Key} already exists");
-                }
-
-                contextProperties.Properties.Add(property.Key, property.Value);
-            }
+            var contextProperties = new TransportProperties(properties.Properties);
+            context.Set(contextProperties);
         }
 
         /// <summary>
