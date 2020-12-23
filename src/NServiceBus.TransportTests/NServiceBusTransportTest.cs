@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.TransportTests
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus.TransportTests
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +9,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
-    using DeliveryConstraints;
     using Extensibility;
     using Logging;
     using NUnit.Framework;
@@ -81,19 +82,15 @@
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
 
-            var endpointConfiguration = new EndpointConfiguration(InputQueueName);
-            endpointConfiguration.SendFailedMessagesTo(ErrorQueueName);
-
-            transportSettings = endpointConfiguration.GetSettings();
-
-
-            var queueBindings = transportSettings.Get<QueueBindings>();
-            queueBindings.BindReceiving(InputQueueName);
-            queueBindings.BindSending(ErrorQueueName);
-
             Configurer = CreateConfigurer();
 
-            var configuration = Configurer.Configure(transportSettings, transactionMode);
+            var hostSettings = new HostSettings(InputQueueName,
+                string.Empty,
+                new StartupDiagnosticEntries(),
+                onCriticalError,
+                true);
+
+            var configuration = await Configurer.Configure(hostSettings, InputQueueName, ErrorQueueName, transactionMode);
 
             TransportInfrastructure = configuration.TransportInfrastructure;
 
@@ -102,17 +99,7 @@
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
 
-            var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-            var userName = GetUserName();
-            await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
-
-            var result = await ReceiveInfrastructure.PreStartupCheck();
-            if (result.Succeeded == false)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-
-            await TransportInfrastructure.Start();
+            await TransportInfrastructure.Receivers[0].Initialize();
 
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
             lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
@@ -183,7 +170,7 @@
         protected Task SendMessage(string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
-            List<DeliveryConstraint> deliveryConstraints = null,
+            TransportProperties transportProperties = null,
             DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
@@ -201,7 +188,7 @@
                 transportTransaction = new TransportTransaction();
             }
 
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchConsistency, deliveryConstraints ?? new List<DeliveryConstraint>());
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), transportProperties?.Properties, dispatchConsistency);
 
             return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
         }
@@ -211,11 +198,6 @@
             testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
             testCancellationTokenSource.Token.Register(onTimeoutAction);
-        }
-
-        protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint
-        {
-            requiredDeliveryConstraints.Add(typeof(T));
         }
 
         static string GetTestName()
