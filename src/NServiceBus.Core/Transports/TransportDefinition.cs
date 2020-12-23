@@ -27,13 +27,18 @@ namespace NServiceBus.Transport
         public abstract IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
 
         /// <summary>
+        /// Defines the selected TransportTransactionMode for this instance.
+        /// </summary>
+        public abstract TransportTransactionMode TransportTransactionMode { get; set; }
+
+        /// <summary>
         /// </summary>
         public abstract bool SupportsDelayedDelivery { get; }
 
         /// <summary>
         /// </summary>
         public abstract bool SupportsPublishSubscribe { get; }
-        
+
         /// <summary>
         /// </summary>
         public abstract bool SupportsTTBR { get; }

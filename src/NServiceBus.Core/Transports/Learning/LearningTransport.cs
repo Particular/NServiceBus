@@ -64,8 +64,8 @@ namespace NServiceBus
 
         /// <summary>
         /// </summary>
-        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; } = 
-            new[] 
+        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; } =
+            new[]
             {
                 TransportTransactionMode.None,
                 TransportTransactionMode.ReceiveOnly,
@@ -73,7 +73,11 @@ namespace NServiceBus
                 TransportTransactionMode.TransactionScope
             };
 
-        
+        /// <summary>
+        ///
+        /// </summary>
+        public override TransportTransactionMode TransportTransactionMode { get; set; } = TransportTransactionMode.SendsAtomicWithReceive;
+
         /// <summary>
         /// </summary>
         public override bool SupportsDelayedDelivery { get; } = true;
