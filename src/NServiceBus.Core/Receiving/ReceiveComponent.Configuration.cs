@@ -23,23 +23,17 @@ namespace NServiceBus
             var queueNameBase = settings.CustomLocalAddress ?? endpointName;
             var purgeOnStartup = settings.PurgeOnStartup;
 
-            var transportInfrastructure = transportSeam.TransportInfrastructure;
-
-            //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
-            var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
-
-            var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
-
-            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
+            var transportDefinition = transportSeam.TransportDefinition;
+            var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, null);
+            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
+                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
             }
 
-            var transactionMode = GetRequiredTransactionMode(settings, transportInfrastructure);
-
+            var transactionMode = GetRequiredTransactionMode(settings, transportDefinition);
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
