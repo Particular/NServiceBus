@@ -14,6 +14,11 @@
         public TransportInfrastructure TransportInfrastructure { get; set; }
 
         /// <summary>
+        /// Transport definition.
+        /// </summary>
+        public TransportDefinition TransportDefinition { get; set; }
+
+        /// <summary>
         /// Flag representing if input queue should be purged before running any test.
         /// </summary>
         public bool PurgeInputQueueOnStartup { get; set; }
