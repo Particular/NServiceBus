@@ -11,7 +11,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
     public async Task<TransportConfigurationResult> Configure(HostSettings hostSettings, string inputQueueName, string errorQueueName, TransportTransactionMode transactionMode)
     {
         storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
-        var transportDefinition = new LearningTransport()
+        var transportDefinition = new LearningTransport
         {
             TransportTransactionMode = transactionMode,
             StorageDirectory = storageDir

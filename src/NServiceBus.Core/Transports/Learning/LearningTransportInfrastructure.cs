@@ -105,7 +105,7 @@ namespace NServiceBus
 
         public override Task DisposeAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

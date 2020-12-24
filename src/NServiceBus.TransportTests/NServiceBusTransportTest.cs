@@ -1,4 +1,5 @@
 ﻿using NServiceBus.Transports;
+using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.TransportTests
 {
@@ -8,12 +9,9 @@ namespace NServiceBus.TransportTests
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Configuration.AdvancedExtensibility;
-    using Extensibility;
     using Logging;
     using NUnit.Framework;
     using Routing;
-    using Settings;
     using Transport;
 
     public abstract class NServiceBusTransportTest
@@ -32,7 +30,6 @@ namespace NServiceBus.TransportTests
             LogFactory.LogItems.Clear();
 
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
-            MessagePump = null;
             TransportInfrastructure = null;
             Configurer = null;
             testCancellationTokenSource = null;
@@ -72,8 +69,8 @@ namespace NServiceBus.TransportTests
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            MessagePump?.Stop().GetAwaiter().GetResult();
-            TransportInfrastructure?.Stop().GetAwaiter().GetResult();
+            TransportInfrastructure.Receivers[0]?.StopReceive().GetAwaiter().GetResult();
+            TransportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
@@ -94,18 +91,11 @@ namespace NServiceBus.TransportTests
 
             TransportInfrastructure = configuration.TransportInfrastructure;
 
-            IgnoreUnsupportedTransactionModes(transactionMode);
+            IgnoreUnsupportedTransactionModes(configuration.TransportDefinition, transactionMode);
             IgnoreUnsupportedDeliveryConstraints();
 
-            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
-
-            await TransportInfrastructure.Receivers[0].Initialize();
-
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
-
-            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
-            await MessagePump.Init(
+            await TransportInfrastructure.Receivers[0].Initialize(
+                new PushRuntimeSettings(8),
                 context =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
@@ -117,23 +107,16 @@ namespace NServiceBus.TransportTests
                 },
                 context =>
                 {
-                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Message.Headers[TestIdHeaderName] == testId)
                     {
                         return onError(context);
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                },
-                new FakeCriticalError(onCriticalError),
-                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
+                }, new MessageMetadata[0], CancellationToken.None);
 
-            result = await SendInfrastructure.PreStartupCheck();
-            if (result.Succeeded == false)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-
-            MessagePump.Start(configuration.PushRuntimeSettings);
+            await TransportInfrastructure.Receivers[0].StartReceive(CancellationToken.None);
         }
 
         string GetUserName()
@@ -148,20 +131,20 @@ namespace NServiceBus.TransportTests
 
         void IgnoreUnsupportedDeliveryConstraints()
         {
-            var supportedDeliveryConstraints = TransportInfrastructure.DeliveryConstraints.ToList();
-            var unsupportedDeliveryConstraints = requiredDeliveryConstraints.Where(required => !supportedDeliveryConstraints.Contains(required))
-                .ToList();
+            //var supportedDeliveryConstraints = TransportInfrastructure.DeliveryConstraints.ToList();
+            //var unsupportedDeliveryConstraints = requiredDeliveryConstraints.Where(required => !supportedDeliveryConstraints.Contains(required))
+            //    .ToList();
 
-            if (unsupportedDeliveryConstraints.Any())
-            {
-                var unsupported = string.Join(",", unsupportedDeliveryConstraints.Select(c => c.Name));
-                Assert.Ignore($"Transport doesn't support required delivery constraint(s) {unsupported}");
-            }
+            //if (unsupportedDeliveryConstraints.Any())
+            //{
+            //    var unsupported = string.Join(",", unsupportedDeliveryConstraints.Select(c => c.Name));
+            //    Assert.Ignore($"Transport doesn't support required delivery constraint(s) {unsupported}");
+            //}
         }
 
-        void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
+        void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
         {
-            if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
+            if (!transportDefinition.SupportedTransactionModes.Contains(requestedTransactionMode))
             {
                 Assert.Ignore($"Only relevant for transports supporting {requestedTransactionMode} or higher");
             }
@@ -181,8 +164,6 @@ namespace NServiceBus.TransportTests
                 message.Headers.Add(TestIdHeaderName, testId);
             }
 
-            var dispatcher = lazyDispatcher.Value;
-
             if (transportTransaction == null)
             {
                 transportTransaction = new TransportTransaction();
@@ -190,7 +171,7 @@ namespace NServiceBus.TransportTests
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), transportProperties?.Properties, dispatchConsistency);
 
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
+            return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)
@@ -238,12 +219,7 @@ namespace NServiceBus.TransportTests
         string testId;
 
         List<Type> requiredDeliveryConstraints = new List<Type>();
-        SettingsHolder transportSettings;
-        Lazy<IDispatchMessages> lazyDispatcher;
-        TransportReceiveInfrastructure ReceiveInfrastructure;
-        TransportSendInfrastructure SendInfrastructure;
         TransportInfrastructure TransportInfrastructure;
-        IPushMessages MessagePump;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
 
@@ -251,21 +227,6 @@ namespace NServiceBus.TransportTests
         const string TestIdHeaderName = "TransportTest.TestId";
 
         static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
-
-        class FakeCriticalError : CriticalError
-        {
-            public FakeCriticalError(Action<string, Exception> errorAction) : base(null)
-            {
-                this.errorAction = errorAction ?? ((s, e) => { });
-            }
-
-            public override void Raise(string errorMessage, Exception exception)
-            {
-                errorAction(errorMessage, exception);
-            }
-
-            Action<string, Exception> errorAction;
-        }
 
         class EnvironmentHelper
         {
