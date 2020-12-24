@@ -33,6 +33,7 @@ namespace NServiceBus.TransportTests
             TransportInfrastructure = null;
             Configurer = null;
             testCancellationTokenSource = null;
+            receiver = null;
         }
 
         static IConfigureTransportInfrastructure CreateConfigurer()
@@ -69,7 +70,7 @@ namespace NServiceBus.TransportTests
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            TransportInfrastructure.Receivers[0]?.StopReceive().GetAwaiter().GetResult();
+            receiver?.StopReceive().GetAwaiter().GetResult();
             TransportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
@@ -117,6 +118,8 @@ namespace NServiceBus.TransportTests
                 }, new MessageMetadata[0], CancellationToken.None);
 
             await TransportInfrastructure.Receivers[0].StartReceive(CancellationToken.None);
+
+            receiver = TransportInfrastructure.Receivers[0];
         }
 
         string GetUserName()
@@ -222,6 +225,7 @@ namespace NServiceBus.TransportTests
         TransportInfrastructure TransportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
+        IMessageReceiver receiver;
 
         const string DefaultTransportDescriptorKey = "LearningTransport";
         const string TestIdHeaderName = "TransportTest.TestId";

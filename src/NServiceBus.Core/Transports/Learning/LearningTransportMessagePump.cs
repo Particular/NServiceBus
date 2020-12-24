@@ -16,12 +16,12 @@ namespace NServiceBus
 
     class LearningTransportMessagePump : IMessageReceiver
     {
-         public LearningTransportMessagePump(
-            string id,
-            string basePath, 
-            Action<string, Exception> criticalErrorAction,
-            ISubscriptionManager subscriptionManager,
-            ReceiveSettings receiveSettings)
+        public LearningTransportMessagePump(
+           string id,
+           string basePath,
+           Action<string, Exception> criticalErrorAction,
+           ISubscriptionManager subscriptionManager,
+           ReceiveSettings receiveSettings)
         {
             Id = id;
             this.basePath = basePath;
@@ -84,7 +84,7 @@ namespace NServiceBus
 
         public async Task StopReceive(CancellationToken cancellationToken)
         {
-            cancellationTokenSource.Cancel();
+            cancellationTokenSource?.Cancel();
 
             await delayedMessagePoller.Stop()
                 .ConfigureAwait(false);

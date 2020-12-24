@@ -69,8 +69,7 @@ namespace NServiceBus
             {
                 TransportTransactionMode.None,
                 TransportTransactionMode.ReceiveOnly,
-                TransportTransactionMode.SendsAtomicWithReceive,
-                TransportTransactionMode.TransactionScope
+                TransportTransactionMode.SendsAtomicWithReceive
             };
 
         /// <summary>
