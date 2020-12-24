@@ -103,18 +103,6 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        static TransportTransactionMode GetRequiredTransactionMode(Settings settings, TransportDefinition transportDefinition)
-        {
-            var selectedTransportTransaction = transportDefinition.TransportTransactionMode;
-            if (!transportDefinition.SupportedTransactionModes.Contains(selectedTransportTransaction))
-            {
-                var supportedTransactionModes = string.Join(", ", transportDefinition.SupportedTransactionModes.Select(mode => mode.ToString()));
-                throw new Exception($"Selected transaction transaction mode `{selectedTransportTransaction}` can't be satisfied since the transport only supports `{supportedTransactionModes}`");
-            }
-
-            return selectedTransportTransaction;
-        }
-
         public void Initialize(TransportSeam transportSeam)
         {
             this.transportSeam = transportSeam;

@@ -73,11 +73,6 @@ namespace NServiceBus
             };
 
         /// <summary>
-        ///
-        /// </summary>
-        public override TransportTransactionMode TransportTransactionMode { get; set; } = TransportTransactionMode.SendsAtomicWithReceive;
-
-        /// <summary>
         /// </summary>
         public override bool SupportsDelayedDelivery { get; } = true;
 

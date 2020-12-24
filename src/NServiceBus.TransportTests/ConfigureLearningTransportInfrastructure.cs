@@ -13,7 +13,6 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
         var transportDefinition = new LearningTransport
         {
-            TransportTransactionMode = transactionMode,
             StorageDirectory = storageDir
         };
 

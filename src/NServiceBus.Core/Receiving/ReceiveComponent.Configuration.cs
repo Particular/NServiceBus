@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace NServiceBus
 {
     using System;
@@ -33,7 +35,7 @@ namespace NServiceBus
                 instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
             }
 
-            var transactionMode = GetRequiredTransactionMode(settings, transportDefinition);
+            var transactionMode = GetTransactionMode(settings, transportDefinition);
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
@@ -54,6 +56,25 @@ namespace NServiceBus
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
             return receiveConfiguration;
+        }
+
+        static TransportTransactionMode GetTransactionMode(Settings settings, TransportDefinition transportDefinition)
+        {
+            if (!settings.UserHasProvidedTransportTransactionMode)
+            {
+                //Use highest supported transaction mode
+                return transportDefinition.SupportedTransactionModes.Max();
+            }
+
+            var selectedTransportTransaction = settings.UserTransportTransactionMode;
+            if (!transportDefinition.SupportedTransactionModes.Contains(selectedTransportTransaction))
+            {
+                var supportedTransactionModes = string.Join(", ", transportDefinition.SupportedTransactionModes.Select(mode => mode.ToString()));
+                throw new Exception($"Selected transaction transaction mode `{selectedTransportTransaction}` can't be satisfied since the transport only supports `{supportedTransactionModes}`");
+            }
+
+            return selectedTransportTransaction;
+
         }
 
         public class Configuration
