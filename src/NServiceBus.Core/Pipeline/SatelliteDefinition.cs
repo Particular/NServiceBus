@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading;
-using NServiceBus.Transports;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
@@ -12,11 +6,10 @@ namespace NServiceBus
 
     class SatelliteDefinition
     {
-        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
+        public SatelliteDefinition(string name, string receiveAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
-            RequiredTransportTransactionMode = requiredTransportTransactionMode;
             RuntimeSettings = runtimeSettings;
             RecoverabilityPolicy = recoverabilityPolicy;
             OnMessage = onMessage;
@@ -25,8 +18,6 @@ namespace NServiceBus
         public string Name { get; }
 
         public string ReceiveAddress { get; }
-
-        public TransportTransactionMode RequiredTransportTransactionMode { get; }
 
         public PushRuntimeSettings RuntimeSettings { get; }
 

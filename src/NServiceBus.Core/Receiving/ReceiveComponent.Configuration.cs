@@ -35,7 +35,6 @@ namespace NServiceBus
                 instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
             }
 
-            var transactionMode = GetTransactionMode(settings, transportDefinition);
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
@@ -43,7 +42,6 @@ namespace NServiceBus
                 queueNameBase,
                 localAddress,
                 instanceSpecificQueue,
-                transactionMode,
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
@@ -58,24 +56,6 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        static TransportTransactionMode GetTransactionMode(Settings settings, TransportDefinition transportDefinition)
-        {
-            if (!settings.UserHasProvidedTransportTransactionMode)
-            {
-                //Use highest supported transaction mode
-                return transportDefinition.SupportedTransactionModes.Max();
-            }
-
-            var selectedTransportTransaction = settings.UserTransportTransactionMode;
-            if (!transportDefinition.SupportedTransactionModes.Contains(selectedTransportTransaction))
-            {
-                var supportedTransactionModes = string.Join(", ", transportDefinition.SupportedTransactionModes.Select(mode => mode.ToString()));
-                throw new Exception($"Selected transaction transaction mode `{selectedTransportTransaction}` can't be satisfied since the transport only supports `{supportedTransactionModes}`");
-            }
-
-            return selectedTransportTransaction;
-
-        }
 
         public class Configuration
         {
@@ -83,7 +63,6 @@ namespace NServiceBus
                 string queueNameBase,
                 string localAddress,
                 string instanceSpecificQueue,
-                TransportTransactionMode transactionMode,
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
@@ -96,7 +75,6 @@ namespace NServiceBus
                 QueueNameBase = queueNameBase;
                 LocalAddress = localAddress;
                 InstanceSpecificQueue = instanceSpecificQueue;
-                TransactionMode = transactionMode;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
@@ -114,8 +92,6 @@ namespace NServiceBus
 
             public string InstanceSpecificQueue { get; }
 
-            public TransportTransactionMode TransactionMode { get; }
-
             public PushRuntimeSettings PushRuntimeSettings { get; }
 
             public string QueueNameBase { get; }
@@ -132,7 +108,7 @@ namespace NServiceBus
 
             public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
             {
-                var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
+                var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 
                 satelliteDefinitions.Add(satelliteDefinition);
             }

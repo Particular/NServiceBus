@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features
+﻿using NServiceBus.ConsistencyGuarantees;
+
+namespace NServiceBus.Features
 {
     using System;
 
@@ -12,8 +14,9 @@
             Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
                 "Outbox is only relevant for endpoints receiving messages.");
+
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly")
-                && c.Receiving.TransactionMode != TransportTransactionMode.None,
+                && c.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None,
                 "Outbox isn't needed since the receive transactions have been turned off");
         }
 

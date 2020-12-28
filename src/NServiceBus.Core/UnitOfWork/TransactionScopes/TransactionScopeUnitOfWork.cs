@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features
+﻿using NServiceBus.ConsistencyGuarantees;
+
+namespace NServiceBus.Features
 {
     using System;
     using System.Transactions;
@@ -7,7 +9,7 @@
     {
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Receiving.TransactionMode == TransportTransactionMode.TransactionScope)
+            if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
             {
                 throw new Exception("A Transaction scope unit of work can't be used when the transport already uses a scope for the receive operation. Remove the call to config.UnitOfWork().WrapHandlersInATransactionScope() or configure the transport to use a lower transaction mode");
             }

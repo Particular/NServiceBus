@@ -20,8 +20,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
             "mainReceiver",
             inputQueueName,
             transportDefinition.SupportsPublishSubscribe,
-            true, errorQueueName,
-            transactionMode);
+            true, errorQueueName);
 
         return new TransportConfigurationResult
         {

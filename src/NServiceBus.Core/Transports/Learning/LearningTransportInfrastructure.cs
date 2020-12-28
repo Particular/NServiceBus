@@ -83,7 +83,7 @@ namespace NServiceBus
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
-            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings, transport.TransportTransactionMode);
             return Task.FromResult<IMessageReceiver>(pump);
         }
 

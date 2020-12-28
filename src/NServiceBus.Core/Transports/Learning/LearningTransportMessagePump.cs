@@ -16,18 +16,19 @@ namespace NServiceBus
 
     class LearningTransportMessagePump : IMessageReceiver
     {
-        public LearningTransportMessagePump(
-           string id,
-           string basePath,
-           Action<string, Exception> criticalErrorAction,
-           ISubscriptionManager subscriptionManager,
-           ReceiveSettings receiveSettings)
+        public LearningTransportMessagePump(string id,
+            string basePath,
+            Action<string, Exception> criticalErrorAction,
+            ISubscriptionManager subscriptionManager,
+            ReceiveSettings receiveSettings, 
+            TransportTransactionMode transactionMode)
         {
             Id = id;
             this.basePath = basePath;
             this.criticalErrorAction = criticalErrorAction;
             this.subscriptionManager = subscriptionManager;
             this.receiveSettings = receiveSettings;
+            this.transactionMode = transactionMode;
         }
 
         public void Init()
@@ -106,7 +107,7 @@ namespace NServiceBus
 
         void RecoverPendingTransactions()
         {
-            if (receiveSettings.RequiredTransactionMode != TransportTransactionMode.None)
+            if (transactionMode != TransportTransactionMode.None)
             {
                 DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(messagePumpBasePath, PendingDirName, CommittedDirName);
             }
@@ -135,7 +136,7 @@ namespace NServiceBus
             Directory.CreateDirectory(delayedDir);
             Directory.CreateDirectory(pendingTransactionDir);
 
-            if (receiveSettings.RequiredTransactionMode != TransportTransactionMode.None)
+            if (transactionMode != TransportTransactionMode.None)
             {
                 Directory.CreateDirectory(committedTransactionDir);
             }
@@ -214,7 +215,7 @@ namespace NServiceBus
 
         ILearningTransportTransaction GetTransaction()
         {
-            if (receiveSettings.RequiredTransactionMode == TransportTransactionMode.None)
+            if (transactionMode == TransportTransactionMode.None)
             {
                 return new NoTransaction(messagePumpBasePath, PendingDirName);
             }
@@ -288,7 +289,7 @@ namespace NServiceBus
 
             var transportTransaction = new TransportTransaction();
 
-            if (receiveSettings.RequiredTransactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
             {
                 transportTransaction.Set(transaction);
             }
@@ -358,6 +359,7 @@ namespace NServiceBus
         Action<string, Exception> criticalErrorAction;
         private readonly ISubscriptionManager subscriptionManager;
         private readonly ReceiveSettings receiveSettings;
+        readonly TransportTransactionMode transactionMode;
 
 
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();

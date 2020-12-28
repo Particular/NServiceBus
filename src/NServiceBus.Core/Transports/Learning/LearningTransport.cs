@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +13,14 @@ namespace NServiceBus
     /// </summary>
     public class LearningTransport : TransportDefinition
     {
+        /// <summary>
+        /// Creates a new instance of a learning transport.
+        /// </summary>
+        public LearningTransport()
+            : base(TransportTransactionMode.SendsAtomicWithReceive)
+        {
+        }
+
         /// <summary>
         /// Initializes all the factories and supported features for the transport. This method is called right before all features
         /// are activated and the settings will be locked down. This means you can use the SettingsHolder both for providing
@@ -91,5 +101,7 @@ namespace NServiceBus
         /// <summary>
         /// </summary>
         public bool RestrictPayloadSize { get; set; }
+
+        
     }
 }

@@ -46,7 +46,7 @@
 
             hostInformation = hostingConfiguration.HostInformation;
 
-            transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
+            transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
 
             var errorQueue = settings.ErrorQueueAddress();
             transportSeam.QueueBindings.BindSending(errorQueue);

@@ -1,9 +1,10 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using NServiceBus.DataBus;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
@@ -40,7 +41,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusProperty = new DataBusProperty<string>("test")
             });
 
-            context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
+            context.Extensions.Get<TransportProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1));
 
             var fakeDatabus = new FakeDataBus();
 

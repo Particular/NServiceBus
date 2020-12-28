@@ -87,13 +87,12 @@ namespace NServiceBus
                 configuration.LogicalAddress,
                 configuration.PurgeOnStartup,
                 configuration.QueueNameBase,
-                TransactionMode = configuration.TransactionMode.ToString("G"),
+                TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
                 configuration.PushRuntimeSettings.MaxConcurrency,
                 Satellites = configuration.SatelliteDefinitions.Select(s => new
                 {
                     s.Name,
                     s.ReceiveAddress,
-                    TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
                     s.RuntimeSettings.MaxConcurrency
                 }).ToArray(),
                 ExternalHandlerRegistry = externalHandlerRegistryUsed,

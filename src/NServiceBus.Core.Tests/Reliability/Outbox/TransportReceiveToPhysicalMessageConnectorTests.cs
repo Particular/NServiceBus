@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using DeliveryConstraints;
     using NServiceBus.Outbox;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;

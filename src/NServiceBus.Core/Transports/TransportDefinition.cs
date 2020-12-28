@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,16 @@ namespace NServiceBus.Transport
     /// </summary>
     public abstract class TransportDefinition
     {
+        TransportTransactionMode transportTransactionMode;
+
+        /// <summary>
+        /// Creates a new transport definition.
+        /// </summary>
+        protected TransportDefinition(TransportTransactionMode defaultTransactionMode)
+        {
+            transportTransactionMode = defaultTransactionMode;
+        }
+
         /// <summary>
         /// Initializes all the factories and supported features for the transport. This method is called right before all features
         /// are activated and the settings will be locked down. This means you can use the SettingsHolder both for providing
@@ -25,6 +37,22 @@ namespace NServiceBus.Transport
         /// <summary>
         /// </summary>
         public abstract IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
+
+        /// <summary>
+        /// Defines the selected TransportTransactionMode for this instance.
+        /// </summary>
+        public virtual TransportTransactionMode TransportTransactionMode
+        {
+            get => transportTransactionMode;
+            set
+            {
+                if (!SupportedTransactionModes.Contains(value))
+                {
+                    throw new Exception($"Transaction mode {value} is not supported.");
+                }
+                transportTransactionMode = value;
+            }
+        }
 
         /// <summary>
         /// </summary>

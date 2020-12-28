@@ -39,10 +39,6 @@ namespace NServiceBus
 
             public string EndpointInstanceDiscriminator => settings.GetOrDefault<string>(EndpointInstanceDiscriminatorSettingsKey);
 
-            public bool UserHasProvidedTransportTransactionMode => settings.HasSetting<TransportTransactionMode>();
-
-            public TransportTransactionMode UserTransportTransactionMode => settings.Get<TransportTransactionMode>();
-
             public bool PurgeOnStartup
             {
                 get => settings.GetOrDefault<bool>(TransportPurgeOnStartupSettingsKey);
