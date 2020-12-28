@@ -1,3 +1,4 @@
+using System;
 using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
@@ -8,7 +9,7 @@ namespace NServiceBus
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public NativeSubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry)
+        public NativeSubscribeTerminator(Lazy<ISubscriptionManager> subscriptionManager, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.subscriptionManager = subscriptionManager;
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -17,10 +18,10 @@ namespace NServiceBus
         protected override Task Terminate(ISubscribeContext context)
         {
             var eventMetadata = messageMetadataRegistry.GetMessageMetadata(context.EventType);
-            return subscriptionManager.Subscribe(eventMetadata, context.Extensions);
+            return subscriptionManager.Value.Subscribe(eventMetadata, context.Extensions);
         }
 
-        readonly ISubscriptionManager subscriptionManager;
+        readonly Lazy<ISubscriptionManager> subscriptionManager;
         readonly MessageMetadataRegistry messageMetadataRegistry;
     }
 }

@@ -36,6 +36,8 @@ namespace NServiceBus
         {
             await transportSeam.Initialize().ConfigureAwait(false);
 
+            settings.Set(transportSeam.TransportInfrastructure);
+
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);

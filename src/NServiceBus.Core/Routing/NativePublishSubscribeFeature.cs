@@ -1,4 +1,6 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.Features
@@ -16,16 +18,18 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
             context.Pipeline.Register("MulticastPublishRouterBehavior", new MulticastPublishConnector(), "Determines how the published messages should be routed");
 
             if (canReceive)
             {
-                var mainReceiver = context.Settings.Get<TransportInfrastructure>().GetReceiver(ReceiveComponent.MainReceiverId);
-                var subscriptionManager = mainReceiver.Subscriptions;
-
+                Lazy<ISubscriptionManager> subscriptionManager = new Lazy<ISubscriptionManager>(() =>
+                {
+                    var mainReceiver = context.Settings.Get<TransportInfrastructure>().GetReceiver(ReceiveComponent.MainReceiverId);
+                    return mainReceiver.Subscriptions;
+                });
+                
                 context.Pipeline.Register(b => new NativeSubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b => new NativeUnsubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to unsubscribe to a given message type");
             }
