@@ -74,7 +74,7 @@ namespace NServiceBus.Core.Tests.Transports
             public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events,
                 CancellationToken cancellationToken = default)
             {
-                throw new NotImplementedException();
+                return Task.CompletedTask;
             }
 
             public Task StartReceive(CancellationToken cancellationToken = default)
