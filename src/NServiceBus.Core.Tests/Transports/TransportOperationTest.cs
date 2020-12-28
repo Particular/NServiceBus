@@ -18,7 +18,7 @@ namespace NServiceBus.Core.Tests.Transports
             var transportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), new UnicastAddressTag("destination"));
             var secondTransportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), new UnicastAddressTag("destination2"));
 
-            transportOperation.Properties.AsTransportProperties().DiscardIfNotReceivedBefore =
+            transportOperation.Properties.AsOperationProperties().DiscardIfNotReceivedBefore =
                 new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
 
             Assert.IsEmpty(secondTransportOperation.Properties);

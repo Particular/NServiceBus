@@ -26,7 +26,7 @@ namespace NServiceBus.Transport
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
                         ((MulticastAddressTag) transportOperation.AddressTag).MessageType,
-                        transportOperation.Properties.AsTransportProperties(),
+                        OperationProperties.FromDictionary(transportOperation.Properties),
                         transportOperation.RequiredDispatchConsistency));
                 }
                 else if (transportOperation.AddressTag is UnicastAddressTag)
@@ -34,7 +34,7 @@ namespace NServiceBus.Transport
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
                         ((UnicastAddressTag) transportOperation.AddressTag).Destination,
-                        transportOperation.Properties.AsTransportProperties(),
+                        OperationProperties.FromDictionary(transportOperation.Properties),
                         transportOperation.RequiredDispatchConsistency));
                 }
                 else

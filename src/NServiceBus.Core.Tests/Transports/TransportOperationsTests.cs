@@ -29,14 +29,14 @@ namespace NServiceBus.Core.Tests.Transports
             var multicastOp = result.MulticastTransportOperations.Single();
             Assert.AreEqual(multicastOperation.Message, multicastOp.Message);
             Assert.AreEqual((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType, multicastOp.MessageType);
-            Assert.AreEqual(multicastOperation.Properties, multicastOp.Properties.Properties);
+            Assert.AreEqual(multicastOperation.Properties, multicastOp.Properties.ToDictionary());
             Assert.AreEqual(multicastOperation.RequiredDispatchConsistency, multicastOp.RequiredDispatchConsistency);
 
             Assert.AreEqual(1, result.UnicastTransportOperations.Count());
             var unicastOp = result.UnicastTransportOperations.Single();
             Assert.AreEqual(unicastOperation.Message, unicastOp.Message);
             Assert.AreEqual((unicastOperation.AddressTag as UnicastAddressTag)?.Destination, unicastOp.Destination);
-            Assert.AreEqual(unicastOperation.Properties, unicastOp.Properties.Properties);
+            Assert.AreEqual(unicastOperation.Properties, unicastOp.Properties.ToDictionary());
             Assert.AreEqual(unicastOperation.RequiredDispatchConsistency, unicastOp.RequiredDispatchConsistency);
         }
 
@@ -54,7 +54,7 @@ namespace NServiceBus.Core.Tests.Transports
         {
             var transportOperation = new TransportOperation(
                 CreateUniqueMessage(),
-                new CustomAddressTag(), 
+                new CustomAddressTag(),
                 null,
                 DispatchConsistency.Default);
 

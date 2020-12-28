@@ -40,15 +40,15 @@ namespace NServiceBus.Core.Tests.Reliability.Outbox
 
             await Invoke(context);
 
-            var delayDeliveryWith = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties().DelayDeliveryWith;
+            var delayDeliveryWith = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties().DelayDeliveryWith;
             Assert.NotNull(delayDeliveryWith);
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
 
-            var doNotDeliverBefore = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties().DoNotDeliverBefore;
+            var doNotDeliverBefore = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties().DoNotDeliverBefore;
             Assert.NotNull(doNotDeliverBefore);
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
 
-            var discard = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties().DiscardIfNotReceivedBefore;
+            var discard = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties().DiscardIfNotReceivedBefore;
             Assert.NotNull(discard);
             Assert.AreEqual(maxTime, discard.MaxTime);
 

@@ -172,7 +172,7 @@ namespace NServiceBus.TransportTests
                 transportTransaction = new TransportTransaction();
             }
 
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), operationProperties?.Properties, dispatchConsistency);
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), operationProperties.ToDictionary(), dispatchConsistency);
 
             return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
