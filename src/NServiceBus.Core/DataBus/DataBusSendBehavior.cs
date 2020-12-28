@@ -23,7 +23,7 @@ namespace NServiceBus
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
-            if (context.Extensions.TryGet<TransportProperties>(out var properties) && properties.DiscardIfNotReceivedBefore != null)
+            if (context.Extensions.TryGet<OperationProperties>(out var properties) && properties.DiscardIfNotReceivedBefore != null)
             {
                 timeToBeReceived = properties.DiscardIfNotReceivedBefore.MaxTime;
             }

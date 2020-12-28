@@ -29,7 +29,7 @@ namespace NServiceBus
                 }
             }
 
-            var transportProperties = new TransportProperties();
+            var transportProperties = new OperationProperties();
 
             if (timeToBeReceived.HasValue)
             {

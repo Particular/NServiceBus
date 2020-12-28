@@ -156,7 +156,7 @@ namespace NServiceBus.TransportTests
         protected Task SendMessage(string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
-            TransportProperties transportProperties = null,
+            OperationProperties operationProperties = null,
             DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
@@ -172,7 +172,7 @@ namespace NServiceBus.TransportTests
                 transportTransaction = new TransportTransaction();
             }
 
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), transportProperties?.Properties, dispatchConsistency);
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), operationProperties?.Properties, dispatchConsistency);
 
             return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }

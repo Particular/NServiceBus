@@ -12,7 +12,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation" /> instance.
         /// </summary>
-        public MulticastTransportOperation(OutgoingMessage message, Type messageType, TransportProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public MulticastTransportOperation(OutgoingMessage message, Type messageType, OperationProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             MessageType = messageType;
@@ -29,7 +29,7 @@ namespace NServiceBus.Transport
         /// Properties that must be honored by the transport.
         /// </summary>
         /// <remarks>Properties should only ever be read. When there are no delivery constraints a cached empty constraints list is returned.</remarks>
-        public TransportProperties Properties { get; }
+        public OperationProperties Properties { get; }
 
         /// <summary>
         /// The message to be sent over the transport.

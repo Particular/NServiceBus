@@ -27,7 +27,7 @@ namespace NServiceBus
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var messageProperties = new TransportProperties {DelayDeliveryWith = new DelayDeliveryWith(delay)};
+            var messageProperties = new OperationProperties {DelayDeliveryWith = new DelayDeliveryWith(delay)};
             var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties.Properties));

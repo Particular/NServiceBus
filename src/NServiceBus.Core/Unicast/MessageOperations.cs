@@ -111,7 +111,7 @@ namespace NServiceBus
                 context);
 
             // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
-            outgoingContext.AddTransportProperties(options.TransportProperties);
+            outgoingContext.AddTransportProperties(options.OperationProperties);
 
             return sendPipeline.Invoke(outgoingContext);
         }

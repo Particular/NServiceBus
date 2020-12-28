@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using NServiceBus.DelayedDelivery;
 using NServiceBus.Extensibility;
 using NServiceBus.Performance.TimeToBeReceived;
@@ -11,7 +9,7 @@ namespace NServiceBus.Transports
     /// <summary>
     /// 
     /// </summary>
-    public class TransportProperties
+    public class OperationProperties
     {
         //These can't be changed to be backwards compatible with previous versions of the core
         static string DoNotDeliverBeforeKeyName = "DeliverAt";
@@ -26,14 +24,14 @@ namespace NServiceBus.Transports
         /// <summary>
         /// 
         /// </summary>
-        public TransportProperties() : this(new Dictionary<string, string>())
+        public OperationProperties() : this(new Dictionary<string, string>())
         {
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public TransportProperties(Dictionary<string, string> properties)
+        public OperationProperties(Dictionary<string, string> properties)
         {
             Properties = properties;
         }
@@ -83,36 +81,36 @@ namespace NServiceBus.Transports
         /// <summary>
         /// 
         /// </summary>
-        public static TransportProperties GetTransportProperties(this ContextBag bag)
+        public static OperationProperties GetTransportProperties(this ContextBag bag)
         {
             Guard.AgainstNull(nameof(bag), bag);
 
-            if (bag.TryGet(out TransportProperties properties))
+            if (bag.TryGet(out OperationProperties properties))
             {
                 return properties;
             }
 
-            return new TransportProperties(new Dictionary<string, string>());
+            return new OperationProperties(new Dictionary<string, string>());
         }
 
         /// <summary>
-        /// Adds a <see cref="TransportProperties" /> to a <see cref="ContextBag" />.
+        /// Adds a <see cref="OperationProperties" /> to a <see cref="ContextBag" />.
         /// </summary>
-        public static void AddTransportProperties(this ContextBag context, TransportProperties properties)
+        public static void AddTransportProperties(this ContextBag context, OperationProperties properties)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(properties), properties);
 
-            var contextProperties = new TransportProperties(properties.Properties);
+            var contextProperties = new OperationProperties(properties.Properties);
             context.Set(contextProperties);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public static TransportProperties AsTransportProperties(this Dictionary<string, string> properties)
+        public static OperationProperties AsTransportProperties(this Dictionary<string, string> properties)
         {
-            return new TransportProperties(properties);
+            return new OperationProperties(properties);
         }
     }
 }

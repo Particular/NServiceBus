@@ -10,7 +10,7 @@ namespace NServiceBus
     {
         public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
-            if (context.Extensions.TryGet<TransportProperties>(out var properties))
+            if (context.Extensions.TryGet<OperationProperties>(out var properties))
             {
 
                 if (properties.DelayDeliveryWith != null || properties.DoNotDeliverBefore != null)
