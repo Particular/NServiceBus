@@ -13,9 +13,10 @@ namespace NServiceBus.Transports
     /// </summary>
     public class TransportProperties
     {
-        static string DoNotDeliverBeforeKeyName = typeof(DoNotDeliverBefore).FullName;
-        static string DelayDeliveryWithKeyName = typeof(DelayDeliveryWith).FullName;
-        static string DiscardIfNotReceivedBeforeKeyName = typeof(DiscardIfNotReceivedBefore).FullName;
+        //These can't be changed to be backwards compatible with previous versions of the core
+        static string DoNotDeliverBeforeKeyName = "DeliverAt";
+        static string DelayDeliveryWithKeyName = "DelayDeliveryFor";
+        static string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
 
         /// <summary>
         /// 
@@ -43,10 +44,10 @@ namespace NServiceBus.Transports
         public DoNotDeliverBefore DoNotDeliverBefore
         {
             get => Properties.ContainsKey(DoNotDeliverBeforeKeyName)
-                ? new DoNotDeliverBefore(DateTime.Parse(Properties[DoNotDeliverBeforeKeyName]))
+                ? new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(Properties[DoNotDeliverBeforeKeyName]))
                 : null;
 
-            set => Properties[DoNotDeliverBeforeKeyName] = value.At.ToString(CultureInfo.InvariantCulture);
+            set => Properties[DoNotDeliverBeforeKeyName] = DateTimeOffsetHelper.ToWireFormattedString(value.At);
         }
 
         /// <summary>
