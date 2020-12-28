@@ -1,3 +1,5 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Core.Tests.Transports
 {
     using System;
@@ -16,11 +18,11 @@ namespace NServiceBus.Core.Tests.Transports
             var transportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), new UnicastAddressTag("destination"));
             var secondTransportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), new UnicastAddressTag("destination2"));
 
-            var randomConstraint = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
-            transportOperation.DeliveryConstraints.Add(randomConstraint);
+            transportOperation.Properties.AsTransportProperties().DiscardIfNotReceivedBefore =
+                new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
 
-            Assert.IsEmpty(secondTransportOperation.DeliveryConstraints);
-            Assert.IsNotEmpty(transportOperation.DeliveryConstraints);
+            Assert.IsEmpty(secondTransportOperation.Properties);
+            Assert.IsNotEmpty(transportOperation.Properties);
         }
     }
 }

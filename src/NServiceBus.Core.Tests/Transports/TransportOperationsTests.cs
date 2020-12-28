@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Transports
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus.Core.Tests.Transports
 {
     using System;
     using System.Collections.Generic;
@@ -13,8 +15,8 @@
         [Test]
         public void Should_split_multicast_and_unicast_messages()
         {
-            var unicastOperation = new TransportOperation(CreateUniqueMessage(), new UnicastAddressTag("destination"), DispatchConsistency.Isolated);
-            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), DispatchConsistency.Default);
+            var unicastOperation = new TransportOperation(CreateUniqueMessage(), new UnicastAddressTag("destination"), null, DispatchConsistency.Isolated);
+            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), null, DispatchConsistency.Default);
             var operations = new[]
             {
                 unicastOperation,
@@ -27,14 +29,14 @@
             var multicastOp = result.MulticastTransportOperations.Single();
             Assert.AreEqual(multicastOperation.Message, multicastOp.Message);
             Assert.AreEqual((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType, multicastOp.MessageType);
-            Assert.AreEqual(multicastOperation.DeliveryConstraints, multicastOp.DeliveryConstraints);
+            Assert.AreEqual(multicastOperation.Properties, multicastOp.Properties);
             Assert.AreEqual(multicastOperation.RequiredDispatchConsistency, multicastOp.RequiredDispatchConsistency);
 
             Assert.AreEqual(1, result.UnicastTransportOperations.Count());
             var unicastOp = result.UnicastTransportOperations.Single();
             Assert.AreEqual(unicastOperation.Message, unicastOp.Message);
             Assert.AreEqual((unicastOperation.AddressTag as UnicastAddressTag)?.Destination, unicastOp.Destination);
-            Assert.AreEqual(unicastOperation.DeliveryConstraints, unicastOp.Properties);
+            Assert.AreEqual(unicastOperation.Properties, unicastOp.Properties);
             Assert.AreEqual(unicastOperation.RequiredDispatchConsistency, unicastOp.RequiredDispatchConsistency);
         }
 
@@ -53,6 +55,7 @@
             var transportOperation = new TransportOperation(
                 CreateUniqueMessage(),
                 new CustomAddressTag(), 
+                null,
                 DispatchConsistency.Default);
 
             Assert.Throws<ArgumentException>(() => new TransportOperations(transportOperation));

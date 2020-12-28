@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
     using NServiceBus.Outbox;
-    using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -40,13 +40,16 @@
 
             await Invoke(context);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith));
+            var delayDeliveryWith = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties().DelayDeliveryWith;
+            Assert.NotNull(delayDeliveryWith);
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore));
+            var doNotDeliverBefore = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties().DoNotDeliverBefore;
+            Assert.NotNull(doNotDeliverBefore);
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore discard));
+            var discard = fakeBatchPipeline.TransportOperations.First().Properties.AsTransportProperties().DiscardIfNotReceivedBefore;
+            Assert.NotNull(discard);
             Assert.AreEqual(maxTime, discard.MaxTime);
 
             Assert.Null(fakeOutbox.StoredMessage);
