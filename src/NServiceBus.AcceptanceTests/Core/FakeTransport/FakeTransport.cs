@@ -35,14 +35,16 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             return address.ToString();
         }
 
-        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
-            = new[]
+        public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
+        {
+            return new[]
             {
                 TransportTransactionMode.None,
                 TransportTransactionMode.ReceiveOnly,
                 TransportTransactionMode.SendsAtomicWithReceive,
                 TransportTransactionMode.TransactionScope
             };
+        }
 
         public override bool SupportsDelayedDelivery { get; } = true;
         public override bool SupportsPublishSubscribe { get; } = true;

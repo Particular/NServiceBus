@@ -74,13 +74,15 @@ namespace NServiceBus
 
         /// <summary>
         /// </summary>
-        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; } =
-            new[]
+        public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
+        {
+            return new[]
             {
                 TransportTransactionMode.None,
                 TransportTransactionMode.ReceiveOnly,
                 TransportTransactionMode.SendsAtomicWithReceive
             };
+        }
 
         /// <summary>
         /// </summary>

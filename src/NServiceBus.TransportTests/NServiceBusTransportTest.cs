@@ -147,7 +147,7 @@ namespace NServiceBus.TransportTests
 
         void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
         {
-            if (!transportDefinition.SupportedTransactionModes.Contains(requestedTransactionMode))
+            if (!transportDefinition.GetSupportedTransactionModes().Contains(requestedTransactionMode))
             {
                 Assert.Ignore($"Only relevant for transports supporting {requestedTransactionMode} or higher");
             }

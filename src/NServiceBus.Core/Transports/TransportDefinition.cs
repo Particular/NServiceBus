@@ -36,7 +36,7 @@ namespace NServiceBus.Transport
 
         /// <summary>
         /// </summary>
-        public abstract IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
+        public abstract IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes();
 
         /// <summary>
         /// Defines the selected TransportTransactionMode for this instance.
@@ -46,7 +46,7 @@ namespace NServiceBus.Transport
             get => transportTransactionMode;
             set
             {
-                if (!SupportedTransactionModes.Contains(value))
+                if (!GetSupportedTransactionModes().Contains(value))
                 {
                     throw new Exception($"Transaction mode {value} is not supported.");
                 }
