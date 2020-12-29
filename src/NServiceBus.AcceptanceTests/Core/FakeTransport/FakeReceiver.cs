@@ -1,3 +1,9 @@
+using System.Collections.Generic;
+using System.Threading;
+using NServiceBus.Extensibility;
+using NServiceBus.Transports;
+using NServiceBus.Unicast.Messages;
+
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System;
@@ -5,8 +11,14 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
     using Settings;
     using Transport;
 
-    class FakeReceiver : IPushMessages
+    //TODO: move the behavior logic to the new seam methods
+    class FakeReceiver : IMessageReceiver
     {
+        public FakeReceiver(string id)
+        {
+            Id = id;
+        }
+
         public FakeReceiver(ReadOnlySettings settings)
         {
             this.settings = settings;
@@ -52,5 +64,40 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         bool throwCritical;
         bool throwOnStop;
         Exception exceptionToThrow;
+
+        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events,
+            CancellationToken cancellationToken = default)
+        {
+            //TODO: record this invocation in the startup-sequence
+            return Task.CompletedTask;
+        }
+
+        public Task StartReceive(CancellationToken cancellationToken = default)
+        {
+            //TODO: record this invocation in the startup-sequence
+            return Task.CompletedTask;
+        }
+
+        public Task StopReceive(CancellationToken cancellationToken = default)
+        {
+            //TODO: record this invocation in the startup-sequence
+            return Task.CompletedTask;
+        }
+
+        public ISubscriptionManager Subscriptions { get; } = new FakeSubscriptionManager();
+        public string Id { get; }
+
+        class FakeSubscriptionManager : ISubscriptionManager
+        {
+            public Task Subscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default)
+            {
+                return Task.CompletedTask;
+            }
+
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default)
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

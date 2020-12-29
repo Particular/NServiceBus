@@ -21,17 +21,12 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSubscriptionInfrastructure)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureReceiveInfrastructure)}",
                 $"{nameof(ICreateQueues)}.{nameof(ICreateQueues.CreateQueueIfNecessary)}",
                 $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
                 $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}"
             }, context.StartUpSequence);
         }
 
@@ -46,10 +41,7 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
                 $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}"
             }, context.StartUpSequence);
         }
 

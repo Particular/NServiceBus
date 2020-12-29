@@ -1,14 +1,17 @@
+using System.Threading;
+using NServiceBus.Transports;
+
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System.Threading.Tasks;
-    using Extensibility;
     using Transport;
 
-    class FakeDispatcher : IDispatchMessages
+    class FakeDispatcher : IMessageDispatcher
     {
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction,
+            CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

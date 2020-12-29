@@ -1,28 +1,51 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using System;
     using System.Collections.Generic;
-    using Settings;
     using Transport;
 
     public class FakeTransport : TransportDefinition
     {
-        public override bool RequiresConnectionString => false;
-
-        public override string ExampleConnectionStringForErrorMessage => null;
-
-        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
-        {
-            settings.GetOrCreate<StartUpSequence>().Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
-
-            if (settings.TryGet<Action<ReadOnlySettings>>("FakeTransport.AssertSettings", out var assertion))
-            {
-                assertion(settings);
-            }
-
-            return new FakeTransportInfrastructure(settings);
-        }
+        StartUpSequence startupSequence;
 
         public class StartUpSequence : List<string> { }
+
+        public FakeTransport() : base(TransportTransactionMode.TransactionScope)
+        {
+            startupSequence = new StartUpSequence();
+        }
+
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
+            CancellationToken cancellationToken = default)
+        {
+            startupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
+
+            var infrastructure = new FakeTransportInfrastructure(startupSequence, hostSettings, receivers, sendingAddresses,cancellationToken);
+
+            infrastructure.ConfigureSendInfrastructure();
+            infrastructure.ConfigureReceiveInfrastructure();
+
+            return Task.FromResult<TransportInfrastructure>(infrastructure);
+        }
+
+        public override string ToTransportAddress(QueueAddress address)
+        {
+            return address.ToString();
+        }
+
+        public override IReadOnlyCollection<TransportTransactionMode> SupportedTransactionModes { get; protected set; }
+            = new[]
+            {
+                TransportTransactionMode.None,
+                TransportTransactionMode.ReceiveOnly,
+                TransportTransactionMode.SendsAtomicWithReceive,
+                TransportTransactionMode.TransactionScope
+            };
+
+        public override bool SupportsDelayedDelivery { get; } = true;
+        public override bool SupportsPublishSubscribe { get; } = true;
+        public override bool SupportsTTBR { get; } = false;
     }
 }
