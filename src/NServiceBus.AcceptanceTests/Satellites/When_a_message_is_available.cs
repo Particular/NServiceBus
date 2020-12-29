@@ -49,7 +49,14 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("MySatellite");
-                    var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
+                    var endpointInstance = satelliteLogicalAddress.EndpointInstance;
+                    var queueAddress = new QueueAddress(
+                        endpointInstance.Endpoint,
+                        endpointInstance.Discriminator,
+                        endpointInstance.Properties,
+                        satelliteLogicalAddress.Qualifier);
+
+                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
