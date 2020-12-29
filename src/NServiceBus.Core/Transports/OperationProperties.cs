@@ -116,15 +116,14 @@ namespace NServiceBus.Transports
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(properties), properties);
 
-            //TODO what's the point of copying over the dictionary? It's still a reference.
-            var contextProperties = OperationProperties.FromDictionary(properties.ToDictionary());
+            var propertiesCopy = new Dictionary<string, string>(properties.ToDictionary());
+            var contextProperties = OperationProperties.FromDictionary(propertiesCopy);
             context.Set(contextProperties);
         }
 
         /// <summary>
         ///
         /// </summary>
-        //TODO do we still need this?
         public static OperationProperties AsOperationProperties(this Dictionary<string, string> properties)
         {
             return OperationProperties.FromDictionary(properties);
