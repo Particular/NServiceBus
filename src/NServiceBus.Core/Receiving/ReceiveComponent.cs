@@ -80,6 +80,33 @@ namespace NServiceBus
                 }
             }
 
+            var receiveSettings = new List<ReceiveSettings>();
+            receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
+                definition.Name,
+                definition.ReceiveAddress,
+                false,
+                configuration.PurgeOnStartup,
+                errorQueue)));
+
+            receiveSettings.Add(new ReceiveSettings(
+                MainReceiverId,
+                configuration.LocalAddress,
+                configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
+                configuration.PurgeOnStartup,
+                errorQueue));
+
+            if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
+            {
+                receiveSettings.Add(new ReceiveSettings(
+                    InstanceSpecificReceiverId,
+                    configuration.InstanceSpecificQueue,
+                    false,
+                    configuration.PurgeOnStartup,
+                    errorQueue));
+            }
+
+            configuration.transportSeam.Configure(receiveSettings.ToArray());
+
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
             {
                 configuration.LocalAddress,
