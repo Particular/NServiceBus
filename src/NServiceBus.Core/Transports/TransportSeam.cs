@@ -31,11 +31,6 @@ namespace NServiceBus
         {
             TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
                 .ConfigureAwait(false);
-
-            foreach (var receiver in TransportInfrastructure.Receivers)
-            {
-                //TODO: start each receiver
-            }
         }
 
         public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
