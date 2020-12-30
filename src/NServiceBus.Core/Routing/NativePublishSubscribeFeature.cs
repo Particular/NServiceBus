@@ -24,14 +24,8 @@ namespace NServiceBus.Features
 
             if (canReceive)
             {
-                Lazy<ISubscriptionManager> subscriptionManager = new Lazy<ISubscriptionManager>(() =>
-                {
-                    var mainReceiver = context.Settings.Get<TransportInfrastructure>().GetReceiver(ReceiveComponent.MainReceiverId);
-                    return mainReceiver.Subscriptions;
-                });
-                
-                context.Pipeline.Register(b => new NativeSubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to subscribe to a given message type");
-                context.Pipeline.Register(b => new NativeUnsubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to unsubscribe to a given message type");
+                context.Pipeline.Register(b => new NativeSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to subscribe to a given message type");
+                context.Pipeline.Register(b => new NativeUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to unsubscribe to a given message type");
             }
             else
             {
