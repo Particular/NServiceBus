@@ -47,7 +47,6 @@ namespace NServiceBus.Features
                 return;
             }
 
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var transportDefinition = context.Settings.Get<TransportDefinition>();
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Routing.EnforceBestPractices;
