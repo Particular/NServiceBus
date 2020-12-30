@@ -62,7 +62,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
             }
 
             public ISubscriptionManager Subscriptions { get; }
-            public string Id { get; }
+
+            public string Id { get; } = "Main";
         }
 
         class FakeDispatcher : IMessageDispatcher
@@ -86,7 +87,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
             public override string ToTransportAddress(QueueAddress address)
             {
-                throw new NotImplementedException();
+                return address.ToString();
             }
 
             public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
