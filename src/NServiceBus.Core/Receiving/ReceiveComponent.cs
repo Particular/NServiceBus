@@ -33,10 +33,6 @@ namespace NServiceBus
             if (configuration.IsSendOnlyEndpoint)
             {
                 configuration.transportSeam.Configure(new ReceiveSettings[0]);
-
-                pipelineSettings.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
-                pipelineSettings.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
-
                 return new ReceiveComponent(configuration);
             }
 

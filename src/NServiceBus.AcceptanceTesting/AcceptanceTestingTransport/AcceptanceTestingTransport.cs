@@ -65,8 +65,8 @@ namespace NServiceBus
             };
         }
            
-        public override bool SupportsDelayedDelivery { get; } = true;
-        public override bool SupportsPublishSubscribe { get; } = true;
+        public override bool SupportsDelayedDelivery { get; } = false;
+        public override bool SupportsPublishSubscribe { get; } = false;
         public override bool SupportsTTBR { get; } = true;
 
         public string StorageLocation { get; set; }
