@@ -154,7 +154,7 @@ namespace NServiceBus
             var mainPump = transportSeam.TransportInfrastructure.GetReceiver(MainReceiverId);
 
             var messageMetadataRegistry = builder.GetRequiredService<MessageMetadataRegistry>();
-            var messageTypesHandled = GetEventTypesHandledByThisEndpoint(builder.GetRequiredService<MessageHandlerRegistry>(), builder.GetRequiredService<Conventions>());
+            var messageTypesHandled = GetEventTypesHandledByThisEndpoint(builder.GetRequiredService<MessageHandlerRegistry>(), configuration.Conventions);
             var mainReceiverEvents = messageTypesHandled.Select(t => messageMetadataRegistry.GetMessageMetadata(t)).ToList().AsReadOnly();
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,

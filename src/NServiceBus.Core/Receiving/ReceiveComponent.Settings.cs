@@ -35,6 +35,8 @@ namespace NServiceBus
 
             public string CustomLocalAddress => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomLocalAddressKey);
 
+            public Conventions Conventions => settings.Get<Conventions>();
+
             public string EndpointName => settings.EndpointName();
 
             public string EndpointInstanceDiscriminator => settings.GetOrDefault<string>(EndpointInstanceDiscriminatorSettingsKey);
