@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.Core.Tests.Recoverability
+﻿using System.Threading;
+using NServiceBus.Transports;
+
+namespace NServiceBus.Core.Tests.Recoverability
 {
     using System;
     using System.Collections.Generic;
@@ -105,20 +108,17 @@
         const string TimeoutManagerAddress = "timeout handling endpoint";
         const string EndpointInputQueue = "endpoint input queue";
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 
             public List<UnicastTransportOperation> UnicastTransportOperations => TransportOperations.UnicastTransportOperations;
 
-            public ContextBag ContextBag { get; private set; }
-
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 TransportOperations = outgoingMessages;
-                ContextBag = context;
                 Transaction = transaction;
                 return Task.FromResult(0);
             }

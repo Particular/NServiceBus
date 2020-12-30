@@ -1,4 +1,5 @@
-﻿using NServiceBus.Transports;
+﻿using System.Threading;
+using NServiceBus.Transports;
 
 namespace NServiceBus
 {
@@ -12,7 +13,7 @@ namespace NServiceBus
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher)
+        public DelayedRetryExecutor(string endpointInputQueue, IMessageDispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
             this.endpointInputQueue = endpointInputQueue;
@@ -32,12 +33,12 @@ namespace NServiceBus
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties.ToDictionary()));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         string endpointInputQueue;
     }
 }

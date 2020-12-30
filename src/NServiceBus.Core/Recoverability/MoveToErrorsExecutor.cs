@@ -1,4 +1,7 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +12,7 @@
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IDispatchMessages dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
         {
             this.dispatcher = dispatcher;
             this.staticFaultMetadata = staticFaultMetadata;
@@ -37,10 +40,10 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag());
+            return dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None);
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
         Action<Dictionary<string, string>> headerCustomizations;
     }

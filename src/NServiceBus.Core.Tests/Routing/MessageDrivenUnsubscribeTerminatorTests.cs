@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.Core.Tests.Routing
+﻿using System.Threading;
+using NServiceBus.Transports;
+
+namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;
@@ -76,7 +79,7 @@
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             int? numberOfTimes;
 
@@ -89,7 +92,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

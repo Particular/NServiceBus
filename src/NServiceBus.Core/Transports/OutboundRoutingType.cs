@@ -1,3 +1,5 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Transport
 {
     /// <summary>
@@ -7,7 +9,7 @@ namespace NServiceBus.Transport
     {
         /// <summary>
         /// Unicast. Routing is performed by the core and one send operation might require multiple calls to
-        /// <see cref="IDispatchMessages" />.
+        /// <see cref="IMessageDispatcher" />.
         /// </summary>
         Unicast,
 

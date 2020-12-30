@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.Core.Tests.Recoverability
+﻿using System.Threading;
+using NServiceBus.Transports;
+
+namespace NServiceBus.Core.Tests.Recoverability
 {
     using System;
     using System.Collections.Generic;
@@ -138,18 +141,15 @@
         Dictionary<string, string> staticFaultMetadata;
         const string ErrorQueueAddress = "errorQ";
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 
-            public ContextBag ContextBag { get; private set; }
-
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 TransportOperations = outgoingMessages;
-                ContextBag = context;
                 Transaction = transaction;
                 return Task.FromResult(0);
             }

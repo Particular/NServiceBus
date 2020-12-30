@@ -1,6 +1,7 @@
 ﻿#pragma warning disable 1591
 
 using System;
+using NServiceBus.Transports;
 
 namespace NServiceBus.Gateway.Deduplication
 {
@@ -548,7 +549,7 @@ namespace NServiceBus
         Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
-    public class NonDurableDelivery 
+    public class NonDurableDelivery
     {
     }
 }
@@ -839,6 +840,25 @@ namespace NServiceBus.Transport
     public interface ICancelDeferredMessages
     {
         Task CancelDeferredMessages(string messageKey, IBehaviorContext context);
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System.Threading.Tasks;
+    using Extensibility;
+
+    [ObsoleteEx(
+        Message = "The IDispatchMessages interface has been removed. See the upgrade guide for more details.",
+        ReplacementTypeOrMember = nameof(IMessageDispatcher),
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IDispatchMessages
+    {
+        /// <summary>
+        /// Dispatches the given operations to the transport.
+        /// </summary>
+        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context);
     }
 }
 

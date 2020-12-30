@@ -1,4 +1,5 @@
-﻿using NServiceBus.Transports;
+﻿using System.Threading;
+using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
@@ -16,7 +17,7 @@ namespace NServiceBus
 
     class MigrationUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MigrationUnsubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string replyToAddress, string endpoint)
+        public MigrationUnsubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter, IMessageDispatcher dispatcher, string replyToAddress, string endpoint)
         {
             this.subscriptionManager = subscriptionManager;
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -67,7 +68,7 @@ namespace NServiceBus
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -89,7 +90,7 @@ namespace NServiceBus
         readonly MessageMetadataRegistry messageMetadataRegistry;
 
         readonly string endpoint;
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
         readonly string replyToAddress;
         readonly SubscriptionRouter subscriptionRouter;
         static ILog Logger = LogManager.GetLogger<MigrationUnsubscribeTerminator>();

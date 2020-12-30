@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus.Features
 {
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
@@ -53,9 +55,9 @@
                 var subscriberAddress = context.Receiving.LocalAddress;
 
                 context.Pipeline.Register(b =>
-                    new MigrationSubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
-                    new MigrationUnsubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

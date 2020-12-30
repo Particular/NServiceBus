@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -87,14 +89,14 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.GetRequiredService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IDispatchMessages>());
+                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IMessageDispatcher>());
                 }
 
                 return null;

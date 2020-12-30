@@ -1,4 +1,5 @@
-﻿using NServiceBus.Transports;
+﻿using System.Threading;
+using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
@@ -18,7 +19,7 @@ namespace NServiceBus
     {
         public MigrationSubscribeTerminator(ISubscriptionManager subscriptionManager,
             MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter,
-            IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
+            IMessageDispatcher dispatcher, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -68,7 +69,7 @@ namespace NServiceBus
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -90,7 +91,7 @@ namespace NServiceBus
 
         readonly string subscriberAddress;
         readonly string subscriberEndpoint;
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
 
         readonly ISubscriptionManager subscriptionManager;
         readonly MessageMetadataRegistry messageMetadataRegistry;

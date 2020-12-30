@@ -1,4 +1,5 @@
 using System.Threading;
+using NServiceBus.Extensibility;
 using NServiceBus.Transports;
 
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
@@ -8,8 +9,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     class FakeDispatcher : IMessageDispatcher
     {
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction,
-            CancellationToken cancellationToken = default)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }

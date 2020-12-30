@@ -1,3 +1,5 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Transport
 {
     using System;
@@ -13,7 +15,7 @@ namespace NServiceBus.Transport
         /// <param name="dispatcherFactory">Factory to create the dispatcher.</param>
         /// <param name="preStartupCheck">Callback to perform checks before the transports starts sending messages.</param>
         /// </summary>
-        public TransportSendInfrastructure(Func<IDispatchMessages> dispatcherFactory,
+        public TransportSendInfrastructure(Func<IMessageDispatcher> dispatcherFactory,
             Func<Task<StartupCheckResult>> preStartupCheck)
         {
             Guard.AgainstNull(nameof(dispatcherFactory), dispatcherFactory);
@@ -25,7 +27,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Factory to create the dispatcher.
         /// </summary>
-        public Func<IDispatchMessages> DispatcherFactory { get; }
+        public Func<IMessageDispatcher> DispatcherFactory { get; }
 
         /// <summary>
         /// Callback to perform checks before the transports starts sending messages.

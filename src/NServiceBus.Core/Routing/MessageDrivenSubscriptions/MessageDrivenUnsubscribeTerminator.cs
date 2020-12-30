@@ -1,4 +1,7 @@
-﻿namespace NServiceBus
+﻿using System.Threading;
+using NServiceBus.Transports;
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +16,7 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint, IDispatchMessages dispatcher)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint, IMessageDispatcher dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
@@ -57,7 +60,7 @@
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -76,7 +79,7 @@
         }
 
         readonly string endpoint;
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
         readonly string replyToAddress;
         readonly SubscriptionRouter subscriptionRouter;
 

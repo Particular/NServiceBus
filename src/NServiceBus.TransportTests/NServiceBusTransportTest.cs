@@ -1,4 +1,5 @@
-﻿using NServiceBus.Transports;
+﻿using NServiceBus.Extensibility;
+using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.TransportTests
@@ -174,7 +175,7 @@ namespace NServiceBus.TransportTests
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), operationProperties?.ToDictionary(), dispatchConsistency);
 
-            return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
+            return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

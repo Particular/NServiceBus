@@ -1,3 +1,5 @@
+using NServiceBus.Transports;
+
 namespace NServiceBus.Features
 {
     using System;
@@ -90,8 +92,8 @@ namespace NServiceBus.Features
                 var subscriberAddress = context.Receiving.LocalAddress;
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
             }
             else
             {
