@@ -45,6 +45,7 @@ namespace NServiceBus
             transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
             var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
+                hostingConfiguration,
                 settings.Get<ReceiveComponent.Settings>(),
                 transportSeam);
 

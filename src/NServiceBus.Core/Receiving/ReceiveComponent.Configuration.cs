@@ -11,7 +11,7 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
-        public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
+        public static Configuration PrepareConfiguration(HostingComponent.Configuration hostingConfiguration, Settings settings, TransportSeam transportSeam)
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
@@ -19,6 +19,8 @@ namespace NServiceBus
             {
                 throw new Exception($"Specifying a base name for the input queue using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(baseInputQueueName)` is not supported for send-only endpoints.");
             }
+
+            hostingConfiguration.Services.ConfigureComponent(() => transportSeam.TransportInfrastructure.GetReceiver(MainReceiverId).Subscriptions, DependencyLifecycle.SingleInstance);
 
             var endpointName = settings.EndpointName;
             var discriminator = settings.EndpointInstanceDiscriminator;
@@ -49,7 +51,8 @@ namespace NServiceBus
                 settings.ExecuteTheseHandlersFirst,
                 settings.MessageHandlerRegistry,
                 settings.ShouldCreateQueues,
-                transportSeam);
+                transportSeam,
+                settings.Conventions);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
@@ -69,7 +72,9 @@ namespace NServiceBus
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
                 MessageHandlerRegistry messageHandlerRegistry,
-                bool createQueues, TransportSeam transportSeam)
+                bool createQueues,
+                TransportSeam transportSeam,
+                Conventions conventions)
             {
                 LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
@@ -83,6 +88,7 @@ namespace NServiceBus
                 satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
                 CreateQueues = createQueues;
+                Conventions = conventions;
                 this.transportSeam = transportSeam;
             }
 
@@ -105,6 +111,8 @@ namespace NServiceBus
             public List<Type> ExecuteTheseHandlersFirst { get; }
 
             public bool CreateQueues { get; }
+
+            public Conventions Conventions { get; }
 
             public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
             {
