@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NServiceBus.Settings;
 
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
@@ -10,24 +10,23 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     public class FakeTransport : TransportDefinition
     {
-        StartUpSequence startupSequence;
-
         public class StartUpSequence : List<string> { }
 
         public FakeTransport() : base(TransportTransactionMode.TransactionScope)
         {
-            startupSequence = new StartUpSequence();
         }
 
         public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
             CancellationToken cancellationToken = default)
         {
-            startupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
+            StartupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
-            var infrastructure = new FakeTransportInfrastructure(startupSequence, hostSettings, receivers, sendingAddresses,cancellationToken);
+            var infrastructure = new FakeTransportInfrastructure(StartupSequence, hostSettings, receivers, sendingAddresses,cancellationToken, this);
 
             infrastructure.ConfigureSendInfrastructure();
             infrastructure.ConfigureReceiveInfrastructure();
+
+            OnTransportInitialize((receivers.Select(r => r.ReceiveAddress).ToArray(), sendingAddresses, hostSettings.SetupInfrastructure));
 
             return Task.FromResult<TransportInfrastructure>(infrastructure);
         }
@@ -52,30 +51,26 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         public override bool SupportsPublishSubscribe { get; } = true;
         public override bool SupportsTTBR { get; } = false;
 
-        public void RaiseCriticalErrorDuringStartup(Exception exception)
-        {
+        public StartUpSequence StartupSequence { get; set; } = new StartUpSequence();
 
+        internal Exception ErrorOnReceiverStart { get; set; }
+        public void RaiseCriticalErrorOnReceiverStart(Exception exception)
+        {
+            ErrorOnReceiverStart = exception;
         }
 
-        public void RaiseExceptionDuringPumpStop(Exception exception)
+        internal Exception ErrorOnReceiverStop { get; set; }
+        public void RaiseExceptionOnReceiverStop(Exception exception)
         {
-
+            ErrorOnReceiverStop = exception;
         }
 
-        public void RaiseExceptionDuringInfrastructureStop(Exception exception)
+        internal Exception ErrorOnTransportDispose { get; set; }
+        public void RaiseExceptionOnTransportDispose(Exception exception)
         {
+            ErrorOnTransportDispose = exception;
         }
 
-        public void WhenQueuesCreated(Action<QueueBindings> onQueueCreation)
-        {
-        }
-
-        public void CollectStartupSequence(FakeTransport.StartUpSequence startUpSequence)
-        {
-        }
-
-        public void AssertSettings(Action<ReadOnlySettings> assertion)
-        {
-        }
+        public Action<(string[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
     }
 }

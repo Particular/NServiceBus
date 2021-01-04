@@ -14,22 +14,33 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         readonly ReceiveSettings[] receivers;
         readonly string[] sendingAddresses;
         readonly CancellationToken cancellationToken;
+        readonly FakeTransport transportSettings;
 
         public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
-            ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
+            ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken,
+            FakeTransport transportSettings)
         {
             this.startUpSequence = startUpSequence;
             this.hostSettings = hostSettings;
             this.receivers = receivers;
             this.sendingAddresses = sendingAddresses;
             this.cancellationToken = cancellationToken;
+            this.transportSettings = transportSettings;
         }
 
         public void ConfigureReceiveInfrastructure()
         {
             startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
 
-            Receivers = receivers.Select(r => new FakeReceiver(r.Id)).ToList<IMessageReceiver>().AsReadOnly();
+            Receivers = receivers
+                .Select(r => 
+                    new FakeReceiver(
+                        r.Id, 
+                        transportSettings, 
+                        startUpSequence, 
+                        hostSettings.CriticalErrorAction))
+                .ToList<IMessageReceiver>()
+                .AsReadOnly();
         }
 
         public void ConfigureSendInfrastructure()
@@ -42,6 +53,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         public override Task DisposeAsync()
         {
             startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(DisposeAsync)}");
+
+            if (transportSettings.ErrorOnTransportDispose != null)
+            {
+                throw transportSettings.ErrorOnTransportDispose;
+            }
 
             return Task.CompletedTask;
         }

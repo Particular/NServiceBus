@@ -37,7 +37,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     var fakeTransport = new FakeTransport();
-                    fakeTransport.RaiseCriticalErrorDuringStartup(new AggregateException("Startup task failed to complete.", new InvalidOperationException("ExceptionInBusStarts")));
+                    fakeTransport.RaiseCriticalErrorOnReceiverStart(new AggregateException("Startup task failed to complete.", new InvalidOperationException("ExceptionInBusStarts")));
                     builder.UseTransport(fakeTransport);
 
                     builder.DefineCriticalErrorAction(errorContext =>

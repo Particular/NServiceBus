@@ -26,7 +26,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsFalse(context.QueuesCreated);
+            Assert.IsFalse(context.SetupInfrastructure);
         }
 
         [Test]
@@ -41,7 +41,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsFalse(context.QueuesCreated);
+            Assert.IsFalse(context.SetupInfrastructure);
         }
 
         [Test]
@@ -56,7 +56,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsFalse(context.QueuesCreated);
+            Assert.IsFalse(context.SetupInfrastructure);
         }
 
         [Test]
@@ -71,7 +71,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsTrue(context.QueuesCreated);
+            Assert.IsTrue(context.SetupInfrastructure);
         }
 
         [Test]
@@ -90,7 +90,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsTrue(context.QueuesCreated);
+            Assert.IsTrue(context.SetupInfrastructure);
 
             CollectionAssert.AreEqual(new List<string>
             {
@@ -112,9 +112,9 @@
         {
             public bool DoNotCreateQueues { get; set; }
             public bool EnableInstallers { get; set; }
-            public bool QueuesCreated { get; set; }
-            public List<string> ReceivingAddresses { get; set; }
-            public List<string> SendingAddresses { get; set; }
+            public string[] ReceivingAddresses { get; set; }
+            public string[] SendingAddresses { get; set; }
+            public bool SetupInfrastructure { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -124,12 +124,12 @@
                 EndpointSetup<DefaultServer, Context>((c, t) =>
                 {
                     var fakeTransport = new FakeTransport();
-                    fakeTransport.WhenQueuesCreated(bindings =>
+                    fakeTransport.OnTransportInitialize = queues =>
                     {
-                        t.SendingAddresses = bindings.SendingAddresses.ToList();
-                        t.ReceivingAddresses = bindings.ReceivingAddresses.ToList();
-                        t.QueuesCreated = true;
-                    });
+                        t.SendingAddresses = queues.sendingAddresses;
+                        t.ReceivingAddresses = queues.receivingAddresses;
+                        t.SetupInfrastructure = queues.setupInfrastructure;
+                    };
                     c.UseTransport(fakeTransport);
 
                     if (t.DoNotCreateQueues)
