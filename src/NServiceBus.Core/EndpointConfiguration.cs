@@ -1,3 +1,5 @@
+using NServiceBus.Transport;
+
 namespace NServiceBus
 {
     using System;
@@ -79,7 +81,13 @@ namespace NServiceBus
             return ConventionsBuilder;
         }
 
-        
+        /// <summary>
+        /// Configures NServiceBus to use the given transport.
+        /// </summary>
+        public void UseTransport(TransportDefinition transportDefinition)
+        {
+            Settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
+        }
 
         //This needs to be here since we have downstreams that use reflection to access this property
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)

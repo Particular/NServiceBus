@@ -1,6 +1,9 @@
 ﻿#pragma warning disable 1591
 
 using System;
+using NServiceBus.Configuration.AdvancedExtensibility;
+using NServiceBus.Settings;
+using NServiceBus.Transport;
 using NServiceBus.Transports;
 
 namespace NServiceBus.Gateway.Deduplication
@@ -50,6 +53,31 @@ namespace NServiceBus
             RemoveInVersion = "9.0",
             TreatAsErrorFromVersion = "8.0")]
         public void UseContainer(IContainer builder)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8",
+        ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+    public static class UseTransportExtensions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+        public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
         {
             throw new NotImplementedException();
         }
@@ -297,8 +325,22 @@ namespace NServiceBus
 {
     using System;
 
-    public partial class TransportExtensions<T>
+    [ObsoleteEx(
+        Message = "Configure the transport via the TransportDefinition instance's properties",
+        TreatAsErrorFromVersion = "8.0",
+        RemoveInVersion = "9.0")]
+    public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
+        [ObsoleteEx(
+            Message = "Configure the transport via the TransportDefinition instance's properties",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions(SettingsHolder settings) 
+            : base(settings)
+        {
+            throw new NotImplementedException();
+        }
+
         [ObsoleteEx(
             Message = "Loading named connection strings is no longer supported",
             ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
@@ -326,10 +368,32 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0",
+            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
+        public new TransportExtensions<T> Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public partial class TransportExtensions
+    [ObsoleteEx(
+        Message = "Configure the transport via the TransportDefinition instance's properties",
+        TreatAsErrorFromVersion = "8.0",
+        RemoveInVersion = "9.0")]
+    public class TransportExtensions : ExposeSettings
     {
+        [ObsoleteEx(
+            Message = "Configure the transport via the TransportDefinition instance's properties",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions(SettingsHolder settings)
+            : base(settings)
+        {
+        }
+
         [ObsoleteEx(
             Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
             ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
@@ -358,7 +422,14 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
 
-
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0",
+            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
+        public TransportExtensions Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
