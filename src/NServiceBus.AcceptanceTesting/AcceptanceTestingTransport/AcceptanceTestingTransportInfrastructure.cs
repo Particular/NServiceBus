@@ -67,7 +67,7 @@ namespace NServiceBus.AcceptanceTesting
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
             ISubscriptionManager subscriptionManager = null;
-            if (receiveSettings.UsePublishSubscribe)
+            if (receiveSettings.UsePublishSubscribe && transport.EnableNativePublishSubscribe)
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }

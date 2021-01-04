@@ -64,9 +64,13 @@ namespace NServiceBus
                 TransportTransactionMode.SendsAtomicWithReceive
             };
         }
-           
-        public override bool SupportsDelayedDelivery { get; } = false;
-        public override bool SupportsPublishSubscribe { get; } = false;
+
+        public override bool SupportsDelayedDelivery => EnableNativeDelayedDeliery;
+        public bool EnableNativeDelayedDeliery { get; set; } = true;
+
+        public override bool SupportsPublishSubscribe => EnableNativePublishSubscribe;
+        public bool EnableNativePublishSubscribe { get; set; } = true;
+
         public override bool SupportsTTBR { get; } = true;
 
         private string storageLocation;

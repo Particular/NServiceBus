@@ -41,20 +41,22 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
 
         storageDir = Path.Combine(tempDir, testRunId);
 
-        var transportConfig = configuration.UseTransport<AcceptanceTestingTransport>()
-            .StorageDirectory(storageDir)
-            .UseNativePubSub(useNativePubSub)
-            .UseNativeDelayedDelivery(useNativeDelayedDelivery);
+        var acceptanceTestingTransport = new AcceptanceTestingTransport()
+        {
+            StorageLocation = storageDir,
+            EnableNativePublishSubscribe = useNativePubSub,
+            EnableNativeDelayedDeliery = useNativeDelayedDelivery
+        };
+        var routing = configuration.UseTransport(acceptanceTestingTransport);
 
         if (!useNativePubSub)
         {
             //apply publisher registrations required for message driven pub/sub
-            var routingConfig = transportConfig.Routing();
             foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
             {
                 foreach (var @event in publisherMetadataPublisher.Events)
                 {
-                    routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
+                    routing.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
                 }
             }
         }
