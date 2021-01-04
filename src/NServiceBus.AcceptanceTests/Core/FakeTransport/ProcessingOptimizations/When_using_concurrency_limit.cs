@@ -35,7 +35,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                     PersistenceConfiguration = new ConfigureEndpointAcceptanceTestingPersistence()
                 };
 
-                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport<FakeTransport>());
+                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport(new FakeTransport()));
             }
         }
 

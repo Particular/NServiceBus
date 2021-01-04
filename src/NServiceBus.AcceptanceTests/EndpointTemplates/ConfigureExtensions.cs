@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿using NServiceBus.Configuration.AdvancedExtensibility;
+using NServiceBus.Transport;
+
+namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
@@ -6,6 +9,17 @@
 
     public static class ConfigureExtensions
     {
+        public static RoutingSettings ConfigureRouting(this EndpointConfiguration configuration)
+        {
+            return new RoutingSettings(configuration.GetSettings());
+        }
+
+        public static TransportDefinition ConfigureTransport(this EndpointConfiguration configuration)
+        {
+            //TODO this is kind of a hack because the acceptance testing framework doesn't give any access to the transport definition to individual tests.
+            return configuration.GetSettings().Get<TransportDefinition>();
+        }
+
         public static async Task DefineTransport(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
             var transportConfiguration = TestSuiteConstraints.Current.CreateTransportConfiguration();

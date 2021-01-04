@@ -123,13 +123,14 @@
             {
                 EndpointSetup<DefaultServer, Context>((c, t) =>
                 {
-                    c.UseTransport<FakeTransport>()
-                        .WhenQueuesCreated(bindings =>
-                        {
-                            t.SendingAddresses = bindings.SendingAddresses.ToList();
-                            t.ReceivingAddresses = bindings.ReceivingAddresses.ToList();
-                            t.QueuesCreated = true;
-                        });
+                    var fakeTransport = new FakeTransport();
+                    fakeTransport.WhenQueuesCreated(bindings =>
+                    {
+                        t.SendingAddresses = bindings.SendingAddresses.ToList();
+                        t.ReceivingAddresses = bindings.ReceivingAddresses.ToList();
+                        t.QueuesCreated = true;
+                    });
+                    c.UseTransport(fakeTransport);
 
                     if (t.DoNotCreateQueues)
                     {

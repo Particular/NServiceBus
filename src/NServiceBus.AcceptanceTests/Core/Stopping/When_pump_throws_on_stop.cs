@@ -30,8 +30,9 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
             {
                 EndpointSetup<DefaultServer>(builder =>
                 {
-                    builder.UseTransport<FakeTransport>()
-                        .RaiseExceptionDuringPumpStop(new InvalidOperationException("ExceptionInPumpStop"));
+                    var fakeTransport = new FakeTransport();
+                    fakeTransport.RaiseExceptionDuringPumpStop(new InvalidOperationException("ExceptionInPumpStop"));
+                    builder.UseTransport(fakeTransport);
                 });
             }
         }

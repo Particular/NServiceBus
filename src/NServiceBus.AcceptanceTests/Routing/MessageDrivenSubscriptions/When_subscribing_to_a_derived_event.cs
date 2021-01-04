@@ -46,7 +46,7 @@
                     {
                         context.SubscriberSubscribed = true;
                     });
-                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(Done), typeof(Subscriber));
+                    b.ConfigureRouting().RouteToEndpoint(typeof(Done), typeof(Subscriber));
                 });
             }
         }

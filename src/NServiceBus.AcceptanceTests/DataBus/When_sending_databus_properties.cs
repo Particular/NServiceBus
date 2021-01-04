@@ -44,7 +44,7 @@
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
 
-                    builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
+                    builder.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 });
             }
         }

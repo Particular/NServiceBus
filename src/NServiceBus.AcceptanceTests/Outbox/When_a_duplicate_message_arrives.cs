@@ -83,7 +83,7 @@
                     // limit to one to avoid race conditions on dispatch and this allows us to reliably check whether deduplication happens properly
                     b.LimitMessageProcessingConcurrencyTo(1);
                     b.EnableOutbox();
-                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(SendOrderAcknowledgement), typeof(DownstreamEndpoint));
+                    b.ConfigureRouting().RouteToEndpoint(typeof(SendOrderAcknowledgement), typeof(DownstreamEndpoint));
                 });
             }
 

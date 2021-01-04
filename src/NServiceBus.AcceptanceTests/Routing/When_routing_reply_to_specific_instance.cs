@@ -43,7 +43,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.MakeInstanceUniquelyAddressable(instanceDiscriminator);
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
                 });
             }
 

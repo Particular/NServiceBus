@@ -26,7 +26,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.ConfigureTransport().Transactions(TransportTransactionMode.None);
+                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
                     var recoverability = config.Recoverability();
                     recoverability.Delayed(i => i.NumberOfRetries(1));
                 });

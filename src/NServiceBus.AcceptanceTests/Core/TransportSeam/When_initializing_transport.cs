@@ -56,8 +56,9 @@
             {
                 EndpointSetup<DefaultServer, Context>((endpointConfig, context) =>
                 {
-                    endpointConfig.UseTransport<FakeTransport>()
-                        .CollectStartupSequence(context.StartUpSequence);
+                    var fakeTransport = new FakeTransport();
+                    fakeTransport.CollectStartupSequence(context.StartUpSequence);
+                    endpointConfig.UseTransport(fakeTransport);
                 });
             }
         }

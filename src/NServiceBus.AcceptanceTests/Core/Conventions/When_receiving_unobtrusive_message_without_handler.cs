@@ -34,7 +34,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
                 {
                     c.Conventions()
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName);
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
                 }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }

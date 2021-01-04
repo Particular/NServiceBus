@@ -37,7 +37,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message"));
-                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(IMyInterfaceMessage), typeof(Receiver));
+                    b.ConfigureRouting().RouteToEndpoint(typeof(IMyInterfaceMessage), typeof(Receiver));
                 }).ExcludeType<IMyInterfaceMessage>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }

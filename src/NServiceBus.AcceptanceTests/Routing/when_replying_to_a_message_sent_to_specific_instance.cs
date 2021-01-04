@@ -36,8 +36,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    var routing = c.ConfigureTransport().Routing();
-                    routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    c.ConfigureRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
                     c.GetSettings().GetOrCreate<EndpointInstances>()
                         .AddOrReplaceInstances("testing", new List<EndpointInstance>
                         {

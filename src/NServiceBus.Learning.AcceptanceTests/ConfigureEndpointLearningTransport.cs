@@ -26,8 +26,9 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
         //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
 
-        configuration.UseTransport<LearningTransport>()
-            .StorageDirectory(storageDir);
+        var learningTransport = new LearningTransport();
+        learningTransport.StorageDirectory = storageDir;
+        configuration.UseTransport(learningTransport);
 
         return Task.FromResult(0);
     }

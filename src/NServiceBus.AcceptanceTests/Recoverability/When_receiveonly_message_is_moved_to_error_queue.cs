@@ -42,8 +42,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.ConfigureTransport()
-                        .Transactions(TransportTransactionMode.ReceiveOnly);
+                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                     config.SendFailedMessagesTo(ErrorSpyAddress);
                 });
