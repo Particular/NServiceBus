@@ -89,9 +89,5 @@ namespace NServiceBus.AcceptanceTesting
         readonly HostSettings settings;
         readonly AcceptanceTestingTransport transport;
         readonly ReceiveSettings[] receivers;
-
-        public const string StorageLocationKey = "AcceptanceTestingTransport.StoragePath";
-        public const string UseNativePubSubKey = "AcceptanceTestingTransport.UseNativePubSub";
-        public const string UseNativeDelayedDeliveryKey = "AcceptanceTestingTransport.UseNativeDelayedDelivery";
     }
 }

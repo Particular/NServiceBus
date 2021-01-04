@@ -69,6 +69,16 @@ namespace NServiceBus
         public override bool SupportsPublishSubscribe { get; } = false;
         public override bool SupportsTTBR { get; } = true;
 
-        public string StorageLocation { get; set; }
+        private string storageLocation;
+        public string StorageLocation
+        {
+            get => storageLocation;
+            set
+            {
+                Guard.AgainstNull(nameof(StorageLocation), value);
+                PathChecker.ThrowForBadPath(value, nameof(StorageLocation));
+                storageLocation = value;
+            }
+        }
     }
 }
