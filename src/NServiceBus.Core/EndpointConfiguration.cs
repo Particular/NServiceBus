@@ -84,9 +84,11 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public void UseTransport(TransportDefinition transportDefinition)
+        public RoutingSettings<TTransport> UseTransport<TTransport>(TTransport transportDefinition)
+            where TTransport : TransportDefinition
         {
             Settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
+            return new RoutingSettings<TTransport>(Settings);
         }
 
         //This needs to be here since we have downstreams that use reflection to access this property
