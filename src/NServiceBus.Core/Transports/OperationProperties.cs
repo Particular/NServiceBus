@@ -7,7 +7,7 @@ using NServiceBus.Performance.TimeToBeReceived;
 namespace NServiceBus.Transports
 {
     /// <summary>
-    ///
+    /// Describes additional properties for an outgoing message.
     /// </summary>
     public class OperationProperties
     {
@@ -19,7 +19,7 @@ namespace NServiceBus.Transports
         private Dictionary<string, string> properties;
 
         /// <summary>
-        ///
+        /// Creates a new instance of <see cref="OperationProperties"/>.
         /// </summary>
         public OperationProperties() : this(new Dictionary<string, string>())
         {
@@ -32,7 +32,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        ///
+        /// Creates a new instance of <see cref="OperationProperties"/>.
         /// </summary>
         public DoNotDeliverBefore DoNotDeliverBefore
         {
@@ -44,7 +44,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        ///
+        /// Delayed delivery configuration.
         /// </summary>
         public DelayDeliveryWith DelayDeliveryWith
         {
@@ -56,7 +56,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        ///
+        /// Discard the message after a certain period of time.
         /// </summary>
         public DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore
         {
@@ -68,7 +68,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// Converts this instance into a serializable dictionary
+        /// Converts this instance into a serializable dictionary.
         /// </summary>
         public Dictionary<string, string> ToDictionary()
         {
@@ -88,14 +88,8 @@ namespace NServiceBus.Transports
         }
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    public static class ContextBagExtensions
+    static class ContextBagExtensions
     {
-        /// <summary>
-        ///
-        /// </summary>
         public static OperationProperties GetOperationProperties(this ContextBag bag)
         {
             Guard.AgainstNull(nameof(bag), bag);
@@ -108,9 +102,6 @@ namespace NServiceBus.Transports
             return new OperationProperties();
         }
 
-        /// <summary>
-        /// Adds a <see cref="OperationProperties" /> to a <see cref="ContextBag" />.
-        /// </summary>
         public static void AddOperationProperties(this ContextBag context, OperationProperties properties)
         {
             Guard.AgainstNull(nameof(context), context);
@@ -121,9 +112,6 @@ namespace NServiceBus.Transports
             context.Set(contextProperties);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public static OperationProperties AsOperationProperties(this Dictionary<string, string> properties)
         {
             return OperationProperties.FromDictionary(properties);

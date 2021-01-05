@@ -31,10 +31,12 @@ namespace NServiceBus.Transport
 
 
         /// <summary>
+        /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
         /// </summary>
         public abstract string ToTransportAddress(QueueAddress address);
 
         /// <summary>
+        /// Returns a list of all supported transaction modes of this transport.
         /// </summary>
         public abstract IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes();
 
@@ -55,14 +57,17 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
+        /// Indicates whether this transport supports delayed delivery natively.
         /// </summary>
         public abstract bool SupportsDelayedDelivery { get; }
 
         /// <summary>
+        /// Indicates whether this transport supports publish-subscribe natively.
         /// </summary>
         public abstract bool SupportsPublishSubscribe { get; }
 
         /// <summary>
+        /// Indicates whether this transport supports time-to-be-received settings for messages.
         /// </summary>
         public abstract bool SupportsTTBR { get; }
     }

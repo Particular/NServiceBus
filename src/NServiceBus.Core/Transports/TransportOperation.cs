@@ -14,7 +14,7 @@ namespace NServiceBus.Transport
         /// <param name="message">The message to dispatch.</param>
         /// <param name="addressTag">The address to use when routing this message.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
-        /// <param name="properties">Delivery properties of the message</param>
+        /// <param name="properties">Delivery properties of the message.</param>
         public TransportOperation(OutgoingMessage message, AddressTag addressTag, Dictionary<string, string> properties = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
@@ -34,7 +34,7 @@ namespace NServiceBus.Transport
         public AddressTag AddressTag { get; }
 
         /// <summary>
-        /// Operation properties
+        /// Operation properties.
         /// </summary>
         public Dictionary<string, string> Properties { get; }
 

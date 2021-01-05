@@ -13,16 +13,17 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure
     {
         /// <summary>
-        /// 
+        /// The dispatcher to send messages.
         /// </summary>
         public virtual IMessageDispatcher Dispatcher { get; protected set; }
 
         /// <summary>
+        /// A list of all receivers.
         /// </summary>
         public virtual ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
 
         /// <summary>
-        /// 
+        /// This method is used when the transport is hosted as part of an NServiceBus endpoint to allow the transport verification of endpoint settings.
         /// </summary>
         public virtual Task ValidateNServiceBusSettings(ReadOnlySettings settings)
         {
@@ -32,15 +33,15 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// 
+        /// A helper method to find a receiver inside the <see cref="Receivers"/> collection with a specific id.
         /// </summary>
         public IMessageReceiver GetReceiver(string receiverId)
         {
             return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }
 
-
         /// <summary>
+        /// Disposes all transport internal resources.
         /// </summary>
         public abstract Task DisposeAsync();
     }

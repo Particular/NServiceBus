@@ -44,8 +44,7 @@ namespace NServiceBus
             return learningTransportInfrastructure;
         }
 
-        /// <summary>
-        /// </summary>
+        /// <inheritdoc />
         public override string ToTransportAddress(QueueAddress queueAddress)
         {
             var address = queueAddress.BaseAddress;
@@ -72,8 +71,7 @@ namespace NServiceBus
             return address;
         }
 
-        /// <summary>
-        /// </summary>
+        /// <inheritdoc />
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
         {
             return new[]
@@ -84,23 +82,23 @@ namespace NServiceBus
             };
         }
 
-        /// <summary>
-        /// </summary>
+        /// <inheritdoc />
         public override bool SupportsDelayedDelivery { get; } = true;
 
-        /// <summary>
-        /// </summary>
+        /// <inheritdoc />
         public override bool SupportsPublishSubscribe { get; } = true;
 
-        /// <summary>
-        /// </summary>
+        /// <inheritdoc />
         public override bool SupportsTTBR { get; } = true;
 
         /// <summary>
+        /// Configures the storage directory to store files created by the transport.
         /// </summary>
         public string StorageDirectory { get; set; }
 
+
         /// <summary>
+        /// If set to true, limits the message maximum payload size to 64 kilobytes.
         /// </summary>
         public bool RestrictPayloadSize { get; set; }
 

@@ -28,12 +28,12 @@ namespace NServiceBus.Transports
         Task StopReceive(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// 
+        /// The <see cref="ISubscriptionManager"/> for this receiver. Will be <code>null</code> if publish-subscribe has been disabled on the <see cref="ReceiveSettings"/>.
         /// </summary>
         ISubscriptionManager Subscriptions { get; }
 
         /// <summary>
-        /// 
+        /// The unique identifier of this instance.
         /// </summary>
         string Id { get; }
     }
