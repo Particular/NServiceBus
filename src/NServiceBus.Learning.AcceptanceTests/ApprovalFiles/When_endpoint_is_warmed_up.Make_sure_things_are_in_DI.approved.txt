@@ -1,7 +1,9 @@
 ----------- Used registrations (Find ways to stop accessing them)-----------
 NServiceBus.InferredMessageTypeEnricherBehavior - Transient
-NServiceBus.Transport.IDispatchMessages - Singleton
+NServiceBus.Transports.IMessageDispatcher - Singleton
+NServiceBus.Transports.ISubscriptionManager - Singleton
 NServiceBus.Unicast.MessageHandlerRegistry - Singleton
+NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
 NServiceBus.CriticalError - Singleton
 NServiceBus.Hosting.HostInformation - Singleton
@@ -13,4 +15,3 @@ NServiceBus.Pipeline.IBehavior - Transient
 NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c],[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c]] - Transient
 NServiceBus.Pipeline.LogicalMessageFactory - Singleton
 NServiceBus.Settings.ReadOnlySettings - Singleton
-NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
