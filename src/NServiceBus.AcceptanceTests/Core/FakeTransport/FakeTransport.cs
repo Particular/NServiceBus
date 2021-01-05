@@ -33,7 +33,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public override string ToTransportAddress(QueueAddress address)
         {
-            return address.ToString();
+            return new LearningTransport().ToTransportAddress(address);
         }
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()

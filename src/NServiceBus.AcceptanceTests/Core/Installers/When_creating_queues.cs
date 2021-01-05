@@ -15,11 +15,10 @@
     public class When_creating_queues : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_create_queues_when_queue_creation_disabled_and_installers_disabled()
+        public async Task Should_not_create_queues_when_installers_disabled()
         {
             var context = await Scenario.Define<Context>(c =>
                 {
-                    c.DoNotCreateQueues = true;
                     c.EnableInstallers = false;
                 })
                 .WithEndpoint<Endpoint>()
@@ -30,41 +29,10 @@
         }
 
         [Test]
-        public async Task Should_not_create_queues_when_queue_creation_disabled_and_installers_enabled()
+        public async Task Should_create_queues_when_installers_enabled()
         {
             var context = await Scenario.Define<Context>(c =>
                 {
-                    c.DoNotCreateQueues = true;
-                    c.EnableInstallers = true;
-                })
-                .WithEndpoint<Endpoint>()
-                .Done(c => c.EndpointsStarted)
-                .Run();
-
-            Assert.IsFalse(context.SetupInfrastructure);
-        }
-
-        [Test]
-        public async Task Should_not_create_queues_when_queue_creation_enabled_and_installers_disabled()
-        {
-            var context = await Scenario.Define<Context>(c =>
-                {
-                    c.DoNotCreateQueues = false;
-                    c.EnableInstallers = false;
-                })
-                .WithEndpoint<Endpoint>()
-                .Done(c => c.EndpointsStarted)
-                .Run();
-
-            Assert.IsFalse(context.SetupInfrastructure);
-        }
-
-        [Test]
-        public async Task Should_create_queues_when_queue_creation_enabled_and_installers_enabled()
-        {
-            var context = await Scenario.Define<Context>(c =>
-                {
-                    c.DoNotCreateQueues = false;
                     c.EnableInstallers = true;
                 })
                 .WithEndpoint<Endpoint>()
@@ -75,7 +43,7 @@
         }
 
         [Test]
-        public async Task Should_setup_queue_bindings_prior_to_creating_queues()
+        public async Task Should_pass_receive_and_send_queue_addresses()
         {
             var instanceDiscriminator = "myInstance";
             var context = await Scenario.Define<Context>(c =>
@@ -100,7 +68,7 @@
 
             var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
 
-            CollectionAssert.AreEqual(new List<string>
+            CollectionAssert.AreEquivalent(new List<string>
             {
                 endpointName, //main input queue
                 $"{endpointName}-{instanceDiscriminator}", // instance-specific queue
@@ -110,7 +78,6 @@
 
         class Context : ScenarioContext
         {
-            public bool DoNotCreateQueues { get; set; }
             public bool EnableInstallers { get; set; }
             public string[] ReceivingAddresses { get; set; }
             public string[] SendingAddresses { get; set; }
@@ -131,11 +98,6 @@
                         t.SetupInfrastructure = queues.setupInfrastructure;
                     };
                     c.UseTransport(fakeTransport);
-
-                    if (t.DoNotCreateQueues)
-                    {
-                        c.DoNotCreateQueues();
-                    }
 
                     if (!t.EnableInstallers)
                     {

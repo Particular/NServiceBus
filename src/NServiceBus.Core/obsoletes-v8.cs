@@ -113,6 +113,31 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
+
+    [ObsoleteEx(
+        Message = "Transport infrastructure setup control is not based on the installer configuration.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
+    public static class ConfigureQueueCreation
+    {
+        [ObsoleteEx(
+            Message = "Transport infrastructure setup control is not based on the installer configuration.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
+        public static void DoNotCreateQueues(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Transport infrastructure setup control is not based on the installer configuration.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
+        public static bool CreateQueues(this ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace NServiceBus.Container
