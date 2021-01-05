@@ -958,4 +958,56 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus.Transport
+{
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(
+        Message = "Queue creation is done by TransportDefinition.Initialize",
+        TreatAsErrorFromVersion = "8", 
+        RemoveInVersion = "9")]
+    public interface ICreateQueues
+    {
+        [ObsoleteEx(
+            Message = "Queue creation is done by TransportDefinition.Initialize",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity);
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "IMessageReceiver",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IPushMessages
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IMessageReceiver.Initialize",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Init(Func<MessageContext, Task> onMessage,
+            Func<ErrorContext, Task<ErrorHandleResult>> onError,
+            CriticalError criticalError,
+            PushSettings settings);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IMessageReceiver.StartReceive",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        void Start(PushRuntimeSettings limitations);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IMessageReceiver.StopReceive",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Stop();
+    }
+}
+
 #pragma warning restore 1591
