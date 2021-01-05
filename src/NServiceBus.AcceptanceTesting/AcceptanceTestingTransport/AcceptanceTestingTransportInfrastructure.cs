@@ -22,6 +22,10 @@ namespace NServiceBus.AcceptanceTesting
                 var solutionRoot = FindSolutionRoot();
                 storagePath = Path.Combine(solutionRoot, ".attransport");
             }
+            else
+            {
+                storagePath = transport.StorageLocation;
+            }
         }
 
         string FindSolutionRoot()
