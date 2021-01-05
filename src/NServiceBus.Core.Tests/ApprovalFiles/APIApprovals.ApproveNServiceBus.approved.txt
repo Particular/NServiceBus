@@ -2539,12 +2539,6 @@ namespace NServiceBus.Transport
 }
 namespace NServiceBus.Transports
 {
-    public static class ContextBagExtensions
-    {
-        public static void AddOperationProperties(this NServiceBus.Extensibility.ContextBag context, NServiceBus.Transports.OperationProperties properties) { }
-        public static NServiceBus.Transports.OperationProperties AsOperationProperties(this System.Collections.Generic.Dictionary<string, string> properties) { }
-        public static NServiceBus.Transports.OperationProperties GetOperationProperties(this NServiceBus.Extensibility.ContextBag bag) { }
-    }
     public interface IMessageDispatcher
     {
         System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken = default);
