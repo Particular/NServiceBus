@@ -61,6 +61,8 @@ namespace NServiceBus
         {
             return  new[]
             {
+                TransportTransactionMode.None,
+                TransportTransactionMode.ReceiveOnly,
                 TransportTransactionMode.SendsAtomicWithReceive
             };
         }
