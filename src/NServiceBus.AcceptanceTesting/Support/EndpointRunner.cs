@@ -59,8 +59,8 @@
 
                 startable = await createCallback(endpointConfiguration).ConfigureAwait(false);
 
-                var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportDefinition>();
-                scenarioContext.HasNativePubSubSupport = transportInfrastructure.SupportsPublishSubscribe;
+                var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
+                scenarioContext.HasNativePubSubSupport = transportDefinition.SupportsPublishSubscribe;
             }
             catch (Exception ex)
             {
