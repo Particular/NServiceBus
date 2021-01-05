@@ -1,6 +1,4 @@
-﻿using NServiceBus.Transports;
-
-namespace NServiceBus.Core.Tests.Reliability.Outbox
+﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
     using System;
     using System.Collections.Generic;

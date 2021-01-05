@@ -2537,7 +2537,7 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
 }
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     public interface IMessageDispatcher
     {

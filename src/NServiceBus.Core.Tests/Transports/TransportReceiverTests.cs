@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.Core.Tests.Transports

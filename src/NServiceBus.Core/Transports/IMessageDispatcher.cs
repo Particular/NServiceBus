@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using NServiceBus.Transport;
 
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Abstraction of the capability to dispatch messages.

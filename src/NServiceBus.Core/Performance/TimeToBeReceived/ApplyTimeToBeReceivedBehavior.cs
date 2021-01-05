@@ -1,11 +1,10 @@
-﻿using NServiceBus.Transports;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
     using Performance.TimeToBeReceived;
     using Pipeline;
+    using Transport;
 
     class ApplyTimeToBeReceivedBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {

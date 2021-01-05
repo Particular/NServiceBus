@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NServiceBus.Transports;
 
 namespace NServiceBus.AcceptanceTesting
 {

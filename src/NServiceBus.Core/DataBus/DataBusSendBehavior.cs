@@ -1,4 +1,4 @@
-﻿using NServiceBus.Transports;
+﻿using NServiceBus.Transport;
 
 namespace NServiceBus
 {

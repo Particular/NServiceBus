@@ -4,7 +4,7 @@ using NServiceBus.DelayedDelivery;
 using NServiceBus.Extensibility;
 using NServiceBus.Performance.TimeToBeReceived;
 
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Describes additional properties for an outgoing message.

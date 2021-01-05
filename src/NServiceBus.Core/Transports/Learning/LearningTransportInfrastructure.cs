@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NServiceBus.Transports;
 
 namespace NServiceBus
 {
@@ -7,7 +6,6 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using Settings;
     using Transport;
 
     class LearningTransportInfrastructure : TransportInfrastructure

@@ -1,11 +1,10 @@
-using System;
-using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Pipeline;
+    using Transport;
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {

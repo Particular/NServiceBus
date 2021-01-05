@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using NServiceBus.Transport;
 using NServiceBus.Unicast.Messages;
 
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Allows the transport to push messages to the core.

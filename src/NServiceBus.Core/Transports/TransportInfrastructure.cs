@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using NServiceBus.Settings;
-using NServiceBus.Transports;
+using NServiceBus.Transport;
 
 namespace NServiceBus.Transport
 {

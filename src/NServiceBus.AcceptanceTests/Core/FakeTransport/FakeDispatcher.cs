@@ -1,6 +1,4 @@
 using System.Threading;
-using NServiceBus.Extensibility;
-using NServiceBus.Transports;
 
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {

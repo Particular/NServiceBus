@@ -4,7 +4,6 @@ using System;
 using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Settings;
 using NServiceBus.Transport;
-using NServiceBus.Transports;
 
 namespace NServiceBus.Gateway.Deduplication
 {

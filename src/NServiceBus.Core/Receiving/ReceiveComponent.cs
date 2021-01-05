@@ -1,6 +1,4 @@
-using System.Collections.ObjectModel;
 using System.Threading;
-using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus

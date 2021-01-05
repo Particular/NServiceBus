@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Transport
 {
-    using Transports;
-
     /// <summary>
     /// Settings that belong to a specific <see cref="IMessageReceiver"/>.
     /// </summary>

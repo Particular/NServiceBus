@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
-using NServiceBus.Transports;
+using NServiceBus.Transport;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus

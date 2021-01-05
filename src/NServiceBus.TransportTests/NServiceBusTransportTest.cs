@@ -1,5 +1,5 @@
 ﻿using NServiceBus.Extensibility;
-using NServiceBus.Transports;
+using NServiceBus.Transport;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.TransportTests

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NServiceBus.Extensibility;
 using NServiceBus.Unicast.Messages;
 
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Implemented by transports to provide pub/sub capabilities.

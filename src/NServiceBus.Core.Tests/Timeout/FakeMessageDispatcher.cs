@@ -1,5 +1,5 @@
 using System.Threading;
-using NServiceBus.Transports;
+using NServiceBus.Transport;
 
 namespace NServiceBus.Core.Tests.Timeout
 {

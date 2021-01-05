@@ -1,6 +1,6 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Transports;
+using NServiceBus.Transport;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus.Features

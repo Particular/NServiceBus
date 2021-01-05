@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using NServiceBus.Transports;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
@@ -8,6 +7,7 @@ namespace NServiceBus
     using System.IO;
     using System.Threading.Tasks;
     using Extensibility;
+    using Transport;
 
     class LearningTransportSubscriptionManager : ISubscriptionManager
     {
