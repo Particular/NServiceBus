@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.TransportSeam
+﻿using NServiceBus.Transports;
+
+namespace NServiceBus.AcceptanceTests.Core.TransportSeam
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -21,12 +23,10 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(ICreateQueues)}.{nameof(ICreateQueues.CreateQueueIfNecessary)}",
-                $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StartReceive)} for receiver Main",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StopReceive)} for receiver Main",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.DisposeAsync)}",
             }, context.StartUpSequence);
         }
 
@@ -41,7 +41,7 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.DisposeAsync)}",
             }, context.StartUpSequence);
         }
 

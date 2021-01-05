@@ -30,8 +30,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public void ConfigureReceiveInfrastructure()
         {
-            startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
-
             Receivers = receivers
                 .Select(r => 
                     new FakeReceiver(
@@ -45,8 +43,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public void ConfigureSendInfrastructure()
         {
-            startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
-
             Dispatcher = new FakeDispatcher();
         }
 
