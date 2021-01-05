@@ -19,7 +19,6 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var transportDefinition = context.Settings.Get<TransportDefinition>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
@@ -44,8 +43,6 @@ namespace NServiceBus.Features
             if (canReceive)
             {
                 var endpointInstances = context.Routing.EndpointInstances;
-                var mainReceiver = context.Settings.Get<TransportInfrastructure>().GetReceiver(ReceiveComponent.MainReceiverId);
-                var subscriptionManager = mainReceiver.Subscriptions;
 
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i =>
                 {
@@ -55,9 +52,9 @@ namespace NServiceBus.Features
                 var subscriberAddress = context.Receiving.LocalAddress;
 
                 context.Pipeline.Register(b =>
-                    new MigrationSubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
-                    new MigrationUnsubscribeTerminator(subscriptionManager, b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)
