@@ -2367,10 +2367,22 @@ namespace NServiceBus.Transport
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
     }
+    public interface IMessageDispatcher
+    {
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken = default);
+    }
+    public interface IMessageReceiver
+    {
+        string Id { get; }
+        NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> events, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken = default);
+    }
     public interface IOutgoingTransportOperation
     {
         NServiceBus.Transport.OutgoingMessage Message { get; }
-        NServiceBus.Transports.OperationProperties Properties { get; }
+        NServiceBus.Transport.OperationProperties Properties { get; }
         NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
     [System.Obsolete("Use `IMessageReceiver` instead. Will be removed in version 9.0.0.", true)]
@@ -2382,6 +2394,11 @@ namespace NServiceBus.Transport
         void Start(NServiceBus.Transport.PushRuntimeSettings limitations);
         [System.Obsolete("Use `IMessageReceiver.StopReceive` instead. Will be removed in version 9.0.0.", true)]
         System.Threading.Tasks.Task Stop();
+    }
+    public interface ISubscriptionManager
+    {
+        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
     public class IncomingMessage
     {
@@ -2408,11 +2425,20 @@ namespace NServiceBus.Transport
     }
     public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
     {
-        public MulticastTransportOperation(NServiceBus.Transport.OutgoingMessage message, System.Type messageType, NServiceBus.Transports.OperationProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public MulticastTransportOperation(NServiceBus.Transport.OutgoingMessage message, System.Type messageType, NServiceBus.Transport.OperationProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
         public System.Type MessageType { get; }
-        public NServiceBus.Transports.OperationProperties Properties { get; }
+        public NServiceBus.Transport.OperationProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
+    }
+    public class OperationProperties
+    {
+        public OperationProperties() { }
+        public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
+        public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
+        public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> ToDictionary() { }
+        public static NServiceBus.Transport.OperationProperties FromDictionary(System.Collections.Generic.Dictionary<string, string> dictionary) { }
     }
     public class OutboundRoutingPolicy
     {
@@ -2494,10 +2520,10 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure
     {
         protected TransportInfrastructure() { }
-        public virtual NServiceBus.Transports.IMessageDispatcher Dispatcher { get; set; }
-        public virtual System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transports.IMessageReceiver> Receivers { get; set; }
+        public virtual NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
+        public virtual System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task DisposeAsync();
-        public NServiceBus.Transports.IMessageReceiver GetReceiver(string receiverId) { }
+        public NServiceBus.Transport.IMessageReceiver GetReceiver(string receiverId) { }
         public virtual System.Threading.Tasks.Task ValidateNServiceBusSettings(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class TransportOperation
@@ -2516,8 +2542,8 @@ namespace NServiceBus.Transport
     }
     public class TransportSendInfrastructure
     {
-        public TransportSendInfrastructure(System.Func<NServiceBus.Transports.IMessageDispatcher> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
-        public System.Func<NServiceBus.Transports.IMessageDispatcher> DispatcherFactory { get; }
+        public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IMessageDispatcher> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transport.IMessageDispatcher> DispatcherFactory { get; }
         public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
     }
     public class TransportSubscriptionInfrastructure
@@ -2530,40 +2556,11 @@ namespace NServiceBus.Transport
     }
     public class UnicastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
     {
-        public UnicastTransportOperation(NServiceBus.Transport.OutgoingMessage message, string destination, NServiceBus.Transports.OperationProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public UnicastTransportOperation(NServiceBus.Transport.OutgoingMessage message, string destination, NServiceBus.Transport.OperationProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
         public string Destination { get; }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
-        public NServiceBus.Transports.OperationProperties Properties { get; }
+        public NServiceBus.Transport.OperationProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
-    }
-}
-namespace NServiceBus.Transport
-{
-    public interface IMessageDispatcher
-    {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken = default);
-    }
-    public interface IMessageReceiver
-    {
-        string Id { get; }
-        NServiceBus.Transports.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> events, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken = default);
-    }
-    public interface ISubscriptionManager
-    {
-        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-    }
-    public class OperationProperties
-    {
-        public OperationProperties() { }
-        public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
-        public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
-        public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> ToDictionary() { }
-        public static NServiceBus.Transports.OperationProperties FromDictionary(System.Collections.Generic.Dictionary<string, string> dictionary) { }
     }
 }
 namespace NServiceBus.Unicast
