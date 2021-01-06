@@ -2440,16 +2440,32 @@ namespace NServiceBus.Transport
         public System.Collections.Generic.Dictionary<string, string> ToDictionary() { }
         public static NServiceBus.Transport.OperationProperties FromDictionary(System.Collections.Generic.Dictionary<string, string> dictionary) { }
     }
+    [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
+        "n version 9.0.0.", true)]
     public class OutboundRoutingPolicy
     {
+        [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
+            "n version 9.0.0.", true)]
         public OutboundRoutingPolicy(NServiceBus.Transport.OutboundRoutingType sends, NServiceBus.Transport.OutboundRoutingType publishes, NServiceBus.Transport.OutboundRoutingType replies) { }
+        [System.Obsolete("Use `TransportDefinition.SupportsPublishSubscribe` instead. Will be removed in ve" +
+            "rsion 9.0.0.", true)]
         public NServiceBus.Transport.OutboundRoutingType Publishes { get; }
+        [System.Obsolete("This property is no longer necessary when implementing a transport. Will be remov" +
+            "ed in version 9.0.0.", true)]
         public NServiceBus.Transport.OutboundRoutingType Replies { get; }
+        [System.Obsolete("This property is no longer necessary when implementing a transport. Will be remov" +
+            "ed in version 9.0.0.", true)]
         public NServiceBus.Transport.OutboundRoutingType Sends { get; }
     }
+    [System.Obsolete("This enum is no longer necessary when implementing a transport. Will be removed i" +
+        "n version 9.0.0.", true)]
     public enum OutboundRoutingType
     {
+        [System.Obsolete("This enum is no longer necessary when implementing a transport. Will be removed i" +
+            "n version 9.0.0.", true)]
         Unicast = 0,
+        [System.Obsolete("This enum is no longer necessary when implementing a transport. Will be removed i" +
+            "n version 9.0.0.", true)]
         Multicast = 1,
     }
     public class OutgoingMessage

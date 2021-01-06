@@ -1009,4 +1009,61 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus.Transport
+{
+    [ObsoleteEx(
+        Message = "This type is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class OutboundRoutingPolicy
+    {
+        [ObsoleteEx(
+            Message = "This type is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingPolicy(OutboundRoutingType sends, OutboundRoutingType publishes, OutboundRoutingType replies)
+        {
+            Sends = sends;
+            Publishes = publishes;
+            Replies = replies;
+        }
+
+        [ObsoleteEx(
+            Message = "This property is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingType Sends { get; }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportDefinition.SupportsPublishSubscribe",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingType Publishes { get; }
+
+        [ObsoleteEx(
+            Message = "This property is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingType Replies { get; }
+    }
+
+    [ObsoleteEx(
+        Message = "This enum is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public enum OutboundRoutingType
+    {
+        [ObsoleteEx(
+            Message = "This enum is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Unicast,
+        [ObsoleteEx(
+            Message = "This enum is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Multicast
+    }
+}
+
 #pragma warning restore 1591
