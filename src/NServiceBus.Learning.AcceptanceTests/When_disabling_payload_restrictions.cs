@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -32,12 +32,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var transport = new LearningTransport
-                    {
-                        RestrictPayloadSize = false
-                    };
-
-                    c.UseTransport(transport);
+                    var transport = (LearningTransport)c.ConfigureTransport();
+                    transport.RestrictPayloadSize = false;
                 });
             }
 
