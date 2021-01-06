@@ -1115,4 +1115,29 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Threading.Tasks;
+    using Extensibility;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "ISubscriptionManager",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IManageSubscriptions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISubscriptionManager.Subscribe",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Subscribe(Type eventType, ContextBag context);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISubscriptionManager.Unsubscribe",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Unsubscribe(Type eventType, ContextBag context);
+    }
+}
 #pragma warning restore 1591
