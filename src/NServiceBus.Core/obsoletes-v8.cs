@@ -1023,28 +1023,26 @@ namespace NServiceBus.Transport
             RemoveInVersion = "9")]
         public OutboundRoutingPolicy(OutboundRoutingType sends, OutboundRoutingType publishes, OutboundRoutingType replies)
         {
-            Sends = sends;
-            Publishes = publishes;
-            Replies = replies;
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
             Message = "This property is no longer necessary when implementing a transport",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public OutboundRoutingType Sends { get; }
+        public OutboundRoutingType Sends => throw new NotImplementedException();
 
         [ObsoleteEx(
             ReplacementTypeOrMember = "TransportDefinition.SupportsPublishSubscribe",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public OutboundRoutingType Publishes { get; }
+        public OutboundRoutingType Publishes => throw new NotImplementedException();
 
         [ObsoleteEx(
             Message = "This property is no longer necessary when implementing a transport",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public OutboundRoutingType Replies { get; }
+        public OutboundRoutingType Replies => throw new NotImplementedException();
     }
 
     [ObsoleteEx(
@@ -1063,6 +1061,57 @@ namespace NServiceBus.Transport
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         Multicast
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(
+        Message = "This type is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class TransportSubscriptionInfrastructure
+    {
+        [ObsoleteEx(
+            Message = "This type is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public TransportSubscriptionInfrastructure(Func<IManageSubscriptions> subscriptionManagerFactory)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "This type is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class TransportSendInfrastructure
+    {
+        [ObsoleteEx(
+            Message = "This type is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public TransportSendInfrastructure(Func<IMessageDispatcher> dispatcherFactory,
+            Func<Task<StartupCheckResult>> preStartupCheck)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportInfrastructure.Dispatcher",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public Func<IMessageDispatcher> DispatcherFactory => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Pre-startup checks have been removed",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public Func<Task<StartupCheckResult>> PreStartupCheck => throw new NotImplementedException();
     }
 }
 
