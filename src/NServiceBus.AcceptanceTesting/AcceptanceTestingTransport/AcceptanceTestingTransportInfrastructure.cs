@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace NServiceBus.AcceptanceTesting
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -10,21 +10,13 @@ namespace NServiceBus.AcceptanceTesting
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     {
-        public AcceptanceTestingTransportInfrastructure(HostSettings settings, AcceptanceTestingTransport transport, ReceiveSettings[] receivers)
+        public AcceptanceTestingTransportInfrastructure(HostSettings settings, AcceptanceTestingTransport transportSettings, ReceiveSettings[] receivers)
         {
             this.settings = settings;
-            this.transport = transport;
+            this.transportSettings = transportSettings;
             this.receivers = receivers;
 
-            if (transport.StorageLocation == null)
-            {
-                var solutionRoot = FindSolutionRoot();
-                storagePath = Path.Combine(solutionRoot, ".attransport");
-            }
-            else
-            {
-                storagePath = transport.StorageLocation;
-            }
+            storagePath = transportSettings.StorageLocation ?? Path.Combine(FindSolutionRoot(), ".attransport");
         }
 
         string FindSolutionRoot()
@@ -50,7 +42,7 @@ namespace NServiceBus.AcceptanceTesting
             }
         }
 
-        public async Task ConfigureReceiveInfrastructure()
+        public async Task ConfigureReceivers()
         {
             var pumps = new List<IMessageReceiver>();
 
@@ -70,15 +62,15 @@ namespace NServiceBus.AcceptanceTesting
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
             ISubscriptionManager subscriptionManager = null;
-            if (receiveSettings.UsePublishSubscribe && transport.EnableNativePublishSubscribe)
+            if (receiveSettings.UsePublishSubscribe && transportSettings.EnableNativePublishSubscribe)
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
-            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings, transport.TransportTransactionMode);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
             return Task.FromResult<IMessageReceiver>(pump);
         }
 
-        public void ConfigureSendInfrastructure()
+        public void ConfigureDispatcher()
         {
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
@@ -90,7 +82,7 @@ namespace NServiceBus.AcceptanceTesting
 
         readonly string storagePath;
         readonly HostSettings settings;
-        readonly AcceptanceTestingTransport transport;
+        readonly AcceptanceTestingTransport transportSettings;
         readonly ReceiveSettings[] receivers;
     }
 }

@@ -14,20 +14,14 @@ namespace NServiceBus
         {
         }
 
-        public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
-            CancellationToken cancellationToken = default)
+        public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(hostSettings), hostSettings);
+
             var infrastructure = new AcceptanceTestingTransportInfrastructure(hostSettings, this, receivers);
-            infrastructure.ConfigureSendInfrastructure();
+            infrastructure.ConfigureDispatcher();
+            await infrastructure.ConfigureReceivers().ConfigureAwait(false);
 
-            await infrastructure.ConfigureReceiveInfrastructure().ConfigureAwait(false);
-
-            //TODO: create queues
-            /*
-             * var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
-                        return queueCreator.CreateQueueIfNecessary(configuration.transportSeam.QueueBindings, identity);
-             */
             return infrastructure;
         }
 
