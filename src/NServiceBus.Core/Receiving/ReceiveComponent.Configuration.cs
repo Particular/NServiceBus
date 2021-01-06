@@ -20,8 +20,6 @@ namespace NServiceBus
                 throw new Exception($"Specifying a base name for the input queue using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(baseInputQueueName)` is not supported for send-only endpoints.");
             }
 
-            hostingConfiguration.Services.ConfigureComponent(() => transportSeam.TransportInfrastructure.GetReceiver(MainReceiverId).Subscriptions, DependencyLifecycle.SingleInstance);
-
             var endpointName = settings.EndpointName;
             var discriminator = settings.EndpointInstanceDiscriminator;
             var queueNameBase = settings.CustomLocalAddress ?? endpointName;
