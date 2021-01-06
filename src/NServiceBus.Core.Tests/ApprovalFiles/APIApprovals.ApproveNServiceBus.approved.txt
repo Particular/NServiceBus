@@ -2362,9 +2362,13 @@ namespace NServiceBus.Transport
     {
         System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, NServiceBus.Extensibility.ContextBag context);
     }
+    [System.Obsolete("Use `ISubscriptionManager` instead. Will be removed in version 9.0.0.", true)]
     public interface IManageSubscriptions
     {
+        [System.Obsolete("Use `ISubscriptionManager.Subscribe` instead. Will be removed in version 9.0.0.", true)]
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
+        [System.Obsolete("Use `ISubscriptionManager.Unsubscribe` instead. Will be removed in version 9.0.0." +
+            "", true)]
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IMessageDispatcher
@@ -2444,17 +2448,17 @@ namespace NServiceBus.Transport
         "n version 9.0.0.", true)]
     public class OutboundRoutingPolicy
     {
-        [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
-            "n version 9.0.0.", true)]
+        [System.Obsolete("This type is no longer necessary when implementing a transport. The member curren" +
+            "tly throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public OutboundRoutingPolicy(NServiceBus.Transport.OutboundRoutingType sends, NServiceBus.Transport.OutboundRoutingType publishes, NServiceBus.Transport.OutboundRoutingType replies) { }
-        [System.Obsolete("Use `TransportDefinition.SupportsPublishSubscribe` instead. Will be removed in ve" +
-            "rsion 9.0.0.", true)]
+        [System.Obsolete("Use `TransportDefinition.SupportsPublishSubscribe` instead. The member currently " +
+            "throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.Transport.OutboundRoutingType Publishes { get; }
-        [System.Obsolete("This property is no longer necessary when implementing a transport. Will be remov" +
-            "ed in version 9.0.0.", true)]
+        [System.Obsolete("This property is no longer necessary when implementing a transport. The member cu" +
+            "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.Transport.OutboundRoutingType Replies { get; }
-        [System.Obsolete("This property is no longer necessary when implementing a transport. Will be remov" +
-            "ed in version 9.0.0.", true)]
+        [System.Obsolete("This property is no longer necessary when implementing a transport. The member cu" +
+            "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.Transport.OutboundRoutingType Sends { get; }
     }
     [System.Obsolete("This enum is no longer necessary when implementing a transport. Will be removed i" +
@@ -2556,14 +2560,26 @@ namespace NServiceBus.Transport
         public System.Collections.Generic.List<NServiceBus.Transport.MulticastTransportOperation> MulticastTransportOperations { get; }
         public System.Collections.Generic.List<NServiceBus.Transport.UnicastTransportOperation> UnicastTransportOperations { get; }
     }
+    [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
+        "n version 9.0.0.", true)]
     public class TransportSendInfrastructure
     {
+        [System.Obsolete("This type is no longer necessary when implementing a transport. The member curren" +
+            "tly throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IMessageDispatcher> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
+        [System.Obsolete("Use `TransportInfrastructure.Dispatcher` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public System.Func<NServiceBus.Transport.IMessageDispatcher> DispatcherFactory { get; }
+        [System.Obsolete("Pre-startup checks have been removed. The member currently throws a NotImplemente" +
+            "dException. Will be removed in version 9.0.0.", true)]
         public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
     }
+    [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
+        "n version 9.0.0.", true)]
     public class TransportSubscriptionInfrastructure
     {
+        [System.Obsolete("This type is no longer necessary when implementing a transport. The member curren" +
+            "tly throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public TransportSubscriptionInfrastructure(System.Func<NServiceBus.Transport.IManageSubscriptions> subscriptionManagerFactory) { }
     }
     public sealed class TransportTransaction : NServiceBus.Extensibility.ContextBag
