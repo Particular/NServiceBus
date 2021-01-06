@@ -28,7 +28,7 @@ namespace NServiceBus.Transport
         Task StopReceive(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// The <see cref="ISubscriptionManager"/> for this receiver. Will be <code>null</code> if publish-subscribe has been disabled on the <see cref="ReceiveSettings"/>.
+        /// The <see cref="ISubscriptionManager"/> for this receiver. Will be <c>null</c> if publish-subscribe has been disabled on the <see cref="ReceiveSettings"/>.
         /// </summary>
         ISubscriptionManager Subscriptions { get; }
 
