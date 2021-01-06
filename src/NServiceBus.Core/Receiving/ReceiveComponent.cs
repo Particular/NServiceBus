@@ -22,7 +22,7 @@ namespace NServiceBus
             this.configuration = configuration;
         }
 
-        public static ReceiveComponent Configure(
+        public static ReceiveComponent Initialize(
             Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
@@ -123,11 +123,6 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public void Initialize(TransportSeam transportSeam)
-        {
-            this.transportSeam = transportSeam;
-        }
-
         public async Task Start(IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
@@ -145,7 +140,8 @@ namespace NServiceBus
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
 
-            var mainPump = transportSeam.TransportInfrastructure.GetReceiver(MainReceiverId);
+            var transportInfrastructure = configuration.transportSeam.TransportInfrastructure;
+            var mainPump = transportInfrastructure.GetReceiver(MainReceiverId);
 
             var messageMetadataRegistry = builder.GetRequiredService<MessageMetadataRegistry>();
             var messageTypesHandled = GetEventTypesHandledByThisEndpoint(builder.GetRequiredService<MessageHandlerRegistry>(), configuration.Conventions);
@@ -155,7 +151,7 @@ namespace NServiceBus
                 recoverability.Invoke, mainReceiverEvents).ConfigureAwait(false);
             receivers.Add(mainPump);
 
-            var instanceSpecificPump = transportSeam.TransportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
+            var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
             if (instanceSpecificPump != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
@@ -170,7 +166,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    var satellitePump = transportSeam.TransportInfrastructure.GetReceiver(satellite.Name);
+                    var satellitePump = transportInfrastructure.GetReceiver(satellite.Name);
 
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
@@ -291,6 +287,5 @@ namespace NServiceBus
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
-        TransportSeam transportSeam;
     }
 }

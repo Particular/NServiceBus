@@ -73,13 +73,11 @@ namespace NServiceBus
 
             hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            receiveComponent = ReceiveComponent.Configure(
+            receiveComponent = ReceiveComponent.Initialize(
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,
                 pipelineSettings);
-
-            receiveComponent.Initialize(transportSeam);
 
             pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
 
