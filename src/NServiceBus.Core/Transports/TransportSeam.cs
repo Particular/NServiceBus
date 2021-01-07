@@ -26,11 +26,15 @@ namespace NServiceBus
             this.receivers = receivers;
         }
 
-        //TODO: rename to Start()
-        public async Task Initialize()
+        public async Task<TransportInfrastructure> CreateTransportInfrastructure()
         {
             TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
                 .ConfigureAwait(false);
+
+            var eventHandlers = TransportInfrastructureCreated;
+            eventHandlers?.Invoke(this, TransportInfrastructure);
+
+            return TransportInfrastructure;
         }
 
         public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
@@ -42,10 +46,17 @@ namespace NServiceBus
                 hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
                 hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers);
 
-            return new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
+            var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
+
+            hostingConfiguration.Services.ConfigureComponent(() => transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
+
+            return transportSeam;
         }
 
-        public TransportInfrastructure TransportInfrastructure { get; private set; }
+        private TransportInfrastructure TransportInfrastructure { get; set; }
+
+        public event EventHandler<TransportInfrastructure> TransportInfrastructureCreated;
+
         public TransportDefinition TransportDefinition { get; }
 
         public QueueBindings QueueBindings { get; }

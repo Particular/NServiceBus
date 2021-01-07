@@ -22,6 +22,8 @@ namespace NServiceBus
             this.configuration = configuration;
         }
 
+        private ISubscriptionManager mainReceiverSubscriptionManager;
+
         public static ReceiveComponent Initialize(
             Configuration configuration,
             string errorQueue,
@@ -89,6 +91,11 @@ namespace NServiceBus
                 configuration.PurgeOnStartup,
                 errorQueue));
 
+            hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
+            configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
+                receiveComponent.mainReceiverSubscriptionManager =
+                    infrastructure.GetReceiver(MainReceiverId).Subscriptions;
+
             if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
             {
                 receiveSettings.Add(new ReceiveSettings(
@@ -127,21 +134,21 @@ namespace NServiceBus
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
-            IPipelineCache pipelineCache)
+            IPipelineCache pipelineCache,
+            TransportInfrastructure transportInfrastructure)
         {
             if (configuration.IsSendOnlyEndpoint)
             {
                 return;
             }
 
+            var mainPump = transportInfrastructure.GetReceiver(MainReceiverId);
+
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
-
-            var transportInfrastructure = configuration.transportSeam.TransportInfrastructure;
-            var mainPump = transportInfrastructure.GetReceiver(MainReceiverId);
 
             var messageMetadataRegistry = builder.GetRequiredService<MessageMetadataRegistry>();
             var messageTypesHandled = GetEventTypesHandledByThisEndpoint(builder.GetRequiredService<MessageHandlerRegistry>(), configuration.Conventions);

@@ -34,8 +34,6 @@ namespace NServiceBus
 
             var sendComponent = new SendComponent(messageMapper, transportSeam);
 
-            hostingConfiguration.Services.ConfigureComponent(() => sendComponent.transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
-
             return sendComponent;
         }
 
