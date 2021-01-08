@@ -161,7 +161,8 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 
     public class MessageDrivenTransportDefinition : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
-        public MessageDrivenTransportDefinition(TransportTransactionMode defaultTransactionMode) : base(defaultTransactionMode)
+        public MessageDrivenTransportDefinition(TransportTransactionMode defaultTransactionMode)
+            : base(defaultTransactionMode, false, false, false)
         {
         }
 
@@ -180,10 +181,6 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
         {
             throw new NotImplementedException();
         }
-
-        public override bool SupportsDelayedDelivery { get; }
-        public override bool SupportsPublishSubscribe { get; }
-        public override bool SupportsTTBR { get; }
     }
 }
 

@@ -10,7 +10,8 @@ namespace NServiceBus
 
     public class AcceptanceTestingTransport : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
-        public AcceptanceTestingTransport() : base(TransportTransactionMode.SendsAtomicWithReceive)
+        public AcceptanceTestingTransport(bool enableNativeDelayedDelivery = true, bool enableNativePublishSubscribe = true)
+            : base(TransportTransactionMode.SendsAtomicWithReceive, enableNativeDelayedDelivery, enableNativePublishSubscribe, true)
         {
         }
 
@@ -60,14 +61,6 @@ namespace NServiceBus
                 TransportTransactionMode.SendsAtomicWithReceive
             };
         }
-
-        public override bool SupportsDelayedDelivery => EnableNativeDelayedDeliery;
-        public bool EnableNativeDelayedDeliery { get; set; } = true;
-
-        public override bool SupportsPublishSubscribe => EnableNativePublishSubscribe;
-        public bool EnableNativePublishSubscribe { get; set; } = true;
-
-        public override bool SupportsTTBR { get; } = true;
 
         private string storageLocation;
         public string StorageLocation

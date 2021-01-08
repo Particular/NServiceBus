@@ -17,7 +17,7 @@ namespace NServiceBus
         /// Creates a new instance of a learning transport.
         /// </summary>
         public LearningTransport()
-            : base(TransportTransactionMode.SendsAtomicWithReceive)
+            : base(TransportTransactionMode.SendsAtomicWithReceive, true,true, true)
         {
         }
 
@@ -82,15 +82,6 @@ namespace NServiceBus
             };
         }
 
-        /// <inheritdoc />
-        public override bool SupportsDelayedDelivery { get; } = true;
-
-        /// <inheritdoc />
-        public override bool SupportsPublishSubscribe { get; } = true;
-
-        /// <inheritdoc />
-        public override bool SupportsTTBR { get; } = true;
-
         /// <summary>
         /// Configures the storage directory to store files created by the transport.
         /// </summary>
@@ -102,6 +93,6 @@ namespace NServiceBus
         /// </summary>
         public bool RestrictPayloadSize { get; set; }
 
-        
+
     }
 }
