@@ -1067,7 +1067,7 @@ namespace NServiceBus
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
     [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
-        "e treated as an error from version 9.0.0. Will be removed in version 9.0.0.", false)]
+        "e removed in version 9.0.0.", true)]
     public class TransportExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
@@ -1088,7 +1088,7 @@ namespace NServiceBus
         public NServiceBus.TransportExtensions Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
-        "e treated as an error from version 9.0.0. Will be removed in version 9.0.0.", false)]
+        "e removed in version 9.0.0.", true)]
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
         where T : NServiceBus.Transport.TransportDefinition
     {
