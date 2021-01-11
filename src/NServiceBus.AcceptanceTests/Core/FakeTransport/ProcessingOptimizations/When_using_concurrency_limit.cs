@@ -76,7 +76,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeTransport : TransportDefinition
         {
-            public FakeTransport() : base(TransportTransactionMode.None)
+            public FakeTransport() : base(TransportTransactionMode.None, false, false, false)
             {
             }
 
@@ -100,10 +100,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
                     TransportTransactionMode.SendsAtomicWithReceive
                 };
             }
-
-            public override bool SupportsDelayedDelivery { get; } = false;
-            public override bool SupportsPublishSubscribe { get; } = false;
-            public override bool SupportsTTBR { get; } = false;
         }
 
         sealed class FakeTransportInfrastructure : TransportInfrastructure
