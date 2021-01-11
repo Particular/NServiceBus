@@ -349,9 +349,10 @@ namespace NServiceBus
 {
     using System;
 
+    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
     [ObsoleteEx(
         Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "8.0",
+        TreatAsErrorFromVersion = "9.0",
         RemoveInVersion = "9.0")]
     public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
@@ -403,9 +404,10 @@ namespace NServiceBus
         }
     }
 
+    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
     [ObsoleteEx(
         Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "8.0",
+        TreatAsErrorFromVersion = "9.0",
         RemoveInVersion = "9.0")]
     public class TransportExtensions : ExposeSettings
     {
