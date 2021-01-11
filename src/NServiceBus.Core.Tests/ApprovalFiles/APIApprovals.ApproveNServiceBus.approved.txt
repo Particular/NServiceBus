@@ -655,9 +655,6 @@ namespace NServiceBus
         public LearningTransport() { }
         public bool RestrictPayloadSize { get; set; }
         public string StorageDirectory { get; set; }
-        public override bool SupportsDelayedDelivery { get; }
-        public override bool SupportsPublishSubscribe { get; }
-        public override bool SupportsTTBR { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
@@ -2528,10 +2525,10 @@ namespace NServiceBus.Transport
     }
     public abstract class TransportDefinition
     {
-        protected TransportDefinition(NServiceBus.TransportTransactionMode defaultTransactionMode) { }
-        public abstract bool SupportsDelayedDelivery { get; }
-        public abstract bool SupportsPublishSubscribe { get; }
-        public abstract bool SupportsTTBR { get; }
+        protected TransportDefinition(NServiceBus.TransportTransactionMode defaultTransactionMode, bool supportsDelayedDelivery, bool supportsPublishSubscribe, bool supportsTTBR) { }
+        public bool SupportsDelayedDelivery { get; }
+        public bool SupportsPublishSubscribe { get; }
+        public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
