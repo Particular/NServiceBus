@@ -12,7 +12,8 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
     {
         public class StartUpSequence : List<string> { }
 
-        public FakeTransport() : base(TransportTransactionMode.TransactionScope)
+        public FakeTransport()
+            : base(TransportTransactionMode.TransactionScope, true, true, false)
         {
         }
 
@@ -46,10 +47,6 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
                 TransportTransactionMode.TransactionScope
             };
         }
-
-        public override bool SupportsDelayedDelivery { get; } = true;
-        public override bool SupportsPublishSubscribe { get; } = true;
-        public override bool SupportsTTBR { get; } = false;
 
         public StartUpSequence StartupSequence { get; set; } = new StartUpSequence();
 

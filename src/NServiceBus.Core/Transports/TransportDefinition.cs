@@ -16,9 +16,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new transport definition.
         /// </summary>
-        protected TransportDefinition(TransportTransactionMode defaultTransactionMode)
+        protected TransportDefinition(TransportTransactionMode defaultTransactionMode, bool supportsDelayedDelivery, bool supportsPublishSubscribe, bool supportsTTBR)
         {
             transportTransactionMode = defaultTransactionMode;
+            SupportsDelayedDelivery = supportsDelayedDelivery;
+            SupportsPublishSubscribe = supportsPublishSubscribe;
+            SupportsTTBR = supportsTTBR;
         }
 
         /// <summary>
@@ -59,16 +62,16 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Indicates whether this transport supports delayed delivery natively.
         /// </summary>
-        public abstract bool SupportsDelayedDelivery { get; }
+        public bool SupportsDelayedDelivery { get; }
 
         /// <summary>
         /// Indicates whether this transport supports publish-subscribe natively.
         /// </summary>
-        public abstract bool SupportsPublishSubscribe { get; }
+        public bool SupportsPublishSubscribe { get; }
 
         /// <summary>
         /// Indicates whether this transport supports time-to-be-received settings for messages.
         /// </summary>
-        public abstract bool SupportsTTBR { get; }
+        public bool SupportsTTBR { get; }
     }
 }

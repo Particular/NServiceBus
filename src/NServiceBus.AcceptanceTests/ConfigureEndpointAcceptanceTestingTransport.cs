@@ -41,11 +41,11 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
 
         storageDir = Path.Combine(tempDir, testRunId);
 
-        var acceptanceTestingTransport = new AcceptanceTestingTransport()
+        var acceptanceTestingTransport = new AcceptanceTestingTransport(
+            enableNativeDelayedDelivery: useNativeDelayedDelivery,
+            enableNativePublishSubscribe: useNativePubSub)
         {
-            StorageLocation = storageDir,
-            EnableNativePublishSubscribe = useNativePubSub,
-            EnableNativeDelayedDeliery = useNativeDelayedDelivery
+            StorageLocation = storageDir
         };
         var routing = configuration.UseTransport(acceptanceTestingTransport);
 

@@ -62,7 +62,7 @@
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
             ISubscriptionManager subscriptionManager = null;
-            if (receiveSettings.UsePublishSubscribe && transportSettings.EnableNativePublishSubscribe)
+            if (receiveSettings.UsePublishSubscribe && transportSettings.SupportsPublishSubscribe)
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
