@@ -28,7 +28,7 @@ namespace NServiceBus
 
         public async Task<TransportInfrastructure> CreateTransportInfrastructure()
         {
-            TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), CancellationToken.None)
+            TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray())
                 .ConfigureAwait(false);
 
             var eventHandlers = TransportInfrastructureCreated;

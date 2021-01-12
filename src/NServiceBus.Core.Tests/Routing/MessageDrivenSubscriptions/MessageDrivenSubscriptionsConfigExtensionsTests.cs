@@ -166,8 +166,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
         {
         }
 
-        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
-            CancellationToken cancellationToken = default)
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses)
         {
             throw new NotImplementedException();
         }

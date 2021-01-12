@@ -27,8 +27,7 @@ namespace NServiceBus
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
-            CancellationToken cancellationToken = default)
+        public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses)
         {
             Guard.AgainstNull(nameof(hostSettings), hostSettings);
             var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);
