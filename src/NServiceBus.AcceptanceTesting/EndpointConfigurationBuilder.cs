@@ -79,7 +79,7 @@
             return this;
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T,TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+        public EndpointConfigurationBuilder EndpointSetup<T, TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
             where T : IEndpointSetupTemplate, new()
             where TContext : ScenarioContext
         {

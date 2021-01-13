@@ -76,7 +76,7 @@ namespace NServiceBus.Features
                     authorizer = _ => true;
                 }
                 context.Container.AddSingleton(authorizer);
-                context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.") ;
+                context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             }
             else
             {

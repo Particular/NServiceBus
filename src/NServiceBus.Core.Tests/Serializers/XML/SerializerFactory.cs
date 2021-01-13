@@ -60,7 +60,7 @@ namespace NServiceBus.Serializers.XML.Test
                 {
                     message.GetType()
                 });
-                return (T) msgArray[0];
+                return (T)msgArray[0];
             }
         }
     }

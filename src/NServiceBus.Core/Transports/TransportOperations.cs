@@ -23,7 +23,7 @@ namespace NServiceBus.Transport
                 {
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
-                        ((MulticastAddressTag) transportOperation.AddressTag).MessageType,
+                        ((MulticastAddressTag)transportOperation.AddressTag).MessageType,
                         transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }
@@ -31,7 +31,7 @@ namespace NServiceBus.Transport
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
-                        ((UnicastAddressTag) transportOperation.AddressTag).Destination,
+                        ((UnicastAddressTag)transportOperation.AddressTag).Destination,
                         transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }

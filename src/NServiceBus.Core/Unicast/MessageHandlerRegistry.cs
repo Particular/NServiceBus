@@ -46,9 +46,9 @@
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                from typeHandled in messagesBeingHandled
-                let messageType = typeHandled.MessageType
-                select messageType).Distinct();
+                    from typeHandled in messagesBeingHandled
+                    let messageType = typeHandled.MessageType
+                    select messageType).Distinct();
         }
 
         /// <summary>

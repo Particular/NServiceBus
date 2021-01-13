@@ -17,7 +17,7 @@ namespace NServiceBus.Settings
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            return (T) Get(key);
+            return (T)Get(key);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace NServiceBus.Settings
                 return false;
             }
 
-            val = (T) tmp;
+            val = (T)tmp;
             return true;
         }
 
@@ -67,7 +67,7 @@ namespace NServiceBus.Settings
         /// <returns>The value if found, throws if not.</returns>
         public T Get<T>()
         {
-            return (T) Get(typeof(T).FullName);
+            return (T)Get(typeof(T).FullName);
         }
 
         /// <summary>
@@ -112,12 +112,12 @@ namespace NServiceBus.Settings
             Guard.AgainstNullAndEmpty(nameof(key), key);
             if (Overrides.TryGetValue(key, out var result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             if (Defaults.TryGetValue(key, out result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             return default;

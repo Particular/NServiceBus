@@ -48,9 +48,9 @@
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-                new List<Type> {typeof(StorageType.Subscriptions)}));
+                new List<Type> { typeof(StorageType.Subscriptions) }));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
-                new List<Type> {typeof(StorageType.Sagas)}));
+                new List<Type> { typeof(StorageType.Sagas) }));
         }
 
         class FakePersistence2 : PersistenceDefinition
@@ -86,7 +86,7 @@
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
-}
+        }
 
         class FakePersistence : PersistenceDefinition
         {

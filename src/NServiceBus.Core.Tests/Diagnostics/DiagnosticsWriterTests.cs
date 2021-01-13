@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
             diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
             diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointTwo" });
             diagnostics.Add("Version", new { Version = "1.0.0.0" });
-            
+
             var writer = new HostStartupDiagnosticsWriter(testWriter, true);
 
             await writer.Write(diagnostics.entries);

@@ -6,7 +6,7 @@ namespace NServiceBus
     {
         public static int Microseconds(this DateTimeOffset self)
         {
-            return (int) Math.Floor((self.Ticks % TimeSpan.TicksPerMillisecond) / (double) ticksPerMicrosecond);
+            return (int)Math.Floor((self.Ticks % TimeSpan.TicksPerMillisecond) / (double)ticksPerMicrosecond);
         }
 
         public static DateTimeOffset AddMicroseconds(this DateTimeOffset self, int microseconds)
@@ -14,6 +14,6 @@ namespace NServiceBus
             return self.AddTicks(microseconds * ticksPerMicrosecond);
         }
 
-        const int ticksPerMicrosecond = (int) TimeSpan.TicksPerMillisecond / 1000;
+        const int ticksPerMicrosecond = (int)TimeSpan.TicksPerMillisecond / 1000;
     }
 }

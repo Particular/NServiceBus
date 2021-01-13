@@ -217,7 +217,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>) forkConnector;
+            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;
             return connector.CreateAuditContext(message, auditAddress, sourceContext);
         }
 

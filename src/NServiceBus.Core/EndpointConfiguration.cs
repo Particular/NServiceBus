@@ -79,8 +79,6 @@ namespace NServiceBus
             return ConventionsBuilder;
         }
 
-        
-
         //This needs to be here since we have downstreams that use reflection to access this property
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
         {

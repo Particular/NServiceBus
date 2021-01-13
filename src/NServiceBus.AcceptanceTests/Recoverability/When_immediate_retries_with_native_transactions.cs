@@ -42,7 +42,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var scenarioContext = (Context) context.ScenarioContext;
+                    var scenarioContext = (Context)context.ScenarioContext;
                     config.Recoverability().Failed(f => f.OnMessageSentToErrorQueue(message =>
                     {
                         scenarioContext.ForwardedToErrorQueue = true;

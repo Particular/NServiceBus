@@ -180,7 +180,7 @@ namespace NServiceBus
         long maxFileSize;
         int numberOfArchiveFilesToKeep;
         string targetDirectory;
-        const long fileLimitInBytes = 10L*1024*1024; //10MB
+        const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
 
         internal class LogFile
         {

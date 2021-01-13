@@ -46,7 +46,7 @@ namespace NServiceBus
             var stringBuilder = new StringBuilder();
             var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
-            
+
             stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);
 
             if (exception != null)

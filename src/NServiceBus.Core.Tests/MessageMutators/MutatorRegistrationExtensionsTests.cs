@@ -44,7 +44,7 @@
             endpointConfiguration.RegisterMessageMutator(messageMutator);
 
             var registry = endpointConfiguration.Settings.Get<NServiceBus.Features.Mutators.RegisteredMutators>();
-            
+
             if (mutatorType == typeof(IncomingMessageMutator))
             {
                 Assert.AreEqual(1, registry.IncomingMessage.Count);

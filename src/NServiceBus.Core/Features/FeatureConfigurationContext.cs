@@ -38,8 +38,8 @@
         /// Access to the container to allow for registrations.
         /// </summary>
         [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(Services), 
-            TreatAsErrorFromVersion = "9.0", 
+            ReplacementTypeOrMember = nameof(Services),
+            TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public IServiceCollection Container => Services;
 

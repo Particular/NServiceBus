@@ -57,7 +57,7 @@
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
                 defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
-                
+
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeName);
 
                 Assert.AreEqual(typeof(MyEvent), messageMetadata.MessageHierarchy.ToList()[0]);

@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTesting
     {
         public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {
-            var session = (CompletableSynchronizedStorageSession) new AcceptanceTestingSynchronizedStorageSession();
+            var session = (CompletableSynchronizedStorageSession)new AcceptanceTestingSynchronizedStorageSession();
             return Task.FromResult(session);
         }
     }

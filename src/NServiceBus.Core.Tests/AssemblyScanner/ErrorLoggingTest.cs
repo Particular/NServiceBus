@@ -15,7 +15,7 @@
         {
             var exception = new ReflectionTypeLoadException(new Type[0], new[]
             {
-                new Exception("Generic exception 1"), 
+                new Exception("Generic exception 1"),
                 new FileLoadException("File load exception", typeof(AssemblyScanner).Assembly.FullName),
                 new Exception("Generic exception 2"),
             });

@@ -53,7 +53,7 @@ namespace NServiceBus
             {
                 // The cast is an unary expression, where the operand is the 
                 // actual member access expression.
-                memberExpr = ((UnaryExpression) lambda.Body).Operand as MemberExpression;
+                memberExpr = ((UnaryExpression)lambda.Body).Operand as MemberExpression;
             }
             else if (lambda.Body.NodeType == ExpressionType.MemberAccess)
             {

@@ -16,8 +16,8 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtensions<>).MakeGenericType(typeof(T));
-            var extension = (DataBusExtensions<T>) Activator.CreateInstance(type, config.Settings);
-            var definition = (DataBusDefinition) Activator.CreateInstance(typeof(T));
+            var extension = (DataBusExtensions<T>)Activator.CreateInstance(type, config.Settings);
+            var definition = (DataBusDefinition)Activator.CreateInstance(typeof(T));
             config.Settings.Set("SelectedDataBus", definition);
 
             config.EnableFeature<Features.DataBus>();

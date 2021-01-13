@@ -40,7 +40,7 @@
             await testInstance.Stop();
 
             Assert.Throws<InvalidOperationException>(() => testInstance.Send(new object(), new SendOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
-            Assert.Throws<InvalidOperationException>(() => testInstance.Send<object>(_=> { }, new SendOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
+            Assert.Throws<InvalidOperationException>(() => testInstance.Send<object>(_ => { }, new SendOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
             Assert.Throws<InvalidOperationException>(() => testInstance.Publish(new object(), new PublishOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
             Assert.Throws<InvalidOperationException>(() => testInstance.Publish<object>(_ => { }, new PublishOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
             Assert.Throws<InvalidOperationException>(() => testInstance.Subscribe(typeof(object), new SubscribeOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");

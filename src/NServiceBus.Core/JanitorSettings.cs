@@ -1,2 +1,2 @@
 [assembly: Janitor.SkipWeavingNamespace("LightInject")]
-[assembly: Janitor.SkipWeavingNamespace("LightInject.Microsoft.DependencyInjection")] 
+[assembly: Janitor.SkipWeavingNamespace("LightInject.Microsoft.DependencyInjection")]

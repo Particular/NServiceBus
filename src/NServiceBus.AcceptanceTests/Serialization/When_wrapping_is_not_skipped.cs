@@ -43,11 +43,11 @@
         {
             public WrappingEndpoint()
             {
-                EndpointSetup<DefaultServer,Context>((config,context) =>
-                {
-                    config.UseSerialization<XmlSerializer>(); // wrapping is enabled by default
-                    config.RegisterMessageMutator(new IncomingMutator(context));
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.UseSerialization<XmlSerializer>(); // wrapping is enabled by default
+                     config.RegisterMessageMutator(new IncomingMutator(context));
+                 });
             }
 
             class RawXmlMessageHandler : IHandleMessages<MessageWithRawXml>

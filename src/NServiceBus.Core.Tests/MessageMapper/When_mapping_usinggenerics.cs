@@ -160,7 +160,7 @@ namespace MessageMapperTests
 
     public abstract class Data
     {
-        
+
     }
 
 

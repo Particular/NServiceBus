@@ -34,7 +34,7 @@ namespace NServiceBus.Sagas
         /// <param name="sagaId">The Id of the sagaData data to get.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) 
+        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
             where TSagaData : class, IContainSagaData;
 
         /// <summary>

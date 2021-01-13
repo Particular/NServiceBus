@@ -16,7 +16,7 @@ namespace NServiceBus.Testing
         {
             return repliedMessages
                 .Where(x => x.Message is TMessage)
-                .Select(x => new RepliedMessage<TMessage>((TMessage) x.Message, x.Options));
+                .Select(x => new RepliedMessage<TMessage>((TMessage)x.Message, x.Options));
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace NServiceBus.Testing
         {
             return publishedMessages
                 .Where(x => x.Message is TMessage)
-                .Select(x => new PublishedMessage<TMessage>((TMessage) x.Message, x.Options));
+                .Select(x => new PublishedMessage<TMessage>((TMessage)x.Message, x.Options));
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace NServiceBus.Testing
         {
             return sentMessages
                 .Where(x => x.Message is TMessage)
-                .Select(x => new SentMessage<TMessage>((TMessage) x.Message, x.Options));
+                .Select(x => new SentMessage<TMessage>((TMessage)x.Message, x.Options));
         }
 
         /// <summary>

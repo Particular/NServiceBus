@@ -21,7 +21,7 @@
             await InvokeBehavior(services, behavior: behavior);
 
             var unitOfWork = new UnitOfWork();
-            services.AddTransient<IManageUnitsOfWork>(sp=> unitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork);
 
             await InvokeBehavior(services, behavior: behavior);
 
@@ -37,8 +37,8 @@
             var unitOfWorkThatThrowsFromEnd = new UnitOfWorkThatThrowsFromEnd();
             var unitOfWork = new UnitOfWork();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>unitOfWorkThatThrowsFromEnd);
-            services.AddTransient<IManageUnitsOfWork>(sp=> unitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWorkThatThrowsFromEnd);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork);
 
             //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(services), Throws.InvalidOperationException);
@@ -68,8 +68,8 @@
             var unitOfWorkThatThrowsFromBegin = new UnitOfWorkThatThrowsFromBegin();
             var unitOfWork = new UnitOfWork();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>unitOfWorkThatThrowsFromBegin);
-            services.AddTransient<IManageUnitsOfWork>(sp=> unitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWorkThatThrowsFromBegin);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork);
 
             //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(services), Throws.InvalidOperationException);
@@ -100,8 +100,8 @@
             var firstUnitOfWork = new OrderAwareUnitOfWork("first", order);
             var secondUnitOfWork = new OrderAwareUnitOfWork("second", order);
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>firstUnitOfWork);
-            services.AddTransient<IManageUnitsOfWork>(sp=>secondUnitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => firstUnitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => secondUnitOfWork);
 
             await InvokeBehavior(services);
 
@@ -119,8 +119,8 @@
             var unitOfWorkThatThrows = new UnitOfWorkThatThrowsFromEnd();
             var unitOfWork = new UnitOfWork();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>unitOfWorkThatThrows);
-            services.AddTransient<IManageUnitsOfWork>(sp=> unitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWorkThatThrows);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork);
 
             Assert.That(async () => await InvokeBehavior(services), Throws.InvalidOperationException);
             Assert.True(unitOfWork.EndCalled);
@@ -135,9 +135,9 @@
             var unitOfWorkThatThrows = new UnitOfWorkThatThrowsFromBegin();
             var unitOfWorkThatIsNeverCalled = new UnitOfWork();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>normalUnitOfWork);
-            services.AddTransient<IManageUnitsOfWork>( sp=>unitOfWorkThatThrows);
-            services.AddTransient<IManageUnitsOfWork>(sp=> unitOfWorkThatIsNeverCalled);
+            services.AddTransient<IManageUnitsOfWork>(sp => normalUnitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWorkThatThrows);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWorkThatIsNeverCalled);
 
             Assert.That(async () => await InvokeBehavior(services), Throws.InvalidOperationException);
 
@@ -151,7 +151,7 @@
         {
             var services = new ServiceCollection();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=> new UnitOfWorkThatReturnsNullForBegin());
+            services.AddTransient<IManageUnitsOfWork>(sp => new UnitOfWorkThatReturnsNullForBegin());
             Assert.That(async () => await InvokeBehavior(services),
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
@@ -275,9 +275,9 @@
             var unitOfWork2 = new CountingUnitOfWork();
             var unitOfWork3 = new CountingUnitOfWork();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>unitOfWork1);
-            services.AddTransient<IManageUnitsOfWork>( sp=>unitOfWork2);
-            services.AddTransient<IManageUnitsOfWork>( sp=>unitOfWork3);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork1);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork2);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork3);
 
             await InvokeBehavior(services);
 
@@ -319,8 +319,8 @@
             var unitOfWork = new CaptureExceptionPassedToEndUnitOfWork();
             var throwingUoW = new UnitOfWorkThatThrowsFromEnd();
 
-            services.AddTransient<IManageUnitsOfWork>(sp=>unitOfWork);
-            services.AddTransient<IManageUnitsOfWork>(sp=>throwingUoW);
+            services.AddTransient<IManageUnitsOfWork>(sp => unitOfWork);
+            services.AddTransient<IManageUnitsOfWork>(sp => throwingUoW);
 
             //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(services), Throws.InstanceOf<InvalidOperationException>().And.SameAs(throwingUoW.ExceptionThrownFromEnd));

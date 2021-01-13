@@ -23,7 +23,7 @@
         {
             var busConfig = new EndpointConfiguration("myendpoint");
 
-            busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance","Host");
+            busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance", "Host");
 
             var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
             Assert.AreEqual(DeterministicGuid.Create("Instance", "Host"), configuredId);

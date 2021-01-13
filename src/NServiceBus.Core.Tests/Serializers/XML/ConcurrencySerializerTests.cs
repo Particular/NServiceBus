@@ -12,10 +12,10 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_deserialize_in_parallel()
         {
             var expected = new RequestDataMessage
-                               {
-                                   DataId = Guid.Empty,
-                                   String = "<node>it's my \"node\" & i like it<node>",
-                               };
+            {
+                DataId = Guid.Empty,
+                String = "<node>it's my \"node\" & i like it<node>",
+            };
 
             var serializer = SerializerFactory.Create<RequestDataMessage>();
 
@@ -28,12 +28,12 @@ namespace NServiceBus.Serializers.XML.Test
                                               stream.Position = 0;
 
                                               var msgArray = serializer.Deserialize(stream);
-                                              result = (RequestDataMessage) msgArray[0];
+                                              result = (RequestDataMessage)msgArray[0];
                                           }
 
                                           Assert.AreEqual(expected.DataId, result.DataId);
                                           Assert.AreEqual(expected.String, result.String);
-                                    });
+                                      });
         }
     }
 

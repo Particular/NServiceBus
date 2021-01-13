@@ -21,7 +21,7 @@
         public void UpdateMessage(object newInstance)
         {
             Guard.AgainstNull(nameof(newInstance), newInstance);
-            
+
             if (Message.Instance != newInstance)
             {
                 Message = new OutgoingLogicalMessage(newInstance.GetType(), newInstance);

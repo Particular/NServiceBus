@@ -48,7 +48,7 @@
             {
                 EndpointSetup<DefaultServer>((b, context) =>
                 {
-                    var scenarioContext = (Context) context.ScenarioContext;
+                    var scenarioContext = (Context)context.ScenarioContext;
                     b.Recoverability().Failed(f => f.OnMessageSentToErrorQueue(message =>
                     {
                         scenarioContext.GaveUpOnRetries = true;

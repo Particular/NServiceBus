@@ -118,7 +118,7 @@
             {
                 return true;
             }
-            return obj is LogicalAddress && Equals((LogicalAddress) obj);
+            return obj is LogicalAddress && Equals((LogicalAddress)obj);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@
         {
             unchecked
             {
-                return ((Qualifier?.GetHashCode() ?? 0)*397) ^ (EndpointInstance?.GetHashCode() ?? 0);
+                return ((Qualifier?.GetHashCode() ?? 0) * 397) ^ (EndpointInstance?.GetHashCode() ?? 0);
             }
         }
 

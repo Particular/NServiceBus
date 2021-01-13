@@ -52,7 +52,7 @@
         {
             var transportOperation = new TransportOperation(
                 CreateUniqueMessage(),
-                new CustomAddressTag(), 
+                new CustomAddressTag(),
                 DispatchConsistency.Default);
 
             Assert.Throws<ArgumentException>(() => new TransportOperations(transportOperation));

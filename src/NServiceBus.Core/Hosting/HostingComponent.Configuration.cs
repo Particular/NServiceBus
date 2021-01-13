@@ -42,7 +42,7 @@
                 string endpointName,
                 IServiceCollection services,
                 string installationUserName,
-                bool shouldRunInstallers, 
+                bool shouldRunInstallers,
                 List<Action<IServiceCollection>> userRegistrations)
             {
                 AvailableTypes = availableTypes;

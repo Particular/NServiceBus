@@ -118,7 +118,7 @@ namespace NServiceBus.ContainerTests
 
         public interface ISingletonComponentWithPropertyDependency
         {
-             
+
         }
 
         public class SingletonComponentWithPropertyDependency : ISingletonComponentWithPropertyDependency
