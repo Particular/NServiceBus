@@ -89,11 +89,14 @@ namespace NServiceBus.TransportTests
                 onCriticalError,
                 true);
 
-            var configuration = await Configurer.Configure(hostSettings, InputQueueName, ErrorQueueName, transactionMode);
+            var transport = Configurer.CreateTransportDefinition();
+            
+            IgnoreUnsupportedTransactionModes(transport, transactionMode);
+            transport.TransportTransactionMode = transactionMode;
 
-            TransportInfrastructure = configuration.TransportInfrastructure;
+            TransportInfrastructure = await Configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
-            IgnoreUnsupportedTransactionModes(configuration.TransportDefinition, transactionMode);
+            //TODO
             IgnoreUnsupportedDeliveryConstraints();
 
             await TransportInfrastructure.Receivers[0].Initialize(
