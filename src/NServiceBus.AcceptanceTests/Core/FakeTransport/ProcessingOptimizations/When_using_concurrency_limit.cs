@@ -43,20 +43,20 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
         {
             PushRuntimeSettings pushSettings;
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events, CancellationToken cancellationToken = default)
+            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
             {
                 pushSettings = limitations;
                 return Task.CompletedTask;
             }
 
-            public Task StartReceive(CancellationToken cancellationToken = default)
+            public Task StartReceive()
             {
                 Assert.AreEqual(10, pushSettings.MaxConcurrency);
 
                 return Task.CompletedTask;
             }
 
-            public Task StopReceive(CancellationToken cancellationToken = default)
+            public Task StopReceive()
             {
                 return Task.CompletedTask;
             }
@@ -68,7 +68,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 
         class FakeDispatcher : IMessageDispatcher
         {
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 return Task.FromResult(0);
             }

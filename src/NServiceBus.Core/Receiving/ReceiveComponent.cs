@@ -193,7 +193,7 @@ namespace NServiceBus
             {
                 Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
 
-                await messageReceiver.StartReceive(CancellationToken.None).ConfigureAwait(false);
+                await messageReceiver.StartReceive().ConfigureAwait(false);
                 //TODO: If we fails starting N-th receiver then we need to stop and dispose N-1 receivers
             }
         }
@@ -219,7 +219,7 @@ namespace NServiceBus
                 Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
                 try
                 {
-                    await receiver.StopReceive(CancellationToken.None).ConfigureAwait(false);
+                    await receiver.StopReceive().ConfigureAwait(false);
                     (receiver as IDisposable)?.Dispose();
                     Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
                 }

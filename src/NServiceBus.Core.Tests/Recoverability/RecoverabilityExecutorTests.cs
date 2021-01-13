@@ -274,7 +274,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         {
             public TransportOperations TransportOperations { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 TransportOperations = outgoingMessages;
                 return Task.CompletedTask;

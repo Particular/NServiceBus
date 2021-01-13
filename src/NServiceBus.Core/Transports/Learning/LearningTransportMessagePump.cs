@@ -20,7 +20,7 @@ namespace NServiceBus
             string basePath,
             Action<string, Exception> criticalErrorAction,
             ISubscriptionManager subscriptionManager,
-            ReceiveSettings receiveSettings, 
+            ReceiveSettings receiveSettings,
             TransportTransactionMode transactionMode)
         {
             Id = id;
@@ -53,7 +53,7 @@ namespace NServiceBus
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -70,7 +70,7 @@ namespace NServiceBus
             return Task.CompletedTask;
         }
 
-        public Task StartReceive(CancellationToken cancellationToken)
+        public Task StartReceive()
         {
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -83,7 +83,7 @@ namespace NServiceBus
             return Task.CompletedTask;
         }
 
-        public async Task StopReceive(CancellationToken cancellationToken)
+        public async Task StopReceive()
         {
             cancellationTokenSource?.Cancel();
 

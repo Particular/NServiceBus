@@ -18,7 +18,7 @@ namespace NServiceBus
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public async Task Subscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
+        public async Task Subscribe(MessageMetadata eventType, ContextBag context)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
 
@@ -53,7 +53,7 @@ namespace NServiceBus
             }
         }
 
-        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
+        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);

@@ -25,7 +25,7 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
         {
             return Task.WhenAll(
                 DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction),

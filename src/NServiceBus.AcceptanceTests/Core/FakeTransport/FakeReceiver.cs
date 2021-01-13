@@ -26,14 +26,13 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events,
-            CancellationToken cancellationToken = default)
+            Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
             return Task.CompletedTask;
         }
 
-        public Task StartReceive(CancellationToken cancellationToken = default)
+        public Task StartReceive()
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StartReceive)} for receiver {Id}");
 
@@ -46,7 +45,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             return Task.CompletedTask;
         }
 
-        public async Task StopReceive(CancellationToken cancellationToken = default)
+        public async Task StopReceive()
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StopReceive)} for receiver {Id}");
 
@@ -63,14 +62,12 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         class FakeSubscriptionManager : ISubscriptionManager
         {
-            public Task Subscribe(MessageMetadata eventType, ContextBag context,
-                CancellationToken cancellationToken = default)
+            public Task Subscribe(MessageMetadata eventType, ContextBag context)
             {
                 return Task.CompletedTask;
             }
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context,
-                CancellationToken cancellationToken = default)
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context)
             {
                 return Task.CompletedTask;
             }

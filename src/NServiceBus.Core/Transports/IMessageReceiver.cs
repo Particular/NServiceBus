@@ -15,17 +15,17 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Initializes the receiver.
         /// </summary>
-        Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events, CancellationToken cancellationToken = default);
+        Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events);
 
         /// <summary>
         /// Starts receiving messages from the input queue.
         /// </summary>
-        Task StartReceive(CancellationToken cancellationToken = default);
+        Task StartReceive();
 
         /// <summary>
         /// Stops receiving messages.
         /// </summary>
-        Task StopReceive(CancellationToken cancellationToken = default);
+        Task StopReceive();
 
         /// <summary>
         /// The <see cref="ISubscriptionManager"/> for this receiver. Will be <c>null</c> if publish-subscribe has been disabled on the <see cref="ReceiveSettings"/>.
