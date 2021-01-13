@@ -21,29 +21,44 @@ namespace NServiceBus
                     case '[':
                         builder.Append(ch);
                         if (!quoted)
+                        {
                             PrintIndent(builder, ++indent);
+                        }
+
                         break;
                     case '}':
                     case ']':
                         if (!quoted)
+                        {
                             PrintIndent(builder, --indent);
+                        }
+
                         builder.Append(ch);
                         break;
                     case '"':
                         builder.Append(ch);
                         var escaped = IsEscaped(input, i);
                         if (!escaped)
+                        {
                             quoted = !quoted;
+                        }
+
                         break;
                     case ',':
                         builder.Append(ch);
                         if (!quoted)
+                        {
                             PrintIndent(builder, indent);
+                        }
+
                         break;
                     case ':':
                         builder.Append(ch);
                         if (!quoted)
+                        {
                             builder.Append(" ");
+                        }
+
                         break;
                     default:
                         builder.Append(ch);

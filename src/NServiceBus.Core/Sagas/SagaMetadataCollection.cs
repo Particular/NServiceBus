@@ -92,18 +92,24 @@ namespace NServiceBus.Sagas
                 foreach (var entityItem in byEntity)
                 {
                     if (entityItem.Value.SagaType == saga.SagaType)
+                    {
                         continue;
+                    }
 
                     var entityItemTypeIsAssignableBySagaEntityType = entityItem.Key.IsAssignableFrom(saga.SagaEntityType);
                     var sagaEntityTypeIsAssignableByEntityItemType = saga.SagaEntityType.IsAssignableFrom(entityItem.Key);
 
                     if (entityItemTypeIsAssignableBySagaEntityType || sagaEntityTypeIsAssignableByEntityItemType)
+                    {
                         violations.Add($"Entity '{saga.SagaEntityType}' used by saga types '{saga.SagaType}' and '{entityItem.Value.SagaType}'.");
+                    }
                 }
             }
 
             if (violations.Any())
+            {
                 throw new Exception("Best practice violation: Multiple saga types are sharing the same saga state which can result in persisters to physically share the same storage structure.\n\n- " + string.Join("\n- ", violations));
+            }
         }
 
         static readonly ILog Log = LogManager.GetLogger<SagaMetadataCollection>();

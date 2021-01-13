@@ -157,7 +157,9 @@ namespace MessageMapperTests
             var attr = attributes[0] as CustomAttributeWithValueProperties;
             Assert.AreEqual(attr != null && attr.FlagIsSet, true);
             if (attr != null)
+            {
                 Assert.AreEqual(attr.MyAge, 21);
+            }
         }
 
         public interface IMyEventWithAttributeWithBoolProperty

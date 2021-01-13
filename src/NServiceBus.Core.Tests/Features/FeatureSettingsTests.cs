@@ -124,7 +124,13 @@
         public bool Enabled
         {
             get { return IsEnabledByDefault; }
-            set { if (value) EnableByDefault(); }
+            set
+            {
+                if (value)
+                {
+                    EnableByDefault();
+                }
+            }
         }
 
         public Action<Feature> OnActivation;

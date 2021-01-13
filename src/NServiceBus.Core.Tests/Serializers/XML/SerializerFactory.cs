@@ -113,7 +113,9 @@ namespace NServiceBus.Serializers.XML.Test
                 }
             }
             if (!check(xmlDocument))
+            {
                 throw new Exception($"{message}, Offending XML: {xmlResult}");
+            }
 
             return this;
         }
