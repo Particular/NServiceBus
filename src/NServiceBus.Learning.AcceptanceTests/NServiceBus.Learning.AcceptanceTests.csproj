@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" />
-    <PackageReference Include="Particular.CodeRules" Version="0.3.0" />
+    <PackageReference Include="Particular.CodeRules" Version="0.8.0" />
   </ItemGroup>
 
   <ItemGroup>
