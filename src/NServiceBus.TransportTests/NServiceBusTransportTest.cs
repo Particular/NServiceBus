@@ -96,9 +96,6 @@ namespace NServiceBus.TransportTests
 
             TransportInfrastructure = await Configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
-            //TODO
-            IgnoreUnsupportedDeliveryConstraints();
-
             await TransportInfrastructure.Receivers[0].Initialize(
                 new PushRuntimeSettings(8),
                 context =>
@@ -134,19 +131,6 @@ namespace NServiceBus.TransportTests
             }
 
             return Environment.UserName;
-        }
-
-        void IgnoreUnsupportedDeliveryConstraints()
-        {
-            //var supportedDeliveryConstraints = TransportInfrastructure.DeliveryConstraints.ToList();
-            //var unsupportedDeliveryConstraints = requiredDeliveryConstraints.Where(required => !supportedDeliveryConstraints.Contains(required))
-            //    .ToList();
-
-            //if (unsupportedDeliveryConstraints.Any())
-            //{
-            //    var unsupported = string.Join(",", unsupportedDeliveryConstraints.Select(c => c.Name));
-            //    Assert.Ignore($"Transport doesn't support required delivery constraint(s) {unsupported}");
-            //}
         }
 
         void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
@@ -225,7 +209,6 @@ namespace NServiceBus.TransportTests
 
         string testId;
 
-        List<Type> requiredDeliveryConstraints = new List<Type>();
         TransportInfrastructure TransportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
