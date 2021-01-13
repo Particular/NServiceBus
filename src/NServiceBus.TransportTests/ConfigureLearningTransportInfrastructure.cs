@@ -2,32 +2,36 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Settings;
 using NServiceBus.Transport;
 using NServiceBus.TransportTests;
 
 class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructure
 {
-    public async Task<TransportConfigurationResult> Configure(HostSettings hostSettings, string inputQueueName, string errorQueueName, TransportTransactionMode transactionMode)
+    public TransportDefinition CreateTransportDefinition()
     {
         storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
-        var transportDefinition = new LearningTransport
+        return new LearningTransport
         {
-            StorageDirectory = storageDir
+            StorageDirectory = storageDir,
         };
+    }
 
+    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName,
+        string errorQueueName)
+    {
         var mainReceiverSettings = new ReceiveSettings(
             "mainReceiver",
             inputQueueName,
             transportDefinition.SupportsPublishSubscribe,
-            true, errorQueueName);
+            true, 
+            errorQueueName);
 
-        return new TransportConfigurationResult
-        {
-            TransportDefinition = transportDefinition,
-            TransportInfrastructure = await transportDefinition.Initialize(hostSettings, new[] {mainReceiverSettings}, new[] {errorQueueName}),
-            PurgeInputQueueOnStartup = true
-        };
+        var transportInfrastructure = await transportDefinition.Initialize(
+            hostSettings,
+            new[] {mainReceiverSettings},
+            new[] {errorQueueName});
+
+        return transportInfrastructure;
     }
 
     public Task Cleanup()
