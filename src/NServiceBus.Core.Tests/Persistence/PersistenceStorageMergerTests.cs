@@ -1,7 +1,6 @@
-﻿using NServiceBus.Core.Tests.Fakes;
-
-namespace NServiceBus.Core.Tests.Persistence
+﻿namespace NServiceBus.Core.Tests.Persistence
 {
+    using NServiceBus.Core.Tests.Fakes;
     using System;
     using System.Collections.Generic;
     using System.Linq;
