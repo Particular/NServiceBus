@@ -1,3 +1,4 @@
+#pragma warning disable CS0618
 namespace NServiceBus.AcceptanceTests.UnitOfWork
 {
     using System;

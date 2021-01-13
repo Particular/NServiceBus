@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Unicast.Tests
+﻿#pragma warning disable CS0618
+namespace NServiceBus.Unicast.Tests
 {
     using System;
     using System.Collections.Generic;
