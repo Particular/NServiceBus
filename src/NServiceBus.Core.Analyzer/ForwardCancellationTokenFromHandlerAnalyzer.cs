@@ -160,12 +160,12 @@
         // {0} = Variable name for the IMessageHandlerContext parameter
         // {1} = Name of method being invoked
         internal static readonly DiagnosticDescriptor ForwardCancellationTokenFromHandlerDiagnostic = new DiagnosticDescriptor(
-            id: "NSB0007",
-            title: "Forward CancellationToken From Handler",
-            messageFormat: "{0}.CancellationToken should be passed to the {1} method in order to support cooperative cancellation.",
+            id: "NSB0002",
+            title: "Forward `IMessageHandlerContext.CancellationToken` to methods",
+            messageFormat: "Forward `{0}.CancellationToken` to the `{1}` method.",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "In order to support cooperative cancellation, the CancellationToken on the IMessageHandlerContext should be passed to any methods called by the handler so that message processing can be halted cleanly if necessary.");
+            description: "Forward the `CancellationToken` from the IMessageHandlerContext to methods that take one to ensure the operation cancellation notifications are properly propagated. This ensures that message processing can be halted cleanly if necessary. Consider elevating the severity of \"CA2016: Forward the CancellationToken parameter to methods that take one\" to `warning` to ensure the token is passed correctly to other methods as well.");
     }
 }

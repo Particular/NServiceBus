@@ -65,7 +65,7 @@
         /// </summary>
         public MessageMetadata MessageMetadata { get; set; } = new MessageMetadata(typeof(object));
 
-        // TODO: Temporarily using CancellationToken.None for spike
+        // TODO: Using CancellationToken.None until integrated with the pipeline
         public CancellationToken CancellationToken => CancellationToken.None;
     }
 }

@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class ForwardCancellationTokenFromhandlerTests : DiagnosticVerifier
+    public class ForwardCancellationTokenFromHandlerTests : DiagnosticVerifier
     {
         [Test]
         public Task Simple()
@@ -230,7 +230,7 @@ public class TestMessage : ICommand {}
         {
             return new DiagnosticResult
             {
-                Id = "NSB0007",
+                Id = "NSB0002",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, character) }
             };

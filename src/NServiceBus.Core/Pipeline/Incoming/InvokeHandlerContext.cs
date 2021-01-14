@@ -40,7 +40,7 @@ namespace NServiceBus
             HandlerInvocationAborted = true;
         }
 
-        // TODO: Using CancellationToken.None only for the spike
+        // TODO: Using CancellationToken.None until integrated with the pipeline
         public CancellationToken CancellationToken => CancellationToken.None;
     }
 }
