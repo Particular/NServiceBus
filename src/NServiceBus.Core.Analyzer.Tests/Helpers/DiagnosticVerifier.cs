@@ -103,7 +103,50 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             }
         }
 
-        static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer)
+        protected Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer)
+        {
+            Project newProject = CreateProject(sources);
+
+            var documents = newProject.Documents.ToArray();
+
+            if (sources.Length != documents.Length)
+            {
+                throw new InvalidOperationException("The number of documents created does not match the number of sources.");
+            }
+
+            return GetSortedDiagnosticsFromDocuments(analyzer, documents);
+        }
+
+        protected async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        {
+            var diagnostics = new List<Diagnostic>();
+            foreach (var project in new HashSet<Project>(documents.Select(document => document.Project)))
+            {
+                var compilationWithAnalyzers = (await project.GetCompilationAsync()).WithAnalyzers(ImmutableArray.Create(analyzer));
+
+                foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync())
+                {
+                    if (diagnostic.Location == Location.None || diagnostic.Location.IsInMetadata)
+                    {
+                        diagnostics.Add(diagnostic);
+                    }
+                    else
+                    {
+                        foreach (var document in documents)
+                        {
+                            if (await document.GetSyntaxTreeAsync() == diagnostic.Location.SourceTree)
+                            {
+                                diagnostics.Add(diagnostic);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return diagnostics.OrderBy(diagnostic => diagnostic.Location.SourceSpan.Start).ToArray();
+        }
+
+        protected Project CreateProject(params string[] sources)
         {
             var projectId = ProjectId.CreateNewId("TestProject");
 
@@ -137,38 +180,8 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 documentIndex++;
             }
 
-            var documents = solution.GetProject(projectId).Documents.ToList();
-
-            if (sources.Length != documents.Count)
-            {
-                throw new InvalidOperationException("The number of documents created does not match the number of sources.");
-            }
-
-            var diagnostics = new List<Diagnostic>();
-            foreach (var project in new HashSet<Project>(documents.Select(document => document.Project)))
-            {
-                var compilationWithAnalyzers = (await project.GetCompilationAsync()).WithAnalyzers(ImmutableArray.Create(analyzer));
-
-                foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync())
-                {
-                    if (diagnostic.Location == Location.None || diagnostic.Location.IsInMetadata)
-                    {
-                        diagnostics.Add(diagnostic);
-                    }
-                    else
-                    {
-                        foreach (var document in documents)
-                        {
-                            if (await document.GetSyntaxTreeAsync() == diagnostic.Location.SourceTree)
-                            {
-                                diagnostics.Add(diagnostic);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return diagnostics.OrderBy(diagnostic => diagnostic.Location.SourceSpan.Start).ToArray();
+            var project = solution.GetProject(projectId);
+            return project;
         }
 
         static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
