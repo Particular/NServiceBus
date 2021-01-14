@@ -1,9 +1,7 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.TransportTests
 {
     using System.Threading.Tasks;
-    using Settings;
+    using Transport;
 
     /// <summary>
     /// Provide a mechanism in components tests for transports
@@ -12,14 +10,14 @@ namespace NServiceBus.TransportTests
     public interface IConfigureTransportInfrastructure
     {
         /// <summary>
+        /// Creates a <see cref="TransportDefinition"/> instance used for running a test case.
+        /// </summary>
+        TransportDefinition CreateTransportDefinition();
+
+        /// <summary>
         /// Gives the transport a chance to configure before the test starts.
         /// </summary>
-        /// <param name="hostSettings">The host settings to be passed into the infrastructure.</param>
-        /// <param name="inputQueueName">The name of the main input queue.</param>
-        /// <param name="errorQueueName">The name of the error queue.</param>
-        /// <param name="transactionMode">Transaction mode for which transport seam should be configured.</param>
-        /// <returns>Transport configuration result <see cref="TransportConfigurationResult"/></returns>
-        Task<TransportConfigurationResult> Configure(HostSettings hostSettings, string inputQueueName, string errorQueueName, TransportTransactionMode transactionMode);
+        Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName);
 
         /// <summary>
         /// Gives the transport chance to clean up after the test is complete. Implementations of this class may store
