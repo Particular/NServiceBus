@@ -68,7 +68,7 @@ namespace NServiceBus
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

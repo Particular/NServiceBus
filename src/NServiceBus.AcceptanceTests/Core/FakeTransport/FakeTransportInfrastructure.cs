@@ -13,29 +13,26 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         readonly HostSettings hostSettings;
         readonly ReceiveSettings[] receivers;
         readonly string[] sendingAddresses;
-        readonly CancellationToken cancellationToken;
         readonly FakeTransport transportSettings;
 
         public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
-            ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken,
-            FakeTransport transportSettings)
+            ReceiveSettings[] receivers, string[] sendingAddresses, FakeTransport transportSettings)
         {
             this.startUpSequence = startUpSequence;
             this.hostSettings = hostSettings;
             this.receivers = receivers;
             this.sendingAddresses = sendingAddresses;
-            this.cancellationToken = cancellationToken;
             this.transportSettings = transportSettings;
         }
 
         public void ConfigureReceiveInfrastructure()
         {
             Receivers = receivers
-                .Select(r => 
+                .Select(r =>
                     new FakeReceiver(
-                        r.Id, 
-                        transportSettings, 
-                        startUpSequence, 
+                        r.Id,
+                        transportSettings,
+                        startUpSequence,
                         hostSettings.CriticalErrorAction))
                 .ToList<IMessageReceiver>()
                 .AsReadOnly();

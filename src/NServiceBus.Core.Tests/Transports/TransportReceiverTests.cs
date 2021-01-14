@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.Transports
         {
             pump.ThrowOnStart = true;
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => 
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>())
                 );
         }
@@ -70,13 +70,12 @@ namespace NServiceBus.Core.Tests.Transports
             public bool Stopped { get; private set; }
 
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events,
-                CancellationToken cancellationToken = default)
+            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
             {
                 return Task.CompletedTask;
             }
 
-            public Task StartReceive(CancellationToken cancellationToken = default)
+            public Task StartReceive()
             {
                 if (ThrowOnStart)
                 {
@@ -88,7 +87,7 @@ namespace NServiceBus.Core.Tests.Transports
                 return Task.CompletedTask;
             }
 
-            public Task StopReceive(CancellationToken cancellationToken = default)
+            public Task StopReceive()
             {
                 if (ThrowOnStop)
                 {

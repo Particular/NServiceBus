@@ -96,7 +96,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

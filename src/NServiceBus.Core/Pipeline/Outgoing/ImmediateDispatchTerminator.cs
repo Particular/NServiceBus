@@ -19,7 +19,7 @@ namespace NServiceBus
         {
             var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
             var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();
-            return dispatcher.Dispatch(new TransportOperations(operations), transaction, CancellationToken.None);
+            return dispatcher.Dispatch(new TransportOperations(operations), transaction);
         }
 
         readonly IMessageDispatcher dispatcher;

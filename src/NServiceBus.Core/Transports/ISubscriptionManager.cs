@@ -13,11 +13,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Subscribes to the given event.
         /// </summary>
-        Task Subscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default);
+        Task Subscribe(MessageMetadata eventType, ContextBag context);
 
         /// <summary>
         /// Unsubscribes from the given event.
         /// </summary>
-        Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default);
+        Task Unsubscribe(MessageMetadata eventType, ContextBag context);
     }
 }

@@ -30,8 +30,8 @@ namespace NServiceBus
             Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
 
-            await receiver.Initialize(pushRuntimeSettings, onMessage, onError, events, CancellationToken.None).ConfigureAwait(false);
-            await receiver.StartReceive(CancellationToken.None).ConfigureAwait(false);
+            await receiver.Initialize(pushRuntimeSettings, onMessage, onError, events).ConfigureAwait(false);
+            await receiver.StartReceive().ConfigureAwait(false);
 
             isStarted = true;
         }
@@ -45,7 +45,7 @@ namespace NServiceBus
 
             try
             {
-                await receiver.StopReceive(CancellationToken.None).ConfigureAwait(false);
+                await receiver.StopReceive().ConfigureAwait(false);
                 (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)

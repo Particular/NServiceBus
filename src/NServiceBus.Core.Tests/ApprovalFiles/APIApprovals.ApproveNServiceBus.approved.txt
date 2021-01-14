@@ -656,7 +656,7 @@ namespace NServiceBus
         public bool RestrictPayloadSize { get; set; }
         public string StorageDirectory { get; set; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
-        public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
+        public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
     public static class LoadMessageHandlersExtensions
@@ -2370,15 +2370,15 @@ namespace NServiceBus.Transport
     }
     public interface IMessageDispatcher
     {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction);
     }
     public interface IMessageReceiver
     {
         string Id { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> events, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> events);
+        System.Threading.Tasks.Task StartReceive();
+        System.Threading.Tasks.Task StopReceive();
     }
     public interface IOutgoingTransportOperation
     {
@@ -2398,8 +2398,8 @@ namespace NServiceBus.Transport
     }
     public interface ISubscriptionManager
     {
-        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
     }
     public class IncomingMessage
     {
@@ -2531,7 +2531,7 @@ namespace NServiceBus.Transport
         public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
-        public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
+        public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses);
         public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
     public abstract class TransportInfrastructure

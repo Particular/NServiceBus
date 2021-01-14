@@ -40,7 +40,7 @@ namespace NServiceBus
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None);
+            return dispatcher.Dispatch(transportOperations, transportTransaction);
         }
 
         IMessageDispatcher dispatcher;

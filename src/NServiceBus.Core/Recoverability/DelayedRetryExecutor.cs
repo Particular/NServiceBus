@@ -33,7 +33,7 @@ namespace NServiceBus
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties.ToDictionary()));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction, CancellationToken.None).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }

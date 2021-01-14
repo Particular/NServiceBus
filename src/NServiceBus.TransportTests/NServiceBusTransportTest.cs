@@ -116,9 +116,9 @@ namespace NServiceBus.TransportTests
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }, new MessageMetadata[0], CancellationToken.None);
+                }, new MessageMetadata[0]);
 
-            await TransportInfrastructure.Receivers[0].StartReceive(CancellationToken.None);
+            await TransportInfrastructure.Receivers[0].StartReceive();
 
             receiver = TransportInfrastructure.Receivers[0];
         }
@@ -175,7 +175,7 @@ namespace NServiceBus.TransportTests
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), operationProperties?.ToDictionary(), dispatchConsistency);
 
-            return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, CancellationToken.None);
+            return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)
