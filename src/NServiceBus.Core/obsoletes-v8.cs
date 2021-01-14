@@ -1204,4 +1204,16 @@ namespace NServiceBus
         public EndpointInstance EndpointInstance => throw new NotImplementedException();
     }
 }
+
+public static partial class SettingsExtensions
+{
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8",
+        ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
+    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings)
+    {
+        throw new NotImplementedException();
+    }
+}
 #pragma warning restore 1591

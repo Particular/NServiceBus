@@ -2707,3 +2707,9 @@ namespace NServiceBus.UnitOfWork
         System.Threading.Tasks.Task End(System.Exception ex = null);
     }
 }
+public static class SettingsExtensions
+{
+    [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
+        " NotImplementedException. Will be removed in version 9.0.0.", true)]
+    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+}
