@@ -26,7 +26,6 @@ namespace NServiceBus
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
-            var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, null);
             var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
 
             string instanceSpecificQueue = null;
@@ -38,7 +37,6 @@ namespace NServiceBus
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
-                logicalAddress,
                 queueNameBase,
                 localAddress,
                 instanceSpecificQueue,
@@ -60,7 +58,7 @@ namespace NServiceBus
 
         public class Configuration
         {
-            public Configuration(LogicalAddress logicalAddress,
+            public Configuration(
                 string queueNameBase,
                 string localAddress,
                 string instanceSpecificQueue,
@@ -74,7 +72,6 @@ namespace NServiceBus
                 TransportSeam transportSeam,
                 Conventions conventions)
             {
-                LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
                 LocalAddress = localAddress;
                 InstanceSpecificQueue = instanceSpecificQueue;
@@ -89,8 +86,6 @@ namespace NServiceBus
                 Conventions = conventions;
                 this.transportSeam = transportSeam;
             }
-
-            public LogicalAddress LogicalAddress { get; }
 
             public string LocalAddress { get; }
 

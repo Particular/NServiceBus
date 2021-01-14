@@ -48,13 +48,8 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("MySatellite");
-                    var endpointInstance = satelliteLogicalAddress.EndpointInstance;
-                    var queueAddress = new QueueAddress(
-                        endpointInstance.Endpoint,
-                        endpointInstance.Discriminator,
-                        endpointInstance.Properties,
-                        satelliteLogicalAddress.Qualifier);
+                    var endpointQueueName = context.Settings.EndpointQueueName();
+                    var queueAddress = new QueueAddress(endpointQueueName, null, null, "MySatellite");
 
                     var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
 
