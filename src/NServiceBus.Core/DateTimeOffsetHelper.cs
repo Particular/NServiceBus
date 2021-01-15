@@ -105,6 +105,9 @@
 
                         microSecond = (microSecond * 10) + (digit - '0');
                         break;
+
+                    default:
+                        break;
                 }
             }
 
