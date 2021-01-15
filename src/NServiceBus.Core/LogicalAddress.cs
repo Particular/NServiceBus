@@ -118,7 +118,7 @@
             {
                 return true;
             }
-            return obj is LogicalAddress && Equals((LogicalAddress)obj);
+            return obj is LogicalAddress address && Equals(address);
         }
 
         /// <summary>
