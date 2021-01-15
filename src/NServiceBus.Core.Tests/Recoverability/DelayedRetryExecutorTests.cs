@@ -101,8 +101,6 @@
         }
 
         FakeDispatcher dispatcher;
-
-        const string TimeoutManagerAddress = "timeout handling endpoint";
         const string EndpointInputQueue = "endpoint input queue";
 
         class FakeDispatcher : IDispatchMessages

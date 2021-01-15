@@ -72,7 +72,9 @@ namespace MessageMapperTests
         }
         public abstract class SimpleAbstractClass : IMessage
         {
+#pragma warning disable IDE0051 // Remove unused private members
             string SomeProperty { get; set; }
+#pragma warning restore IDE0051 // Remove unused private members
         }
 
         [Test]
@@ -86,7 +88,9 @@ namespace MessageMapperTests
         }
         public abstract class SimpleAbstractClassWithMethods : IMessage
         {
+#pragma warning disable IDE0051 // Remove unused private members
             string SomeProperty { get; set; }
+#pragma warning restore IDE0051 // Remove unused private members
             protected abstract void DoTest();
         }
 

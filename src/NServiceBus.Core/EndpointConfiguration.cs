@@ -131,10 +131,5 @@ namespace NServiceBus
                 action(type);
             }
         }
-
-        static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
-        {
-            return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
     }
 }
