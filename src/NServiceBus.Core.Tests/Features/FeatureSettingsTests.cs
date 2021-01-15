@@ -9,8 +9,8 @@
     [TestFixture]
     public class FeatureSettingsTests
     {
-        private FeatureActivator featureSettings;
-        private SettingsHolder settings;
+        FeatureActivator featureSettings;
+        SettingsHolder settings;
 
         [SetUp]
         public void Init()

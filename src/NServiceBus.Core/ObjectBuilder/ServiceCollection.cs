@@ -17,9 +17,9 @@ namespace MicrosoftExtensionsDependencyInjection
     /// <summary>
     /// Default implementation of <see cref="IServiceCollection"/>.
     /// </summary>
-    internal class ServiceCollection : IServiceCollection
+    class ServiceCollection : IServiceCollection
     {
-        private readonly List<ServiceDescriptor> descriptors = new List<ServiceDescriptor>();
+        readonly List<ServiceDescriptor> descriptors = new List<ServiceDescriptor>();
 
         /// <inheritdoc />
         public int Count => descriptors.Count;
