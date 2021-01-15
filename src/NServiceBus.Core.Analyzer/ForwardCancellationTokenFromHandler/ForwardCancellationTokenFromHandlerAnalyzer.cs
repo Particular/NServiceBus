@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Core.Analyzer
 {
+    using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Composition;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using Microsoft.CodeAnalysis;
@@ -8,6 +10,7 @@
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Diagnostics;
 
+    [Shared]
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenFromHandlerAnalyzer : DiagnosticAnalyzer
     {
@@ -103,7 +106,13 @@
             {
                 if (MethodHasOverloadWithCancellation(containingType, methodSymbol))
                 {
-                    var diagnostic = Diagnostic.Create(ForwardCancellationTokenFromHandlerDiagnostic, invocation.GetLocation(), contextParamName, methodSymbol.Name);
+                    var properties = new Dictionary<string, string>
+                    {
+                        { "ContextParamName", contextParamName },
+                        { "MethodName", methodSymbol.Name }
+                    }.ToImmutableDictionary();
+
+                    var diagnostic = Diagnostic.Create(ForwardCancellationTokenFromHandlerDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
                     context.ReportDiagnostic(diagnostic);
                     return;
                 }
