@@ -60,9 +60,7 @@ namespace NServiceBus
                     stringBuilder.AppendLine();
                     stringBuilder.Append("Exception details:");
 
-#pragma warning disable DE0006 // API is deprecated
                     foreach (DictionaryEntry exceptionData in exception.Data)
-#pragma warning restore DE0006 // API is deprecated
                     {
                         stringBuilder.AppendLine();
                         stringBuilder.Append('\t').Append(exceptionData.Key).Append(": ").Append(exceptionData.Value);
