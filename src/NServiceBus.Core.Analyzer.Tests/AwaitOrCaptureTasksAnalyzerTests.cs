@@ -137,13 +137,17 @@ class Foo
             var source =
 $@"using System;
 using NServiceBus;
-class TestSaga : Saga<object>
+class TestSaga : Saga<Data>
 {{
     void Bar(IMessageHandlerContext context)
     {{
         {call}
     }}
-}}";
+
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Data> mapper) {{ }}
+}}
+class Data : ContainSagaData {{}}
+";
             var expected = new DiagnosticResult
             {
                 Id = "NSB0001",
@@ -157,7 +161,8 @@ class TestSaga : Saga<object>
         public Task DiagnosticIsReportedForAsyncMethods()
         {
             var source =
-@"using NServiceBus;
+@"using System.Threading.Tasks;
+using NServiceBus;
 class Foo
 {
     async Task Bar(IPipelineContext ctx)
@@ -170,7 +175,7 @@ class Foo
             {
                 Id = "NSB0001",
                 Severity = DiagnosticSeverity.Error,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 9) },
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 9) },
             };
 
             return Verify(source, expected);

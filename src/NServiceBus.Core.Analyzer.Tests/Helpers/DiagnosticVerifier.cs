@@ -122,7 +122,21 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             var diagnostics = new List<Diagnostic>();
             foreach (var project in new HashSet<Project>(documents.Select(document => document.Project)))
             {
-                var compilationWithAnalyzers = (await project.GetCompilationAsync()).WithAnalyzers(ImmutableArray.Create(analyzer));
+                var compilation = await project.GetCompilationAsync();
+                var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer));
+
+                using (var stream = new System.IO.MemoryStream())
+                {
+                    var emitResult = compilation.Emit(stream);
+                    if (!emitResult.Success)
+                    {
+                        foreach (var diagnostic in emitResult.Diagnostics)
+                        {
+                            Console.WriteLine(diagnostic.Location.GetMappedLineSpan() + " " + diagnostic.GetMessage());
+                        }
+                        throw new Exception("Test code did not compile.");
+                    }
+                }
 
                 foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync())
                 {
@@ -150,15 +164,22 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
         {
             var projectId = ProjectId.CreateNewId("TestProject");
 
+            var projectInfo = ProjectInfo.Create(projectId, VersionStamp.Create(), "TestProject", "TestProject", LanguageNames.CSharp)
+                .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            // The max C# version is controlled by the Roslyn package in use - that's what's used to parse the code in tests
+            var parseOptions = new CSharpParseOptions(languageVersion: LanguageVersion.CSharp6);
+
             var solution = new AdhocWorkspace()
                 .CurrentSolution
-                .AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
+                .AddProject(projectInfo)
                 .AddMetadataReference(projectId, CorlibReference)
                 .AddMetadataReference(projectId, SystemCoreReference)
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference)
                 .AddMetadataReference(projectId, TestLib)
-                .AddMetadataReference(projectId, NServiceBusReference);
+                .AddMetadataReference(projectId, NServiceBusReference)
+                .WithProjectParseOptions(projectId, parseOptions);
 
 #if NETCOREAPP
             var netstandard = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("netstandard").Location);
@@ -171,7 +192,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 systemTasks
             });
 #endif
-
             var documentIndex = 0;
             foreach (var source in sources)
             {

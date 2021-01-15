@@ -101,7 +101,7 @@
 
             for (var containingType = namedType; containingType != null && containingType.Name != "System.Object"; containingType = containingType.BaseType)
             {
-                if (MethodGroupContainsOverloadWithCancellation(containingType, methodSymbol.Name))
+                if (MethodHasOverloadWithCancellation(containingType, methodSymbol))
                 {
                     var diagnostic = Diagnostic.Create(ForwardCancellationTokenFromHandlerDiagnostic, invocation.GetLocation(), contextParamName, methodSymbol.Name);
                     context.ReportDiagnostic(diagnostic);
@@ -111,19 +111,48 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool MethodGroupContainsOverloadWithCancellation(INamedTypeSymbol type, string methodName)
+        static bool MethodHasOverloadWithCancellation(INamedTypeSymbol type, IMethodSymbol currentMethod)
         {
-            return type.GetMembers(methodName).OfType<IMethodSymbol>().Any(MethodSymbolHasCancellationParameter);
+            var possibilities = type.GetMembers(currentMethod.Name)
+                .OfType<IMethodSymbol>()
+                .Where(method => method.Parameters.LastOrDefault()?.Type.Name == "CancellationToken");
+
+            if (possibilities.Any())
+            {
+                foreach (var alternateMethod in possibilities)
+                {
+                    if (MethodIsMatch(alternateMethod, currentMethod))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool MethodSymbolHasCancellationParameter(IMethodSymbol method)
+        static bool MethodIsMatch(IMethodSymbol alternate, IMethodSymbol current)
         {
-            return method.Parameters.Any(methodParam =>
+            if (alternate == current)
             {
-                return methodParam.Type.Name == "CancellationToken";
-            });
+                // This means it's the same method, but the CancellationToken at the end is an optional parameter
+                return true;
+            }
+
+            if (alternate.Parameters.Length != current.Parameters.Length + 1)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < current.Parameters.Length; i++)
+            {
+                if (alternate.Parameters[i].Type != current.Parameters[i].Type)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

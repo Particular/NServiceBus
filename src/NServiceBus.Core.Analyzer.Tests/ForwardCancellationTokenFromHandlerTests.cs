@@ -23,7 +23,7 @@ public class Foo : IHandleMessages<TestMessage>
         return TestMethod();
     }
 
-    static Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
@@ -50,7 +50,7 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class Thing
 {
-    public Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    public Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
@@ -77,14 +77,14 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class Thing : BaseThing
 {
-    public override Task TestMethod()
+    public Task TestMethod()
     {
         return base.TestMethod(CancellationToken.None);
     }
 }
 public class BaseThing
 {
-    public Task TestMethod(CancellationToken token) => Task.CompletedTask;
+    public Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
@@ -111,11 +111,11 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class Thing : BaseThing
 {
-    public Task TestMethod(CancellationToken token) => Task.CompletedTask;
+    public Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
 }
 public class BaseThing
 {
-    public Task TestMethod() => Task.CompletedTask;
+    public Task TestMethod() { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
@@ -136,10 +136,10 @@ public class Foo : IHandleMessages<TestMessage>
 {
     public Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(true, false, true false, true);
+        return TestMethod(true, false, true, false, true);
     }
 
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
@@ -158,30 +158,30 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(true);
-        return TestMethod(true, false);
-        return TestMethod(true, false, true);
-        return TestMethod(true, false, true false);
-        return TestMethod(true, false, true false, true);
+        await TestMethod(true);
+        await TestMethod(true, false);
+        await TestMethod(true, false, true);
+        await TestMethod(true, false, true, false);
+        await TestMethod(true, false, true, false, true);
     }
 
-    static Task TestMethod(bool p1, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, bool p3, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    static Task TestMethod(bool p1, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, bool p3, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
             var expecteds = new[]
             {
-                NotForwardedAt(8, 16),
-                NotForwardedAt(9, 16),
-                NotForwardedAt(10, 16),
-                NotForwardedAt(11, 16),
-                NotForwardedAt(12, 16),
+                NotForwardedAt(8, 15),
+                NotForwardedAt(9, 15),
+                NotForwardedAt(10, 15),
+                NotForwardedAt(11, 15),
+                NotForwardedAt(12, 15),
             };
 
             return Verify(source, expecteds);
@@ -196,30 +196,26 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(true);
-        return TestMethod(true, false);
-        return TestMethod(true, false, true);
-        return TestMethod(true, false, true false);
-        return TestMethod(true, false, true false, true);
+        await TestMethod(true);
+        await TestMethod(true, false);
+        await TestMethod(true, false, true);
+        await TestMethod(true, false, true, false);
+        await TestMethod(true, false, true, false, true);
     }
 
-    static Task TestMethod(bool p1) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, bool p3) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4) => Task.CompletedTask;
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    static Task TestMethod(bool p1) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, bool p3) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, bool p3, bool p4) { return Task.CompletedTask; }
+    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ";
             var expecteds = new[]
             {
-                NotForwardedAt(8, 16),
-                NotForwardedAt(9, 16),
-                NotForwardedAt(10, 16),
-                NotForwardedAt(11, 16),
-                NotForwardedAt(12, 16),
+                NotForwardedAt(12, 15),
             };
 
             return Verify(source, expecteds);
@@ -245,13 +241,13 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(context.CancellationToken);
-        return Foo.TestMethod(context.CancellationToken);
+        await TestMethod(context.CancellationToken);
+        await Foo.TestMethod(context.CancellationToken);
     }
 
-    static Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -266,13 +262,13 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(true);
-        return Foo.TestMethod(true);
+        await TestMethod(true);
+        await Foo.TestMethod(true);
     }
 
-    static Task TestMethod(bool value, string optionalParam = null) => Task.CompletedTask;
+    static Task TestMethod(bool value, string optionalParam = null) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -294,7 +290,7 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public static class OtherClass
 {
-    public static Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    public static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -316,7 +312,7 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public static class OtherClass
 {
-    public static Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    public static Task TestMethod(bool value) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -339,7 +335,7 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public static class OtherClass
 {
-    public static Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    public static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -362,7 +358,7 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public static class OtherClass
 {
-    public static Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    public static Task TestMethod(bool value) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -377,13 +373,13 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(context.CancellationToken);
-        return this.TestMethod(context.CancellationToken);
+        await TestMethod(context.CancellationToken);
+        await this.TestMethod(context.CancellationToken);
     }
 
-    Task TestMethod(CancellationToken token = default(CancellationToken)) => Task.CompletedTask;
+    Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
@@ -398,13 +394,79 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(true);
-        return this.TestMethod(true);
+        await TestMethod(true);
+        await this.TestMethod(true);
     }
 
-    Task TestMethod(bool value, string optionalParam = null) => Task.CompletedTask;
+    Task TestMethod(bool value, string optionalParam = null) { return Task.CompletedTask; }
+}
+public class TestMessage : ICommand {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticWhenMethodCandidateTakes2Tokens()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod();
+        await this.TestMethod();
+    }
+
+    Task TestMethod() { return Task.CompletedTask; }
+    Task TestMethod(CancellationToken token1 = default(CancellationToken), CancellationToken token2 = default(CancellationToken)) { return Task.CompletedTask; }
+}
+public class TestMessage : ICommand {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticIfCancellationTokenIsNotLastParameter()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod(true);
+        await this.TestMethod(false);
+    }
+
+    Task TestMethod(bool value) { return Task.CompletedTask; }
+    Task TestMethod(CancellationToken token, bool value) { return Task.CompletedTask; }
+}
+public class TestMessage : ICommand {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticIfMethodCandidateDoesntMatchExistingParameters()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod(true, false);
+        await this.TestMethod(false, true);
+    }
+
+    Task TestMethod(bool value1, bool value2) { return Task.CompletedTask; }
+    Task TestMethod(string value1, string value2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
 ");
