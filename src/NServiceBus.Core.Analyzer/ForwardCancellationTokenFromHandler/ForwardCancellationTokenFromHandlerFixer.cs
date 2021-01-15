@@ -13,7 +13,7 @@
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [Shared]
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ForwardCancellationTokenFromHandlerFixer))]
     public class ForwardCancellationTokenFromHandlerFixer : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds =>
