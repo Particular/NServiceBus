@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using NServiceBus.Settings;
-using NServiceBus.Transport;
 
 namespace NServiceBus.Transport
 {
@@ -15,12 +14,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The dispatcher to send messages.
         /// </summary>
-        public virtual IMessageDispatcher Dispatcher { get; protected set; }
+        public IMessageDispatcher Dispatcher { get; protected set; }
 
         /// <summary>
         /// A list of all receivers.
         /// </summary>
-        public virtual ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
+        public ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
 
         /// <summary>
         /// This method is used when the transport is hosted as part of an NServiceBus endpoint to allow the transport verification of endpoint settings.
