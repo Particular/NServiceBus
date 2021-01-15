@@ -86,11 +86,11 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
 
         bool CollectionEquals<T>(IEnumerable<T> left, IEnumerable<T> right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right))
+            if (left is null && right is null)
             {
                 return true;
             }
-            if (ReferenceEquals(null, left) || ReferenceEquals(null, right))
+            if (left is null || right is null)
             {
                 return false;
             }
@@ -102,7 +102,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
