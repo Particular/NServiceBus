@@ -221,10 +221,7 @@ namespace NServiceBus.ContainerTests
             return GetEnumerator();
         }
 
-        public string Key
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public string Key => throw new NotImplementedException();
 
         public void Dispose()
         {
