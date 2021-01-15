@@ -169,7 +169,7 @@ namespace NServiceBus
                 }
             }
 
-            var fileName = $"nsb_log_{today.ToString("yyyy-MM-dd")}_{sequenceNumber}.txt";
+            var fileName = $"nsb_log_{today:yyyy-MM-dd}_{sequenceNumber}.txt";
             currentfilePath = Path.Combine(targetDirectory, fileName);
         }
 
