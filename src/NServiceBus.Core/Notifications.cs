@@ -11,8 +11,6 @@ namespace NServiceBus
         /// <summary>
         /// Push-based error notifications.
         /// </summary>
-        public ErrorsNotifications Errors => errorNotifications;
-
-        ErrorsNotifications errorNotifications = new ErrorsNotifications();
+        public ErrorsNotifications Errors { get; } = new ErrorsNotifications();
     }
 }
