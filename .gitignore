@@ -94,4 +94,3 @@ src/scaffolding.config
 # JetBrains Rider
 .idea/
 *.sln.iml
-/src/.attransport/
