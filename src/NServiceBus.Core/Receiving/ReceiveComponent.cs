@@ -112,7 +112,6 @@ namespace NServiceBus
             {
                 configuration.LocalAddress,
                 configuration.InstanceSpecificQueue,
-                configuration.LogicalAddress,
                 configuration.PurgeOnStartup,
                 configuration.QueueNameBase,
                 TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),

@@ -6,7 +6,7 @@
     /// <summary>
     /// Feature related extensions to the settings.
     /// </summary>
-    public static class SettingsExtensions
+    public static partial class SettingsExtensions
     {
         /// <summary>
         /// Marks the given feature as enabled by default.

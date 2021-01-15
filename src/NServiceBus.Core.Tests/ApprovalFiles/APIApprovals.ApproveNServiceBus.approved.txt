@@ -664,19 +664,27 @@ namespace NServiceBus
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
     }
+    [System.Obsolete("Use `QueueAddress` instead. Will be removed in version 9.0.0.", true)]
     public struct LogicalAddress
     {
+        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
+            ". Will be removed in version 9.0.0.", true)]
         public NServiceBus.Routing.EndpointInstance EndpointInstance { get; }
+        [System.Obsolete("Use `QueueAddress.Qualifier` instead. The member currently throws a NotImplemente" +
+            "dException. Will be removed in version 9.0.0.", true)]
         public string Qualifier { get; }
+        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
+            ". Will be removed in version 9.0.0.", true)]
         public NServiceBus.LogicalAddress CreateIndividualizedAddress(string discriminator) { }
+        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
+            ". Will be removed in version 9.0.0.", true)]
         public NServiceBus.LogicalAddress CreateQualifiedAddress(string qualifier) { }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
-        public override string ToString() { }
+        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
+            ". Will be removed in version 9.0.0.", true)]
         public static NServiceBus.LogicalAddress CreateLocalAddress(string queueName, System.Collections.Generic.IReadOnlyDictionary<string, string> properties) { }
+        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
+            ". Will be removed in version 9.0.0.", true)]
         public static NServiceBus.LogicalAddress CreateRemoteAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
-        public static bool operator !=(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
-        public static bool operator ==(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
     }
     public static class MessageCausationConfigurationExtensions
     {
@@ -987,10 +995,10 @@ namespace NServiceBus
     public static class SettingsExtensions
     {
         public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static string EndpointQueueName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class StartupDiagnosticEntries
     {
@@ -2698,4 +2706,10 @@ namespace NServiceBus.UnitOfWork
         System.Threading.Tasks.Task Begin();
         System.Threading.Tasks.Task End(System.Exception ex = null);
     }
+}
+public static class SettingsExtensions
+{
+    [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
+        " NotImplementedException. Will be removed in version 9.0.0.", true)]
+    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
 }

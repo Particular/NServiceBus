@@ -1142,4 +1142,78 @@ namespace NServiceBus.Transport
         Task Unsubscribe(Type eventType, ContextBag context);
     }
 }
+
+namespace NServiceBus
+{
+    using System;
+    using System.Collections.Generic;
+    using Routing;
+
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8",
+        ReplacementTypeOrMember = "QueueAddress")]
+    public struct LogicalAddress
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public static LogicalAddress CreateRemoteAddress(EndpointInstance endpointInstance)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public static LogicalAddress CreateLocalAddress(string queueName, IReadOnlyDictionary<string, string> properties)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public LogicalAddress CreateQualifiedAddress(string qualifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public LogicalAddress CreateIndividualizedAddress(string discriminator)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress.Qualifier")]
+        public string Qualifier => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public EndpointInstance EndpointInstance => throw new NotImplementedException();
+    }
+}
+
+public static partial class SettingsExtensions
+{
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8",
+        ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
+    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings)
+    {
+        throw new NotImplementedException();
+    }
+}
 #pragma warning restore 1591
