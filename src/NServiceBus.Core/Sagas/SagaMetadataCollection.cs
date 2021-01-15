@@ -4,7 +4,6 @@ namespace NServiceBus.Sagas
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Logging;
 
     /// <summary>
     /// Sagas metamodel.
@@ -112,7 +111,6 @@ namespace NServiceBus.Sagas
             }
         }
 
-        static readonly ILog Log = LogManager.GetLogger<SagaMetadataCollection>();
         Dictionary<Type, SagaMetadata> byEntity = new Dictionary<Type, SagaMetadata>();
         Dictionary<Type, SagaMetadata> byType = new Dictionary<Type, SagaMetadata>();
     }
