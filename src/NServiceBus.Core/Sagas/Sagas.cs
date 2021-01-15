@@ -5,7 +5,6 @@
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Sagas;
-    using Transport;
 
     /// <summary>
     /// Used to configure saga.
