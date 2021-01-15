@@ -9,7 +9,7 @@
     public class When_directory_with_non_dot_net_dll_is_scanned
     {
         [Test]
-        public void non_dotnet_files_are_skipped()
+        public void Non_dotnet_files_are_skipped()
         {
             var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
             {

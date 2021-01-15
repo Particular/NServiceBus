@@ -3,7 +3,9 @@ namespace NServiceBus.Extensibility
     /// <summary>
     /// Context bag which is readonly.
     /// </summary>
+#pragma warning disable IDE1006 // Naming Styles
     public interface ReadOnlyContextBag
+#pragma warning restore IDE1006 // Naming Styles
     {
         /// <summary>
         /// Retrieves the specified type from the context.
