@@ -2443,11 +2443,11 @@ namespace NServiceBus.Transport
     public class OperationProperties
     {
         public OperationProperties() { }
+        public OperationProperties(System.Collections.Generic.Dictionary<string, string> properties) { }
         public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
         public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
         public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
         public System.Collections.Generic.Dictionary<string, string> ToDictionary() { }
-        public static NServiceBus.Transport.OperationProperties FromDictionary(System.Collections.Generic.Dictionary<string, string> dictionary) { }
     }
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]

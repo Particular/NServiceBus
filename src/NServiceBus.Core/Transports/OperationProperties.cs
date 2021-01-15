@@ -25,7 +25,10 @@ namespace NServiceBus.Transport
 
         }
 
-        private OperationProperties(Dictionary<string, string> properties)
+        /// <summary>
+        /// Creates an OperationProperties from the supplied dictionary.
+        /// </summary>
+        public OperationProperties(Dictionary<string, string> properties)
         {
             this.properties = properties;
         }
@@ -72,18 +75,6 @@ namespace NServiceBus.Transport
         public Dictionary<string, string> ToDictionary()
         {
             return properties;
-        }
-
-        /// <summary>
-        /// Creates an OperationProperties from the supplied dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary to deserialize values from.</param>
-        public static OperationProperties FromDictionary(Dictionary<string, string> dictionary)
-        {
-            return new OperationProperties()
-            {
-                properties = dictionary
-            };
         }
     }
 }

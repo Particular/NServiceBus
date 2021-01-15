@@ -23,8 +23,13 @@ namespace NServiceBus
             {
                 var addressLabel = strategy.Apply(context.Message.Headers);
                 var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-                var properties = context.Extensions.GetOperationProperties();
-                operations[index] = new TransportOperation(message, addressLabel, properties.ToDictionary(), dispatchConsistency);
+
+                if (!context.Extensions.TryGet(out OperationProperties operationProperties))
+                {
+                    operationProperties = new OperationProperties();
+                }
+
+                operations[index] = new TransportOperation(message, addressLabel, operationProperties.ToDictionary(), dispatchConsistency);
                 index++;
             }
 

@@ -38,15 +38,16 @@
 
             await Invoke(context);
 
-            var delayDeliveryWith = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties().DelayDeliveryWith;
+            var operationProperties = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties();
+            var delayDeliveryWith = operationProperties.DelayDeliveryWith;
             Assert.NotNull(delayDeliveryWith);
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
 
-            var doNotDeliverBefore = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties().DoNotDeliverBefore;
+            var doNotDeliverBefore = operationProperties.DoNotDeliverBefore;
             Assert.NotNull(doNotDeliverBefore);
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
 
-            var discard = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties().DiscardIfNotReceivedBefore;
+            var discard = operationProperties.DiscardIfNotReceivedBefore;
             Assert.NotNull(discard);
             Assert.AreEqual(maxTime, discard.MaxTime);
 
