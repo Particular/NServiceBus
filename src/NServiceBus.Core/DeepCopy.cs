@@ -25,7 +25,7 @@ namespace System
                 return true;
             }
 
-            return (type.IsValueType & type.IsPrimitive);
+            return type.IsValueType & type.IsPrimitive;
         }
 
         public static object DeepCopy(this object originalObject)
