@@ -61,7 +61,7 @@ namespace System
                 var arrayType = typeToReflect.GetElementType();
                 if (IsPrimitive(arrayType) == false)
                 {
-                    Array clonedArray = (Array)cloneObject;
+                    var clonedArray = (Array)cloneObject;
                     clonedArray.ForEach((array, indices) => array.SetValue(InternalCopy(clonedArray.GetValue(indices), visited), indices));
                 }
 
@@ -134,7 +134,7 @@ namespace System
                     return;
                 }
 
-                ArrayTraverse walker = new ArrayTraverse(array);
+                var walker = new ArrayTraverse(array);
                 do
                 {
                     action(array, walker.Position);
