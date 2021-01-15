@@ -160,8 +160,8 @@
                 .OfType<MethodReference>()
                 .Select(reference => reference.DeclaringType.Name)
                 .Any(name =>
-                    name.Contains("Argument") &&
-                    name.Contains("Exception") ||
+                    (name.Contains("Argument") &&
+                    name.Contains("Exception")) ||
                     name == "Guard");
         }
 

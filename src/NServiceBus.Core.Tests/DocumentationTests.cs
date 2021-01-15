@@ -130,7 +130,7 @@
                     return;
                 }
                 var declaringType = currentMember.DeclaringType;
-                if (declaringType != null && declaringType.FullName.Contains("JetBrains") || declaringType.FullName.Contains("FastExpressionCompiler"))
+                if ((declaringType != null && declaringType.FullName.Contains("JetBrains")) || declaringType.FullName.Contains("FastExpressionCompiler"))
                 {
                     return;
                 }
