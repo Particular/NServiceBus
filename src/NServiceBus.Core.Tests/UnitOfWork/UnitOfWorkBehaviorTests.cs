@@ -170,8 +170,10 @@
         {
             var runner = behavior ?? new UnitOfWorkBehavior();
 
-            var context = new TestableIncomingPhysicalMessageContext();
-            context.Services = services;
+            var context = new TestableIncomingPhysicalMessageContext
+            {
+                Services = services
+            };
 
             return runner.Invoke(context, ctx =>
             {
