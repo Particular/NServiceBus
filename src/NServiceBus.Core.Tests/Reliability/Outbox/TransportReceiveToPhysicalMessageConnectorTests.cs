@@ -19,7 +19,7 @@
         public async Task Should_honor_stored_delivery_constraints()
         {
             var messageId = "id";
-            var options = new Dictionary<string, string>();
+            var options = new OperationProperties();
             var deliverTime = DateTimeOffset.UtcNow.AddDays(1);
             var maxTime = TimeSpan.FromDays(1);
 
@@ -38,7 +38,7 @@
 
             await Invoke(context);
 
-            var operationProperties = fakeBatchPipeline.TransportOperations.First().Properties.AsOperationProperties();
+            var operationProperties = new OperationProperties(fakeBatchPipeline.TransportOperations.First().Properties);
             var delayDeliveryWith = operationProperties.DelayDeliveryWith;
             Assert.NotNull(delayDeliveryWith);
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
@@ -58,7 +58,7 @@
         public async Task Should_honor_stored_direct_routing()
         {
             var messageId = "id";
-            var options = new Dictionary<string, string>();
+            var options = new OperationProperties();
 
             options["Destination"] = "myEndpoint";
 
@@ -82,7 +82,7 @@
         public async Task Should_honor_stored_pubsub_routing()
         {
             var messageId = "id";
-            var options = new Dictionary<string, string>();
+            var options = new OperationProperties();
 
             options["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
 

@@ -5,6 +5,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Extensibility;
     using MessageInterfaces;
     using Pipeline;
 
@@ -60,6 +61,8 @@ namespace NServiceBus
                 options.Context,
                 context);
 
+            MergeOperationProperties(publishContext, options.OperationProperties);
+
             return publishPipeline.Invoke(publishContext);
         }
 
@@ -70,6 +73,8 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
+            MergeOperationProperties(subscribeContext, options.OperationProperties);
+
             return subscribePipeline.Invoke(subscribeContext);
         }
 
@@ -79,6 +84,8 @@ namespace NServiceBus
                 context,
                 eventType,
                 options.Context);
+
+            MergeOperationProperties(unsubscribeContext, options.OperationProperties);
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -110,8 +117,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
-            outgoingContext.AddOperationProperties(options.OperationProperties);
+            MergeOperationProperties(outgoingContext, options.OperationProperties);
 
             return sendPipeline.Invoke(outgoingContext);
         }
@@ -143,7 +149,15 @@ namespace NServiceBus
                 options.Context,
                 context);
 
+            MergeOperationProperties(outgoingContext, options.OperationProperties);
+
             return replyPipeline.Invoke(outgoingContext);
+        }
+
+        private static void MergeOperationProperties(ContextBag context, OperationProperties operationProperties)
+        {
+            // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
+            context.Set(new OperationProperties(operationProperties));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Outbox
 {
     using System.Collections.Generic;
+    using Transport;
 
     /// <summary>
     /// Outgoing message operation.
@@ -15,7 +16,7 @@
         /// <param name="body">The message body.</param>
         /// <param name="headers">The message headers.</param>
         /// .
-        public TransportOperation(string messageId, Dictionary<string, string> options, byte[] body, Dictionary<string, string> headers)
+        public TransportOperation(string messageId, OperationProperties options, byte[] body, Dictionary<string, string> headers)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
 
@@ -33,7 +34,7 @@
         /// <summary>
         /// Sending options.
         /// </summary>
-        public Dictionary<string, string> Options { get; }
+        public OperationProperties Options { get; }
 
         /// <summary>
         /// Gets a byte array to the body content of the outgoing message.
