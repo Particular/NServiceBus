@@ -1,6 +1,7 @@
 namespace NServiceBus.Extensibility
 {
     using System.Collections.Generic;
+    using Transport;
 
     /// <summary>
     /// Allows the users to control how message session operations are performed.
@@ -18,6 +19,8 @@ namespace NServiceBus.Extensibility
             Context = new ContextBag();
             OutgoingHeaders = new Dictionary<string, string>();
         }
+
+        internal OperationProperties OperationProperties { get; } = new OperationProperties();
 
         internal ContextBag Context { get; }
 
