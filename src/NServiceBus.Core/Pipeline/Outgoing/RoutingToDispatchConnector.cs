@@ -29,7 +29,7 @@ namespace NServiceBus
                     operationProperties = new OperationProperties();
                 }
 
-                operations[index] = new TransportOperation(message, addressLabel, operationProperties.ToDictionary(), dispatchConsistency);
+                operations[index] = new TransportOperation(message, addressLabel, operationProperties, dispatchConsistency);
                 index++;
             }
 

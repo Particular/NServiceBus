@@ -11,8 +11,7 @@
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(properties), properties);
 
-            var propertiesCopy = new Dictionary<string, string>(properties.ToDictionary());
-            var contextProperties = new OperationProperties(propertiesCopy);
+            var contextProperties = new OperationProperties(properties);
             context.Set(contextProperties);
         }
 

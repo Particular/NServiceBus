@@ -31,7 +31,7 @@ namespace NServiceBus
             var messageProperties = new OperationProperties {DelayDeliveryWith = new DelayDeliveryWith(delay)};
             var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties.ToDictionary()));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties));
 
             await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
 
