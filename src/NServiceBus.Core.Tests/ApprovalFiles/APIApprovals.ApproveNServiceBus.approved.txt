@@ -1281,6 +1281,7 @@ namespace NServiceBus.Extensibility
     public static class ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static NServiceBus.Transport.OperationProperties GetOperationProperties(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
     public interface IExtendable
     {
@@ -1715,11 +1716,11 @@ namespace NServiceBus.Outbox
     }
     public class TransportOperation
     {
-        public TransportOperation(string messageId, System.Collections.Generic.Dictionary<string, string> options, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public TransportOperation(string messageId, NServiceBus.Transport.OperationProperties options, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-        public System.Collections.Generic.Dictionary<string, string> Options { get; }
+        public NServiceBus.Transport.OperationProperties Options { get; }
     }
 }
 namespace NServiceBus.Performance.TimeToBeReceived
@@ -2440,14 +2441,13 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.OperationProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
-    public class OperationProperties
+    public class OperationProperties : System.Collections.Generic.Dictionary<string, string>
     {
         public OperationProperties() { }
         public OperationProperties(System.Collections.Generic.Dictionary<string, string> properties) { }
         public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
         public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
         public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> ToDictionary() { }
     }
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]
@@ -2553,10 +2553,10 @@ namespace NServiceBus.Transport
     }
     public class TransportOperation
     {
-        public TransportOperation(NServiceBus.Transport.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, System.Collections.Generic.Dictionary<string, string> properties = null, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public TransportOperation(NServiceBus.Transport.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transport.OperationProperties properties = null, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
         public NServiceBus.Routing.AddressTag AddressTag { get; }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
-        public System.Collections.Generic.Dictionary<string, string> Properties { get; }
+        public NServiceBus.Transport.OperationProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
     public class TransportOperations
