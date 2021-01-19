@@ -75,24 +75,13 @@ namespace NServiceBus
             }
 
             var receiveSettings = new List<ReceiveSettings>();
-            receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
-                definition.Name,
-                definition.ReceiveAddress,
-                false,
-                configuration.PurgeOnStartup,
-                errorQueue)));
-
+            
             receiveSettings.Add(new ReceiveSettings(
                 MainReceiverId,
                 configuration.LocalAddress,
                 configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
                 configuration.PurgeOnStartup,
                 errorQueue));
-
-            hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
-            configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
-                receiveComponent.mainReceiverSubscriptionManager =
-                    infrastructure.GetReceiver(MainReceiverId).Subscriptions;
 
             if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
             {
@@ -103,6 +92,19 @@ namespace NServiceBus
                     configuration.PurgeOnStartup,
                     errorQueue));
             }
+
+            receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
+                definition.Name,
+                definition.ReceiveAddress,
+                false,
+                configuration.PurgeOnStartup,
+                errorQueue)));
+
+            hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
+            // get a reference to the subscription manager as soon as the transport has been created:
+            configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
+                receiveComponent.mainReceiverSubscriptionManager =
+                    infrastructure.GetReceiver(MainReceiverId).Subscriptions;
 
             configuration.transportSeam.Configure(receiveSettings.ToArray());
 
