@@ -1716,11 +1716,11 @@ namespace NServiceBus.Outbox
     }
     public class TransportOperation
     {
-        public TransportOperation(string messageId, NServiceBus.Transport.OperationProperties options, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public TransportOperation(string messageId, NServiceBus.Transport.OperationProperties properties, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-        public NServiceBus.Transport.OperationProperties Options { get; }
+        public NServiceBus.Transport.OperationProperties Properties { get; }
     }
 }
 namespace NServiceBus.Performance.TimeToBeReceived
