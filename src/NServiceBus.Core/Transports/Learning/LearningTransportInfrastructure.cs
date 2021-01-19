@@ -20,9 +20,6 @@ namespace NServiceBus
                 storagePath = FindStoragePath();
             }
 
-            ////TODO: pass push runtime settings as part of the settings but provide information whether it is a core default value or a user provided value.
-            ////settings.ReceiveSettings.SetDefaultPushRuntimeSettings(new PushRuntimeSettings(1));
-
             this.receivers = receivers;
         }
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NServiceBus.Transport;
 using NServiceBus.Unicast.Messages;
 
 namespace NServiceBus
@@ -60,7 +59,8 @@ namespace NServiceBus
 
             Init();
 
-            maxConcurrency = limitations.MaxConcurrency;
+            // use concurrency 1 if the user hasn't explicitly configured a concurrency value
+            maxConcurrency = limitations == PushRuntimeSettings.Default ? 1 : limitations.MaxConcurrency;
             concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
 
             RecoverPendingTransactions();
