@@ -11,7 +11,7 @@
         /// <summary>
         /// Creates a new instance of a <see cref="TransportOperation" />.
         /// </summary>
-        public TransportOperation(string messageId, OperationProperties properties, byte[] body, Dictionary<string, string> headers)
+        public TransportOperation(string messageId, DispatchProperties properties, byte[] body, Dictionary<string, string> headers)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
 
@@ -29,7 +29,7 @@
         /// <summary>
         /// Transport specific dispatch operation properties.
         /// </summary>
-        public OperationProperties Properties { get; }
+        public DispatchProperties Properties { get; }
 
         /// <summary>
         /// Gets a byte array to the body content of the outgoing message.

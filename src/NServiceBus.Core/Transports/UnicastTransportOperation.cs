@@ -10,7 +10,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new <see cref="UnicastTransportOperation" /> instance.
         /// </summary>
-        public UnicastTransportOperation(OutgoingMessage message, string destination, OperationProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public UnicastTransportOperation(OutgoingMessage message, string destination, DispatchProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             Destination = destination;
@@ -31,7 +31,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Properties constraints that must be honored by the transport.
         /// </summary>
-        public OperationProperties Properties { get; }
+        public DispatchProperties Properties { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

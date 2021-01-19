@@ -26,13 +26,13 @@ namespace NServiceBus
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var operationProperties = new OperationProperties
+            var dispatchProperties = new DispatchProperties
             {
                 DelayDeliveryWith = new DelayDeliveryWith(delay)
             };
             var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, operationProperties));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 
             await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
 

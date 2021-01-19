@@ -15,8 +15,8 @@ namespace NServiceBus.Core.Tests.Transports
         [Test]
         public void Should_split_multicast_and_unicast_messages()
         {
-            var unicastOperation = new TransportOperation(CreateUniqueMessage(), new UnicastAddressTag("destination"), new OperationProperties(), DispatchConsistency.Isolated);
-            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), new OperationProperties(), DispatchConsistency.Default);
+            var unicastOperation = new TransportOperation(CreateUniqueMessage(), new UnicastAddressTag("destination"), new DispatchProperties(), DispatchConsistency.Isolated);
+            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), new DispatchProperties(), DispatchConsistency.Default);
             var operations = new[]
             {
                 unicastOperation,

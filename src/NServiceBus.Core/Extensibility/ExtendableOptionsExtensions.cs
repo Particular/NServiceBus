@@ -17,12 +17,12 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// Gets access to the properties passed to the dispatcher.
+        /// Gets access to the <see cref="DispatchProperties"/> passed to the dispatcher.
         /// </summary>
-        public static OperationProperties GetOperationProperties(this ExtendableOptions options)
+        public static DispatchProperties GetDispatchProperties(this ExtendableOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            return options.OperationProperties;
+            return options.DispatchProperties;
         }
     }
 }

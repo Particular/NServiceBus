@@ -15,11 +15,11 @@ namespace NServiceBus.Transport
         /// <param name="addressTag">The address to use when routing this message.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
         /// <param name="properties">Delivery properties of the message.</param>
-        public TransportOperation(OutgoingMessage message, AddressTag addressTag, OperationProperties properties = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public TransportOperation(OutgoingMessage message, AddressTag addressTag, DispatchProperties properties = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
             AddressTag = addressTag;
-            Properties = properties ?? new OperationProperties();
+            Properties = properties ?? new DispatchProperties();
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 
@@ -34,9 +34,9 @@ namespace NServiceBus.Transport
         public AddressTag AddressTag { get; }
 
         /// <summary>
-        /// Operation properties.
+        /// Transport dispatch properties.
         /// </summary>
-        public OperationProperties Properties { get; }
+        public DispatchProperties Properties { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

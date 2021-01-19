@@ -19,7 +19,7 @@
         public async Task Should_honor_stored_delivery_constraints()
         {
             var messageId = "id";
-            var options = new OperationProperties();
+            var options = new DispatchProperties();
             var deliverTime = DateTimeOffset.UtcNow.AddDays(1);
             var maxTime = TimeSpan.FromDays(1);
 
@@ -38,7 +38,7 @@
 
             await Invoke(context);
 
-            var operationProperties = new OperationProperties(fakeBatchPipeline.TransportOperations.First().Properties);
+            var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations.First().Properties);
             var delayDeliveryWith = operationProperties.DelayDeliveryWith;
             Assert.NotNull(delayDeliveryWith);
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
@@ -58,13 +58,13 @@
         public async Task Should_honor_stored_direct_routing()
         {
             var messageId = "id";
-            var options = new OperationProperties();
+            var properties = new DispatchProperties();
 
-            options["Destination"] = "myEndpoint";
+            properties["Destination"] = "myEndpoint";
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], new Dictionary<string, string>())
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -82,13 +82,13 @@
         public async Task Should_honor_stored_pubsub_routing()
         {
             var messageId = "id";
-            var options = new OperationProperties();
+            var properties = new DispatchProperties();
 
-            options["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
+            properties["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], new Dictionary<string, string>())
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);

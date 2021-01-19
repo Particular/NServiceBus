@@ -61,7 +61,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            MergeOperationProperties(publishContext, options.OperationProperties);
+            MergeDispatchProperties(publishContext, options.DispatchProperties);
 
             return publishPipeline.Invoke(publishContext);
         }
@@ -73,7 +73,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            MergeOperationProperties(subscribeContext, options.OperationProperties);
+            MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
             return subscribePipeline.Invoke(subscribeContext);
         }
@@ -85,7 +85,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            MergeOperationProperties(unsubscribeContext, options.OperationProperties);
+            MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -117,7 +117,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            MergeOperationProperties(outgoingContext, options.OperationProperties);
+            MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
             return sendPipeline.Invoke(outgoingContext);
         }
@@ -149,15 +149,15 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            MergeOperationProperties(outgoingContext, options.OperationProperties);
+            MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
             return replyPipeline.Invoke(outgoingContext);
         }
 
-        private static void MergeOperationProperties(ContextBag context, OperationProperties operationProperties)
+        private static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
         {
             // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
-            context.Set(new OperationProperties(operationProperties));
+            context.Set(new DispatchProperties(dispatchProperties));
         }
     }
 }

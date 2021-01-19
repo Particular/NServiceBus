@@ -41,7 +41,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusProperty = new DataBusProperty<string>("test")
             });
 
-            context.Extensions.GetOrCreate<OperationProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1));
+            context.Extensions.GetOrCreate<DispatchProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1));
 
             var fakeDatabus = new FakeDataBus();
 

@@ -17,7 +17,7 @@
         {
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
             {
-                context.Extensions.Get<OperationProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived);
+                context.Extensions.Get<DispatchProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived);
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 

@@ -18,12 +18,12 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNegative(nameof(delay), delay);
 
-            if (options.OperationProperties.DoNotDeliverBefore != null)
+            if (options.DispatchProperties.DoNotDeliverBefore != null)
             {
                 throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DoNotDeliverBefore)}' API.");
             }
 
-            options.OperationProperties.DelayDeliveryWith = new DelayDeliveryWith(delay);
+            options.DispatchProperties.DelayDeliveryWith = new DelayDeliveryWith(delay);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            return options.OperationProperties?.DelayDeliveryWith?.Delay;
+            return options.DispatchProperties?.DelayDeliveryWith?.Delay;
         }
 
         /// <summary>
@@ -47,12 +47,12 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.OperationProperties.DelayDeliveryWith != null)
+            if (options.DispatchProperties.DelayDeliveryWith != null)
             {
                 throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DelayDeliveryWith)}' API.");
             }
 
-            options.OperationProperties.DoNotDeliverBefore = new DoNotDeliverBefore(at);
+            options.DispatchProperties.DoNotDeliverBefore = new DoNotDeliverBefore(at);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            return options.OperationProperties?.DoNotDeliverBefore?.At;
+            return options.DispatchProperties?.DoNotDeliverBefore?.At;
         }
     }
 }

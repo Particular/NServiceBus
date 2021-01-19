@@ -8,7 +8,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Describes additional properties for an outgoing message.
     /// </summary>
-    public class OperationProperties : Dictionary<string, string>
+    public class DispatchProperties : Dictionary<string, string>
     {
         //These can't be changed to be backwards compatible with previous versions of the core
         static string DoNotDeliverBeforeKeyName = "DeliverAt";
@@ -16,21 +16,21 @@ namespace NServiceBus.Transport
         static string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
 
         /// <summary>
-        /// Creates a new instance of <see cref="OperationProperties"/>.
+        /// Creates a new instance of <see cref="DispatchProperties"/>.
         /// </summary>
-        public OperationProperties()
+        public DispatchProperties()
         {
         }
 
         /// <summary>
-        /// Creates an OperationProperties from the supplied dictionary.
+        /// Creates a new instance of <see cref="DispatchProperties"/> an copies the values from the provided dictionary.
         /// </summary>
-        public OperationProperties(Dictionary<string, string> properties) : base(properties)
+        public DispatchProperties(Dictionary<string, string> properties) : base(properties)
         {
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="OperationProperties"/>.
+        /// Delay message delivery to a specific <see cref="DateTimeOffset"/>.
         /// </summary>
         public DoNotDeliverBefore DoNotDeliverBefore
         {
@@ -42,7 +42,7 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// Delayed delivery configuration.
+        /// Delay message delivery by a certain <see cref="TimeSpan"/>.
         /// </summary>
         public DelayDeliveryWith DelayDeliveryWith
         {

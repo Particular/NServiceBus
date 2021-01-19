@@ -20,7 +20,7 @@ namespace NServiceBus.Extensibility
             OutgoingHeaders = new Dictionary<string, string>();
         }
 
-        internal OperationProperties OperationProperties { get; } = new OperationProperties();
+        internal DispatchProperties DispatchProperties { get; } = new DispatchProperties();
 
         internal ContextBag Context { get; }
 
