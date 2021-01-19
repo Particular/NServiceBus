@@ -999,6 +999,9 @@ namespace NServiceBus
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
+            " NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class StartupDiagnosticEntries
     {
@@ -2510,8 +2513,12 @@ namespace NServiceBus.Transport
     public class QueueBindings
     {
         public QueueBindings() { }
+        [System.Obsolete("Receiving addresses are automatically registered. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public System.Collections.Generic.IReadOnlyCollection<string> ReceivingAddresses { get; }
         public System.Collections.Generic.IReadOnlyCollection<string> SendingAddresses { get; }
+        [System.Obsolete("Receiving addresses are automatically registered. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
     }
@@ -2706,10 +2713,4 @@ namespace NServiceBus.UnitOfWork
         System.Threading.Tasks.Task Begin();
         System.Threading.Tasks.Task End(System.Exception ex = null);
     }
-}
-public static class SettingsExtensions
-{
-    [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
-        " NotImplementedException. Will be removed in version 9.0.0.", true)]
-    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
 }

@@ -1219,6 +1219,24 @@ namespace NServiceBus
         }
     }
 }
+
+namespace NServiceBus.Transport
+{
+    using System.Collections.Generic;
+
+    public partial class QueueBindings
+    {
+        [ObsoleteEx(
+            Message = "Receiving addresses are automatically registered.",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public IReadOnlyCollection<string> ReceivingAddresses => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Receiving addresses are automatically registered.",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public void BindReceiving(string address) => throw new NotImplementedException();
     }
 }
 #pragma warning restore 1591

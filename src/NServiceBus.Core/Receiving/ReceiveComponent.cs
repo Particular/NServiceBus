@@ -38,8 +38,6 @@ namespace NServiceBus
 
             var receiveComponent = new ReceiveComponent(configuration);
 
-            receiveComponent.BindQueues(configuration.transportSeam.QueueBindings);
-
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
                 var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
@@ -229,26 +227,6 @@ namespace NServiceBus
             });
 
             await Task.WhenAll(receiverStopTasks).ConfigureAwait(false);
-        }
-
-        void BindQueues(QueueBindings queueBindings)
-        {
-            if (configuration.IsSendOnlyEndpoint)
-            {
-                return;
-            }
-
-            queueBindings.BindReceiving(configuration.LocalAddress);
-
-            if (configuration.InstanceSpecificQueue != null)
-            {
-                queueBindings.BindReceiving(configuration.InstanceSpecificQueue);
-            }
-
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
-            {
-                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
-            }
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)
