@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0" />
   </ItemGroup>
 
 </Project>
