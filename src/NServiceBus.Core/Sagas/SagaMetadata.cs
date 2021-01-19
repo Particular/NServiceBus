@@ -167,7 +167,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 throw new Exception($"'{sagaType.Name}' saga type does not implement Saga<T>");
             }
 
-            var saga = (Saga) FormatterServices.GetUninitializedObject(sagaType);
+            var saga = (Saga)FormatterServices.GetUninitializedObject(sagaType);
             var mapper = new SagaMapper();
             saga.ConfigureHowToFindSaga(mapper);
 
@@ -354,7 +354,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
                 ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
                 var compiledMessageExpression = messageExpression.Compile();
-                var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage) o));
+                var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
                 Mappings.Add(new PropertyFinderSagaToMessageMap
                 {
@@ -371,7 +371,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
                 if (messageExpression.Body.NodeType == ExpressionType.Convert)
                 {
-                    memberExpr = ((UnaryExpression) messageExpression.Body).Operand as MemberExpression;
+                    memberExpr = ((UnaryExpression)messageExpression.Body).Operand as MemberExpression;
                 }
 
                 if (memberExpr == null)

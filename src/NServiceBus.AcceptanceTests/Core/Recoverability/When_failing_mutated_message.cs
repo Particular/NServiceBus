@@ -37,12 +37,12 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer,Context>((config, context) =>
-                {
-                    config.RegisterMessageMutator(new BodyMutator(context));
-                    config.Recoverability().Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
-                    config.Recoverability().Immediate(settings => settings.NumberOfRetries(3));
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.RegisterMessageMutator(new BodyMutator(context));
+                     config.Recoverability().Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                     config.Recoverability().Immediate(settings => settings.NumberOfRetries(3));
+                 });
             }
 
             class BodyMutator : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages

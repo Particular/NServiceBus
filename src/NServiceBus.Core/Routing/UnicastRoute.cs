@@ -5,7 +5,7 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoute
     {
-        private UnicastRoute()
+        UnicastRoute()
         {
         }
 

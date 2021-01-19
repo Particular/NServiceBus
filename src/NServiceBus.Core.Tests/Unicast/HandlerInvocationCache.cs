@@ -188,7 +188,7 @@
         {
         }
     }
-    
+
     static class MessageHandlerRegistryExtension
     {
         public static MessageHandler GetCachedHandlerForMessage<TMessage>(this MessageHandlerRegistry cache)

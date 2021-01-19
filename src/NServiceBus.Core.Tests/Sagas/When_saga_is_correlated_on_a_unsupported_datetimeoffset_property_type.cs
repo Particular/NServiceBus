@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NServiceBus.Sagas;
-using NUnit.Framework;
-
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using NServiceBus.Sagas;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_saga_is_correlated_on_a_unsupported_datetimeoffset_property_type
     {

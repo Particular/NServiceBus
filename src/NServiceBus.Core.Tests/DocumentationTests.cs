@@ -116,7 +116,7 @@
                         return;
                     }
                 }
-                if (memberInfos.Count==0)
+                if (memberInfos.Count == 0)
                 {
                     return;
                 }
@@ -130,7 +130,7 @@
                     return;
                 }
                 var declaringType = currentMember.DeclaringType;
-                if (declaringType != null && declaringType.FullName.Contains("JetBrains") || declaringType.FullName.Contains("FastExpressionCompiler"))
+                if ((declaringType != null && declaringType.FullName.Contains("JetBrains")) || declaringType.FullName.Contains("FastExpressionCompiler"))
                 {
                     return;
                 }
@@ -140,7 +140,7 @@
             bool IsInheritDoc(Element element)
             {
                 var lineInfoField = GetLineInfoField(element.GetType());
-                var lineInfo = (XElement) lineInfoField?.GetValue(element);
+                var lineInfo = (XElement)lineInfoField?.GetValue(element);
 
                 if (lineInfo != null)
                 {

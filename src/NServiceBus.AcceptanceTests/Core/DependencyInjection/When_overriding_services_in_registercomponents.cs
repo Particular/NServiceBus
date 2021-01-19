@@ -75,7 +75,7 @@
                 public class StartupFeatureWithDependencies : FeatureStartupTask
                 {
                     public StartupFeatureWithDependencies(
-                        Context testContext, 
+                        Context testContext,
                         IDependencyFromFeature dependencyFromFeature,
                         IDependencyBeforeEndpointConfiguration dependencyBeforeEndpointConfiguration,
                         IDependencyBeforeEndpointStart dependencyBeforeEndpointStart)
@@ -110,14 +110,14 @@
         {
         }
 
-        public class OriginallyDefinedDependency : 
-            IDependencyFromFeature, 
+        public class OriginallyDefinedDependency :
+            IDependencyFromFeature,
             IDependencyBeforeEndpointConfiguration,
             IDependencyBeforeEndpointStart
         {
         }
 
-        public class OverridenDependency : 
+        public class OverridenDependency :
             IDependencyFromFeature,
             IDependencyBeforeEndpointConfiguration,
             IDependencyBeforeEndpointStart

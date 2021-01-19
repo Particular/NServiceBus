@@ -54,7 +54,7 @@
 
             public Task Handle(object message, IMessageHandlerContext context)
             {
-                var myMessage = (MyMessage) message;
+                var myMessage = (MyMessage)message;
                 if (testContext.Id != myMessage.Id)
                 {
                     return Task.FromResult(0);
@@ -76,7 +76,7 @@
 
             public Task Handle(dynamic message, IMessageHandlerContext context)
             {
-                var myMessage = (MyMessage) message;
+                var myMessage = (MyMessage)message;
                 if (testContext.Id != myMessage.Id)
                 {
                     return Task.FromResult(0);
@@ -99,7 +99,7 @@
 
             public Task Handle(IMessage message, IMessageHandlerContext context)
             {
-                var myMessage = (MyMessage) message;
+                var myMessage = (MyMessage)message;
                 if (testContext.Id != myMessage.Id)
                 {
                     return Task.FromResult(0);

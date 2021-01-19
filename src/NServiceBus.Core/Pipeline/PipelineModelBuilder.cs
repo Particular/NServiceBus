@@ -244,7 +244,6 @@ namespace NServiceBus
         List<RegisterOrReplaceStep> addOrReplaceSteps;
 
         Type rootContextType;
-        static CaseInsensitiveIdComparer idComparer = new CaseInsensitiveIdComparer();
         static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
         class Node
@@ -285,19 +284,6 @@ namespace NServiceBus
             internal List<Node> previous = new List<Node>();
             RegisterStep rego;
             bool visited;
-        }
-
-        class CaseInsensitiveIdComparer : IEqualityComparer<RemoveStep>
-        {
-            public bool Equals(RemoveStep x, RemoveStep y)
-            {
-                return x.RemoveId.Equals(y.RemoveId, StringComparison.CurrentCultureIgnoreCase);
-            }
-
-            public int GetHashCode(RemoveStep obj)
-            {
-                return obj.RemoveId.ToLower().GetHashCode();
-            }
         }
     }
 }

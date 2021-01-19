@@ -25,11 +25,13 @@ namespace NServiceBus.Core.Tests.Routing
                 endpointB + "2"
             };
 
-            var result = new List<string>();
-            result.Add(InvokeDistributionStrategy(policy, endpointA, endpointAInstances));
-            result.Add(InvokeDistributionStrategy(policy, endpointB, endpointBInstances));
-            result.Add(InvokeDistributionStrategy(policy, endpointA, endpointAInstances));
-            result.Add(InvokeDistributionStrategy(policy, endpointB, endpointBInstances));
+            var result = new List<string>
+            {
+                InvokeDistributionStrategy(policy, endpointA, endpointAInstances),
+                InvokeDistributionStrategy(policy, endpointB, endpointBInstances),
+                InvokeDistributionStrategy(policy, endpointA, endpointAInstances),
+                InvokeDistributionStrategy(policy, endpointB, endpointBInstances)
+            };
 
             Assert.That(result.Count, Is.EqualTo(4));
             Assert.That(result, Has.Exactly(1).EqualTo(endpointAInstances[0]));

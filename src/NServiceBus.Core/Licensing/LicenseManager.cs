@@ -77,6 +77,8 @@ namespace NServiceBus
                 case LicenseStatus.InvalidDueToExpiredUpgradeProtection:
                     logger.Error("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
                     break;
+                default:
+                    break;
             }
 
             string GetRemainingDaysString(int? remainingDays)

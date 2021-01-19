@@ -19,7 +19,7 @@
                     b.When(c => c.Subscribed, (session, ctx) => session.SendLocal(new StartMessage())))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, ctx) =>
                 {
-                    await session.Subscribe<MyEvent>();
+                    await session.Subscribe<IMyEvent>();
                     if (ctx.HasNativePubSubSupport)
                     {
                         ctx.Subscribed = true;
@@ -29,7 +29,7 @@
                 .Run();
 
             Assert.True(context.GotTheEvent);
-            Assert.AreEqual(typeof(MyEvent), context.EventTypePassedToRouting);
+            Assert.AreEqual(typeof(IMyEvent), context.EventTypePassedToRouting);
         }
 
         public class Context : ScenarioContext
@@ -65,7 +65,7 @@
 
                 public Task Handle(StartMessage message, IMessageHandlerContext context)
                 {
-                    return context.Publish(messageCreator.CreateInstance<MyEvent>());
+                    return context.Publish(messageCreator.CreateInstance<IMyEvent>());
                 }
 
                 IMessageCreator messageCreator;
@@ -96,17 +96,17 @@
                     {
                         c.DisableFeature<AutoSubscribe>();
                     },
-                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                    metadata => metadata.RegisterPublisherFor<IMyEvent>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyEventHandler : IHandleMessages<IMyEvent>
             {
                 public MyEventHandler(Context context)
                 {
                     testContext = context;
                 }
 
-                public Task Handle(MyEvent @event, IMessageHandlerContext context)
+                public Task Handle(IMyEvent @event, IMessageHandlerContext context)
                 {
                     testContext.GotTheEvent = true;
                     return Task.FromResult(0);
@@ -118,7 +118,7 @@
         public class StartMessage : IMessage
         {
         }
-        public interface MyEvent : IEvent
+        public interface IMyEvent : IEvent
         {
         }
     }

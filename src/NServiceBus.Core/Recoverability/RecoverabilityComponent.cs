@@ -7,7 +7,6 @@
     using DeliveryConstraints;
     using Faults;
     using Hosting;
-    using Logging;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Support;
@@ -169,7 +168,6 @@
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
-        static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
 
         public class Configuration
         {

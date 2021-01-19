@@ -78,9 +78,9 @@
 
             public List<Type> UserProvidedTypes { get; set; }
 
-            public AssemblyScannerConfiguration AssemblyScannerConfiguration { get { return settings.GetOrCreate<AssemblyScannerConfiguration>(); } }
+            public AssemblyScannerConfiguration AssemblyScannerConfiguration => settings.GetOrCreate<AssemblyScannerConfiguration>();
 
-            public IList<Type> AvailableTypes { get { return settings.Get<IList<Type>>(TypesToScanSettingsKey); } }
+            public IList<Type> AvailableTypes => settings.Get<IList<Type>>(TypesToScanSettingsKey);
 
             public void SetDefaultAvailableTypes(IList<Type> scannedTypes)
             {

@@ -22,7 +22,7 @@ namespace NServiceBus
             logger.DebugFormat("Opening stream from '{0}'.", filePath);
 
             var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true);
-            return Task.FromResult((Stream) fileStream);
+            return Task.FromResult((Stream)fileStream);
         }
 
         public async Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
@@ -35,7 +35,7 @@ namespace NServiceBus
 
             using (var output = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
             {
-                const int bufferSize = 32*1024;
+                const int bufferSize = 32 * 1024;
                 await stream.CopyToAsync(output, bufferSize).ConfigureAwait(false);
             }
 

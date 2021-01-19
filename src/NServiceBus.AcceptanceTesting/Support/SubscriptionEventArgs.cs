@@ -6,7 +6,7 @@
         /// The name of the subscriber endpoint.
         /// </summary>
         public string SubscriberEndpoint { get; set; }
-        
+
         /// <summary>
         /// The address of the subscriber.
         /// </summary>

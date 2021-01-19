@@ -130,7 +130,7 @@
             Assert.IsEmpty(messageRetriedNotifications);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
-        
+
         [Test]
         public async Task When_discard_action_returned_should_discard_message()
         {
@@ -251,12 +251,12 @@
                     new UnsupportedAction()
                 }).Invoke;
             }
-            
+
             public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Discard(string reason)
             {
                 return new RetryPolicy(new[]
                 {
-                    new Discard(reason), 
+                    new Discard(reason),
                 }).Invoke;
             }
 

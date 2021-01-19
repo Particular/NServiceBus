@@ -103,7 +103,7 @@
                 {
                     testContext.OutboundReceived = true;
                     await context.SendLocal(new EchoMessage { SomeId = message.SomeId });
-                    await context.SendLocal(new MappedEchoMessage {  SomeId = message.SomeId });
+                    await context.SendLocal(new MappedEchoMessage { SomeId = message.SomeId });
                 }
 
                 Context testContext;

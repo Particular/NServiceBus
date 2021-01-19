@@ -87,7 +87,7 @@ namespace NServiceBus.AcceptanceTesting
         {
             return Done(ctx => Task.FromResult(func(ctx)));
         }
-        
+
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, Task<bool>> func)
         {
             done = c => func((TContext)c);

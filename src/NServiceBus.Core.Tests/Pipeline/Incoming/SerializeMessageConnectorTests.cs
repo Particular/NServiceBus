@@ -23,8 +23,10 @@
                 typeof(MyMessage)
             });
 
-            var context = new TestableOutgoingLogicalMessageContext();
-            context.Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage());
+            var context = new TestableOutgoingLogicalMessageContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage())
+            };
 
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
 
