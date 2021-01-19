@@ -35,6 +35,7 @@ namespace NServiceBus
         public async Task<IEndpointInstance> Start()
         {
             var transportInfrastructure = await transportSeam.CreateTransportInfrastructure().ConfigureAwait(false);
+            await transportInfrastructure.ValidateNServiceBusSettings(settings).ConfigureAwait(false);
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
