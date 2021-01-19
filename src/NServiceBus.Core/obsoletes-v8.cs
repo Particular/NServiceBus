@@ -1205,15 +1205,20 @@ namespace NServiceBus
     }
 }
 
-public static partial class SettingsExtensions
+namespace NServiceBus
 {
-    [ObsoleteEx(
-        RemoveInVersion = "9",
-        TreatAsErrorFromVersion = "8",
-        ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
-    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings)
+    public static partial class SettingsExtensions
     {
-        throw new NotImplementedException();
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
+        public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
     }
 }
 #pragma warning restore 1591
