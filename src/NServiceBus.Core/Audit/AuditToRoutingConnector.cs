@@ -29,16 +29,16 @@ namespace NServiceBus
                 }
             }
 
-            var transportProperties = new OperationProperties();
+            var operationProperties = new OperationProperties();
 
             if (timeToBeReceived.HasValue)
             {
-                transportProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
+                operationProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
             }
 
             var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
-            dispatchContext.Extensions.Set(transportProperties);
+            dispatchContext.Extensions.Set(operationProperties);
 
             return stage(dispatchContext);
         }
