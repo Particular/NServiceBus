@@ -47,6 +47,7 @@ namespace NServiceBus
             }
 
             hostInformation = hostingConfiguration.HostInformation;
+            this.transportSeam = transportSeam;
 
             transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
 
@@ -73,7 +74,7 @@ namespace NServiceBus
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn && settings.Get<TransportSeam.Settings>().TransportDefinition.SupportsDelayedDelivery;
+            var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -137,7 +138,7 @@ namespace NServiceBus
 
             if (numberOfRetries > 0)
             {
-                if (!settings.Get<TransportSeam.Settings>().TransportDefinition.SupportsDelayedDelivery)
+                if (!transportSeam.TransportDefinition.SupportsDelayedDelivery)
                 {
                     throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery.");
                 }
@@ -170,6 +171,7 @@ namespace NServiceBus
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
         static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
+        private TransportSeam transportSeam;
 
         public class Configuration
         {
