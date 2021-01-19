@@ -8,29 +8,25 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Describes additional properties for an outgoing message.
     /// </summary>
-    public class OperationProperties
+    public class OperationProperties : Dictionary<string, string>
     {
         //These can't be changed to be backwards compatible with previous versions of the core
         static string DoNotDeliverBeforeKeyName = "DeliverAt";
         static string DelayDeliveryWithKeyName = "DelayDeliveryFor";
         static string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
 
-        private Dictionary<string, string> properties;
-
         /// <summary>
         /// Creates a new instance of <see cref="OperationProperties"/>.
         /// </summary>
-        public OperationProperties() : this(new Dictionary<string, string>())
+        public OperationProperties()
         {
-
         }
 
         /// <summary>
         /// Creates an OperationProperties from the supplied dictionary.
         /// </summary>
-        public OperationProperties(Dictionary<string, string> properties)
+        public OperationProperties(Dictionary<string, string> properties) : base(properties)
         {
-            this.properties = properties;
         }
 
         /// <summary>
@@ -38,11 +34,11 @@ namespace NServiceBus.Transport
         /// </summary>
         public DoNotDeliverBefore DoNotDeliverBefore
         {
-            get => properties.ContainsKey(DoNotDeliverBeforeKeyName)
-                ? new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(properties[DoNotDeliverBeforeKeyName]))
+            get => ContainsKey(DoNotDeliverBeforeKeyName)
+                ? new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(this[DoNotDeliverBeforeKeyName]))
                 : null;
 
-            set => properties[DoNotDeliverBeforeKeyName] = DateTimeOffsetHelper.ToWireFormattedString(value.At);
+            set => this[DoNotDeliverBeforeKeyName] = DateTimeOffsetHelper.ToWireFormattedString(value.At);
         }
 
         /// <summary>
@@ -50,11 +46,11 @@ namespace NServiceBus.Transport
         /// </summary>
         public DelayDeliveryWith DelayDeliveryWith
         {
-            get => properties.ContainsKey(DelayDeliveryWithKeyName)
-                ? new DelayDeliveryWith(TimeSpan.Parse(properties[DelayDeliveryWithKeyName]))
+            get => ContainsKey(DelayDeliveryWithKeyName)
+                ? new DelayDeliveryWith(TimeSpan.Parse(this[DelayDeliveryWithKeyName]))
                 : null;
 
-            set => properties[DelayDeliveryWithKeyName] = value.Delay.ToString();
+            set => this[DelayDeliveryWithKeyName] = value.Delay.ToString();
         }
 
         /// <summary>
@@ -62,19 +58,11 @@ namespace NServiceBus.Transport
         /// </summary>
         public DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore
         {
-            get => properties.ContainsKey(DiscardIfNotReceivedBeforeKeyName)
-                ? new DiscardIfNotReceivedBefore(TimeSpan.Parse(properties[DiscardIfNotReceivedBeforeKeyName]))
+            get => ContainsKey(DiscardIfNotReceivedBeforeKeyName)
+                ? new DiscardIfNotReceivedBefore(TimeSpan.Parse(this[DiscardIfNotReceivedBeforeKeyName]))
                 : null;
 
-            set => properties[DiscardIfNotReceivedBeforeKeyName] = value.MaxTime.ToString();
-        }
-
-        /// <summary>
-        /// Converts this instance into a serializable dictionary.
-        /// </summary>
-        public Dictionary<string, string> ToDictionary()
-        {
-            return properties;
+            set => this[DiscardIfNotReceivedBeforeKeyName] = value.MaxTime.ToString();
         }
     }
 }

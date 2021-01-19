@@ -70,8 +70,8 @@ namespace NServiceBus
                 pendingTransportOperations.Add(
                     new Transport.TransportOperation(
                         message,
-                        DeserializeRoutingStrategy(operation.Options),
-                        operation.Options,
+                        DeserializeRoutingStrategy(operation.Properties),
+                        operation.Properties,
                         DispatchConsistency.Isolated
                         ));
             }
@@ -83,11 +83,9 @@ namespace NServiceBus
             var index = 0;
             foreach (var operation in operations)
             {
-                var options = new Dictionary<string, string>(operation.Properties);
+                SerializeRoutingStrategy(operation.AddressTag, operation.Properties);
 
-                SerializeRoutingStrategy(operation.AddressTag, options);
-
-                transportOperations[index] = new TransportOperation(operation.Message.MessageId, options, operation.Message.Body, operation.Message.Headers);
+                transportOperations[index] = new TransportOperation(operation.Message.MessageId, operation.Properties, operation.Message.Body, operation.Message.Headers);
                 index++;
             }
             return transportOperations;

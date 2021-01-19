@@ -19,8 +19,8 @@ namespace NServiceBus.Core.Tests.Transports
 
             transportOperation.Properties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
 
-            Assert.IsEmpty(secondTransportOperation.Properties.ToDictionary());
-            Assert.IsNotEmpty(transportOperation.Properties.ToDictionary());
+            Assert.IsEmpty(secondTransportOperation.Properties);
+            Assert.IsNotEmpty(transportOperation.Properties);
         }
     }
 }
