@@ -1213,7 +1213,7 @@ namespace NServiceBus
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
             ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
-        public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings)
+        public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
         {
             throw new NotImplementedException();
         }
@@ -1237,6 +1237,56 @@ namespace NServiceBus.Transport
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8")]
         public void BindReceiving(string address) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.DeliveryConstraints
+{
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "OperationProperties",
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8")]
+    public abstract class DeliveryConstraint
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        protected DeliveryConstraint() { }
+    }
+
+    public static class DeliveryConstraintContextExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static void AddDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static System.Collections.Generic.List<DeliveryConstraint> GetDeliveryConstraints(this Extensibility.ContextBag context) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static void RemoveDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static bool TryGetDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
+            where T : DeliveryConstraint => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static bool TryRemoveDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
+            where T : DeliveryConstraint => throw new NotImplementedException();
     }
 }
 #pragma warning restore 1591
