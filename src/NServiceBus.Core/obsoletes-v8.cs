@@ -1289,4 +1289,16 @@ namespace NServiceBus.DeliveryConstraints
             where T : DeliveryConstraint => throw new NotImplementedException();
     }
 }
+
+namespace NServiceBus.Transport
+{
+    public static class LogicalAddressExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportDefinition.ToTransportAddress",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress) => throw new NotImplementedException();
+    }
+}
 #pragma warning restore 1591
