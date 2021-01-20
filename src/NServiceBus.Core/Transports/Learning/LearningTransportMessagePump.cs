@@ -203,7 +203,7 @@ namespace NServiceBus
                         throw;
                     }
 
-                    ProcessFileAndComplete(transaction, filePath, nativeMessageId).Ignore();
+                    _ = ProcessFileAndComplete(transaction, filePath, nativeMessageId);
                 }
 
                 if (!filesFound)

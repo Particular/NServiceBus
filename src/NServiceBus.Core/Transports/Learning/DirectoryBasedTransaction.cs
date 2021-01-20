@@ -41,7 +41,8 @@ namespace NServiceBus
 
         public void ClearPendingOutgoingOperations()
         {
-            while (outgoingFiles.TryDequeue(out _)) { }
+            while (outgoingFiles.TryDequeue(out _))
+            { }
         }
 
         public Task Enlist(string messagePath, string messageContents)

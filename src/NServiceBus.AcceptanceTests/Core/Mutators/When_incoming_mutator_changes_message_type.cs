@@ -43,7 +43,7 @@
                 public Task MutateIncoming(MutateIncomingMessageContext context)
                 {
                     var original = (OriginalMessage)context.Message;
-                    context.Message = new NewMessage {  SomeId = original.SomeId };
+                    context.Message = new NewMessage { SomeId = original.SomeId };
                     return Task.FromResult(0);
                 }
             }

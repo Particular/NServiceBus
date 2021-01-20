@@ -42,8 +42,10 @@ namespace NServiceBus.Core.Tests.Config
 
         IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            var assemblyScanner = new AssemblyScanner(path);
-            assemblyScanner.ScanAppDomainAssemblies = false;
+            var assemblyScanner = new AssemblyScanner(path)
+            {
+                ScanAppDomainAssemblies = false
+            };
 
             if (assembliesToSkip != null)
             {

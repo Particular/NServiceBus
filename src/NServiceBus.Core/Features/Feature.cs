@@ -223,7 +223,6 @@
         readonly List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
 
         static Type baseFeatureType = typeof(Feature);
-        static int featureStringLength = "Feature".Length;
 
         class SetupPrerequisite
         {

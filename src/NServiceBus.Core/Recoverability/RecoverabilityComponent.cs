@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Linq;
     using Faults;
     using Hosting;
-    using Logging;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Support;
@@ -170,7 +169,6 @@ namespace NServiceBus
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
-        static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
         private TransportSeam transportSeam;
 
         public class Configuration

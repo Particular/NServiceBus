@@ -44,7 +44,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             return new PublisherAddress { addresses = addresses };
         }
 
-        private PublisherAddress()
+        PublisherAddress()
         {
         }
 
@@ -79,18 +79,18 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
 
         bool Equals(PublisherAddress other)
         {
-            return CollectionEquals(addresses, other.addresses) 
-                && string.Equals(endpoint, other.endpoint) 
+            return CollectionEquals(addresses, other.addresses)
+                && string.Equals(endpoint, other.endpoint)
                 && CollectionEquals(instances, other.instances);
         }
 
         bool CollectionEquals<T>(IEnumerable<T> left, IEnumerable<T> right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right))
+            if (left is null && right is null)
             {
                 return true;
             }
-            if (ReferenceEquals(null, left) || ReferenceEquals(null, right))
+            if (left is null || right is null)
             {
                 return false;
             }
@@ -102,10 +102,22 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((PublisherAddress) obj);
+            if (obj is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
+            return Equals((PublisherAddress)obj);
         }
 
         /// <summary>Serves as the default hash function. </summary>
@@ -115,15 +127,15 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             unchecked
             {
                 var hashCode = addresses != null ? CollectionHashCode(addresses) : 0;
-                hashCode = (hashCode*397) ^ (endpoint != null ? endpoint.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (instances != null ? CollectionHashCode(instances) : 0);
+                hashCode = (hashCode * 397) ^ (endpoint != null ? endpoint.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (instances != null ? CollectionHashCode(instances) : 0);
                 return hashCode;
             }
         }
 
         static int CollectionHashCode<T>(IEnumerable<T> collection)
         {
-            return collection.Aggregate(0, (acc, v) => (acc*397) ^ v.GetHashCode());
+            return collection.Aggregate(0, (acc, v) => (acc * 397) ^ v.GetHashCode());
         }
 
         string[] addresses;

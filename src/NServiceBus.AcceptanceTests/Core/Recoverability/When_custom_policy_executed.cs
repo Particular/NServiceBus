@@ -44,7 +44,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = (Context) context.ScenarioContext;
+                    var testContext = (Context)context.ScenarioContext;
 
                     config.Recoverability()
                         .CustomPolicy((cfg, errorContext) =>

@@ -101,7 +101,7 @@
         static IEnumerable<Type> GetBehaviors()
         {
             return typeof(Endpoint).Assembly.GetTypes()
-                .Where(type => type.GetInterfaces().Any(face => face.Name == typeof(IBehavior).Name) && !type.IsAbstract && !type.IsGenericType);
+                .Where(type => type.GetInterfaces().Any(face => face.Name == nameof(NServiceBus.Pipeline.IBehavior)) && !type.IsAbstract && !type.IsGenericType);
         }
         static IEnumerable<Type> GetFeatures()
         {

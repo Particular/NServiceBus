@@ -12,12 +12,12 @@ namespace NServiceBus
     {
         public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders)
         {
-            var customFinderType = (Type) finderDefinition.Properties["custom-finder-clr-type"];
+            var customFinderType = (Type)finderDefinition.Properties["custom-finder-clr-type"];
 
-            var finder = (IFindSagas<TSagaData>.Using<TMessage>) builder.GetRequiredService(customFinderType);
+            var finder = (IFindSagas<TSagaData>.Using<TMessage>)builder.GetRequiredService(customFinderType);
 
             return await finder
-                .FindBy((TMessage) message, storageSession, context)
+                .FindBy((TMessage)message, storageSession, context)
                 .ThrowIfNull()
                 .ConfigureAwait(false);
         }

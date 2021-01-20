@@ -1,5 +1,3 @@
-using System.Linq.Expressions;
-
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;

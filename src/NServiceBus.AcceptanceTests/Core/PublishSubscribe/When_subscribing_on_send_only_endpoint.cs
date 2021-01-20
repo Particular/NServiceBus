@@ -35,8 +35,10 @@
         {
             public NativePubSubSendOnlyEndpoint()
             {
-                var template = new DefaultServer();
-                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, true);
+                var template = new DefaultServer
+                {
+                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, true)
+                };
                 EndpointSetup(template, (configuration, _) => configuration.SendOnly());
             }
         }

@@ -42,7 +42,7 @@
 
                     builder.DefineCriticalErrorAction(errorContext =>
                     {
-                        var aggregateException = (AggregateException) errorContext.Exception;
+                        var aggregateException = (AggregateException)errorContext.Exception;
                         var context = builder.GetSettings().Get<Context>();
                         context.Exception = aggregateException.InnerExceptions.First();
                         context.Message = errorContext.Error;

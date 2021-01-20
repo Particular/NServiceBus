@@ -42,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = (Context) context.ScenarioContext;
+                    var testContext = (Context)context.ScenarioContext;
 
                     config.Recoverability()
                         .Immediate(immediate => immediate.NumberOfRetries(MaxImmediateRetries))

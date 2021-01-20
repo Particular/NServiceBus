@@ -7,6 +7,7 @@ namespace NServiceBus.UnitOfWork
     /// Interface used by NServiceBus to manage units of work as a part of the
     /// message processing pipeline.
     /// </summary>
+    [ObsoleteEx(Message = "The unit of work pattern is more straightforward to implement in a pipeline behavior, where the using keyword and try/catch blocks can be used.", ReplacementTypeOrMember = "NServiceBus.Pipeline.Behavior<TContext>", TreatAsErrorFromVersion = "9", RemoveInVersion = "10")]
     public interface IManageUnitsOfWork
     {
         /// <summary>

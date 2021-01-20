@@ -55,7 +55,7 @@
         {
             var timesCalled = 0;
             conventions = new Conventions();
-           
+
             conventions.DefineCommandTypeConventions(t =>
             {
                 timesCalled++;

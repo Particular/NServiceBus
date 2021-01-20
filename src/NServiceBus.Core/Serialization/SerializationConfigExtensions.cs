@@ -18,7 +18,7 @@
         public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
-            var definition = (T) Activator.CreateInstance(typeof(T));
+            var definition = (T)Activator.CreateInstance(typeof(T));
 
             return UseSerialization(config, definition);
         }
@@ -47,7 +47,7 @@
         public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
-            var definition = (T) Activator.CreateInstance(typeof(T));
+            var definition = (T)Activator.CreateInstance(typeof(T));
 
             return AddDeserializer(config, definition);
         }
@@ -73,7 +73,7 @@
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings) where T : SerializationDefinition
         {
             var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
-            var extension = (SerializationExtensions<T>) Activator.CreateInstance(type, settings);
+            var extension = (SerializationExtensions<T>)Activator.CreateInstance(type, settings);
             return extension;
         }
     }

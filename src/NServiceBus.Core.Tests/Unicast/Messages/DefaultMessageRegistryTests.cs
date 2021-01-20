@@ -43,9 +43,9 @@
                 Assert.AreEqual(5, messageMetadata.MessageHierarchy.Count());
 
                 Assert.AreEqual(typeof(MyEvent), messageMetadata.MessageHierarchy.ToList()[0]);
-                Assert.AreEqual(typeof(InterfaceParent1), messageMetadata.MessageHierarchy.ToList()[1]);
+                Assert.AreEqual(typeof(IInterfaceParent1), messageMetadata.MessageHierarchy.ToList()[1]);
                 Assert.AreEqual(typeof(ConcreteParent1), messageMetadata.MessageHierarchy.ToList()[2]);
-                Assert.AreEqual(typeof(InterfaceParent1Base), messageMetadata.MessageHierarchy.ToList()[3]);
+                Assert.AreEqual(typeof(IInterfaceParent1Base), messageMetadata.MessageHierarchy.ToList()[3]);
                 Assert.AreEqual(typeof(ConcreteParentBase), messageMetadata.MessageHierarchy.ToList()[4]);
             }
 
@@ -57,13 +57,13 @@
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
                 defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
-                
+
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeName);
 
                 Assert.AreEqual(typeof(MyEvent), messageMetadata.MessageHierarchy.ToList()[0]);
             }
 
-            class MyEvent : ConcreteParent1, InterfaceParent1
+            class MyEvent : ConcreteParent1, IInterfaceParent1
             {
 
             }
@@ -77,12 +77,12 @@
 
             }
 
-            interface InterfaceParent1 : InterfaceParent1Base
+            interface IInterfaceParent1 : IInterfaceParent1Base
             {
 
             }
 
-            interface InterfaceParent1Base : IMessage
+            interface IInterfaceParent1Base : IMessage
             {
 
             }

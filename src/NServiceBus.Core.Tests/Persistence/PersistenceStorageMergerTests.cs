@@ -1,7 +1,6 @@
-﻿using NServiceBus.Core.Tests.Fakes;
-
-namespace NServiceBus.Core.Tests.Persistence
+﻿namespace NServiceBus.Core.Tests.Persistence
 {
+    using NServiceBus.Core.Tests.Fakes;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -49,9 +48,9 @@ namespace NServiceBus.Core.Tests.Persistence
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-                new List<Type> {typeof(StorageType.Subscriptions)}));
+                new List<Type> { typeof(StorageType.Subscriptions) }));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
-                new List<Type> {typeof(StorageType.Sagas)}));
+                new List<Type> { typeof(StorageType.Sagas) }));
         }
 
         class FakePersistence2 : PersistenceDefinition
@@ -87,7 +86,7 @@ namespace NServiceBus.Core.Tests.Persistence
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
             Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
-}
+        }
 
         class FakePersistence : PersistenceDefinition
         {

@@ -20,12 +20,12 @@ namespace NServiceBus.Core.Tests.DataBus
             var databusKey = Guid.NewGuid().ToString();
 
             var message = new LogicalMessage(new MessageMetadata(typeof(MessageWithDataBusProperty)), new MessageWithDataBusProperty
-                              {
-                                  DataBusProperty = new DataBusProperty<string>("not used in this test")
-                                  {
-                                      Key = propertyKey
-                                  }
-                              });
+            {
+                DataBusProperty = new DataBusProperty<string>("not used in this test")
+                {
+                    Key = propertyKey
+                }
+            });
 
             var fakeDatabus = new FakeDataBus();
             var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
@@ -57,7 +57,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
         class FakeDataBus : IDataBus
         {
-            public Dictionary<string,Stream> StreamsToReturn = new Dictionary<string, Stream>();
+            public Dictionary<string, Stream> StreamsToReturn = new Dictionary<string, Stream>();
 
             public Task<Stream> Get(string key)
             {

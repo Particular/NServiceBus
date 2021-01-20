@@ -114,8 +114,7 @@
         {
             foreach (var instruction in method.Body.Instructions)
             {
-                var methodReference = instruction.Operand as MethodReference;
-                if (methodReference == null)
+                if (!(instruction.Operand is MethodReference methodReference))
                 {
                     continue;
                 }
@@ -161,8 +160,8 @@
                 .OfType<MethodReference>()
                 .Select(reference => reference.DeclaringType.Name)
                 .Any(name =>
-                    name.Contains("Argument") &&
-                    name.Contains("Exception") ||
+                    (name.Contains("Argument") &&
+                    name.Contains("Exception")) ||
                     name == "Guard");
         }
 

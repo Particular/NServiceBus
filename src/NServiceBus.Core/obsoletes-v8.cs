@@ -1,10 +1,8 @@
 ﻿#pragma warning disable 1591
 
-using System;
 using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Settings;
 using NServiceBus.Transport;
-
 namespace NServiceBus.Gateway.Deduplication
 {
     using System;
@@ -155,7 +153,7 @@ namespace NServiceBus.Container
         TreatAsErrorFromVersion = "8.0.0")]
     public class ContainerCustomizations
     {
-        private ContainerCustomizations()
+        ContainerCustomizations()
         {
             // private ctor
         }
@@ -164,6 +162,7 @@ namespace NServiceBus.Container
 
 namespace NServiceBus.ObjectBuilder
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -266,6 +265,8 @@ namespace NServiceBus.ObjectBuilder.Common
 
 namespace NServiceBus.Features
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
         RemoveInVersion = "9.0.0",
@@ -278,6 +279,8 @@ namespace NServiceBus.Features
 
 namespace NServiceBus
 {
+    using System;
+
     public abstract partial class StorageType
     {
         [ObsoleteEx(
@@ -323,6 +326,8 @@ namespace NServiceBus.Faults
 
 namespace NServiceBus.Settings
 {
+    using System;
+
     public partial class SettingsHolder
     {
         [ObsoleteEx(
@@ -461,6 +466,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+
     [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
     public static class ConfigureForwarding
     {
@@ -477,6 +484,8 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
         TreatAsErrorFromVersion = "8",
@@ -489,6 +498,8 @@ namespace NServiceBus.Features
 
 namespace NServiceBus.Pipeline
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
         TreatAsErrorFromVersion = "8",
@@ -512,6 +523,7 @@ namespace NServiceBus.Pipeline
 
 namespace NServiceBus
 {
+    using System;
     using Pipeline;
     using Transport;
 
@@ -589,7 +601,6 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
-
     [ObsoleteEx(
             Message = "The built-in scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
             TreatAsErrorFromVersion = "8",
@@ -601,6 +612,7 @@ namespace NServiceBus.Features
 
 namespace NServiceBus
 {
+    using System;
     using Outbox;
     using Persistence;
 
@@ -712,6 +724,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for more details.",
         ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetExtensions",
@@ -743,6 +757,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+
     public abstract partial class StorageType
     {
         [ObsoleteEx(
@@ -812,6 +828,8 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
+    using System;
+
     [ObsoleteEx(
         Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
@@ -824,6 +842,7 @@ namespace NServiceBus.Features
 
 namespace NServiceBus.Timeout.Core
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
@@ -908,6 +927,8 @@ namespace NServiceBus.Timeout.Core
 
 namespace NServiceBus.DelayedDelivery
 {
+    using System;
+
     [ObsoleteEx(
         Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",

@@ -4,7 +4,7 @@
 
     class OverridableMessageConvention : IMessageConvention
     {
-        private readonly IMessageConvention inner;
+        readonly IMessageConvention inner;
         Func<Type, bool> isCommandType;
         Func<Type, bool> isEventType;
         Func<Type, bool> isMessageType;

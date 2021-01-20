@@ -20,7 +20,7 @@ namespace NServiceBus
             return storageSession.Update(sagaData);
         }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) 
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
             where TSagaData : class, IContainSagaData
         {
             return Get<TSagaData>(sagaId, session);

@@ -114,7 +114,9 @@
             }
 
             if (context.LogLevel > messageSeverity)
+            {
                 return;
+            }
 
             Trace.WriteLine(message);
             context.Logs.Enqueue(new ScenarioContext.LogItem

@@ -20,7 +20,7 @@
 
             Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
 
-            var testContext = (Context) exception.ScenarioContext;
+            var testContext = (Context)exception.ScenarioContext;
             Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, exception.FailedMessage.Headers[Headers.EnclosedMessageTypes]);
             Assert.AreEqual(testContext.PhysicalMessageId, exception.FailedMessage.MessageId);
             Assert.IsAssignableFrom(typeof(SimulatedException), exception.FailedMessage.Exception);

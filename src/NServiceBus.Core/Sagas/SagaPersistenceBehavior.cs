@@ -9,7 +9,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Sagas;
-    using Transport;
 
     class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
     {

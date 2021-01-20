@@ -1,11 +1,11 @@
-﻿using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTesting.Customization;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace NServiceBus.AcceptanceTests.Core.Causation
+﻿namespace NServiceBus.AcceptanceTests.Core.Causation
 {
+    using System.Threading.Tasks;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NUnit.Framework;
+
     public class When_starting_new_conversation_inside_message_handler : NServiceBusAcceptanceTest
     {
         const string GeneratedConversationId = "Generated Conversation Id";

@@ -8,7 +8,7 @@
 
     public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
-       [Test]
+        [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
         {
             Requires.MessageDrivenPubSub();
