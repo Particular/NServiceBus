@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
+    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
@@ -28,16 +28,16 @@ namespace NServiceBus
                 }
             }
 
-            var deliveryConstraints = new List<DeliveryConstraint>();
+            var dispatchProperties = new DispatchProperties();
 
             if (timeToBeReceived.HasValue)
             {
-                deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
+                dispatchProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
             }
 
             var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
-            dispatchContext.Extensions.Set(deliveryConstraints);
+            dispatchContext.Extensions.Set(dispatchProperties);
 
             return stage(dispatchContext);
         }

@@ -3,13 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
     using Routing;
     using Transport;
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IDispatchMessages dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
         {
             this.dispatcher = dispatcher;
             this.staticFaultMetadata = staticFaultMetadata;
@@ -37,10 +36,10 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag());
+            return dispatcher.Dispatch(transportOperations, transportTransaction);
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
         Action<Dictionary<string, string>> headerCustomizations;
     }

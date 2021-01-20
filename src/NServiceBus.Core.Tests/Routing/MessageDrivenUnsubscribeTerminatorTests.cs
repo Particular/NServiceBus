@@ -76,7 +76,7 @@
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             int? numberOfTimes;
 
@@ -89,7 +89,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

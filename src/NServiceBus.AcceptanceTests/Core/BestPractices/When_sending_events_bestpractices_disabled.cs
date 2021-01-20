@@ -32,7 +32,7 @@ namespace NServiceBus.AcceptanceTests.Core.BestPractices
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var routing = c.ConfigureTransport().Routing();
+                    var routing = c.ConfigureRouting();
                     routing.RouteToEndpoint(typeof(MyEvent), typeof(Endpoint));
                     routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
                 });

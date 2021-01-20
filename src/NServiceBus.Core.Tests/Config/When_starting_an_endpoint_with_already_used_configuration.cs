@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Tests.Config
         public async Task Should_throw()
         {
             var configuration = new EndpointConfiguration("Endpoint1");
-            configuration.UseTransport<LearningTransport>();
+            configuration.UseTransport(new LearningTransport());
             var scanner = configuration.AssemblyScanner();
             scanner.ExcludeAssemblies("NServiceBus.Core.Tests.dll");
 

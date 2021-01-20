@@ -3,13 +3,12 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Routing;
     using Transport;
     using Unicast;
 
     partial class ReceiveComponent
     {
-        public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
+        public static Configuration PrepareConfiguration(HostingComponent.Configuration hostingConfiguration, Settings settings, TransportSeam transportSeam)
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
@@ -23,31 +22,21 @@ namespace NServiceBus
             var queueNameBase = settings.CustomLocalAddress ?? endpointName;
             var purgeOnStartup = settings.PurgeOnStartup;
 
-            var transportInfrastructure = transportSeam.TransportInfrastructure;
-
-            //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
-            var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
-
-            var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
-
-            var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
+            var transportDefinition = transportSeam.TransportDefinition;
+            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
+                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
             }
-
-            var transactionMode = GetRequiredTransactionMode(settings, transportInfrastructure);
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
-                logicalAddress,
                 queueNameBase,
                 localAddress,
                 instanceSpecificQueue,
-                transactionMode,
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
@@ -55,33 +44,34 @@ namespace NServiceBus
                 settings.ExecuteTheseHandlersFirst,
                 settings.MessageHandlerRegistry,
                 settings.ShouldCreateQueues,
-                transportSeam);
+                transportSeam,
+                settings.Conventions);
 
             settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
             return receiveConfiguration;
         }
 
+
         public class Configuration
         {
-            public Configuration(LogicalAddress logicalAddress,
+            public Configuration(
                 string queueNameBase,
                 string localAddress,
                 string instanceSpecificQueue,
-                TransportTransactionMode transactionMode,
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
                 MessageHandlerRegistry messageHandlerRegistry,
-                bool createQueues, TransportSeam transportSeam)
+                bool createQueues,
+                TransportSeam transportSeam,
+                Conventions conventions)
             {
-                LogicalAddress = logicalAddress;
                 QueueNameBase = queueNameBase;
                 LocalAddress = localAddress;
                 InstanceSpecificQueue = instanceSpecificQueue;
-                TransactionMode = transactionMode;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
@@ -90,16 +80,13 @@ namespace NServiceBus
                 satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
                 CreateQueues = createQueues;
+                Conventions = conventions;
                 this.transportSeam = transportSeam;
             }
-
-            public LogicalAddress LogicalAddress { get; }
 
             public string LocalAddress { get; }
 
             public string InstanceSpecificQueue { get; }
-
-            public TransportTransactionMode TransactionMode { get; }
 
             public PushRuntimeSettings PushRuntimeSettings { get; }
 
@@ -115,9 +102,11 @@ namespace NServiceBus
 
             public bool CreateQueues { get; }
 
+            public Conventions Conventions { get; }
+
             public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
             {
-                var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
+                var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 
                 satelliteDefinitions.Add(satelliteDefinition);
             }

@@ -13,7 +13,7 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IDispatchMessages dispatcher)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IMessageDispatcher dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
@@ -57,7 +57,7 @@
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -75,7 +75,7 @@
             }
         }
 
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
         readonly string subscriberAddress;
         readonly string subscriberEndpoint;
         readonly SubscriptionRouter subscriptionRouter;

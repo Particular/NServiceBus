@@ -4,10 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using NServiceBus.Outbox;
-    using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -22,7 +19,7 @@
         public async Task Should_honor_stored_delivery_constraints()
         {
             var messageId = "id";
-            var options = new Dictionary<string, string>();
+            var options = new DispatchProperties();
             var deliverTime = DateTimeOffset.UtcNow.AddDays(1);
             var maxTime = TimeSpan.FromDays(1);
 
@@ -41,13 +38,17 @@
 
             await Invoke(context);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith));
+            var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations.First().Properties);
+            var delayDeliveryWith = operationProperties.DelayDeliveryWith;
+            Assert.NotNull(delayDeliveryWith);
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore));
+            var doNotDeliverBefore = operationProperties.DoNotDeliverBefore;
+            Assert.NotNull(doNotDeliverBefore);
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore discard));
+            var discard = operationProperties.DiscardIfNotReceivedBefore;
+            Assert.NotNull(discard);
             Assert.AreEqual(maxTime, discard.MaxTime);
 
             Assert.Null(fakeOutbox.StoredMessage);
@@ -57,14 +58,12 @@
         public async Task Should_honor_stored_direct_routing()
         {
             var messageId = "id";
-            var options = new Dictionary<string, string>
-            {
-                ["Destination"] = "myEndpoint"
-            };
+            var properties = new DispatchProperties { ["Destination"] = "myEndpoint" };
+
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], new Dictionary<string, string>())
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -82,14 +81,15 @@
         public async Task Should_honor_stored_pubsub_routing()
         {
             var messageId = "id";
-            var options = new Dictionary<string, string>
+            var properties = new DispatchProperties
             {
                 ["EventType"] = typeof(MyEvent).AssemblyQualifiedName
             };
 
+
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], new Dictionary<string, string>())
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);

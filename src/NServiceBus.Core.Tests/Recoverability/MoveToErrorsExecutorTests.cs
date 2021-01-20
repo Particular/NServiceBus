@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using Extensibility;
     using NUnit.Framework;
     using Transport;
 
@@ -138,18 +137,15 @@
         Dictionary<string, string> staticFaultMetadata;
         const string ErrorQueueAddress = "errorQ";
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 
-            public ContextBag ContextBag { get; private set; }
-
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 TransportOperations = outgoingMessages;
-                ContextBag = context;
                 Transaction = transaction;
                 return Task.FromResult(0);
             }

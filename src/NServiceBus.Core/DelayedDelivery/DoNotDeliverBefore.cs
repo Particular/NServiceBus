@@ -5,7 +5,7 @@
     /// <summary>
     /// Represent a constraint that the message can't be made available for consumption before a given time.
     /// </summary>
-    public class DoNotDeliverBefore : DelayedDeliveryConstraint
+    public class DoNotDeliverBefore
     {
         /// <summary>
         /// Initializes a new instance of <see cref="DoNotDeliverBefore" />.

@@ -15,8 +15,11 @@
             var context = await Scenario.Define<ScenarioContext>()
                  .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
                  {
-                     c.GetSettings().Set("FakeTransport.SupportedTransactionMode", TransportTransactionMode.ReceiveOnly);
-                     c.UseTransport<FakeTransport>();
+                     var transport = new FakeTransport
+                     {
+                         TransportTransactionMode = TransportTransactionMode.ReceiveOnly
+                     };
+                     c.UseTransport(transport);
                      c.UnitOfWork()
                          .WrapHandlersInATransactionScope();
                  }))

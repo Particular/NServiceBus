@@ -34,7 +34,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var routing = c.ConfigureTransport().Routing();
+                    var routing = c.ConfigureRouting();
                     routing.RouteToEndpoint(typeof(MyCommand1), typeof(Receiver1));
                     routing.RouteToEndpoint(typeof(MyCommand2), typeof(Receiver2));
                 });

@@ -7,7 +7,7 @@
 
     class ImmediateDispatchTerminator : PipelineTerminator<IDispatchContext>
     {
-        public ImmediateDispatchTerminator(IDispatchMessages dispatcher)
+        public ImmediateDispatchTerminator(IMessageDispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
         }
@@ -16,9 +16,9 @@
         {
             var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
             var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();
-            return dispatcher.Dispatch(new TransportOperations(operations), transaction, context.Extensions);
+            return dispatcher.Dispatch(new TransportOperations(operations), transaction);
         }
 
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
     }
 }

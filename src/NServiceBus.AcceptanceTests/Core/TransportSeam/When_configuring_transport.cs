@@ -10,19 +10,19 @@
     public class When_configuring_transport : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_provide_transport_infrastructure_to_features()
+        public async Task Should_provide_transport_definition_to_features()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFeature>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsNotNull(context.TransportInfrastructure);
+            Assert.IsNotNull(context.TransportDefinition);
         }
 
         class Context : ScenarioContext
         {
-            public TransportInfrastructure TransportInfrastructure { get; set; }
+            public TransportDefinition TransportDefinition { get; set; }
         }
 
         class EndpointWithFeature : EndpointConfigurationBuilder
@@ -37,7 +37,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var testContext = (Context)context.Settings.Get<ScenarioContext>();
-                    testContext.TransportInfrastructure = context.Settings.Get<TransportInfrastructure>();
+                    testContext.TransportDefinition = context.Settings.Get<TransportDefinition>();
                 }
             }
         }

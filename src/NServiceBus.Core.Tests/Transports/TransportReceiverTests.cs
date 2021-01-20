@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Transports
 {
+    using System.Collections.Generic;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -11,15 +13,15 @@
         [SetUp]
         public void SetUp()
         {
-            pump = new Pump();
+            pump = new MessageReceiver();
 
-            receiver = new TransportReceiver("FakeReceiver", pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null, null);
+            receiver = new TransportReceiver(pump, new PushRuntimeSettings());
         }
 
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start();
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
 
             Assert.IsTrue(pump.Started);
         }
@@ -29,13 +31,15 @@
         {
             pump.ThrowOnStart = true;
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start());
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>())
+                );
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start();
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
 
             await receiver.Stop();
 
@@ -47,39 +51,29 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start();
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
 
-        [Test]
-        public async Task Stop_should_dispose_pump() // for container backward compat reasons
-        {
-            await receiver.Start();
-
-            await receiver.Stop();
-
-            Assert.True(pump.Disposed);
-        }
-
-        Pump pump;
+        MessageReceiver pump;
         TransportReceiver receiver;
 
-        class Pump : IPushMessages, IDisposable
+        class MessageReceiver : IMessageReceiver
         {
             public bool ThrowOnStart { private get; set; }
             public bool ThrowOnStop { private get; set; }
 
             public bool Started { get; private set; }
             public bool Stopped { get; private set; }
-            public bool Disposed { get; private set; }
 
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
+
+            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
             {
-                throw new NotImplementedException();
+                return Task.CompletedTask;
             }
 
-            public void Start(PushRuntimeSettings limitations)
+            public Task StartReceive()
             {
                 if (ThrowOnStart)
                 {
@@ -87,9 +81,11 @@
                 }
 
                 Started = true;
+
+                return Task.CompletedTask;
             }
 
-            public Task Stop()
+            public Task StopReceive()
             {
                 if (ThrowOnStop)
                 {
@@ -101,10 +97,8 @@
                 return Task.CompletedTask;
             }
 
-            public void Dispose()
-            {
-                Disposed = true;
-            }
+            public ISubscriptionManager Subscriptions { get; }
+            public string Id { get; }
         }
     }
 }

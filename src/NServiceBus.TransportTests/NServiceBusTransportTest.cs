@@ -1,19 +1,16 @@
 ﻿namespace NServiceBus.TransportTests
 {
+    using Transport;
+    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Configuration.AdvancedExtensibility;
-    using DeliveryConstraints;
-    using Extensibility;
     using Logging;
     using NUnit.Framework;
     using Routing;
-    using Settings;
-    using Transport;
 
     public abstract class NServiceBusTransportTest
     {
@@ -31,10 +28,10 @@
             LogFactory.LogItems.Clear();
 
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
-            MessagePump = null;
-            TransportInfrastructure = null;
-            Configurer = null;
+            transportInfrastructure = null;
+            configurer = null;
             testCancellationTokenSource = null;
+            receiver = null;
         }
 
         static IConfigureTransportInfrastructure CreateConfigurer()
@@ -71,9 +68,9 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            MessagePump?.Stop().GetAwaiter().GetResult();
-            TransportInfrastructure?.Stop().GetAwaiter().GetResult();
-            Configurer?.Cleanup().GetAwaiter().GetResult();
+            receiver?.StopReceive().GetAwaiter().GetResult();
+            transportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
+            configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
         protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
@@ -81,44 +78,23 @@
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
 
-            var endpointConfiguration = new EndpointConfiguration(InputQueueName);
-            endpointConfiguration.SendFailedMessagesTo(ErrorQueueName);
+            configurer = CreateConfigurer();
 
-            transportSettings = endpointConfiguration.GetSettings();
+            var hostSettings = new HostSettings(InputQueueName,
+                string.Empty,
+                new StartupDiagnosticEntries(),
+                onCriticalError,
+                true);
 
+            var transport = configurer.CreateTransportDefinition();
 
-            var queueBindings = transportSettings.Get<QueueBindings>();
-            queueBindings.BindReceiving(InputQueueName);
-            queueBindings.BindSending(ErrorQueueName);
+            IgnoreUnsupportedTransactionModes(transport, transactionMode);
+            transport.TransportTransactionMode = transactionMode;
 
-            Configurer = CreateConfigurer();
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
-            var configuration = Configurer.Configure(transportSettings, transactionMode);
-
-            TransportInfrastructure = configuration.TransportInfrastructure;
-
-            IgnoreUnsupportedTransactionModes(transactionMode);
-            IgnoreUnsupportedDeliveryConstraints();
-
-            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
-
-            var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-            var userName = GetUserName();
-            await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
-
-            var result = await ReceiveInfrastructure.PreStartupCheck();
-            if (result.Succeeded == false)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
-
-            await TransportInfrastructure.Start();
-
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
-
-            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
-            await MessagePump.Init(
+            await transportInfrastructure.Receivers[0].Initialize(
+                new PushRuntimeSettings(8),
                 context =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
@@ -130,23 +106,18 @@
                 },
                 context =>
                 {
-                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Message.Headers[TestIdHeaderName] == testId)
                     {
                         return onError(context);
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                },
-                new FakeCriticalError(onCriticalError),
-                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
+                }, new MessageMetadata[0]);
 
-            result = await SendInfrastructure.PreStartupCheck();
-            if (result.Succeeded == false)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
+            await transportInfrastructure.Receivers[0].StartReceive();
 
-            MessagePump.Start(configuration.PushRuntimeSettings);
+            receiver = transportInfrastructure.Receivers[0];
         }
 
         string GetUserName()
@@ -159,22 +130,9 @@
             return Environment.UserName;
         }
 
-        void IgnoreUnsupportedDeliveryConstraints()
+        void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
         {
-            var supportedDeliveryConstraints = TransportInfrastructure.DeliveryConstraints.ToList();
-            var unsupportedDeliveryConstraints = requiredDeliveryConstraints.Where(required => !supportedDeliveryConstraints.Contains(required))
-                .ToList();
-
-            if (unsupportedDeliveryConstraints.Any())
-            {
-                var unsupported = string.Join(",", unsupportedDeliveryConstraints.Select(c => c.Name));
-                Assert.Ignore($"Transport doesn't support required delivery constraint(s) {unsupported}");
-            }
-        }
-
-        void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
-        {
-            if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
+            if (!transportDefinition.GetSupportedTransactionModes().Contains(requestedTransactionMode))
             {
                 Assert.Ignore($"Only relevant for transports supporting {requestedTransactionMode} or higher");
             }
@@ -183,7 +141,7 @@
         protected Task SendMessage(string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
-            List<DeliveryConstraint> deliveryConstraints = null,
+            DispatchProperties dispatchProperties = null,
             DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
@@ -194,16 +152,14 @@
                 message.Headers.Add(TestIdHeaderName, testId);
             }
 
-            var dispatcher = lazyDispatcher.Value;
-
             if (transportTransaction == null)
             {
                 transportTransaction = new TransportTransaction();
             }
 
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchConsistency, deliveryConstraints ?? new List<DeliveryConstraint>());
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
+            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)
@@ -211,11 +167,6 @@
             testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
             testCancellationTokenSource.Token.Register(onTimeoutAction);
-        }
-
-        protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint
-        {
-            requiredDeliveryConstraints.Add(typeof(T));
         }
 
         static string GetTestName()
@@ -255,35 +206,15 @@
 
         string testId;
 
-        List<Type> requiredDeliveryConstraints = new List<Type>();
-        SettingsHolder transportSettings;
-        Lazy<IDispatchMessages> lazyDispatcher;
-        TransportReceiveInfrastructure ReceiveInfrastructure;
-        TransportSendInfrastructure SendInfrastructure;
-        TransportInfrastructure TransportInfrastructure;
-        IPushMessages MessagePump;
+        TransportInfrastructure transportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
-        IConfigureTransportInfrastructure Configurer;
+        IConfigureTransportInfrastructure configurer;
+        IMessageReceiver receiver;
 
         const string DefaultTransportDescriptorKey = "LearningTransport";
         const string TestIdHeaderName = "TransportTest.TestId";
 
         static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
-
-        class FakeCriticalError : CriticalError
-        {
-            public FakeCriticalError(Action<string, Exception> errorAction) : base(null)
-            {
-                this.errorAction = errorAction ?? ((s, e) => { });
-            }
-
-            public override void Raise(string errorMessage, Exception exception)
-            {
-                errorAction(errorMessage, exception);
-            }
-
-            Action<string, Exception> errorAction;
-        }
 
         class EnvironmentHelper
         {

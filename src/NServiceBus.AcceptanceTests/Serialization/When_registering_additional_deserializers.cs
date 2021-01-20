@@ -52,7 +52,7 @@
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.UseSerialization<MyCustomSerializer>().Settings((Context)r.ScenarioContext, "");
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyRequest), typeof(XmlCustomSerializationReceiver));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(MyRequest), typeof(XmlCustomSerializationReceiver));
                 });
             }
         }

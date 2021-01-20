@@ -58,7 +58,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
                 });
             }
 

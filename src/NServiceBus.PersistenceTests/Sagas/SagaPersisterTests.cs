@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Persistence;
+    using NServiceBus.Persistence;
 
     [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.SagaVariants))]
     public class SagaPersisterTests

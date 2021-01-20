@@ -1,9 +1,9 @@
 namespace NServiceBus.Transport
 {
-    using System;
-    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using Settings;
     using System.Threading.Tasks;
-    using Routing;
 
     /// <summary>
     /// Transport infrastructure definitions.
@@ -11,72 +11,36 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure
     {
         /// <summary>
-        /// Returns the list of supported delivery constraints for this transport.
+        /// The dispatcher to send messages.
         /// </summary>
-        public abstract IEnumerable<Type> DeliveryConstraints { get; }
+        public virtual IMessageDispatcher Dispatcher { get; protected set; }
 
         /// <summary>
-        /// Gets the highest supported transaction mode for the this transport.
+        /// A list of all receivers.
         /// </summary>
-        public abstract TransportTransactionMode TransactionMode { get; }
+        public virtual ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
 
         /// <summary>
-        /// Returns the outbound routing policy selected for the transport.
+        /// This method is used when the transport is hosted as part of an NServiceBus endpoint to allow the transport verification of endpoint settings.
         /// </summary>
-        public abstract OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-
-        /// <summary>
-        /// Gets the factories to receive message.
-        /// </summary>
-        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
-
-        /// <summary>
-        /// Gets the factories to send message.
-        /// </summary>
-        public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
-
-        /// <summary>
-        /// Gets the factory to manage subscriptions.
-        /// </summary>
-        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
-
-        /// <summary>
-        /// Returns the discriminator for this endpoint instance.
-        /// </summary>
-        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance);
-
-        /// <summary>
-        /// Converts a given logical address to the transport address.
-        /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
-        /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
-
-        /// <summary>
-        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and
-        /// de-duplicated.
-        /// </summary>
-        /// <param name="transportAddress">A transport address.</param>
-        public virtual string MakeCanonicalForm(string transportAddress)
+        public virtual Task ValidateNServiceBusSettings(ReadOnlySettings settings)
         {
-            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
-            return transportAddress;
-        }
-
-        /// <summary>
-        /// Performs any action required to warm up the transport infrastructure before starting the endpoint.
-        /// </summary>
-        public virtual Task Start()
-        {
+            // this is only called when the transport is hosted as part of NServiceBus. No need to call this as "raw users".
+            // pass a settings type that only allows "tryGet".
             return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Performs any action required to cool down the transport infrastructure when the endpoint is stopping.
+        /// A helper method to find a receiver inside the <see cref="Receivers"/> collection with a specific id.
         /// </summary>
-        public virtual Task Stop()
+        public IMessageReceiver GetReceiver(string receiverId)
         {
-            return Task.CompletedTask;
+            return Receivers.SingleOrDefault(r => r.Id == receiverId);
         }
+
+        /// <summary>
+        /// Disposes all transport internal resources.
+        /// </summary>
+        public abstract Task DisposeAsync();
     }
 }

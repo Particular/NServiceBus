@@ -21,6 +21,8 @@ namespace NServiceBus
     using System;
     using Container;
     using ObjectBuilder.Common;
+    using Settings;
+    using Transport;
 
     public partial class EndpointConfiguration
     {
@@ -52,6 +54,31 @@ namespace NServiceBus
         }
     }
 
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8",
+        ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+    public static class UseTransportExtensions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+        public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public static partial class Headers
     {
         [ObsoleteEx(
@@ -78,6 +105,31 @@ namespace NServiceBus
             RemoveInVersion = "9.0.0",
             TreatAsErrorFromVersion = "8.0.0")]
         public static void GatewayDeduplicationCacheSize(this PersistenceExtensions<InMemoryPersistence> persistenceExtensions, int maxSize)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Transport infrastructure setup control is not based on the installer configuration.",
+        RemoveInVersion = "9.0.0",
+        TreatAsErrorFromVersion = "8.0.0")]
+    public static class ConfigureQueueCreation
+    {
+        [ObsoleteEx(
+            Message = "Transport infrastructure setup control is not based on the installer configuration.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
+        public static void DoNotCreateQueues(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Transport infrastructure setup control is not based on the installer configuration.",
+            RemoveInVersion = "9.0.0",
+            TreatAsErrorFromVersion = "8.0.0")]
+        public static bool CreateQueues(this ReadOnlySettings settings)
         {
             throw new NotImplementedException();
         }
@@ -300,28 +352,113 @@ namespace NServiceBus.Settings
 namespace NServiceBus
 {
     using System;
+    using Configuration.AdvancedExtensibility;
+    using Settings;
+    using Transport;
 
-    public partial class TransportExtensions<T>
+    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
+    [ObsoleteEx(
+        Message = "Configure the transport via the TransportDefinition instance's properties",
+        TreatAsErrorFromVersion = "9.0",
+        RemoveInVersion = "9.0")]
+    public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
+        [ObsoleteEx(
+            Message = "Configure the transport via the TransportDefinition instance's properties",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions(SettingsHolder settings) : base(settings)
+        {
+            throw new NotImplementedException();
+        }
+
         [ObsoleteEx(
             Message = "Loading named connection strings is no longer supported",
             ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "7.0",
+            TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public new TransportExtensions<T> ConnectionStringName(string name)
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public new TransportExtensions<T> ConnectionString(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0",
+            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
+        public new TransportExtensions<T> Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public partial class TransportExtensions
+    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
+    [ObsoleteEx(
+        Message = "Configure the transport via the TransportDefinition instance's properties",
+        TreatAsErrorFromVersion = "9.0",
+        RemoveInVersion = "9.0")]
+    public class TransportExtensions : ExposeSettings
     {
+        [ObsoleteEx(
+            Message = "Configure the transport via the TransportDefinition instance's properties",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions(SettingsHolder settings)
+            : base(settings)
+        {
+        }
+
         [ObsoleteEx(
             Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
             ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "9.0")]
         public TransportExtensions ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions ConnectionString(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions ConnectionString(Func<string> connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0",
+            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
+        public TransportExtensions Transactions(TransportTransactionMode transportTransactionMode)
         {
             throw new NotImplementedException();
         }
@@ -518,13 +655,11 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
-    using DeliveryConstraints;
-
     [ObsoleteEx(
         Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
-    public class NonDurableDelivery : DeliveryConstraint
+    public class NonDurableDelivery
     {
     }
 }
@@ -827,4 +962,376 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus.Transport
+{
+    using System.Threading.Tasks;
+    using Extensibility;
+
+    [ObsoleteEx(
+        Message = "The IDispatchMessages interface has been removed. See the upgrade guide for more details.",
+        ReplacementTypeOrMember = nameof(IMessageDispatcher),
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IDispatchMessages
+    {
+        /// <summary>
+        /// Dispatches the given operations to the transport.
+        /// </summary>
+        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context);
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(
+        Message = "Queue creation is done by TransportDefinition.Initialize",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface ICreateQueues
+    {
+        [ObsoleteEx(
+            Message = "Queue creation is done by TransportDefinition.Initialize",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity);
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "IMessageReceiver",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IPushMessages
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IMessageReceiver.Initialize",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Init(Func<MessageContext, Task> onMessage,
+            Func<ErrorContext, Task<ErrorHandleResult>> onError,
+            CriticalError criticalError,
+            PushSettings settings);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IMessageReceiver.StartReceive",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        void Start(PushRuntimeSettings limitations);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IMessageReceiver.StopReceive",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Stop();
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+
+    [ObsoleteEx(
+        Message = "This type is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class OutboundRoutingPolicy
+    {
+        [ObsoleteEx(
+            Message = "This type is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingPolicy(OutboundRoutingType sends, OutboundRoutingType publishes, OutboundRoutingType replies)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "This property is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingType Sends => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportDefinition.SupportsPublishSubscribe",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingType Publishes => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "This property is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public OutboundRoutingType Replies => throw new NotImplementedException();
+    }
+
+    [ObsoleteEx(
+        Message = "This enum is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public enum OutboundRoutingType
+    {
+        [ObsoleteEx(
+            Message = "This enum is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Unicast,
+        [ObsoleteEx(
+            Message = "This enum is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Multicast
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(
+        Message = "This type is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class TransportSubscriptionInfrastructure
+    {
+        [ObsoleteEx(
+            Message = "This type is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public TransportSubscriptionInfrastructure(Func<IManageSubscriptions> subscriptionManagerFactory)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "This type is no longer necessary when implementing a transport",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class TransportSendInfrastructure
+    {
+        [ObsoleteEx(
+            Message = "This type is no longer necessary when implementing a transport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public TransportSendInfrastructure(Func<IMessageDispatcher> dispatcherFactory,
+            Func<Task<StartupCheckResult>> preStartupCheck)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportInfrastructure.Dispatcher",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public Func<IMessageDispatcher> DispatcherFactory => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Pre-startup checks have been removed",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public Func<Task<StartupCheckResult>> PreStartupCheck => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Threading.Tasks;
+    using Extensibility;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "ISubscriptionManager",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public interface IManageSubscriptions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISubscriptionManager.Subscribe",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Subscribe(Type eventType, ContextBag context);
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "ISubscriptionManager.Unsubscribe",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Task Unsubscribe(Type eventType, ContextBag context);
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Collections.Generic;
+    using Routing;
+
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8",
+        ReplacementTypeOrMember = "QueueAddress")]
+    public struct LogicalAddress
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public static LogicalAddress CreateRemoteAddress(EndpointInstance endpointInstance)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public static LogicalAddress CreateLocalAddress(string queueName, IReadOnlyDictionary<string, string> properties)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public LogicalAddress CreateQualifiedAddress(string qualifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public LogicalAddress CreateIndividualizedAddress(string discriminator)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress.Qualifier")]
+        public string Qualifier => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "QueueAddress")]
+        public EndpointInstance EndpointInstance => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using Settings;
+
+    public static partial class SettingsExtensions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
+        public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Collections.Generic;
+
+    public partial class QueueBindings
+    {
+        [ObsoleteEx(
+            Message = "Receiving addresses are automatically registered.",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public IReadOnlyCollection<string> ReceivingAddresses => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Receiving addresses are automatically registered.",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public void BindReceiving(string address) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.DeliveryConstraints
+{
+    using System;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "OperationProperties",
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8")]
+    public abstract class DeliveryConstraint
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        protected DeliveryConstraint() { }
+    }
+
+    public static class DeliveryConstraintContextExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static void AddDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static System.Collections.Generic.List<DeliveryConstraint> GetDeliveryConstraints(this Extensibility.ContextBag context) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static void RemoveDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static bool TryGetDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
+            where T : DeliveryConstraint => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static bool TryRemoveDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
+            where T : DeliveryConstraint => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using Settings;
+
+    public static class LogicalAddressExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportDefinition.ToTransportAddress",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress) => throw new NotImplementedException();
+    }
+}
 #pragma warning restore 1591

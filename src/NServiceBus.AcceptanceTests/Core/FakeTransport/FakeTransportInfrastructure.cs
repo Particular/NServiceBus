@@ -1,117 +1,55 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using Extensibility;
-    using NServiceBus.Routing;
-    using Settings;
+    using System.Linq;
     using Transport;
+    using System.Threading.Tasks;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {
-        public FakeTransportInfrastructure(ReadOnlySettings settings)
+        readonly FakeTransport.StartUpSequence startUpSequence;
+        readonly HostSettings hostSettings;
+        readonly ReceiveSettings[] receivers;
+        readonly string[] sendingAddresses;
+        readonly FakeTransport transportSettings;
+
+        public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
+            ReceiveSettings[] receivers, string[] sendingAddresses, FakeTransport transportSettings)
         {
-            this.settings = settings;
+            this.startUpSequence = startUpSequence;
+            this.hostSettings = hostSettings;
+            this.receivers = receivers;
+            this.sendingAddresses = sendingAddresses;
+            this.transportSettings = transportSettings;
         }
 
-        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
+        public void ConfigureReceiveInfrastructure()
         {
-            typeof(DelayDeliveryWith),
-            typeof(DoNotDeliverBefore)
-        };
+            Receivers = receivers
+                .Select(r =>
+                    new FakeReceiver(
+                        r.Id,
+                        transportSettings,
+                        startUpSequence,
+                        hostSettings.CriticalErrorAction))
+                .ToList<IMessageReceiver>()
+                .AsReadOnly();
+        }
 
-        public override TransportTransactionMode TransactionMode
+        public void ConfigureSendInfrastructure()
         {
-            get
+            Dispatcher = new FakeDispatcher();
+        }
+
+        public override Task DisposeAsync()
+        {
+            startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(DisposeAsync)}");
+
+            if (transportSettings.ErrorOnTransportDispose != null)
             {
-                if (settings.TryGet("FakeTransport.SupportedTransactionMode", out TransportTransactionMode supportedTransactionMode))
-                {
-                    return supportedTransactionMode;
-                }
-
-                return TransportTransactionMode.TransactionScope;
-            }
-        }
-
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
-
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
-        {
-            return instance;
-        }
-
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
-        {
-            return logicalAddress.ToString();
-        }
-
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
-        {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
-
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings),
-                () => new FakeQueueCreator(settings),
-                () =>
-                {
-                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck");
-                    return Task.FromResult(StartupCheckResult.Success);
-                });
-        }
-
-        public override Task Start()
-        {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Start)}");
-
-            return Task.FromResult(0);
-
-        }
-        public override async Task Stop()
-        {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Stop)}");
-
-            await Task.Yield();
-
-            if (settings.GetOrDefault<bool>("FakeTransport.ThrowOnInfrastructureStop"))
-            {
-                var exception = settings.GetOrDefault<Exception>();
-                throw exception;
-            }
-        }
-
-        public override TransportSendInfrastructure ConfigureSendInfrastructure()
-        {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
-
-            return new TransportSendInfrastructure(() => new FakeDispatcher(),
-                () =>
-                {
-                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
-                    return Task.FromResult(StartupCheckResult.Success);
-                });
-        }
-
-        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
-        {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
-
-            return new TransportSubscriptionInfrastructure(() => new FakeSubscriptionManager());
-        }
-
-        ReadOnlySettings settings;
-
-        class FakeSubscriptionManager : IManageSubscriptions
-        {
-            public Task Subscribe(Type eventType, ContextBag context)
-            {
-                return Task.FromResult(0);
+                throw transportSettings.ErrorOnTransportDispose;
             }
 
-            public Task Unsubscribe(Type eventType, ContextBag context)
-            {
-                return Task.FromResult(0);
-            }
+            return Task.CompletedTask;
         }
     }
 }

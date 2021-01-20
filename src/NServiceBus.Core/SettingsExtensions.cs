@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides extensions to the settings holder.
     /// </summary>
-    public static class SettingsExtensions
+    public static partial class SettingsExtensions
     {
         /// <summary>
         /// Gets the list of types available to this endpoint.
@@ -28,22 +28,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns the logical address of this endpoint.
-        /// </summary>
-        public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
-        {
-            Guard.AgainstNull(nameof(settings), settings);
-
-            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
-            {
-                throw new InvalidOperationException("LogicalAddress isn't available since this endpoint is configured to run in send-only mode.");
-            }
-
-            return receiveConfiguration.LogicalAddress;
-        }
-
-        /// <summary>
-        /// Returns the shared queue name of this endpoint.
+        /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
         public static string LocalAddress(this ReadOnlySettings settings)
         {
@@ -55,6 +40,21 @@ namespace NServiceBus
             }
 
             return receiveConfiguration.LocalAddress;
+        }
+
+        /// <summary>
+        /// Returns the shared queue name of this endpoint.
+        /// </summary>
+        public static string EndpointQueueName(this ReadOnlySettings settings)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
+            }
+
+            return receiveConfiguration.QueueNameBase;
         }
 
         /// <summary>

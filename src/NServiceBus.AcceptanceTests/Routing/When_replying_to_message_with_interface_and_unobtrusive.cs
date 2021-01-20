@@ -36,7 +36,7 @@
                 EndpointSetup<DefaultPublisher>(c =>
                 {
                     c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My"));
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
                 });
             }
 

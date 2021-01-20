@@ -4,10 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using Extensibility;
     using NUnit.Framework;
-    using Transport;
+    using NServiceBus.Transport;
 
     [TestFixture]
     public class DelayedRetryExecutorTests
@@ -40,7 +38,7 @@
             await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
-            var deliveryConstraint = transportOperation.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
+            var deliveryConstraint = transportOperation.Properties.DelayDeliveryWith;
 
             Assert.AreEqual(transportOperation.Destination, EndpointInputQueue);
             Assert.IsNotNull(deliveryConstraint);
@@ -103,20 +101,17 @@
         FakeDispatcher dispatcher;
         const string EndpointInputQueue = "endpoint input queue";
 
-        class FakeDispatcher : IDispatchMessages
+        class FakeDispatcher : IMessageDispatcher
         {
             public TransportOperations TransportOperations { get; private set; }
 
             public List<UnicastTransportOperation> UnicastTransportOperations => TransportOperations.UnicastTransportOperations;
 
-            public ContextBag ContextBag { get; private set; }
-
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
             {
                 TransportOperations = outgoingMessages;
-                ContextBag = context;
                 Transaction = transaction;
                 return Task.FromResult(0);
             }

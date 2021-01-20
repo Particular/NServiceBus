@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using DeliveryConstraints;
     using Performance.TimeToBeReceived;
     using Pipeline;
+    using Transport;
 
     class ApplyTimeToBeReceivedBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
@@ -17,7 +17,7 @@
         {
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
             {
-                context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
+                context.Extensions.Get<DispatchProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived);
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 

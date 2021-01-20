@@ -12,14 +12,13 @@ namespace NServiceBus.Core.Tests.Transports
         [Test]
         public void Should_not_share_constraints_when_not_provided()
         {
-            var transportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), typeof(Guid));
-            var secondTransportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), typeof(Guid));
+            var transportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), typeof(Guid), new DispatchProperties());
+            var secondTransportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]), typeof(Guid), new DispatchProperties());
 
-            var randomConstraint = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
-            transportOperation.DeliveryConstraints.Add(randomConstraint);
+            transportOperation.Properties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
 
-            Assert.IsEmpty(secondTransportOperation.DeliveryConstraints);
-            Assert.IsNotEmpty(transportOperation.DeliveryConstraints);
+            Assert.IsEmpty(secondTransportOperation.Properties);
+            Assert.IsNotEmpty(transportOperation.Properties);
         }
     }
 }

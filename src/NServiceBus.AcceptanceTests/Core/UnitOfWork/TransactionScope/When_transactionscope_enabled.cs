@@ -33,8 +33,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.ConfigureTransport()
-                        .Transactions(TransportTransactionMode.ReceiveOnly);
+                    c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                     c.UnitOfWork()
                         .WrapHandlersInATransactionScope(
                             isolationLevel: IsolationLevel.RepeatableRead);

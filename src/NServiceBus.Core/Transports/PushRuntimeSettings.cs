@@ -34,6 +34,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Use default settings.
         /// </summary>
-        public static PushRuntimeSettings Default => new PushRuntimeSettings();
+        public static PushRuntimeSettings Default { get; } = new PushRuntimeSettings();
     }
 }

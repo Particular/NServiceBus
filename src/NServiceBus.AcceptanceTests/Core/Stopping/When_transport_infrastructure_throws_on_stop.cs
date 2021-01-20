@@ -30,8 +30,9 @@
             {
                 EndpointSetup<DefaultServer>(builder =>
                 {
-                    builder.UseTransport<FakeTransport>()
-                        .RaiseExceptionDuringInfrastructureStop(new InvalidOperationException("ExceptionInInfrastructureStop"));
+                    var fakeTransport = new FakeTransport();
+                    fakeTransport.RaiseExceptionOnTransportDispose(new InvalidOperationException("ExceptionInInfrastructureStop"));
+                    builder.UseTransport(fakeTransport);
                 });
             }
         }

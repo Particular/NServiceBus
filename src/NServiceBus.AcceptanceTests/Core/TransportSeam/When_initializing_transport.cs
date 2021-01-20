@@ -21,17 +21,10 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSubscriptionInfrastructure)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureReceiveInfrastructure)}",
-                $"{nameof(ICreateQueues)}.{nameof(ICreateQueues.CreateQueueIfNecessary)}",
-                $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
-                $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}"
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StartReceive)} for receiver Main",
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StopReceive)} for receiver Main",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.DisposeAsync)}",
             }, context.StartUpSequence);
         }
 
@@ -46,16 +39,13 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
-                $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}"
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.DisposeAsync)}",
             }, context.StartUpSequence);
         }
 
         class Context : ScenarioContext
         {
-            public FakeTransport.StartUpSequence StartUpSequence { get; } = new FakeTransport.StartUpSequence();
+            public FakeTransport.StartUpSequence StartUpSequence { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -64,8 +54,9 @@
             {
                 EndpointSetup<DefaultServer, Context>((endpointConfig, context) =>
                 {
-                    endpointConfig.UseTransport<FakeTransport>()
-                        .CollectStartupSequence(context.StartUpSequence);
+                    var fakeTransport = new FakeTransport();
+                    context.StartUpSequence = fakeTransport.StartupSequence;
+                    endpointConfig.UseTransport(fakeTransport);
                 });
             }
         }

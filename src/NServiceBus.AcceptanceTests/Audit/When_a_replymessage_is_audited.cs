@@ -67,7 +67,7 @@
                 {
                     c.DisableFeature<Outbox>();
                     c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(Request), typeof(Server));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(Request), typeof(Server));
                 });
             }
 

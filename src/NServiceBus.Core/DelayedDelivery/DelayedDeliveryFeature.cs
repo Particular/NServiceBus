@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
-    using DelayedDelivery;
-    using DeliveryConstraints;
+    using Transport;
 
     class DelayedDeliveryFeature : Feature
     {
@@ -12,7 +11,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportHasNativeDelayedDelivery = context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var transportHasNativeDelayedDelivery = context.Settings.Get<TransportDefinition>().SupportsDelayedDelivery;
 
             if (!transportHasNativeDelayedDelivery)
             {

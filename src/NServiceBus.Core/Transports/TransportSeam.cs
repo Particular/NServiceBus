@@ -1,37 +1,61 @@
 ﻿namespace NServiceBus
 {
+    using System.Linq;
+    using System.Threading.Tasks;
     using System;
     using Settings;
     using Transport;
 
     class TransportSeam
     {
-        protected TransportSeam(TransportInfrastructure transportInfrastructure, QueueBindings queueBindings)
+        HostSettings hostSettings;
+        ReceiveSettings[] receivers;
+
+        protected TransportSeam(TransportDefinition transportDefinition, HostSettings hostSettings,
+            QueueBindings queueBindings)
         {
-            TransportInfrastructure = transportInfrastructure;
+            TransportDefinition = transportDefinition;
             QueueBindings = queueBindings;
+            this.hostSettings = hostSettings;
         }
 
-        public static TransportSeam Create(Settings transportSettings, HostingComponent.Configuration hostingConfiguration)
+        public void Configure(ReceiveSettings[] receivers)
         {
-            var transportDefinition = transportSettings.TransportDefinition;
-            var connectionString = transportSettings.TransportConnectionString.GetConnectionStringOrRaiseError(transportDefinition);
-
-            var transportInfrastructure = transportDefinition.Initialize(transportSettings.settings, connectionString);
-
-            //RegisterTransportInfrastructureForBackwardsCompatibility
-            transportSettings.settings.Set(transportInfrastructure);
-
-            hostingConfiguration.AddStartupDiagnosticsSection("Transport", new
-            {
-                Type = transportInfrastructure.GetType().FullName,
-                Version = FileVersionRetriever.GetFileVersion(transportInfrastructure.GetType())
-            });
-
-            return new TransportSeam(transportInfrastructure, transportSettings.QueueBindings);
+            this.receivers = receivers;
         }
 
-        public TransportInfrastructure TransportInfrastructure { get; }
+        public async Task<TransportInfrastructure> CreateTransportInfrastructure()
+        {
+            TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray())
+                .ConfigureAwait(false);
+
+            var eventHandlers = TransportInfrastructureCreated;
+            eventHandlers?.Invoke(this, TransportInfrastructure);
+
+            return TransportInfrastructure;
+        }
+
+        public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
+        {
+            var transportDefinition = transportSeamSettings.TransportDefinition;
+            transportSeamSettings.settings.Set(transportDefinition);
+
+            var settings = new HostSettings(hostingConfiguration.EndpointName,
+                hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers);
+
+            var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
+
+            hostingConfiguration.Services.ConfigureComponent(() => transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
+
+            return transportSeam;
+        }
+
+        TransportInfrastructure TransportInfrastructure { get; set; }
+
+        public event EventHandler<TransportInfrastructure> TransportInfrastructureCreated;
+
+        public TransportDefinition TransportDefinition { get; }
 
         public QueueBindings QueueBindings { get; }
 
@@ -41,7 +65,6 @@
             {
                 this.settings = settings;
 
-                settings.SetDefault(TransportConnectionString.Default);
                 settings.Set(new QueueBindings());
             }
 
@@ -56,12 +79,6 @@
 
                     return settings.Get<TransportDefinition>();
                 }
-                set => settings.Set(value);
-            }
-
-            public TransportConnectionString TransportConnectionString
-            {
-                get => settings.Get<TransportConnectionString>();
                 set => settings.Set(value);
             }
 

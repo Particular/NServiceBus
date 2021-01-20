@@ -3,7 +3,7 @@ NServiceBus.InferredMessageTypeEnricherBehavior - Transient
 NServiceBus.Persistence.ISynchronizedStorage - Singleton
 NServiceBus.Persistence.ISynchronizedStorageAdapter - Singleton
 NServiceBus.SubscriptionReceiverBehavior - Transient
-NServiceBus.Transport.IDispatchMessages - Singleton
+NServiceBus.Transport.IMessageDispatcher - Singleton
 NServiceBus.Unicast.MessageHandlerRegistry - Singleton
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage - Singleton
@@ -19,3 +19,4 @@ NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingLogicalMessageCo
 NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c],[NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c]] - Transient
 NServiceBus.Pipeline.LogicalMessageFactory - Singleton
 NServiceBus.Settings.ReadOnlySettings - Singleton
+NServiceBus.Transport.ISubscriptionManager - Singleton

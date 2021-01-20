@@ -1,16 +1,15 @@
-namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport
 {
     using System.Threading.Tasks;
-    using Extensibility;
 
     /// <summary>
     /// Abstraction of the capability to dispatch messages.
     /// </summary>
-    public interface IDispatchMessages
+    public interface IMessageDispatcher
     {
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context);
+        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction);
     }
 }

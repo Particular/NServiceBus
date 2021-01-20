@@ -52,8 +52,7 @@
                     var recoverability = config.Recoverability();
                     recoverability.Immediate(immediate => immediate.NumberOfRetries(numberOfRetries));
 
-                    config.ConfigureTransport()
-                        .Transactions(TransportTransactionMode.ReceiveOnly);
+                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                 });
             }
 

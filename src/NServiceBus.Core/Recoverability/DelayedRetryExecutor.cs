@@ -4,14 +4,12 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using DeliveryConstraints;
-    using Extensibility;
     using Routing;
     using Transport;
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher)
+        public DelayedRetryExecutor(string endpointInputQueue, IMessageDispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
             this.endpointInputQueue = endpointInputQueue;
@@ -26,17 +24,20 @@
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var deliveryConstraints = new List<DeliveryConstraint>(1) { new DelayDeliveryWith(delay) };
+            var dispatchProperties = new DispatchProperties
+            {
+                DelayDeliveryWith = new DelayDeliveryWith(delay)
+            };
             var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }
 
-        IDispatchMessages dispatcher;
+        IMessageDispatcher dispatcher;
         string endpointInputQueue;
     }
 }

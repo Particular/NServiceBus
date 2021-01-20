@@ -58,8 +58,7 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>(
-                    c => c.ConfigureTransport()
-                          .Routing()
+                    c => c.ConfigureRouting()
                           .RouteToEndpoint(typeof(AnyMessage), typeof(Receiver)));
             }
 
@@ -95,8 +94,7 @@
                 EndpointSetup<DefaultServer>(
                     c =>
                     {
-                        c.ConfigureTransport()
-                              .Routing()
+                        c.ConfigureRouting()
                               .RouteToEndpoint(typeof(AnyResponseMessage), typeof(Sender));
 
                         c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId));

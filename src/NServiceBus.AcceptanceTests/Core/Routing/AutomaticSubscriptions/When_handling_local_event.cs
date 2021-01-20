@@ -42,7 +42,7 @@
                 EndpointSetup<DefaultPublisher>(b =>
                 {
                     // Make sure the subscription message isn't purged on startup
-                    b.PurgeOnStartup(true);
+                    b.PurgeOnStartup(false);
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         if (s.MessageType == typeof(Event).AssemblyQualifiedName)

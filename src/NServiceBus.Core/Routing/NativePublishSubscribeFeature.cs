@@ -1,5 +1,7 @@
 namespace NServiceBus.Features
 {
+    using Microsoft.Extensions.DependencyInjection;
+    using Unicast.Messages;
     using Transport;
 
     class NativePublishSubscribeFeature : Feature
@@ -7,24 +9,20 @@ namespace NServiceBus.Features
         public NativePublishSubscribeFeature()
         {
             EnableByDefault();
-            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
+            Prerequisite(c => c.Settings.Get<TransportDefinition>().SupportsPublishSubscribe, "The transport does not support native pub sub");
             Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled subscription migration mode");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
             context.Pipeline.Register("MulticastPublishRouterBehavior", new MulticastPublishConnector(), "Determines how the published messages should be routed");
 
             if (canReceive)
             {
-                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
-                var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
-
-                context.Pipeline.Register(new NativeSubscribeTerminator(subscriptionManager), "Requests the transport to subscribe to a given message type");
-                context.Pipeline.Register(new NativeUnsubscribeTerminator(subscriptionManager), "Requests the transport to unsubscribe to a given message type");
+                context.Pipeline.Register(b => new NativeSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to subscribe to a given message type");
+                context.Pipeline.Register(b => new NativeUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to unsubscribe to a given message type");
             }
             else
             {

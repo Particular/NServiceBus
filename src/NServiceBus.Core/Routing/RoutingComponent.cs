@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using Transport;
     using Pipeline;
 
     partial class RoutingComponent
@@ -50,7 +51,7 @@ namespace NServiceBus
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,
-                i => transportSeam.TransportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                i => transportSeam.TransportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
 
             if (configuration.EnforceBestPractices)
             {

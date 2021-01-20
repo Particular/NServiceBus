@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -9,13 +10,14 @@
     using Routing;
     using Transport;
     using Unicast.Queuing;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     class MigrationUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MigrationUnsubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string replyToAddress, string endpoint)
+        public MigrationUnsubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter, IMessageDispatcher dispatcher, string replyToAddress, string endpoint)
         {
             this.subscriptionManager = subscriptionManager;
+            this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionRouter = subscriptionRouter;
             this.dispatcher = dispatcher;
             this.replyToAddress = replyToAddress;
@@ -25,8 +27,9 @@
         protected override async Task Terminate(IUnsubscribeContext context)
         {
             var eventType = context.EventType;
+            var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);
 
-            await subscriptionManager.Unsubscribe(eventType, context.Extensions).ConfigureAwait(false);
+            await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions).ConfigureAwait(false);
 
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
@@ -62,7 +65,7 @@
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -80,10 +83,11 @@
             }
         }
 
-        readonly IManageSubscriptions subscriptionManager;
+        readonly ISubscriptionManager subscriptionManager;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
 
         readonly string endpoint;
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
         readonly string replyToAddress;
         readonly SubscriptionRouter subscriptionRouter;
         static ILog Logger = LogManager.GetLogger<MigrationUnsubscribeTerminator>();

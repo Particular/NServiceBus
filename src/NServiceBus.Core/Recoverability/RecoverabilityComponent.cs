@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using Faults;
     using Hosting;
     using Microsoft.Extensions.DependencyInjection;
@@ -46,8 +44,9 @@
             }
 
             hostInformation = hostingConfiguration.HostInformation;
+            this.transportSeam = transportSeam;
 
-            transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
+            transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
 
             var errorQueue = settings.ErrorQueueAddress();
             transportSeam.QueueBindings.BindSending(errorQueue);
@@ -72,7 +71,7 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn && settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -88,14 +87,14 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.GetRequiredService<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
             };
 
             Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IDispatchMessages>());
+                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IMessageDispatcher>());
                 }
 
                 return null;
@@ -136,7 +135,7 @@
 
             if (numberOfRetries > 0)
             {
-                if (!settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
+                if (!transportSeam.TransportDefinition.SupportsDelayedDelivery)
                 {
                     throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery.");
                 }
@@ -168,6 +167,7 @@
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
+        TransportSeam transportSeam;
 
         public class Configuration
         {

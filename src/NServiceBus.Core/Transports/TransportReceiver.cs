@@ -1,52 +1,36 @@
 namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using Transport;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using Transport;
 
     class TransportReceiver
     {
         public TransportReceiver(
-            string id,
-            IPushMessages pushMessages,
-            PushSettings pushSettings,
-            PushRuntimeSettings pushRuntimeSettings,
-            IPipelineExecutor pipelineExecutor,
-            RecoverabilityExecutor recoverabilityExecutor,
-            CriticalError criticalError)
+            IMessageReceiver receiver,
+            PushRuntimeSettings pushRuntimeSettings)
         {
-            this.criticalError = criticalError;
-            Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.pipelineExecutor = pipelineExecutor;
-            this.recoverabilityExecutor = recoverabilityExecutor;
-            this.pushSettings = pushSettings;
-
-            receiver = pushMessages;
+            this.receiver = receiver;
         }
 
-        public string Id { get; }
-
-        public Task Init()
-        {
-            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
-        }
-
-        public Task Start()
+        public async Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
         {
             if (isStarted)
             {
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
+            Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
-            receiver.Start(pushRuntimeSettings);
+
+            await receiver.Initialize(pushRuntimeSettings, onMessage, onError, events).ConfigureAwait(false);
+            await receiver.StartReceive().ConfigureAwait(false);
 
             isStarted = true;
-
-            return Task.FromResult(0);
         }
 
         public async Task Stop()
@@ -58,12 +42,12 @@ namespace NServiceBus
 
             try
             {
-                await receiver.Stop().ConfigureAwait(false);
+                await receiver.StopReceive().ConfigureAwait(false);
                 (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)
             {
-                Logger.Warn($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
+                Logger.Warn($"Receiver {receiver.Id} threw an exception on stopping.", exception);
             }
             finally
             {
@@ -71,14 +55,11 @@ namespace NServiceBus
             }
         }
 
-        readonly CriticalError criticalError;
-
         bool isStarted;
         PushRuntimeSettings pushRuntimeSettings;
-        IPipelineExecutor pipelineExecutor;
-        RecoverabilityExecutor recoverabilityExecutor;
-        PushSettings pushSettings;
-        IPushMessages receiver;
+
+        //hack: make this accessible more easily for now so we can access the subscription storage
+        internal IMessageReceiver receiver;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }

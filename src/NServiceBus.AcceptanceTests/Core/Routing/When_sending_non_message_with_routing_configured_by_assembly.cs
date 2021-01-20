@@ -42,8 +42,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    var routing = c.ConfigureTransport().Routing();
-                    routing.RouteToEndpoint(typeof(NonMessage).Assembly, "Destination");
+                    c.ConfigureRouting().RouteToEndpoint(typeof(NonMessage).Assembly, "Destination");
                 });
             }
         }

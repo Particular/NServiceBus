@@ -1,56 +1,73 @@
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
+    using System.Collections.Generic;
+    using Extensibility;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
-    using Settings;
     using Transport;
 
-    class FakeReceiver : IPushMessages
+    class FakeReceiver : IMessageReceiver
     {
-        public FakeReceiver(ReadOnlySettings settings)
+        readonly FakeTransport transportSettings;
+        readonly FakeTransport.StartUpSequence startupSequence;
+        readonly Action<string, Exception> criticalErrorAction;
+
+        public FakeReceiver(string id, FakeTransport transportSettings, FakeTransport.StartUpSequence startupSequence,
+            Action<string, Exception> criticalErrorAction)
         {
-            this.settings = settings;
-
-            throwCritical = settings.GetOrDefault<bool>("FakeTransport.ThrowCritical");
-            throwOnStop = settings.GetOrDefault<bool>("FakeTransport.ThrowOnPumpStop");
-
-            exceptionToThrow = settings.GetOrDefault<Exception>();
+            this.transportSettings = transportSettings;
+            this.startupSequence = startupSequence;
+            this.criticalErrorAction = criticalErrorAction;
+            Id = id;
         }
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, PushSettings pushSettings)
+        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage,
+            Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(IPushMessages)}.{nameof(Init)}");
-
-            this.criticalError = criticalError;
-            return Task.FromResult(0);
+            startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
+            return Task.CompletedTask;
         }
 
-        public void Start(PushRuntimeSettings limitations)
+        public Task StartReceive()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(IPushMessages)}.{nameof(Start)}");
+            startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StartReceive)} for receiver {Id}");
 
-            if (throwCritical)
+            if (transportSettings.ErrorOnReceiverStart != null)
             {
-                criticalError.Raise(exceptionToThrow.Message, exceptionToThrow);
+                criticalErrorAction(transportSettings.ErrorOnReceiverStart.Message,
+                    transportSettings.ErrorOnReceiverStart);
             }
+
+            return Task.CompletedTask;
         }
 
-        public async Task Stop()
+        public async Task StopReceive()
         {
-            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(IPushMessages)}.{nameof(Stop)}");
+            startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StopReceive)} for receiver {Id}");
 
             await Task.Yield();
 
-            if (throwOnStop)
+            if (transportSettings.ErrorOnReceiverStop != null)
             {
-                throw exceptionToThrow;
+                throw transportSettings.ErrorOnReceiverStop;
             }
         }
 
-        ReadOnlySettings settings;
-        NServiceBus.CriticalError criticalError;
-        bool throwCritical;
-        bool throwOnStop;
-        Exception exceptionToThrow;
+        public ISubscriptionManager Subscriptions { get; } = new FakeSubscriptionManager();
+        public string Id { get; }
+
+        class FakeSubscriptionManager : ISubscriptionManager
+        {
+            public Task Subscribe(MessageMetadata eventType, ContextBag context)
+            {
+                return Task.CompletedTask;
+            }
+
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context)
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

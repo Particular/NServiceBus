@@ -65,7 +65,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
+                        c.ConfigureRouting().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
                     },
                     metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)));
             }

@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
             {
                 EndpointSetup<DefaultServer>(builder =>
                 {
-                    builder.UseTransport<FakeTransport>();
+                    builder.UseTransport(new FakeTransport());
                 });
             }
 

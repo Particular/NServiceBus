@@ -6,13 +6,9 @@ namespace NServiceBus
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
-    using Extensibility;
-    using Performance.TimeToBeReceived;
     using Transport;
 
-    class LearningTransportDispatcher : IDispatchMessages
+    class LearningTransportDispatcher : IMessageDispatcher
     {
         public LearningTransportDispatcher(string basePath, int maxMessageSizeKB)
         {
@@ -25,7 +21,7 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
         {
             return Task.WhenAll(
                 DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction),
@@ -78,13 +74,13 @@ namespace NServiceBus
 
             DateTimeOffset? timeToDeliver = null;
 
-            if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
+            if (transportOperation.Properties.DoNotDeliverBefore != null)
             {
-                timeToDeliver = doNotDeliverBefore.At.ToUniversalTime();
+                timeToDeliver = transportOperation.Properties.DoNotDeliverBefore.At.ToUniversalTime();
             }
-            else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
+            else if (transportOperation.Properties.DelayDeliveryWith != null)
             {
-                timeToDeliver = DateTimeOffset.UtcNow + delayDeliveryWith.Delay;
+                timeToDeliver = DateTimeOffset.UtcNow + transportOperation.Properties.DelayDeliveryWith.Delay;
             }
 
             if (timeToDeliver.HasValue)
@@ -101,7 +97,9 @@ namespace NServiceBus
                 Directory.CreateDirectory(destinationPath);
             }
 
-            if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
+            var timeToBeReceived = transportOperation.Properties.DiscardIfNotReceivedBefore;
+
+            if (timeToBeReceived != null && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
             {
                 if (timeToDeliver.HasValue)
                 {

@@ -23,12 +23,12 @@ namespace NServiceBus
         {
             var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
 
-            endpointCreator.Initialize();
+            endpointCreator.Configure();
 
             return endpointCreator;
         }
 
-        void Initialize()
+        void Configure()
         {
             ConfigureMessageTypes();
 
@@ -45,6 +45,7 @@ namespace NServiceBus
             transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
             var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
+                hostingConfiguration,
                 settings.Get<ReceiveComponent.Settings>(),
                 transportSeam);
 
@@ -68,7 +69,7 @@ namespace NServiceBus
                 settings.Get<Conventions>(),
                 pipelineSettings);
 
-            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper, transportSeam);
+            sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
             hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
@@ -121,7 +122,7 @@ namespace NServiceBus
             return new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
-                transportSeam.TransportInfrastructure,
+                transportSeam,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,

@@ -10,8 +10,3 @@ AVOID defining a struct unless the type has all of the following characteristics
 In all other cases, you should define your types as classes.
 -------------------------------------------------- REMEMBER --------------------------------------------------
 
-NServiceBus.LogicalAddress violates the following rules:
-   - The following fields are reference types, which are potentially mutable:
-      - Field <EndpointInstance>k__BackingField of type NServiceBus.Routing.EndpointInstance is a reference type.
-   - The size cannot be determined because there are fields that are reference types.
-

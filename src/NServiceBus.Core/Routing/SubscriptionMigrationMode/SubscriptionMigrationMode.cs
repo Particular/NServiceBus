@@ -11,13 +11,13 @@
         public SubscriptionMigrationMode()
         {
             EnableByDefault();
-            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
+            Prerequisite(c => c.Settings.Get<TransportDefinition>().SupportsPublishSubscribe, "The transport does not support native pub sub");
             Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled subscription migration mode");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
+            var transportDefinition = context.Settings.Get<TransportDefinition>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
             var distributionPolicy = context.Routing.DistributionPolicy;
@@ -30,23 +30,29 @@
 
             context.Pipeline.Register(b =>
             {
-                var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.GetRequiredService<ISubscriptionStorage>());
+                var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i =>
+                {
+                    var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
+                    return transportDefinition.ToTransportAddress(queueAddress);
+                }, b.GetRequiredService<ISubscriptionStorage>());
                 return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
 
             if (canReceive)
             {
                 var endpointInstances = context.Routing.EndpointInstances;
-                var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
-                var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
 
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i =>
+                {
+                    var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
+                    return transportDefinition.ToTransportAddress(queueAddress);
+                });
                 var subscriberAddress = context.Receiving.LocalAddress;
 
                 context.Pipeline.Register(b =>
-                    new MigrationSubscribeTerminator(subscriptionManager, subscriptionRouter, b.GetRequiredService<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
-                    new MigrationUnsubscribeTerminator(subscriptionManager, subscriptionRouter, b.GetRequiredService<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

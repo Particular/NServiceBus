@@ -1,21 +1,22 @@
 ﻿namespace NServiceBus
 {
+    using Transport;
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using Pipeline;
 
     class ThrowIfCannotDeferMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
         public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
-            var deliveryConstraints = context.Extensions.GetDeliveryConstraints();
-
-            if (deliveryConstraints.Any(constraint => constraint is DelayedDeliveryConstraint))
+            if (context.Extensions.TryGet<DispatchProperties>(out var properties))
             {
-                throw new InvalidOperationException("Cannot delay delivery of messages when there is no infrastructure support for delayed messages.");
+
+                if (properties.DelayDeliveryWith != null || properties.DoNotDeliverBefore != null)
+                {
+                    throw new InvalidOperationException(
+                        "Cannot delay delivery of messages when there is no infrastructure support for delayed messages.");
+                }
             }
 
             return next(context);

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -9,13 +10,16 @@
     using Routing;
     using Transport;
     using Unicast.Queuing;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MigrationSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
+        public MigrationSubscribeTerminator(ISubscriptionManager subscriptionManager,
+            MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter,
+            IMessageDispatcher dispatcher, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
+            this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionRouter = subscriptionRouter;
             this.dispatcher = dispatcher;
             this.subscriberAddress = subscriberAddress;
@@ -26,7 +30,8 @@
         {
             var eventType = context.EventType;
 
-            await subscriptionManager.Subscribe(eventType, context.Extensions).ConfigureAwait(false);
+            var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);
+            await subscriptionManager.Subscribe(eventMetadata, context.Extensions).ConfigureAwait(false);
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
@@ -61,7 +66,7 @@
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -83,9 +88,10 @@
 
         readonly string subscriberAddress;
         readonly string subscriberEndpoint;
-        readonly IDispatchMessages dispatcher;
+        readonly IMessageDispatcher dispatcher;
 
-        readonly IManageSubscriptions subscriptionManager;
+        readonly ISubscriptionManager subscriptionManager;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
         static ILog Logger = LogManager.GetLogger<MigrationSubscribeTerminator>();
     }
 }

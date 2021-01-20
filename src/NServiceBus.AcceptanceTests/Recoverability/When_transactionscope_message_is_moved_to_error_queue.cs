@@ -43,8 +43,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.ConfigureTransport()
-                        .Transactions(TransportTransactionMode.TransactionScope);
+                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.TransactionScope;
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                     config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });

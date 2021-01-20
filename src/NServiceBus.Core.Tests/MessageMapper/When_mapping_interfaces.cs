@@ -167,6 +167,7 @@ namespace MessageMapperTests
             [CustomAttributeWithValueProperties("bla bla", true, 21)]
             Guid EventId { get; set; }
         }
+
         public class CustomAttributeWithValueProperties : Attribute
         {
             public CustomAttributeWithValueProperties() { }

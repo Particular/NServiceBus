@@ -16,8 +16,11 @@
                 await Scenario.Define<ScenarioContext>()
                     .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
                     {
-                        c.UseTransport<FakeTransport>()
-                            .Transactions(TransportTransactionMode.TransactionScope);
+                        var fakeTransport = new FakeTransport
+                        {
+                            TransportTransactionMode = TransportTransactionMode.TransactionScope
+                        };
+                        c.UseTransport(fakeTransport);
                         c.UnitOfWork()
                             .WrapHandlersInATransactionScope();
                     }))

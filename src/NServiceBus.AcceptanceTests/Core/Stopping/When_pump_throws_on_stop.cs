@@ -19,9 +19,11 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsNotNull(context.Logs.SingleOrDefault(l =>
-                l.Level == LogLevel.Warn
-                && l.Message.Contains("Receiver Main listening to queue PumpThrowsOnStop.EndpointThatThrowsOnPumpStop threw an exception on stopping. System.InvalidOperationException: ExceptionInPumpStop")));
+            var logEntry = context.Logs.FirstOrDefault(l =>
+                l.LoggerName == "NServiceBus.ReceiveComponent" && l.Level == LogLevel.Warn);
+
+            Assert.IsNotNull(logEntry);
+            StringAssert.StartsWith("Receiver Main threw an exception on stopping. System.InvalidOperationException: ExceptionInPumpStop", logEntry.Message);
         }
 
         public class EndpointThatThrowsOnPumpStop : EndpointConfigurationBuilder
@@ -30,8 +32,9 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
             {
                 EndpointSetup<DefaultServer>(builder =>
                 {
-                    builder.UseTransport<FakeTransport>()
-                        .RaiseExceptionDuringPumpStop(new InvalidOperationException("ExceptionInPumpStop"));
+                    var fakeTransport = new FakeTransport();
+                    fakeTransport.RaiseExceptionOnReceiverStop(new InvalidOperationException("ExceptionInPumpStop"));
+                    builder.UseTransport(fakeTransport);
                 });
             }
         }
