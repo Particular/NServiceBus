@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace NServiceBus.AcceptanceTests.Core.FakeTransport
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
     using System.Collections.Generic;
     using Transport;
 

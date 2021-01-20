@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
     using Routing;
     using Transport;
@@ -54,7 +52,7 @@ namespace NServiceBus
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
         {
-            return  new[]
+            return new[]
             {
                 TransportTransactionMode.None,
                 TransportTransactionMode.ReceiveOnly,
@@ -62,7 +60,7 @@ namespace NServiceBus
             };
         }
 
-        private string storageLocation;
+        string storageLocation;
         public string StorageLocation
         {
             get => storageLocation;

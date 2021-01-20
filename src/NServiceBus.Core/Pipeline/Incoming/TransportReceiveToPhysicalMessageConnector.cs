@@ -1,13 +1,9 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using DelayedDelivery;
     using Outbox;
-    using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
     using Transport;

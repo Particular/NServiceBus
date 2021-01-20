@@ -1,6 +1,4 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus.AcceptanceTests.Core.TransportSeam
+﻿namespace NServiceBus.AcceptanceTests.Core.TransportSeam
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

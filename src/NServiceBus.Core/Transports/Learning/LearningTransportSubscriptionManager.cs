@@ -1,8 +1,6 @@
-﻿using System.Threading;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using Unicast.Messages;
     using System;
     using System.IO;
     using System.Threading.Tasks;

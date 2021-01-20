@@ -1,12 +1,8 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus.Core.Tests.Routing
+﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using Transport;

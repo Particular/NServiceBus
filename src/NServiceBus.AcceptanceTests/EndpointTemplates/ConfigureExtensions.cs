@@ -1,10 +1,9 @@
-﻿using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Transport;
-
-namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
+    using Configuration.AdvancedExtensibility;
+    using Transport;
     using System.Threading.Tasks;
-    using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting.Support;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ConfigureExtensions

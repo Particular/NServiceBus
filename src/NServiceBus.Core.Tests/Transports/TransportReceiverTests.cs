@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.Core.Tests.Transports
+﻿namespace NServiceBus.Core.Tests.Transports
 {
+    using System.Collections.Generic;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using NUnit.Framework;

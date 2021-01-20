@@ -1,5 +1,3 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Core.Tests.Transports
 {
     using System;

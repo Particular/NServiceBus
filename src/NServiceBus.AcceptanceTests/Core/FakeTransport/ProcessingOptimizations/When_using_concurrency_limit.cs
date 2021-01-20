@@ -1,9 +1,6 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
+    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Linq;

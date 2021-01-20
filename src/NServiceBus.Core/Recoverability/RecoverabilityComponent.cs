@@ -1,6 +1,4 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -169,7 +167,7 @@ namespace NServiceBus
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
-        private TransportSeam transportSeam;
+        TransportSeam transportSeam;
 
         public class Configuration
         {

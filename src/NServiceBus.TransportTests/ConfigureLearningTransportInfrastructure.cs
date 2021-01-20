@@ -23,13 +23,13 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
             "mainReceiver",
             inputQueueName,
             transportDefinition.SupportsPublishSubscribe,
-            true, 
+            true,
             errorQueueName);
 
         var transportInfrastructure = await transportDefinition.Initialize(
             hostSettings,
-            new[] {mainReceiverSettings},
-            new[] {errorQueueName});
+            new[] { mainReceiverSettings },
+            new[] { errorQueueName });
 
         return transportInfrastructure;
     }

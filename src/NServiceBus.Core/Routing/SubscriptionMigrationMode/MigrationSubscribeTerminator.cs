@@ -1,9 +1,6 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -13,7 +10,7 @@ namespace NServiceBus
     using Routing;
     using Transport;
     using Unicast.Queuing;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {

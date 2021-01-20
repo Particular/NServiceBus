@@ -58,9 +58,8 @@
         public async Task Should_honor_stored_direct_routing()
         {
             var messageId = "id";
-            var properties = new DispatchProperties();
+            var properties = new DispatchProperties { ["Destination"] = "myEndpoint" };
 
-            properties["Destination"] = "myEndpoint";
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
@@ -82,9 +81,11 @@
         public async Task Should_honor_stored_pubsub_routing()
         {
             var messageId = "id";
-            var properties = new DispatchProperties();
+            var properties = new DispatchProperties
+            {
+                ["EventType"] = typeof(MyEvent).AssemblyQualifiedName
+            };
 
-            properties["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {

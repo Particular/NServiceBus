@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using NServiceBus.DelayedDelivery;
-using NServiceBus.Performance.TimeToBeReceived;
-
-namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport
 {
+    using System;
+    using System.Collections.Generic;
+    using DelayedDelivery;
+    using Performance.TimeToBeReceived;
+
     /// <summary>
     /// Describes additional properties for an outgoing message.
     /// </summary>

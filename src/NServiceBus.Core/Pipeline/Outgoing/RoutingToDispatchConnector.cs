@@ -1,6 +1,4 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Text;

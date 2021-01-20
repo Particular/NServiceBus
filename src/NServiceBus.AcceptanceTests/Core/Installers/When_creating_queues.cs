@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
@@ -90,12 +89,14 @@
             {
                 EndpointSetup<DefaultServer, Context>((c, t) =>
                 {
-                    var fakeTransport = new FakeTransport();
-                    fakeTransport.OnTransportInitialize = queues =>
+                    var fakeTransport = new FakeTransport
                     {
-                        t.SendingAddresses = queues.sendingAddresses;
-                        t.ReceivingAddresses = queues.receivingAddresses;
-                        t.SetupInfrastructure = queues.setupInfrastructure;
+                        OnTransportInitialize = queues =>
+                        {
+                            t.SendingAddresses = queues.sendingAddresses;
+                            t.ReceivingAddresses = queues.receivingAddresses;
+                            t.SetupInfrastructure = queues.setupInfrastructure;
+                        }
                     };
                     c.UseTransport(fakeTransport);
 

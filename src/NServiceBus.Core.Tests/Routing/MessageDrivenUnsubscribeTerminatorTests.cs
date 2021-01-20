@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus.Core.Tests.Routing
+﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;

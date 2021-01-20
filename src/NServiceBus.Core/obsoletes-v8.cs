@@ -1,8 +1,5 @@
 ﻿#pragma warning disable 1591
 
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Settings;
-using NServiceBus.Transport;
 namespace NServiceBus.Gateway.Deduplication
 {
     using System;
@@ -24,6 +21,8 @@ namespace NServiceBus
     using System;
     using Container;
     using ObjectBuilder.Common;
+    using Settings;
+    using Transport;
 
     public partial class EndpointConfiguration
     {
@@ -353,6 +352,9 @@ namespace NServiceBus.Settings
 namespace NServiceBus
 {
     using System;
+    using Configuration.AdvancedExtensibility;
+    using Settings;
+    using Transport;
 
     // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
     [ObsoleteEx(
@@ -365,8 +367,7 @@ namespace NServiceBus
             Message = "Configure the transport via the TransportDefinition instance's properties",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
-        public TransportExtensions(SettingsHolder settings) 
-            : base(settings)
+        public TransportExtensions(SettingsHolder settings) : base(settings)
         {
             throw new NotImplementedException();
         }
@@ -986,7 +987,7 @@ namespace NServiceBus.Transport
 
     [ObsoleteEx(
         Message = "Queue creation is done by TransportDefinition.Initialize",
-        TreatAsErrorFromVersion = "8", 
+        TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface ICreateQueues
     {
@@ -1034,6 +1035,8 @@ namespace NServiceBus.Transport
 
 namespace NServiceBus.Transport
 {
+    using System;
+
     [ObsoleteEx(
         Message = "This type is no longer necessary when implementing a transport",
         TreatAsErrorFromVersion = "8",
@@ -1228,6 +1231,9 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+    using Settings;
+
     public static partial class SettingsExtensions
     {
         [ObsoleteEx(
@@ -1243,6 +1249,7 @@ namespace NServiceBus
 
 namespace NServiceBus.Transport
 {
+    using System;
     using System.Collections.Generic;
 
     public partial class QueueBindings
@@ -1263,6 +1270,8 @@ namespace NServiceBus.Transport
 
 namespace NServiceBus.DeliveryConstraints
 {
+    using System;
+
     [ObsoleteEx(
         ReplacementTypeOrMember = "OperationProperties",
         RemoveInVersion = "9",
@@ -1313,6 +1322,9 @@ namespace NServiceBus.DeliveryConstraints
 
 namespace NServiceBus.Transport
 {
+    using System;
+    using Settings;
+
     public static class LogicalAddressExtensions
     {
         [ObsoleteEx(

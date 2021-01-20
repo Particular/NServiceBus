@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;

@@ -1,12 +1,8 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
     using Routing;
     using Transport;
 

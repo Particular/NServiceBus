@@ -1,13 +1,9 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus.Core.Tests.Recoverability
+﻿namespace NServiceBus.Core.Tests.Recoverability
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Extensibility;
     using NUnit.Framework;
     using Transport;
 

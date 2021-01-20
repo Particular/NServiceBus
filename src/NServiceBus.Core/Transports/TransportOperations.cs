@@ -1,5 +1,3 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Transport
 {
     using System;
@@ -21,19 +19,19 @@ namespace NServiceBus.Transport
 
             foreach (var transportOperation in transportOperations)
             {
-                if (transportOperation.AddressTag is MulticastAddressTag)
+                if (transportOperation.AddressTag is MulticastAddressTag multicastAddressTag)
                 {
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
-                        ((MulticastAddressTag)transportOperation.AddressTag).MessageType,
+                        multicastAddressTag.MessageType,
                         new DispatchProperties(transportOperation.Properties),
                         transportOperation.RequiredDispatchConsistency));
                 }
-                else if (transportOperation.AddressTag is UnicastAddressTag)
+                else if (transportOperation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
-                        ((UnicastAddressTag)transportOperation.AddressTag).Destination,
+                        unicastAddressTag.Destination,
                         new DispatchProperties(transportOperation.Properties),
                         transportOperation.RequiredDispatchConsistency));
                 }

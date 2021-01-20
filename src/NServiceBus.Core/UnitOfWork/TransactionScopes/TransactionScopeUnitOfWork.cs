@@ -1,7 +1,6 @@
-﻿using NServiceBus.ConsistencyGuarantees;
-
-namespace NServiceBus.Features
+﻿namespace NServiceBus.Features
 {
+    using ConsistencyGuarantees;
     using System;
     using System.Transactions;
 

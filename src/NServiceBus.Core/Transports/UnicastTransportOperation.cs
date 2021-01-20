@@ -1,5 +1,3 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Transport
 {
     /// <summary>

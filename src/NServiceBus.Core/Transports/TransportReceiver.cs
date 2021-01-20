@@ -1,14 +1,11 @@
-using System.Collections.Generic;
-using System.Threading;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
 namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using Transport;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using Transport;
 
     class TransportReceiver
     {

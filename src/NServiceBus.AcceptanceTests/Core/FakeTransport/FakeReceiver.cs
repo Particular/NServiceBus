@@ -1,20 +1,17 @@
-using System.Collections.Generic;
-using System.Threading;
-using NServiceBus.Extensibility;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
+    using System.Collections.Generic;
+    using Extensibility;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using Transport;
 
     class FakeReceiver : IMessageReceiver
     {
-        private readonly FakeTransport transportSettings;
-        private readonly FakeTransport.StartUpSequence startupSequence;
-        private readonly Action<string, Exception> criticalErrorAction;
+        readonly FakeTransport transportSettings;
+        readonly FakeTransport.StartUpSequence startupSequence;
+        readonly Action<string, Exception> criticalErrorAction;
 
         public FakeReceiver(string id, FakeTransport transportSettings, FakeTransport.StartUpSequence startupSequence,
             Action<string, Exception> criticalErrorAction)

@@ -118,18 +118,21 @@
                 {
                     continue;
                 }
+
                 if (methodReference.Name == method.Name)
                 {
                     if (methodReference.DeclaringType.Name == method.DeclaringType.Name)
                     {
                         return true;
                     }
+
                     if (method.DeclaringType.BaseType != null && methodReference.DeclaringType.Name == method.DeclaringType.BaseType.Name)
                     {
                         return true;
                     }
                 }
             }
+
             return false;
         }
 

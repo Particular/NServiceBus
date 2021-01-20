@@ -1,10 +1,8 @@
-using System.Collections.ObjectModel;
-using System.Linq;
-using NServiceBus.Settings;
-using NServiceBus.Transport;
-
 namespace NServiceBus.Transport
 {
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using Settings;
     using System.Threading.Tasks;
 
     /// <summary>

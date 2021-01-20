@@ -1,10 +1,6 @@
-using System.Threading;
-using NServiceBus.Transport;
-
 namespace NServiceBus.Core.Tests.Timeout
 {
     using System.Threading.Tasks;
-    using Extensibility;
     using Transport;
 
     public class FakeMessageDispatcher : IMessageDispatcher

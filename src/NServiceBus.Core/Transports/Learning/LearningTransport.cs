@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Transport;
 
     /// <summary>

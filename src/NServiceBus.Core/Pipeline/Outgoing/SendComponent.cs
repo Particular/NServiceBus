@@ -1,9 +1,6 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
-    using System.Threading.Tasks;
     using MessageInterfaces;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -11,13 +8,12 @@ namespace NServiceBus
 
     class SendComponent
     {
-        SendComponent(IMessageMapper messageMapper, TransportSeam transportSeam)
+        SendComponent(IMessageMapper messageMapper)
         {
             this.messageMapper = messageMapper;
-            this.transportSeam = transportSeam;
         }
 
-        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper, TransportSeam transportSeam)
+        public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper)
         {
             pipelineSettings.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
             pipelineSettings.Register("AuditHostInformation", new AuditHostInformationBehavior(hostingConfiguration.HostInformation, hostingConfiguration.EndpointName), "Adds audit host information");
@@ -32,7 +28,7 @@ namespace NServiceBus
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            var sendComponent = new SendComponent(messageMapper, transportSeam);
+            var sendComponent = new SendComponent(messageMapper);
 
             return sendComponent;
         }
@@ -49,6 +45,5 @@ namespace NServiceBus
         }
 
         readonly IMessageMapper messageMapper;
-        readonly TransportSeam transportSeam;
     }
 }

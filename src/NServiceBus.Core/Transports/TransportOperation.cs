@@ -1,6 +1,5 @@
 namespace NServiceBus.Transport
 {
-    using System.Collections.Generic;
     using Routing;
 
     /// <summary>

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Unicast.Messages;
+
     /// <summary>
     /// Allows the transport to push messages to the core.
     /// </summary>

@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
     using System;
     using System.IO;
     using System.Linq;
@@ -78,7 +77,7 @@ namespace NServiceBus
             {
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
-            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction,subscriptionManager, receiveSettings, transport.TransportTransactionMode);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
             return Task.FromResult<IMessageReceiver>(pump);
         }
 

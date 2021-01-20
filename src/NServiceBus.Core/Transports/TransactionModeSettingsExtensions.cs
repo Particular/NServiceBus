@@ -1,8 +1,6 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.ConsistencyGuarantees
 {
-    using System;
+    using Transport;
     using Settings;
 
     /// <summary>

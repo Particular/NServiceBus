@@ -1,6 +1,4 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus.Features
+﻿namespace NServiceBus.Features
 {
     using Microsoft.Extensions.DependencyInjection;
     using Settings;

@@ -1,7 +1,6 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using Transport;
     using System;
     using System.IO;
     using System.Threading.Tasks;

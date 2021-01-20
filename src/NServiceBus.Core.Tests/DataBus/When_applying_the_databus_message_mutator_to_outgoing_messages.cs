@@ -1,7 +1,6 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Core.Tests.DataBus
 {
+    using Transport;
     using System;
     using System.IO;
     using System.Threading.Tasks;

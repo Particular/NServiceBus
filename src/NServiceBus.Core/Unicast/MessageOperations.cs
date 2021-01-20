@@ -1,7 +1,6 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
+    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -154,7 +153,7 @@ namespace NServiceBus
             return replyPipeline.Invoke(outgoingContext);
         }
 
-        private static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
+        static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
         {
             // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
             context.Set(new DispatchProperties(dispatchProperties));

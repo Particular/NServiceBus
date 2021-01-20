@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using Unicast.Messages;
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
@@ -25,7 +24,7 @@ namespace NServiceBus
             Id = id;
             this.basePath = basePath;
             this.criticalErrorAction = criticalErrorAction;
-            this.subscriptionManager = subscriptionManager;
+            Subscriptions = subscriptionManager;
             this.receiveSettings = receiveSettings;
             this.transactionMode = transactionMode;
         }
@@ -74,9 +73,9 @@ namespace NServiceBus
         {
             cancellationTokenSource = new CancellationTokenSource();
 
-            this.cancellationToken = cancellationTokenSource.Token;
+            cancellationToken = cancellationTokenSource.Token;
 
-            messagePumpTask = Task.Run(ProcessMessages, this.cancellationToken);
+            messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
             delayedMessagePoller.Start();
 
@@ -102,7 +101,8 @@ namespace NServiceBus
             concurrencyLimiter.Dispose();
         }
 
-        public ISubscriptionManager Subscriptions => subscriptionManager;
+        public ISubscriptionManager Subscriptions { get; }
+
         public string Id { get; }
 
         void RecoverPendingTransactions()
@@ -357,14 +357,13 @@ namespace NServiceBus
         string delayedDir;
 
         Action<string, Exception> criticalErrorAction;
-        private readonly ISubscriptionManager subscriptionManager;
-        private readonly ReceiveSettings receiveSettings;
+        readonly ReceiveSettings receiveSettings;
         readonly TransportTransactionMode transactionMode;
 
 
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
-        private Func<MessageContext, Task> onMessage;
-        private Func<ErrorContext, Task<ErrorHandleResult>> onError;
+        Func<MessageContext, Task> onMessage;
+        Func<ErrorContext, Task<ErrorHandleResult>> onError;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";

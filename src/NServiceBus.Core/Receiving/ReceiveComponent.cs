@@ -1,8 +1,6 @@
-using System.Threading;
-using NServiceBus.Unicast.Messages;
-
 namespace NServiceBus
 {
+    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -22,7 +20,7 @@ namespace NServiceBus
             this.configuration = configuration;
         }
 
-        private ISubscriptionManager mainReceiverSubscriptionManager;
+        ISubscriptionManager mainReceiverSubscriptionManager;
 
         public static ReceiveComponent Initialize(
             Configuration configuration,
@@ -74,14 +72,16 @@ namespace NServiceBus
                 }
             }
 
-            var receiveSettings = new List<ReceiveSettings>();
-            
-            receiveSettings.Add(new ReceiveSettings(
-                MainReceiverId,
-                configuration.LocalAddress,
-                configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
-                configuration.PurgeOnStartup,
-                errorQueue));
+            var receiveSettings = new List<ReceiveSettings>
+            {
+                new ReceiveSettings(
+                    MainReceiverId,
+                    configuration.LocalAddress,
+                    configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
+                    configuration.PurgeOnStartup,
+                    errorQueue)
+            };
+
 
             if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
             {

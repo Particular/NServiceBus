@@ -1,10 +1,9 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using NServiceBus.Extensibility;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport
 {
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Unicast.Messages;
+
     /// <summary>
     /// Implemented by transports to provide pub/sub capabilities.
     /// </summary>
