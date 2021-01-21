@@ -58,15 +58,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         class FakeSubscriptionManager : ISubscriptionManager
         {
-            public Task Subscribe(MessageMetadata eventType, ContextBag context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Subscribe(MessageMetadata eventType, ContextBag context) => Task.CompletedTask;
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context) => Task.CompletedTask;
+
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context) => Task.CompletedTask;
         }
     }
 }

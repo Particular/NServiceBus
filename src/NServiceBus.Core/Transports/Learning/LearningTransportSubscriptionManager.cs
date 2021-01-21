@@ -51,6 +51,17 @@
             }
         }
 
+        public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context)
+        {
+            var tasks = new Task[eventTypes.Length];
+            for (int i = 0; i < eventTypes.Length; i++)
+            {
+                tasks[i] = Subscribe(eventTypes[i], context);
+            }
+
+            return Task.WhenAll(tasks);
+        }
+
         public async Task Unsubscribe(MessageMetadata eventType, ContextBag context)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);

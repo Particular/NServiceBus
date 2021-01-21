@@ -36,40 +36,38 @@
             {
                 var handlerRegistry = b.GetRequiredService<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                return new ApplySubscriptions(messageTypesHandled, settings.ExcludedTypes);
+                return new ApplySubscriptions(messageTypesHandled);
             });
         }
 
-        static List<Type> GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
+        static Type[] GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
         {
             var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
                 .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
                 .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
                 .Where(t => conventions.IsEventType(t)) //only events unless the user asked for all messages
                 .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
-                .ToList();
+                .Except(settings.ExcludedTypes)
+                .ToArray();
 
             return messageTypesHandled;
         }
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(List<Type> messagesHandledByThisEndpoint, HashSet<Type> excludedTypes)
+            public ApplySubscriptions(Type[] messagesHandledByThisEndpoint)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
-                this.excludedTypes = excludedTypes;
             }
 
             protected override Task OnStart(IMessageSession session)
             {
-                var tasks = new Task[messagesHandledByThisEndpoint.Count];
-                for (var i = 0; i < messagesHandledByThisEndpoint.Count; i++)
+                var tasks = new Task[messagesHandledByThisEndpoint.Length];
+                for (var i = 0; i < messagesHandledByThisEndpoint.Length; i++)
                 {
                     var eventType = messagesHandledByThisEndpoint[i];
 
-                    tasks[i] = excludedTypes.Contains(eventType)
-                        ? Task.CompletedTask
-                        : SubscribeToEvent(session, eventType);
+                    tasks[i] = SubscribeToEvent(session, eventType);
                 }
                 return Task.WhenAll(tasks);
             }
@@ -93,8 +91,7 @@
                 }
             }
 
-            List<Type> messagesHandledByThisEndpoint;
-            readonly HashSet<Type> excludedTypes;
+            Type[] messagesHandledByThisEndpoint;
             static ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
