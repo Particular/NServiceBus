@@ -2,12 +2,13 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class ProcessingStatisticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             var state = new State();
 
@@ -22,7 +23,7 @@
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                await next(context).ConfigureAwait(false);
+                await next(context, token).ConfigureAwait(false);
             }
             finally
             {

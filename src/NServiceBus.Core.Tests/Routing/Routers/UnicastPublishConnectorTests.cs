@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -17,7 +18,7 @@
             var router = new UnicastPublishConnector(new FakePublishRouter(), new DistributionPolicy());
             var context = new TestableOutgoingPublishContext();
 
-            await router.Invoke(context, ctx => Task.CompletedTask);
+            await router.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(1, context.Headers.Count);
             Assert.AreEqual(MessageIntentEnum.Publish.ToString(), context.Headers[Headers.MessageIntent]);

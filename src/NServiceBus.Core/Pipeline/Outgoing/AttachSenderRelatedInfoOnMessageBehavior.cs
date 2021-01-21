@@ -1,12 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class AttachSenderRelatedInfoOnMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, CancellationToken, Task> next, CancellationToken token)
         {
             var message = context.Message;
 
@@ -19,7 +20,7 @@ namespace NServiceBus
             {
                 message.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
             }
-            return next(context);
+            return next(context, token);
         }
     }
 }

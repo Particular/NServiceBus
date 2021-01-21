@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class AttachSenderRelatedInfoOnMessageTests
@@ -60,7 +60,7 @@
             var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
 
             await new AttachSenderRelatedInfoOnMessageBehavior()
-                .Invoke(new TestableRoutingContext { Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") } }, _ => Task.CompletedTask);
+                .Invoke(new TestableRoutingContext { Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") } }, (_, __) => Task.CompletedTask, default);
 
             return message;
         }

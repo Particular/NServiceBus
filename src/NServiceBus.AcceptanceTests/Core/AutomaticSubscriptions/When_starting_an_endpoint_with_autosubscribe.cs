@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;

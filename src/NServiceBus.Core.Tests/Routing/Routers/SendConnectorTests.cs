@@ -22,7 +22,7 @@
 
             var context = CreateContext();
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(1, context.Headers.Count);
             Assert.AreEqual(MessageIntentEnum.Send.ToString(), context.Headers[Headers.MessageIntent]);
@@ -38,11 +38,11 @@
             var context = CreateContext();
 
             UnicastAddressTag addressTag = null;
-            await behavior.Invoke(context, c =>
+            await behavior.Invoke(context, (c, _) =>
             {
                 addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.CompletedTask;
-            });
+            }, default);
 
             Assert.AreEqual("LogicalAddress", addressTag.Destination);
         }

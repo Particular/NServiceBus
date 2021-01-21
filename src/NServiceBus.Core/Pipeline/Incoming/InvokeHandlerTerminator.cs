@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Sagas;
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
-        protected override async Task Terminate(IInvokeHandlerContext context)
+        protected override async Task Terminate(IInvokeHandlerContext context, CancellationToken token)
         {
             if (context.Extensions.TryGet(out ActiveSagaInstance saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
             {

@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -81,14 +82,14 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
 
             public class BehaviorWhichAddsThingsToTheContext : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
             {
-                public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+                public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
                 {
                     context.Extensions.Set(new State
                     {
                         SomeData = "SomeData"
                     });
 
-                    return next(context);
+                    return next(context, token);
                 }
 
                 public class State

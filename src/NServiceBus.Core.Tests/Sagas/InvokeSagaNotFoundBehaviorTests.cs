@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Testing;
+    using System.Threading;
 
     [TestFixture]
     public class InvokeSagaNotFoundBehaviorTests
@@ -26,7 +27,7 @@
             incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1());
             incomingContext.Services.AddSingleton<IHandleSagaNotFound>(validSagaHandler);
 
-            Assert.That(async () => await behavior.Invoke(incomingContext, ctx => Task.CompletedTask), Throws.Nothing);
+            Assert.That(async () => await behavior.Invoke(incomingContext, (_, __) => Task.CompletedTask, default), Throws.Nothing);
 
             Assert.False(validSagaHandler.Handled);
         }
@@ -37,11 +38,11 @@
             incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1());
             incomingContext.Services.AddSingleton<IHandleSagaNotFound>(new HandleSagaNotFoundValid());
 
-            Assert.That(async () => await behavior.Invoke(incomingContext, SetSagaNotFound), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(incomingContext, SetSagaNotFound, default), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
 
-        static Task SetSagaNotFound(IIncomingLogicalMessageContext context)
+        static Task SetSagaNotFound(IIncomingLogicalMessageContext context, CancellationToken token)
         {
             context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
             return Task.CompletedTask;

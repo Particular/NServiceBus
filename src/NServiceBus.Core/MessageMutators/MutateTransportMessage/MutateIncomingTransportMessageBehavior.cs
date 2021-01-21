@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using MessageMutator;
     using Microsoft.Extensions.DependencyInjection;
@@ -14,17 +15,17 @@
             this.mutators = mutators;
         }
 
-        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             if (hasIncomingTransportMessageMutators)
             {
-                return InvokeIncomingTransportMessagesMutators(context, next);
+                return InvokeIncomingTransportMessagesMutators(context, next, token);
             }
 
-            return next(context);
+            return next(context, token);
         }
 
-        async Task InvokeIncomingTransportMessagesMutators(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        async Task InvokeIncomingTransportMessagesMutators(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             var mutatorsRegisteredInDI = context.Builder.GetServices<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;
@@ -57,7 +58,7 @@
                 context.UpdateMessage(mutatorContext.Body);
             }
 
-            await next(context).ConfigureAwait(false);
+            await next(context, token).ConfigureAwait(false);
         }
 
         volatile bool hasIncomingTransportMessageMutators = true;

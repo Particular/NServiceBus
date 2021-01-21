@@ -9,6 +9,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using NServiceBus.Pipeline;
     using Unicast.Messages;
     using NUnit.Framework;
+    using System.Threading;
 
     [TestFixture]
     class When_applying_the_databus_message_mutator_to_incoming_messages
@@ -47,7 +48,7 @@ namespace NServiceBus.Core.Tests.DataBus
                             {"NServiceBus.DataBus." + propertyKey, databusKey}
                         },
                         null),
-                    ctx => Task.CompletedTask);
+                    (_, __) => Task.CompletedTask, default);
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;

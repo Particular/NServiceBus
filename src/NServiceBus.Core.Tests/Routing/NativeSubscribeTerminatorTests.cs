@@ -19,7 +19,7 @@
             var terminator =
                 new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true));
 
-            var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
+            var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), (_, __) => Task.CompletedTask, default));
 
             Assert.AreSame(innerException, exception);
         }
@@ -32,7 +32,7 @@
             var terminator =
                 new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true));
 
-            var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
+            var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), (_, __) => Task.CompletedTask, default));
 
             Assert.AreSame(expectedException, exception);
         }
@@ -47,7 +47,7 @@
             var testableSubscribeContext = new TestableSubscribeContext();
             testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
-            var exception = Assert.ThrowsAsync<AggregateException>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
+            var exception = Assert.ThrowsAsync<AggregateException>(() => terminator.Invoke(testableSubscribeContext, (_, __) => Task.CompletedTask, default));
 
             Assert.AreSame(aggregateException, exception);
         }
@@ -62,7 +62,7 @@
             var testableSubscribeContext = new TestableSubscribeContext();
             testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
-            var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
+            var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(testableSubscribeContext, (_, __) => Task.CompletedTask, default));
 
             Assert.AreSame(expectedException, exception);
         }

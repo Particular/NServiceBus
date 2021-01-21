@@ -18,11 +18,11 @@
         {
             var behavior = new RoutingToDispatchConnector();
             Dictionary<string, string> headers = null;
-            await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new CustomRoutingStrategy() } }, context =>
+            await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new CustomRoutingStrategy() } }, (context, t) =>
                 {
                     headers = context.Operations.First().Message.Headers;
                     return Task.CompletedTask;
-                });
+                }, default);
 
             Assert.IsTrue(headers.ContainsKey("CustomHeader"));
         }
@@ -38,11 +38,11 @@
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), CreateContext(options, true)), c =>
+                new UnicastRoutingStrategy("Destination"), CreateContext(options, true)), (_, __) =>
                 {
                     dispatched = true;
                     return Task.CompletedTask;
-                });
+                }, default);
 
             Assert.IsTrue(dispatched);
         }
@@ -55,11 +55,11 @@
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), false)), c =>
+                new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), false)), (_, __) =>
                 {
                     dispatched = true;
                     return Task.CompletedTask;
-                });
+                }, default);
 
             Assert.IsTrue(dispatched);
         }
@@ -72,11 +72,11 @@
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), true)), c =>
+                new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), true)), (_, __) =>
                 {
                     dispatched = true;
                     return Task.CompletedTask;
-                });
+                }, default);
 
             Assert.IsFalse(dispatched);
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Pipeline;
@@ -26,12 +27,12 @@
             pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>();
         }
 
-        public Task Invoke(TContext context)
+        public Task Invoke(TContext context, CancellationToken token)
         {
-            return pipeline(context);
+            return pipeline(context, token);
         }
 
         IBehavior[] behaviors;
-        Func<TContext, Task> pipeline;
+        Func<TContext, CancellationToken, Task> pipeline;
     }
 }

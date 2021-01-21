@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using Transport;
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -28,7 +29,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
 
-            await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
+            await sendBehavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(TimeSpan.MaxValue, fakeDatabus.TTBRUsed);
         }
@@ -50,7 +51,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
 
-            await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
+            await sendBehavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(TimeSpan.FromMinutes(1), fakeDatabus.TTBRUsed);
         }

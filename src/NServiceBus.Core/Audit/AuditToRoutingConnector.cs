@@ -3,6 +3,7 @@ namespace NServiceBus
     using Transport;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Performance.TimeToBeReceived;
     using Pipeline;
@@ -15,7 +16,7 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
+        public override Task Invoke(IAuditContext context, Func<IRoutingContext, CancellationToken, Task> stage, CancellationToken token)
         {
             var message = context.Message;
 
@@ -39,7 +40,7 @@ namespace NServiceBus
 
             dispatchContext.Extensions.Set(dispatchProperties);
 
-            return stage(dispatchContext);
+            return stage(dispatchContext, token);
         }
 
         TimeSpan? timeToBeReceived;

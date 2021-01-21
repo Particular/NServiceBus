@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -240,7 +241,7 @@
 
         class ParentContextToChildContextConnector : StageConnector<IParentContext, IChildContext>
         {
-            public override Task Invoke(IParentContext context, Func<IChildContext, Task> stage)
+            public override Task Invoke(IParentContext context, Func<IChildContext, CancellationToken, Task> stage, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -248,7 +249,7 @@
 
         class Terminator : PipelineTerminator<IChildContext>
         {
-            protected override Task Terminate(IChildContext context)
+            protected override Task Terminate(IChildContext context, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -256,7 +257,7 @@
 
         class ParentContextToChildContextNotInheritedFromParentContextConnector : StageConnector<IParentContext, IChildContextNotInheritedFromParentContext>
         {
-            public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage)
+            public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, CancellationToken, Task> stage, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -264,7 +265,7 @@
 
         class SomeBehaviorOfParentContext : IBehavior<IParentContext, IParentContext>
         {
-            public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
+            public Task Invoke(IParentContext context, Func<IParentContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -272,7 +273,7 @@
 
         class AnotherBehaviorOfParentContext : IBehavior<IParentContext, IParentContext>
         {
-            public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
+            public Task Invoke(IParentContext context, Func<IParentContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -280,7 +281,7 @@
 
         class RootBehavior : IBehavior<IParentContext, IParentContext>
         {
-            public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
+            public Task Invoke(IParentContext context, Func<IParentContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -288,7 +289,7 @@
 
         class ChildBehaviorOfChildContext : IBehavior<IChildContext, IChildContext>
         {
-            public Task Invoke(IChildContext context, Func<IChildContext, Task> next)
+            public Task Invoke(IChildContext context, Func<IChildContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -296,7 +297,7 @@
 
         class ChildBehaviorOfChildContextNotInheritedFromParentContext : IBehavior<IChildContextNotInheritedFromParentContext, IChildContextNotInheritedFromParentContext>
         {
-            public Task Invoke(IChildContextNotInheritedFromParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> next)
+            public Task Invoke(IChildContextNotInheritedFromParentContext context, Func<IChildContextNotInheritedFromParentContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }

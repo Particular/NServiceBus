@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
@@ -12,7 +13,7 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override Task Terminate(IDispatchContext context)
+        protected override Task Terminate(IDispatchContext context, CancellationToken token)
         {
             var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
             var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();

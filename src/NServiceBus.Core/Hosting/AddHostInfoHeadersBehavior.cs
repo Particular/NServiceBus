@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Hosting;
     using Pipeline;
@@ -14,13 +15,13 @@
             this.endpoint = endpoint;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
             context.Headers[Headers.OriginatingEndpoint] = endpoint;
             context.Headers[Headers.OriginatingHostId] = hostInformation.HostId.ToString("N");
 
-            return next(context);
+            return next(context, token);
         }
 
         readonly string endpoint;

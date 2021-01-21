@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
@@ -14,9 +15,9 @@
             this.intentToHandle = intentToHandle;
         }
 
-        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken token)
         {
-            await next(context).ConfigureAwait(false);
+            await next(context, token).ConfigureAwait(false);
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
             if (subscriptionMessageType != null)
             {

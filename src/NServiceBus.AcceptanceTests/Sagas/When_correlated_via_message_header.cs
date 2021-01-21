@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -127,7 +128,7 @@
                     this.scenario = scenario;
                 }
 
-                public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+                public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next, CancellationToken token)
                 {
                     try
                     {

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -16,7 +17,7 @@
             this.unicastPublishRouter = unicastPublishRouter;
         }
 
-        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken token)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
@@ -37,7 +38,7 @@
 
             try
             {
-                await stage(logicalMessageContext).ConfigureAwait(false);
+                await stage(logicalMessageContext, token).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

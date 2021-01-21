@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Pipeline;
@@ -17,7 +18,7 @@
             var options = new SendOptions();
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("PublicAddress", context.Headers[Headers.ReplyToAddress]);
         }
@@ -39,7 +40,7 @@
             var options = new SendOptions();
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
         }
@@ -53,7 +54,7 @@
             options.RouteReplyToAnyInstance();
 
             var context = CreateContext(options);
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
         }
@@ -67,7 +68,7 @@
             options.RouteReplyToThisInstance();
 
             var context = CreateContext(options);
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("MyInstance", context.Headers[Headers.ReplyToAddress]);
         }
@@ -81,7 +82,7 @@
             options.RouteReplyTo("Destination");
 
             var context = CreateContext(options);
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("Destination", context.Headers[Headers.ReplyToAddress]);
         }
@@ -98,7 +99,7 @@
 
             try
             {
-                await behavior.Invoke(context, ctx => Task.CompletedTask);
+                await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
                 Assert.Fail("Expected exception");
             }
             catch (Exception)
@@ -120,7 +121,7 @@
                 options.RouteReplyToAnyInstance();
                 options.RouteReplyToThisInstance();
 
-                await behavior.Invoke(context, ctx => Task.CompletedTask);
+                await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
                 Assert.Fail("Expected exception");
             }
             catch (Exception)

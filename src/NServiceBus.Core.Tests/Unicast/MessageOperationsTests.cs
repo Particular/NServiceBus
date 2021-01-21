@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
@@ -240,7 +241,7 @@
         {
             public TContext ReceivedContext { get; set; }
 
-            public Task Invoke(TContext context)
+            public Task Invoke(TContext context, CancellationToken token)
             {
                 ReceivedContext = context;
                 return Task.CompletedTask;

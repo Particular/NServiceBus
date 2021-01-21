@@ -176,7 +176,7 @@ namespace NServiceBus.Unicast.Tests
                 Services = services
             };
 
-            return runner.Invoke(context, ctx =>
+            return runner.Invoke(context, (_, __) =>
             {
                 if (toThrow != null)
                 {
@@ -184,7 +184,7 @@ namespace NServiceBus.Unicast.Tests
                 }
 
                 return Task.CompletedTask;
-            });
+            }, default);
         }
 
         class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork

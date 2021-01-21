@@ -1,13 +1,14 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
 
     class MulticastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
+        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken token)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
@@ -19,7 +20,7 @@ namespace NServiceBus
                 },
                 context);
 
-            return stage(logicalMessageContext);
+            return stage(logicalMessageContext, token);
         }
     }
 }

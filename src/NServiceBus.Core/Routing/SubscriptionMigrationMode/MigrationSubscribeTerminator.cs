@@ -3,6 +3,7 @@
     using Unicast.Messages;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -26,7 +27,7 @@
             this.subscriberEndpoint = subscriberEndpoint;
         }
 
-        protected override async Task Terminate(ISubscribeContext context)
+        protected override async Task Terminate(ISubscribeContext context, CancellationToken token)
         {
             var eventMetadata = new MessageMetadata[context.EventTypes.Length];
             for (int i = 0; i < context.EventTypes.Length; i++)

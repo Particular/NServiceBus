@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -8,7 +9,7 @@
     /// </summary>
     /// <typeparam name="TFromContext">The context to connect from.</typeparam>
     /// <typeparam name="TForkContext">The context to fork an independent pipeline to.</typeparam>
-    public abstract class ForkConnector<TFromContext, TForkContext> : Behavior<TFromContext>, IForkConnector<TFromContext, TFromContext, TForkContext>
+    public abstract class ForkConnector<TFromContext, TForkContext> : IBehavior<TFromContext, TFromContext>, IForkConnector<TFromContext, TFromContext, TForkContext>
         where TFromContext : IBehaviorContext
         where TForkContext : IBehaviorContext
     {
@@ -18,15 +19,16 @@
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TFromContext,TFromContext}" /> in the chain to execute.</param>
         /// <param name="fork">The next <see cref="IBehavior{TForkContext,TForkContext}" /> in the chain to fork and execute.</param>
-        public abstract Task Invoke(TFromContext context, Func<Task> next, Func<TForkContext, Task> fork);
+        /// <param name="token">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public abstract Task Invoke(TFromContext context, Func<TFromContext, CancellationToken, Task> next, Func<TForkContext, CancellationToken, Task> fork, CancellationToken token);
 
         /// <inheritdoc />
-        public sealed override Task Invoke(TFromContext context, Func<Task> next)
+        public Task Invoke(TFromContext context, Func<TFromContext, CancellationToken, Task> next, CancellationToken token)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
 
-            return Invoke(context, next, ctx => ctx.InvokePipeline());
+            return Invoke(context, next, (ctx, token2) => ctx.InvokePipeline(token2), token);
         }
     }
 }

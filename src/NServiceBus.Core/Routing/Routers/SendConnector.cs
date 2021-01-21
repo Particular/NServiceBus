@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Unicast.Queuing;
@@ -12,7 +13,7 @@ namespace NServiceBus
             this.unicastSendRouter = unicastSendRouter;
         }
 
-        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken token)
         {
             var routingStrategy = unicastSendRouter.Route(context);
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
@@ -20,7 +21,7 @@ namespace NServiceBus
 
             try
             {
-                await stage(logicalMessageContext).ConfigureAwait(false);
+                await stage(logicalMessageContext, token).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

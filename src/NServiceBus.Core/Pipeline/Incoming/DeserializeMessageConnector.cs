@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using MessageInterfaces;
@@ -21,7 +22,7 @@
             this.mapper = mapper;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> stage, CancellationToken token)
         {
             var incomingMessage = context.Message;
 
@@ -29,7 +30,7 @@
 
             foreach (var message in messages)
             {
-                await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
+                await stage(this.CreateIncomingLogicalMessageContext(message, context), token).ConfigureAwait(false);
             }
         }
 

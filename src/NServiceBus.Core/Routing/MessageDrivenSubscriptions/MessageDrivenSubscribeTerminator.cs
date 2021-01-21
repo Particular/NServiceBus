@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -21,7 +22,7 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override async Task Terminate(ISubscribeContext context)
+        protected override async Task Terminate(ISubscribeContext context, CancellationToken token)
         {
             var subscribeTasks = new List<Task>();
 

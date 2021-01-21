@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -10,17 +11,17 @@
 
     class UnitOfWorkBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             if (hasUnitsOfWork)
             {
-                return InvokeUnitsOfWork(context, next);
+                return InvokeUnitsOfWork(context, next, token);
             }
 
-            return next(context);
+            return next(context, token);
         }
 
-        async Task InvokeUnitsOfWork(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        async Task InvokeUnitsOfWork(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             var unitsOfWork = new Stack<IManageUnitsOfWork>();
 
@@ -38,7 +39,7 @@
 
                 hasUnitsOfWork = hasUow;
 
-                await next(context).ConfigureAwait(false);
+                await next(context, token).ConfigureAwait(false);
 
                 while (unitsOfWork.Count > 0)
                 {

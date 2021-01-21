@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -222,7 +223,7 @@
 
         class FakeBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -231,7 +232,7 @@
 
         class ReplacedBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, CancellationToken, Task> next, CancellationToken token)
             {
                 throw new NotImplementedException();
             }
@@ -239,7 +240,7 @@
 
         class FakeStageConnector : StageConnector<IRootContext, IChildContext>
         {
-            public override Task Invoke(IRootContext context, Func<IChildContext, Task> stage)
+            public override Task Invoke(IRootContext context, Func<IChildContext, CancellationToken, Task> stage, CancellationToken token)
             {
                 throw new NotImplementedException();
             }

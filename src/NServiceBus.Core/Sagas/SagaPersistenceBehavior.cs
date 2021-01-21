@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
+        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, CancellationToken, Task> next, CancellationToken token)
         {
             var isTimeoutMessage = IsTimeoutMessage(context.Headers);
             var isTimeoutHandler = context.MessageHandler.IsTimeoutHandler;
@@ -38,7 +39,7 @@
 
             if (!(context.MessageHandler.Instance is Saga saga))
             {
-                await next(context).ConfigureAwait(false);
+                await next(context, token).ConfigureAwait(false);
                 return;
             }
 
@@ -114,7 +115,7 @@
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            await next(context).ConfigureAwait(false);
+            await next(context, token).ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {

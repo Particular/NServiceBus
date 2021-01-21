@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -23,9 +24,9 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class Behavior1 : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
         {
-            public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+            public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
             {
-                return next(context);
+                return next(context, token);
             }
         }
     }

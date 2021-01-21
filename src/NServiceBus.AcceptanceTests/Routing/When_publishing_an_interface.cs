@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -63,10 +64,10 @@
                     this.testContext = testContext;
                 }
 
-                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken token)
                 {
                     testContext.EventTypePassedToRouting = context.Message.MessageType;
-                    return next(context);
+                    return next(context, token);
                 }
 
                 Context testContext;

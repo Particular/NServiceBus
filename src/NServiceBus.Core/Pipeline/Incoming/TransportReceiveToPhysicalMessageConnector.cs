@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Outbox;
     using Pipeline;
@@ -16,7 +17,7 @@ namespace NServiceBus
             this.outboxStorage = outboxStorage;
         }
 
-        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
@@ -31,7 +32,7 @@ namespace NServiceBus
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
-                    await next(physicalMessageContext).ConfigureAwait(false);
+                    await next(physicalMessageContext, token).ConfigureAwait(false);
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
@@ -51,7 +52,7 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
+                await this.Fork(batchDispatchContext, token).ConfigureAwait(false);
             }
 
             await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);

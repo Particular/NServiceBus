@@ -2,12 +2,13 @@
 {
     using Transport;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     class ThrowIfCannotDeferMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, CancellationToken, Task> next, CancellationToken token)
         {
             if (context.Extensions.TryGet<DispatchProperties>(out var properties))
             {
@@ -19,7 +20,7 @@
                 }
             }
 
-            return next(context);
+            return next(context, token);
         }
     }
 }

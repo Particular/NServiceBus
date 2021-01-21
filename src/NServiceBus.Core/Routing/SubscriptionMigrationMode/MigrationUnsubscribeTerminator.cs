@@ -3,6 +3,7 @@
     using Unicast.Messages;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -24,7 +25,7 @@
             this.endpoint = endpoint;
         }
 
-        protected override async Task Terminate(IUnsubscribeContext context)
+        protected override async Task Terminate(IUnsubscribeContext context, CancellationToken token)
         {
             var eventType = context.EventType;
             var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -30,7 +31,7 @@
 
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
 
-            await behavior.Invoke(context, c => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
         }

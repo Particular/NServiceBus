@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -11,14 +12,14 @@
             this.validations = validations;
         }
 
-        public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next)
+        public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, CancellationToken, Task> next, CancellationToken token)
         {
             if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.Message.MessageType);
             }
 
-            return next(context);
+            return next(context, token);
         }
 
         readonly Validations validations;

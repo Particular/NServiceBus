@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing.Routers
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Testing;
@@ -13,7 +14,7 @@
             var router = new MulticastPublishConnector();
             var context = new TestableOutgoingPublishContext();
 
-            await router.Invoke(context, ctx => Task.CompletedTask);
+            await router.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(1, context.Headers.Count);
             Assert.AreEqual(MessageIntentEnum.Publish.ToString(), context.Headers[Headers.MessageIntent]);

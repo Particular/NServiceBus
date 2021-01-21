@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Routing
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -69,7 +70,7 @@
                     this.testContext = testContext;
                 }
 
-                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next, CancellationToken token)
                 {
                     testContext.WasAbleToInterceptBeforeCoreThrows = true;
                     return next();

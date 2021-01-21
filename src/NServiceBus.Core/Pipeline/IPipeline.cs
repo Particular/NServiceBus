@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -10,6 +11,6 @@
     interface IPipeline<in TContext> : IPipeline
         where TContext : IBehaviorContext
     {
-        Task Invoke(TContext context);
+        Task Invoke(TContext context, CancellationToken token);
     }
 }

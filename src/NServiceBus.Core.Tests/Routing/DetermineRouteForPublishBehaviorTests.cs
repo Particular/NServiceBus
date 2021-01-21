@@ -21,11 +21,11 @@
             };
 
             MulticastAddressTag addressTag = null;
-            await behavior.Invoke(context, _ =>
+            await behavior.Invoke(context, (c, _) =>
             {
-                addressTag = (MulticastAddressTag)_.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (MulticastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.CompletedTask;
-            });
+            }, default);
 
             Assert.AreEqual(typeof(MyEvent), addressTag.MessageType);
         }

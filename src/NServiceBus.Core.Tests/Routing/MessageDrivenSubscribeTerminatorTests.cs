@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
     using Unicast.Queuing;
 
     [TestFixture]
@@ -27,7 +27,7 @@
         [Test]
         public async Task Should_include_TimeSent_and_Version_headers()
         {
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), (_, __) => Task.CompletedTask, default);
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {
@@ -47,7 +47,7 @@
                 new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher2"))
             });
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(2, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -61,7 +61,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -78,7 +78,7 @@
 
             Assert.That(async () =>
             {
-                await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
+                await subscribeTerminator.Invoke(context, (_, __) => Task.CompletedTask, default);
             }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
@@ -92,7 +92,7 @@
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry>());
 
             var exception = Assert.ThrowsAsync<Exception>(() =>
-                subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask));
+                subscribeTerminator.Invoke(new TestableSubscribeContext(), (_, __) => Task.CompletedTask, default));
 
             StringAssert.Contains($"No publisher address could be found for message type '{typeof(object)}'.", exception.Message);
         }
@@ -113,7 +113,7 @@
                 new PublisherTableEntry(typeof(EventB), PublisherAddress.CreateFromPhysicalAddresses("publisher2"))
             });
 
-            await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
+            await subscribeTerminator.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(4, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -138,7 +138,7 @@
                 new PublisherTableEntry(typeof(EventA), PublisherAddress.CreateFromPhysicalAddresses("publisher1")),
             });
 
-            var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
+            var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, (_, __) => Task.CompletedTask, default));
 
             Assert.AreEqual(2, exception.InnerExceptions.Count);
             Assert.IsTrue(exception.InnerExceptions.Any(e => e is QueueNotFoundException)); // exception from dispatcher

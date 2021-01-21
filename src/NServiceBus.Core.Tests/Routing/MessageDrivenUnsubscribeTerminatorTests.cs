@@ -10,6 +10,7 @@
     using Unicast.Queuing;
     using NUnit.Framework;
     using Testing;
+    using System.Threading;
 
     [TestFixture]
     public class MessageDrivenUnsubscribeTerminatorTests
@@ -31,7 +32,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await terminator.Invoke(new TestableUnsubscribeContext(), c => Task.CompletedTask);
+            await terminator.Invoke(new TestableUnsubscribeContext(), (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -50,7 +51,7 @@
                 Extensions = options.Context
             };
 
-            await terminator.Invoke(context, c => Task.CompletedTask);
+            await terminator.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -70,7 +71,7 @@
                 Extensions = options.Context
             };
 
-            Assert.That(async () => await terminator.Invoke(context, c => Task.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            Assert.That(async () => await terminator.Invoke(context, (_, __) => Task.CompletedTask, default), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);

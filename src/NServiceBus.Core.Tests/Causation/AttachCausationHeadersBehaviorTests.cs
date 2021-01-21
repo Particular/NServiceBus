@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -18,7 +19,7 @@
             var behavior = new AttachCausationHeadersBehavior(_ => generatedId);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(generatedId, context.Headers[Headers.ConversationId]);
         }
@@ -37,7 +38,7 @@
             }, new byte[0]);
             context.Extensions.Set(transportMessage);
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
         }
@@ -56,7 +57,7 @@
                 }
             };
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual(userConversationId, context.Headers[Headers.ConversationId]);
         }
@@ -81,7 +82,7 @@
             }, new byte[0]);
             context.Extensions.Set(transportMessage);
 
-            var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => Task.CompletedTask));
+            var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, (_, __) => Task.CompletedTask, default));
 
             Assert.AreEqual($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}'). To start a new conversation use sendOptions.StartNewConversation().", exception.Message);
         }
@@ -94,7 +95,7 @@
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
+            await behavior.Invoke(context, (_, __) => Task.CompletedTask, default);
 
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         }

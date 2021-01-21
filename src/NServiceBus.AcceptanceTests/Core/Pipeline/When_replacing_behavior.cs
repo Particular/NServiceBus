@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -37,10 +38,10 @@
                 this.testContext = testContext;
             }
 
-            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken token)
             {
                 testContext.OriginalBehaviorInvoked = true;
-                return next(context);
+                return next(context, token);
             }
 
             Context testContext;
@@ -53,10 +54,10 @@
                 this.testContext = testContext;
             }
 
-            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, CancellationToken, Task> next, CancellationToken token)
             {
                 testContext.ReplacementBehaviorInvoked = true;
-                return next(context);
+                return next(context, token);
             }
 
             Context testContext;

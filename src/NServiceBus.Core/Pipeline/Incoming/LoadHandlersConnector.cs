@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -22,7 +23,7 @@
             this.adapter = adapter;
         }
 
-        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
+        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, CancellationToken, Task> stage, CancellationToken token)
         {
             var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
@@ -46,7 +47,7 @@
                     messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
 
                     var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-                    await stage(handlingContext).ConfigureAwait(false);
+                    await stage(handlingContext, token).ConfigureAwait(false);
 
                     if (handlingContext.HandlerInvocationAborted)
                     {

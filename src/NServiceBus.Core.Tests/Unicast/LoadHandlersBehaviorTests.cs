@@ -6,6 +6,7 @@
     using NUnit.Framework;
     using Testing;
     using Core.Tests.Fakes;
+    using System.Threading;
 
     [TestFixture]
     public class LoadHandlersBehaviorTests
@@ -20,7 +21,7 @@
             context.Extensions.Set<OutboxTransaction>(new FakeOutboxTransaction());
             context.Extensions.Set(new TransportTransaction());
 
-            Assert.That(async () => await behavior.Invoke(context, c => Task.CompletedTask), Throws.InvalidOperationException);
+            Assert.That(async () => await behavior.Invoke(context, (_, __) => Task.CompletedTask, default), Throws.InvalidOperationException);
         }
     }
 }

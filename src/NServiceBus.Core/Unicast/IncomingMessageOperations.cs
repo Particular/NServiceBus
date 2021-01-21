@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -17,7 +18,8 @@ namespace NServiceBus
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            return routingContext.InvokePipeline<IRoutingContext>();
+            // TODO: Temporary use of CancellationToken.None
+            return routingContext.InvokePipeline<IRoutingContext>(CancellationToken.None);
         }
     }
 }

@@ -77,13 +77,13 @@
                     this.testContext = testContext;
                 }
 
-                public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+                public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, CancellationToken, Task> next, CancellationToken token)
                 {
                     var uowScopeComponent = context.Builder.GetService<UnitOfWorkComponent>();
                     testContext.ValueAlreadyInitialized |= uowScopeComponent.ValueFromHeader != null;
                     uowScopeComponent.ValueFromHeader = context.MessageHeaders["Value"];
 
-                    return next(context);
+                    return next(context, token);
                 }
             }
 

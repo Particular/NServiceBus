@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -63,7 +64,7 @@
 
             public class PublishExtensionBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
             {
-                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken token)
                 {
                     if (context.Extensions.TryGet(out Context data))
                     {
@@ -74,7 +75,7 @@
                         Assert.Fail("Expected to find the data");
                     }
 
-                    return next(context);
+                    return next(context, token);
                 }
 
                 public class Context

@@ -3,6 +3,7 @@ namespace NServiceBus
     using Transport;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces;
@@ -62,7 +63,8 @@ namespace NServiceBus
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            return publishPipeline.Invoke(publishContext);
+            // TODO: Temporary use of CancellationToken.None
+            return publishPipeline.Invoke(publishContext, CancellationToken.None);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -79,7 +81,8 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            return subscribePipeline.Invoke(subscribeContext);
+            // TODO: Temporary use of CancellationToken.None
+            return subscribePipeline.Invoke(subscribeContext, CancellationToken.None);
         }
 
         public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -91,7 +94,8 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            return unsubscribePipeline.Invoke(unsubscribeContext);
+            // TODO: Temporary use of CancellationToken.None
+            return unsubscribePipeline.Invoke(unsubscribeContext, CancellationToken.None);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -123,7 +127,8 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return sendPipeline.Invoke(outgoingContext);
+            // TODO: Temporary use of CancellationToken.None
+            return sendPipeline.Invoke(outgoingContext, CancellationToken.None);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -155,7 +160,8 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return replyPipeline.Invoke(outgoingContext);
+            // TODO: Temporary use of CancellationToken.None
+            return replyPipeline.Invoke(outgoingContext, CancellationToken.None);
         }
 
         static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)

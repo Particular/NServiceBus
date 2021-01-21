@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Performance.TimeToBeReceived;
     using Pipeline;
@@ -13,7 +14,7 @@
             this.timeToBeReceivedMappings = timeToBeReceivedMappings;
         }
 
-        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, CancellationToken, Task> next, CancellationToken token)
         {
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
             {
@@ -21,7 +22,7 @@
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 
-            return next(context);
+            return next(context, token);
         }
 
         readonly TimeToBeReceivedMappings timeToBeReceivedMappings;

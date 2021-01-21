@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Unicast.Messages;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
@@ -14,7 +15,7 @@ namespace NServiceBus
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        protected override async Task Terminate(ISubscribeContext context)
+        protected override async Task Terminate(ISubscribeContext context, CancellationToken token)
         {
             var eventMetadata = new MessageMetadata[context.EventTypes.Length];
             for (int i = 0; i < context.EventTypes.Length; i++)

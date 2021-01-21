@@ -1796,16 +1796,16 @@ namespace NServiceBus.Pipeline
         where TContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected Behavior() { }
-        public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
-        public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
+        public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next, System.Threading.CancellationToken token);
+        public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> next, System.Threading.CancellationToken token) { }
     }
-    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TFromContext>
+    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TFromContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected ForkConnector() { }
-        public override sealed System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next) { }
-        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
+        public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TFromContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> next, System.Threading.CancellationToken token) { }
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TFromContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> next, System.Func<TForkContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> fork, System.Threading.CancellationToken token);
     }
     public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -1826,7 +1826,7 @@ namespace NServiceBus.Pipeline
         where in TInContext : NServiceBus.Pipeline.IBehaviorContext
         where out TOutContext : NServiceBus.Pipeline.IBehaviorContext
     {
-        System.Threading.Tasks.Task Invoke(TInContext context, System.Func<TOutContext, System.Threading.Tasks.Task> next);
+        System.Threading.Tasks.Task Invoke(TInContext context, System.Func<TOutContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> next, System.Threading.CancellationToken token);
     }
     public interface IDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -1963,8 +1963,8 @@ namespace NServiceBus.Pipeline
         where T : NServiceBus.Pipeline.IBehaviorContext
     {
         protected PipelineTerminator() { }
-        public override sealed System.Threading.Tasks.Task Invoke(T context, System.Func<NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext, System.Threading.Tasks.Task> next) { }
-        protected abstract System.Threading.Tasks.Task Terminate(T context);
+        public override sealed System.Threading.Tasks.Task Invoke(T context, System.Func<NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> next, System.Threading.CancellationToken token) { }
+        protected abstract System.Threading.Tasks.Task Terminate(T context, System.Threading.CancellationToken token);
         public interface ITerminatingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext { }
     }
     [System.Diagnostics.DebuggerDisplay("{StepId}({BehaviorType.FullName}) - {Description}")]
@@ -1984,7 +1984,7 @@ namespace NServiceBus.Pipeline
         where TToContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageConnector() { }
-        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage);
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> stage, System.Threading.CancellationToken token);
     }
     public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
@@ -1992,8 +1992,8 @@ namespace NServiceBus.Pipeline
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageForkConnector() { }
-        public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> next) { }
-        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
+        public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> next, System.Threading.CancellationToken token) { }
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork, System.Threading.CancellationToken token);
     }
     public static class TransportMessageContextExtensions
     {
