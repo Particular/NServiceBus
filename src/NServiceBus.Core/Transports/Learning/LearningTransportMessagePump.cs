@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Collections.Generic;
-    using Unicast.Messages;
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
@@ -51,7 +49,7 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             this.onMessage = onMessage;
             this.onError = onError;

@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using System.Collections.Generic;
     using Extensibility;
     using Unicast.Messages;
     using System;
@@ -23,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+            Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
             return Task.CompletedTask;

@@ -5,7 +5,6 @@
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
     using EndpointTemplates;
-    using Features;
 
     class AcceptanceTestingTransportServer : IEndpointSetupTemplate
     {

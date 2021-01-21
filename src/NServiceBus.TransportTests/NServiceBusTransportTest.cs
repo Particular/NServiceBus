@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using Transport;
-    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -113,7 +112,7 @@
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }, new MessageMetadata[0]);
+                });
 
             await transportInfrastructure.Receivers[0].StartReceive();
 
