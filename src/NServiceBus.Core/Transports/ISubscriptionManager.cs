@@ -15,6 +15,11 @@
         Task Subscribe(MessageMetadata eventType, ContextBag context);
 
         /// <summary>
+        /// Subscribes to all provided events.
+        /// </summary>
+        Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context);
+
+        /// <summary>
         /// Unsubscribes from the given event.
         /// </summary>
         Task Unsubscribe(MessageMetadata eventType, ContextBag context);
