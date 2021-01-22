@@ -11,6 +11,7 @@
     using Logging;
     using NUnit.Framework;
     using Routing;
+    using Settings;
 
     public abstract class NServiceBusTransportTest
     {
@@ -84,7 +85,8 @@
                 string.Empty,
                 new StartupDiagnosticEntries(),
                 onCriticalError,
-                true);
+                true,
+                new SettingsHolder());
 
             var transport = configurer.CreateTransportDefinition();
 
