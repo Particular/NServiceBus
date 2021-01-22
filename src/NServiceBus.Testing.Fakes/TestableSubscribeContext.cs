@@ -9,8 +9,8 @@
     public partial class TestableSubscribeContext : TestableBehaviorContext, ISubscribeContext
     {
         /// <summary>
-        /// The type of the event.
+        /// The types of the events.
         /// </summary>
-        public Type EventType { get; set; } = typeof(object);
+        public Type[] EventTypes { get; set; } = new Type[0];
     }
 }

@@ -67,9 +67,14 @@ namespace NServiceBus
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
         {
+            return Subscribe(context, new Type[] { eventType }, options);
+        }
+
+        public Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
+        {
             var subscribeContext = new SubscribeContext(
                 context,
-                eventType,
+                eventTypes,
                 options.Context);
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);

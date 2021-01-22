@@ -46,6 +46,13 @@ namespace NServiceBus
             return messageOperations.Subscribe(context, eventType, subscribeOptions);
         }
 
+        public Task SubscribeAll(Type[] eventTypes, SubscribeOptions subscribeOptions)
+        {
+            // set a flag on the context so that subscribe implementations know which send API was used.
+            subscribeOptions.Context.Set(SubscribeAllFlagKey, true);
+            return messageOperations.Subscribe(context, eventTypes, subscribeOptions);
+        }
+
         public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions)
         {
             Guard.AgainstNull(nameof(eventType), eventType);
@@ -55,5 +62,7 @@ namespace NServiceBus
 
         RootContext context;
         MessageOperations messageOperations;
+
+        internal const string SubscribeAllFlagKey = "NServiceBus.SubscribeAllFlag";
     }
 }

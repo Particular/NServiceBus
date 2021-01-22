@@ -1892,7 +1892,7 @@ namespace NServiceBus.Pipeline
     }
     public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
-        System.Type EventType { get; }
+        System.Type[] EventTypes { get; }
     }
     public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2448,6 +2448,7 @@ namespace NServiceBus.Transport
     public interface ISubscriptionManager
     {
         System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
     }
     public class IncomingMessage

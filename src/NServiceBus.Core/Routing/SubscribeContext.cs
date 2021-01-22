@@ -6,18 +6,18 @@
 
     class SubscribeContext : BehaviorContext, ISubscribeContext
     {
-        public SubscribeContext(IBehaviorContext parentContext, Type eventType, ContextBag extensions)
+        public SubscribeContext(IBehaviorContext parentContext, Type[] eventTypes, ContextBag extensions)
             : base(parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);
-            Guard.AgainstNull(nameof(eventType), eventType);
+            Guard.AgainstNull(nameof(eventTypes), eventTypes);
             Guard.AgainstNull(nameof(extensions), extensions);
 
             Merge(extensions);
 
-            EventType = eventType;
+            EventTypes = eventTypes;
         }
 
-        public Type EventType { get; }
+        public Type[] EventTypes { get; }
     }
 }

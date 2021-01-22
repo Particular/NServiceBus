@@ -60,39 +60,53 @@
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
             }
 
-            protected override Task OnStart(IMessageSession session)
+            protected override async Task OnStart(IMessageSession session)
             {
-                var tasks = new Task[messagesHandledByThisEndpoint.Length];
-                for (var i = 0; i < messagesHandledByThisEndpoint.Length; i++)
+                try
                 {
-                    var eventType = messagesHandledByThisEndpoint[i];
-
-                    tasks[i] = SubscribeToEvent(session, eventType);
+                    var messageSession = session as MessageSession;
+                    await messageSession.SubscribeAll(messagesHandledByThisEndpoint, new SubscribeOptions())
+                        .ConfigureAwait(false);
+                    if (Logger.IsDebugEnabled)
+                    {
+                        Logger.DebugFormat("Auto subscribed to events {0}",
+                            string.Join<Type>(",", messagesHandledByThisEndpoint));
+                    }
                 }
-                return Task.WhenAll(tasks);
+                catch (AggregateException e)
+                {
+                    foreach (var innerException in e.InnerExceptions)
+                    {
+                        if (innerException is QueueNotFoundException)
+                        {
+                            throw innerException;
+                        }
+
+                        LogFailedSubscription(innerException);
+                    }
+                    //swallow
+                }
+                // also catch regular exceptions in case a transport does not throw an AggregateException
+                catch (Exception e) when (!(e is QueueNotFoundException))
+                {
+                    LogFailedSubscription(e);
+                    // swallow exception
+                }
+
+                void LogFailedSubscription(Exception exception)
+                {
+                    Logger.Error("AutoSubscribe was unable to subscribe to an event:", exception);
+                }
             }
+
 
             protected override Task OnStop(IMessageSession session)
             {
                 return Task.CompletedTask;
             }
 
-            static async Task SubscribeToEvent(IMessageSession session, Type eventType)
-            {
-                try
-                {
-                    await session.Subscribe(eventType).ConfigureAwait(false);
-                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
-                }
-                catch (Exception e) when (!(e is QueueNotFoundException))
-                {
-                    Logger.Error($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}': {e.Message}");
-                    // swallow exception
-                }
-            }
-
-            Type[] messagesHandledByThisEndpoint;
-            static ILog Logger = LogManager.GetLogger<AutoSubscribe>();
+            readonly Type[] messagesHandledByThisEndpoint;
+            static readonly ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
         internal class SubscribeSettings
