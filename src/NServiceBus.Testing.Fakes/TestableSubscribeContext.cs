@@ -11,6 +11,6 @@
         /// <summary>
         /// The types of the events.
         /// </summary>
-        public Type[] EventTypes { get; set; } = new Type[0];
+        public Type[] EventTypes { get; set; } = { typeof(object) };
     }
 }
