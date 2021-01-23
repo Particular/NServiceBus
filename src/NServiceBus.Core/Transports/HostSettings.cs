@@ -11,7 +11,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new instance of <see cref="HostSettings"/>.
         /// </summary>
-        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, SettingsHolder coreSettings)
+        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, SettingsHolder coreSettings = null)
         {
             Name = name;
             HostDisplayName = hostDisplayName;
