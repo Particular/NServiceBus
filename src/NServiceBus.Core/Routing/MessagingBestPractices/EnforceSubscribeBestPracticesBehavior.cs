@@ -15,7 +15,10 @@ namespace NServiceBus
         {
             if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
-                validations.AssertIsValidForPubSub(context.EventType);
+                foreach (var eventType in context.EventTypes)
+                {
+                    validations.AssertIsValidForPubSub(eventType);
+                }
             }
 
             return next(context);

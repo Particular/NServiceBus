@@ -22,9 +22,10 @@
 
             Assert.True(context.EndpointsStarted, "because it should not prevent endpoint startup");
 
-            var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to event '{typeof(MyEvent).FullName}': No publisher address could be found for message type '{typeof(MyEvent).FullName}'."));
+            var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to an event:"));
             Assert.AreEqual(LogLevel.Error, log.Level);
             Assert.AreEqual(typeof(AutoSubscribe).FullName, log.LoggerName);
+            StringAssert.Contains($"No publisher address could be found for message type '{typeof(MyEvent).FullName}'.", log.Message);
         }
 
         public class Subscriber : EndpointConfigurationBuilder

@@ -60,7 +60,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
                 {
                     await next(context).ConfigureAwait(false);
 
-                    testContext.EventsSubscribedTo.Add(context.EventType);
+                    testContext.EventsSubscribedTo.AddRange(context.EventTypes);
                 }
 
                 Context testContext;

@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using System.Collections.Generic;
     using Extensibility;
     using Unicast.Messages;
     using System;
@@ -23,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+            Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
             return Task.CompletedTask;
@@ -59,15 +58,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         class FakeSubscriptionManager : ISubscriptionManager
         {
-            public Task Subscribe(MessageMetadata eventType, ContextBag context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Subscribe(MessageMetadata eventType, ContextBag context) => Task.CompletedTask;
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context) => Task.CompletedTask;
+
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context) => Task.CompletedTask;
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Transports
 {
-    using System.Collections.Generic;
-    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -21,7 +19,7 @@
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.IsTrue(pump.Started);
         }
@@ -32,14 +30,14 @@
             pump.ThrowOnStart = true;
 
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>())
+                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled))
                 );
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -51,7 +49,7 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
@@ -68,7 +66,7 @@
             public bool Stopped { get; private set; }
 
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 return Task.CompletedTask;
             }

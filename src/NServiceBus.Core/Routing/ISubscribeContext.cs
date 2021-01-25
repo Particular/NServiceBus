@@ -5,11 +5,11 @@
     /// <summary>
     /// Provides context for subscription requests.
     /// </summary>
-    public interface ISubscribeContext : IBehaviorContext
+    public partial interface ISubscribeContext : IBehaviorContext
     {
         /// <summary>
-        /// The type of the event.
+        /// The type of the events.
         /// </summary>
-        Type EventType { get; }
+        Type[] EventTypes { get; }
     }
 }

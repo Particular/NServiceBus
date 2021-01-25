@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -149,12 +148,8 @@ namespace NServiceBus
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
 
-            var messageMetadataRegistry = builder.GetRequiredService<MessageMetadataRegistry>();
-            var messageTypesHandled = GetEventTypesHandledByThisEndpoint(builder.GetRequiredService<MessageHandlerRegistry>(), configuration.Conventions);
-            var mainReceiverEvents = messageTypesHandled.Select(t => messageMetadataRegistry.GetMessageMetadata(t)).ToList().AsReadOnly();
-
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke, mainReceiverEvents).ConfigureAwait(false);
+                recoverability.Invoke).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
@@ -163,7 +158,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke, mainReceiverEvents).ConfigureAwait(false);
+                    instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
 
                 receivers.Add(instanceSpecificPump);
             }
@@ -178,7 +173,7 @@ namespace NServiceBus
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
-                        satelliteRecoverabilityExecutor.Invoke, new MessageMetadata[0]).ConfigureAwait(false);
+                        satelliteRecoverabilityExecutor.Invoke).ConfigureAwait(false);
                     receivers.Add(satellitePump);
                 }
                 catch (Exception ex)
@@ -195,20 +190,6 @@ namespace NServiceBus
                 await messageReceiver.StartReceive().ConfigureAwait(false);
                 //TODO: If we fails starting N-th receiver then we need to stop and dispose N-1 receivers
             }
-        }
-
-        static List<Type> GetEventTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions)
-        {
-            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
-                .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
-                .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
-                .Where(t => conventions.IsEventType(t)) //only events unless the user asked for all messages
-                                                        //TODO: respect SubscribeSettings.AutoSubscribeSagas setting
-                                                        //.Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
-                .ToList();
-
-            //TODO respect SubscribeSettings.ExcludedTypes
-            return messageTypesHandled;
         }
 
         public async Task Stop()

@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
     using Transport;
-    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using Logging;
@@ -17,7 +15,7 @@ namespace NServiceBus
             this.receiver = receiver;
         }
 
-        public async Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+        public async Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             if (isStarted)
             {
@@ -27,7 +25,7 @@ namespace NServiceBus
             Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
 
-            await receiver.Initialize(pushRuntimeSettings, onMessage, onError, events).ConfigureAwait(false);
+            await receiver.Initialize(pushRuntimeSettings, onMessage, onError).ConfigureAwait(false);
             await receiver.StartReceive().ConfigureAwait(false);
 
             isStarted = true;
