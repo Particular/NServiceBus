@@ -42,7 +42,8 @@
 
             var settings = new HostSettings(hostingConfiguration.EndpointName,
                 hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers);
+                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers,
+                transportSeamSettings.settings);
 
             var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 

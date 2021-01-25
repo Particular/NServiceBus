@@ -2380,7 +2380,8 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure) { }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.SettingsHolder coreSettings = null) { }
+        public NServiceBus.Settings.ReadOnlySettings CoreSettings { get; }
         public System.Action<string, System.Exception> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
         public string Name { get; }
@@ -2591,7 +2592,6 @@ namespace NServiceBus.Transport
         public virtual System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task DisposeAsync();
         public NServiceBus.Transport.IMessageReceiver GetReceiver(string receiverId) { }
-        public virtual System.Threading.Tasks.Task ValidateNServiceBusSettings(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class TransportOperation
     {

@@ -2,7 +2,6 @@ namespace NServiceBus.Transport
 {
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Settings;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -19,16 +18,6 @@ namespace NServiceBus.Transport
         /// A list of all receivers.
         /// </summary>
         public virtual ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
-
-        /// <summary>
-        /// This method is used when the transport is hosted as part of an NServiceBus endpoint to allow the transport verification of endpoint settings.
-        /// </summary>
-        public virtual Task ValidateNServiceBusSettings(ReadOnlySettings settings)
-        {
-            // this is only called when the transport is hosted as part of NServiceBus. No need to call this as "raw users".
-            // pass a settings type that only allows "tryGet".
-            return Task.CompletedTask;
-        }
 
         /// <summary>
         /// A helper method to find a receiver inside the <see cref="Receivers"/> collection with a specific id.
