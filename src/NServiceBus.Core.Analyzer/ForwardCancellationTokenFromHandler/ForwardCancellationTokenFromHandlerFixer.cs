@@ -10,7 +10,6 @@
     using Microsoft.CodeAnalysis.CodeFixes;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
-    using Microsoft.CodeAnalysis.Diagnostics;
 
     [Shared]
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ForwardCancellationTokenFromHandlerFixer))]
@@ -43,7 +42,7 @@
 
         }
 
-        private async Task<Document> AddCancellationToken(Document document, InvocationExpressionSyntax invocationSyntax, string contextVarName, CancellationToken cancellationToken)
+        static async Task<Document> AddCancellationToken(Document document, InvocationExpressionSyntax invocationSyntax, string contextVarName, CancellationToken cancellationToken)
         {
             var newArg = SyntaxFactory.Argument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(contextVarName), SyntaxFactory.IdentifierName("CancellationToken")));
             var newArgList = invocationSyntax.ArgumentList.AddArguments(newArg);

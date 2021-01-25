@@ -1,15 +1,15 @@
 ﻿namespace NServiceBus.Core.Analyzer.Tests.Helpers
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeActions;
     using Microsoft.CodeAnalysis.CodeFixes;
     using Microsoft.CodeAnalysis.Formatting;
     using Microsoft.CodeAnalysis.Simplification;
     using NUnit.Framework;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     public abstract class CodeFixVerifier : DiagnosticVerifier
     {
@@ -78,7 +78,7 @@
             Assert.AreEqual(newSource, actual);
         }
 
-        private static IEnumerable<Diagnostic> GetNewDiagnostics(IEnumerable<Diagnostic> diagnostics, IEnumerable<Diagnostic> newDiagnostics)
+        static IEnumerable<Diagnostic> GetNewDiagnostics(IEnumerable<Diagnostic> diagnostics, IEnumerable<Diagnostic> newDiagnostics)
         {
             var oldArray = diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
             var newArray = newDiagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
@@ -100,13 +100,13 @@
             }
         }
 
-        private static async Task<IEnumerable<Diagnostic>> GetCompilerDiagnostics(Document document)
+        static async Task<IEnumerable<Diagnostic>> GetCompilerDiagnostics(Document document)
         {
             var model = await document.GetSemanticModelAsync();
             return model.GetDiagnostics();
         }
 
-        private static async Task<string> GetStringFromDocument(Document document)
+        static async Task<string> GetStringFromDocument(Document document)
         {
             var simplifiedDoc = await Simplifier.ReduceAsync(document, Simplifier.Annotation);
             var root = await simplifiedDoc.GetSyntaxRootAsync();
@@ -114,7 +114,7 @@
             return root.GetText().ToString();
         }
 
-        private static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
+        static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
         {
             var operations = await codeAction.GetOperationsAsync(CancellationToken.None);
             var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
