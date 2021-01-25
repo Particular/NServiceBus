@@ -1892,6 +1892,8 @@ namespace NServiceBus.Pipeline
     }
     public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
+        [System.Obsolete("Use `EventTypes` instead. Will be removed in version 9.0.0.", true)]
+        System.Type EventType { get; }
         System.Type[] EventTypes { get; }
     }
     public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext

@@ -1334,4 +1334,26 @@ namespace NServiceBus.Transport
         public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress) => throw new NotImplementedException();
     }
 }
+
+namespace NServiceBus.Pipeline
+{
+    using System;
+    using System.ComponentModel;
+
+    /// <summary>
+    /// Provides context for subscription requests.
+    /// </summary>
+    public partial interface ISubscribeContext
+    {
+        /// <summary>
+        /// The type of the event.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "EventTypes",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Type EventType { get; }
+    }
+}
 #pragma warning restore 1591
