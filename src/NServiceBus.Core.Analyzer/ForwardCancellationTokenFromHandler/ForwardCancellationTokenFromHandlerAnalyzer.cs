@@ -31,11 +31,35 @@
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
-            context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.InvocationExpression);
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
         }
 
-        void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
+        static void AnalyzeCompilationStart(CompilationStartAnalysisContext startContext)
+        {
+            var knownTypes = new KnownTypes(startContext.Compilation);
+            if (knownTypes.IsValid)
+            {
+                startContext.RegisterSyntaxNodeAction(context => AnalyzeSyntax(context, knownTypes), SyntaxKind.InvocationExpression);
+            }
+        }
+
+        class KnownTypes
+        {
+            public INamedTypeSymbol CancellationToken { get; }
+            public INamedTypeSymbol IPipelineContext { get; }
+
+            public bool IsValid => CancellationToken != null && IPipelineContext != null;
+
+            public KnownTypes(Compilation compilation)
+            {
+                CancellationToken = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+                IPipelineContext = compilation.GetTypeByMetadataName("NServiceBus.IPipelineContext");
+            }
+        }
+
+        static void AnalyzeSyntax(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
         {
             if (!(context.Node is InvocationExpressionSyntax invocation))
             {
@@ -82,6 +106,14 @@
                 return;
             }
 
+            ////var arguments = invocation.ArgumentList.Arguments.Select(arg => context.SemanticModel.GetSymbolInfo(arg, context.CancellationToken));
+
+            if (InvocationMethodTakesAToken(methodSymbol, knownTypes))
+            {
+                ReportDiagnostic(context, invocation, contextParamName, methodSymbol);
+                return;
+            }
+
             var namedType = methodSymbol.ContainingType;
             var memberAccessExpr = invocation.ChildNodes().OfType<MemberAccessExpressionSyntax>().FirstOrDefault();
             if (memberAccessExpr != null)
@@ -106,17 +138,56 @@
             {
                 if (MethodHasOverloadWithCancellation(containingType, methodSymbol))
                 {
-                    var properties = new Dictionary<string, string>
-                    {
-                        { "ContextParamName", contextParamName },
-                        { "MethodName", methodSymbol.Name }
-                    }.ToImmutableDictionary();
-
-                    var diagnostic = Diagnostic.Create(ForwardCancellationTokenFromHandlerDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
-                    context.ReportDiagnostic(diagnostic);
+                    ReportDiagnostic(context, invocation, contextParamName, methodSymbol);
                     return;
                 }
             }
+        }
+
+        static bool InvocationMethodTakesAToken(IMethodSymbol method, KnownTypes knownTypes)
+        {
+            // If is an NServiceBus-namespace extension method that extends IMessageHandlerContext, then skip
+            if (method.IsExtensionMethod && method.ContainingNamespace?.Name == "NServiceBus")
+            {
+                if (method.ReducedFrom is IMethodSymbol reducedFromExtensionMethodDefinition)
+                {
+                    var thisParam = reducedFromExtensionMethodDefinition.Parameters.FirstOrDefault();
+                    if (thisParam != null && thisParam.Type.Equals(knownTypes.IPipelineContext))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if (method.Parameters.IsEmpty || !(method.Parameters[method.Parameters.Length - 1] is IParameterSymbol lastParameter))
+            {
+                return false;
+            }
+
+            // If parameter has a default value being used
+            if (lastParameter.Type.Equals(knownTypes.CancellationToken) && lastParameter.IsOptional)
+            {
+                // Find out if token is using the default value
+                // Need to check among all arguments in case the user is passing them named and unordered
+                return true;
+            }
+
+            return false;
+
+            ////return InvocationIgnoresOptionalCancellationToken(lastParameter) ||
+            ////    InvocationIsUsingParamsCancellationToken(lastParameter);
+        }
+
+        static void ReportDiagnostic(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, string contextParamName, IMethodSymbol methodSymbol)
+        {
+            var properties = new Dictionary<string, string>
+            {
+                { "ContextParamName", contextParamName },
+                { "MethodName", methodSymbol.Name }
+            }.ToImmutableDictionary();
+
+            var diagnostic = Diagnostic.Create(ForwardCancellationTokenFromHandlerDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
+            context.ReportDiagnostic(diagnostic);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,7 +14,8 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
         /// <param name="message">The message to send.</param>
-        public static Task Send(this IPipelineContext context, object message)
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public static Task Send(this IPipelineContext context, object message, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(message), message);
@@ -27,10 +29,11 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
         /// <remarks>
         /// The message will be sent to the destination configured for <typeparamref name="T" />.
         /// </remarks>
-        public static Task Send<T>(this IPipelineContext context, Action<T> messageConstructor)
+        public static Task Send<T>(this IPipelineContext context, Action<T> messageConstructor, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
@@ -43,8 +46,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
         /// <param name="destination">The address of the destination to which the message will be sent.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
         /// <param name="message">The message to send.</param>
-        public static Task Send(this IPipelineContext context, string destination, object message)
+        public static Task Send(this IPipelineContext context, string destination, object message, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
@@ -64,7 +68,8 @@ namespace NServiceBus
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task Send<T>(this IPipelineContext context, string destination, Action<T> messageConstructor)
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public static Task Send<T>(this IPipelineContext context, string destination, Action<T> messageConstructor, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
@@ -82,7 +87,8 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <param name="message">The message to send.</param>
-        public static Task SendLocal(this IPipelineContext context, object message)
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public static Task SendLocal(this IPipelineContext context, object message, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(message), message);
@@ -100,7 +106,8 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task SendLocal<T>(this IPipelineContext context, Action<T> messageConstructor)
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public static Task SendLocal<T>(this IPipelineContext context, Action<T> messageConstructor, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
@@ -117,7 +124,8 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
         /// <param name="message">The message to publish.</param>
-        public static Task Publish(this IPipelineContext context, object message)
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public static Task Publish(this IPipelineContext context, object message, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(message), message);
@@ -129,8 +137,9 @@ namespace NServiceBus
         /// Publish the message to subscribers.
         /// </summary>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
         /// <typeparam name="T">The message type.</typeparam>
-        public static Task Publish<T>(this IPipelineContext context)
+        public static Task Publish<T>(this IPipelineContext context, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
 
@@ -143,7 +152,8 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task Publish<T>(this IPipelineContext context, Action<T> messageConstructor)
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while invoking.</param>
+        public static Task Publish<T>(this IPipelineContext context, Action<T> messageConstructor, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);

@@ -221,6 +221,39 @@ public class TestMessage : ICommand {}
             return Verify(source, expecteds);
         }
 
+        [Test]
+        public Task CancellationTokenOnExtensionMethod()
+        {
+            var source =
+@"using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        var bar = new Bar();
+        await bar.DoSomething(true);
+    }
+}
+public class TestMessage : ICommand {}
+public class Bar { }
+public static class BarExtensions
+{
+    public static Task DoSomething(this Bar bar, bool value, CancellationToken token = default(CancellationToken))
+    {
+        return Task.CompletedTask;
+    }
+}
+";
+            var expecteds = new[]
+            {
+                NotForwardedAt(9, 15),
+            };
+
+            return Verify(source, expecteds);
+        }
+
 
         DiagnosticResult NotForwardedAt(int line, int character)
         {
@@ -469,6 +502,35 @@ public class Foo : IHandleMessages<TestMessage>
     Task TestMethod(string value1, string value2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticOnNServiceBusPipelineMethods()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        // From IPipelineContextExtensions
+        await context.Send(new MyCommand());
+        await context.Send<MyCommand>(cmd => {});
+        await context.Send(""destination"", new MyCommand());
+        await context.Send<MyCommand>(""destination"", cmd => {});
+        await context.SendLocal(new MyCommand());
+        await context.SendLocal<MyCommand>(cmd => {});
+        await context.Publish(new MyEvent());
+        await context.Publish<MyEvent>();
+        await context.Publish<MyEvent>(cmd => {});
+    }
+}
+public class TestMessage : ICommand {}
+public class MyCommand : ICommand {}
+public class MyEvent : IEvent {}
 ");
         }
 
