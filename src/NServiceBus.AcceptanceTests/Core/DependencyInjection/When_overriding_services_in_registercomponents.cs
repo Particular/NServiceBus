@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -85,12 +86,12 @@
                         testContext.DependencyBeforeEndpointStart = dependencyBeforeEndpointStart;
                     }
 
-                    protected override Task OnStart(IMessageSession session)
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                     {
                         return Task.CompletedTask;
                     }
 
-                    protected override Task OnStop(IMessageSession session)
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                     {
                         return Task.CompletedTask;
                     }

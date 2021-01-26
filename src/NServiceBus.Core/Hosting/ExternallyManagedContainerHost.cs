@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedContainer
@@ -33,7 +34,7 @@ namespace NServiceBus
 
         internal Lazy<IServiceProvider> Builder { get; private set; }
 
-        public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder)
+        public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
         {
             objectBuilder = externalBuilder;
 
@@ -41,9 +42,9 @@ namespace NServiceBus
 
             hostingComponent.RegisterBuilder(externalBuilder);
 
-            await hostingComponent.RunInstallers().ConfigureAwait(false);
+            await hostingComponent.RunInstallers(cancellationToken).ConfigureAwait(false);
 
-            var endpointInstance = await hostingComponent.Start(startableEndpoint).ConfigureAwait(false);
+            var endpointInstance = await hostingComponent.Start(startableEndpoint, cancellationToken).ConfigureAwait(false);
 
             messageSession = endpointInstance;
 

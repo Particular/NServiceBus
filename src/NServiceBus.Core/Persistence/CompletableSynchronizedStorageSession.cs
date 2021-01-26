@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Persistence
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,6 +14,6 @@
         /// <summary>
         /// Completes the session by saving the changes.
         /// </summary>
-        Task CompleteAsync();
+        Task CompleteAsync(CancellationToken cancellationToken);
     }
 }

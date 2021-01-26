@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
+    using System.Threading;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
     using ObjectBuilder;
@@ -38,5 +39,7 @@
             }
             return builder;
         }
+
+        public CancellationToken CancellationToken { get; set; }
     }
 }

@@ -21,17 +21,12 @@ namespace NServiceBus
         {
             if (onCriticalErrorAction == null)
             {
-                criticalErrorAction = DefaultCriticalErrorHandling;
+                criticalErrorAction = _ => Task.CompletedTask;
             }
             else
             {
                 criticalErrorAction = onCriticalErrorAction;
             }
-        }
-
-        static Task DefaultCriticalErrorHandling(ICriticalErrorContext criticalErrorContext)
-        {
-            return Task.CompletedTask;
         }
 
         /// <summary>

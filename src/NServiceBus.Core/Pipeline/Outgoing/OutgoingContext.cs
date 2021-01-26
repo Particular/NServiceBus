@@ -2,13 +2,14 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
     abstract class OutgoingContext : BehaviorContext, IOutgoingContext
     {
-        protected OutgoingContext(string messageId, Dictionary<string, string> headers, IBehaviorContext parentContext)
-            : base(parentContext)
+        protected OutgoingContext(string messageId, Dictionary<string, string> headers, IBehaviorContext parentContext, CancellationToken cancellationToken)
+            : base(parentContext, cancellationToken)
         {
             Headers = headers;
             MessageId = messageId;
@@ -22,32 +23,32 @@ namespace NServiceBus
 
         public Task Send(object message, SendOptions options)
         {
-            return MessageOperations.Send(this, message, options);
+            return MessageOperations.Send(this, message, options, CancellationToken);
         }
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return MessageOperations.Send(this, messageConstructor, options);
+            return MessageOperations.Send(this, messageConstructor, options, CancellationToken);
         }
 
         public Task Publish(object message, PublishOptions options)
         {
-            return MessageOperations.Publish(this, message, options);
+            return MessageOperations.Publish(this, message, options, CancellationToken);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return MessageOperations.Publish(this, messageConstructor, publishOptions);
+            return MessageOperations.Publish(this, messageConstructor, publishOptions, CancellationToken);
         }
 
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return MessageOperations.Subscribe(this, eventType, options);
+            return MessageOperations.Subscribe(this, eventType, options, CancellationToken);
         }
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return MessageOperations.Unsubscribe(this, eventType, options);
+            return MessageOperations.Unsubscribe(this, eventType, options, CancellationToken);
         }
     }
 }

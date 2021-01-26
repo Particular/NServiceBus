@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Net;
     using System.Runtime;
+    using System.Threading;
     using System.Threading.Tasks;
     using Installation;
     using Microsoft.Extensions.DependencyInjection;
@@ -62,7 +63,7 @@
 
         // This can't happen at start due to an old "feature" that allowed users to
         // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-        public async Task RunInstallers()
+        public async Task RunInstallers(CancellationToken cancellationToken)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -78,31 +79,29 @@
 
             foreach (var installer in builder.GetServices<INeedToInstallSomething>())
             {
-                await installer.Install(installationUserName).ConfigureAwait(false);
+                await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint)
+        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint, CancellationToken cancellationToken)
         {
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
-            await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries).ConfigureAwait(false);
+            await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
 
-            var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+            var endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
 
             configuration.CriticalError.SetEndpoint(endpointInstance);
 
             return endpointInstance;
         }
 
-        public Task Stop()
+        public void Stop()
         {
             if (shouldDisposeBuilder)
             {
                 (builder as IDisposable)?.Dispose();
             }
-
-            return Task.FromResult(0);
         }
 
         string GetInstallationUserName()

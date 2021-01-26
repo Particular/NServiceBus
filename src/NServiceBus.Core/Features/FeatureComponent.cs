@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Features;
     using Settings;
@@ -30,14 +31,14 @@
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }
 
-        public Task Start(IServiceProvider builder, IMessageSession messageSession)
+        public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken)
         {
-            return featureActivator.StartFeatures(builder, messageSession);
+            return featureActivator.StartFeatures(builder, messageSession, cancellationToken);
         }
 
-        public Task Stop()
+        public Task Stop(CancellationToken cancellationToken)
         {
-            return featureActivator.StopFeatures();
+            return featureActivator.StopFeatures(cancellationToken);
         }
 
         static bool IsFeature(Type type)

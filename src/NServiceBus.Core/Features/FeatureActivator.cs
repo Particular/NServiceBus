@@ -3,6 +3,7 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Settings;
 
@@ -56,23 +57,23 @@ namespace NServiceBus.Features
             return features.Select(t => t.Diagnostics).ToArray();
         }
 
-        public async Task StartFeatures(IServiceProvider builder, IMessageSession session)
+        public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken)
         {
             // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
             foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
                 {
-                    await taskController.Start(builder, session).ConfigureAwait(false);
+                    await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
 
-        public Task StopFeatures()
+        public Task StopFeatures(CancellationToken cancellationToken)
         {
             var featureStopTasks = enabledFeatures.Where(f => f.Feature.IsActive)
                 .SelectMany(f => f.TaskControllers)
-                .Select(task => task.Stop());
+                .Select(task => task.Stop(cancellationToken));
 
             return Task.WhenAll(featureStopTasks);
         }

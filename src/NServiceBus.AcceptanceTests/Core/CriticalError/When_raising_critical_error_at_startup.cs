@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -85,7 +86,7 @@
                     this.testContext = testContext;
                 }
 
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     criticalError.Raise("critical error 1", new SimulatedException());
                     testContext.CriticalErrorsRaised++;
@@ -96,7 +97,7 @@
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

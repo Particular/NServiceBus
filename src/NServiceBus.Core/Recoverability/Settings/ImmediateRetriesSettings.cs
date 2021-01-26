@@ -36,7 +36,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
             var subscriptions = Settings.Get<RecoverabilityComponent.Configuration>();
-            subscriptions.MessageRetryNotification.Subscribe(retry =>
+            subscriptions.MessageRetryNotification.Subscribe((retry, _) =>
             {
                 if (!retry.IsImmediateRetry)
                 {

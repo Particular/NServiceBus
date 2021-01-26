@@ -183,10 +183,10 @@ namespace NServiceBus
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
-        public CriticalErrorContext(System.Func<System.Threading.Tasks.Task> stop, string error, System.Exception exception) { }
+        public CriticalErrorContext(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> stop, string error, System.Exception exception) { }
         public string Error { get; }
         public System.Exception Exception { get; }
-        public System.Func<System.Threading.Tasks.Task> Stop { get; }
+        public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> Stop { get; }
     }
     [System.Serializable]
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
@@ -259,7 +259,7 @@ namespace NServiceBus
     public static class DiagnosticSettingsExtensions
     {
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.ReadOnlySettings settings, string sectionName, object section) { }
-        public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
+        public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
     public sealed class Discard : NServiceBus.RecoverabilityAction
@@ -304,8 +304,8 @@ namespace NServiceBus
     }
     public static class Endpoint
     {
-        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration) { }
-        public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
@@ -435,6 +435,10 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
+    public interface ICancellableContext
+    {
+        System.Threading.CancellationToken CancellationToken { get; }
+    }
     public interface ICommand : NServiceBus.IMessage { }
     public interface IConfigureHowToFindSagaWithMessage
     {
@@ -458,7 +462,7 @@ namespace NServiceBus
     {
         string Error { get; }
         System.Exception Exception { get; }
-        System.Func<System.Threading.Tasks.Task> Stop { get; }
+        System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> Stop { get; }
     }
     public interface IDataBusProperty
     {
@@ -473,7 +477,7 @@ namespace NServiceBus
     }
     public interface IEndpointInstance : NServiceBus.IMessageSession
     {
-        System.Threading.Tasks.Task Stop();
+        System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IEvent : NServiceBus.IMessage { }
     public interface IHandleMessages<T>
@@ -498,12 +502,12 @@ namespace NServiceBus
         T CreateInstance<T>();
         T CreateInstance<T>(System.Action<T> action);
     }
-    public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
+    public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
         NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
-    public interface IMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext
+    public interface IMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext
     {
         System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         string MessageId { get; }
@@ -519,34 +523,34 @@ namespace NServiceBus
     }
     public interface IMessageSession
     {
-        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions sendOptions);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions);
-        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions);
-        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions);
+        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions, System.Threading.CancellationToken cancellationToken = default);
     }
     public static class IMessageSessionExtensions
     {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
-        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session) { }
-        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
-        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session) { }
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.EndpointConfiguration configuration);
     }
-    public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
+    public interface IPipelineContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
@@ -567,12 +571,12 @@ namespace NServiceBus
     }
     public interface IStartableEndpoint
     {
-        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start();
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IStartableEndpointWithExternallyManagedContainer
     {
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
-        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder);
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IToSagaExpression<TSagaData>
         where TSagaData : NServiceBus.IContainSagaData
@@ -668,7 +672,7 @@ namespace NServiceBus
         public bool RestrictPayloadSize { get; set; }
         public string StorageDirectory { get; set; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
-        public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses) { }
+        public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
     public static class LoadMessageHandlersExtensions
@@ -770,7 +774,7 @@ namespace NServiceBus
         public Notifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
     }
-    public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext);
+    public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken);
     public static class OutboxConfigExtensions
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
@@ -821,7 +825,7 @@ namespace NServiceBus
     }
     public static class ReceivePipelineConfigExtensions
     {
-        public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.Tasks.Task> subscription) { }
+        public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
     }
     public static class ReceiveSettingsExtensions
     {
@@ -1253,9 +1257,9 @@ namespace NServiceBus.DataBus
     }
     public interface IDataBus
     {
-        System.Threading.Tasks.Task<System.IO.Stream> Get(string key);
-        System.Threading.Tasks.Task<string> Put(System.IO.Stream stream, System.TimeSpan timeToBeReceived);
-        System.Threading.Tasks.Task Start();
+        System.Threading.Tasks.Task<System.IO.Stream> Get(string key, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<string> Put(System.IO.Stream stream, System.TimeSpan timeToBeReceived, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Start(System.Threading.CancellationToken cancellationToken);
     }
     public interface IDataBusSerializer
     {
@@ -1460,8 +1464,8 @@ namespace NServiceBus.Features
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
-        protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IMessageSession session);
-        protected abstract System.Threading.Tasks.Task OnStop(NServiceBus.IMessageSession session);
+        protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken);
+        protected abstract System.Threading.Tasks.Task OnStop(NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken);
     }
     public enum FeatureState
     {
@@ -1556,7 +1560,7 @@ namespace NServiceBus.Installation
 {
     public interface INeedToInstallSomething
     {
-        System.Threading.Tasks.Task Install(string identity);
+        System.Threading.Tasks.Task Install(string identity, System.Threading.CancellationToken cancellationToken);
     }
 }
 namespace NServiceBus.Logging
@@ -1659,29 +1663,33 @@ namespace NServiceBus.MessageMutator
     {
         System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
     }
-    public class MutateIncomingMessageContext
+    public class MutateIncomingMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object Message { get; set; }
     }
-    public class MutateIncomingTransportMessageContext
+    public class MutateIncomingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken) { }
         public byte[] Body { get; set; }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
     }
-    public class MutateOutgoingMessageContext
+    public class MutateOutgoingMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
+        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; set; }
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
-    public class MutateOutgoingTransportMessageContext
+    public class MutateOutgoingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public byte[] OutgoingBody { get; set; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }
@@ -1755,10 +1763,10 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
     }
     public class OutboxMessage
     {
@@ -1769,7 +1777,7 @@ namespace NServiceBus.Outbox
     public class OutboxSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings { }
     public interface OutboxTransaction : System.IDisposable
     {
-        System.Threading.Tasks.Task Commit();
+        System.Threading.Tasks.Task Commit(System.Threading.CancellationToken cancellationToken);
     }
     public class TransportOperation
     {
@@ -1792,16 +1800,16 @@ namespace NServiceBus.Persistence
 {
     public interface CompletableSynchronizedStorageSession : NServiceBus.Persistence.SynchronizedStorageSession, System.IDisposable
     {
-        System.Threading.Tasks.Task CompleteAsync();
+        System.Threading.Tasks.Task CompleteAsync(System.Threading.CancellationToken cancellationToken);
     }
     public interface ISynchronizedStorage
     {
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken);
     }
     public interface ISynchronizedStorageAdapter
     {
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
     }
     public abstract class PersistenceDefinition
     {
@@ -1832,18 +1840,18 @@ namespace NServiceBus.Pipeline
         public override sealed System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next) { }
         public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
     }
-    public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         string AuditAddress { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
         void AddAuditData(string key, string value);
     }
-    public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
     public interface IBehavior { }
-    public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable
+    public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext
     {
         System.IServiceProvider Builder { get; }
     }
@@ -1853,27 +1861,27 @@ namespace NServiceBus.Pipeline
     {
         System.Threading.Tasks.Task Invoke(TInContext context, System.Func<TOutContext, System.Threading.Tasks.Task> next);
     }
-    public interface IDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface IDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
     [System.Obsolete("Message forwarding is no longer supported, but can be implemented as a custom pip" +
         "eline behavior. Will be removed in version 9.0.0.", true)]
-    public interface IForwardingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext { }
-    public interface IIncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext { }
-    public interface IIncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
+    public interface IForwardingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext { }
+    public interface IIncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext { }
+    public interface IIncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         NServiceBus.Pipeline.LogicalMessage Message { get; }
         bool MessageHandled { get; set; }
         void UpdateMessageInstance(object newInstance);
     }
-    public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
+    public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         NServiceBus.Transport.IncomingMessage Message { get; }
         void UpdateMessage(byte[] body);
     }
-    public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
+    public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         bool HandlerInvocationAborted { get; }
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -1881,54 +1889,54 @@ namespace NServiceBus.Pipeline
         NServiceBus.Pipeline.MessageHandler MessageHandler { get; }
         NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
     }
-    public interface IOutgoingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext
+    public interface IOutgoingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext
     {
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         string MessageId { get; }
     }
-    public interface IOutgoingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
         void UpdateMessage(object newInstance);
     }
-    public interface IOutgoingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         byte[] Body { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
         void UpdateMessage(byte[] body);
     }
-    public interface IOutgoingPublishContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingPublishContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
-    public interface IOutgoingReplyContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingReplyContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
-    public interface IOutgoingSendContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingSendContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
-    public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.OutgoingMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; set; }
     }
-    public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         [System.Obsolete("Use `EventTypes` instead. Will be removed in version 9.0.0.", true)]
         System.Type EventType { get; }
         System.Type[] EventTypes { get; }
     }
-    public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.IncomingMessage Message { get; }
         [System.Obsolete("The AbortReceiveOperation method is no longer supported. See the upgrade guide fo" +
             "r more details. Will be removed in version 9.0.0.", true)]
         void AbortReceiveOperation();
     }
-    public interface IUnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    public interface IUnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         System.Type EventType { get; }
     }
@@ -1992,7 +2000,7 @@ namespace NServiceBus.Pipeline
         protected PipelineTerminator() { }
         public override sealed System.Threading.Tasks.Task Invoke(T context, System.Func<NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext, System.Threading.Tasks.Task> next) { }
         protected abstract System.Threading.Tasks.Task Terminate(T context);
-        public interface ITerminatingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext { }
+        public interface ITerminatingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext { }
     }
     [System.Diagnostics.DebuggerDisplay("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
@@ -2166,7 +2174,7 @@ namespace NServiceBus.Sagas
         protected IFindSagas() { }
         public interface Using<M> : NServiceBus.Sagas.IFinder
         {
-            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Persistence.SynchronizedStorageSession storageSession, NServiceBus.Extensibility.ReadOnlyContextBag context);
+            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Persistence.SynchronizedStorageSession storageSession, NServiceBus.Extensibility.ReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken);
         }
     }
     public interface IFinder { }
@@ -2180,13 +2188,13 @@ namespace NServiceBus.Sagas
     }
     public interface ISagaPersister
     {
-        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context)
+        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken)
             where TSagaData :  class, NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context)
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken)
             where TSagaData :  class, NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
     }
     public class SagaCorrelationProperty
     {
@@ -2450,15 +2458,15 @@ namespace NServiceBus.Transport
     }
     public interface IMessageDispatcher
     {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken);
     }
     public interface IMessageReceiver
     {
         string Id { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError);
-        System.Threading.Tasks.Task StartReceive();
-        System.Threading.Tasks.Task StopReceive();
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken);
     }
     public interface IOutgoingTransportOperation
     {
@@ -2478,8 +2486,8 @@ namespace NServiceBus.Transport
     }
     public interface ISubscriptionManager
     {
-        System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
     }
     public class IncomingMessage
     {
@@ -2524,8 +2532,8 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
-    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext);
-    public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext);
+    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext, System.Threading.CancellationToken cancellationToken);
+    public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken);
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]
     public class OutboundRoutingPolicy
@@ -2629,7 +2637,7 @@ namespace NServiceBus.Transport
         public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
-        public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses);
+        public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken);
         public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
     public abstract class TransportInfrastructure
@@ -2637,7 +2645,7 @@ namespace NServiceBus.Transport
         protected TransportInfrastructure() { }
         public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
         public System.Collections.Generic.IReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
-        public abstract System.Threading.Tasks.Task Shutdown();
+        public abstract System.Threading.Tasks.Task Shutdown(System.Threading.CancellationToken cancellationToken);
     }
     public class TransportOperation
     {
@@ -2751,9 +2759,9 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public interface ISubscriptionStorage
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, NServiceBus.Unicast.Subscriptions.MessageType messageType, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, NServiceBus.Unicast.Subscriptions.MessageType messageType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, NServiceBus.Unicast.Subscriptions.MessageType messageType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, NServiceBus.Unicast.Subscriptions.MessageType messageType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
     }
     public class Subscriber
     {

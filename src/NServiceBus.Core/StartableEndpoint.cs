@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Runtime.InteropServices;
     using System.Security.Principal;
+    using System.Threading;
     using System.Threading.Tasks;
     using Settings;
 
@@ -29,27 +30,28 @@ namespace NServiceBus
             this.builder = builder;
         }
 
-        public async Task<IEndpointInstance> Start()
+        public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
         {
-            var transportInfrastructure = await transportSeam.CreateTransportInfrastructure().ConfigureAwait(false);
+            var transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
-            var rootContext = new RootContext(builder, messageOperations, pipelineCache);
+            // This context is persisted in the IMessageSession for its lifetime, and should not carry the CancellationToken from Endpoint.Start()
+            var rootContext = new RootContext(builder, messageOperations, pipelineCache, CancellationToken.None);
             var messageSession = new MessageSession(rootContext);
 
-            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
+            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, cancellationToken).ConfigureAwait(false);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
 
-            await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
+            await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
-            await receiveComponent.Start().ConfigureAwait(false);
+            await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
 
             return runningInstance;
         }

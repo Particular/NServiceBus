@@ -12,7 +12,7 @@
             var context = new ContextBag();
             context.Set("someKey", "someValue");
 
-            var testee = new UnsubscribeContext(new FakeRootContext(), typeof(object), context);
+            var testee = new UnsubscribeContext(new FakeRootContext(), typeof(object), context, default);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
             context.TryGet("someKey", out string value);
@@ -32,7 +32,7 @@
 
             var parentContext = new FakeRootContext();
 
-            new UnsubscribeContext(parentContext, typeof(object), context);
+            new UnsubscribeContext(parentContext, typeof(object), context, default);
 
             var valueFound = parentContext.TryGet("someKey", out string _);
 

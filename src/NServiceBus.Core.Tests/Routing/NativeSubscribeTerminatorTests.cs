@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -76,9 +77,9 @@
                 this.exceptionToThrow = exceptionToThrow;
             }
 
-            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context) => throw exceptionToThrow;
+            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken) => throw exceptionToThrow;
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context) => throw new NotImplementedException();
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken) => throw new NotImplementedException();
         }
     }
 }

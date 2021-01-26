@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -49,12 +50,12 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
 
                 class CustomTask : FeatureStartupTask
                 {
-                    protected override Task OnStart(IMessageSession session)
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                     {
                         return Task.FromResult(0);
                     }
 
-                    protected override async Task OnStop(IMessageSession session)
+                    protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                     {
                         await Task.Yield();
 

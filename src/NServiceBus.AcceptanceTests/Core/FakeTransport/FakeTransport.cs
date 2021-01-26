@@ -1,9 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System;
-    using System.Linq;
-    using System.Threading.Tasks;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Transport;
 
     public class FakeTransport : TransportDefinition
@@ -15,7 +16,7 @@
         {
         }
 
-        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses)
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
         {
             StartupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
