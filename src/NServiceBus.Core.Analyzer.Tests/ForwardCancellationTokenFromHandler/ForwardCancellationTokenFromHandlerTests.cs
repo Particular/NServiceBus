@@ -278,6 +278,8 @@ public class Foo : IHandleMessages<TestMessage>
     {
         await TestMethod(context.CancellationToken);
         await Foo.TestMethod(context.CancellationToken);
+        await TestMethod(new CancellationToken(false));
+        await Foo.TestMethod(new CancellationToken(false));
     }
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
@@ -316,9 +318,10 @@ using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return OtherClass.TestMethod(context.CancellationToken);
+        await OtherClass.TestMethod(context.CancellationToken);
+        await OtherClass.TestMethod(new CancellationToken(false));
     }
 }
 public static class OtherClass
@@ -361,9 +364,10 @@ using System.Threading.Tasks;
 using static OtherClass;
 public class Foo : IHandleMessages<TestMessage>
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
     {
-        return TestMethod(context.CancellationToken);
+        await TestMethod(context.CancellationToken);
+        await TestMethod(new CancellationToken(false));
     }
 }
 public static class OtherClass
@@ -410,6 +414,8 @@ public class Foo : IHandleMessages<TestMessage>
     {
         await TestMethod(context.CancellationToken);
         await this.TestMethod(context.CancellationToken);
+        await TestMethod(new CancellationToken(false));
+        await this.TestMethod(new CancellationToken(false));
     }
 
     Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
@@ -526,11 +532,117 @@ public class Foo : IHandleMessages<TestMessage>
         await context.Publish(new MyEvent());
         await context.Publish<MyEvent>();
         await context.Publish<MyEvent>(cmd => {});
+
+        // From IPipelineContextExtensions, passed a specific token
+        var token = new CancellationToken(false);
+        await context.Send(new MyCommand(), token);
+        await context.Send<MyCommand>(cmd => {}, token);
+        await context.Send(""destination"", new MyCommand(), token);
+        await context.Send<MyCommand>(""destination"", cmd => {}, token);
+        await context.SendLocal(new MyCommand(), token);
+        await context.SendLocal<MyCommand>(cmd => {}, token);
+        await context.Publish(new MyEvent(), token);
+        await context.Publish<MyEvent>(token);
+        await context.Publish<MyEvent>(cmd => {}, token);
     }
 }
 public class TestMessage : ICommand {}
 public class MyCommand : ICommand {}
 public class MyEvent : IEvent {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticOnNamedRandomOrderParameters()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await DoSomething(token: context.CancellationToken, myBool: true, myInt: 42);
+    }
+
+    private Task DoSomething(int myInt = 0, bool myBool = false, string myString = null, CancellationToken token = default(CancellationToken))
+    {
+        return Task.CompletedTask;
+    }
+}
+public class TestMessage : ICommand {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticOnNamedRandomOrderParametersInExtensionMethod()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        var bar = new Bar();
+        await bar.DoSomething(token: context.CancellationToken, myBool: true, myInt: 42);
+    }
+}
+public class TestMessage : ICommand {}
+public class Bar {}
+public static class BarExtensions
+{
+    public static Task DoSomething(this Bar bar, int myInt = 0, bool myBool = false, string myString = null, CancellationToken token = default(CancellationToken))
+    {
+        return Task.CompletedTask;
+    }
+}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticOnCrazyWaysToCreateAToken()
+        {
+            return Verify(@"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await DoSomething(true, new CancellationToken(true));
+        await DoSomething(true, new CancellationToken(false));
+        await DoSomething(true, CancellationToken.None);
+
+        var tokenSource = new CancellationTokenSource();
+        await DoSomething(true, tokenSource.Token);
+        await DoSomething(true, MakeToken());
+        await DoSomething(true, this.MakeToken());
+        await DoSomething(true, MyToken);
+        await DoSomething(true, this.MyToken);
+        await DoSomething(true, privateToken);
+        await DoSomething(true, this.privateToken);
+    }
+
+    private Task DoSomething(bool value, CancellationToken token = default(CancellationToken))
+    {
+        return Task.CompletedTask;
+    }
+
+    private CancellationToken MakeToken()
+    {
+        return new CancellationToken(false);
+    }
+
+    public CancellationToken MyToken => CancellationToken.None;
+
+    private CancellationToken privateToken = CancellationToken.None;
+}
+public class TestMessage : ICommand {}
+public class Bar {}
 ");
         }
 

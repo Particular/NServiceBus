@@ -90,7 +90,7 @@
             }
 
             var invocationArgs = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
-            if (invocationArgs.Any(arg => ArgumentIsCancellationTokenFromContext(arg, contextParamName)))
+            if (invocationArgs.Any(arg => ArgumentIsACancellationToken(context, arg, contextParamName, knownTypes)))
             {
                 return;
             }
@@ -167,15 +167,10 @@
             // If parameter has a default value being used
             if (lastParameter.Type.Equals(knownTypes.CancellationToken) && lastParameter.IsOptional)
             {
-                // Find out if token is using the default value
-                // Need to check among all arguments in case the user is passing them named and unordered
                 return true;
             }
 
             return false;
-
-            ////return InvocationIgnoresOptionalCancellationToken(lastParameter) ||
-            ////    InvocationIsUsingParamsCancellationToken(lastParameter);
         }
 
         static void ReportDiagnostic(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, string contextParamName, IMethodSymbol methodSymbol)
@@ -251,19 +246,53 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool ArgumentIsCancellationTokenFromContext(ArgumentSyntax arg, string contextParamName)
+        static bool ArgumentIsACancellationToken(SyntaxNodeAnalysisContext context, ArgumentSyntax arg, string contextParamName, KnownTypes types)
         {
-            if (!(arg.Expression is MemberAccessExpressionSyntax memberAccess) || !memberAccess.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+            if (arg.Expression is LiteralExpressionSyntax)
             {
+                // Values like true, 3, 'x' are not cancellation tokens
                 return false;
             }
 
-            if (!(memberAccess.Expression is IdentifierNameSyntax exprId) || exprId.Identifier.ValueText != contextParamName || memberAccess.Name.Identifier.ValueText != "CancellationToken")
+            if (arg.Expression is ObjectCreationExpressionSyntax objectCreation && objectCreation.Type is IdentifierNameSyntax creationId && creationId.Identifier.ValueText == "CancellationToken")
             {
-                return false;
+                return true;
             }
 
-            return true;
+            if (arg.Expression is MemberAccessExpressionSyntax memberAccess)
+            {
+                if (memberAccess.IsKind(SyntaxKind.SimpleMemberAccessExpression) && memberAccess.Expression is IdentifierNameSyntax exprId)
+                {
+                    var parent = exprId.Identifier.ValueText;
+                    var member = memberAccess.Name.Identifier.ValueText;
+
+                    // Is context.CancellationToken
+                    if (parent == contextParamName && member == "CancellationToken")
+                    {
+                        return true;
+                    }
+
+                    if (parent == "CancellationToken" && member == "None")
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            var expressionSymbol = context.SemanticModel.GetSymbolInfo(arg.Expression, context.CancellationToken);
+            switch (expressionSymbol.Symbol)
+            {
+                case IFieldSymbol fieldSymbol:
+                    return fieldSymbol.Type.Equals(types.CancellationToken);
+                case IPropertySymbol propertySymbol:
+                    return propertySymbol.Type.Equals(types.CancellationToken);
+                case IMethodSymbol methodSymbol:
+                    return methodSymbol.ReturnType.Equals(types.CancellationToken);
+                case ILocalSymbol localSymbol:
+                    return localSymbol.Type.Equals(types.CancellationToken);
+                default:
+                    return false;
+            }
         }
 
         // {0} = Variable name for the IMessageHandlerContext parameter
