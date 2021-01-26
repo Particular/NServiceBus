@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -36,17 +37,17 @@
 
         class NoOpISubscriptionStorage : ISubscriptionStorage
         {
-            public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
+            public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult<IEnumerable<Subscriber>>(null);
             }
 
-            public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
+            public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }
 
-            public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
+            public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

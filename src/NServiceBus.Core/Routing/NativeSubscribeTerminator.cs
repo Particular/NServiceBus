@@ -1,10 +1,10 @@
 namespace NServiceBus
 {
     using System;
-    using Unicast.Messages;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
+    using Unicast.Messages;
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
@@ -23,7 +23,7 @@ namespace NServiceBus
             }
             try
             {
-                await subscriptionManager.SubscribeAll(eventMetadata, context.Extensions).ConfigureAwait(false);
+                await subscriptionManager.SubscribeAll(eventMetadata, context.Extensions, context.CancellationToken).ConfigureAwait(false);
             }
             catch (AggregateException e)
             {

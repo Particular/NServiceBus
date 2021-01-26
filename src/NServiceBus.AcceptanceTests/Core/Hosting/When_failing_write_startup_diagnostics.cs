@@ -28,7 +28,7 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.CustomDiagnosticsWriter(d => throw new Exception("Diagnostics write failed")))
+                EndpointSetup<DefaultServer>(c => c.CustomDiagnosticsWriter((_, __) => throw new Exception("Diagnostics write failed")))
                     .EnableStartupDiagnostics();
             }
         }

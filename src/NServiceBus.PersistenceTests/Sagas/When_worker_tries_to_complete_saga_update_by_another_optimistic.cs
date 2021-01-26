@@ -25,18 +25,18 @@
             TestSagaData staleRecord;
 
             var winningContext = configuration.GetContextBagForSagaStorage();
-            var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext);
+            var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext, default);
             try
             {
-                var record = await persister.Get<TestSagaData>(saga.Id, winningSaveSession, winningContext);
+                var record = await persister.Get<TestSagaData>(saga.Id, winningSaveSession, winningContext, default);
 
                 losingContext = configuration.GetContextBagForSagaStorage();
-                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext);
-                staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext);
+                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext, default);
+                staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext, default);
 
                 record.DateTimeProperty = DateTime.UtcNow;
-                await persister.Update(record, winningSaveSession, winningContext);
-                await winningSaveSession.CompleteAsync();
+                await persister.Update(record, winningSaveSession, winningContext, default);
+                await winningSaveSession.CompleteAsync(default);
             }
             finally
             {
@@ -47,8 +47,8 @@
             {
                 Assert.That(async () =>
                 {
-                    await persister.Complete(staleRecord, losingSaveSession, losingContext);
-                    await losingSaveSession.CompleteAsync();
+                    await persister.Complete(staleRecord, losingSaveSession, losingContext, default);
+                    await losingSaveSession.CompleteAsync(default);
                 }, Throws.InstanceOf<Exception>());
             }
             finally

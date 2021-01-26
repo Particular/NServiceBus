@@ -1,14 +1,15 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
-    using Transport;
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     class When_applying_the_databus_message_mutator_to_outgoing_messages
@@ -57,18 +58,18 @@ namespace NServiceBus.Core.Tests.DataBus
 
         class FakeDataBus : IDataBus
         {
-            public Task<Stream> Get(string key)
+            public Task<Stream> Get(string key, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
             {
                 TTBRUsed = timeToBeReceived;
                 return Task.FromResult(Guid.NewGuid().ToString());
             }
 
-            public Task Start()
+            public Task Start(CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
-    using Unicast.Messages;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
+    using Unicast.Messages;
 
     class NativeUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
@@ -16,7 +16,7 @@ namespace NServiceBus
         protected override Task Terminate(IUnsubscribeContext context)
         {
             var eventMetadata = messageMetadataRegistry.GetMessageMetadata(context.EventType);
-            return subscriptionManager.Unsubscribe(eventMetadata, context.Extensions);
+            return subscriptionManager.Unsubscribe(eventMetadata, context.Extensions, context.CancellationToken);
         }
 
         readonly ISubscriptionManager subscriptionManager;

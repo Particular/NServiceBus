@@ -1,6 +1,7 @@
 namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -21,6 +22,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Disposes all transport internal resources.
         /// </summary>
-        public abstract Task Shutdown();
+        public abstract Task Shutdown(CancellationToken cancellationToken);
     }
 }

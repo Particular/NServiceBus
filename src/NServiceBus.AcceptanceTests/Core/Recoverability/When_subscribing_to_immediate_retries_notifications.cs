@@ -45,7 +45,7 @@
                     var testContext = (Context)context.ScenarioContext;
 
                     var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                     {
                         testContext.MessageSentToError = true;
                         return Task.FromResult(0);
@@ -54,7 +54,7 @@
                     recoverability.Immediate(immediateRetriesSettings =>
                     {
                         immediateRetriesSettings.NumberOfRetries(3);
-                        immediateRetriesSettings.OnMessageBeingRetried(retryInfo =>
+                        immediateRetriesSettings.OnMessageBeingRetried((retryInfo, _) =>
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                             testContext.LastImmediateRetryInfo = retryInfo;
