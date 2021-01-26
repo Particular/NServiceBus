@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -111,5 +112,7 @@
 
         ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();
         ConcurrentQueue<TimeoutMessage<object>> timeoutMessages = new ConcurrentQueue<TimeoutMessage<object>>();
+
+        public CancellationToken CancellationToken { get; set; }
     }
 }

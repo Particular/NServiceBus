@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Feature
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -88,12 +89,12 @@
 
                 class StartupTask : FeatureStartupTask
                 {
-                    protected override Task OnStart(IMessageSession session)
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                     {
-                        return session.Subscribe<LocalEvent>();
+                        return session.Subscribe<LocalEvent>(cancellationToken);
                     }
 
-                    protected override Task OnStop(IMessageSession session) => Task.CompletedTask;
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken) => Task.CompletedTask;
                 }
             }
         }

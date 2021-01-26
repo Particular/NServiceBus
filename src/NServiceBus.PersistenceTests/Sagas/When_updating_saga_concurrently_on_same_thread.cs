@@ -24,25 +24,25 @@
             var persister = configuration.SagaStorage;
 
             var winningContext = configuration.GetContextBagForSagaStorage();
-            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
+            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext, default))
             {
-                var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
+                var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext, default);
 
                 losingContext = configuration.GetContextBagForSagaStorage();
-                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext);
-                staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext);
+                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext, default);
+                staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext, default);
 
                 record.DateTimeProperty = DateTime.UtcNow;
-                await persister.Update(record, winningSaveSession, winningContext);
-                await winningSaveSession.CompleteAsync();
+                await persister.Update(record, winningSaveSession, winningContext, default);
+                await winningSaveSession.CompleteAsync(default);
             }
 
             try
             {
                 Assert.CatchAsync<Exception>(async () =>
                 {
-                    await persister.Update(staleRecord, losingSaveSession, losingContext);
-                    await losingSaveSession.CompleteAsync();
+                    await persister.Update(staleRecord, losingSaveSession, losingContext, default);
+                    await losingSaveSession.CompleteAsync(default);
                 });
             }
             finally

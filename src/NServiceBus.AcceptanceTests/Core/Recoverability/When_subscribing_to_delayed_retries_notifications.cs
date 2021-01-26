@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Faults;
-    using Features;
     using NUnit.Framework;
 
     public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcceptanceTest
@@ -53,7 +52,7 @@
                     var testContext = (Context)context.ScenarioContext;
 
                     var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                     {
                         testContext.MessageSentToError = true;
                         return Task.FromResult(0);
@@ -61,7 +60,7 @@
                     recoverability.Immediate(settings =>
                     {
                         settings.NumberOfRetries(3);
-                        settings.OnMessageBeingRetried(retry =>
+                        settings.OnMessageBeingRetried((retry, _) =>
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                             return Task.FromResult(0);
@@ -71,7 +70,7 @@
                     {
                         settings.NumberOfRetries(2);
                         settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                        settings.OnMessageBeingRetried(retry =>
+                        settings.OnMessageBeingRetried((retry, _) =>
                         {
                             testContext.NumberOfDelayedRetriesPerformed++;
                             testContext.LastDelayedRetryInfo = retry;

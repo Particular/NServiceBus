@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Persistence;
 
@@ -24,7 +25,7 @@
             Transaction = null;
         }
 
-        public Task CompleteAsync()
+        public Task CompleteAsync(CancellationToken cancellationToken)
         {
             if (ownsTransaction)
             {

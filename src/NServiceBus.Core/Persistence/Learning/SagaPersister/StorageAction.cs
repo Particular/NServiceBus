@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     abstract class StorageAction
@@ -14,7 +15,7 @@ namespace NServiceBus
             sagaFileKey = $"{sagaData.GetType().FullName}{sagaData.Id}";
         }
 
-        public abstract Task Execute();
+        public abstract Task Execute(CancellationToken cancellationToken);
 
         protected SagaStorageFile GetSagaFile()
         {

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration" /> to extend.</param>
         /// <param name="onCriticalError">The action to perform.</param>
-        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, Task> onCriticalError)
+        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, CancellationToken, Task> onCriticalError)
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(onCriticalError), onCriticalError);

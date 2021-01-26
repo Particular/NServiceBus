@@ -32,13 +32,13 @@
                 acceptanceTestingOutboxStorage = storage;
             }
 
-            protected override Task OnStart(IMessageSession session)
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
             {
                 cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
                 return Task.CompletedTask;
             }
 
-            protected override Task OnStop(IMessageSession session)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
             {
                 using (var waitHandle = new ManualResetEvent(false))
                 {

@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System.Linq;
-    using Transport;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Transport;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {
@@ -37,7 +38,7 @@
             Dispatcher = new FakeDispatcher();
         }
 
-        public override Task Shutdown()
+        public override Task Shutdown(CancellationToken cancellationToken)
         {
             startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");
 

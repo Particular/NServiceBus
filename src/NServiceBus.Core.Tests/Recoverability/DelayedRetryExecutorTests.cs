@@ -3,9 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
-    using NUnit.Framework;
     using NServiceBus.Transport;
+    using NUnit.Framework;
 
     [TestFixture]
     public class DelayedRetryExecutorTests
@@ -23,7 +24,7 @@
             var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction);
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction, default);
 
             Assert.AreEqual(dispatcher.Transaction, transportTransaction);
         }
@@ -35,7 +36,7 @@
             var incomingMessage = CreateMessage();
             var delay = TimeSpan.FromSeconds(42);
 
-            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction(), default);
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
             var deliveryConstraint = transportOperation.Properties.DelayDeliveryWith;
@@ -58,7 +59,7 @@
             });
 
             var now = DateTime.UtcNow;
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction(), default);
 
             var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;
 
@@ -78,7 +79,7 @@
             var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction(), default);
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
 
@@ -109,7 +110,7 @@
 
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 TransportOperations = outgoingMessages;
                 Transaction = transaction;

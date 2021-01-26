@@ -20,7 +20,7 @@ namespace NServiceBus.TransportTests
             var hasBeenCalled = false;
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     if (hasBeenCalled)
                     {
@@ -30,7 +30,7 @@ namespace NServiceBus.TransportTests
                     hasBeenCalled = true;
                     throw new Exception("Simulated exception");
                 },
-                context => Task.FromResult(ErrorHandleResult.RetryRequired), transactionMode);
+                (context, _) => Task.FromResult(ErrorHandleResult.RetryRequired), transactionMode);
 
             await SendMessage(InputQueueName);
 

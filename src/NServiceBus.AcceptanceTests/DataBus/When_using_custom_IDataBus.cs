@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -79,13 +80,13 @@
                 this.context = context;
             }
 
-            public Task<Stream> Get(string key)
+            public Task<Stream> Get(string key, CancellationToken cancellationToken)
             {
                 var fileStream = new FileStream(context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
                 return Task.FromResult((Stream)fileStream);
             }
 
-            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
             {
                 using (var destination = File.OpenWrite(context.TempPath))
                 {
@@ -94,7 +95,7 @@
                 return Task.FromResult("key");
             }
 
-            public Task Start()
+            public Task Start(CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

@@ -1,16 +1,17 @@
 ﻿namespace NServiceBus
 {
-    using Unicast.Messages;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
+    using NServiceBus.Unicast.Transport;
     using Pipeline;
     using Routing;
     using Transport;
+    using Unicast.Messages;
     using Unicast.Queuing;
-    using NServiceBus.Unicast.Transport;
 
     class MigrationUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
@@ -29,7 +30,7 @@
             var eventType = context.EventType;
             var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);
 
-            await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions).ConfigureAwait(false);
+            await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
@@ -52,27 +53,27 @@
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
 
-                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
             }
 
             await Task.WhenAll(unsubscribeTasks).ConfigureAwait(false);
         }
 
-        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)
         {
             var state = context.GetOrCreate<MessageDrivenUnsubscribeTerminator.Settings>();
             try
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < state.MaxRetries)
                 {
-                    await Task.Delay(state.RetryDelay).ConfigureAwait(false);
-                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
+                    await Task.Delay(state.RetryDelay, cancellationToken).ConfigureAwait(false);
+                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, ++retriesCount, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

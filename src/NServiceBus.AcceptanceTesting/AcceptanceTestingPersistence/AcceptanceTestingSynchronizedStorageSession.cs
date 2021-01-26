@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Persistence;
 
@@ -24,7 +25,7 @@ namespace NServiceBus.AcceptanceTesting
             Transaction = null;
         }
 
-        public Task CompleteAsync()
+        public Task CompleteAsync(CancellationToken cancellationToken)
         {
             if (ownsTransaction)
             {

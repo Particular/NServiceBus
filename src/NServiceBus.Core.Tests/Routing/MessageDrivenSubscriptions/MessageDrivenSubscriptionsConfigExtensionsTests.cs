@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
-    using NServiceBus;
     using System;
     using System.Linq;
     using System.Reflection;
     using EventNamespace;
     using MessageNamespace;
+    using NServiceBus;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
@@ -166,7 +166,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
         {
         }
 
-        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses)
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

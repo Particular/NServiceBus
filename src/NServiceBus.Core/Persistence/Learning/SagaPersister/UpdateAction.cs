@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     class UpdateAction : StorageAction
@@ -9,11 +10,11 @@ namespace NServiceBus
         {
         }
 
-        public override Task Execute()
+        public override Task Execute(CancellationToken cancellationToken)
         {
             var sagaFile = GetSagaFile();
 
-            return sagaFile.Write(sagaData);
+            return sagaFile.Write(sagaData, cancellationToken);
         }
     }
 }

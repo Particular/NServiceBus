@@ -125,7 +125,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
+                    await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
@@ -145,11 +145,11 @@
                         sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name, correlationProperty.PropertyInfo.GetValue(sagaInstanceState.Instance.Entity));
                     }
 
-                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
+                    await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
                 }
 
                 sagaInstanceState.Updated();
@@ -242,7 +242,7 @@
 
                 var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
-                return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions);
+                return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken);
             }
 
             var finderDefinition = GetSagaFinder(metadata, context);
@@ -256,7 +256,7 @@
             var finderType = finderDefinition.Type;
             var finder = (SagaFinder)context.Builder.GetRequiredService(finderType);
 
-            return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders);
+            return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders, context.CancellationToken);
         }
 
         SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)

@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// The context for the current message handling pipeline.
     /// </summary>
-    public interface IPipelineContext : IExtendable
+    public interface IPipelineContext : ICancellableContext, IExtendable
     {
         /// <summary>
         /// Sends the provided message.

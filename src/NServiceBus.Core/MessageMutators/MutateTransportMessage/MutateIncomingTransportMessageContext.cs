@@ -1,16 +1,17 @@
 namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     /// Context class for <see cref="IMutateIncomingTransportMessages" />.
     /// </summary>
-    public class MutateIncomingTransportMessageContext
+    public class MutateIncomingTransportMessageContext : ICancellableContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers)
+        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);
@@ -18,6 +19,8 @@ namespace NServiceBus.MessageMutator
 
             // Intentionally assign to field to not set the MessageBodyChanged flag.
             this.body = body;
+
+            CancellationToken = cancellationToken;
         }
 
         /// <summary>
@@ -38,6 +41,11 @@ namespace NServiceBus.MessageMutator
         /// The current incoming headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// A <see cref="CancellationToken"/> to observe.
+        /// </summary>
+        public CancellationToken CancellationToken { get; private set; }
 
         byte[] body;
 

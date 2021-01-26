@@ -25,13 +25,13 @@
             string nativeMessageId = null;
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     nativeMessageId = context.MessageId;
 
                     throw new Exception("Simulated exception");
                 },
-                context =>
+                (context, _) =>
                 {
                     if (firstInvocation)
                     {
@@ -45,7 +45,7 @@
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 transactionMode,
-                (message, exception) =>
+                (message, exception, _) =>
                 {
                     criticalErrorCalled = true;
                     criticalErrorMessage = message;

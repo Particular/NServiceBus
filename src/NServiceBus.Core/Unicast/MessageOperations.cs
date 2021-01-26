@@ -1,12 +1,12 @@
 namespace NServiceBus
 {
-    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces;
     using Pipeline;
+    using Transport;
 
     class MessageOperations
     {
