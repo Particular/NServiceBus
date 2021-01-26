@@ -10,6 +10,7 @@
     using Unicast.Queuing;
     using NUnit.Framework;
     using Testing;
+    using System.Threading;
 
     [TestFixture]
     public class MessageDrivenUnsubscribeTerminatorTests
@@ -89,7 +90,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

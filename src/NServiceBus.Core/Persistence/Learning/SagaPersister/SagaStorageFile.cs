@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.IO;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using SimpleJson;
@@ -30,7 +31,7 @@ namespace NServiceBus
             fileStream = null;
         }
 
-        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest)
+        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
@@ -39,17 +40,17 @@ namespace NServiceBus
                 return noSagaFoundResult;
             }
 
-            return OpenWithRetryOnConcurrency(filePath, FileMode.Open);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.Open, cancellationToken);
         }
 
-        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
+        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew);
+            return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew, cancellationToken);
         }
 
-        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess)
+        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, CancellationToken cancellationToken)
         {
             var numRetries = 0;
 
@@ -69,27 +70,30 @@ namespace NServiceBus
                     }
 
                     // Give the other task some time to complete the saga to avoid retrying too much
-                    await Task.Delay(100)
+                    await Task.Delay(100, cancellationToken)
                         .ConfigureAwait(false);
                 }
             }
         }
 
-        public Task Write(IContainSagaData sagaData)
+        public Task Write(IContainSagaData sagaData, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             fileStream.Position = 0;
             var json = SimpleJson.SerializeObject(sagaData, EnumAwareStrategy.Instance);
             return streamWriter.WriteAsync(json);
         }
 
-        public Task MarkAsCompleted()
+        public void MarkAsCompleted()
         {
             isCompleted = true;
-            return Task.CompletedTask;
         }
 
-        public async Task<TSagaData> Read<TSagaData>() where TSagaData : class, IContainSagaData
+        public async Task<TSagaData> Read<TSagaData>(CancellationToken cancellationToken) where TSagaData : class, IContainSagaData
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
             return SimpleJson.DeserializeObject<TSagaData>(json, EnumAwareStrategy.Instance);
         }

@@ -2,6 +2,7 @@ namespace NServiceBus.Transport
 {
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -30,6 +31,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Disposes all transport internal resources.
         /// </summary>
-        public abstract Task DisposeAsync();
+        public abstract Task DisposeAsync(CancellationToken cancellationToken);
     }
 }

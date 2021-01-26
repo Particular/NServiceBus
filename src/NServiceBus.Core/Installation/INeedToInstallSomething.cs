@@ -1,5 +1,6 @@
 namespace NServiceBus.Installation
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,6 +12,7 @@ namespace NServiceBus.Installation
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
-        Task Install(string identity);
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        Task Install(string identity, CancellationToken cancellationToken);
     }
 }

@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class RoutingToDispatchConnectorTests
@@ -84,7 +84,7 @@
         static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
         {
             var message = new MyMessage();
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options.Context, new FakeRootContext());
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options.Context, new FakeRootContext(), default);
             if (fromHandler)
             {
                 context.Extensions.Set(new PendingTransportOperations());

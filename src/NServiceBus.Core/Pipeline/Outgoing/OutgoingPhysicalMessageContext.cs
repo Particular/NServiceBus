@@ -7,7 +7,7 @@
     class OutgoingPhysicalMessageContext : OutgoingContext, IOutgoingPhysicalMessageContext
     {
         public OutgoingPhysicalMessageContext(byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingLogicalMessageContext parentContext)
-            : base(parentContext.MessageId, parentContext.Headers, parentContext)
+            : base(parentContext.MessageId, parentContext.Headers, parentContext, parentContext.CancellationToken)
         {
             Body = body;
             RoutingStrategies = routingStrategies;

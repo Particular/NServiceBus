@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Diagnostics
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Particular.Approvals;
@@ -12,7 +13,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
         public async Task ShouldWriteWhenDuplicateEntriesPresent()
         {
             var output = string.Empty;
-            var testWriter = new Func<string, Task>(diagnosticOutput =>
+            var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
             {
                 output = diagnosticOutput;
                 return Task.CompletedTask;
@@ -24,7 +25,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
 
             var writer = new HostStartupDiagnosticsWriter(testWriter, true);
 
-            await writer.Write(diagnostics.entries);
+            await writer.Write(diagnostics.entries, default);
 
             Approver.Verify(output);
         }

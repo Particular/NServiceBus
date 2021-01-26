@@ -1,14 +1,15 @@
 ﻿namespace NServiceBus.Core.Tests.Sagas
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Fakes;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.Extensions.DependencyInjection;
-    using Fakes;
 
     [TestFixture]
     public class CustomFinderAdapterTests
@@ -39,7 +40,7 @@
 
             var customerFinderAdapter = new CustomFinderAdapter<TestSaga.SagaData, StartSagaMessage>();
 
-            Assert.That(async () => await customerFinderAdapter.Find(services.BuildServiceProvider(), finderDefinition, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
+            Assert.That(async () => await customerFinderAdapter.Find(services.BuildServiceProvider(), finderDefinition, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>(), default),
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
     }
@@ -65,7 +66,7 @@
 
     class ReturnsNullFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
     {
-        public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+        public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
         {
             return null;
         }

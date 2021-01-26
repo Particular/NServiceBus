@@ -13,7 +13,7 @@
             var context = new ContextBag();
             context.Set("someKey", "someValue");
 
-            var testee = new SubscribeContext(new FakeRootContext(), new Type[0], context);
+            var testee = new SubscribeContext(new FakeRootContext(), new Type[0], context, default);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
             context.TryGet("someKey", out string value);
@@ -33,7 +33,7 @@
 
             var parentContext = new FakeRootContext();
 
-            new SubscribeContext(parentContext, new Type[0], context);
+            new SubscribeContext(parentContext, new Type[0], context, default);
 
             var valueFound = parentContext.TryGet("someKey", out string _);
 

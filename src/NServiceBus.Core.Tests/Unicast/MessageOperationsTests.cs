@@ -30,7 +30,7 @@
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            await messageOperations.Send<IMyMessage>(new FakeRootContext(), m => { }, new SendOptions());
+            await messageOperations.Send<IMyMessage>(new FakeRootContext(), m => { }, new SendOptions(), default);
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -41,7 +41,7 @@
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions());
+            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions(), default);
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -52,7 +52,7 @@
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var messageOperations = CreateMessageOperations(sendPipeline: sendPipeline);
 
-            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions());
+            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions(), default);
 
             var messageId = sendPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -69,7 +69,7 @@
 
             var sendOptions = new SendOptions();
             sendOptions.SetMessageId(expectedMessageID);
-            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, sendOptions);
+            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, sendOptions, default);
 
             Assert.AreEqual(expectedMessageID, sendPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, sendPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -83,7 +83,7 @@
 
             var sendOptions = new SendOptions();
             sendOptions.SetHeader("header1", "header1 value");
-            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, sendOptions);
+            await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, sendOptions, default);
             sendPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             sendPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
@@ -98,7 +98,7 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            await messageOperations.Reply<IMyMessage>(new FakeRootContext(), m => { }, new ReplyOptions());
+            await messageOperations.Reply<IMyMessage>(new FakeRootContext(), m => { }, new ReplyOptions(), default);
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -109,7 +109,7 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions());
+            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions(), default);
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -120,7 +120,7 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var messageOperations = CreateMessageOperations(replyPipeline: replyPipeline);
 
-            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions());
+            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions(), default);
 
             var messageId = replyPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -137,7 +137,7 @@
 
             var replyOptions = new ReplyOptions();
             replyOptions.SetMessageId(expectedMessageID);
-            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, replyOptions);
+            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, replyOptions, default);
 
             Assert.AreEqual(expectedMessageID, replyPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, replyPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -151,7 +151,7 @@
 
             var replyOptions = new ReplyOptions();
             replyOptions.SetHeader("header1", "header1 value");
-            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, replyOptions);
+            await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, replyOptions, default);
             replyPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             replyPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 
@@ -166,7 +166,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            await messageOperations.Publish<IMyMessage>(new FakeRootContext(), m => { }, new PublishOptions());
+            await messageOperations.Publish<IMyMessage>(new FakeRootContext(), m => { }, new PublishOptions(), default);
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
         }
@@ -177,7 +177,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions());
+            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions(), default);
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -188,7 +188,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var messageOperations = CreateMessageOperations(publishPipeline: publishPipeline);
 
-            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions());
+            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions(), default);
 
             var messageId = publishPipeline.ReceivedContext.MessageId;
             Assert.IsNotNull(messageId);
@@ -205,7 +205,7 @@
 
             var publishOptions = new PublishOptions();
             publishOptions.SetMessageId(expectedMessageID);
-            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, publishOptions);
+            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, publishOptions, default);
 
             Assert.AreEqual(expectedMessageID, publishPipeline.ReceivedContext.MessageId);
             Assert.AreEqual(expectedMessageID, publishPipeline.ReceivedContext.Headers[Headers.MessageId]);
@@ -219,7 +219,7 @@
 
             var publishOptions = new PublishOptions();
             publishOptions.SetHeader("header1", "header1 value");
-            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, publishOptions);
+            await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, publishOptions, default);
             publishPipeline.ReceivedContext.Headers.Add("header2", "header2 value");
             publishPipeline.ReceivedContext.Headers["header1"] = "updated header1 value";
 

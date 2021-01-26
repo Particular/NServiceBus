@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Transport;
 
@@ -74,7 +75,7 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
-        public override Task DisposeAsync()
+        public override Task DisposeAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

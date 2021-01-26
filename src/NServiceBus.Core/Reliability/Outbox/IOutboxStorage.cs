@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Outbox
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
 
@@ -15,23 +16,24 @@
         /// If there is no <see cref="OutboxMessage" /> present for the given <paramref name="messageId" /> then null is
         /// returned.
         /// </returns>
-        Task<OutboxMessage> Get(string messageId, ContextBag context);
+        Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Stores the outbox message to enable deduplication an re-dispatching of related transport operations.
         /// </summary>
-        Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context);
+        Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Tells the storage that the message has been dispatched and its now safe to clean up the transport operations.
         /// </summary>
-        Task SetAsDispatched(string messageId, ContextBag context);
+        Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Creates the <see cref="OutboxTransaction" />.
         /// </summary>
         /// <param name="context">The current pipeline context.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>The created outbox transaction.</returns>
-        Task<OutboxTransaction> BeginTransaction(ContextBag context);
+        Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken);
     }
 }

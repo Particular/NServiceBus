@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
@@ -18,7 +19,7 @@
             return new HostStartupDiagnosticsWriter(diagnosticsWriter, false);
         }
 
-        static Func<string, Task> BuildDefaultDiagnosticsWriter(HostingComponent.Configuration configuration)
+        static Func<string, CancellationToken, Task> BuildDefaultDiagnosticsWriter(HostingComponent.Configuration configuration)
         {
             var diagnosticsRootPath = configuration.DiagnosticsPath;
 
@@ -32,7 +33,7 @@
                 {
                     logger.Warn("Unable to determine the diagnostics output directory. Check the attached exception for further information, or configure a custom diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
 
-                    return data => Task.CompletedTask;
+                    return (_, __) => Task.CompletedTask;
                 }
             }
 
@@ -46,7 +47,7 @@
                 {
                     logger.Warn("Unable to create the diagnostics output directory. Check the attached exception for further information, or change the diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
 
-                    return data => Task.CompletedTask;
+                    return (_, __) => Task.CompletedTask;
                 }
             }
 
@@ -56,10 +57,10 @@
             var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
 
 
-            return data =>
+            return (data, cancellationToken) =>
             {
                 var prettied = JsonPrettyPrinter.Print(data);
-                return AsyncFile.WriteText(startupDiagnosticsFilePath, prettied);
+                return AsyncFile.WriteText(startupDiagnosticsFilePath, prettied, cancellationToken);
             };
         }
 

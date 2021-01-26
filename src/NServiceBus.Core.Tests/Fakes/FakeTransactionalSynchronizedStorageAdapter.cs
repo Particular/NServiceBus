@@ -1,16 +1,17 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
-    using Outbox;
     using NServiceBus.Persistence;
+    using Outbox;
     using Transport;
 
     public class FakeTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken)
         {
             if (transaction is FakeOutboxTransaction inMemOutboxTransaction)
             {
@@ -20,7 +21,7 @@
             return EmptyTask;
         }
 
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context)
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken)
         {
             if (transportTransaction.TryGet(out Transaction ambientTransaction))
             {

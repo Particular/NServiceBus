@@ -16,7 +16,7 @@ namespace NServiceBus
         }
 
         public RoutingContext(OutgoingMessage messageToDispatch, IReadOnlyCollection<RoutingStrategy> routingStrategies, IBehaviorContext parentContext)
-            : base(messageToDispatch.MessageId, messageToDispatch.Headers, parentContext)
+            : base(messageToDispatch.MessageId, messageToDispatch.Headers, parentContext, parentContext.CancellationToken)
         {
             Message = messageToDispatch;
             RoutingStrategies = routingStrategies;

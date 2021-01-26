@@ -1,9 +1,10 @@
 namespace NServiceBus
 {
-    using Transport;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
+    using Transport;
 
     class TransportReceiver
     {
@@ -15,7 +16,7 @@ namespace NServiceBus
             this.receiver = receiver;
         }
 
-        public async Task Start(OnMessage onMessage, OnError onError)
+        public async Task Start(OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
         {
             if (isStarted)
             {
@@ -25,13 +26,13 @@ namespace NServiceBus
             Logger.DebugFormat("Receiver {0} is starting.", receiver.Id);
 
 
-            await receiver.Initialize(pushRuntimeSettings, onMessage, onError).ConfigureAwait(false);
-            await receiver.StartReceive().ConfigureAwait(false);
+            await receiver.Initialize(pushRuntimeSettings, onMessage, onError, cancellationToken).ConfigureAwait(false);
+            await receiver.StartReceive(cancellationToken).ConfigureAwait(false);
 
             isStarted = true;
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             if (!isStarted)
             {
@@ -40,7 +41,7 @@ namespace NServiceBus
 
             try
             {
-                await receiver.StopReceive().ConfigureAwait(false);
+                await receiver.StopReceive(cancellationToken).ConfigureAwait(false);
                 (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)

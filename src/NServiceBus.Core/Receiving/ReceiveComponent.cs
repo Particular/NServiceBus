@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
@@ -133,7 +134,8 @@ namespace NServiceBus
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
             IPipelineCache pipelineCache,
-            TransportInfrastructure transportInfrastructure)
+            TransportInfrastructure transportInfrastructure,
+            CancellationToken cancellationToken)
         {
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -149,7 +151,7 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke).ConfigureAwait(false);
+                recoverability.Invoke, cancellationToken).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
@@ -158,7 +160,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
+                    instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
 
                 receivers.Add(instanceSpecificPump);
             }
@@ -173,7 +175,7 @@ namespace NServiceBus
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
-                        satelliteRecoverabilityExecutor.Invoke).ConfigureAwait(false);
+                        satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
                     receivers.Add(satellitePump);
                 }
                 catch (Exception ex)
@@ -184,25 +186,25 @@ namespace NServiceBus
             }
         }
 
-        public async Task Start()
+        public async Task Start(CancellationToken cancellationToken)
         {
             foreach (var messageReceiver in receivers)
             {
                 Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
 
-                await messageReceiver.StartReceive().ConfigureAwait(false);
+                await messageReceiver.StartReceive(cancellationToken).ConfigureAwait(false);
                 //TODO: If we fails starting N-th receiver then we need to stop and dispose N-1 receivers
             }
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             var receiverStopTasks = receivers.Select(async receiver =>
             {
                 Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
                 try
                 {
-                    await receiver.StopReceive().ConfigureAwait(false);
+                    await receiver.StopReceive(cancellationToken).ConfigureAwait(false);
                     (receiver as IDisposable)?.Dispose();
                     Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
                 }

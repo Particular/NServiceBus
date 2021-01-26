@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Transport;
@@ -30,7 +31,7 @@
             raiseNotifications = raiseRecoverabilityNotifications;
         }
 
-        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
+        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken)
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 
@@ -44,36 +45,36 @@
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
             }
 
             if (recoveryAction is ImmediateRetry)
             {
-                return RaiseImmediateRetryNotifications(errorContext);
+                return RaiseImmediateRetryNotifications(errorContext, cancellationToken);
             }
 
             // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
             if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
             }
 
             if (recoveryAction is DelayedRetry delayedRetryAction)
             {
-                return DeferMessage(delayedRetryAction, errorContext);
+                return DeferMessage(delayedRetryAction, errorContext, cancellationToken);
             }
 
             if (recoveryAction is MoveToError moveToError)
             {
-                return MoveToError(errorContext, moveToError.ErrorQueue);
+                return MoveToError(errorContext, moveToError.ErrorQueue, cancellationToken);
             }
 
             Logger.Warn("Recoverability policy returned an unsupported recoverability action. Moving message to error queue instead.");
-            return MoveToError(errorContext, configuration.Failed.ErrorQueue);
+            return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
         }
 
-        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)
+        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
         {
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
@@ -84,36 +85,37 @@
                             attempt: errorContext.ImmediateProcessingFailures - 1,
                             delay: TimeSpan.Zero,
                             immediateRetry: true,
-                            errorContext: errorContext))
+                            errorContext: errorContext),
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue)
+        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken)
         {
             var message = errorContext.Message;
 
             Logger.Error($"Moving message '{message.MessageId}' to the error queue '{errorQueue}' because processing failed due to an exception:", errorContext.Exception);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
+            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
-                await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue)).ConfigureAwait(false);
+                await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue), cancellationToken).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.Handled;
         }
 
-        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext)
+        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext, CancellationToken cancellationToken)
         {
             var message = errorContext.Message;
 
             Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
 
-            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction).ConfigureAwait(false);
+            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
@@ -122,7 +124,8 @@
                             attempt: currentDelayedRetriesAttempts,
                             delay: action.Delay,
                             immediateRetry: false,
-                            errorContext: errorContext))
+                            errorContext: errorContext),
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 

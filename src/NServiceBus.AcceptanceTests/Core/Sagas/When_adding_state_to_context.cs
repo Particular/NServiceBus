@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -52,7 +53,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                     this.testContext = testContext;
                 }
 
-                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
                 {
                     testContext.ContextBag = context;
                     testContext.FinderUsed = true;

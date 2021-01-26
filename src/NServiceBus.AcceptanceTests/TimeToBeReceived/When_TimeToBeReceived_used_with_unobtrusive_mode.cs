@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.TimeToBeReceived
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -36,12 +37,12 @@
 
         class SendMessageWhileStartingTask : FeatureStartupTask
         {
-            protected override Task OnStart(IMessageSession session)
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
             {
-                return session.Send(new MyCommand());
+                return session.Send(new MyCommand(), cancellationToken: cancellationToken);
             }
 
-            protected override Task OnStop(IMessageSession session)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }
@@ -79,12 +80,12 @@
 
         class DelayReceiverFromStartingTask : FeatureStartupTask
         {
-            protected override Task OnStart(IMessageSession session)
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
             {
-                return Task.Delay(TimeSpan.FromSeconds(5));
+                return Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
 
-            protected override Task OnStop(IMessageSession session)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

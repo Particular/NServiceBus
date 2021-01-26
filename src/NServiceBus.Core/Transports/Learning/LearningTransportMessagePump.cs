@@ -49,7 +49,7 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -67,31 +67,29 @@
             return Task.CompletedTask;
         }
 
-        public Task StartReceive()
+        public Task StartReceive(CancellationToken cancellationToken)
         {
-            cancellationTokenSource = new CancellationTokenSource();
+            stopRequestedCancellationTokenSource = new CancellationTokenSource();
 
-            cancellationToken = cancellationTokenSource.Token;
-
-            messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
+            messagePumpTask = Task.Run(() => ProcessMessages(stopRequestedCancellationTokenSource.Token), stopRequestedCancellationTokenSource.Token);
 
             delayedMessagePoller.Start();
 
             return Task.CompletedTask;
         }
 
-        public async Task StopReceive()
+        public async Task StopReceive(CancellationToken cancellationToken)
         {
-            cancellationTokenSource?.Cancel();
+            stopRequestedCancellationTokenSource?.Cancel();
 
             delayedMessagePoller.Stop();
 
             await messagePumpTask
                 .ConfigureAwait(false);
 
-            while (concurrencyLimiter.CurrentCount != maxConcurrency)
+            while (!cancellationToken.IsCancellationRequested && concurrencyLimiter.CurrentCount != maxConcurrency)
             {
-                await Task.Delay(50, CancellationToken.None)
+                await Task.Delay(50, cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -140,13 +138,13 @@
         }
 
         [DebuggerNonUserCode]
-        async Task ProcessMessages()
+        async Task ProcessMessages(CancellationToken stopRequestedCancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stopRequestedCancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    await InnerProcessMessages()
+                    await InnerProcessMessages(stopRequestedCancellationToken)
                         .ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
@@ -160,11 +158,11 @@
             }
         }
 
-        async Task InnerProcessMessages()
+        async Task InnerProcessMessages(CancellationToken stopRequestedCancellationToken)
         {
             log.Debug($"Started polling for new messages in {messagePumpBasePath}");
 
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stopRequestedCancellationToken.IsCancellationRequested)
             {
                 var filesFound = false;
 
@@ -174,7 +172,7 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
-                    await concurrencyLimiter.WaitAsync(cancellationToken)
+                    await concurrencyLimiter.WaitAsync(stopRequestedCancellationToken)
                         .ConfigureAwait(false);
 
                     ILearningTransportTransaction transaction;
@@ -183,7 +181,7 @@
                     {
                         transaction = GetTransaction();
 
-                        var ableToLockFile = await transaction.BeginTransaction(filePath).ConfigureAwait(false);
+                        var ableToLockFile = await transaction.BeginTransaction(filePath, stopRequestedCancellationToken).ConfigureAwait(false);
 
                         if (!ableToLockFile)
                         {
@@ -200,12 +198,12 @@
                         throw;
                     }
 
-                    _ = ProcessFileAndComplete(transaction, filePath, nativeMessageId);
+                    _ = ProcessFileAndComplete(transaction, filePath, nativeMessageId, stopRequestedCancellationToken);
                 }
 
                 if (!filesFound)
                 {
-                    await Task.Delay(10, cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(10, stopRequestedCancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -220,11 +218,11 @@
             return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
-        async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId)
+        async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken stopRequestedCancellationToken)
         {
             try
             {
-                await ProcessFile(transaction, messageId)
+                await ProcessFile(transaction, messageId, stopRequestedCancellationToken)
                     .ConfigureAwait(false);
             }
             finally
@@ -252,9 +250,9 @@
             }
         }
 
-        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
+        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken stopRequestedCancellationToken)
         {
-            var message = await AsyncFile.ReadText(transaction.FileToProcess)
+            var message = await AsyncFile.ReadText(transaction.FileToProcess, stopRequestedCancellationToken)
                     .ConfigureAwait(false);
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
@@ -272,14 +270,14 @@
                 var utcNow = DateTime.UtcNow;
                 if (sentTime + ttbr < utcNow)
                 {
-                    await transaction.Commit()
+                    await transaction.Commit(stopRequestedCancellationToken)
                         .ConfigureAwait(false);
                     log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
                     return;
                 }
             }
 
-            var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
+            var body = await AsyncFile.ReadBytes(bodyPath, stopRequestedCancellationToken)
                 .ConfigureAwait(false);
 
             var transportTransaction = new TransportTransaction();
@@ -293,8 +291,14 @@
 
             try
             {
-                await onMessage(messageContext)
+                await onMessage(messageContext, stopRequestedCancellationToken)
                     .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                transaction.Rollback();
+
+                return;
             }
             catch (Exception exception)
             {
@@ -309,8 +313,14 @@
                 ErrorHandleResult actionToTake;
                 try
                 {
-                    actionToTake = await onError(errorContext)
+                    actionToTake = await onError(errorContext, stopRequestedCancellationToken)
                         .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    transaction.Rollback();
+
+                    return;
                 }
                 catch (Exception ex)
                 {
@@ -326,12 +336,11 @@
                 }
             }
 
-            await transaction.Commit()
+            await transaction.Commit(stopRequestedCancellationToken)
                 .ConfigureAwait(false);
         }
 
-        CancellationToken cancellationToken;
-        CancellationTokenSource cancellationTokenSource;
+        CancellationTokenSource stopRequestedCancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
         Task messagePumpTask;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();

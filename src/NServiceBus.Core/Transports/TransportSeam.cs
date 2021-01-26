@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus
 {
-    using System.Linq;
-    using System.Threading.Tasks;
     using System;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Settings;
     using Transport;
 
@@ -24,9 +25,9 @@
             this.receivers = receivers;
         }
 
-        public async Task<TransportInfrastructure> CreateTransportInfrastructure()
+        public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken)
         {
-            TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray())
+            TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), cancellationToken)
                 .ConfigureAwait(false);
 
             var eventHandlers = TransportInfrastructureCreated;

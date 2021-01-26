@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -25,7 +26,7 @@ namespace NServiceBus
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
 
-            var subscribers = await GetSubscribers(publishContext, typesToRoute).ConfigureAwait(false);
+            var subscribers = await GetSubscribers(publishContext, typesToRoute, publishContext.CancellationToken).ConfigureAwait(false);
 
             var destinations = SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
 
@@ -89,10 +90,10 @@ namespace NServiceBus
             return addresses.Values;
         }
 
-        Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
+        Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute, CancellationToken cancellationToken)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
-            return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions);
+            return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions, cancellationToken);
         }
 
         MessageMetadataRegistry messageMetadataRegistry;

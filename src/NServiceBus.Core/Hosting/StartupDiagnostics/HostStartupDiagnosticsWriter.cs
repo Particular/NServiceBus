@@ -3,19 +3,20 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using SimpleJson;
 
     class HostStartupDiagnosticsWriter
     {
-        public HostStartupDiagnosticsWriter(Func<string, Task> diagnosticsWriter, bool isCustomWriter)
+        public HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter)
         {
             this.diagnosticsWriter = diagnosticsWriter;
             this.isCustomWriter = isCustomWriter;
         }
 
-        public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
+        public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries, CancellationToken cancellationToken)
         {
             var deduplicatedEntries = DeduplicateEntries(entries);
             var dictionary = deduplicatedEntries
@@ -35,7 +36,7 @@
             }
             try
             {
-                await diagnosticsWriter(data)
+                await diagnosticsWriter(data, cancellationToken)
                     .ConfigureAwait(false);
             }
             catch (Exception exception)
@@ -76,7 +77,7 @@
             }
         }
 
-        Func<string, Task> diagnosticsWriter;
+        Func<string, CancellationToken, Task> diagnosticsWriter;
         bool isCustomWriter;
 
         static ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
