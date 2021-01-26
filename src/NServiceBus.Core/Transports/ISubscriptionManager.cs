@@ -10,11 +10,6 @@
     public interface ISubscriptionManager
     {
         /// <summary>
-        /// Subscribes to the given event.
-        /// </summary>
-        Task Subscribe(MessageMetadata eventType, ContextBag context);
-
-        /// <summary>
         /// Subscribes to all provided events.
         /// </summary>
         Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context);
