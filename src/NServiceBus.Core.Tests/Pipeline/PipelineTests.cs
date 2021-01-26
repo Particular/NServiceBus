@@ -123,39 +123,6 @@
         }
 
         [Test]
-        public async Task ShouldNotCacheCancellationToken()
-        {
-            var stringWriter = new StringWriter();
-
-            var pipelineModifications = new PipelineModifications();
-            pipelineModifications.Additions.Add(new Behavior1.Registration(stringWriter));
-            pipelineModifications.Additions.Add(new Stage1.Registration(stringWriter));
-            pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
-            pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
-            pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
-            pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
-
-            var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
-
-            stringWriter.WriteLine("Run 1", new CancellationToken(true));
-
-            var context = new TestableTransportReceiveContext();
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
-            context.Extensions.Set(ExtendableExtensions.RunSpecificKey, 1);
-
-            Assert.ThrowsAsync<OperationCanceledException>(() => pipeline.Invoke(context, new CancellationToken(true)));
-
-            stringWriter.WriteLine("Run 2");
-
-            context = new TestableTransportReceiveContext();
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
-            context.Extensions.Set(ExtendableExtensions.RunSpecificKey, 2);
-
-            // Should not throw
-            await pipeline.Invoke(context, CancellationToken.None);
-        }
-
-        [Test]
         public void ShouldCreateCachedExecutionPlan()
         {
             var stringWriter = new StringWriter();
