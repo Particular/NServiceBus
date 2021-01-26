@@ -1,11 +1,12 @@
 namespace NServiceBus
 {
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
 
     static class AsyncDirectory
     {
-        public static async Task Move(string sourcePath, string targetPath)
+        public static async Task Move(string sourcePath, string targetPath, CancellationToken cancellationToken)
         {
             var count = 0;
             while (count <= 10)
@@ -23,7 +24,7 @@ namespace NServiceBus
                     }
                 }
 
-                await Task.Delay(100).ConfigureAwait(false);
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                 count++;
             }
         }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
@@ -23,13 +24,13 @@
 
             var updateValue = Guid.NewGuid().ToString();
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, default))
             {
-                sagaData = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(sagaData.Id, completeSession, context);
+                sagaData = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(sagaData.Id, completeSession, context, default);
                 sagaData.SomeSagaProperty = updateValue;
 
-                await configuration.SagaStorage.Update(sagaData, completeSession, context);
-                await completeSession.CompleteAsync();
+                await configuration.SagaStorage.Update(sagaData, completeSession, context, default);
+                await completeSession.CompleteAsync(default);
             }
 
             var result = await GetById<SagaWithoutCorrelationPropertyData>(sagaData.Id);
@@ -54,7 +55,7 @@
 
         public class CustomFinder : IFindSagas<SagaWithoutCorrelationPropertyData>.Using<SagaWithoutCorrelationPropertyStartingMessage>
         {
-            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

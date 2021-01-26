@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using Transport;
     using System;
     using System.IO;
     using System.Threading.Tasks;
@@ -8,6 +7,7 @@
     using DataBus;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
+    using Transport;
 
     class DataBusSendBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
@@ -54,7 +54,7 @@
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        headerValue = await dataBus.Put(stream, timeToBeReceived).ConfigureAwait(false);
+                        headerValue = await dataBus.Put(stream, timeToBeReceived, context.CancellationToken).ConfigureAwait(false);
                     }
 
                     string headerKey;

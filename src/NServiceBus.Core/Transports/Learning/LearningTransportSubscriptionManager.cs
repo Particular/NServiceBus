@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Transport;
+    using System.Threading;
 
     class LearningTransportSubscriptionManager : ISubscriptionManager
     {
@@ -16,18 +17,18 @@
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context)
+        public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken)
         {
             var tasks = new Task[eventTypes.Length];
             for (int i = 0; i < eventTypes.Length; i++)
             {
-                tasks[i] = Subscribe(eventTypes[i]);
+                tasks[i] = Subscribe(eventTypes[i], cancellationToken);
             }
 
             return Task.WhenAll(tasks);
         }
 
-        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context)
+        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
@@ -58,12 +59,12 @@
                     }
 
                     //allow the other task to complete
-                    await Task.Delay(100).ConfigureAwait(false);
+                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
 
-        async Task Subscribe(MessageMetadata eventType)
+        async Task Subscribe(MessageMetadata eventType, CancellationToken cancellationToken)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
 
@@ -79,7 +80,7 @@
             {
                 try
                 {
-                    await AsyncFile.WriteText(subscriptionEntryPath, localAddress).ConfigureAwait(false);
+                    await AsyncFile.WriteText(subscriptionEntryPath, localAddress, cancellationToken).ConfigureAwait(false);
 
                     return;
                 }
@@ -93,7 +94,7 @@
                     }
 
                     //allow the other task to complete
-                    await Task.Delay(100).ConfigureAwait(false);
+                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

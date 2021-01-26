@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Sagas;
@@ -22,15 +23,15 @@
 
             var updateValue = Guid.NewGuid().ToString();
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, default))
             {
                 // the saga won't be loaded via a persister.Get operation in this case
                 var customFinder = new CustomFinder(saga);
-                var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context);
+                var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context, default);
                 sagaData.SomeSagaProperty = updateValue;
 
-                await configuration.SagaStorage.Update(sagaData, completeSession, context);
-                await completeSession.CompleteAsync();
+                await configuration.SagaStorage.Update(sagaData, completeSession, context, default);
+                await completeSession.CompleteAsync(default);
             }
 
             var result = await GetById<SagaWithoutCorrelationPropertyData>(saga.Id);
@@ -61,7 +62,7 @@
                 this.sagaToFind = sagaToFind;
             }
 
-            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(sagaToFind);
             }

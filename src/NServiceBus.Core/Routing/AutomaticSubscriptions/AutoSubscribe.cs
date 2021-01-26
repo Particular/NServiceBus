@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
@@ -60,12 +61,12 @@
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
             }
 
-            protected override async Task OnStart(IMessageSession session)
+            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken)
             {
                 try
                 {
                     var messageSession = session as MessageSession;
-                    await messageSession.SubscribeAll(messagesHandledByThisEndpoint, new SubscribeOptions())
+                    await messageSession.SubscribeAll(messagesHandledByThisEndpoint, new SubscribeOptions(), cancellationToken)
                         .ConfigureAwait(false);
                     if (Logger.IsDebugEnabled)
                     {
@@ -100,7 +101,7 @@
             }
 
 
-            protected override Task OnStop(IMessageSession session)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }

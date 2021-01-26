@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using LightInject;
     using LightInject.Microsoft.DependencyInjection;
@@ -35,7 +36,7 @@
             return externallyManagedContainerHost;
         }
 
-        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
+        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration, CancellationToken cancellationToken)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -66,7 +67,7 @@
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, hostingComponent);
             hostingComponent.RegisterBuilder(serviceProvider);
 
-            await hostingComponent.RunInstallers().ConfigureAwait(false);
+            await hostingComponent.RunInstallers(cancellationToken).ConfigureAwait(false);
 
             return new InternallyManagedContainerHost(startableEndpoint, hostingComponent);
         }

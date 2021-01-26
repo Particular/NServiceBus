@@ -7,16 +7,16 @@ namespace NServiceBus
 
     static class AsyncFile
     {
-        public static async Task WriteBytes(string filePath, byte[] bytes)
+        public static async Task WriteBytes(string filePath, byte[] bytes, CancellationToken cancellationToken)
         {
             using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
-                await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+                await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
             }
         }
 
         //write to temp file first so we can do a atomic move
-        public static async Task WriteTextAtomic(string targetPath, string text)
+        public static async Task WriteTextAtomic(string targetPath, string text, CancellationToken cancellationToken)
         {
             var tempFile = Path.GetTempFileName();
             var bytes = Encoding.UTF8.GetBytes(text);
@@ -25,7 +25,7 @@ namespace NServiceBus
             {
                 using (var stream = CreateWriteStream(tempFile, FileMode.Open))
                 {
-                    await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+                    await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch
@@ -42,30 +42,31 @@ namespace NServiceBus
             return new FileStream(filePath, fileMode, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
         }
 
-        public static Task WriteText(string filePath, string text)
+        public static Task WriteText(string filePath, string text, CancellationToken cancellationToken)
         {
             var bytes = Encoding.UTF8.GetBytes(text);
 
-            return WriteBytes(filePath, bytes);
+            return WriteBytes(filePath, bytes, cancellationToken);
         }
 
-        public static async Task<string> ReadText(string filePath)
+        public static async Task<string> ReadText(string filePath, CancellationToken cancellationToken)
         {
             using (var stream = new StreamReader(CreateReadStream(filePath), Encoding.UTF8))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var result = await stream.ReadToEndAsync().ConfigureAwait(false);
 
                 return result;
             }
         }
 
-        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken token = default)
+        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken cancellationToken)
         {
             using (var stream = CreateReadStream(filePath))
             {
                 var length = (int)stream.Length;
                 var body = new byte[length];
-                await stream.ReadAsync(body, 0, length, token).ConfigureAwait(false);
+                await stream.ReadAsync(body, 0, length, cancellationToken).ConfigureAwait(false);
 
                 return body;
             }
@@ -76,7 +77,7 @@ namespace NServiceBus
             return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
         }
 
-        public static async Task<bool> Move(string sourcePath, string targetPath)
+        public static async Task<bool> Move(string sourcePath, string targetPath, CancellationToken cancellationToken)
         {
             try
             {
@@ -89,9 +90,9 @@ namespace NServiceBus
 
             var count = 0;
 
-            while (IsFileLocked(targetPath))
+            while (!cancellationToken.IsCancellationRequested && IsFileLocked(targetPath))
             {
-                await Task.Delay(100).ConfigureAwait(false);
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
 
                 count++;
 

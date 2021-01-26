@@ -8,7 +8,7 @@ namespace NServiceBus
     abstract class IncomingContext : BehaviorContext, IIncomingContext
     {
         protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, IBehaviorContext parentContext)
-            : base(parentContext)
+            : base(parentContext, parentContext?.CancellationToken ?? default)
         {
             MessageId = messageId;
             ReplyToAddress = replyToAddress;
@@ -25,32 +25,32 @@ namespace NServiceBus
 
         public Task Send(object message, SendOptions options)
         {
-            return MessageOperations.Send(this, message, options);
+            return MessageOperations.Send(this, message, options, CancellationToken);
         }
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return MessageOperations.Send(this, messageConstructor, options);
+            return MessageOperations.Send(this, messageConstructor, options, CancellationToken);
         }
 
         public Task Publish(object message, PublishOptions options)
         {
-            return MessageOperations.Publish(this, message, options);
+            return MessageOperations.Publish(this, message, options, CancellationToken);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return MessageOperations.Publish(this, messageConstructor, publishOptions);
+            return MessageOperations.Publish(this, messageConstructor, publishOptions, CancellationToken);
         }
 
         public Task Reply(object message, ReplyOptions options)
         {
-            return MessageOperations.Reply(this, message, options);
+            return MessageOperations.Reply(this, message, options, CancellationToken);
         }
 
         public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
-            return MessageOperations.Reply(this, messageConstructor, options);
+            return MessageOperations.Reply(this, messageConstructor, options, CancellationToken);
         }
 
         public Task ForwardCurrentMessageTo(string destination)
@@ -60,12 +60,12 @@ namespace NServiceBus
 
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return MessageOperations.Subscribe(this, eventType, options);
+            return MessageOperations.Subscribe(this, eventType, options, CancellationToken);
         }
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return MessageOperations.Unsubscribe(this, eventType, options);
+            return MessageOperations.Unsubscribe(this, eventType, options, CancellationToken);
         }
     }
 }

@@ -55,7 +55,7 @@
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
-                        (builder, messageContext) =>
+                        (builder, messageContext, cancellationToken) =>
                         {
                             var testContext = builder.GetService<Context>();
                             testContext.MessageReceived = true;

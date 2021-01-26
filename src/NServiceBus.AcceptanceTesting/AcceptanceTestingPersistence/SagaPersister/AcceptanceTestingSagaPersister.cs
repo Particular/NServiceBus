@@ -5,6 +5,7 @@ namespace NServiceBus.AcceptanceTesting
     using System.Collections.Generic;
     using System.Reflection;
     using System.Reflection.Emit;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -20,7 +21,7 @@ namespace NServiceBus.AcceptanceTesting
             byCorrelationIdCollection = byCorrelationId;
         }
 
-        public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
+        public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
         {
             ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
@@ -42,7 +43,7 @@ namespace NServiceBus.AcceptanceTesting
             return Task.CompletedTask;
         }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
             where TSagaData : class, IContainSagaData
         {
             if (sagas.TryGetValue(sagaId, out var value))
@@ -56,7 +57,7 @@ namespace NServiceBus.AcceptanceTesting
             return CachedSagaDataTask<TSagaData>.Default;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context)
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
             where TSagaData : class, IContainSagaData
         {
             var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
@@ -64,13 +65,13 @@ namespace NServiceBus.AcceptanceTesting
             if (byCorrelationId.TryGetValue(key, out var id))
             {
                 // this isn't updated atomically and may return null for an entry that has been indexed but not inserted yet
-                return Get<TSagaData>(id, session, context);
+                return Get<TSagaData>(id, session, context, cancellationToken);
             }
 
             return CachedSagaDataTask<TSagaData>.Default;
         }
 
-        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
+        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
         {
             ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
@@ -94,7 +95,7 @@ namespace NServiceBus.AcceptanceTesting
             return Task.CompletedTask;
         }
 
-        public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
+        public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
         {
             ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {

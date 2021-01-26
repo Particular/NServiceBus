@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -10,6 +9,7 @@
     using Logging;
     using NUnit.Framework;
     using Routing;
+    using Transport;
 
     public abstract class NServiceBusTransportTest
     {
@@ -67,12 +67,12 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            receiver?.StopReceive().GetAwaiter().GetResult();
-            transportInfrastructure?.Shutdown().GetAwaiter().GetResult();
-            configurer?.Cleanup().GetAwaiter().GetResult();
+            receiver?.StopReceive(default).GetAwaiter().GetResult();
+            transportInfrastructure?.Shutdown(default).GetAwaiter().GetResult();
+            configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
+        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null, CancellationToken cancellationToken = default)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -90,11 +90,11 @@
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
             transport.TransportTransactionMode = transactionMode;
 
-            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, cancellationToken);
 
             await transportInfrastructure.Receivers[0].Initialize(
                 new PushRuntimeSettings(8),
-                context =>
+                (context, token) =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
                     {
@@ -103,7 +103,7 @@
 
                     return Task.FromResult(0);
                 },
-                context =>
+                (context, token) =>
                 {
                     if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
                         context.Message.Headers[TestIdHeaderName] == testId)
@@ -112,9 +112,10 @@
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                });
+                },
+                default);
 
-            await transportInfrastructure.Receivers[0].StartReceive();
+            await transportInfrastructure.Receivers[0].StartReceive(cancellationToken);
 
             receiver = transportInfrastructure.Receivers[0];
         }
@@ -158,7 +159,7 @@
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
-            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
+            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, default);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

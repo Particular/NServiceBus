@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Hosting;
     using Installation;
@@ -38,7 +39,7 @@
                 CriticalError criticalError,
                 StartupDiagnosticEntries startupDiagnostics,
                 string diagnosticsPath,
-                Func<string, Task> hostDiagnosticsWriter,
+                Func<string, CancellationToken, Task> hostDiagnosticsWriter,
                 string endpointName,
                 IServiceCollection services,
                 string installationUserName,
@@ -66,7 +67,7 @@
 
             public StartupDiagnosticEntries StartupDiagnostics { get; }
 
-            public Func<string, Task> HostDiagnosticsWriter { get; }
+            public Func<string, CancellationToken, Task> HostDiagnosticsWriter { get; }
 
             public void AddInstaller(Func<string, Task> installer)
             {

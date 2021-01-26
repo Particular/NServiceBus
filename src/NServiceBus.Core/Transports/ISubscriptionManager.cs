@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Unicast.Messages;
@@ -12,11 +13,11 @@
         /// <summary>
         /// Subscribes to all provided events.
         /// </summary>
-        Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context);
+        Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Unsubscribes from the given event.
         /// </summary>
-        Task Unsubscribe(MessageMetadata eventType, ContextBag context);
+        Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken);
     }
 }

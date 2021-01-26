@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -38,20 +39,20 @@
         {
             PushRuntimeSettings pushSettings;
 
-            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
+            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
             {
                 pushSettings = limitations;
                 return Task.CompletedTask;
             }
 
-            public Task StartReceive()
+            public Task StartReceive(CancellationToken cancellationToken)
             {
                 Assert.AreEqual(10, pushSettings.MaxConcurrency);
 
                 return Task.CompletedTask;
             }
 
-            public Task StopReceive()
+            public Task StopReceive(CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -63,7 +64,7 @@
 
         class FakeDispatcher : IMessageDispatcher
         {
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }
@@ -75,7 +76,7 @@
             {
             }
 
-            public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses)
+            public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
             {
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
             }
@@ -105,7 +106,7 @@
                 Receivers = receiveSettings.Select(settings => new FakeReceiver()).ToList<IMessageReceiver>().AsReadOnly();
             }
 
-            public override Task Shutdown()
+            public override Task Shutdown(CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }

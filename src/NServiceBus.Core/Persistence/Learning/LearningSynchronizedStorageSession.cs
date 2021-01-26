@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Persistence;
@@ -24,18 +25,18 @@ namespace NServiceBus
             sagaFiles.Clear();
         }
 
-        public async Task CompleteAsync()
+        public async Task CompleteAsync(CancellationToken cancellationToken)
         {
             foreach (var action in deferredActions)
             {
-                await action.Execute().ConfigureAwait(false);
+                await action.Execute(cancellationToken).ConfigureAwait(false);
             }
             deferredActions.Clear();
         }
 
-        public async Task<TSagaData> Read<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData
+        public async Task<TSagaData> Read<TSagaData>(Guid sagaId, CancellationToken cancellationToken) where TSagaData : class, IContainSagaData
         {
-            var sagaStorageFile = await Open(sagaId, typeof(TSagaData))
+            var sagaStorageFile = await Open(sagaId, typeof(TSagaData), cancellationToken)
                 .ConfigureAwait(false);
 
             if (sagaStorageFile == null)
@@ -43,33 +44,30 @@ namespace NServiceBus
                 return null;
             }
 
-            return await sagaStorageFile.Read<TSagaData>()
+            return await sagaStorageFile.Read<TSagaData>(cancellationToken)
                 .ConfigureAwait(false);
         }
 
-        public Task Update(IContainSagaData sagaData)
+        public void Update(IContainSagaData sagaData)
         {
             deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
-            return Task.CompletedTask;
         }
 
-        public Task Save(IContainSagaData sagaData)
+        public void Save(IContainSagaData sagaData)
         {
             deferredActions.Add(new SaveAction(sagaData, sagaFiles, sagaManifests));
-            return Task.CompletedTask;
         }
 
-        public Task Complete(IContainSagaData sagaData)
+        public void Complete(IContainSagaData sagaData)
         {
             deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
-            return Task.CompletedTask;
         }
 
-        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType)
+        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, CancellationToken cancellationToken)
         {
             var sagaManifest = sagaManifests.GetForEntityType(entityType);
 
-            var sagaStorageFile = await SagaStorageFile.Open(sagaId, sagaManifest)
+            var sagaStorageFile = await SagaStorageFile.Open(sagaId, sagaManifest, cancellationToken)
                 .ConfigureAwait(false);
 
             if (sagaStorageFile != null)

@@ -1,9 +1,10 @@
 ﻿namespace NServiceBus
 {
-    using System.Collections.Generic;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Transport;
 
@@ -53,19 +54,19 @@
             }
         }
 
-        public async Task ConfigureReceiveInfrastructure()
+        public void ConfigureReceiveInfrastructure()
         {
             var pumps = new List<IMessageReceiver>();
 
             foreach (var receiver in receivers)
             {
-                pumps.Add(await CreateReceiver(receiver).ConfigureAwait(false));
+                pumps.Add(CreateReceiver(receiver));
             }
 
             Receivers = Array.AsReadOnly(pumps.ToArray());
         }
 
-        public Task<IMessageReceiver> CreateReceiver(ReceiveSettings receiveSettings)
+        public IMessageReceiver CreateReceiver(ReceiveSettings receiveSettings)
         {
             var errorQueueAddress = receiveSettings.ErrorQueue;
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
@@ -78,7 +79,7 @@
                 subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
             }
             var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
-            return Task.FromResult<IMessageReceiver>(pump);
+            return pump;
         }
 
         public void ConfigureSendInfrastructure()
@@ -97,7 +98,7 @@
         public const string StorageLocationKey = "LearningTransport.StoragePath";
         public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
 
-        public override Task Shutdown()
+        public override Task Shutdown(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

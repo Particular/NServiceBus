@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
     using Persistence;
@@ -9,7 +10,7 @@
     [SkipWeaving]
     class NoOpCompletableSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        public Task CompleteAsync()
+        public Task CompleteAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,7 +12,7 @@
         /// <summary>
         /// A delegate that optionally stops the endpoint. By default this is a pointer <see cref="IEndpointInstance.Stop"/>.
         /// </summary>
-        Func<Task> Stop { get; }
+        Func<CancellationToken, Task> Stop { get; }
 
         /// <summary>
         /// A description of the error.

@@ -19,7 +19,7 @@ namespace NServiceBus
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public async Task Stop()
+        public async Task Stop(CancellationToken cancellationToken = default)
         {
             if (status == Status.Stopped)
             {
@@ -29,7 +29,7 @@ namespace NServiceBus
             try
             {
                 // Ensures to only continue if all parallel invocations can rely on the endpoint instance to be fully stopped.
-                await stopSemaphore.WaitAsync().ConfigureAwait(false);
+                await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
                 if (status >= Status.Stopping) // Another invocation is already handling Stop
                 {
@@ -43,11 +43,11 @@ namespace NServiceBus
                     Log.Info("Initiating shutdown.");
 
                     // Cannot throw by design
-                    await receiveComponent.Stop().ConfigureAwait(false);
-                    await featureComponent.Stop().ConfigureAwait(false);
+                    await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+                    await featureComponent.Stop(cancellationToken).ConfigureAwait(false);
 
                     // Can throw
-                    await transportInfrastructure.Shutdown().ConfigureAwait(false);
+                    await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
@@ -58,7 +58,7 @@ namespace NServiceBus
                 finally
                 {
                     settings.Clear();
-                    await hostingComponent.Stop().ConfigureAwait(false);
+                    hostingComponent.Stop();
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
@@ -69,58 +69,58 @@ namespace NServiceBus
             }
         }
 
-        public Task Send(object message, SendOptions sendOptions)
+        public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
 
             GuardAgainstUseWhenNotStarted();
-            return messageSession.Send(message, sendOptions);
+            return messageSession.Send(message, sendOptions, cancellationToken);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
 
             GuardAgainstUseWhenNotStarted();
-            return messageSession.Send(messageConstructor, sendOptions);
+            return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
         }
 
-        public Task Publish(object message, PublishOptions publishOptions)
+        public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(publishOptions), publishOptions);
 
             GuardAgainstUseWhenNotStarted();
-            return messageSession.Publish(message, publishOptions);
+            return messageSession.Publish(message, publishOptions, cancellationToken);
         }
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
             Guard.AgainstNull(nameof(publishOptions), publishOptions);
 
             GuardAgainstUseWhenNotStarted();
-            return messageSession.Publish(messageConstructor, publishOptions);
+            return messageSession.Publish(messageConstructor, publishOptions, cancellationToken);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions)
+        public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(subscribeOptions), subscribeOptions);
 
             GuardAgainstUseWhenNotStarted();
-            return messageSession.Subscribe(eventType, subscribeOptions);
+            return messageSession.Subscribe(eventType, subscribeOptions, cancellationToken);
         }
 
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(unsubscribeOptions), unsubscribeOptions);
 
             GuardAgainstUseWhenNotStarted();
-            return messageSession.Unsubscribe(eventType, unsubscribeOptions);
+            return messageSession.Unsubscribe(eventType, unsubscribeOptions, cancellationToken);
         }
 
         void GuardAgainstUseWhenNotStarted()
