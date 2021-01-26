@@ -544,15 +544,15 @@ namespace NServiceBus
     }
     public static class IPipelineContextExtensions
     {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public interface IStartableEndpoint
     {
