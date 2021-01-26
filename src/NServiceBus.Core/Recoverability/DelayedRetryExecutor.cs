@@ -32,7 +32,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction, default).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }

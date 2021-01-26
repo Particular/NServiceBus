@@ -36,7 +36,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction);
+            return dispatcher.Dispatch(transportOperations, transportTransaction, default);
         }
 
         IMessageDispatcher dispatcher;

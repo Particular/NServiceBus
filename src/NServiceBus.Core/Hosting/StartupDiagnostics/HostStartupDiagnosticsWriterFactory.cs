@@ -59,7 +59,7 @@
             return data =>
             {
                 var prettied = JsonPrettyPrinter.Print(data);
-                return AsyncFile.WriteText(startupDiagnosticsFilePath, prettied);
+                return AsyncFile.WriteText(startupDiagnosticsFilePath, prettied, default);
             };
         }
 

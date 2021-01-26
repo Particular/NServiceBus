@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -143,7 +144,7 @@
 
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 TransportOperations = outgoingMessages;
                 Transaction = transaction;

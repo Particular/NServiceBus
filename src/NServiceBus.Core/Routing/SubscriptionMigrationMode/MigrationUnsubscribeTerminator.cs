@@ -29,7 +29,7 @@
             var eventType = context.EventType;
             var eventMetadata = messageMetadataRegistry.GetMessageMetadata(eventType);
 
-            await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions).ConfigureAwait(false);
+            await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions, default).ConfigureAwait(false);
 
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
@@ -65,7 +65,7 @@
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, default).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

@@ -149,7 +149,7 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke).ConfigureAwait(false);
+                recoverability.Invoke, default).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
@@ -158,7 +158,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke).ConfigureAwait(false);
+                    instanceSpecificRecoverabilityExecutor.Invoke, default).ConfigureAwait(false);
 
                 receivers.Add(instanceSpecificPump);
             }
@@ -173,7 +173,7 @@ namespace NServiceBus
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
-                        satelliteRecoverabilityExecutor.Invoke).ConfigureAwait(false);
+                        satelliteRecoverabilityExecutor.Invoke, default).ConfigureAwait(false);
                     receivers.Add(satellitePump);
                 }
                 catch (Exception ex)
@@ -187,7 +187,7 @@ namespace NServiceBus
             {
                 Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
 
-                await messageReceiver.StartReceive().ConfigureAwait(false);
+                await messageReceiver.StartReceive(default).ConfigureAwait(false);
                 //TODO: If we fails starting N-th receiver then we need to stop and dispose N-1 receivers
             }
         }
@@ -199,7 +199,7 @@ namespace NServiceBus
                 Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
                 try
                 {
-                    await receiver.StopReceive().ConfigureAwait(false);
+                    await receiver.StopReceive(default).ConfigureAwait(false);
                     (receiver as IDisposable)?.Dispose();
                     Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
                 }

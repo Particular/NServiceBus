@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -17,7 +18,7 @@ namespace NServiceBus
             this.receivePipeline = receivePipeline;
         }
 
-        public async Task Invoke(MessageContext messageContext)
+        public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken)
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
 
@@ -32,6 +33,7 @@ namespace NServiceBus
 
                 try
                 {
+                    //TODO: Pass the token to the pipeline once Davids PR is in
                     await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
                 }
                 catch (Exception e)

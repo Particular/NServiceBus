@@ -758,7 +758,7 @@ namespace NServiceBus
         public Notifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
     }
-    public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext);
+    public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken);
     public static class OutboxConfigExtensions
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
@@ -2438,15 +2438,15 @@ namespace NServiceBus.Transport
     }
     public interface IMessageDispatcher
     {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, System.Threading.CancellationToken cancellationToken);
     }
     public interface IMessageReceiver
     {
         string Id { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError);
-        System.Threading.Tasks.Task StartReceive();
-        System.Threading.Tasks.Task StopReceive();
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken);
     }
     public interface IOutgoingTransportOperation
     {
@@ -2466,8 +2466,8 @@ namespace NServiceBus.Transport
     }
     public interface ISubscriptionManager
     {
-        System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken);
     }
     public class IncomingMessage
     {
@@ -2494,14 +2494,12 @@ namespace NServiceBus.Transport
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, byte[], TransportTransact" +
             "ion, ContextBag)` instead. The member currently throws a NotImplementedException" +
             ". Will be removed in version 9.0.0.", true)]
-        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
         public byte[] Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
             " 9.0.0.", true)]
-        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
@@ -2512,8 +2510,8 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
-    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext);
-    public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext);
+    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext, System.Threading.CancellationToken cancellationToken);
+    public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken);
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]
     public class OutboundRoutingPolicy

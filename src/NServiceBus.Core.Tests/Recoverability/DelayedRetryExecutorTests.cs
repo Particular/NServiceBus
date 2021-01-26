@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
     using NServiceBus.Transport;
+    using System.Threading;
 
     [TestFixture]
     public class DelayedRetryExecutorTests
@@ -109,7 +110,7 @@
 
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
             {
                 TransportOperations = outgoingMessages;
                 Transaction = transaction;

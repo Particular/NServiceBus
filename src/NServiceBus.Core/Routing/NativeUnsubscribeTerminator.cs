@@ -16,7 +16,7 @@ namespace NServiceBus
         protected override Task Terminate(IUnsubscribeContext context)
         {
             var eventMetadata = messageMetadataRegistry.GetMessageMetadata(context.EventType);
-            return subscriptionManager.Unsubscribe(eventMetadata, context.Extensions);
+            return subscriptionManager.Unsubscribe(eventMetadata, context.Extensions, default);
         }
 
         readonly ISubscriptionManager subscriptionManager;

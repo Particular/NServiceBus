@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Transports
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -19,7 +20,7 @@
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start((_, __) => Task.CompletedTask, (_, __) => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.IsTrue(pump.Started);
         }
@@ -30,14 +31,14 @@
             pump.ThrowOnStart = true;
 
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled))
+                await receiver.Start((_, __) => Task.CompletedTask, (_, __) => Task.FromResult(ErrorHandleResult.Handled))
                 );
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start((_, __) => Task.CompletedTask, (_, __) => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -49,7 +50,7 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start((_, __) => Task.CompletedTask, (_, __) => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
@@ -66,12 +67,12 @@
             public bool Stopped { get; private set; }
 
 
-            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
+            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
 
-            public Task StartReceive()
+            public Task StartReceive(CancellationToken cancellationToken)
             {
                 if (ThrowOnStart)
                 {
@@ -83,7 +84,7 @@
                 return Task.CompletedTask;
             }
 
-            public Task StopReceive()
+            public Task StopReceive(CancellationToken cancellationToken)
             {
                 if (ThrowOnStop)
                 {

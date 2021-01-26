@@ -35,7 +35,7 @@
             }
             try
             {
-                await subscriptionManager.SubscribeAll(eventMetadata, context.Extensions).ConfigureAwait(false);
+                await subscriptionManager.SubscribeAll(eventMetadata, context.Extensions, default).ConfigureAwait(false);
             }
             catch (AggregateException e)
             {
@@ -106,7 +106,7 @@
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, default).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

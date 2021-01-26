@@ -67,7 +67,7 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            receiver?.StopReceive().GetAwaiter().GetResult();
+            receiver?.StopReceive(default).GetAwaiter().GetResult();
             transportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
             configurer?.Cleanup().GetAwaiter().GetResult();
         }
@@ -94,7 +94,7 @@
 
             await transportInfrastructure.Receivers[0].Initialize(
                 new PushRuntimeSettings(8),
-                context =>
+                (context, cancellationToken) =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
                     {
@@ -103,7 +103,7 @@
 
                     return Task.FromResult(0);
                 },
-                context =>
+                (context, cancellationToken) =>
                 {
                     if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
                         context.Message.Headers[TestIdHeaderName] == testId)
@@ -112,9 +112,10 @@
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                });
+                },
+                default);
 
-            await transportInfrastructure.Receivers[0].StartReceive();
+            await transportInfrastructure.Receivers[0].StartReceive(default);
 
             receiver = transportInfrastructure.Receivers[0];
         }
@@ -158,7 +159,7 @@
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
-            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
+            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, default);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

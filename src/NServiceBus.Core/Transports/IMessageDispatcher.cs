@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -10,6 +11,6 @@
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction);
+        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken);
     }
 }

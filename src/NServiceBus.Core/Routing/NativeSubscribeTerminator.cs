@@ -23,7 +23,7 @@ namespace NServiceBus
             }
             try
             {
-                await subscriptionManager.SubscribeAll(eventMetadata, context.Extensions).ConfigureAwait(false);
+                await subscriptionManager.SubscribeAll(eventMetadata, context.Extensions, default).ConfigureAwait(false);
             }
             catch (AggregateException e)
             {

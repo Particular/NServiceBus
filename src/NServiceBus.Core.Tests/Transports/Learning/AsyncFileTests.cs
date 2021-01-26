@@ -15,7 +15,7 @@
 
             try
             {
-                await AsyncFile.WriteText(filePath, originalContent);
+                await AsyncFile.WriteText(filePath, originalContent, default);
 
                 var content = await AsyncFile.ReadText(filePath);
 
