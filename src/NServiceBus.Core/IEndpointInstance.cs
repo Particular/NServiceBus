@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -10,6 +11,6 @@ namespace NServiceBus
         /// <summary>
         /// Stops the endpoint.
         /// </summary>
-        Task Stop();
+        Task Stop(CancellationToken cancellationToken = default);
     }
 }

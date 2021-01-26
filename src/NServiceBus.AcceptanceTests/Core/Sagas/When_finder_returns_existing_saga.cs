@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -49,10 +50,10 @@
                     this.sagaPersister = sagaPersister;
                 }
 
-                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
                 {
                     testContext.FinderUsed = true;
-                    var sagaData = await sagaPersister.Get<TestSaga08.SagaData08>(message.SagaId, storageSession, (ContextBag)context).ConfigureAwait(false);
+                    var sagaData = await sagaPersister.Get<TestSaga08.SagaData08>(message.SagaId, storageSession, (ContextBag)context, cancellationToken).ConfigureAwait(false);
                     return sagaData;
                 }
 

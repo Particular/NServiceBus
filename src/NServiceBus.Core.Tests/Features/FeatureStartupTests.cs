@@ -2,6 +2,7 @@
 {
     using System;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
@@ -26,8 +27,8 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(null, null);
-            await featureSettings.StopFeatures();
+            await featureSettings.StartFeatures(null, null, default);
+            await featureSettings.StopFeatures(default);
 
             Assert.True(feature.TaskStarted);
             Assert.True(feature.TaskStopped);
@@ -43,8 +44,8 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(null, null);
-            await featureSettings.StopFeatures();
+            await featureSettings.StartFeatures(null, null, default);
+            await featureSettings.StopFeatures(default);
 
             var expectedOrderBuilder = new StringBuilder();
             expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
@@ -64,8 +65,8 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(null, null);
-            await featureSettings.StopFeatures();
+            await featureSettings.StartFeatures(null, null, default);
+            await featureSettings.StopFeatures(default);
 
             Assert.True(feature.TaskDisposed);
         }
@@ -80,7 +81,7 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null, default));
 
             Assert.False(feature1.TaskStarted && feature1.TaskStopped);
             Assert.False(feature2.TaskStarted && feature2.TaskStopped);
@@ -96,9 +97,9 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(null, null);
+            await featureSettings.StartFeatures(null, null, default);
 
-            Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures());
+            Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures(default));
             Assert.True(feature1.TaskStarted && feature1.TaskStopped);
             Assert.True(feature2.TaskStarted && !feature2.TaskStopped);
         }
@@ -111,9 +112,9 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(null, null);
+            await featureSettings.StartFeatures(null, null, default);
 
-            await featureSettings.StopFeatures();
+            await featureSettings.StopFeatures(default);
             Assert.True(feature.TaskDisposed);
         }
 
@@ -142,13 +143,13 @@
                     this.orderBuilder = orderBuilder;
                 }
 
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Start");
                     return Task.CompletedTask;
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Stop");
                     return Task.CompletedTask;
@@ -181,13 +182,13 @@
                     this.orderBuilder = orderBuilder;
                 }
 
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Start");
                     return Task.CompletedTask;
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Stop");
                     return Task.CompletedTask;
@@ -221,13 +222,13 @@
                     this.parentFeature = parentFeature;
                 }
 
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     parentFeature.TaskStarted = true;
                     return Task.CompletedTask;
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     parentFeature.TaskStopped = true;
                     return Task.CompletedTask;
@@ -271,7 +272,7 @@
                     parentFeature.TaskDisposed = true;
                 }
 
-                protected override async Task OnStart(IMessageSession session)
+                protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     await Task.Yield();
                     if (parentFeature.throwOnStart)
@@ -281,7 +282,7 @@
                     parentFeature.TaskStarted = true;
                 }
 
-                protected override async Task OnStop(IMessageSession session)
+                protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     await Task.Yield();
                     if (parentFeature.throwOnStop)
@@ -321,12 +322,12 @@
                     parentFeature.TaskDisposed = true;
                 }
 
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     return Task.CompletedTask;
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     return Task.CompletedTask;
                 }

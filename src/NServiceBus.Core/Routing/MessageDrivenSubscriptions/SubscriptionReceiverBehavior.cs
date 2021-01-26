@@ -79,11 +79,11 @@
             if (incomingMessage.GetMessageIntent() == MessageIntentEnum.Subscribe)
             {
                 var messageType = new MessageType(messageTypeString);
-                await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);
+                await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions, context.CancellationToken).ConfigureAwait(false);
                 return;
             }
 
-            await subscriptionStorage.Unsubscribe(subscriber, new MessageType(messageTypeString), context.Extensions).ConfigureAwait(false);
+            await subscriptionStorage.Unsubscribe(subscriber, new MessageType(messageTypeString), context.Extensions, context.CancellationToken).ConfigureAwait(false);
         }
 
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)

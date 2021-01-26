@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
@@ -62,15 +63,15 @@
                 set { settings.Set(DiagnosticsPathSettingsKey, value); }
             }
 
-            public Func<string, Task> HostDiagnosticsWriter
+            public Func<string, CancellationToken, Task> HostDiagnosticsWriter
             {
-                get { return settings.GetOrDefault<Func<string, Task>>(HostDiagnosticsWriterSettingsKey); }
+                get { return settings.GetOrDefault<Func<string, CancellationToken, Task>>(HostDiagnosticsWriterSettingsKey); }
                 set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
             }
 
-            public Func<ICriticalErrorContext, Task> CustomCriticalErrorAction
+            public Func<ICriticalErrorContext, CancellationToken, Task> CustomCriticalErrorAction
             {
-                get { return settings.GetOrDefault<Func<ICriticalErrorContext, Task>>(CustomCriticalErrorActionSettingsKey); }
+                get { return settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey); }
                 set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
             }
 

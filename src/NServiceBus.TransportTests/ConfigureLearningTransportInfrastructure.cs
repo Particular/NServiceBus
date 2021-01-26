@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Transport;
@@ -16,7 +17,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         };
     }
 
-    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName)
+    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName, CancellationToken cancellationToken)
     {
         var mainReceiverSettings = new ReceiveSettings(
             "mainReceiver",
@@ -28,12 +29,13 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         var transportInfrastructure = await transportDefinition.Initialize(
             hostSettings,
             new[] { mainReceiverSettings },
-            new[] { errorQueueName });
+            new[] { errorQueueName },
+            cancellationToken);
 
         return transportInfrastructure;
     }
 
-    public Task Cleanup()
+    public Task Cleanup(CancellationToken cancellationToken)
     {
         if (Directory.Exists(storageDir))
         {

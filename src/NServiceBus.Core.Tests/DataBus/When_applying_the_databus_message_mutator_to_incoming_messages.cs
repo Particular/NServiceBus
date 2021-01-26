@@ -4,11 +4,12 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Pipeline;
-    using Unicast.Messages;
     using NUnit.Framework;
+    using Unicast.Messages;
 
     [TestFixture]
     class When_applying_the_databus_message_mutator_to_incoming_messages
@@ -59,17 +60,17 @@ namespace NServiceBus.Core.Tests.DataBus
         {
             public Dictionary<string, Stream> StreamsToReturn = new Dictionary<string, Stream>();
 
-            public Task<Stream> Get(string key)
+            public Task<Stream> Get(string key, CancellationToken cancellationToken)
             {
                 return Task.FromResult(StreamsToReturn[key]);
             }
 
-            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Start()
+            public Task Start(CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

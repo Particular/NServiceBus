@@ -37,7 +37,8 @@
                 outgoingMessage.Instance,
                 context.Headers,
                 incomingLogicalMessage?.Instance,
-                incomingPhysicalMessage?.Headers);
+                incomingPhysicalMessage?.Headers,
+                context.CancellationToken);
 
             var hasMutators = false;
 

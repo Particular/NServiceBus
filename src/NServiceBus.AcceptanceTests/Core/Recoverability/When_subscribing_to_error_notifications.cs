@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using Logging;
     using NUnit.Framework;
 
@@ -56,7 +55,7 @@
                     var testContext = (Context)context.ScenarioContext;
 
                     var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                     {
                         testContext.MessageSentToErrorException = failedMessage.Exception;
                         testContext.MessageSentToError = true;
@@ -66,7 +65,7 @@
                     {
                         settings.NumberOfRetries(2);
                         settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                        settings.OnMessageBeingRetried(retry =>
+                        settings.OnMessageBeingRetried((retry, _) =>
                         {
                             testContext.NumberOfDelayedRetriesPerformed++;
                             return Task.FromResult(0);
@@ -75,7 +74,7 @@
                     recoverability.Immediate(settings =>
                     {
                         settings.NumberOfRetries(3);
-                        settings.OnMessageBeingRetried(retry =>
+                        settings.OnMessageBeingRetried((retry, _) =>
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                             return Task.FromResult(0);

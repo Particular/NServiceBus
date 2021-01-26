@@ -45,7 +45,7 @@
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 transactionMode,
-                (message, exception) =>
+                (message, exception, _) =>
                 {
                     criticalErrorCalled = true;
                     criticalErrorMessage = message;
