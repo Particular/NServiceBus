@@ -89,13 +89,19 @@
                 return;
             }
 
+            // Check cancellation before getting expensive symbol info in ArgumentIsACancellationToken
+            if (context.CancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             var invocationArgs = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
             if (invocationArgs.Any(arg => ArgumentIsACancellationToken(context, arg, contextParamName, knownTypes)))
             {
                 return;
             }
 
-            // Check cancellation before getting expensive symbol info
+            // Check cancellation again before getting method symbol
             if (context.CancellationToken.IsCancellationRequested)
             {
                 return;
@@ -105,8 +111,6 @@
             {
                 return;
             }
-
-            ////var arguments = invocation.ArgumentList.Arguments.Select(arg => context.SemanticModel.GetSymbolInfo(arg, context.CancellationToken));
 
             if (InvocationMethodTakesAToken(methodSymbol, knownTypes))
             {

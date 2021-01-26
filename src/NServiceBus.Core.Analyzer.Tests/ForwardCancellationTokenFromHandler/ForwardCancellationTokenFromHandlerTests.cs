@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests
+﻿#pragma warning disable IDE0022 // Use expression body for methods
+namespace NServiceBus.Core.Analyzer.Tests
 {
     using System.Threading.Tasks;
     using Helpers;
@@ -255,7 +256,7 @@ public static class BarExtensions
         }
 
 
-        DiagnosticResult NotForwardedAt(int line, int character)
+        static DiagnosticResult NotForwardedAt(int line, int character)
         {
             return new DiagnosticResult
             {
@@ -649,3 +650,4 @@ public class Bar {}
         protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenFromHandlerAnalyzer();
     }
 }
+#pragma warning restore IDE0022 // Use expression body for methods
