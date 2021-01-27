@@ -513,47 +513,6 @@ public class TestMessage : ICommand {}
         }
 
         [Test]
-        public Task NoDiagnosticOnNServiceBusPipelineMethods()
-        {
-            return Verify(@"
-using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        // From IPipelineContextExtensions
-        await context.Send(new MyCommand());
-        await context.Send<MyCommand>(cmd => {});
-        await context.Send(""destination"", new MyCommand());
-        await context.Send<MyCommand>(""destination"", cmd => {});
-        await context.SendLocal(new MyCommand());
-        await context.SendLocal<MyCommand>(cmd => {});
-        await context.Publish(new MyEvent());
-        await context.Publish<MyEvent>();
-        await context.Publish<MyEvent>(cmd => {});
-
-        // From IPipelineContextExtensions, passed a specific token
-        var token = new CancellationToken(false);
-        await context.Send(new MyCommand(), token);
-        await context.Send<MyCommand>(cmd => {}, token);
-        await context.Send(""destination"", new MyCommand(), token);
-        await context.Send<MyCommand>(""destination"", cmd => {}, token);
-        await context.SendLocal(new MyCommand(), token);
-        await context.SendLocal<MyCommand>(cmd => {}, token);
-        await context.Publish(new MyEvent(), token);
-        await context.Publish<MyEvent>(token);
-        await context.Publish<MyEvent>(cmd => {}, token);
-    }
-}
-public class TestMessage : ICommand {}
-public class MyCommand : ICommand {}
-public class MyEvent : IEvent {}
-");
-        }
-
-        [Test]
         public Task NoDiagnosticOnNamedRandomOrderParameters()
         {
             return Verify(@"
