@@ -76,8 +76,6 @@
                 this.exceptionToThrow = exceptionToThrow;
             }
 
-            public Task Subscribe(MessageMetadata eventType, ContextBag context) => throw new NotImplementedException();
-
             public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context) => throw exceptionToThrow;
 
             public Task Unsubscribe(MessageMetadata eventType, ContextBag context) => throw new NotImplementedException();
