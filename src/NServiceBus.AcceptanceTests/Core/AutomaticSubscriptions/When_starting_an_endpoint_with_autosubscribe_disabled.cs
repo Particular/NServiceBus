@@ -1,70 +1,31 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
+    using System;
+    using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_autosubscribe_any_events_on_native_pubsub()
-        {
-            Requires.NativePubSubSupport();
-
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>(e => e
-                    .When(async (session, ctx) =>
-                    {
-                        await session.Subscribe<ManuallySubscribedEvent>();
-                        ctx.SubscribedToEvent = true;
-                    }))
-                .WithEndpoint<Publisher>(e => e
-                    .When(
-                        ctx => ctx.SubscribedToEvent,
-                        async session =>
-                        {
-                            await session.Publish(new NonSubscribedEvent());
-                            await session.Publish(new ManuallySubscribedEvent());
-                        }))
-                .Done(ctx => ctx.ManuallySubscribedEventReceived)
-                .Run();
-
-            Assert.IsTrue(context.ManuallySubscribedEventReceived);
-            Assert.IsFalse(context.NonSubscribedEventReceived);
-        }
-
-        [Test]
         public async Task Should_not_autosubscribe_any_events()
         {
-            Requires.MessageDrivenPubSub();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>(e => e
-                    .When(async (session, ctx) =>
-                    {
-                        await session.Subscribe<ManuallySubscribedEvent>();
-                    }))
-                .WithEndpoint<Publisher>(e => e.When(
-                    ctx => ctx.SubscribedToEvent,
-                    async session =>
-                    {
-                        await session.Publish(new NonSubscribedEvent());
-                        await session.Publish(new ManuallySubscribedEvent());
-                    }))
-                .Done(ctx => ctx.ManuallySubscribedEventReceived)
+                .WithEndpoint<Subscriber>()
+                .Done(ctx => ctx.EndpointsStarted)
                 .Run();
 
-            Assert.IsTrue(context.ManuallySubscribedEventReceived);
-            Assert.IsFalse(context.NonSubscribedEventReceived);
+            Assert.IsEmpty(context.SubscribedEvents);
         }
 
         class Context : ScenarioContext
         {
-            public bool SubscribedToEvent { get; set; }
-            public bool NonSubscribedEventReceived { get; set; }
-            public bool ManuallySubscribedEventReceived { get; set; }
+            public ConcurrentBag<Type> SubscribedEvents { get; set; } = new ConcurrentBag<Type>();
         }
 
         class Subscriber : EndpointConfigurationBuilder
@@ -74,55 +35,34 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                }, publisherMetadata =>
-                {
-                    publisherMetadata.RegisterPublisherFor<NonSubscribedEvent>(typeof(Publisher));
-                    publisherMetadata.RegisterPublisherFor<ManuallySubscribedEvent>(typeof(Publisher));
+                    c.Pipeline.Register(typeof(SubscribeSpy), "Inspects all subscribe operations");
                 });
             }
 
-            class EventHandler : IHandleMessages<NonSubscribedEvent>, IHandleMessages<ManuallySubscribedEvent>
+            class SubscribeSpy : Behavior<ISubscribeContext>
             {
-                Context testContext;
+                readonly Context testContext;
 
-                public EventHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                public SubscribeSpy(Context testContext) => this.testContext = testContext;
 
-                public Task Handle(NonSubscribedEvent message, IMessageHandlerContext context)
+                public override Task Invoke(ISubscribeContext context, Func<Task> next)
                 {
-                    testContext.NonSubscribedEventReceived = true;
-                    return Task.CompletedTask;
-                }
-
-                public Task Handle(ManuallySubscribedEvent message, IMessageHandlerContext context)
-                {
-                    testContext.ManuallySubscribedEventReceived = true;
-                    return Task.CompletedTask;
-                }
-            }
-        }
-
-        class Publisher : EndpointConfigurationBuilder
-        {
-            public Publisher()
-            {
-                EndpointSetup<DefaultServer>(c => c.OnEndpointSubscribed<Context>((args, ctx) =>
-                {
-                    if (args.MessageType.Contains(nameof(ManuallySubscribedEvent)))
+                    foreach (var eventType in context.EventTypes)
                     {
-                        ctx.SubscribedToEvent = true;
+                        testContext.SubscribedEvents.Add(eventType);
                     }
-                }));
+
+                    return next();
+                }
+            }
+
+            class EventHandler : IHandleMessages<NonSubscribedEvent>
+            {
+                public Task Handle(NonSubscribedEvent message, IMessageHandlerContext context) => throw new InvalidOperationException();
             }
         }
 
-        class NonSubscribedEvent : IEvent
-        {
-        }
-
-        class ManuallySubscribedEvent : IEvent
+        public class NonSubscribedEvent : IEvent
         {
         }
     }
