@@ -1,8 +1,6 @@
-﻿using System.Threading;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using Unicast.Messages;
     using System;
     using System.IO;
     using System.Threading.Tasks;
@@ -18,39 +16,15 @@ namespace NServiceBus
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public async Task Subscribe(MessageMetadata eventType, ContextBag context)
+        public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context)
         {
-            var eventDir = GetEventDirectory(eventType.MessageType);
-
-            // the subscription directory and the subscription information will be created no matter if there's a publisher for the event assuming that the publisher haven’t started yet
-            Directory.CreateDirectory(eventDir);
-
-            var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
-
-            var attempts = 0;
-
-            // since we have a design that can run into concurrency exceptions we perform a few retries
-            while (true)
+            var tasks = new Task[eventTypes.Length];
+            for (int i = 0; i < eventTypes.Length; i++)
             {
-                try
-                {
-                    await AsyncFile.WriteText(subscriptionEntryPath, localAddress).ConfigureAwait(false);
-
-                    return;
-                }
-                catch (IOException)
-                {
-                    attempts++;
-
-                    if (attempts > 10)
-                    {
-                        throw;
-                    }
-
-                    //allow the other task to complete
-                    await Task.Delay(100).ConfigureAwait(false);
-                }
+                tasks[i] = Subscribe(eventTypes[i]);
             }
+
+            return Task.WhenAll(tasks);
         }
 
         public async Task Unsubscribe(MessageMetadata eventType, ContextBag context)
@@ -71,6 +45,41 @@ namespace NServiceBus
                     }
 
                     File.Delete(subscriptionEntryPath);
+
+                    return;
+                }
+                catch (IOException)
+                {
+                    attempts++;
+
+                    if (attempts > 10)
+                    {
+                        throw;
+                    }
+
+                    //allow the other task to complete
+                    await Task.Delay(100).ConfigureAwait(false);
+                }
+            }
+        }
+
+        async Task Subscribe(MessageMetadata eventType)
+        {
+            var eventDir = GetEventDirectory(eventType.MessageType);
+
+            // the subscription directory and the subscription information will be created no matter if there's a publisher for the event assuming that the publisher haven’t started yet
+            Directory.CreateDirectory(eventDir);
+
+            var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
+
+            var attempts = 0;
+
+            // since we have a design that can run into concurrency exceptions we perform a few retries
+            while (true)
+            {
+                try
+                {
+                    await AsyncFile.WriteText(subscriptionEntryPath, localAddress).ConfigureAwait(false);
 
                     return;
                 }

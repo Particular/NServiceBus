@@ -1,7 +1,6 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
+    using Transport;
     using Pipeline;
 
     partial class RoutingComponent

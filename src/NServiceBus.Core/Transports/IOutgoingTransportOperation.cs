@@ -1,5 +1,3 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Transport
 {
 
@@ -16,7 +14,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The delivery properties that must be honored by the transport.
         /// </summary>
-        OperationProperties Properties { get; }
+        DispatchProperties Properties { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

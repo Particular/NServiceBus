@@ -1,10 +1,9 @@
-﻿using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Transport;
-
-namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
+    using Configuration.AdvancedExtensibility;
+    using Transport;
     using System.Threading.Tasks;
-    using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting.Support;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ConfigureExtensions
@@ -27,7 +26,7 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
         }
 
-        public static async Task DefineTransport(this EndpointConfiguration config, IConfigureEndpointTestExecution transportConfiguration,RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
+        public static async Task DefineTransport(this EndpointConfiguration config, IConfigureEndpointTestExecution transportConfiguration, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
             await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());

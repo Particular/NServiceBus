@@ -1,5 +1,3 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Transport
 {
     using System;
@@ -21,26 +19,26 @@ namespace NServiceBus.Transport
 
             foreach (var transportOperation in transportOperations)
             {
-                if (transportOperation.AddressTag is MulticastAddressTag)
+                if (transportOperation.AddressTag is MulticastAddressTag multicastAddressTag)
                 {
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
-                        ((MulticastAddressTag) transportOperation.AddressTag).MessageType,
-                        new OperationProperties(transportOperation.Properties),
+                        multicastAddressTag.MessageType,
+                        transportOperation.Properties,
                         transportOperation.RequiredDispatchConsistency));
                 }
-                else if (transportOperation.AddressTag is UnicastAddressTag)
+                else if (transportOperation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
-                        ((UnicastAddressTag) transportOperation.AddressTag).Destination,
-                        new OperationProperties(transportOperation.Properties),
+                        unicastAddressTag.Destination,
+                        transportOperation.Properties,
                         transportOperation.RequiredDispatchConsistency));
                 }
                 else
                 {
                     throw new ArgumentException(
-                        $"Transport operations contain an unsupported type of {typeof(AddressTag).Name}: {transportOperation.AddressTag.GetType().Name}. Supported types are {typeof(UnicastAddressTag).Name} and {typeof(MulticastAddressTag).Name}",
+                        $"Transport operations contain an unsupported type of {nameof(AddressTag)}: {transportOperation.AddressTag.GetType().Name}. Supported types are {nameof(UnicastAddressTag)} and {nameof(MulticastAddressTag)}",
                         nameof(transportOperations));
                 }
             }

@@ -96,7 +96,7 @@ namespace NServiceBus.Pipeline
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
-            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, typeof(T), description,builder => behavior));
+            modifications.AdditionsOrReplacements.Add(RegisterOrReplaceStep.Create(stepId, typeof(T), description, builder => behavior));
         }
 
         /// <summary>

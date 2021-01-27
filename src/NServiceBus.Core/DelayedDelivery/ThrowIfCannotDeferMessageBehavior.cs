@@ -1,7 +1,6 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using Transport;
     using System;
     using System.Threading.Tasks;
     using Pipeline;
@@ -10,7 +9,7 @@ namespace NServiceBus
     {
         public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
-            if (context.Extensions.TryGet<OperationProperties>(out var properties))
+            if (context.Extensions.TryGet<DispatchProperties>(out var properties))
             {
 
                 if (properties.DelayDeliveryWith != null || properties.DoNotDeliverBefore != null)

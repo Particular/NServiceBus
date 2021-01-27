@@ -1,11 +1,8 @@
-using System.Linq;
-
 namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Routing;
     using Transport;
     using Unicast;
 

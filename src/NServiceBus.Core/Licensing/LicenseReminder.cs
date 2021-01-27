@@ -22,7 +22,7 @@ namespace NServiceBus.Features
                 licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
 
                 context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
-                
+
                 if (!licenseManager.HasLicenseExpired)
                 {
                     return;

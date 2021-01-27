@@ -91,7 +91,7 @@
         {
             public EndpointWithSagaWithHeaderMapping()
             {
-                EndpointSetup<DefaultServer>(cfg => 
+                EndpointSetup<DefaultServer>(cfg =>
                     cfg.Pipeline.Register(typeof(EndTestOnException), "Ends test if an exception occurs"));
             }
 

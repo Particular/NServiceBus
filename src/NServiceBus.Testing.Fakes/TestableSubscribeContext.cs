@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
 
     /// <summary>
@@ -8,9 +9,12 @@
     /// </summary>
     public partial class TestableSubscribeContext : TestableBehaviorContext, ISubscribeContext
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Type EventType => throw new NotImplementedException();
+
         /// <summary>
-        /// The type of the event.
+        /// The types of the events.
         /// </summary>
-        public Type EventType { get; set; } = typeof(object);
+        public Type[] EventTypes { get; set; } = { typeof(object) };
     }
 }

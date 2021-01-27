@@ -1,7 +1,3 @@
-using System.Threading;
-using NServiceBus.Extensibility;
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
     using System;

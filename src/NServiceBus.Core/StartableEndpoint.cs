@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Settings;
-    using Transport;
 
     class StartableEndpoint : IStartableEndpoint
     {
@@ -44,7 +43,7 @@ namespace NServiceBus
 #if NETSTANDARD
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+                AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
 #else
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);

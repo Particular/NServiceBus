@@ -1,7 +1,7 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus.Features
+﻿namespace NServiceBus.Features
 {
+    using Transport;
+
     class DelayedDeliveryFeature : Feature
     {
         public DelayedDeliveryFeature()

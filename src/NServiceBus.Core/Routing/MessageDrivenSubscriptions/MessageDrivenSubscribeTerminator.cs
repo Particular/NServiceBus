@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -24,33 +21,58 @@ namespace NServiceBus
             this.dispatcher = dispatcher;
         }
 
-        protected override Task Terminate(ISubscribeContext context)
+        protected override async Task Terminate(ISubscribeContext context)
         {
-            var eventType = context.EventType;
+            var subscribeTasks = new List<Task>();
 
-            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
-            if (publisherAddresses.Count == 0)
+            foreach (var eventType in context.EventTypes)
             {
-                throw new Exception($"No publisher address could be found for message type '{eventType}'. Ensure that a publisher has been configured for the event type and that the configured publisher endpoint has at least one known instance.");
+                try
+                {
+                    var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+                    if (publisherAddresses.Count == 0)
+                    {
+                        throw new Exception($"No publisher address could be found for message type '{eventType}'. Ensure that a publisher has been configured for the event type and that the configured publisher endpoint has at least one known instance.");
+                    }
+
+                    foreach (var publisherAddress in publisherAddresses)
+                    {
+                        Logger.Debug($"Subscribing to {eventType.AssemblyQualifiedName} at publisher queue {publisherAddress}");
+
+                        var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
+
+                        subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
+                        subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
+                        subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
+                        subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint;
+                        subscriptionMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
+                        subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
+
+                        subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                    }
+                }
+                catch (Exception e)
+                {
+                    subscribeTasks.Add(Task.FromException(e));
+                }
             }
 
-            var subscribeTasks = new List<Task>(publisherAddresses.Count);
-            foreach (var publisherAddress in publisherAddresses)
+            var t = Task.WhenAll(subscribeTasks);
+            try
             {
-                Logger.Debug($"Subscribing to {eventType.AssemblyQualifiedName} at publisher queue {publisherAddress}");
-
-                var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
-
-                subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
-                subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
-                subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint;
-                subscriptionMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
-                subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
-
-                subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                await t.ConfigureAwait(false);
             }
-            return Task.WhenAll(subscribeTasks);
+            catch (Exception)
+            {
+                // if subscribing via SubscribeAll, throw an AggregateException
+                if (context.Extensions.TryGet<bool>(MessageSession.SubscribeAllFlagKey, out var flag) && flag)
+                {
+                    throw t.Exception;
+                }
+
+                // otherwise throw the first exception to not change exception behavior when calling subscribe.
+                throw;
+            }
         }
 
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)

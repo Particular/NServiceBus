@@ -136,10 +136,14 @@
         {
             switch (dependencyLifecycle)
             {
-                case DependencyLifecycle.InstancePerCall: return ServiceLifetime.Transient;
-                case DependencyLifecycle.SingleInstance: return ServiceLifetime.Singleton;
-                case DependencyLifecycle.InstancePerUnitOfWork: return ServiceLifetime.Scoped;
-                default: throw new NotSupportedException($"{dependencyLifecycle} is not supported.");
+                case DependencyLifecycle.InstancePerCall:
+                    return ServiceLifetime.Transient;
+                case DependencyLifecycle.SingleInstance:
+                    return ServiceLifetime.Singleton;
+                case DependencyLifecycle.InstancePerUnitOfWork:
+                    return ServiceLifetime.Scoped;
+                default:
+                    throw new NotSupportedException($"{dependencyLifecycle} is not supported.");
             }
         }
     }

@@ -1,5 +1,3 @@
-using System.Threading;
-
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
     using System.Threading.Tasks;

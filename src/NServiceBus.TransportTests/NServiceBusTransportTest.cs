@@ -1,9 +1,6 @@
-﻿using NServiceBus.Extensibility;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.TransportTests
+﻿namespace NServiceBus.TransportTests
 {
+    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -13,7 +10,7 @@ namespace NServiceBus.TransportTests
     using Logging;
     using NUnit.Framework;
     using Routing;
-    using Transport;
+    using Settings;
 
     public abstract class NServiceBusTransportTest
     {
@@ -31,8 +28,8 @@ namespace NServiceBus.TransportTests
             LogFactory.LogItems.Clear();
 
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
-            TransportInfrastructure = null;
-            Configurer = null;
+            transportInfrastructure = null;
+            configurer = null;
             testCancellationTokenSource = null;
             receiver = null;
         }
@@ -56,12 +53,12 @@ namespace NServiceBus.TransportTests
 
             if (configurerType == null)
             {
-                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}.");
+                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {nameof(IConfigureTransportInfrastructure)}.");
             }
 
             if (!(Activator.CreateInstance(configurerType) is IConfigureTransportInfrastructure configurer))
             {
-                throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureTransportInfrastructure).Name}.");
+                throw new InvalidOperationException($"{typeName} does not implement {nameof(IConfigureTransportInfrastructure)}.");
             }
 
             return configurer;
@@ -72,8 +69,8 @@ namespace NServiceBus.TransportTests
         {
             testCancellationTokenSource?.Dispose();
             receiver?.StopReceive().GetAwaiter().GetResult();
-            TransportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
-            Configurer?.Cleanup().GetAwaiter().GetResult();
+            transportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
+            configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
         protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
@@ -81,22 +78,23 @@ namespace NServiceBus.TransportTests
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
 
-            Configurer = CreateConfigurer();
+            configurer = CreateConfigurer();
 
             var hostSettings = new HostSettings(InputQueueName,
                 string.Empty,
                 new StartupDiagnosticEntries(),
                 onCriticalError,
-                true);
+                true,
+                new SettingsHolder());
 
-            var transport = Configurer.CreateTransportDefinition();
-            
+            var transport = configurer.CreateTransportDefinition();
+
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
             transport.TransportTransactionMode = transactionMode;
 
-            TransportInfrastructure = await Configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
-            await TransportInfrastructure.Receivers[0].Initialize(
+            await transportInfrastructure.Receivers[0].Initialize(
                 new PushRuntimeSettings(8),
                 context =>
                 {
@@ -116,11 +114,11 @@ namespace NServiceBus.TransportTests
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }, new MessageMetadata[0]);
+                });
 
-            await TransportInfrastructure.Receivers[0].StartReceive();
+            await transportInfrastructure.Receivers[0].StartReceive();
 
-            receiver = TransportInfrastructure.Receivers[0];
+            receiver = transportInfrastructure.Receivers[0];
         }
 
         string GetUserName()
@@ -144,7 +142,7 @@ namespace NServiceBus.TransportTests
         protected Task SendMessage(string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
-            OperationProperties operationProperties = null,
+            DispatchProperties dispatchProperties = null,
             DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
@@ -160,9 +158,9 @@ namespace NServiceBus.TransportTests
                 transportTransaction = new TransportTransaction();
             }
 
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), operationProperties?.ToDictionary(), dispatchConsistency);
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
-            return TransportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
+            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)
@@ -209,9 +207,9 @@ namespace NServiceBus.TransportTests
 
         string testId;
 
-        TransportInfrastructure TransportInfrastructure;
+        TransportInfrastructure transportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
-        IConfigureTransportInfrastructure Configurer;
+        IConfigureTransportInfrastructure configurer;
         IMessageReceiver receiver;
 
         const string DefaultTransportDescriptorKey = "LearningTransport";

@@ -35,7 +35,6 @@
     <PackageReference Include="LightInject.Source" Version="5.0.3" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.2.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.CodeRules" Version="0.7.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="3.4.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
   </ItemGroup>
@@ -46,6 +45,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="NServiceBus.targets" />
+    <Content Include="NServiceBus.targets" PackagePath="build" />
     <None Include="..\..\packaging\nuget\tools\init.ps1" Pack="true" PackagePath="tools" Visible="false" />
     <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\**\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
     <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />

@@ -114,23 +114,25 @@
         {
             foreach (var instruction in method.Body.Instructions)
             {
-                var methodReference = instruction.Operand as MethodReference;
-                if (methodReference == null)
+                if (!(instruction.Operand is MethodReference methodReference))
                 {
                     continue;
                 }
+
                 if (methodReference.Name == method.Name)
                 {
                     if (methodReference.DeclaringType.Name == method.DeclaringType.Name)
                     {
                         return true;
                     }
+
                     if (method.DeclaringType.BaseType != null && methodReference.DeclaringType.Name == method.DeclaringType.BaseType.Name)
                     {
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
@@ -161,8 +163,8 @@
                 .OfType<MethodReference>()
                 .Select(reference => reference.DeclaringType.Name)
                 .Any(name =>
-                    name.Contains("Argument") &&
-                    name.Contains("Exception") ||
+                    (name.Contains("Argument") &&
+                    name.Contains("Exception")) ||
                     name == "Guard");
         }
 

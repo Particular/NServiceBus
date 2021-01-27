@@ -25,7 +25,7 @@
 
         public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
         {
-            var tx = (AcceptanceTestingOutboxTransaction) transaction;
+            var tx = (AcceptanceTestingOutboxTransaction)transaction;
             tx.Enlist(() =>
             {
                 if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
@@ -92,7 +92,7 @@
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj))
+                if (obj is null)
                 {
                     return false;
                 }
@@ -104,14 +104,14 @@
                 {
                     return false;
                 }
-                return Equals((StoredMessage) obj);
+                return Equals((StoredMessage)obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Id?.GetHashCode() ?? 0)*397) ^ Dispatched.GetHashCode();
+                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Dispatched.GetHashCode();
                 }
             }
         }

@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus.Core.Tests.Routing
+﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;
@@ -25,7 +22,7 @@ namespace NServiceBus.Core.Tests.Routing
         public void SetUp()
         {
             var publishers = new Publishers();
-            publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
+            publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> { new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1")) });
             router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
             terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);

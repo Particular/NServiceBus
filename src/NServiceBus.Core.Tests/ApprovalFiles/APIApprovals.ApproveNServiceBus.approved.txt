@@ -999,6 +999,9 @@ namespace NServiceBus
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
+            " NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class StartupDiagnosticEntries
     {
@@ -1258,6 +1261,35 @@ namespace NServiceBus.DelayedDelivery
         public static void UseExternalTimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress) { }
     }
 }
+namespace NServiceBus.DeliveryConstraints
+{
+    [System.Obsolete("Use `OperationProperties` instead. Will be removed in version 9.0.0.", true)]
+    public abstract class DeliveryConstraint
+    {
+        [System.Obsolete("Will be removed in version 9.0.0.", true)]
+        protected DeliveryConstraint() { }
+    }
+    public static class DeliveryConstraintContextExtensions
+    {
+        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
+            "ception. Will be removed in version 9.0.0.", true)]
+        public static void AddDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
+            "ception. Will be removed in version 9.0.0.", true)]
+        public static System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
+        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
+            "ception. Will be removed in version 9.0.0.", true)]
+        public static void RemoveDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
+            "ception. Will be removed in version 9.0.0.", true)]
+        public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
+        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
+            "ception. Will be removed in version 9.0.0.", true)]
+        public static bool TryRemoveDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
+    }
+}
 namespace NServiceBus.Extensibility
 {
     public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
@@ -1280,6 +1312,7 @@ namespace NServiceBus.Extensibility
     }
     public static class ExtendableOptionsExtensions
     {
+        public static NServiceBus.Transport.DispatchProperties GetDispatchProperties(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
     public interface IExtendable
@@ -1715,11 +1748,11 @@ namespace NServiceBus.Outbox
     }
     public class TransportOperation
     {
-        public TransportOperation(string messageId, System.Collections.Generic.Dictionary<string, string> options, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public TransportOperation(string messageId, NServiceBus.Transport.DispatchProperties properties, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-        public System.Collections.Generic.Dictionary<string, string> Options { get; }
+        public NServiceBus.Transport.DispatchProperties Properties { get; }
     }
 }
 namespace NServiceBus.Performance.TimeToBeReceived
@@ -1859,7 +1892,9 @@ namespace NServiceBus.Pipeline
     }
     public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
+        [System.Obsolete("Use `EventTypes` instead. Will be removed in version 9.0.0.", true)]
         System.Type EventType { get; }
+        System.Type[] EventTypes { get; }
     }
     public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2321,6 +2356,14 @@ namespace NServiceBus.Transport
         Default = 1,
         Isolated = 2,
     }
+    public class DispatchProperties : System.Collections.Generic.Dictionary<string, string>
+    {
+        public DispatchProperties() { }
+        public DispatchProperties(System.Collections.Generic.Dictionary<string, string> properties) { }
+        public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
+        public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
+        public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
+    }
     public class ErrorContext
     {
         public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures) { }
@@ -2339,7 +2382,8 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure) { }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.SettingsHolder coreSettings = null) { }
+        public NServiceBus.Settings.ReadOnlySettings CoreSettings { get; }
         public System.Action<string, System.Exception> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
         public string Name { get; }
@@ -2384,14 +2428,14 @@ namespace NServiceBus.Transport
     {
         string Id { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Messages.MessageMetadata> events);
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError);
         System.Threading.Tasks.Task StartReceive();
         System.Threading.Tasks.Task StopReceive();
     }
     public interface IOutgoingTransportOperation
     {
         NServiceBus.Transport.OutgoingMessage Message { get; }
-        NServiceBus.Transport.OperationProperties Properties { get; }
+        NServiceBus.Transport.DispatchProperties Properties { get; }
         NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
     [System.Obsolete("Use `IMessageReceiver` instead. Will be removed in version 9.0.0.", true)]
@@ -2406,7 +2450,7 @@ namespace NServiceBus.Transport
     }
     public interface ISubscriptionManager
     {
-        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context);
     }
     public class IncomingMessage
@@ -2422,6 +2466,12 @@ namespace NServiceBus.Transport
         public static NServiceBus.MessageIntentEnum GetMessageIntent(this NServiceBus.Transport.IncomingMessage message) { }
         public static string GetReplyToAddress(this NServiceBus.Transport.IncomingMessage message) { }
     }
+    public static class LogicalAddressExtensions
+    {
+        [System.Obsolete("Use `TransportDefinition.ToTransportAddress` instead. The member currently throws" +
+            " a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
+    }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
@@ -2434,20 +2484,11 @@ namespace NServiceBus.Transport
     }
     public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
     {
-        public MulticastTransportOperation(NServiceBus.Transport.OutgoingMessage message, System.Type messageType, NServiceBus.Transport.OperationProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public MulticastTransportOperation(NServiceBus.Transport.OutgoingMessage message, System.Type messageType, NServiceBus.Transport.DispatchProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
         public System.Type MessageType { get; }
-        public NServiceBus.Transport.OperationProperties Properties { get; }
+        public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
-    }
-    public class OperationProperties
-    {
-        public OperationProperties() { }
-        public OperationProperties(System.Collections.Generic.Dictionary<string, string> properties) { }
-        public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
-        public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
-        public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> ToDictionary() { }
     }
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]
@@ -2510,8 +2551,12 @@ namespace NServiceBus.Transport
     public class QueueBindings
     {
         public QueueBindings() { }
+        [System.Obsolete("Receiving addresses are automatically registered. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public System.Collections.Generic.IReadOnlyCollection<string> ReceivingAddresses { get; }
         public System.Collections.Generic.IReadOnlyCollection<string> SendingAddresses { get; }
+        [System.Obsolete("Receiving addresses are automatically registered. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
     }
@@ -2549,14 +2594,13 @@ namespace NServiceBus.Transport
         public System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task DisposeAsync();
         public NServiceBus.Transport.IMessageReceiver GetReceiver(string receiverId) { }
-        public virtual System.Threading.Tasks.Task ValidateNServiceBusSettings(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class TransportOperation
     {
-        public TransportOperation(NServiceBus.Transport.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, System.Collections.Generic.Dictionary<string, string> properties = null, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public TransportOperation(NServiceBus.Transport.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transport.DispatchProperties properties = null, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
         public NServiceBus.Routing.AddressTag AddressTag { get; }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
-        public System.Collections.Generic.Dictionary<string, string> Properties { get; }
+        public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
     public class TransportOperations
@@ -2593,10 +2637,10 @@ namespace NServiceBus.Transport
     }
     public class UnicastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
     {
-        public UnicastTransportOperation(NServiceBus.Transport.OutgoingMessage message, string destination, NServiceBus.Transport.OperationProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public UnicastTransportOperation(NServiceBus.Transport.OutgoingMessage message, string destination, NServiceBus.Transport.DispatchProperties properties, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1) { }
         public string Destination { get; }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
-        public NServiceBus.Transport.OperationProperties Properties { get; }
+        public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
 }
@@ -2701,15 +2745,10 @@ namespace NServiceBus.Unicast.Transport
 }
 namespace NServiceBus.UnitOfWork
 {
+    [System.Obsolete(@"The unit of work pattern is more straightforward to implement in a pipeline behavior, where the using keyword and try/catch blocks can be used. Use `NServiceBus.Pipeline.Behavior<TContext>` instead. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
     public interface IManageUnitsOfWork
     {
         System.Threading.Tasks.Task Begin();
         System.Threading.Tasks.Task End(System.Exception ex = null);
     }
-}
-public static class SettingsExtensions
-{
-    [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
-        " NotImplementedException. Will be removed in version 9.0.0.", true)]
-    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
 }

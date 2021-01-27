@@ -78,14 +78,14 @@
 
         // Used by the SagaPersisterTests TestFixtureSource attribute
         // Change this value via static constructor to create custom test permutations
-        static object[] SagaVariants = new[]
+        public static object[] SagaVariants { get; } = new[]
         {
             new TestFixtureData(new TestVariant("default"))
         };
 
         // Used by the OutboxStorageTests TestFixtureSource attribute
         // Change this value via static constructor to create custom test permutations
-        static object[] OutboxVariants = new[]
+        public static object[] OutboxVariants { get; } = new[]
         {
             new TestFixtureData(new TestVariant("default"))
         };

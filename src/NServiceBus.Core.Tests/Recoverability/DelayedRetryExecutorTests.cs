@@ -1,16 +1,11 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus.Core.Tests.Recoverability
+﻿namespace NServiceBus.Core.Tests.Recoverability
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using Extensibility;
     using NUnit.Framework;
-    using Transport;
+    using NServiceBus.Transport;
 
     [TestFixture]
     public class DelayedRetryExecutorTests
@@ -104,8 +99,6 @@ namespace NServiceBus.Core.Tests.Recoverability
         }
 
         FakeDispatcher dispatcher;
-
-        const string TimeoutManagerAddress = "timeout handling endpoint";
         const string EndpointInputQueue = "endpoint input queue";
 
         class FakeDispatcher : IMessageDispatcher

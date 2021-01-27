@@ -2,6 +2,6 @@
 {
     public class MessageB : IMessage
     {
-         
+
     }
 }

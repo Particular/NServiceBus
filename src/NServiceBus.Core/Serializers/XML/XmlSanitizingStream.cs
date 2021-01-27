@@ -160,6 +160,9 @@ namespace NServiceBus
                             Read();
                         }
                         return builder.ToString();
+
+                    default:
+                        break;
                 }
                 builder.Append((char)number);
             }

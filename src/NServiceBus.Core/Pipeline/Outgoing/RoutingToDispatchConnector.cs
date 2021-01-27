@@ -1,6 +1,4 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Text;
@@ -24,12 +22,12 @@ namespace NServiceBus
                 var addressLabel = strategy.Apply(context.Message.Headers);
                 var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
 
-                if (!context.Extensions.TryGet(out OperationProperties operationProperties))
+                if (!context.Extensions.TryGet(out DispatchProperties dispatchProperties))
                 {
-                    operationProperties = new OperationProperties();
+                    dispatchProperties = new DispatchProperties();
                 }
 
-                operations[index] = new TransportOperation(message, addressLabel, operationProperties.ToDictionary(), dispatchConsistency);
+                operations[index] = new TransportOperation(message, addressLabel, dispatchProperties, dispatchConsistency);
                 index++;
             }
 

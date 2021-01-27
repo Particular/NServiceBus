@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
             var prettified = JsonPrettyPrinter.Print(json);
             Approver.Verify(prettified);
         }
-        
+
         [TestCase]
         public void Print_ShouldPrettifyCollections()
         {
@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
             var prettified = JsonPrettyPrinter.Print(json);
             Approver.Verify(prettified);
         }
-        
+
         [TestCase]
         public void Print_ShouldPrettifyEscapedStrings()
         {

@@ -1,5 +1,3 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
     using Extensibility;
@@ -12,6 +10,5 @@ namespace NServiceBus
     /// </remarks>
     public class SendOptions : ExtendableOptions
     {
-        internal OperationProperties OperationProperties { get; } = new OperationProperties();
     }
 }

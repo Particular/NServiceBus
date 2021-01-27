@@ -89,7 +89,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public bool Equals(MessageType other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }
@@ -105,7 +105,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }

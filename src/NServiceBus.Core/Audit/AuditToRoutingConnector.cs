@@ -1,7 +1,6 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
+    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -29,16 +28,16 @@ namespace NServiceBus
                 }
             }
 
-            var transportProperties = new OperationProperties();
+            var dispatchProperties = new DispatchProperties();
 
             if (timeToBeReceived.HasValue)
             {
-                transportProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
+                dispatchProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
             }
 
             var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
-            dispatchContext.Extensions.Set(transportProperties);
+            dispatchContext.Extensions.Set(dispatchProperties);
 
             return stage(dispatchContext);
         }

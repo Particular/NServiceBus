@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.Core.Tests.Transports
+﻿namespace NServiceBus.Core.Tests.Transports
 {
     using System;
     using System.Threading.Tasks;
@@ -23,7 +19,7 @@ namespace NServiceBus.Core.Tests.Transports
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.IsTrue(pump.Started);
         }
@@ -34,14 +30,14 @@ namespace NServiceBus.Core.Tests.Transports
             pump.ThrowOnStart = true;
 
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>())
+                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled))
                 );
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -53,7 +49,7 @@ namespace NServiceBus.Core.Tests.Transports
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled), new List<MessageMetadata>());
+            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
@@ -70,7 +66,7 @@ namespace NServiceBus.Core.Tests.Transports
             public bool Stopped { get; private set; }
 
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 return Task.CompletedTask;
             }

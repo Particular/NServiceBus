@@ -1,10 +1,10 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus
 {
+    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Extensibility;
     using MessageInterfaces;
     using Pipeline;
 
@@ -60,15 +60,24 @@ namespace NServiceBus
                 options.Context,
                 context);
 
+            MergeDispatchProperties(publishContext, options.DispatchProperties);
+
             return publishPipeline.Invoke(publishContext);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
         {
+            return Subscribe(context, new Type[] { eventType }, options);
+        }
+
+        public Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
+        {
             var subscribeContext = new SubscribeContext(
                 context,
-                eventType,
+                eventTypes,
                 options.Context);
+
+            MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
             return subscribePipeline.Invoke(subscribeContext);
         }
@@ -79,6 +88,8 @@ namespace NServiceBus
                 context,
                 eventType,
                 options.Context);
+
+            MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -110,8 +121,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
-            outgoingContext.AddOperationProperties(options.OperationProperties);
+            MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
             return sendPipeline.Invoke(outgoingContext);
         }
@@ -143,7 +153,15 @@ namespace NServiceBus
                 options.Context,
                 context);
 
+            MergeDispatchProperties(outgoingContext, options.DispatchProperties);
+
             return replyPipeline.Invoke(outgoingContext);
+        }
+
+        static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
+        {
+            // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
+            context.Set(new DispatchProperties(dispatchProperties));
         }
     }
 }

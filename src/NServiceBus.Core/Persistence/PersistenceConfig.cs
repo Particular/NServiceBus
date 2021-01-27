@@ -17,7 +17,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtensions<>).MakeGenericType(typeof(T));
-            return (PersistenceExtensions<T>) Activator.CreateInstance(type, config.Settings);
+            return (PersistenceExtensions<T>)Activator.CreateInstance(type, config.Settings);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtensions<,>).MakeGenericType(typeof(T), typeof(S));
-            return (PersistenceExtensions<T, S>) Activator.CreateInstance(type, config.Settings);
+            return (PersistenceExtensions<T, S>)Activator.CreateInstance(type, config.Settings);
         }
 
         /// <summary>

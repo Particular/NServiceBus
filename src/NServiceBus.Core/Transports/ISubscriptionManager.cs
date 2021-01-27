@@ -1,19 +1,18 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using NServiceBus.Extensibility;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport
 {
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Unicast.Messages;
+
     /// <summary>
     /// Implemented by transports to provide pub/sub capabilities.
     /// </summary>
     public interface ISubscriptionManager
     {
         /// <summary>
-        /// Subscribes to the given event.
+        /// Subscribes to all provided events.
         /// </summary>
-        Task Subscribe(MessageMetadata eventType, ContextBag context);
+        Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context);
 
         /// <summary>
         /// Unsubscribes from the given event.

@@ -1,20 +1,16 @@
-using System.Collections.Generic;
-using System.Threading;
-using NServiceBus.Extensibility;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
+    using Extensibility;
+    using Unicast.Messages;
     using System;
     using System.Threading.Tasks;
     using Transport;
 
     class FakeReceiver : IMessageReceiver
     {
-        private readonly FakeTransport transportSettings;
-        private readonly FakeTransport.StartUpSequence startupSequence;
-        private readonly Action<string, Exception> criticalErrorAction;
+        readonly FakeTransport transportSettings;
+        readonly FakeTransport.StartUpSequence startupSequence;
+        readonly Action<string, Exception> criticalErrorAction;
 
         public FakeReceiver(string id, FakeTransport transportSettings, FakeTransport.StartUpSequence startupSequence,
             Action<string, Exception> criticalErrorAction)
@@ -26,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         }
 
         public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+            Func<ErrorContext, Task<ErrorHandleResult>> onError)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
             return Task.CompletedTask;
@@ -62,15 +58,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         class FakeSubscriptionManager : ISubscriptionManager
         {
-            public Task Subscribe(MessageMetadata eventType, ContextBag context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context) => Task.CompletedTask;
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context) => Task.CompletedTask;
         }
     }
 }

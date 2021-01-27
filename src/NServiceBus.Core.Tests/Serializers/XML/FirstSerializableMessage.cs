@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    
+
     public class FirstSerializableMessage : IFirstSerializableMessage
     {
         public float Age { get; set; }
@@ -15,7 +15,7 @@
         public string this[int key]
         {
             get { return lookup_int_string[key]; }
-            set { lookup_int_string[key] = value;}
+            set { lookup_int_string[key] = value; }
         }
 
         public string this[float key]

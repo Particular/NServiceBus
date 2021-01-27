@@ -1,9 +1,6 @@
-using System;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
 namespace NServiceBus
 {
+    using Unicast.Messages;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;

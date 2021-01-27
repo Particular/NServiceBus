@@ -1,13 +1,9 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using Extensibility;
     using Routing;
     using Transport;
 
@@ -28,10 +24,13 @@ namespace NServiceBus
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var messageProperties = new OperationProperties {DelayDeliveryWith = new DelayDeliveryWith(delay)};
+            var dispatchProperties = new DispatchProperties
+            {
+                DelayDeliveryWith = new DelayDeliveryWith(delay)
+            };
             var messageDestination = new UnicastAddressTag(endpointInputQueue);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, messageProperties.ToDictionary()));
+            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 
             await dispatcher.Dispatch(transportOperations, transportTransaction).ConfigureAwait(false);
 

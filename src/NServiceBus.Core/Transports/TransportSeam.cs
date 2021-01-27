@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Linq;
+    using System.Threading.Tasks;
     using System;
     using Settings;
     using Transport;
@@ -44,7 +42,8 @@ namespace NServiceBus
 
             var settings = new HostSettings(hostingConfiguration.EndpointName,
                 hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers);
+                hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers,
+                transportSeamSettings.settings);
 
             var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 
@@ -53,7 +52,7 @@ namespace NServiceBus
             return transportSeam;
         }
 
-        private TransportInfrastructure TransportInfrastructure { get; set; }
+        TransportInfrastructure TransportInfrastructure { get; set; }
 
         public event EventHandler<TransportInfrastructure> TransportInfrastructureCreated;
 

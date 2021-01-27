@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using System.Threading;
-using NServiceBus.Transport;
-
-namespace NServiceBus.AcceptanceTests.Core.FakeTransport
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using System.Threading.Tasks;
+    using System.Linq;
     using Transport;
+    using System.Threading.Tasks;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {

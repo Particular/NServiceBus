@@ -1,7 +1,6 @@
-﻿using NServiceBus.Transport;
-
-namespace NServiceBus.Features
+﻿namespace NServiceBus.Features
 {
+    using Transport;
     using System.Linq;
     using Unicast.Messages;
 

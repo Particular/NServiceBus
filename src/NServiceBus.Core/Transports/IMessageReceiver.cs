@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport
 {
+    using System;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Allows the transport to push messages to the core.
     /// </summary>
@@ -15,7 +11,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Initializes the receiver.
         /// </summary>
-        Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events);
+        Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError);
 
         /// <summary>
         /// Starts receiving messages from the input queue.

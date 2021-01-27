@@ -1,12 +1,9 @@
-﻿using System.Threading;
-
-namespace NServiceBus.Core.Tests.Transports.Learning
+﻿namespace NServiceBus.Core.Tests.Transports.Learning
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;

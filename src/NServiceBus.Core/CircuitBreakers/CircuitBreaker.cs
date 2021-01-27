@@ -30,6 +30,8 @@ namespace NServiceBus
         int failureCount;
         int firedTimes;
         int threshold;
+#pragma warning disable IDE0052 // Remove unread private members
         Timer timer;
+#pragma warning restore IDE0052 // Remove unread private members
     }
 }

@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-
 namespace NServiceBus.Transport
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Represents a queue address.
     /// </summary>

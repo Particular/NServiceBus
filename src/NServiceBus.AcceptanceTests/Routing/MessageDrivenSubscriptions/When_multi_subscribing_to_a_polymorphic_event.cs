@@ -57,7 +57,7 @@
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {
                         context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
-                        if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                        if (args.MessageType.Contains(nameof(When_multi_subscribing_to_a_polymorphic_event.IMyEvent)))
                         {
                             context.Publisher1HasASubscriberForIMyEvent = true;
                         }
@@ -79,7 +79,7 @@
                     {
                         context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
 
-                        if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                        if (args.MessageType.Contains(nameof(When_multi_subscribing_to_a_polymorphic_event.MyEvent2)))
                         {
                             context.Publisher2HasDetectedASubscriberForEvent2 = true;
                         }

@@ -1,10 +1,5 @@
 ﻿#pragma warning disable 1591
 
-using System;
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Settings;
-using NServiceBus.Transport;
-
 namespace NServiceBus.Gateway.Deduplication
 {
     using System;
@@ -26,6 +21,8 @@ namespace NServiceBus
     using System;
     using Container;
     using ObjectBuilder.Common;
+    using Settings;
+    using Transport;
 
     public partial class EndpointConfiguration
     {
@@ -155,7 +152,7 @@ namespace NServiceBus.Container
         TreatAsErrorFromVersion = "8.0.0")]
     public class ContainerCustomizations
     {
-        private ContainerCustomizations()
+        ContainerCustomizations()
         {
             // private ctor
         }
@@ -164,6 +161,7 @@ namespace NServiceBus.Container
 
 namespace NServiceBus.ObjectBuilder
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -266,6 +264,8 @@ namespace NServiceBus.ObjectBuilder.Common
 
 namespace NServiceBus.Features
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Gateway persistence has been moved to the NServiceBus.Gateway dedicated package.",
         RemoveInVersion = "9.0.0",
@@ -278,6 +278,8 @@ namespace NServiceBus.Features
 
 namespace NServiceBus
 {
+    using System;
+
     public abstract partial class StorageType
     {
         [ObsoleteEx(
@@ -323,6 +325,8 @@ namespace NServiceBus.Faults
 
 namespace NServiceBus.Settings
 {
+    using System;
+
     public partial class SettingsHolder
     {
         [ObsoleteEx(
@@ -348,6 +352,9 @@ namespace NServiceBus.Settings
 namespace NServiceBus
 {
     using System;
+    using Configuration.AdvancedExtensibility;
+    using Settings;
+    using Transport;
 
     // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
     [ObsoleteEx(
@@ -360,8 +367,7 @@ namespace NServiceBus
             Message = "Configure the transport via the TransportDefinition instance's properties",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
-        public TransportExtensions(SettingsHolder settings) 
-            : base(settings)
+        public TransportExtensions(SettingsHolder settings) : base(settings)
         {
             throw new NotImplementedException();
         }
@@ -461,6 +467,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+
     [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
     public static class ConfigureForwarding
     {
@@ -477,6 +485,8 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
         TreatAsErrorFromVersion = "8",
@@ -489,6 +499,8 @@ namespace NServiceBus.Features
 
 namespace NServiceBus.Pipeline
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Message forwarding is no longer supported, but can be implemented as a custom pipeline behavior.",
         TreatAsErrorFromVersion = "8",
@@ -512,6 +524,7 @@ namespace NServiceBus.Pipeline
 
 namespace NServiceBus
 {
+    using System;
     using Pipeline;
     using Transport;
 
@@ -589,7 +602,6 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
-
     [ObsoleteEx(
             Message = "The built-in scheduler is no longer supported, see our upgrade guide for details on how to migrate to plain .NET Timers",
             TreatAsErrorFromVersion = "8",
@@ -601,6 +613,7 @@ namespace NServiceBus.Features
 
 namespace NServiceBus
 {
+    using System;
     using Outbox;
     using Persistence;
 
@@ -712,6 +725,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+
     [ObsoleteEx(
         Message = "Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for more details.",
         ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetExtensions",
@@ -743,6 +758,8 @@ namespace NServiceBus
 
 namespace NServiceBus
 {
+    using System;
+
     public abstract partial class StorageType
     {
         [ObsoleteEx(
@@ -812,6 +829,8 @@ namespace NServiceBus
 
 namespace NServiceBus.Features
 {
+    using System;
+
     [ObsoleteEx(
         Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
@@ -824,6 +843,7 @@ namespace NServiceBus.Features
 
 namespace NServiceBus.Timeout.Core
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
@@ -908,6 +928,8 @@ namespace NServiceBus.Timeout.Core
 
 namespace NServiceBus.DelayedDelivery
 {
+    using System;
+
     [ObsoleteEx(
         Message = "The timeout manager has been removed in favor of native delayed delivery support provided by transports. See the upgrade guide for more details.",
         TreatAsErrorFromVersion = "8",
@@ -965,7 +987,7 @@ namespace NServiceBus.Transport
 
     [ObsoleteEx(
         Message = "Queue creation is done by TransportDefinition.Initialize",
-        TreatAsErrorFromVersion = "8", 
+        TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface ICreateQueues
     {
@@ -1013,6 +1035,8 @@ namespace NServiceBus.Transport
 
 namespace NServiceBus.Transport
 {
+    using System;
+
     [ObsoleteEx(
         Message = "This type is no longer necessary when implementing a transport",
         TreatAsErrorFromVersion = "8",
@@ -1205,15 +1229,131 @@ namespace NServiceBus
     }
 }
 
-public static partial class SettingsExtensions
+namespace NServiceBus
 {
-    [ObsoleteEx(
-        RemoveInVersion = "9",
-        TreatAsErrorFromVersion = "8",
-        ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
-    public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings)
+    using System;
+    using Settings;
+
+    public static partial class SettingsExtensions
     {
-        throw new NotImplementedException();
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8",
+            ReplacementTypeOrMember = "SettingsExtensions.EndpointQueueName")]
+        public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Collections.Generic;
+
+    public partial class QueueBindings
+    {
+        [ObsoleteEx(
+            Message = "Receiving addresses are automatically registered.",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public IReadOnlyCollection<string> ReceivingAddresses => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Receiving addresses are automatically registered.",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public void BindReceiving(string address) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.DeliveryConstraints
+{
+    using System;
+
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "OperationProperties",
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8")]
+    public abstract class DeliveryConstraint
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        protected DeliveryConstraint() { }
+    }
+
+    public static class DeliveryConstraintContextExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static void AddDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static System.Collections.Generic.List<DeliveryConstraint> GetDeliveryConstraints(this Extensibility.ContextBag context) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static void RemoveDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static bool TryGetDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
+            where T : DeliveryConstraint => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "OperationProperties",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static bool TryRemoveDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
+            where T : DeliveryConstraint => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using Settings;
+
+    public static class LogicalAddressExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportDefinition.ToTransportAddress",
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Pipeline
+{
+    using System;
+    using System.ComponentModel;
+
+    /// <summary>
+    /// Provides context for subscription requests.
+    /// </summary>
+    public partial interface ISubscribeContext
+    {
+        /// <summary>
+        /// The type of the event.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "EventTypes",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        Type EventType { get; }
     }
 }
 #pragma warning restore 1591

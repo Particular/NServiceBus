@@ -3,7 +3,9 @@ namespace NServiceBus.Settings
     /// <summary>
     /// Settings for readonly.
     /// </summary>
+#pragma warning disable IDE1006 // Naming Styles
     public interface ReadOnlySettings
+#pragma warning restore IDE1006 // Naming Styles
     {
         /// <summary>
         /// Gets the setting value.

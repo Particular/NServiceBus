@@ -1,10 +1,7 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
 namespace NServiceBus.Features
 {
+    using Microsoft.Extensions.DependencyInjection;
+    using Unicast.Messages;
     using Transport;
 
     class NativePublishSubscribeFeature : Feature

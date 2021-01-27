@@ -30,7 +30,7 @@
                 )
                 .WithEndpoint<Receiver>(b => b.CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(Discriminator1)))
                 .WithEndpoint<Receiver>(b => b.CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(Discriminator2)))
-                .Done(c => c.MessageDeliveredReceiver1 >= 3 && c.MessageDeliveredReceiver2 >=1)
+                .Done(c => c.MessageDeliveredReceiver1 >= 3 && c.MessageDeliveredReceiver2 >= 1)
                 .Run();
 
             Assert.AreEqual(3, ctx.MessageDeliveredReceiver1);
@@ -126,7 +126,7 @@
 
         public class MyCommand : ICommand
         {
-            public string Instance { get; set; } 
+            public string Instance { get; set; }
         }
     }
 }

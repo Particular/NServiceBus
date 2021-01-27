@@ -1,7 +1,6 @@
-using NServiceBus.Transport;
-
 namespace NServiceBus.Core.Tests.DataBus
 {
+    using Transport;
     using System;
     using System.IO;
     using System.Threading.Tasks;
@@ -17,11 +16,13 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public async Task Outgoing_databus_properties_should_be_dehydrated()
         {
-            var context = new TestableOutgoingLogicalMessageContext();
-            context.Message = new OutgoingLogicalMessage(typeof(MessageWithDataBusProperty), new MessageWithDataBusProperty
+            var context = new TestableOutgoingLogicalMessageContext
             {
-                DataBusProperty = new DataBusProperty<string>("test")
-            });
+                Message = new OutgoingLogicalMessage(typeof(MessageWithDataBusProperty), new MessageWithDataBusProperty
+                {
+                    DataBusProperty = new DataBusProperty<string>("test")
+                })
+            };
 
             var fakeDatabus = new FakeDataBus();
 
@@ -35,13 +36,15 @@ namespace NServiceBus.Core.Tests.DataBus
         [Test]
         public async Task Time_to_live_should_be_passed_on_the_databus()
         {
-            var context = new TestableOutgoingLogicalMessageContext();
-            context.Message = new OutgoingLogicalMessage(typeof(MessageWithExplicitTimeToLive), new MessageWithExplicitTimeToLive
+            var context = new TestableOutgoingLogicalMessageContext
             {
-                DataBusProperty = new DataBusProperty<string>("test")
-            });
+                Message = new OutgoingLogicalMessage(typeof(MessageWithExplicitTimeToLive), new MessageWithExplicitTimeToLive
+                {
+                    DataBusProperty = new DataBusProperty<string>("test")
+                })
+            };
 
-            context.Extensions.GetOrCreate<OperationProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1));
+            context.Extensions.GetOrCreate<DispatchProperties>().DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1));
 
             var fakeDatabus = new FakeDataBus();
 

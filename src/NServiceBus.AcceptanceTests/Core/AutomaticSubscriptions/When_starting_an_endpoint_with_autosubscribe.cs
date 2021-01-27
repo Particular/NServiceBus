@@ -1,12 +1,10 @@
 namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]
@@ -19,24 +17,25 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Subscriber>()
-                .Done(c => c.EventsSubscribedTo.Count >= 1)
+                .Done(c => c.EndpointsStarted && c.EventsSubscribedTo.Count >= 1)
                 .Run();
 
-            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed");
-            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed");
-            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler)), "Events without handlers should not be auto subscribed");
-            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyCommand)), "Commands should not be auto subscribed");
-            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyMessage)), "Plain messages should not be auto subscribed by default");
+            Assert.AreEqual(1, context.EventsSubscribedTo.Count);
+            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent).AssemblyQualifiedName), "Events should be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting).AssemblyQualifiedName), "Events without routing should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler).AssemblyQualifiedName), "Events without handlers should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyCommand).AssemblyQualifiedName), "Commands should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyMessage).AssemblyQualifiedName), "Plain messages should not be auto subscribed by default");
         }
 
         class Context : ScenarioContext
         {
             public Context()
             {
-                EventsSubscribedTo = new List<Type>();
+                EventsSubscribedTo = new List<string>();
             }
 
-            public List<Type> EventsSubscribedTo { get; }
+            public List<string> EventsSubscribedTo { get; }
         }
 
         class Subscriber : EndpointConfigurationBuilder
@@ -45,32 +44,18 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                     {
-                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
                         c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Subscriber)); //just route to our self for this test
                         c.ConfigureRouting().RouteToEndpoint(typeof(MyCommand), typeof(Subscriber)); //just route to our self for this test
+
+                        // we can't check the context.Events on the SubscribeContext as events with no route are also contained. Instead we need to check which subscription messages were sent to the configured publisher.
+                        c.OnEndpointSubscribed<Context>((subscription, ctx) =>
+                            ctx.EventsSubscribedTo.Add(subscription.MessageType));
                     },
                     metadata =>
                     {
                         metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
                         metadata.RegisterPublisherFor<MyEventWithNoHandler>(typeof(Subscriber));
                     });
-            }
-
-            class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
-            {
-                public SubscriptionSpy(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
-                {
-                    await next(context).ConfigureAwait(false);
-
-                    testContext.EventsSubscribedTo.Add(context.EventType);
-                }
-
-                Context testContext;
             }
 
             class MyMessageHandler : IHandleMessages<MyMessage>

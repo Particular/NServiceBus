@@ -102,7 +102,9 @@
         {
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         public interface MyReply
+#pragma warning restore IDE1006 // Naming Styles
         {
         }
     }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Transport;
 
     /// <summary>
@@ -17,7 +13,7 @@ namespace NServiceBus
         /// Creates a new instance of a learning transport.
         /// </summary>
         public LearningTransport()
-            : base(TransportTransactionMode.SendsAtomicWithReceive, true,true, true)
+            : base(TransportTransactionMode.SendsAtomicWithReceive, supportsDelayedDelivery: true, supportsPublishSubscribe: true, supportsTTBR: true)
         {
         }
 
@@ -35,11 +31,6 @@ namespace NServiceBus
 
             await learningTransportInfrastructure.ConfigureReceiveInfrastructure().ConfigureAwait(false);
 
-            //TODO: create queues
-            /*
-             * var queueCreator = transportReceiveInfrastructure.QueueCreatorFactory();
-                        return queueCreator.CreateQueueIfNecessary(configuration.transportSeam.QueueBindings, identity);
-             */
             return learningTransportInfrastructure;
         }
 
@@ -85,7 +76,6 @@ namespace NServiceBus
         /// Configures the storage directory to store files created by the transport.
         /// </summary>
         public string StorageDirectory { get; set; }
-
 
         /// <summary>
         /// If set to true, limits the message maximum payload size to 64 kilobytes.

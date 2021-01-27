@@ -10,7 +10,7 @@
             if (commandLine.StartsWith("\""))
             {
                 return (from Match match in Regex.Matches(commandLine, "\"([^\"]*)\"")
-                    select match.ToString()).First().Trim('"');
+                        select match.ToString()).First().Trim('"');
             }
 
             return commandLine.Split(' ').First();

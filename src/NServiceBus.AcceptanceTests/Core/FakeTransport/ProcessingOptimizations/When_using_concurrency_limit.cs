@@ -1,8 +1,4 @@
-﻿using System.Threading;
-using NServiceBus.Transport;
-using NServiceBus.Unicast.Messages;
-
-namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +39,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
         {
             PushRuntimeSettings pushSettings;
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, IReadOnlyCollection<MessageMetadata> events)
+            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
             {
                 pushSettings = limitations;
                 return Task.CompletedTask;

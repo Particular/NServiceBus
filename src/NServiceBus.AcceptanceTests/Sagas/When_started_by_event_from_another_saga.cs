@@ -26,7 +26,7 @@
                 .WithEndpoint<SagaThatIsStartedByTheEvent>(
                     b => b.When(async (session, c) =>
                     {
-                        await session.Subscribe<SomethingHappenedEvent>();
+                        await session.Subscribe<ISomethingHappenedEvent>();
 
                         if (c.HasNativePubSubSupport)
                         {
@@ -70,7 +70,7 @@
                     Data.DataId = message.DataId;
 
                     //Publish the event, which will start the second saga
-                    await context.Publish<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
+                    await context.Publish<ISomethingHappenedEvent>(m => { m.DataId = message.DataId; });
 
                     //Request a timeout
                     await RequestTimeout<Timeout1>(context, TimeSpan.FromMilliseconds(1));
@@ -109,11 +109,11 @@
                 {
                     c.DisableFeature<AutoSubscribe>();
                 },
-                metadata => metadata.RegisterPublisherFor<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent)));
+                metadata => metadata.RegisterPublisherFor<ISomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent)));
             }
 
             public class EventFromOtherSaga2 : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>,
-                IAmStartedByMessages<SomethingHappenedEvent>,
+                IAmStartedByMessages<ISomethingHappenedEvent>,
                 IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>
             {
                 public EventFromOtherSaga2(Context context)
@@ -121,7 +121,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(SomethingHappenedEvent message, IMessageHandlerContext context)
+                public Task Handle(ISomethingHappenedEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     //Request a timeout
@@ -137,7 +137,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<SomethingHappenedEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<ISomethingHappenedEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class EventFromOtherSaga2Data : ContainSagaData
@@ -159,11 +159,11 @@
             public Guid DataId { get; set; }
         }
 
-        public interface SomethingHappenedEvent : BaseEvent
+        public interface ISomethingHappenedEvent : IBaseEvent
         {
         }
 
-        public interface BaseEvent : IEvent
+        public interface IBaseEvent : IEvent
         {
             Guid DataId { get; set; }
         }
