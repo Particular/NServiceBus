@@ -54,9 +54,14 @@
                 {
                     TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
                 };
-                EndpointSetup(template,
-                    // DisablePublishing API is only available on the message-driven pub/sub transport settings.
-                    (c, _) => c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false),
+                EndpointSetup(
+                    template,
+                    (c, _) =>
+                    {
+                        // DisablePublishing API is only available on the message-driven pub/sub transport settings.
+                        var routingSettings = new RoutingSettings<AcceptanceTestingTransport>(c.GetSettings());
+                        routingSettings.DisablePublishing();
+                    },
                     pm => pm.RegisterPublisherFor<TestEvent>(typeof(MessageDrivenPublisher)));
             }
 
