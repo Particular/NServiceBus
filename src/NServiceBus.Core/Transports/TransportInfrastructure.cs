@@ -12,12 +12,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The dispatcher to send messages.
         /// </summary>
-        public virtual IMessageDispatcher Dispatcher { get; protected set; }
+        public IMessageDispatcher Dispatcher { get; protected set; }
 
         /// <summary>
         /// A list of all receivers.
         /// </summary>
-        public virtual ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
+        public ReadOnlyCollection<IMessageReceiver> Receivers { get; protected set; }
 
         /// <summary>
         /// A helper method to find a receiver inside the <see cref="Receivers"/> collection with a specific id.

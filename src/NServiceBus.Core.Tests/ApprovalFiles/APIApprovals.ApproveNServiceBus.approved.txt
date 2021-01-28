@@ -2590,8 +2590,8 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure
     {
         protected TransportInfrastructure() { }
-        public virtual NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
-        public virtual System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
+        public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
+        public System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task DisposeAsync();
         public NServiceBus.Transport.IMessageReceiver GetReceiver(string receiverId) { }
     }
