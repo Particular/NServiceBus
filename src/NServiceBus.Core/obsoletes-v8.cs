@@ -1412,4 +1412,37 @@ namespace NServiceBus
             where T : TransportDefinition => throw new NotImplementedException();
     }
 }
+
+namespace NServiceBus
+{
+    using System;
+    using Pipeline;
+    using Routing;
+    using Transport;
+
+    /// <summary>
+    /// Provides extensions for configuring message driven subscriptions.
+    /// </summary>
+    public static partial class MessageDrivenSubscriptionsConfigExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "RoutingExtensions<T>.SubscriptionAuthorizer",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions,
+            Func<IIncomingPhysicalMessageContext, bool> authorizer)
+            where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+            => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "RoutingExtensions<T>.DisablePublishing",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void DisablePublishing<T>(this TransportExtensions<T> transportExtensions)
+            where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+            => throw new NotImplementedException();
+
+    }
+}
+
 #pragma warning restore 1591

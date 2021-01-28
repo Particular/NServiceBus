@@ -699,6 +699,10 @@ namespace NServiceBus
     }
     public static class MessageDrivenSubscriptionsConfigExtensions
     {
+        public static void DisablePublishing<T>(this NServiceBus.RoutingSettings<T> routingSettings)
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        [System.Obsolete("Use `RoutingExtensions<T>.DisablePublishing` instead. The member currently throws" +
+            " a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void DisablePublishing<T>(this NServiceBus.TransportExtensions<T> transportExtensions)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string publisherEndpoint)
@@ -707,6 +711,10 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        [System.Obsolete("Use `RoutingExtensions<T>.SubscriptionAuthorizer` instead. The member currently t" +
+            "hrows a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
