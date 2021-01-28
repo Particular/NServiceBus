@@ -1,9 +1,7 @@
 namespace NServiceBus
 {
     using System;
-#if NETSTANDARD
     using System.Runtime.InteropServices;
-#endif
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Settings;
@@ -42,14 +40,11 @@ namespace NServiceBus
 
             await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
 
-#if NETSTANDARD
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
-#else
-            AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
-#endif
+
             await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
