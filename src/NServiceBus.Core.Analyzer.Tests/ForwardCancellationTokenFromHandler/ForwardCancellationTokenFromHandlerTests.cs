@@ -267,6 +267,85 @@ public static class BarExtensions
         }
 
         [Test]
+        public Task NoDiagnosticWhenNoBaseType()
+        {
+            return Verify(@"
+using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod();
+        await Foo.TestMethod();
+        await TestMethod();
+        await Foo.TestMethod();
+    }
+
+    public async Task Invoke(IMadeUpContext context, Func<IMadeUpContext, Task> next)
+    {
+        await TestMethod();
+        await Foo.TestMethod();
+        await TestMethod();
+        await Foo.TestMethod();
+    }
+
+    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}
+public class TestMessage : ICommand {}
+public interface IMadeUpContext {}
+");
+        }
+
+        [Test]
+        public Task NoDiagnosticWhenNotNServiceBus()
+        {
+            return Verify(@"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod();
+        await Foo.TestMethod();
+        await TestMethod();
+        await Foo.TestMethod();
+    }
+
+    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}
+public class Bar : Behavior<IMadeUpContext>
+{
+    public async override Task Invoke(IMadeUpContext context, Func<Task> next)
+    {
+        await TestMethod();
+        await Bar.TestMethod();
+        await TestMethod();
+        await Bar.TestMethod();
+        await next();
+    }
+
+    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}
+public class TestMessage {}
+public interface IMessageHandlerContext {}
+public interface IMadeUpContext {}
+public interface IHandleMessages<T>
+{
+    Task Handle(T message, IMessageHandlerContext context);
+}
+public abstract class Behavior<TContext>
+{
+    public abstract Task Invoke(TContext context, Func<Task> next);
+}
+");
+        }
+
+        [Test]
         public Task NoDiagnosticWhenTokenPassedToStaticMethod()
         {
             return Verify(@"

@@ -24,6 +24,42 @@
             ForwardCancellationTokenFromHandlerDiagnostic
         );
 
+        static AnalysisTarget[] targets;
+        ////static HashSet<string> targetTypeNames;
+        static HashSet<string> targetMethodNames;
+        static HashSet<string> targetContextNames;
+
+        static ForwardCancellationTokenFromHandlerAnalyzer()
+        {
+            targets = new[]
+            {
+                new AnalysisTarget("NServiceBus.IHandleMessages`1", "Handle", "IMessageHandlerContext"),
+                new AnalysisTarget("NServiceBus.IAmStartedByMessages`1", "Handle", "IMessageHandlerContext"),
+                new AnalysisTarget("NServiceBus.IHandleTimeouts`1", "Timeout", "IMessageHandlerContext"),
+                new AnalysisTarget("NServiceBus.Sagas.IHandleSagaNotFound", "Handle", "IMessageProcessingContext"),
+                new AnalysisTarget("NServiceBus.Pipeline.Behavior`1", "Invoke", null), // Context based on generic type argument
+                new AnalysisTarget("NServiceBus.Pipeline.IBehavior`2", "Invoke", null), // Context based on generic type argument
+            };
+
+            ////targetTypeNames = new HashSet<string>(targets.Select(target => target.TypeName));
+            targetMethodNames = new HashSet<string>(targets.Select(target => target.MethodName).Distinct());
+            targetContextNames = new HashSet<string>(targets.Select(target => target.ContextTypeName).Where(name => name != null).Distinct());
+        }
+
+        class AnalysisTarget
+        {
+            public string TypeName { get; }
+            public string MethodName { get; }
+            public string ContextTypeName { get; }
+
+            public AnalysisTarget(string typeName, string methodName, string contextTypeName)
+            {
+                TypeName = typeName;
+                MethodName = methodName;
+                ContextTypeName = contextTypeName;
+            }
+        }
+
         /// <summary>
         ///     Initializes the specified analyzer on the <paramref name="context" />.
         /// </summary>
@@ -49,6 +85,7 @@
         {
             public INamedTypeSymbol CancellationToken { get; }
             public INamedTypeSymbol IPipelineContext { get; }
+            public ImmutableArray<INamedTypeSymbol> AnalysisTypes { get; }
 
             public bool IsValid => CancellationToken != null && IPipelineContext != null;
 
@@ -56,6 +93,12 @@
             {
                 CancellationToken = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
                 IPipelineContext = compilation.GetTypeByMetadataName("NServiceBus.IPipelineContext");
+                AnalysisTypes = targets.Select(target =>
+                {
+                    var type = compilation.GetTypeByMetadataName(target.TypeName);
+                    // Translate IBehavior<TFromContext, TToContext> to IBehavior<,>
+                    return type.IsGenericType ? type.ConstructUnboundGenericType() : type;
+                }).ToImmutableArray();
             }
         }
 
@@ -66,25 +109,22 @@
                 return;
             }
 
-            // Get the parent method and make sure it's named "Handle"
-            var handleMethodDeclaration = GetParent<MethodDeclarationSyntax>(invocation);
-            if (handleMethodDeclaration == null || handleMethodDeclaration.Identifier.ValueText != "Handle")
+            // Get the parent method and make sure it's got one of the names we care about (i.e. Handle, Invoke)
+            var parentMethodDeclaration = GetParent<MethodDeclarationSyntax>(invocation);
+            if (parentMethodDeclaration == null || !targetMethodNames.Contains(parentMethodDeclaration.Identifier.ValueText))
             {
                 return;
             }
 
-            // Make sure the Handle method has a 2 parameters, the 2nd of which has a type named IMessageHandlerContext
-            var handleParams = handleMethodDeclaration.ParameterList.ChildNodes().OfType<ParameterSyntax>().ToArray();
-            if (handleParams.Length != 2 || !(handleParams[1].Type is IdentifierNameSyntax contextTypeIdentifier) || contextTypeIdentifier.Identifier.ValueText != "IMessageHandlerContext")
+            // Make sure the parent (i.e. Handle) method has a parameter that is a known context, learn the type and variable name
+            if (!ParametersContainsAValidContext(parentMethodDeclaration, out var contextParamType, out var contextParamName))
             {
                 return;
             }
 
-            var contextParamName = handleParams[1].Identifier.ValueText;
-
-            // Get the owner class declaration and make sure that it has a base list, i.e. that it's possible for it to include one of the IHandle... interfaces in its ancestry
-            var classDeclaration = GetParent<ClassDeclarationSyntax>(handleMethodDeclaration);
-            if (classDeclaration == null || classDeclaration.BaseList == null)
+            // Get the owner class declaration and make sure it includes a target type (e.g. IHandle...) in its ancestry
+            var classDeclaration = GetParent<ClassDeclarationSyntax>(parentMethodDeclaration);
+            if (!ClassInheritsATargetType(context, classDeclaration, knownTypes))
             {
                 return;
             }
@@ -146,6 +186,71 @@
                     return;
                 }
             }
+        }
+
+        static bool ParametersContainsAValidContext(MethodDeclarationSyntax parentMethodDeclaration, out string contextParamType, out string contextParamName)
+        {
+            contextParamType = null;
+            contextParamName = null;
+            string[] genericTypeArgumentNames = null;
+
+            var parameters = parentMethodDeclaration.ParameterList.ChildNodes().OfType<ParameterSyntax>().ToArray();
+
+            foreach (var parameter in parameters)
+            {
+                if (parameter.Type is IdentifierNameSyntax contextTypeIdentifier)
+                {
+                    contextParamType = contextTypeIdentifier.Identifier.ValueText;
+                    contextParamName = parameter.Identifier.ValueText;
+                    if (targetContextNames.Contains(contextParamType))
+                    {
+                        return true;
+                    }
+
+                    if (contextParamType.EndsWith("Context"))
+                    {
+                        if (genericTypeArgumentNames == null)
+                        {
+                            genericTypeArgumentNames = parentMethodDeclaration.Ancestors()
+                                .OfType<ClassDeclarationSyntax>()
+                                .FirstOrDefault()
+                                ?.BaseList
+                                ?.DescendantNodes()
+                                .OfType<TypeArgumentListSyntax>()
+                                .SelectMany(list => list.DescendantNodes().OfType<IdentifierNameSyntax>())
+                                .Select(genericTypeNameSyntax => genericTypeNameSyntax.Identifier.ValueText)
+                                .ToArray();
+                        }
+
+                        if (genericTypeArgumentNames != null && genericTypeArgumentNames.Contains(contextParamType))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        static bool ClassInheritsATargetType(SyntaxNodeAnalysisContext context, ClassDeclarationSyntax classDeclaration, KnownTypes knownTypes)
+        {
+            if (classDeclaration == null || classDeclaration.BaseList == null)
+            {
+                return false;
+            }
+
+            return classDeclaration.BaseList.DescendantNodes().OfType<SimpleNameSyntax>()
+                .Any(baseTypeSyntax =>
+                {
+                    var baseTypeSymbolInfo = context.SemanticModel.GetSymbolInfo(baseTypeSyntax, context.CancellationToken);
+                    if (baseTypeSymbolInfo.Symbol is INamedTypeSymbol baseType)
+                    {
+                        var nonGenericType = baseType.IsGenericType ? baseType.ConstructUnboundGenericType() : baseType;
+                        return knownTypes.AnalysisTypes.Any(analysisType => analysisType.Equals(nonGenericType));
+                    }
+                    return false;
+                });
         }
 
         static bool InvocationMethodTakesAToken(IMethodSymbol method, KnownTypes knownTypes)

@@ -64,7 +64,7 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase(typeof(IHandleTimeouts<>), "TestTimeout", "Timeout", "TestTimeout state, IMessageHandlerContext context")]
         [TestCase(typeof(IHandleSagaNotFound), null, "Handle", "object message, IMessageProcessingContext context")]
         [TestCase(typeof(Behavior<>), "IIncomingLogicalMessageContext", "Invoke", "IIncomingLogicalMessageContext context, Func<Task> next")]
-        [TestCase(typeof(IBehavior<,>), "IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext", "Invoke", "IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task>")]
+        [TestCase(typeof(IBehavior<,>), "IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext", "Invoke", "IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next")]
         public Task RunTestOnType(Type type, string genericTypeArgs, string methodName, string methodArguments)
         {
             const string sourceFormat =
