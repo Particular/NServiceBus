@@ -1387,4 +1387,29 @@ namespace NServiceBus.Transport
         public static readonly StartupCheckResult Success = new StartupCheckResult();
     }
 }
+
+namespace NServiceBus
+{
+    using System;
+    using Transport;
+
+    /// <summary>
+    /// Configuration extensions for routing.
+    /// </summary>
+    public static class RoutingSettingsExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static RoutingSettings Routing(this TransportExtensions config) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
+            where T : TransportDefinition => throw new NotImplementedException();
+    }
+}
 #pragma warning restore 1591

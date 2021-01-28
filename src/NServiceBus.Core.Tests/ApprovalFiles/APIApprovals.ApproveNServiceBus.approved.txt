@@ -888,7 +888,11 @@ namespace NServiceBus
     }
     public static class RoutingSettingsExtensions
     {
+        [System.Obsolete("Use `EndpointConfiguration.UseTransport` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
+        [System.Obsolete("Use `EndpointConfiguration.UseTransport` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
             where T : NServiceBus.Transport.TransportDefinition { }
     }
