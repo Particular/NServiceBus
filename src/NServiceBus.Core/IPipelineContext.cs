@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
 
@@ -38,5 +39,10 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="publishOptions">Specific options for this event.</param>
         Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
+
+        /// <summary>
+        /// A <see cref="CancellationToken"/> to observe during message processing. Should be forwarded to other methods that support cancellation.
+        /// </summary>
+        CancellationToken CancellationToken { get; }
     }
 }

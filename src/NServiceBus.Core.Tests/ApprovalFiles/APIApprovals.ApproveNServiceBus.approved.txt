@@ -488,7 +488,6 @@ namespace NServiceBus
     }
     public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
-        System.Threading.CancellationToken CancellationToken { get; }
         NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
@@ -537,6 +536,7 @@ namespace NServiceBus
     }
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
     {
+        System.Threading.CancellationToken CancellationToken { get; }
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
@@ -544,15 +544,15 @@ namespace NServiceBus
     }
     public static class IPipelineContextExtensions
     {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
     public interface IStartableEndpoint
     {

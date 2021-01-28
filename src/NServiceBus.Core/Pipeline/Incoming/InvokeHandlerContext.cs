@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using System.Threading;
     using Persistence;
     using Pipeline;
     using Unicast.Messages;
@@ -39,8 +38,5 @@ namespace NServiceBus
         {
             HandlerInvocationAborted = true;
         }
-
-        // TODO: Using CancellationToken.None until integrated with the pipeline
-        public CancellationToken CancellationToken => CancellationToken.None;
     }
 }

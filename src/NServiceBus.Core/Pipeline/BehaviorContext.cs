@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using Extensibility;
     using Pipeline;
 
@@ -13,5 +14,8 @@ namespace NServiceBus
         public IServiceProvider Builder => Get<IServiceProvider>();
 
         public ContextBag Extensions => this;
+
+        // TODO: Using CancellationToken.None until integrated with the pipeline
+        public CancellationToken CancellationToken => CancellationToken.None;
     }
 }

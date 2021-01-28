@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using Persistence;
     using Pipeline;
@@ -64,8 +63,5 @@
         /// Metadata for the incoming message.
         /// </summary>
         public MessageMetadata MessageMetadata { get; set; } = new MessageMetadata(typeof(object));
-
-        // TODO: Using CancellationToken.None until integrated with the pipeline
-        public CancellationToken CancellationToken => CancellationToken.None;
     }
 }
