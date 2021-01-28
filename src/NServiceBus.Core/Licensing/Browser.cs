@@ -1,5 +1,4 @@
-﻿#if NETSTANDARD
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System.Diagnostics;
     using System.Runtime.InteropServices;
@@ -40,31 +39,3 @@ namespace NServiceBus
         }
     }
 }
-#else
-namespace NServiceBus
-{
-    using System.Diagnostics;
-
-    static class Browser
-    {
-        public static bool TryOpen(string url)
-        {
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = url;
-
-                try
-                {
-                    process.Start();
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-}
-#endif
