@@ -8,7 +8,7 @@ namespace NServiceBus.Core.Analyzer.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    public class ForwardCancellationTokenFromHandlerTests : DiagnosticVerifier
+    public class ForwardCancellationTokenTests : DiagnosticVerifier
     {
         [Test]
         public Task Simple()
@@ -685,7 +685,7 @@ public class Bar {}
 ");
         }
 
-        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenFromHandlerAnalyzer();
+        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenAnalyzer();
     }
 }
 #pragma warning restore IDE0022 // Use expression body for methods

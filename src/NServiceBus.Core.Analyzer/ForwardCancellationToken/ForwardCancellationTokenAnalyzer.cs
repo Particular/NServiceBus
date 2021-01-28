@@ -12,24 +12,17 @@
 
     [Shared]
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ForwardCancellationTokenFromHandlerAnalyzer : DiagnosticAnalyzer
+    public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
     {
-        /// <summary>
-        ///     Gets the list of supported diagnostics for the analyzer.
-        /// </summary>
-        /// <value>
-        ///     The supported diagnostics.
-        /// </value>
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            ForwardCancellationTokenFromHandlerDiagnostic
+            ForwardCancellationTokenDiagnostic
         );
 
         static AnalysisTarget[] targets;
-        ////static HashSet<string> targetTypeNames;
         static HashSet<string> targetMethodNames;
         static HashSet<string> targetContextNames;
 
-        static ForwardCancellationTokenFromHandlerAnalyzer()
+        static ForwardCancellationTokenAnalyzer()
         {
             targets = new[]
             {
@@ -41,7 +34,6 @@
                 new AnalysisTarget("NServiceBus.Pipeline.IBehavior`2", "Invoke", null), // Context based on generic type argument
             };
 
-            ////targetTypeNames = new HashSet<string>(targets.Select(target => target.TypeName));
             targetMethodNames = new HashSet<string>(targets.Select(target => target.MethodName).Distinct());
             targetContextNames = new HashSet<string>(targets.Select(target => target.ContextTypeName).Where(name => name != null).Distinct());
         }
@@ -60,10 +52,6 @@
             }
         }
 
-        /// <summary>
-        ///     Initializes the specified analyzer on the <paramref name="context" />.
-        /// </summary>
-        /// <param name="context">The context.</param>
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
@@ -290,7 +278,7 @@
                 { "MethodName", methodSymbol.Name }
             }.ToImmutableDictionary();
 
-            var diagnostic = Diagnostic.Create(ForwardCancellationTokenFromHandlerDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
+            var diagnostic = Diagnostic.Create(ForwardCancellationTokenDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -406,13 +394,13 @@
 
         // {0} = Variable name for the IMessageHandlerContext parameter
         // {1} = Name of method being invoked
-        internal static readonly DiagnosticDescriptor ForwardCancellationTokenFromHandlerDiagnostic = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor ForwardCancellationTokenDiagnostic = new DiagnosticDescriptor(
             id: "NSB0002",
-            title: "Forward `IMessageHandlerContext.CancellationToken` to methods",
+            title: "Forward `context.CancellationToken` to methods",
             messageFormat: "Forward `{0}.CancellationToken` to the `{1}` method.",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Forward the `CancellationToken` from the IMessageHandlerContext to methods that take one to ensure the operation cancellation notifications are properly propagated. This ensures that message processing can be halted cleanly if necessary. Consider elevating the severity of \"CA2016: Forward the CancellationToken parameter to methods that take one\" to `warning` to ensure the token is passed correctly to other methods as well.");
+            description: "Forward the `CancellationToken` from the context parameter to methods that take one to ensure the operation cancellation notifications are properly propagated. This ensures that message processing can be halted cleanly if necessary. Consider elevating the severity of \"CA2016: Forward the CancellationToken parameter to methods that take one\" to `warning` to ensure the token is passed correctly to other methods as well.");
     }
 }

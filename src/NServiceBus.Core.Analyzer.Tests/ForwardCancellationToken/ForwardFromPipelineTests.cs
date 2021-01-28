@@ -146,7 +146,7 @@ public class TestTimeout {}
             };
         }
 
-        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenFromHandlerAnalyzer();
+        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenAnalyzer();
     }
 }
 #pragma warning restore IDE0022 // Use expression body for methods

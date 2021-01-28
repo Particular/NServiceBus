@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class ForwardCancellationTokenFromHandlerFixerTests : CodeFixVerifier
+    public class ForwardCancellationTokenFixerTests : CodeFixVerifier
     {
         [Test]
         public Task Simple()
@@ -127,8 +127,8 @@ public class TestMessage : ICommand {}
             return VerifyFix(test, fixedTest);
         }
 
-        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenFromHandlerAnalyzer();
+        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenAnalyzer();
 
-        protected override CodeFixProvider GetCodeFixProvider() => new ForwardCancellationTokenFromHandlerFixer();
+        protected override CodeFixProvider GetCodeFixProvider() => new ForwardCancellationTokenFixer();
     }
 }

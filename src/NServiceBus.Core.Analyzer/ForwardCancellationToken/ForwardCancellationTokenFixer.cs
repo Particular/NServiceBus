@@ -12,11 +12,11 @@
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     [Shared]
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ForwardCancellationTokenFromHandlerFixer))]
-    public class ForwardCancellationTokenFromHandlerFixer : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ForwardCancellationTokenFixer))]
+    public class ForwardCancellationTokenFixer : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds =>
-            ImmutableArray.Create(ForwardCancellationTokenFromHandlerAnalyzer.ForwardCancellationTokenFromHandlerDiagnostic.Id);
+            ImmutableArray.Create(ForwardCancellationTokenAnalyzer.ForwardCancellationTokenDiagnostic.Id);
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
