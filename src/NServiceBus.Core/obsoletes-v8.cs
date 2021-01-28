@@ -1356,4 +1356,35 @@ namespace NServiceBus.Pipeline
         Type EventType { get; }
     }
 }
+
+namespace NServiceBus.Transport
+{
+    using System;
+
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8")]
+    public class StartupCheckResult
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public bool Succeeded => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public string ErrorMessage => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static StartupCheckResult Failed(string errorMessage) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static readonly StartupCheckResult Success = new StartupCheckResult();
+    }
+}
 #pragma warning restore 1591

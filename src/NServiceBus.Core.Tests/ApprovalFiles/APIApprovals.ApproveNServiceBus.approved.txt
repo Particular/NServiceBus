@@ -2570,11 +2570,20 @@ namespace NServiceBus.Transport
         public string ReceiveAddress { get; set; }
         public bool UsePublishSubscribe { get; set; }
     }
+    [System.Obsolete("Will be removed in version 9.0.0.", true)]
     public class StartupCheckResult
     {
+        [System.Obsolete("Will be removed in version 9.0.0.", true)]
         public static readonly NServiceBus.Transport.StartupCheckResult Success;
+        public StartupCheckResult() { }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public string ErrorMessage { get; }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public bool Succeeded { get; }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public static NServiceBus.Transport.StartupCheckResult Failed(string errorMessage) { }
     }
     public abstract class TransportDefinition
