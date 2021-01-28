@@ -1154,7 +1154,7 @@ namespace NServiceBus.Transport
     public interface IManageSubscriptions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISubscriptionManager.Subscribe",
+            ReplacementTypeOrMember = "ISubscriptionManager.SubscribeAll",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         Task Subscribe(Type eventType, ContextBag context);

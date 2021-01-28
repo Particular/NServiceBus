@@ -2414,7 +2414,8 @@ namespace NServiceBus.Transport
     [System.Obsolete("Use `ISubscriptionManager` instead. Will be removed in version 9.0.0.", true)]
     public interface IManageSubscriptions
     {
-        [System.Obsolete("Use `ISubscriptionManager.Subscribe` instead. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `ISubscriptionManager.SubscribeAll` instead. Will be removed in version 9.0.0" +
+            ".", true)]
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
         [System.Obsolete("Use `ISubscriptionManager.Unsubscribe` instead. Will be removed in version 9.0.0." +
             "", true)]
