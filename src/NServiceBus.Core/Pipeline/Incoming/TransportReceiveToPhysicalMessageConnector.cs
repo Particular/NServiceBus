@@ -66,8 +66,8 @@ namespace NServiceBus
                 pendingTransportOperations.Add(
                     new Transport.TransportOperation(
                         message,
-                        DeserializeRoutingStrategy(operation.Properties),
-                        operation.Properties,
+                        DeserializeRoutingStrategy(operation.Options),
+                        operation.Options,
                         DispatchConsistency.Isolated
                         ));
             }

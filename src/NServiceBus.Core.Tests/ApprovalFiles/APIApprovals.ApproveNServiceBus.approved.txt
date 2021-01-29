@@ -1764,7 +1764,7 @@ namespace NServiceBus.Outbox
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-        public NServiceBus.Transport.DispatchProperties Properties { get; }
+        public NServiceBus.Transport.DispatchProperties Options { get; }
     }
 }
 namespace NServiceBus.Performance.TimeToBeReceived
