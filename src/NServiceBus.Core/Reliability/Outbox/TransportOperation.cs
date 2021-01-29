@@ -16,7 +16,7 @@
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
 
             MessageId = messageId;
-            Properties = properties;
+            Options = properties;
             Body = body;
             Headers = headers;
         }
@@ -29,7 +29,7 @@
         /// <summary>
         /// Transport specific dispatch operation properties.
         /// </summary>
-        public DispatchProperties Properties { get; }
+        public DispatchProperties Options { get; }
 
         /// <summary>
         /// Gets a byte array to the body content of the outgoing message.
