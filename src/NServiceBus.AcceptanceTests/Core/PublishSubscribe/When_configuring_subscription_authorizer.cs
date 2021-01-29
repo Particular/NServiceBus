@@ -51,7 +51,11 @@
                 {
                     TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, false)
                 };
-                EndpointSetup(defaultServer, (_, __) => { }, p =>
+                EndpointSetup(defaultServer, (c, __) =>
+                {
+                    var routingSettings = new RoutingSettings<AcceptanceTestingTransport>(c.GetSettings());
+                    routingSettings.DisablePublishing();
+                }, p =>
                 {
                     p.RegisterPublisherFor<ForbiddenEvent>(typeof(PublisherWithAuthorizer));
                     p.RegisterPublisherFor<AllowedEvent>(typeof(PublisherWithAuthorizer));
