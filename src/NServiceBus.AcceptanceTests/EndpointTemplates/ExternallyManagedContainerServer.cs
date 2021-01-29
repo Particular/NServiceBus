@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Features;
 
     public class ExternallyManagedContainerServer : IEndpointSetupTemplate
     {

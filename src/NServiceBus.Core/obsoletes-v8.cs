@@ -1154,7 +1154,7 @@ namespace NServiceBus.Transport
     public interface IManageSubscriptions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISubscriptionManager.Subscribe",
+            ReplacementTypeOrMember = "ISubscriptionManager.SubscribeAll",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         Task Subscribe(Type eventType, ContextBag context);
@@ -1356,4 +1356,93 @@ namespace NServiceBus.Pipeline
         Type EventType { get; }
     }
 }
+
+namespace NServiceBus.Transport
+{
+    using System;
+
+    [ObsoleteEx(
+        RemoveInVersion = "9",
+        TreatAsErrorFromVersion = "8")]
+    public class StartupCheckResult
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public bool Succeeded => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public string ErrorMessage => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static StartupCheckResult Failed(string errorMessage) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            RemoveInVersion = "9",
+            TreatAsErrorFromVersion = "8")]
+        public static readonly StartupCheckResult Success = new StartupCheckResult();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using Transport;
+
+    /// <summary>
+    /// Configuration extensions for routing.
+    /// </summary>
+    public static class RoutingSettingsExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static RoutingSettings Routing(this TransportExtensions config) => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
+            where T : TransportDefinition => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using Pipeline;
+    using Routing;
+    using Transport;
+
+    /// <summary>
+    /// Provides extensions for configuring message driven subscriptions.
+    /// </summary>
+    public static partial class MessageDrivenSubscriptionsConfigExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "RoutingExtensions<T>.SubscriptionAuthorizer",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions,
+            Func<IIncomingPhysicalMessageContext, bool> authorizer)
+            where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+            => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "RoutingExtensions<T>.DisablePublishing",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void DisablePublishing<T>(this TransportExtensions<T> transportExtensions)
+            where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+            => throw new NotImplementedException();
+
+    }
+}
+
 #pragma warning restore 1591

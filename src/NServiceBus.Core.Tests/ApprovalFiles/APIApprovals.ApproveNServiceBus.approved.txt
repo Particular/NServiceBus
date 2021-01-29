@@ -699,6 +699,10 @@ namespace NServiceBus
     }
     public static class MessageDrivenSubscriptionsConfigExtensions
     {
+        public static void DisablePublishing<T>(this NServiceBus.RoutingSettings<T> routingSettings)
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        [System.Obsolete("Use `RoutingExtensions<T>.DisablePublishing` instead. The member currently throws" +
+            " a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void DisablePublishing<T>(this NServiceBus.TransportExtensions<T> transportExtensions)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string publisherEndpoint)
@@ -707,6 +711,10 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        [System.Obsolete("Use `RoutingExtensions<T>.SubscriptionAuthorizer` instead. The member currently t" +
+            "hrows a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
@@ -888,7 +896,11 @@ namespace NServiceBus
     }
     public static class RoutingSettingsExtensions
     {
+        [System.Obsolete("Use `EndpointConfiguration.UseTransport` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
+        [System.Obsolete("Use `EndpointConfiguration.UseTransport` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
             where T : NServiceBus.Transport.TransportDefinition { }
     }
@@ -2414,7 +2426,8 @@ namespace NServiceBus.Transport
     [System.Obsolete("Use `ISubscriptionManager` instead. Will be removed in version 9.0.0.", true)]
     public interface IManageSubscriptions
     {
-        [System.Obsolete("Use `ISubscriptionManager.Subscribe` instead. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `ISubscriptionManager.SubscribeAll` instead. Will be removed in version 9.0.0" +
+            ".", true)]
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
         [System.Obsolete("Use `ISubscriptionManager.Unsubscribe` instead. Will be removed in version 9.0.0." +
             "", true)]
@@ -2569,11 +2582,20 @@ namespace NServiceBus.Transport
         public string ReceiveAddress { get; set; }
         public bool UsePublishSubscribe { get; set; }
     }
+    [System.Obsolete("Will be removed in version 9.0.0.", true)]
     public class StartupCheckResult
     {
+        [System.Obsolete("Will be removed in version 9.0.0.", true)]
         public static readonly NServiceBus.Transport.StartupCheckResult Success;
+        public StartupCheckResult() { }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public string ErrorMessage { get; }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public bool Succeeded { get; }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public static NServiceBus.Transport.StartupCheckResult Failed(string errorMessage) { }
     }
     public abstract class TransportDefinition

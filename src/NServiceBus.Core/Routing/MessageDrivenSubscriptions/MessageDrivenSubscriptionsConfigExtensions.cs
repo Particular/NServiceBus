@@ -12,18 +12,18 @@ namespace NServiceBus
     /// <summary>
     /// Provides extensions for configuring message driven subscriptions.
     /// </summary>
-    public static class MessageDrivenSubscriptionsConfigExtensions
+    public static partial class MessageDrivenSubscriptionsConfigExtensions
     {
         /// <summary>
         /// Sets an authorizer to be used when processing a <see cref="MessageIntentEnum.Subscribe" /> or
         /// <see cref="MessageIntentEnum.Unsubscribe" /> message.
         /// </summary>
-        /// <param name="transportExtensions">The <see cref="TransportExtensions&lt;T&gt;" /> to extend.</param>
+        /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
-        public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions, Func<IIncomingPhysicalMessageContext, bool> authorizer) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        public static void SubscriptionAuthorizer<T>(this RoutingSettings<T> routingSettings, Func<IIncomingPhysicalMessageContext, bool> authorizer) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(authorizer), authorizer);
-            var settings = transportExtensions.Settings;
+            var settings = routingSettings.Settings;
 
             settings.Set("SubscriptionAuthorizer", authorizer);
         }
@@ -37,9 +37,9 @@ namespace NServiceBus
         /// <summary>
         /// Disables the ability to publish events. This removes the need to provide a subscription storage option. The endpoint can still subscribe to events but isn't allowed to publish its events.
         /// </summary>
-        public static void DisablePublishing<T>(this TransportExtensions<T> transportExtensions) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        public static void DisablePublishing<T>(this RoutingSettings<T> routingSettings) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            transportExtensions.Settings.Set(MessageDrivenSubscriptions.EnablePublishingSettingsKey, false);
+            routingSettings.Settings.Set(MessageDrivenSubscriptions.EnablePublishingSettingsKey, false);
         }
 
         /// <summary>
