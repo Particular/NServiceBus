@@ -18,11 +18,11 @@ namespace NServiceBus.Transport
             StartupDiagnostic = startupDiagnostic;
             CriticalErrorAction = criticalErrorAction;
             SetupInfrastructure = setupInfrastructure;
-            CoreSettings = coreSettings ?? new SettingsHolder();
+            CoreSettings = coreSettings;
         }
 
         /// <summary>
-        /// Settings available only when running hosted in an NServiceBus endpoint; Otherwise, an empty settings collection.
+        /// Settings available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
         /// Transports can use these settings to validate the hosting endpoint settings.
         /// </summary>
         public ReadOnlySettings CoreSettings { get; }
