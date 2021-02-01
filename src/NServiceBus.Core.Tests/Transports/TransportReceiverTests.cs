@@ -19,7 +19,7 @@
         [Test]
         public async Task Start_should_start_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(_ => Task.FromResult(SuccessfulMessageProcessingResult), _ => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.IsTrue(pump.Started);
         }
@@ -30,14 +30,14 @@
             pump.ThrowOnStart = true;
 
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled))
+                await receiver.Start(_ => Task.FromResult(SuccessfulMessageProcessingResult), _ => Task.FromResult(ErrorHandleResult.Handled))
                 );
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(_ => Task.FromResult(SuccessfulMessageProcessingResult), _ => Task.FromResult(ErrorHandleResult.Handled));
 
             await receiver.Stop();
 
@@ -49,10 +49,13 @@
         {
             pump.ThrowOnStop = true;
 
-            await receiver.Start(_ => Task.CompletedTask, _ => Task.FromResult(ErrorHandleResult.Handled));
+            await receiver.Start(_ => Task.FromResult(SuccessfulMessageProcessingResult), _ => Task.FromResult(ErrorHandleResult.Handled));
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
+
+
+        static MessageProcessingResult SuccessfulMessageProcessingResult = new MessageProcessingResult(false);
 
         MessageReceiver pump;
         TransportReceiver receiver;

@@ -25,7 +25,7 @@ namespace NServiceBus.TransportTests
                     if (hasBeenCalled)
                     {
                         messageRetried.SetResult(true);
-                        return Task.FromResult(0);
+                        return Task.FromResult(SuccessfulMessageProcessingResult);
                     }
                     hasBeenCalled = true;
                     throw new Exception("Simulated exception");

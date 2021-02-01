@@ -24,7 +24,7 @@ namespace NServiceBus.TransportTests
                 body = Encoding.UTF8.GetString(context.Body);
 
                 onMessageCalled.SetResult(context);
-                return Task.FromResult(0);
+                return Task.FromResult(SuccessfulMessageProcessingResult);
             },
                 context => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
 

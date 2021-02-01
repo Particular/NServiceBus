@@ -280,8 +280,6 @@
                 }
             }
 
-            var tokenSource = new CancellationTokenSource();
-
             var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -292,11 +290,12 @@
                 transportTransaction.Set(transaction);
             }
 
-            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, new ContextBag());
+            MessageProcessingResult messageProcessingResult = null;
 
             try
             {
-                await onMessage(messageContext)
+                messageProcessingResult = await onMessage(messageContext)
                     .ConfigureAwait(false);
             }
             catch (Exception exception)
@@ -329,7 +328,7 @@
                 }
             }
 
-            if (tokenSource.IsCancellationRequested)
+            if (messageProcessingResult.ForceMessageRollback)
             {
                 transaction.Rollback();
 

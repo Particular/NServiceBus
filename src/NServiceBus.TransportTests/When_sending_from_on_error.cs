@@ -24,7 +24,7 @@ namespace NServiceBus.TransportTests
                     if (context.Headers.ContainsKey("FromOnError"))
                     {
                         messageReceived.SetResult(true);
-                        return Task.FromResult(0);
+                        return Task.FromResult(SuccessfulMessageProcessingResult);
                     }
 
                     throw new Exception("Simulated exception");

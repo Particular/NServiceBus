@@ -5,6 +5,6 @@
 
     interface IPipelineExecutor
     {
-        Task Invoke(MessageContext messageContext);
+        Task<MessageProcessingResult> Invoke(MessageContext messageContext);
     }
 }

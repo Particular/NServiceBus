@@ -23,7 +23,7 @@
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
                         onMessageCalled.SetResult(true);
-                        return;
+                        return SuccessfulMessageProcessingResult;
                     }
 
                     await SendMessage(InputQueueName, new Dictionary<string, string>

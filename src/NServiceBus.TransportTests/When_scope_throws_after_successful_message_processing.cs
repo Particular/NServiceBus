@@ -22,7 +22,7 @@
                 context =>
                 {
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
-                    return Task.FromResult(0);
+                    return Task.FromResult(SuccessfulMessageProcessingResult);
                 },
                 context =>
                 {

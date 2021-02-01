@@ -72,7 +72,7 @@
             configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
+        protected async Task StartPump(Func<MessageContext, Task<MessageProcessingResult>> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -101,7 +101,7 @@
                         return onMessage(context);
                     }
 
-                    return Task.FromResult(0);
+                    return Task.FromResult(SuccessfulMessageProcessingResult);
                 },
                 context =>
                 {
@@ -202,6 +202,7 @@
         protected string InputQueueName;
         protected string ErrorQueueName;
         protected static TransportTestLoggerFactory LogFactory;
+        protected static MessageProcessingResult SuccessfulMessageProcessingResult = new MessageProcessingResult(false);
 
         string testId;
 

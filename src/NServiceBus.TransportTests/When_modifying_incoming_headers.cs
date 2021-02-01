@@ -26,7 +26,7 @@
                     }
 
                     messageRetries.SetResult(context);
-                    return Task.FromResult(0);
+                    return Task.FromResult(SuccessfulMessageProcessingResult);
                 },
                 context => Task.FromResult(ErrorHandleResult.RetryRequired),
                 transactionMode);
@@ -88,7 +88,7 @@
                     }
 
                     messageRetries.SetResult(context);
-                    return Task.FromResult(0);
+                    return Task.FromResult(SuccessfulMessageProcessingResult);
                 },
                 context =>
                 {

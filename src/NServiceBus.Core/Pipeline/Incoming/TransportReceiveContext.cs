@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Threading;
     using Pipeline;
     using Transport;
 
@@ -12,10 +11,9 @@
         /// <summary>
         /// Creates a new transport receive context.
         /// </summary>
-        public TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, CancellationTokenSource cancellationTokenSource, RootContext rootContext)
+        public TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, RootContext rootContext)
             : base(rootContext)
         {
-            this.cancellationTokenSource = cancellationTokenSource;
             Message = receivedMessage;
             Set(Message);
             Set(transportTransaction);
@@ -31,9 +29,10 @@
         /// </summary>
         public void AbortReceiveOperation()
         {
-            cancellationTokenSource.Cancel();
+            ReceiveOperationWasAborted = true;
         }
 
-        CancellationTokenSource cancellationTokenSource;
+        internal bool ReceiveOperationWasAborted { get; private set; }
+
     }
 }

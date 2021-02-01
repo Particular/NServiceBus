@@ -60,7 +60,7 @@
                             var testContext = builder.GetService<Context>();
                             testContext.MessageReceived = true;
                             testContext.TransportTransactionAddedToContext = ReferenceEquals(messageContext.Extensions.Get<TransportTransaction>(), messageContext.TransportTransaction);
-                            return Task.FromResult(true);
+                            return Task.FromResult(new MessageProcessingResult(false));
                         });
 
                     Address = satelliteAddress;

@@ -25,12 +25,12 @@ namespace NServiceBus.TransportTests
                     if (hasBeenCalled)
                     {
                         messageRedelivered.SetResult(true);
-                        return Task.FromResult(0);
+                        return Task.FromResult(new MessageProcessingResult(false));
                     }
-                    hasBeenCalled = true;
-                    context.ReceiveCancellationTokenSource.Cancel();
 
-                    return Task.FromResult(0);
+                    hasBeenCalled = true;
+
+                    return Task.FromResult(new MessageProcessingResult(true));
                 },
                 context =>
                 {

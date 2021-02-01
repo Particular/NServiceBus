@@ -23,13 +23,13 @@ namespace NServiceBus.TransportTests
                 if (context.Headers.ContainsKey("CompleteTest"))
                 {
                     onMessageCalled.SetResult(true);
-                    return;
+                    return SuccessfulMessageProcessingResult;
                 }
 
                 if (context.Headers.ContainsKey("EnlistedSend"))
                 {
                     onMessageCalled.SetResult(false);
-                    return;
+                    return SuccessfulMessageProcessingResult;
                 }
 
                 await SendMessage(InputQueueName, new Dictionary<string, string> { { "EnlistedSend", "true" } }, context.TransportTransaction);

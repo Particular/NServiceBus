@@ -12,7 +12,7 @@
             satelliteDefinition = definition;
         }
 
-        public Task Invoke(MessageContext messageContext)
+        public Task<MessageProcessingResult> Invoke(MessageContext messageContext)
         {
             messageContext.Extensions.Set(messageContext.TransportTransaction);
 

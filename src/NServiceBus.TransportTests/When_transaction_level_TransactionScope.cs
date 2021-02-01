@@ -23,7 +23,7 @@
                     var contextTransaction = context.TransportTransaction.Get<Transaction>();
                     messageHandled.SetResult(new Tuple<Transaction, Transaction>(currentTransaction, contextTransaction));
 
-                    return Task.FromResult(0);
+                    return Task.FromResult(SuccessfulMessageProcessingResult);
                 },
                 errorContext => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);

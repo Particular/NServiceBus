@@ -15,7 +15,7 @@
             await StartPump(m =>
                 {
                     onMessageCalled.SetResult(m);
-                    return Task.FromResult(0);
+                    return Task.FromResult(SuccessfulMessageProcessingResult);
                 },
                 error => Task.FromResult(ErrorHandleResult.Handled),
                 TransportTransactionMode.None);
