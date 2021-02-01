@@ -21,8 +21,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             Id = id;
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
             return Task.CompletedTask;
