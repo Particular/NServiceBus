@@ -1,1 +1,4 @@
-
+exclusions:
+- src/.editorconfig
+- src/.globalconfig
+- src/Directory.Build.props
