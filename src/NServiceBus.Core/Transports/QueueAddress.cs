@@ -1,12 +1,15 @@
 namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Represents a queue address.
     /// </summary>
     public class QueueAddress
     {
+        static readonly IReadOnlyDictionary<string, string> EmptyProperties = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(0));
+
         /// <summary>
         /// Creates a new instance of <see cref="QueueAddress"/>.
         /// </summary>
@@ -15,7 +18,7 @@ namespace NServiceBus.Transport
         {
             BaseAddress = baseAddress;
             Discriminator = discriminator;
-            Properties = properties;
+            Properties = properties ?? EmptyProperties;
             Qualifier = qualifier;
         }
 
