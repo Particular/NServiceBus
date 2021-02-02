@@ -62,7 +62,7 @@ namespace NServiceBus
                     logger.Warn($"Upgrade protection expiring {whenUpgradeProtectedExpiresPhrase}. Contact us to renew your license: contact@particular.net");
                     break;
                 case LicenseStatus.InvalidDueToExpiredTrial:
-                    if(license.IsExtendedTrial)
+                    if (license.IsExtendedTrial)
                     {
                         logger.Error($"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
                     }
@@ -76,6 +76,8 @@ namespace NServiceBus
                     break;
                 case LicenseStatus.InvalidDueToExpiredUpgradeProtection:
                     logger.Error("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
+                    break;
+                default:
                     break;
             }
 
