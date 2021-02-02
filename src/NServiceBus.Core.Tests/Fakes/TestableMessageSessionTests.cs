@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using Testing;
 
@@ -7,12 +8,12 @@
     public class TestableMessageSessionTests
     {
         [Test]
-        public void Subscribe_ShouldTrackSubscriptions()
+        public async Task Subscribe_ShouldTrackSubscriptions()
         {
             var session = new TestableMessageSession();
             var options = new SubscribeOptions();
 
-            session.Subscribe(typeof(MyEvent), options);
+            await session.Subscribe(typeof(MyEvent), options);
 
             Assert.AreEqual(1, session.Subscriptions.Length);
             Assert.AreSame(options, session.Subscriptions[0].Options);
@@ -20,12 +21,12 @@
         }
 
         [Test]
-        public void Unsubscribe_ShouldTrackUnsubscriptions()
+        public async Task Unsubscribe_ShouldTrackUnsubscriptions()
         {
             var session = new TestableMessageSession();
             var options = new UnsubscribeOptions();
 
-            session.Unsubscribe(typeof(MyEvent), options);
+            await session.Unsubscribe(typeof(MyEvent), options);
 
             Assert.AreEqual(1, session.Unsubscription.Length);
             Assert.AreSame(options, session.Unsubscription[0].Options);

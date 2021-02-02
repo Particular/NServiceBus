@@ -39,7 +39,7 @@
             await poller.SpinOnce(CancellationToken.None);
             var nextRetrieval = poller.NextRetrieval;
 
-            RegisterNewTimeout(nextRetrieval - HalfOfDefaultInMemoryPersisterSleep);
+            await RegisterNewTimeout(nextRetrieval - HalfOfDefaultInMemoryPersisterSleep);
 
             currentTime = poller.NextRetrieval;
 
@@ -57,8 +57,8 @@
             // ReSharper disable once PossibleLossOfFraction
             var timeout2 = timeout1.Add(TimeSpan.FromMilliseconds(HalfOfDefaultInMemoryPersisterSleep.Milliseconds / 2));
 
-            RegisterNewTimeout(timeout1);
-            RegisterNewTimeout(timeout2, false);
+            await RegisterNewTimeout(timeout1);
+            await RegisterNewTimeout(timeout2, false);
 
             currentTime = timeout2;
             await poller.SpinOnce(CancellationToken.None);
@@ -73,7 +73,7 @@
             var failingDispatcher = new FailableDispatcher();
             poller = new ExpiredTimeoutsPoller(timeouts, failingDispatcher, "test", breaker, () => currentTime);
 
-            RegisterNewTimeout(currentTime.Subtract(TimeSpan.FromMinutes(5)));
+            await RegisterNewTimeout(currentTime.Subtract(TimeSpan.FromMinutes(5)));
 
             var dispatchCalls = 0;
             var unicastTransportOperations = new List<UnicastTransportOperation>();
@@ -104,12 +104,10 @@
             Assert.AreEqual(1, unicastTransportOperations.Count);
         }
 
-        void RegisterNewTimeout(DateTime newTimeout, bool withNotification = true)
+        async Task RegisterNewTimeout(DateTime newTimeout, bool withNotification = true)
         {
-            timeouts.Add(new TimeoutData
-            {
-                Time = newTimeout
-            }, null);
+            await timeouts.Add(new TimeoutData { Time = newTimeout }, null);
+
             if (withNotification)
             {
                 poller.NewTimeoutRegistered(newTimeout);
