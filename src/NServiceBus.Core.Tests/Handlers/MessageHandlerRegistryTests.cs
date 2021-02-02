@@ -91,8 +91,9 @@
                 throw new NotImplementedException();
             }
 
-            // ReSharper disable once NotAccessedField.Local
+#pragma warning disable IDE0052 // Remove unread private members
             IMessageSession MessageSession;
+#pragma warning restore IDE0052 // Remove unread private members
         }
 
         class HandlerWithInheritedIMessageSessionPropertyDep : HandlerBaseWithIMessageSessionDep, IHandleMessages<MyMessage>
@@ -115,8 +116,9 @@
                 throw new NotImplementedException();
             }
 
-            // ReSharper disable once NotAccessedField.Local
+#pragma warning disable IDE0052 // Remove unread private members
             IEndpointInstance endpointInstance;
+#pragma warning restore IDE0052 // Remove unread private members
         }
 
         class SagaWithIllegalDep : Saga<SagaWithIllegalDep.MySagaData>, IAmStartedByMessages<MyMessage>
@@ -136,8 +138,9 @@
                 throw new NotImplementedException();
             }
 
-            // ReSharper disable once NotAccessedField.Local
+#pragma warning disable IDE0052 // Remove unread private members
             IEndpointInstance endpointInstance;
+#pragma warning restore IDE0052 // Remove unread private members
 
             public class MySagaData : ContainSagaData
             {

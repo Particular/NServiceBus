@@ -31,6 +31,8 @@ namespace NServiceBus
         int firedTimes;
         int threshold;
         // ReSharper disable once NotAccessedField.Local
+#pragma warning disable IDE0052 // Remove unread private members
         Timer timer;
+#pragma warning restore IDE0052 // Remove unread private members
     }
 }
