@@ -328,7 +328,7 @@
                 }
             }
 
-            if (messageProcessingResult != null && messageProcessingResult.ForceMessageRollback)
+            if (messageProcessingResult != null && messageProcessingResult.AbortReceiveOperation)
             {
                 transaction.Rollback();
 

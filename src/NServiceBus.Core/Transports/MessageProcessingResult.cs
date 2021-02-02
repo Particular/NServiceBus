@@ -8,15 +8,15 @@
         /// <summary>
         /// Initializes the result.
         /// </summary>
-        /// <param name="forceMessageRollback">Indicates that the message receive operation should be aborted and the message rolled back to the inputqueue.</param>
-        public MessageProcessingResult(bool forceMessageRollback)
+        /// <param name="abortReceiveOperation">Indicates that the message receive operation should be aborted and the message rolled back to the inputqueue.</param>
+        public MessageProcessingResult(bool abortReceiveOperation)
         {
-            ForceMessageRollback = forceMessageRollback;
+            AbortReceiveOperation = abortReceiveOperation;
         }
 
         /// <summary>
         /// Indicates that the message receive operation should be aborted and the message rolled back to the inputqueue.
         /// </summary>
-        public bool ForceMessageRollback { get; }
+        public bool AbortReceiveOperation { get; }
     }
 }
