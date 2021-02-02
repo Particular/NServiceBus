@@ -110,14 +110,6 @@
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (obj is null)
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
             return obj is LogicalAddress address && Equals(address);
         }
 
