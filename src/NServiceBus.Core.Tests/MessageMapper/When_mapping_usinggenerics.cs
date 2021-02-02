@@ -93,12 +93,12 @@ namespace MessageMapperTests
         public void Interfaces_generic_with_only_properties_should_not_be_mapped()
         {
             var mapper = new MessageMapper();
-            var genericInterfaceType = typeof(InterfaceGenericWithProperties<>);
+            var genericInterfaceType = typeof(IInterfaceGenericWithProperties<>);
             mapper.Initialize(new[] { genericInterfaceType });
             Assert.Null(mapper.GetMappedTypeFor(genericInterfaceType));
         }
 
-        public interface InterfaceGenericWithProperties<T> : IMessage where T : Data
+        public interface IInterfaceGenericWithProperties<T> : IMessage where T : Data
         {
             string SomeProperty { get; set; }
             T MessageProperty { get; set; }
@@ -108,11 +108,11 @@ namespace MessageMapperTests
         public void Interfaces_generic_with_methods_should_not_be_mapped()
         {
             var mapper = new MessageMapper();
-            var genericInterfaceType = typeof(InterfaceGenericWithMethods<>);
+            var genericInterfaceType = typeof(IInterfaceGenericWithMethods<>);
             mapper.Initialize(new[] { genericInterfaceType });
             Assert.Null(mapper.GetMappedTypeFor(genericInterfaceType));
         }
-        public interface InterfaceGenericWithMethods<in T> : IMessage where T : Data
+        public interface IInterfaceGenericWithMethods<in T> : IMessage where T : Data
         {
             string SomeProperty { get; set; }
             void MethodOnInterface(T myMessage);
@@ -122,12 +122,12 @@ namespace MessageMapperTests
         public void Interfaces_with_only_properties_should_be_mapped()
         {
             var mapper = new MessageMapper();
-            var simpleInterfaceType = typeof(InterfaceWithOnlyProperties);
+            var simpleInterfaceType = typeof(IInterfaceWithOnlyProperties);
             mapper.Initialize(new[] { simpleInterfaceType });
             Assert.NotNull(mapper.GetMappedTypeFor(simpleInterfaceType));
         }
 
-        public interface InterfaceWithOnlyProperties : IMessage
+        public interface IInterfaceWithOnlyProperties : IMessage
         {
             string SomeProperty { get; set; }
         }
@@ -136,17 +136,17 @@ namespace MessageMapperTests
         public void Interfaces_with_inheritance_and_property_overload_should_be_mapped()
         {
             var mapper = new MessageMapper();
-            var genericInterfaceType = typeof(InterfaceWithGenericProperty<ISpecific>);
+            var genericInterfaceType = typeof(IInterfaceWithGenericProperty<ISpecific>);
             mapper.Initialize(new[] { genericInterfaceType });
             Assert.NotNull(mapper.GetMappedTypeFor(genericInterfaceType));
         }
 
-        public interface InterfaceWithGenericProperty
+        public interface IInterfaceWithGenericProperty
         {
             object Original { get; set; }
         }
 
-        public interface InterfaceWithGenericProperty<T> : InterfaceWithGenericProperty
+        public interface IInterfaceWithGenericProperty<T> : IInterfaceWithGenericProperty
         {
             new T Original { get; set; }
         }

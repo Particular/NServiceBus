@@ -11,7 +11,7 @@
     {
 
         [Test]
-        public void no_files_explicitly_excluded_are_returned()
+        public void No_files_explicitly_excluded_are_returned()
         {
             var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
             {

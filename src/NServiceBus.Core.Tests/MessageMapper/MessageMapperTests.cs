@@ -96,7 +96,7 @@
         {
             var mapper = new MessageMapper();
 
-            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
+            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IInterfaceMessageWithIllegalInterfaceProperty) }));
             StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
         }
 
@@ -170,7 +170,7 @@
         {
             var mapper = new MessageMapper();
 
-            var messageInstance = mapper.CreateInstance<MessageInterfaceWithNullablePropertyAttribute>();
+            var messageInstance = mapper.CreateInstance<IMessageInterfaceWithNullablePropertyAttribute>();
 
             Assert.IsNotNull(messageInstance);
         }
@@ -218,7 +218,7 @@
             public IIllegalProperty MyProperty { get; set; }
         }
 
-        public interface InterfaceMessageWithIllegalInterfaceProperty
+        public interface IInterfaceMessageWithIllegalInterfaceProperty
         {
             IIllegalProperty MyProperty { get; set; }
         }
@@ -247,7 +247,7 @@
             }
         }
 
-        public interface MessageInterfaceWithNullablePropertyAttribute
+        public interface IMessageInterfaceWithNullablePropertyAttribute
         {
             [NullableProperty(0)]
             object Value { get; set; }

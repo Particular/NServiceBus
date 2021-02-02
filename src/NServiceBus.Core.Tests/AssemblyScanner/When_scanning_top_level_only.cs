@@ -31,7 +31,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test]
-        public void should_not_find_assembly_in_sub_directory()
+        public void Should_not_find_assembly_in_sub_directory()
         {
             var results = new AssemblyScanner(baseDirectoryToScan)
             {

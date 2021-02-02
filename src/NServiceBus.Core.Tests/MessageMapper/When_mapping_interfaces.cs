@@ -12,12 +12,12 @@ namespace MessageMapperTests
         public void Interfaces_with_only_properties_should_be_mapped()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(InterfaceWithOnlyProperties) });
+            mapper.Initialize(new[] { typeof(IInterfaceWithOnlyProperties) });
 
-            Assert.NotNull(mapper.GetMappedTypeFor(typeof(InterfaceWithOnlyProperties)));
+            Assert.NotNull(mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)));
         }
 
-        public interface InterfaceWithOnlyProperties : IMessage
+        public interface IInterfaceWithOnlyProperties : IMessage
         {
             string SomeProperty { get; set; }
         }
@@ -26,14 +26,14 @@ namespace MessageMapperTests
         public void Interface_should_be_created()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(Interface) });
+            mapper.Initialize(new[] { typeof(IInterface) });
 
-            var result = mapper.CreateInstance<Interface>(null);
+            var result = mapper.CreateInstance<IInterface>(null);
 
             Assert.IsNotNull(result);
         }
 
-        public interface Interface : IMessage
+        public interface IInterface : IMessage
         {
         }
 
@@ -43,11 +43,11 @@ namespace MessageMapperTests
             var mapper = new MessageMapper();
             Assert.Throws<Exception>(() => mapper.Initialize(new[]
             {
-                typeof(InterfaceWithMethods)
+                typeof(IInterfaceWithMethods)
             }));
         }
 
-        public interface InterfaceWithMethods
+        public interface IInterfaceWithMethods
         {
             string SomeProperty { get; set; }
             void MethodOnInterface();
@@ -58,14 +58,14 @@ namespace MessageMapperTests
         public void Attributes_on_properties_should_be_mapped()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(InterfaceWithPropertiesAndAttributes) });
-            Assert.IsTrue(PropertyContainsAttribute("SomeProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
+            mapper.Initialize(new[] { typeof(IInterfaceWithPropertiesAndAttributes) });
+            Assert.IsTrue(PropertyContainsAttribute("SomeProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))));
 
             // Doesn't affect properties without attributes
-            Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
+            Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))));
         }
 
-        public interface InterfaceWithPropertiesAndAttributes
+        public interface IInterfaceWithPropertiesAndAttributes
         {
             [Some]
             string SomeProperty { get; set; }
@@ -81,14 +81,14 @@ namespace MessageMapperTests
         public void Accept_Attributes_with_no_default_ctor_as_long_as_the_parameter_in_constructor_has_the_same_name_as_the_property()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructor) });
-            var instance = mapper.CreateInstance(typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructor));
+            mapper.Initialize(new[] { typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor) });
+            var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor));
             var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructor), true);
             var attr = (CustomAttributeWithNoDefaultConstructor)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
 
-        public interface InterfaceWithCustomAttributeThatHasNoDefaultConstructor
+        public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructor
         {
             [CustomAttributeWithNoDefaultConstructor("Blah")]
             string SomeProperty { get; set; }
@@ -107,13 +107,13 @@ namespace MessageMapperTests
         public void Accept_Attributes_with_no_default_ctor_while_ctor_parameters_are_different_than_properties_of_custom_attribute()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters) });
-            var instance = mapper.CreateInstance(typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
+            mapper.Initialize(new[] { typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters) });
+            var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
             var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters), true);
             var attr = (CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
-        public interface InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters
+        public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters
         {
             [CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters("Blah", "Second Blah")]
             string SomeProperty { get; set; }
@@ -137,12 +137,12 @@ namespace MessageMapperTests
         public void Generated_type_should_preserve_namespace_to_make_it_easier_for_users_to_define_custom_conventions()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[] { typeof(InterfaceToGenerate) });
+            mapper.Initialize(new[] { typeof(IInterfaceToGenerate) });
 
-            Assert.AreEqual(typeof(InterfaceToGenerate).Namespace, mapper.CreateInstance(typeof(InterfaceToGenerate)).GetType().Namespace);
+            Assert.AreEqual(typeof(IInterfaceToGenerate).Namespace, mapper.CreateInstance(typeof(IInterfaceToGenerate)).GetType().Namespace);
         }
 
-        public interface InterfaceToGenerate : IMessage
+        public interface IInterfaceToGenerate : IMessage
         {
             string SomeProperty { get; set; }
         }
