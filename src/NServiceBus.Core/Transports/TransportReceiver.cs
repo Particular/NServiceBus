@@ -15,7 +15,7 @@ namespace NServiceBus
             this.receiver = receiver;
         }
 
-        public async Task Start(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public async Task Start(OnMessage onMessage, OnError onError)
         {
             if (isStarted)
             {

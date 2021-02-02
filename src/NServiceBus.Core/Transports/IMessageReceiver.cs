@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Transport
 {
-    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,7 +10,7 @@
         /// <summary>
         /// Initializes the receiver.
         /// </summary>
-        Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError);
+        Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError);
 
         /// <summary>
         /// Starts receiving messages from the input queue.
@@ -33,4 +32,15 @@
         /// </summary>
         string Id { get; }
     }
+
+    /// <summary>
+    /// Processes an incoming message.
+    /// </summary>
+    public delegate Task OnMessage(MessageContext messageContext);
+
+
+    /// <summary>
+    /// Processes a message that has failed processing.
+    /// </summary>
+    public delegate Task<ErrorHandleResult> OnError(ErrorContext errorContext);
 }

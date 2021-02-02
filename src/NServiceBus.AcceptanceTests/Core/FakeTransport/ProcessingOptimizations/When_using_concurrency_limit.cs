@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -39,7 +38,7 @@
         {
             PushRuntimeSettings pushSettings;
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
             {
                 pushSettings = limitations;
                 return Task.CompletedTask;

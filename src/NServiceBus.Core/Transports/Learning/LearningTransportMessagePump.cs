@@ -49,7 +49,7 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -360,8 +360,8 @@
 
 
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
-        Func<MessageContext, Task> onMessage;
-        Func<ErrorContext, Task<ErrorHandleResult>> onError;
+        OnMessage onMessage;
+        OnError onError;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";

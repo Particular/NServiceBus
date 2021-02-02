@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Transport;
     using Unicast;
 
@@ -104,7 +103,7 @@ namespace NServiceBus
 
             public Conventions Conventions { get; }
 
-            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
+            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 

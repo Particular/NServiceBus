@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Settings;
@@ -67,7 +66,7 @@
         /// <param name="runtimeSettings">Transport runtime settings.</param>
         /// <param name="recoverabilityPolicy">Recoverability policy to be if processing fails.</param>
         /// <param name="onMessage">The message func.</param>
-        public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IServiceProvider, MessageContext, Task> onMessage)
+        public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
             Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);

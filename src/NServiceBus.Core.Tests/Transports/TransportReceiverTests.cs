@@ -66,7 +66,7 @@
             public bool Stopped { get; private set; }
 
 
-            public Task Initialize(PushRuntimeSettings limitations, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError)
+            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError)
             {
                 return Task.CompletedTask;
             }
