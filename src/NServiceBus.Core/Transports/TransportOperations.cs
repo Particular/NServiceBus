@@ -39,7 +39,7 @@ namespace NServiceBus.Transport
                 else
                 {
                     throw new ArgumentException(
-                        $"Transport operations contain an unsupported type of {typeof(AddressTag).Name}: {transportOperation.AddressTag.GetType().Name}. Supported types are {typeof(UnicastAddressTag).Name} and {typeof(MulticastAddressTag).Name}",
+                        $"Transport operations contain an unsupported type of {nameof(AddressTag)}: {transportOperation.AddressTag.GetType().Name}. Supported types are {nameof(UnicastAddressTag)} and {nameof(MulticastAddressTag)}",
                         nameof(transportOperations));
                 }
             }
