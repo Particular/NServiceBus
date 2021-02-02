@@ -11,8 +11,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void Should_not_scan_nested_directories_by_default()
         {
-            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested"));
-            scanner.ScanAppDomainAssemblies = false;
+            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested"))
+            {
+                ScanAppDomainAssemblies = false
+            };
 
             var result = scanner.GetScannableAssemblies();
 
