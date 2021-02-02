@@ -149,7 +149,7 @@
                 where TContext : IBehaviorContext
 
             {
-                return (IPipeline<TContext>) pipeline;
+                return (IPipeline<TContext>)pipeline;
             }
 
             IPipeline<IBatchDispatchContext> pipeline;

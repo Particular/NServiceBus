@@ -17,10 +17,10 @@ namespace NServiceBus
 
         public override async Task<IContainSagaData> Find(IBuilder builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders)
         {
-            var propertyAccessor = (Func<object, object>) finderDefinition.Properties["property-accessor"];
+            var propertyAccessor = (Func<object, object>)finderDefinition.Properties["property-accessor"];
             var propertyValue = propertyAccessor(message);
 
-            var sagaPropertyName = (string) finderDefinition.Properties["saga-property-name"];
+            var sagaPropertyName = (string)finderDefinition.Properties["saga-property-name"];
 
             var lookupValues = context.GetOrCreate<SagaLookupValues>();
             lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);
@@ -36,7 +36,7 @@ namespace NServiceBus
 
             if (sagaPropertyName.ToLower() == "id")
             {
-                return await sagaPersister.Get<TSagaData>((Guid) propertyValue, storageSession, context).ConfigureAwait(false);
+                return await sagaPersister.Get<TSagaData>((Guid)propertyValue, storageSession, context).ConfigureAwait(false);
             }
 
             return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, storageSession, context).ConfigureAwait(false);

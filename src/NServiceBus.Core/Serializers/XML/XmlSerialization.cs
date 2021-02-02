@@ -50,7 +50,7 @@
             // this is to force compatibility with previous implementation,
             // in particular, to support nested objects with null properties in them.
 
-            foreach (var childElement in 
+            foreach (var childElement in
                 from x in document.DescendantNodes().OfType<XElement>()
                 where x.IsEmpty && !x.HasAttributes
                 select x)
@@ -110,7 +110,7 @@
             if (type == typeof(object) && value.GetType().IsSimpleType())
             {
                 var typeOfValue = value.GetType();
-                var ns = (XNamespace) typeOfValue.Name;
+                var ns = (XNamespace)typeOfValue.Name;
                 var prefix = typeOfValue.Name.ToLower();
                 if (!elem.Attributes().Any(a => a.IsNamespaceDeclaration && a.Name.LocalName == prefix))
                 {
@@ -198,7 +198,7 @@
 
             if (typeof(XContainer).IsAssignableFrom(type))
             {
-                var container = (XContainer) value;
+                var container = (XContainer)value;
                 if (skipWrappingRawXml)
                 {
                     elem.Add(XElement.Parse(container.ToString()));
@@ -223,7 +223,7 @@
 
                 if (type == typeof(byte[]))
                 {
-                    var base64String = Convert.ToBase64String((byte[]) value);
+                    var base64String = Convert.ToBase64String((byte[])value);
                     xe.Value = base64String;
                 }
                 else
@@ -255,7 +255,7 @@
                         }
                     }
 
-                    foreach (var obj in (IEnumerable) value)
+                    foreach (var obj in (IEnumerable)value)
                     {
                         if (obj != null && obj.GetType().IsSimpleType())
                         {

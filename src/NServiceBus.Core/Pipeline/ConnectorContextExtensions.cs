@@ -217,7 +217,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>) forkConnector;
+            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;
             return connector.CreateAuditContext(message, auditAddress, sourceContext);
         }
 
@@ -235,7 +235,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(forwardingAddress), forwardingAddress);
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext>) forwardingContext;
+            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext>)forwardingContext;
             return connector.CreateForwardingContext(message, forwardingAddress, sourceContext);
         }
 

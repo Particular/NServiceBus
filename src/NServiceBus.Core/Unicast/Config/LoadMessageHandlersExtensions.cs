@@ -50,7 +50,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(handlerTypes), handlerTypes);
 
-            config.ExecuteTheseHandlersFirst((IEnumerable<Type>) handlerTypes);
+            config.ExecuteTheseHandlersFirst((IEnumerable<Type>)handlerTypes);
         }
     }
 }

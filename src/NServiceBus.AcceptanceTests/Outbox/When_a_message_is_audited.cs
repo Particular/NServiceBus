@@ -27,7 +27,7 @@
             Assert.True(context.MessageAudited);
         }
 
-       class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool MessageAudited { get; set; }
         }

@@ -25,7 +25,7 @@
 
             await behavior.Invoke(context, c =>
             {
-                var addressTag = (UnicastAddressTag) c.RoutingStrategies.First().Apply(headers);
+                var addressTag = (UnicastAddressTag)c.RoutingStrategies.First().Apply(headers);
                 destination = addressTag.Destination;
                 return TaskEx.CompletedTask;
             });

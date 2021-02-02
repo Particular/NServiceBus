@@ -15,7 +15,7 @@
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When((session, ctx) => session.SendLocal(new MessageToBeRetried {Id = ctx.Id}))
+                    .When((session, ctx) => session.SendLocal(new MessageToBeRetried { Id = ctx.Id }))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.FailedMessages.Any())
                 .Run();

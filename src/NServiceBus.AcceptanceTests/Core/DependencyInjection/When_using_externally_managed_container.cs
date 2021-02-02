@@ -32,7 +32,7 @@
                         },
                         configured => configured.Start(new ResolutionPhaseAdapter(container))
                     )
-                    .When((e,c) =>
+                    .When((e, c) =>
                     {
                         c.BuilderWasResolvable = container.Build(typeof(IBuilder)) != null;
 

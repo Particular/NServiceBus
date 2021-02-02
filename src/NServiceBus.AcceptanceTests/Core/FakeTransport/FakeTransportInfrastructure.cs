@@ -96,7 +96,7 @@
         {
             settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
 
-            return new TransportSubscriptionInfrastructure(()=> new FakeSubscriptionManager());
+            return new TransportSubscriptionInfrastructure(() => new FakeSubscriptionManager());
         }
 
         ReadOnlySettings settings;

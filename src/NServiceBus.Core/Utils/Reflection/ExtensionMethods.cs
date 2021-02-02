@@ -16,10 +16,10 @@ namespace NServiceBus
             }, null);
             if (defaultConstructor != null)
             {
-                return (T) defaultConstructor.Invoke(null);
+                return (T)defaultConstructor.Invoke(null);
             }
 
-            return (T) Activator.CreateInstance(type);
+            return (T)Activator.CreateInstance(type);
         }
 
         /// <summary>

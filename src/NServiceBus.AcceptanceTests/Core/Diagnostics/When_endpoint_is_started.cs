@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
     public class When_endpoint_is_started : NServiceBusAcceptanceTest
     {
         static string basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, TestContext.CurrentContext.Test.ID);
-        
+
         [Test]
         public async Task Should_add_licensing_section_to_diagnostic_file()
         {
@@ -20,27 +20,27 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
             {
                 Directory.Delete(basePath, true);
             }
-            
+
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointThatWithDiagnosticsEnabled>()
                 .Done(c => c.EndpointsStarted)
                 .Run()
                 .ConfigureAwait(false);
-            
+
             var endpointName = Conventions.EndpointNamingConvention(typeof(EndpointThatWithDiagnosticsEnabled));
             var startupDiagnosticsFileName = $"{endpointName}-configuration.txt";
 
             var pathToFile = Path.Combine(basePath, startupDiagnosticsFileName);
             Assert.True(File.Exists(pathToFile));
-            
+
             var diagnosticContent = File.ReadAllText(pathToFile);
             Assert.True(diagnosticContent.Contains("\"Licensing\""));
         }
-        
+
         class Context : ScenarioContext
         {
         }
-        
+
         class EndpointThatWithDiagnosticsEnabled : EndpointConfigurationBuilder
         {
             public EndpointThatWithDiagnosticsEnabled()

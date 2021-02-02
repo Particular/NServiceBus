@@ -55,10 +55,10 @@
             var startupDiagnosticsFileName = $"{configuration.EndpointName}-configuration.txt";
             var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
 
-            
+
             return data =>
             {
-                var prettied = JsonPrettyPrinter.Print(data);    
+                var prettied = JsonPrettyPrinter.Print(data);
                 return AsyncFile.WriteText(startupDiagnosticsFilePath, prettied);
             };
         }

@@ -25,7 +25,7 @@ namespace NServiceBus
 
         public T Build<T>()
         {
-            return (T) container.Build(typeof(T));
+            return (T)container.Build(typeof(T));
         }
 
         public object Build(Type typeToBuild)

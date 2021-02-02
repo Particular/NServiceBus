@@ -44,11 +44,11 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer,Context>((config, context) =>
-                {
-                    config.RegisterMessageMutator(new BodyMutator(context));
-                    config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.RegisterMessageMutator(new BodyMutator(context));
+                     config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+                 });
             }
 
             class BodyMutator : IMutateIncomingTransportMessages
@@ -91,7 +91,7 @@
         {
             public AuditSpyEndpoint()
             {
-                EndpointSetup<DefaultServer,Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
+                EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
             }
 
             class BodySpy : IMutateIncomingTransportMessages

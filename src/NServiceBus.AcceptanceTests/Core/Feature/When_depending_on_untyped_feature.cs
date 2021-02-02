@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTests.Core.Feature
 
             protected override void Setup(FeatureConfigurationContext context)
             {
-                var testContext = (Context) context.Settings.Get<ScenarioContext>();
+                var testContext = (Context)context.Settings.Get<ScenarioContext>();
                 testContext.UntypedDependencyFeatureSetUp = true;
             }
         }

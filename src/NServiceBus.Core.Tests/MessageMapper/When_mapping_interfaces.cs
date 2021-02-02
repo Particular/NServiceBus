@@ -53,14 +53,14 @@ namespace MessageMapperTests
             void MethodOnInterface();
         }
 
-        
+
         [Test]
         public void Attributes_on_properties_should_be_mapped()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new[]{typeof(InterfaceWithPropertiesAndAttributes)});
-            Assert.IsTrue(PropertyContainsAttribute("SomeProperty",typeof(SomeAttribute),mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
-            
+            mapper.Initialize(new[] { typeof(InterfaceWithPropertiesAndAttributes) });
+            Assert.IsTrue(PropertyContainsAttribute("SomeProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
+
             // Doesn't affect properties without attributes
             Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(InterfaceWithPropertiesAndAttributes))));
         }
@@ -82,8 +82,8 @@ namespace MessageMapperTests
         {
             var mapper = new MessageMapper();
             mapper.Initialize(new[] { typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructor) });
-            var instance = mapper.CreateInstance(typeof (InterfaceWithCustomAttributeThatHasNoDefaultConstructor));
-            var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructor),true);
+            var instance = mapper.CreateInstance(typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructor));
+            var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructor), true);
             var attr = (CustomAttributeWithNoDefaultConstructor)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
@@ -184,15 +184,15 @@ namespace MessageMapperTests
 
             public int MyAge { get; set; }
         }
-        
+
         bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
         {
-            return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
+            return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType, true).Length > 0;
         }
     }
 
 
 
 
-    
+
 }

@@ -59,7 +59,7 @@
             var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
 
             new AttachSenderRelatedInfoOnMessageBehavior()
-                .Invoke(new TestableRoutingContext {Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }}, _ => TaskEx.CompletedTask);
+                .Invoke(new TestableRoutingContext { Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") } }, _ => TaskEx.CompletedTask);
 
             return message;
         }

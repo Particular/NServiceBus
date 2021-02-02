@@ -82,7 +82,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // we explicitly set the correlation ID to a non-existent saga since auto correlation happens to work for this special case
                     // where we reply from the first handler
-                    return context.Reply(new ResponseFromOtherSaga{SomeCorrelationId = Guid.NewGuid()});
+                    return context.Reply(new ResponseFromOtherSaga { SomeCorrelationId = Guid.NewGuid() });
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData1> mapper)

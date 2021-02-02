@@ -67,7 +67,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
                     {
                         await session.Send(new AnyMessage(), sendOptions);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ctx.ExceptionMessage = ex.Message;
                         ctx.ExceptionThrown = true;

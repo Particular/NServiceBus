@@ -12,95 +12,95 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_deserialize_dictionaries()
         {
             var expected = new MessageWithDictionaries
-                               {
-                                   Bools = new Dictionary<bool, bool>
+            {
+                Bools = new Dictionary<bool, bool>
                                                {
                                                    {true, true},
                                                    {false, false}
                                                },
-                                   Chars = new Dictionary<char, char>
+                Chars = new Dictionary<char, char>
                                                {
                                                    //{char.MinValue, char.MaxValue}, // doesn't work because we use UTF8
                                                    {'a', 'b'},
                                                    {'c', 'd'},
                                                    {'e', 'f'}
                                                },
-                                   Bytes = new Dictionary<byte, byte>
+                Bytes = new Dictionary<byte, byte>
                                                {
                                                    {byte.MinValue, byte.MaxValue},
                                                    {11, 1},
                                                    {1, 0}
                                                },
-                                   Ints = new Dictionary<int, int>
+                Ints = new Dictionary<int, int>
                                               {
                                                   {int.MinValue, int.MaxValue},
                                                   {1, 2},
                                                   {3, 4},
                                                   {5, 6}
                                               },
-                                   Decimals = new Dictionary<decimal, decimal>
+                Decimals = new Dictionary<decimal, decimal>
                                                   {
                                                       {decimal.MinValue, decimal.MaxValue},
                                                       {.2m, 4m},
                                                       {.5m, .4234m}
                                                   },
-                                   Doubles = new Dictionary<double, double>
+                Doubles = new Dictionary<double, double>
                                                  {
                                                      {double.MinValue, double.MaxValue},
                                                      {.223d, 234d},
                                                      {.513d, .4212334d}
                                                  },
-                                   Floats = new Dictionary<float, float>
+                Floats = new Dictionary<float, float>
                                                 {
                                                     {float.MinValue, float.MaxValue},
                                                     {.223f, 234f},
                                                     {.513f, .4212334f}
                                                 },
-                                   Enums = new Dictionary<DateTimeStyles, DateTimeKind>
+                Enums = new Dictionary<DateTimeStyles, DateTimeKind>
                                                {
                                                    {DateTimeStyles.AdjustToUniversal, DateTimeKind.Local},
                                                    {DateTimeStyles.AllowLeadingWhite, DateTimeKind.Unspecified},
 
                                                },
-                                   Longs = new Dictionary<long, long>
+                Longs = new Dictionary<long, long>
                                                {
                                                    {long.MaxValue, long.MinValue},
                                                    {34234, 234324},
                                                    {45345345, 34534534565}
                                                },
-                                   SBytes = new Dictionary<sbyte, sbyte>
+                SBytes = new Dictionary<sbyte, sbyte>
                                                 {
                                                     {sbyte.MaxValue, sbyte.MaxValue},
                                                     {56, 13}
                                                 },
-                                   Shorts = new Dictionary<short, short>
+                Shorts = new Dictionary<short, short>
                                                 {
                                                     {short.MinValue, short.MaxValue},
                                                     {5231, 6123}
                                                 },
-                                   Strings = new Dictionary<string, string>
+                Strings = new Dictionary<string, string>
                                                  {
                                                      {"Key1", "Value1"},
                                                      {"Key2", "Value2"},
                                                      {"Key3", "Value3"},
                                                  },
-                                   UInts = new Dictionary<uint, uint>
+                UInts = new Dictionary<uint, uint>
                                                {
                                                    {uint.MinValue, 23},
                                                    {uint.MaxValue, 34324}
                                                },
-                                   ULongs = new Dictionary<ulong, ulong>
+                ULongs = new Dictionary<ulong, ulong>
                                                 {
                                                     {ulong.MinValue, ulong.MaxValue},
                                                     {34324234, 3243243245}
                                                 },
-                                   UShorts = new Dictionary<ushort, ushort>
+                UShorts = new Dictionary<ushort, ushort>
                                                  {
                                                      {ushort.MinValue, ushort.MaxValue},
                                                      {42324, 32}
                                                  }
 
-                               };
+            };
 
             var result = ExecuteSerializer.ForMessage<MessageWithDictionaries>(expected);
 
@@ -122,7 +122,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
-    
+
     public class MessageWithDictionaries : IMessage
     {
         public Dictionary<bool, bool> Bools { get; set; }

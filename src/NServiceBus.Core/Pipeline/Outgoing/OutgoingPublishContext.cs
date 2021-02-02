@@ -6,7 +6,7 @@
 
     class OutgoingPublishContext : OutgoingContext, IOutgoingPublishContext
     {
-        public OutgoingPublishContext(OutgoingLogicalMessage message, string messageId, Dictionary<string,string> headers, ContextBag extensions, IBehaviorContext parentContext)
+        public OutgoingPublishContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
             : base(messageId, headers, parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);

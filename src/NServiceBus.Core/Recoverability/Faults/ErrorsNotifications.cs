@@ -14,7 +14,7 @@ namespace NServiceBus.Faults
         /// </summary>
         [ObsoleteEx(
             Message = "The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(callback)) instead.",
-            RemoveInVersion = "9.0", 
+            RemoveInVersion = "9.0",
             TreatAsErrorFromVersion = "8.0")]
         public event EventHandler<FailedMessage> MessageSentToErrorQueue;
 

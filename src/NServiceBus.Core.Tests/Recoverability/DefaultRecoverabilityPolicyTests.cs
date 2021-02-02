@@ -20,7 +20,7 @@
         }
 
         class MyBaseCustomException : Exception
-        {            
+        {
         }
 
         class MyCustomException : MyBaseCustomException
@@ -125,10 +125,10 @@
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 2, delayedRetryDelay: baseDelay);
 
             var errorContext = CreateErrorContext(retryNumber: 0);
-            var result1 = (DelayedRetry) policy(errorContext);
+            var result1 = (DelayedRetry)policy(errorContext);
 
             errorContext = CreateErrorContext(retryNumber: 1);
-            var result2 = (DelayedRetry) policy(errorContext);
+            var result2 = (DelayedRetry)policy(errorContext);
 
             errorContext = CreateErrorContext(retryNumber: 2);
             var result3 = policy(errorContext);

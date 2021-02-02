@@ -124,7 +124,7 @@
             "2"
         };
 
-        static IReadOnlyDictionary<string,int> ReadOnlyDictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>
+        static IReadOnlyDictionary<string, int> ReadOnlyDictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>
         {
             {"hello", 11},
             {"world", 22}

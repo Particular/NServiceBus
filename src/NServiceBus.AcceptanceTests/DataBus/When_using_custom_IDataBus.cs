@@ -26,7 +26,7 @@
             Assert.AreEqual(PayloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
 
-        static byte[] PayloadToSend = new byte[1024*10];
+        static byte[] PayloadToSend = new byte[1024 * 10];
 
         public class Context : ScenarioContext
         {
@@ -82,7 +82,7 @@
             public Task<Stream> Get(string key)
             {
                 var fileStream = new FileStream(context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-                return Task.FromResult((Stream) fileStream);
+                return Task.FromResult((Stream)fileStream);
             }
 
             public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)

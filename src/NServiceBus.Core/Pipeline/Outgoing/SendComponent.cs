@@ -73,7 +73,7 @@
             return this.transportSendInfrastructure.DispatcherFactory();
         }
 
-        
+
 
         TransportSendInfrastructure transportSendInfrastructure;
         readonly IMessageMapper messageMapper;

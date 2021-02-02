@@ -22,7 +22,7 @@
             var unitOfWork = new UnitOfWork();
             builder.Register<IManageUnitsOfWork>(unitOfWork);
 
-            await InvokeBehavior(builder, behavior: behavior); 
+            await InvokeBehavior(builder, behavior: behavior);
 
             Assert.IsFalse(unitOfWork.BeginCalled);
             Assert.IsFalse(unitOfWork.EndCalled);

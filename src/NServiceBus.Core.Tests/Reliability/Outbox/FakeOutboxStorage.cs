@@ -10,7 +10,7 @@
         public OutboxMessage StoredMessage { get; set; }
 
         public bool WasDispatched { get; set; }
-        
+
         public Task<OutboxMessage> Get(string messageId, ContextBag options)
         {
             if (ExistingMessage != null && ExistingMessage.MessageId == messageId)

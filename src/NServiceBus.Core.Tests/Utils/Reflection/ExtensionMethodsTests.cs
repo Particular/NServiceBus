@@ -13,7 +13,7 @@
         public void SerializationFriendlyNameTests()
         {
             Assert.AreEqual("String", typeof(string).SerializationFriendlyName());
-            Assert.AreEqual("DictionaryOfStringAndInt32",typeof(Dictionary<string, int>).SerializationFriendlyName());
+            Assert.AreEqual("DictionaryOfStringAndInt32", typeof(Dictionary<string, int>).SerializationFriendlyName());
             Assert.AreEqual("DictionaryOfStringAndTupleOfInt32", typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName());
             Assert.AreEqual("NServiceBus.KeyValuePairOfStringAndTupleOfInt32", typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName());
         }

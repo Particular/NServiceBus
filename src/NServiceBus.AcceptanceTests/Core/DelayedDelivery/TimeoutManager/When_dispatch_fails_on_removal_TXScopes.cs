@@ -116,7 +116,7 @@
                         return Task.FromResult(timeoutData);
                     }
 
-                    return Task.FromResult((TimeoutData) null);
+                    return Task.FromResult((TimeoutData)null);
                 }
 
                 public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)

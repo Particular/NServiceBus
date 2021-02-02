@@ -30,7 +30,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
 #pragma warning restore 0618
                     c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                    
+
                     c.EnableOutbox();
                 });
             }

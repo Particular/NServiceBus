@@ -82,7 +82,7 @@ namespace NServiceBus.ContainerTests
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 InitializeBuilder(builder);
-                Assert.That(() => builder.Build(typeof(UnregisteredComponent)),Throws.Exception);
+                Assert.That(() => builder.Build(typeof(UnregisteredComponent)), Throws.Exception);
             }
         }
 
@@ -135,7 +135,7 @@ namespace NServiceBus.ContainerTests
 
         public interface ISingletonComponentWithPropertyDependency
         {
-             
+
         }
 
         public class SingletonComponentWithPropertyDependency : ISingletonComponentWithPropertyDependency

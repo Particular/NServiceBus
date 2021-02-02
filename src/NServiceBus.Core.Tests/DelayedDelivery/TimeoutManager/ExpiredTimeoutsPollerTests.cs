@@ -55,7 +55,7 @@
             var nextRetrieval = poller.NextRetrieval;
             var timeout1 = nextRetrieval.Subtract(HalfOfDefaultInMemoryPersisterSleep);
             // ReSharper disable once PossibleLossOfFraction
-            var timeout2 = timeout1.Add(TimeSpan.FromMilliseconds(HalfOfDefaultInMemoryPersisterSleep.Milliseconds/2));
+            var timeout2 = timeout1.Add(TimeSpan.FromMilliseconds(HalfOfDefaultInMemoryPersisterSleep.Milliseconds / 2));
 
             RegisterNewTimeout(timeout1);
             RegisterNewTimeout(timeout2, false);
@@ -94,7 +94,7 @@
             {
                 await poller.SpinOnce(CancellationToken.None);
             }
-            catch (Exception )
+            catch (Exception)
             {
                 // ignore. An exception will cause another polling attempt.
             }
@@ -120,7 +120,7 @@
         RecordingFakeDispatcher dispatcher;
         DateTime currentTime = DateTime.UtcNow;
         // ReSharper disable once PossibleLossOfFraction
-        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
+        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds / 2);
         ExpiredTimeoutsPoller poller;
         InMemoryTimeoutPersister timeouts;
 

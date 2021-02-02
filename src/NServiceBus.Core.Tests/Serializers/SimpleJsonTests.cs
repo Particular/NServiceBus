@@ -303,7 +303,7 @@
         [Ignore("not supported")]
         public void TestKVPEnumerable()
         {
-            var input = new []
+            var input = new[]
             {
                 new KeyValuePair<string, string>("1", "hello"),
                 new KeyValuePair<string, string>("2", "world"),

@@ -17,11 +17,11 @@ namespace NServiceBus
         readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
 
         public MessageOperations(
-            IMessageMapper messageMapper, 
-            IPipeline<IOutgoingPublishContext> publishPipeline, 
-            IPipeline<IOutgoingSendContext> sendPipeline, 
-            IPipeline<IOutgoingReplyContext> replyPipeline, 
-            IPipeline<ISubscribeContext> subscribePipeline, 
+            IMessageMapper messageMapper,
+            IPipeline<IOutgoingPublishContext> publishPipeline,
+            IPipeline<IOutgoingSendContext> sendPipeline,
+            IPipeline<IOutgoingReplyContext> replyPipeline,
+            IPipeline<ISubscribeContext> subscribePipeline,
             IPipeline<IUnsubscribeContext> unsubscribePipeline)
         {
             this.messageMapper = messageMapper;

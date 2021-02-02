@@ -11,11 +11,11 @@ namespace NServiceBus.Core.Tests.Timeout
     public class When_fetching_timeouts_from_storage_with_inMemory
     {
         InMemoryTimeoutPersister persister;
- 
+
         [SetUp]
         public void Setup()
         {
-             persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
         }
 
         [Test]

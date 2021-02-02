@@ -37,7 +37,7 @@ namespace NServiceBus
                     result.UnionWith(list.Values);
                 }
             }
-            return Task.FromResult((IEnumerable<Subscriber>) result);
+            return Task.FromResult((IEnumerable<Subscriber>)result);
         }
 
         ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>>();

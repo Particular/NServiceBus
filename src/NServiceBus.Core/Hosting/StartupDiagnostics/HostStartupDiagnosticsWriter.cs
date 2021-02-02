@@ -52,7 +52,7 @@
         IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
         {
             var countMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            
+
             foreach (var entry in entries)
             {
                 if (!countMap.ContainsKey(entry.Name))
@@ -66,7 +66,7 @@
                     var entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
 
                     logger.Warn($"A duplicate diagnostic entry was renamed from {entry.Name} to {entryNewName}.");
-                    
+
                     yield return new StartupDiagnosticEntries.StartupDiagnosticEntry
                     {
                         Name = entryNewName,

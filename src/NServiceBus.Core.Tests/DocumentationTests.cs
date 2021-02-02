@@ -116,7 +116,7 @@
                         return;
                     }
                 }
-                if (memberInfos.Count==0)
+                if (memberInfos.Count == 0)
                 {
                     return;
                 }
@@ -140,7 +140,7 @@
             bool IsInheritDoc(Element element)
             {
                 var lineInfoField = GetLineInfoField(element.GetType());
-                var lineInfo = (XElement) lineInfoField?.GetValue(element);
+                var lineInfo = (XElement)lineInfoField?.GetValue(element);
 
                 if (lineInfo != null)
                 {

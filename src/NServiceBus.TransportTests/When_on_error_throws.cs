@@ -59,8 +59,8 @@
 
             Assert.AreEqual("Simulated exception", errorContext.Exception.Message, "Should retry the message");
             Assert.True(criticalErrorCalled, "Should invoke critical error");
-            Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`",criticalErrorMessage);
+            Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`", criticalErrorMessage);
             Assert.False(LogFactory.LogItems.Any(item => item.Level > LogLevel.Info), "Transport should not log anything above LogLevel.Info");
-       }
+        }
     }
 }

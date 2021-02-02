@@ -123,7 +123,9 @@
         public bool Enabled
         {
             get { return IsEnabledByDefault; }
-            set { if (value)
+            set
+            {
+                if (value)
                 {
                     EnableByDefault();
                 }

@@ -124,7 +124,7 @@
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    if (((dynamic) message).ContextId != TestContext.Id)
+                    if (((dynamic)message).ContextId != TestContext.Id)
                     {
                         return Task.FromResult(0);
                     }
