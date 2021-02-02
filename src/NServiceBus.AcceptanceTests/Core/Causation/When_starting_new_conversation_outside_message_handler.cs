@@ -1,11 +1,11 @@
-﻿using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
-
-namespace NServiceBus.AcceptanceTests.Core.Causation
+﻿namespace NServiceBus.AcceptanceTests.Core.Causation
 {
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NUnit.Framework;
+    using System;
+    using System.Threading.Tasks;
+
     public class When_starting_new_conversation_outside_message_handler : NServiceBusAcceptanceTest
     {
         const string NewConversionId = "User Defined Conversation Id";
