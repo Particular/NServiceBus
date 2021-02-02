@@ -44,7 +44,7 @@ namespace NServiceBus.AcceptanceTesting
             var runSummary = await ScenarioRunner.Run(runDescriptor, behaviors, done).ConfigureAwait(false);
             sw.Stop();
 
-            await runDescriptor.RaiseOnTestCompleted(runSummary);
+            await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
 
             DisplayRunResult(runSummary);
             TestContext.WriteLine("Total time for testrun: {0}", sw.Elapsed);
