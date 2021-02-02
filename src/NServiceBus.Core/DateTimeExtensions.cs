@@ -49,7 +49,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        year = year * 10 + (digit - '0');
+                        year = (year * 10) + (digit - '0');
                         break;
 
                     case 'M':
@@ -58,7 +58,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        month = month * 10 + (digit - '0');
+                        month = (month * 10) + (digit - '0');
                         break;
 
                     case 'd':
@@ -67,7 +67,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        day = day * 10 + (digit - '0');
+                        day = (day * 10) + (digit - '0');
                         break;
 
                     case 'H':
@@ -76,7 +76,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        hour = hour * 10 + (digit - '0');
+                        hour = (hour * 10) + (digit - '0');
                         break;
 
                     case 'm':
@@ -85,7 +85,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        minute = minute * 10 + (digit - '0');
+                        minute = (minute * 10) + (digit - '0');
                         break;
 
                     case 's':
@@ -94,7 +94,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        second = second * 10 + (digit - '0');
+                        second = (second * 10) + (digit - '0');
                         break;
 
                     case 'f':
@@ -103,7 +103,7 @@ namespace NServiceBus
                             throw new FormatException(errorMessage);
                         }
 
-                        microSecond = microSecond * 10 + (digit - '0');
+                        microSecond = (microSecond * 10) + (digit - '0');
                         break;
 
                     default:

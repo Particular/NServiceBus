@@ -39,8 +39,7 @@
 
             static bool MessageConvention(Type t)
             {
-                return t.Namespace != null &&
-                       (t.Assembly == typeof(Conventions).Assembly) || (t == typeof(MyMessage));
+                return (t.Namespace != null && (t.Assembly == typeof(Conventions).Assembly)) || (t == typeof(MyMessage));
             }
         }
 
