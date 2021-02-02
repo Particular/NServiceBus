@@ -7,5 +7,5 @@
     /// <summary>
     /// Processes an incoming satellite message.
     /// </summary>
-    public delegate Task OnSatelliteMessage(IServiceProvider serviceProvider, MessageContext messageContext);
+    public delegate Task<MessageProcessingResult> OnSatelliteMessage(IServiceProvider serviceProvider, MessageContext messageContext);
 }

@@ -36,7 +36,7 @@
     /// <summary>
     /// Processes an incoming message.
     /// </summary>
-    public delegate Task OnMessage(MessageContext messageContext);
+    public delegate Task<MessageProcessingResult> OnMessage(MessageContext messageContext);
 
 
     /// <summary>
