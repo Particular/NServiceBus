@@ -45,43 +45,64 @@ namespace NServiceBus
                 {
                     case 'y':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         year = year * 10 + (digit - '0');
                         break;
 
                     case 'M':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         month = month * 10 + (digit - '0');
                         break;
 
                     case 'd':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         day = day * 10 + (digit - '0');
                         break;
 
                     case 'H':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         hour = hour * 10 + (digit - '0');
                         break;
 
                     case 'm':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         minute = minute * 10 + (digit - '0');
                         break;
 
                     case 's':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         second = second * 10 + (digit - '0');
                         break;
 
                     case 'f':
                         if (digit < '0' || digit > '9')
+                        {
                             throw new FormatException(errorMessage);
+                        }
+
                         microSecond = microSecond * 10 + (digit - '0');
                         break;
 

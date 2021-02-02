@@ -17,7 +17,9 @@
         public Task<Stream> Get(string key)
         {
             lock (storage)
+            {
                 return Task.FromResult((Stream)new MemoryStream(storage[key].Data));
+            }
         }
 
         /// <summary>
@@ -33,11 +35,14 @@
             stream.Read(data, 0, (int)stream.Length);
 
             lock (storage)
+            {
                 storage.Add(key, new Entry
                 {
                     Data = data,
                     ExpireAt = DateTime.Now + timeToBeReceived
                 });
+            }
+
             return Task.FromResult(key);
         }
 
@@ -54,7 +59,9 @@
         public Entry Peek(string key)
         {
             lock (storage)
+            {
                 return storage[key];
+            }
         }
 
         public class Entry

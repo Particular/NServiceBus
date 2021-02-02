@@ -25,7 +25,9 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void TearDown()
         {
             if (Directory.Exists(baseDirectoryToScan))
+            {
                 Directory.Delete(baseDirectoryToScan, true);
+            }
         }
 
         [Test]

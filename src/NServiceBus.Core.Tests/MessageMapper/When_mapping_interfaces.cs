@@ -156,7 +156,10 @@ namespace MessageMapperTests
             var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(CustomAttributeWithValueProperties), true);
             var attr = attributes[0] as CustomAttributeWithValueProperties;
             Assert.AreEqual(attr != null && attr.FlagIsSet, true);
-            if (attr != null) Assert.AreEqual(attr.MyAge, 21);
+            if (attr != null)
+            {
+                Assert.AreEqual(attr.MyAge, 21);
+            }
         }
 
         public interface IMyEventWithAttributeWithBoolProperty

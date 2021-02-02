@@ -531,8 +531,12 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = XmlReader.Create(stream);
 
                 while (reader.Read())
+                {
                     if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "FirstName"))
+                    {
                         count++;
+                    }
+                }
             }
             Assert.AreEqual(count, 1);
         }
@@ -765,8 +769,12 @@ namespace NServiceBus.Serializers.XML.Test
             };
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var stream = new MemoryStream())
+                {
                     DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, stream);
+                }
+            }
 
             sw.Stop();
             Debug.WriteLine("serialization " + sw.Elapsed);
@@ -775,7 +783,9 @@ namespace NServiceBus.Serializers.XML.Test
 
             File.Delete("a.xml");
             using (var fs = File.Open("a.xml", FileMode.OpenOrCreate))
+            {
                 DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, fs);
+            }
 
             var s = new MemoryStream();
             DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, s);
@@ -785,8 +795,12 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var reader = XmlReader.Create(new MemoryStream(buffer), xmlReaderSettings))
+                {
                     dataContractSerializer.ReadObject(reader);
+                }
+            }
 
             sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
@@ -1016,8 +1030,12 @@ namespace NServiceBus.Serializers.XML.Test
             watch.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var stream = new MemoryStream())
+                {
                     serializer.Serialize(message, stream);
+                }
+            }
 
             watch.Stop();
             Debug.WriteLine("Serializing: " + watch.Elapsed);

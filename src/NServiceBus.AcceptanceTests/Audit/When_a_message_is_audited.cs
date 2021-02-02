@@ -120,7 +120,9 @@
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     if (message.RunId != testContext.RunId)
+                    {
                         return Task.FromResult(0);
+                    }
 
                     testContext.Done = true;
 
