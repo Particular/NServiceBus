@@ -1445,4 +1445,53 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus.Pipeline
+{
+    public partial interface ITransportReceiveContext
+    {
+        /// <summary>
+        /// Allows the pipeline to flag that it has been aborted and the receive operation should be rolled back.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "The AbortReceiveOperation method is no longer supported. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        void AbortReceiveOperation();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    partial class TransportReceiveContext
+    {
+        [ObsoleteEx(
+            Message = "The AbortReceiveOperation method is no longer supported. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public void AbortReceiveOperation() => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using NServiceBus.Extensibility;
+
+    public partial class MessageContext
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "MessageContext(string, Dictionary<string, string>, byte[], TransportTransaction, ContextBag)",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context) => throw new NotImplementedException();
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+        public CancellationTokenSource ReceiveCancellationTokenSource => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore 1591
