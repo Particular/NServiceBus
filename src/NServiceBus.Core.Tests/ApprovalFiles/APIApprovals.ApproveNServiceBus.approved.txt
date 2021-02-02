@@ -758,7 +758,7 @@ namespace NServiceBus
         public Notifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
     }
-    public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext);
+    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.MessageProcessingResult> OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext);
     public static class OutboxConfigExtensions
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
@@ -2488,13 +2488,17 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         public byte[] Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
+    }
+    public class MessageProcessingResult
+    {
+        public MessageProcessingResult(bool forceMessageRollback) { }
+        public bool ForceMessageRollback { get; }
     }
     public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
     {
@@ -2505,7 +2509,7 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
     public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext);
-    public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext);
+    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.MessageProcessingResult> OnMessage(NServiceBus.Transport.MessageContext messageContext);
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]
     public class OutboundRoutingPolicy

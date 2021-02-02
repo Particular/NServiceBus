@@ -33,6 +33,5 @@
         }
 
         internal bool ReceiveOperationWasAborted { get; private set; }
-
     }
 }
