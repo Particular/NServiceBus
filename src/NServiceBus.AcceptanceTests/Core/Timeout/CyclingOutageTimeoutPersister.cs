@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Timeout.Core;
@@ -88,19 +87,6 @@
             {
                 throw new Exception("Persister is temporarily unavailable");
             }
-        }
-
-        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
-        {
-            ThrowExceptionUntilWaitTimeReached();
-            nextTimeToRunQuery = DateTime.UtcNow.AddSeconds(1);
-            return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
-        }
-
-        public Task Add(TimeoutData timeout)
-        {
-            ThrowExceptionUntilWaitTimeReached();
-            return completedTask;
         }
 
         Task completedTask = Task.FromResult(0);

@@ -71,7 +71,7 @@
                         SagaId = Data.Id,
                         Type = nameof(StartMessageOne)
                     });
-                    CheckForCompletion(context);
+                    CheckForCompletion();
                 }
 
                 public async Task Handle(StartMessageTwo message, IMessageHandlerContext context)
@@ -82,7 +82,7 @@
                         SagaId = Data.Id,
                         Type = nameof(StartMessageTwo)
                     });
-                    CheckForCompletion(context);
+                    CheckForCompletion();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConcurrentlyStartedSagaData> mapper)
@@ -91,7 +91,7 @@
                     mapper.ConfigureMapping<StartMessageTwo>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
                 }
 
-                void CheckForCompletion(IMessageHandlerContext context)
+                void CheckForCompletion()
                 {
                     if (!Data.Billed || !Data.Placed)
                     {
