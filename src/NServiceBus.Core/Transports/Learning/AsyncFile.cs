@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -13,14 +12,6 @@ namespace NServiceBus
             using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
                 await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task WriteLines(string filePath, IEnumerable<string> lines)
-        {
-            using (var stream = CreateWriteStream(filePath, FileMode.Create))
-            {
-                await WriteLines(stream, lines).ConfigureAwait(false);
             }
         }
 
@@ -44,17 +35,6 @@ namespace NServiceBus
             }
 
             File.Move(tempFile, targetPath);
-        }
-
-        static async Task WriteLines(FileStream stream, IEnumerable<string> lines)
-        {
-            using (var writer = new StreamWriter(stream))
-            {
-                foreach (var line in lines)
-                {
-                    await writer.WriteLineAsync(line).ConfigureAwait(false);
-                }
-            }
         }
 
         static FileStream CreateWriteStream(string filePath, FileMode fileMode)
