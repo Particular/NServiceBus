@@ -616,10 +616,13 @@ namespace NServiceBus.Serializers.XML.Test
             o.Start = DateTime.Now;
             o.Duration = TimeSpan.Parse("-01:15:27.123");
             o.Offset = DateTimeOffset.Now;
-            o.Lookup = new MyDictionary();
-            o.Lookup["1"] = "1";
-            o.Foos = new Dictionary<string, List<Foo>>();
-            o.Foos["foo1"] = new List<Foo>(new[]
+            o.Lookup = new MyDictionary
+            {
+                ["1"] = "1"
+            };
+            o.Foos = new Dictionary<string, List<Foo>>
+            {
+                ["foo1"] = new List<Foo>(new[]
             {
                 new Foo
                 {
@@ -631,7 +634,8 @@ namespace NServiceBus.Serializers.XML.Test
                     Name = "2",
                     Title = "2"
                 }
-            });
+            })
+            };
             o.Data = new byte[]
             {
                 1,
