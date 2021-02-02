@@ -20,19 +20,19 @@ namespace NServiceBus.Transport
             foreach (var transportOperation in transportOperations)
             {
                 // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-                if (transportOperation.AddressTag is MulticastAddressTag)
+                if (transportOperation.AddressTag is MulticastAddressTag multicastAddressTag)
                 {
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
-                        ((MulticastAddressTag)transportOperation.AddressTag).MessageType,
+                        multicastAddressTag.MessageType,
                         transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }
-                else if (transportOperation.AddressTag is UnicastAddressTag)
+                else if (transportOperation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
-                        ((UnicastAddressTag)transportOperation.AddressTag).Destination,
+                        unicastAddressTag.Destination,
                         transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }
