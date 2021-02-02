@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Controls how the transport should finalize the processing of the message.
-    /// /// </summary>
+    /// </summary>
     public class MessageProcessingResult
     {
         /// <summary>
