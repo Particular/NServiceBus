@@ -169,10 +169,5 @@ namespace NServiceBus
             }
             // ReSharper restore HeapView.SlowDelegateCreation
         }
-
-        static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
-        {
-            return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
     }
 }
