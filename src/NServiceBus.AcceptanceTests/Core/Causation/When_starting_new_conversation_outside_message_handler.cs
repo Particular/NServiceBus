@@ -95,7 +95,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
 
             class AnyMessageHandler : IHandleMessages<AnyMessage>
             {
-                private NewConversationScenario scenario;
+                NewConversationScenario scenario;
 
                 public AnyMessageHandler(NewConversationScenario scenario)
                 {

@@ -44,7 +44,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             return new PublisherAddress { addresses = addresses };
         }
 
-        private PublisherAddress()
+        PublisherAddress()
         {
         }
 
