@@ -19,11 +19,11 @@ namespace System
 
     static class ObjectExtensions
     {
-        static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
+        static readonly MethodInfo CloneMethod = typeof(object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static bool IsPrimitive(this Type type)
         {
-            if (type == typeof(String))
+            if (type == typeof(string))
             {
                 return true;
             }
@@ -31,11 +31,11 @@ namespace System
             return type.IsValueType & type.IsPrimitive;
         }
 
-        public static Object DeepCopy(this Object originalObject)
+        public static object DeepCopy(this object originalObject)
         {
-            return InternalCopy(originalObject, new Dictionary<Object, Object>(new ReferenceEqualityComparer()));
+            return InternalCopy(originalObject, new Dictionary<object, object>(new ReferenceEqualityComparer()));
         }
-        static Object InternalCopy(Object originalObject, IDictionary<Object, Object> visited)
+        static object InternalCopy(object originalObject, IDictionary<object, object> visited)
         {
             if (originalObject == null)
             {
@@ -105,11 +105,11 @@ namespace System
         }
         public static T DeepCopy<T>(this T original)
         {
-            return (T)DeepCopy((Object)original);
+            return (T)DeepCopy((object)original);
         }
     }
 
-    class ReferenceEqualityComparer : EqualityComparer<Object>
+    class ReferenceEqualityComparer : EqualityComparer<object>
     {
         public override bool Equals(object x, object y)
         {
