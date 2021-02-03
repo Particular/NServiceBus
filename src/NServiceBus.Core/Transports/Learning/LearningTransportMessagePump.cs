@@ -280,8 +280,6 @@
                 }
             }
 
-            var tokenSource = new CancellationTokenSource();
-
             var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -292,7 +290,7 @@
                 transportTransaction.Set(transaction);
             }
 
-            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, new ContextBag());
 
             try
             {
@@ -327,13 +325,6 @@
 
                     return;
                 }
-            }
-
-            if (tokenSource.IsCancellationRequested)
-            {
-                transaction.Rollback();
-
-                return;
             }
 
             await transaction.Commit()

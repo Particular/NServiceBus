@@ -1912,6 +1912,8 @@ namespace NServiceBus.Pipeline
     public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.IncomingMessage Message { get; }
+        [System.Obsolete("The AbortReceiveOperation method is no longer supported. See the upgrade guide fo" +
+            "r more details. Will be removed in version 9.0.0.", true)]
         void AbortReceiveOperation();
     }
     public interface IUnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
@@ -2488,11 +2490,17 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, byte[], TransportTransact" +
+            "ion, ContextBag)` instead. The member currently throws a NotImplementedException" +
+            ". Will be removed in version 9.0.0.", true)]
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
         public byte[] Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+        [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 9.0.0.", true)]
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
