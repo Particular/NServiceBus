@@ -29,7 +29,7 @@
         /// Specifies a <see cref="TimeSpan" /> for the message to be processed, before timeout.
         /// </summary>
         public TimeSpan? Within { get; }
-        
+
         /// <summary>
         /// Specifies a <see cref="DateTime" /> for the message to be processed at.
         /// </summary>

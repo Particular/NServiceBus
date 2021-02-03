@@ -27,7 +27,7 @@ namespace NServiceBus
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
         /// </summary>
-        internal protected abstract void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
+        protected internal abstract void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
 
         /// <summary>
         /// Request for a timeout to occur at the given <see cref="DateTime" />.

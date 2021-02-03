@@ -25,14 +25,14 @@ namespace NServiceBus.Core.Tests.Timeout
             var now = DateTime.UtcNow;
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(2)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(2)
+            }, new ContextBag());
             var expectedDate = DateTime.UtcNow.AddDays(1);
             await persister.Add(new TimeoutData
-                          {
-                              Time = expectedDate
-                          }, new ContextBag());
+            {
+                Time = expectedDate
+            }, new ContextBag());
 
             var result = await persister.GetNextChunk(now);
 
@@ -44,17 +44,17 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(-2)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(-2)
+            }, new ContextBag());
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(-4)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(-4)
+            }, new ContextBag());
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(-1)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(-1)
+            }, new ContextBag());
 
             var result = await persister.GetNextChunk(DateTime.UtcNow.AddDays(-3));
 
@@ -115,9 +115,9 @@ namespace NServiceBus.Core.Tests.Timeout
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var newGuid = Guid.NewGuid();
             var inputTimeout = new TimeoutData
-                               {
-                                   SagaId = newGuid
-                               };
+            {
+                SagaId = newGuid
+            };
 
             await persister.Add(inputTimeout, new ContextBag());
             await persister.RemoveTimeoutBy(newGuid, new ContextBag());
@@ -132,17 +132,17 @@ namespace NServiceBus.Core.Tests.Timeout
             var now = DateTime.UtcNow;
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(-1)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(-1)
+            }, new ContextBag());
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(-3)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(-3)
+            }, new ContextBag());
             await persister.Add(new TimeoutData
-                          {
-                              Time = DateTime.UtcNow.AddDays(-2)
-                          }, new ContextBag());
+            {
+                Time = DateTime.UtcNow.AddDays(-2)
+            }, new ContextBag());
 
             var result = await persister.GetNextChunk(now);
 

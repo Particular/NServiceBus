@@ -51,7 +51,7 @@
             {
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
-                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name)))
+                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(nameof(When_dispatching_forwarded_messages.MessageToBeForwarded))))
                     {
                         await next(context).ConfigureAwait(false);
                         return;

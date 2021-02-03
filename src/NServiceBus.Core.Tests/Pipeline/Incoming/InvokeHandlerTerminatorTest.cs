@@ -86,7 +86,7 @@
 
             Assert.AreSame(behaviorContext.MessageBeingHandled, receivedMessage);
         }
-        
+
         [Test]
         public void Should_rethrow_exception_with_additional_data()
         {
@@ -96,7 +96,7 @@
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
             var caughtException = Assert.ThrowsAsync<InvalidOperationException>(async () => await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask));
-            
+
             Assert.AreSame(thrownException, caughtException);
             Assert.AreEqual("System.Object", caughtException.Data["Message type"]);
             Assert.AreEqual("NServiceBus.Core.Tests.Pipeline.Incoming.InvokeHandlerTerminatorTest+FakeMessageHandler", caughtException.Data["Handler type"]);

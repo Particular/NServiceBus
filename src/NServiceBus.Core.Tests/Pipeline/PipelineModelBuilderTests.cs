@@ -73,7 +73,7 @@
                 someBehaviorRegistration,
                 anotherBehaviorRegistration,
 
-            }, new List<RemoveStep> { new RemoveStep("SomeBehaviorOfParentContext")}, new List<ReplaceStep>());
+            }, new List<RemoveStep> { new RemoveStep("SomeBehaviorOfParentContext") }, new List<ReplaceStep>());
 
 
             var ex = Assert.Throws<Exception>(() => builder.Build());

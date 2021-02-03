@@ -17,33 +17,33 @@ namespace NServiceBus
             switch (xmlVersion)
             {
                 case "1.1": // http://www.w3.org/TR/xml11/#charsets
-                {
-                    return
-                        !(
-                            character <= 0x8 ||
-                            character == 0xB ||
-                            character == 0xC ||
-                            (character >= 0xE && character <= 0x1F) ||
-                            (character >= 0x7F && character <= 0x84) ||
-                            (character >= 0x86 && character <= 0x9F) ||
-                            character > 0x10FFFF
-                            );
-                }
+                    {
+                        return
+                            !(
+                                character <= 0x8 ||
+                                character == 0xB ||
+                                character == 0xC ||
+                                (character >= 0xE && character <= 0x1F) ||
+                                (character >= 0x7F && character <= 0x84) ||
+                                (character >= 0x86 && character <= 0x9F) ||
+                                character > 0x10FFFF
+                                );
+                    }
                 case "1.0": // http://www.w3.org/TR/REC-xml/#charsets
-                {
-                    return
-                        character == 0x9 /* == '\t' == 9   */||
-                        character == 0xA /* == '\n' == 10  */||
-                        character == 0xD /* == '\r' == 13  */||
-                        (character >= 0x20 && character <= 0xD7FF) ||
-                        (character >= 0xE000 && character <= 0xFFFD) ||
-                        (character >= 0x10000 && character <= 0x10FFFF);
-                }
+                    {
+                        return
+                            character == 0x9 /* == '\t' == 9   */||
+                            character == 0xA /* == '\n' == 10  */||
+                            character == 0xD /* == '\r' == 13  */||
+                            (character >= 0x20 && character <= 0xD7FF) ||
+                            (character >= 0xE000 && character <= 0xFFFD) ||
+                            (character >= 0x10000 && character <= 0x10FFFF);
+                    }
                 default:
-                {
-                    throw new ArgumentOutOfRangeException
-                        (nameof(xmlVersion), $"'{xmlVersion}' is not a valid XML version.");
-                }
+                    {
+                        throw new ArgumentOutOfRangeException
+                            (nameof(xmlVersion), $"'{xmlVersion}' is not a valid XML version.");
+                    }
             }
         }
 
@@ -74,8 +74,8 @@ namespace NServiceBus
                 }
             }
 
-                // Skip the character if it's prohibited, and try the next
-	
+            // Skip the character if it's prohibited, and try the next
+
             while (!IsLegalXmlChar(nextCharacter));
 
             return nextCharacter;
@@ -83,20 +83,20 @@ namespace NServiceBus
 
         public override int Peek()
         {
-            // Return the next legal XML character without reading it 
+            // Return the next legal XML character without reading it
 
             int nextCharacter;
 
             do
             {
-                // See what the next character is 
+                // See what the next character is
 
                 nextCharacter = base.Peek();
             } while
                 (
                 // If it's prohibited XML, skip over the character in the stream
                 // and try the next.
-	
+
                 !IsLegalXmlChar(nextCharacter) &&
                 (nextCharacter = base.Read()) != EOF
                 );
@@ -104,7 +104,7 @@ namespace NServiceBus
             return nextCharacter;
         } // method
 
-        // The following methods are exact copies of the methods in TextReader, 
+        // The following methods are exact copies of the methods in TextReader,
         // extracting by disassembling it in Reflector
 
         public override int Read(char[] buffer, int index, int count)
@@ -125,7 +125,7 @@ namespace NServiceBus
                 {
                     return number;
                 }
-                buffer[index + number++] = (char) nextNumber;
+                buffer[index + number++] = (char)nextNumber;
             } while (number < count);
             return number;
         }
@@ -163,8 +163,11 @@ namespace NServiceBus
                             Read();
                         }
                         return builder.ToString();
+
+                    default:
+                        break;
                 }
-                builder.Append((char) number);
+                builder.Append((char)number);
             }
         }
 

@@ -24,7 +24,7 @@
 
         internal async Task RaiseOnTestCompleted(RunSummary result)
         {
-            await Task.WhenAll(onCompletedCallbacks.Select(c => c(result)));
+            await Task.WhenAll(onCompletedCallbacks.Select(c => c(result))).ConfigureAwait(false);
             onCompletedCallbacks = null;
         }
 

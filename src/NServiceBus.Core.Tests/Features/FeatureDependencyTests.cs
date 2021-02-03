@@ -51,7 +51,7 @@
             }
         }
 
-        [TestCaseSource("FeatureCombinationsForTests")]
+        [TestCaseSource(nameof(FeatureCombinationsForTests))]
         public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
         {
             var featureSettings = new FeatureActivator(new SettingsHolder());

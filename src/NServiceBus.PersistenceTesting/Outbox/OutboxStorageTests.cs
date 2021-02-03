@@ -5,7 +5,7 @@
     using NServiceBus.Outbox;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(PersistenceTestsConfiguration), "OutboxVariants")]
+    [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.OutboxVariants))]
     class OutboxStorageTests
     {
         public OutboxStorageTests(TestVariant param)

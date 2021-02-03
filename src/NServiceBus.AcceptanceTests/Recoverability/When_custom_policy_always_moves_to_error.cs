@@ -58,7 +58,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
 
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    testContext.Count ++;
+                    testContext.Count++;
                     throw new SimulatedException();
                 }
 

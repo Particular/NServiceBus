@@ -36,7 +36,9 @@ namespace NServiceBus
             };
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         public void Write(string name, LogLevel messageLevel, string message, Exception exception = null)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             if (messageLevel < filterLevel)
             {
@@ -46,7 +48,7 @@ namespace NServiceBus
             var stringBuilder = new StringBuilder();
             var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
-            
+
             stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);
 
             if (exception != null)

@@ -52,9 +52,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 busAssembly
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanAppDomainAssemblies = false;
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanAppDomainAssemblies = false,
+                CoreAssemblyName = busAssembly.DynamicName
+            };
 
             var result = scanner.GetScannableAssemblies();
 
@@ -73,9 +75,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             });
             var assemblyWithoutReference = new DynamicAssembly("AssemblyWithoutReference");
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanAppDomainAssemblies = false;
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanAppDomainAssemblies = false,
+                CoreAssemblyName = busAssembly.DynamicName
+            };
 
             var result = scanner.GetScannableAssemblies();
 
@@ -99,10 +103,12 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 busAssemblyV1
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ThrowExceptions = false;
-            scanner.ScanAppDomainAssemblies = false;
-            scanner.CoreAssemblyName = busAssemblyV2.Name;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ThrowExceptions = false,
+                ScanAppDomainAssemblies = false,
+                CoreAssemblyName = busAssemblyV2.Name
+            };
 
             var result = scanner.GetScannableAssemblies();
 
@@ -133,9 +139,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 assemblyB
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanAppDomainAssemblies = false;
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanAppDomainAssemblies = false,
+                CoreAssemblyName = busAssembly.DynamicName
+            };
 
             var result = scanner.GetScannableAssemblies();
 
@@ -153,9 +161,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
             Assembly.LoadFrom(busAssembly.FilePath);
 
-            var scanner = new AssemblyScanner(); // don't scan the dynamic assembly folder
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
-            scanner.ScanAppDomainAssemblies = true;
+            var scanner = new AssemblyScanner
+            {
+                CoreAssemblyName = busAssembly.DynamicName,
+                ScanAppDomainAssemblies = true
+            }; // don't scan the dynamic assembly folder
 
             var result = scanner.GetScannableAssemblies();
 
@@ -172,9 +182,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             // create a duplicate of the scanned assembly in a subfolder:
             File.Copy(busAssembly.FilePath, destFileName);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanNestedDirectories = true;
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanNestedDirectories = true,
+                CoreAssemblyName = busAssembly.DynamicName
+            };
 
             Assert.DoesNotThrow(() => scanner.GetScannableAssemblies());
         }
@@ -189,10 +201,12 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             File.Copy(busAssembly.FilePath, destFileName);
             Assembly.LoadFrom(destFileName);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanAppDomainAssemblies = true;
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
-            scanner.ThrowExceptions = false;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanAppDomainAssemblies = true,
+                CoreAssemblyName = busAssembly.DynamicName,
+                ThrowExceptions = false
+            };
 
             var result = scanner.GetScannableAssemblies();
 
@@ -216,8 +230,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 busAssembly
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                CoreAssemblyName = busAssembly.DynamicName
+            };
             scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
             scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
 
@@ -244,8 +260,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 busAssembly
             }, executable: true);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                CoreAssemblyName = busAssembly.DynamicName
+            };
             scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
             scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
 
@@ -292,8 +310,10 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
             }, content: handler, referenceTheCore: true);
             Assembly.LoadFrom(handlerAsm.FilePath);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanAppDomainAssemblies = false;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanAppDomainAssemblies = false
+            };
 
             var result = scanner.GetScannableAssemblies();
 
@@ -332,11 +352,13 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
                 var provider = new CSharpCodeProvider();
                 var param = new CompilerParameters(new string[]
                 {
-                }, FileName);
-                param.GenerateExecutable = false;
-                param.GenerateInMemory = false;
-                param.OutputAssembly = FilePath = Path.Combine(TestAssemblyDirectory, FileName);
-                param.TempFiles = new TempFileCollection(TestAssemblyDirectory, false);
+                }, FileName)
+                {
+                    GenerateExecutable = false,
+                    GenerateInMemory = false,
+                    OutputAssembly = FilePath = Path.Combine(TestAssemblyDirectory, FileName),
+                    TempFiles = new TempFileCollection(TestAssemblyDirectory, false)
+                };
 
                 foreach (var reference in references)
                 {

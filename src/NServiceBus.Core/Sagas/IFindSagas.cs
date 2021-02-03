@@ -13,7 +13,9 @@ namespace NServiceBus.Sagas
         /// Narrower interface indicating that implementers can find sagas
         /// of type T using messages of type M.
         /// </summary>
+#pragma warning disable IDE1006 // Naming Styles
         public interface Using<M> : IFinder
+#pragma warning restore IDE1006 // Naming Styles
         {
             /// <summary>
             /// Finds a saga entity of the type T using a message of type M.

@@ -13,7 +13,7 @@
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
         }
 
-        public static async Task DefineTransport(this EndpointConfiguration config, IConfigureEndpointTestExecution transportConfiguration,RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
+        public static async Task DefineTransport(this EndpointConfiguration config, IConfigureEndpointTestExecution transportConfiguration, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
             await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());

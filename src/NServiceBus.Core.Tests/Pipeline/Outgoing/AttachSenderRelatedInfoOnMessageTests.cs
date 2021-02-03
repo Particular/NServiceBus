@@ -2,28 +2,29 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Routing;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class AttachSenderRelatedInfoOnMessageTests
     {
         [Test]
-        public void Should_set_the_time_sent_header()
+        public async Task Should_set_the_time_sent_header()
         {
-            var message = InvokeBehavior();
+            var message = await InvokeBehavior();
 
             Assert.True(message.Headers.ContainsKey(Headers.TimeSent));
         }
 
         [Test]
-        public void Should_not_override_the_time_sent_header()
+        public async Task Should_not_override_the_time_sent_header()
         {
             var timeSent = DateTime.UtcNow.ToString();
 
-            var message = InvokeBehavior(new Dictionary<string, string>
+            var message = await InvokeBehavior(new Dictionary<string, string>
             {
                 {Headers.TimeSent, timeSent}
             });
@@ -34,18 +35,18 @@
 
 
         [Test]
-        public void Should_set_the_nsb_version_header()
+        public async Task Should_set_the_nsb_version_header()
         {
-            var message = InvokeBehavior();
+            var message = await InvokeBehavior();
 
             Assert.True(message.Headers.ContainsKey(Headers.NServiceBusVersion));
         }
 
         [Test]
-        public void Should_not_override_nsb_version_header()
+        public async Task Should_not_override_nsb_version_header()
         {
             var nsbVersion = "some-crazy-version-number";
-            var message = InvokeBehavior(new Dictionary<string, string>
+            var message = await InvokeBehavior(new Dictionary<string, string>
             {
                  {Headers.NServiceBusVersion, nsbVersion}
             });
@@ -54,12 +55,12 @@
             Assert.AreEqual(nsbVersion, message.Headers[Headers.NServiceBusVersion]);
         }
 
-        static OutgoingMessage InvokeBehavior(Dictionary<string, string> headers = null)
+        static async Task<OutgoingMessage> InvokeBehavior(Dictionary<string, string> headers = null)
         {
             var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
 
-            new AttachSenderRelatedInfoOnMessageBehavior()
-                .Invoke(new TestableRoutingContext {Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }}, _ => TaskEx.CompletedTask);
+            await new AttachSenderRelatedInfoOnMessageBehavior()
+                .Invoke(new TestableRoutingContext { Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") } }, _ => TaskEx.CompletedTask);
 
             return message;
         }

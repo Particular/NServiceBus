@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using Persistence;
 
-    [TestFixtureSource(typeof(PersistenceTestsConfiguration), "SagaVariants")]
+    [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.SagaVariants))]
     public class SagaPersisterTests
     {
         public SagaPersisterTests(TestVariant param)

@@ -58,7 +58,7 @@
             var attempts = 0;
 
             // since we have a design that can run into concurrency exceptions we perform a few retries
-            while(true)
+            while (true)
             {
                 try
                 {

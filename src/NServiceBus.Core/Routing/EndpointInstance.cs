@@ -107,7 +107,7 @@
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -115,7 +115,7 @@
             {
                 return true;
             }
-            return obj is EndpointInstance && Equals((EndpointInstance) obj);
+            return obj is EndpointInstance && Equals((EndpointInstance)obj);
         }
 
         /// <summary>
@@ -128,8 +128,8 @@
         {
             unchecked
             {
-                var hashCode = Properties.Aggregate(Endpoint.GetHashCode(), (i, pair) => (i*397) ^ propertyComparer.GetHashCode(pair));
-                hashCode = (hashCode*397) ^ (Discriminator?.GetHashCode() ?? 0);
+                var hashCode = Properties.Aggregate(Endpoint.GetHashCode(), (i, pair) => (i * 397) ^ propertyComparer.GetHashCode(pair));
+                hashCode = (hashCode * 397) ^ (Discriminator?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }
@@ -165,7 +165,7 @@
                 var hashCode = obj.Key.GetHashCode();
                 if (obj.Value != null)
                 {
-                    hashCode ^= 397*obj.Value.GetHashCode();
+                    hashCode ^= 397 * obj.Value.GetHashCode();
                 }
                 return hashCode;
             }

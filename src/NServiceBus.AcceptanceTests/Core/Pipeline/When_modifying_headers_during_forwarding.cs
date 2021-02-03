@@ -90,7 +90,7 @@
 
         class SomeMessage
         {
-            
+
         }
     }
 }

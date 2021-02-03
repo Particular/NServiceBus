@@ -1,11 +1,11 @@
-﻿using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
-
-namespace NServiceBus.AcceptanceTests.Core.Causation
+﻿namespace NServiceBus.AcceptanceTests.Core.Causation
 {
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NUnit.Framework;
+    using System;
+    using System.Threading.Tasks;
+
     public class When_starting_new_conversation_outside_message_handler : NServiceBusAcceptanceTest
     {
         const string NewConversionId = "User Defined Conversation Id";
@@ -67,7 +67,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
                     {
                         await session.Send(new AnyMessage(), sendOptions);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ctx.ExceptionMessage = ex.Message;
                         ctx.ExceptionThrown = true;
@@ -95,7 +95,7 @@ namespace NServiceBus.AcceptanceTests.Core.Causation
 
             class AnyMessageHandler : IHandleMessages<AnyMessage>
             {
-                private NewConversationScenario scenario;
+                NewConversationScenario scenario;
 
                 public AnyMessageHandler(NewConversationScenario scenario)
                 {

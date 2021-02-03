@@ -12,10 +12,10 @@
         {
             var serializer = SerializerFactory.Create<TestMessageWithChar>();
             var message = new TestMessageWithChar
-                {
-                    ValidCharacter = 'a',
-                    InvalidCharacter = '<'
-                };
+            {
+                ValidCharacter = 'a',
+                InvalidCharacter = '<'
+            };
 
             object[] messageDeserialized;
             using (Stream stream = new MemoryStream())

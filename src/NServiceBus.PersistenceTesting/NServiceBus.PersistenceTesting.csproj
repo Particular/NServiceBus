@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
-    <NoWarn>$(NoWarn);CA2007</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -16,7 +15,6 @@
 
   <ItemGroup>
     <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
-    <PackageReference Include="Particular.CodeRules" Version="0.3.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
   </ItemGroup>
 

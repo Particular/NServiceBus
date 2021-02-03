@@ -16,12 +16,12 @@
             var context = await Scenario.Define<SagaContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
-                        session => { return session.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
+                        session => { return session.Publish<ISomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
                     b => b.When(async (session, c) =>
                     {
-                        await session.Subscribe<BaseEvent>();
+                        await session.Subscribe<IBaseEvent>();
 
                         if (c.HasNativePubSubSupport)
                         {
@@ -61,17 +61,17 @@
                     c.EnableFeature<TimeoutManager>();
                     c.DisableFeature<AutoSubscribe>();
                 },
-                metadata => metadata.RegisterPublisherFor<BaseEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
             }
 
-            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>
+            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>
             {
                 public SagaStartedByBaseEvent(SagaContext context)
                 {
                     testContext = context;
                 }
 
-                public Task Handle(BaseEvent message, IMessageHandlerContext context)
+                public Task Handle(IBaseEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     MarkAsComplete();
@@ -81,7 +81,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<BaseEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<IBaseEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class SagaStartedByBaseEventSagaData : ContainSagaData
@@ -99,11 +99,11 @@
             public Guid DataId { get; set; }
         }
 
-        public interface SomethingHappenedEvent : BaseEvent
+        public interface ISomethingHappenedEvent : IBaseEvent
         {
         }
 
-        public interface BaseEvent : IEvent
+        public interface IBaseEvent : IEvent
         {
             Guid DataId { get; set; }
         }

@@ -40,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = (Context) context.ScenarioContext;
+                    var testContext = (Context)context.ScenarioContext;
 
                     config.EnableFeature<TimeoutManager>();
                     config.Recoverability()

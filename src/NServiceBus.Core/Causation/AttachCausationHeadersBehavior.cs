@@ -40,7 +40,7 @@ namespace NServiceBus
 
             if (context.Extensions.TryGet<string>(NewConversationId, out var newConversationId))
             {
-                if(hasUserDefinedConversationId)
+                if (hasUserDefinedConversationId)
                 {
                     throw new Exception($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as StartNewConversation() was called.");
                 }

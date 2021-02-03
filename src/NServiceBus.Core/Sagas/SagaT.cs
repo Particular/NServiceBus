@@ -15,7 +15,7 @@ namespace NServiceBus
         /// </summary>
         public TSagaData Data
         {
-            get { return (TSagaData) Entity; }
+            get { return (TSagaData)Entity; }
             set
             {
                 Guard.AgainstNull(nameof(value), value);
@@ -31,7 +31,7 @@ namespace NServiceBus
         /// Override <see cref="Saga.ConfigureHowToFindSaga" /> and forwards it to the generic version
         /// <see cref="ConfigureHowToFindSaga(SagaPropertyMapper{TSagaData})" />.
         /// </remarks>
-        internal protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
+        protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             ConfigureHowToFindSaga(new SagaPropertyMapper<TSagaData>(sagaMessageFindingConfiguration));
         }

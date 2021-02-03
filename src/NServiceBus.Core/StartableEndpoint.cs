@@ -49,7 +49,7 @@ namespace NServiceBus
 #if NETSTANDARD
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+                AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
 #else
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);

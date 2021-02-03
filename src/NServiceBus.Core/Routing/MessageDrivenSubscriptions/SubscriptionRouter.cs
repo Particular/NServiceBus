@@ -21,7 +21,7 @@
             List<string> publisherTransportAddresses = null;
             foreach (var publisherAddress in publishersOfThisEvent)
             {
-                if(publisherTransportAddresses == null)
+                if (publisherTransportAddresses == null)
                 {
                     publisherTransportAddresses = new List<string>();
                 }

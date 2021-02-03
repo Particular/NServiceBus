@@ -72,6 +72,8 @@ namespace NServiceBus
 
         internal static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
         {
+            _ = stageForkConnector;
+
             return new IncomingPhysicalMessageContext(incomingMessage, sourceContext);
         }
 
@@ -122,6 +124,8 @@ namespace NServiceBus
 
         internal static IBatchDispatchContext CreateBatchDispatchContext(this IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IReadOnlyCollection<TransportOperation> transportOperations, IIncomingPhysicalMessageContext sourceContext)
         {
+            _ = stageForkConnector;
+
             return new BatchDispatchContext(transportOperations, sourceContext);
         }
 
@@ -217,12 +221,14 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>) forkConnector;
+            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;
             return connector.CreateAuditContext(message, auditAddress, sourceContext);
         }
 
         internal static IAuditContext CreateAuditContext(this IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
         {
+            _ = forkConnector;
+
             return new AuditContext(message, auditAddress, sourceContext);
         }
 
@@ -235,12 +241,14 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(forwardingAddress), forwardingAddress);
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext>) forwardingContext;
+            var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext>)forwardingContext;
             return connector.CreateForwardingContext(message, forwardingAddress, sourceContext);
         }
 
         internal static IForwardingContext CreateForwardingContext(this IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
         {
+            _ = forwardingContext;
+
             return new ForwardingContext(message, forwardingAddress, sourceContext);
         }
     }

@@ -31,6 +31,6 @@
                     Assert.Fail($"Found no testable implementation for {behaviorContextInterface.FullName}. Expecting an implementation named {testableImplementationName}.");
                 }
             }
-        } 
+        }
     }
 }

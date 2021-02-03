@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
-    <NoWarn>$(NoWarn);CA2007</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -22,7 +21,6 @@
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" />
-    <PackageReference Include="Particular.CodeRules" Version="0.3.0" />
   </ItemGroup>
 
   <ItemGroup>

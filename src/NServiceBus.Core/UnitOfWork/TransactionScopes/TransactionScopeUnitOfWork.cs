@@ -13,7 +13,7 @@
             }
 
             var transactionOptions = context.Settings.Get<Settings>().TransactionOptions;
-            context.Pipeline.Register( new TransactionScopeUnitOfWorkBehavior.Registration(transactionOptions));
+            context.Pipeline.Register(new TransactionScopeUnitOfWorkBehavior.Registration(transactionOptions));
         }
 
         public class Settings

@@ -92,7 +92,7 @@
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
-            context.Builder.Register(() => new IMutateIncomingTransportMessages[]{ });
+            context.Builder.Register(() => new IMutateIncomingTransportMessages[] { });
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 

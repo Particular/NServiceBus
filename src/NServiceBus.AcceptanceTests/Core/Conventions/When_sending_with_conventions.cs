@@ -12,7 +12,7 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<Endpoint>(b => b.When(async(session, c) =>
+                .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
                 {
                     await session.SendLocal<MyMessage>(m => m.Id = c.Id);
                     await session.SendLocal<IMyInterfaceMessage>(m => m.Id = c.Id);

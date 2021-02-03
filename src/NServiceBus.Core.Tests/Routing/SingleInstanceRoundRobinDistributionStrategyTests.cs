@@ -21,10 +21,12 @@
             };
 
             var distributionContext = new DistributionContext(instances, null, null, null, null, null);
-            var result = new List<string>();
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
+            var result = new List<string>
+            {
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext)
+            };
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -45,11 +47,13 @@
             };
 
             var distributionContext = new DistributionContext(instances, null, null, null, null, null);
-            var result = new List<string>();
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
+            var result = new List<string>
+            {
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext)
+            };
 
             Assert.That(result.Last(), Is.EqualTo(result.First()));
         }
@@ -59,17 +63,19 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
 
-            var instances = new []
+            var instances = new[]
             {
                 "1",
                 "2",
             };
 
             var distributionContext = new DistributionContext(instances, null, null, null, null, null);
-            var result = new List<string>();
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
-            instances = instances.Concat(new [] { "3" }).ToArray(); // add new instance
+            var result = new List<string>
+            {
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext)
+            };
+            instances = instances.Concat(new[] { "3" }).ToArray(); // add new instance
             distributionContext = new DistributionContext(instances, null, null, null, null, null);
             result.Add(strategy.SelectDestination(distributionContext));
 
@@ -84,7 +90,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
 
-            var instances = new []
+            var instances = new[]
             {
                 "1",
                 "2",
@@ -92,9 +98,11 @@
             };
 
             var distributionContext = new DistributionContext(instances, null, null, null, null, null);
-            var result = new List<string>();
-            result.Add(strategy.SelectDestination(distributionContext));
-            result.Add(strategy.SelectDestination(distributionContext));
+            var result = new List<string>
+            {
+                strategy.SelectDestination(distributionContext),
+                strategy.SelectDestination(distributionContext)
+            };
             instances = instances.Take(2).ToArray(); // remove last instance.
             distributionContext = new DistributionContext(instances, null, null, null, null, null);
             result.Add(strategy.SelectDestination(distributionContext));

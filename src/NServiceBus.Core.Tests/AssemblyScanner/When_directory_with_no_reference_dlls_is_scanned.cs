@@ -9,7 +9,7 @@
     public class When_directory_with_no_reference_dlls_is_scanned
     {
         [Test]
-        public void assemblies_without_nsb_reference_are_skipped()
+        public void Assemblies_without_nsb_reference_are_skipped()
         {
             var assemblyToScan = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
             var scanner = new AssemblyScanner(assemblyToScan);

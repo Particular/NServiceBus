@@ -22,7 +22,7 @@
                 public string Property { get; set; }
             }
         }
-     
+
         [TestFixture]
         public class When_is_a_field
         {

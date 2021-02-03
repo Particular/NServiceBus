@@ -7,7 +7,7 @@
 
     static class Guard
     {
-// ReSharper disable UnusedParameter.Global
+        // ReSharper disable UnusedParameter.Global
         public static void TypeHasDefaultConstructor(Type type, string argumentName)
         {
             if (type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)

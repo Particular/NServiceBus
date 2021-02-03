@@ -14,10 +14,7 @@ namespace NServiceBus.Features
             this.settings = settings;
         }
 
-        internal List<FeatureDiagnosticData> Status
-        {
-            get { return features.Select(f => f.Diagnostics).ToList(); }
-        }
+        internal List<FeatureDiagnosticData> Status => features.Select(f => f.Diagnostics).ToList();
 
         public void Add(Feature feature)
         {

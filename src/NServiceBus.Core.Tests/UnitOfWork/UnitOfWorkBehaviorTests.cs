@@ -22,7 +22,7 @@
             var unitOfWork = new UnitOfWork();
             builder.Register<IManageUnitsOfWork>(unitOfWork);
 
-            await InvokeBehavior(builder, behavior: behavior); 
+            await InvokeBehavior(builder, behavior: behavior);
 
             Assert.IsFalse(unitOfWork.BeginCalled);
             Assert.IsFalse(unitOfWork.EndCalled);
@@ -166,8 +166,10 @@
         {
             var runner = behavior ?? new UnitOfWorkBehavior();
 
-            var context = new TestableIncomingPhysicalMessageContext();
-            context.Builder = builder;
+            var context = new TestableIncomingPhysicalMessageContext
+            {
+                Builder = builder
+            };
 
             return runner.Invoke(context, ctx =>
             {

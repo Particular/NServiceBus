@@ -47,8 +47,8 @@
                 public virtual int CorrelatedProperty { get; set; }
             }
 
-            class SagaWithIntCorrelatedProperty : Saga<SagaDataWithIntCorrelatedProperty>, 
-                IAmStartedByMessages<MessageWithIntCorrelationProperty>, 
+            class SagaWithIntCorrelatedProperty : Saga<SagaDataWithIntCorrelatedProperty>,
+                IAmStartedByMessages<MessageWithIntCorrelationProperty>,
                 IHandleMessages<RequestWithIntCorrelationProperty>
             {
                 DefaultIntCorrelationIdContext scenarioContext;

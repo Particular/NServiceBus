@@ -110,15 +110,7 @@
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            return obj is LogicalAddress && Equals((LogicalAddress) obj);
+            return obj is LogicalAddress address && Equals(address);
         }
 
         /// <summary>
@@ -131,7 +123,7 @@
         {
             unchecked
             {
-                return ((Qualifier?.GetHashCode() ?? 0)*397) ^ (EndpointInstance?.GetHashCode() ?? 0);
+                return ((Qualifier?.GetHashCode() ?? 0) * 397) ^ (EndpointInstance?.GetHashCode() ?? 0);
             }
         }
 

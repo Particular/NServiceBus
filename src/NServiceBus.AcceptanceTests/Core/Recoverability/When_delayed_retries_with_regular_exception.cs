@@ -35,13 +35,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer,Context>((config, context) =>
-                {
-                    config.EnableFeature<TimeoutManager>();
-                    config.RegisterMessageMutator(new BodyMutator(context));
-                    var recoverability = config.Recoverability();
-                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.EnableFeature<TimeoutManager>();
+                     config.RegisterMessageMutator(new BodyMutator(context));
+                     var recoverability = config.Recoverability();
+                     recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                 });
             }
 
             class BodyMutator : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages

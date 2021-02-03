@@ -18,13 +18,13 @@
 
         public ISagaIdGenerator SagaIdGenerator { get; private set; }
 
-        public ISagaPersister SagaStorage  { get; private set; }
+        public ISagaPersister SagaStorage { get; private set; }
 
         public ISynchronizedStorage SynchronizedStorage { get; private set; }
 
-        public ISynchronizedStorageAdapter SynchronizedStorageAdapter  { get; private set; }
+        public ISynchronizedStorageAdapter SynchronizedStorageAdapter { get; private set; }
 
-        public IOutboxStorage OutboxStorage  { get; private set; }
+        public IOutboxStorage OutboxStorage { get; private set; }
 
         public Task Configure()
         {

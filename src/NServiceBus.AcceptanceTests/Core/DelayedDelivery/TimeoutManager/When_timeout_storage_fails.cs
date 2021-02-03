@@ -10,7 +10,7 @@
     using NServiceBus.Persistence;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    
+
     public class When_timeout_storage_fails : NServiceBusAcceptanceTest
     {
         [Test]

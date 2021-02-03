@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
     public class When_a_persistence_does_not_support_outbox : NServiceBusAcceptanceTest
     {
         [Test]
-        public void should_throw_exception()
+        public void Should_throw_exception()
         {
             Assert.That(async () =>
             {
@@ -30,7 +30,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
 #pragma warning restore 0618
                     c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                    
+
                     c.EnableOutbox();
                 });
             }

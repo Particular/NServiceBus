@@ -43,14 +43,11 @@
                 set { settings.Set(DisplayNameSettingsKey, value); }
             }
 
-            public string EndpointName
-            {
-                get { return settings.EndpointName(); }
-            }
+            public string EndpointName => settings.EndpointName();
 
             public Dictionary<string, string> Properties
             {
-                get { return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey); }
+                get => settings.Get<Dictionary<string, string>>(PropertiesSettingsKey);
                 set { settings.Set(PropertiesSettingsKey, value); }
             }
 

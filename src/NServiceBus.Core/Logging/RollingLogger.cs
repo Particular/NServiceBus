@@ -169,7 +169,7 @@ namespace NServiceBus
                 }
             }
 
-            var fileName = $"nsb_log_{today.ToString("yyyy-MM-dd")}_{sequenceNumber}.txt";
+            var fileName = $"nsb_log_{today:yyyy-MM-dd}_{sequenceNumber}.txt";
             currentfilePath = Path.Combine(targetDirectory, fileName);
         }
 
@@ -180,7 +180,7 @@ namespace NServiceBus
         long maxFileSize;
         int numberOfArchiveFilesToKeep;
         string targetDirectory;
-        const long fileLimitInBytes = 10L*1024*1024; //10MB
+        const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
 
         internal class LogFile
         {

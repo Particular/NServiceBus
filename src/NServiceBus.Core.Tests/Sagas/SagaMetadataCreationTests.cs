@@ -175,7 +175,7 @@
         public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageFields()
         {
             var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
-            StringAssert.Contains(typeof(SomeMessage).Name, ex.Message);
+            StringAssert.Contains(nameof(SomeMessage), ex.Message);
         }
 
         [Test]

@@ -23,7 +23,6 @@
     <PackageReference Include="LightInject.Source" Version="5.0.3" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.2.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.CodeRules" Version="0.3.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="3.3.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
   </ItemGroup>

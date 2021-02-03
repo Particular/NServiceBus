@@ -137,7 +137,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             Guard.AgainstNullAndEmpty(nameof(key), key);
             if (stash.TryGetValue(key, out var value))
             {
-                result = (T) value;
+                result = (T)value;
                 return true;
             }
 

@@ -25,7 +25,7 @@ namespace NServiceBus
 
         public T Build<T>()
         {
-            return (T) container.Build(typeof(T));
+            return (T)container.Build(typeof(T));
         }
 
         public object Build(Type typeToBuild)
@@ -94,7 +94,9 @@ namespace NServiceBus
             return container.HasComponent(componentType);
         }
 
+#pragma warning disable IDE0051 // Remove unused private members
         void DisposeManaged()
+#pragma warning restore IDE0051 // Remove unused private members
         {
             container?.Dispose();
         }

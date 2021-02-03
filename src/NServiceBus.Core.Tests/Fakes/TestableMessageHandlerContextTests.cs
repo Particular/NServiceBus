@@ -113,11 +113,12 @@
         [Test]
         public void ShouldAllowSettingMessageProperties()
         {
-            var context = new TestableMessageHandlerContext();
-
-            context.MessageId = "custom message id";
-            context.ReplyToAddress = "custom reply address";
-            context.MessageHeaders = new Dictionary<string, string>();
+            var context = new TestableMessageHandlerContext
+            {
+                MessageId = "custom message id",
+                ReplyToAddress = "custom reply address",
+                MessageHeaders = new Dictionary<string, string>()
+            };
             context.MessageHeaders.Add("custom header", "custom value");
             context.Extensions = new ContextBag();
         }
