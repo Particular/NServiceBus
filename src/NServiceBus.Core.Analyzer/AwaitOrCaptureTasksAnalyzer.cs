@@ -11,9 +11,12 @@ namespace NServiceBus.Core.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AwaitOrCaptureTasksAnalyzer : DiagnosticAnalyzer
     {
+        public const string DiagnosticId = "NSB0001";
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
-        public override void Initialize(AnalysisContext context) => context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
+        public override void Initialize(AnalysisContext context) =>
+            context.WithDefaultSettings().RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
 
         void Analyze(SyntaxNodeAnalysisContext context)
         {
@@ -50,7 +53,7 @@ namespace NServiceBus.Core.Analyzer
             methods.Contains(methodSymbol.GetFullName());
 
         static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
-            "NSB0001",
+            DiagnosticId,
             "Await or assign Task",
             "A Task returned by an NServiceBus method is not awaited or assigned to a variable.",
             "NServiceBus.Code",

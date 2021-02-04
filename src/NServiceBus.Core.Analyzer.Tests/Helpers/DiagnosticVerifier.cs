@@ -108,49 +108,38 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
 
         static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, CancellationToken cancellationToken)
         {
-            var projectId = ProjectId.CreateNewId("TestProject");
+            Project newProject = CreateProject(sources);
 
-            var solution = new AdhocWorkspace()
-                .CurrentSolution
-                .AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
-                .AddMetadataReference(projectId, CorlibReference)
-                .AddMetadataReference(projectId, SystemCoreReference)
-                .AddMetadataReference(projectId, CSharpSymbolsReference)
-                .AddMetadataReference(projectId, CodeAnalysisReference)
-                .AddMetadataReference(projectId, TestLib)
-                .AddMetadataReference(projectId, NServiceBusReference);
+            var documents = newProject.Documents.ToArray();
 
-#if NETCOREAPP
-            var netstandard = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("netstandard").Location);
-            var systemTasks = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Threading.Tasks").Location);
-            var systemRuntime = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location);
-            solution = solution.AddMetadataReferences(projectId, new[]
-            {
-                netstandard,
-                systemRuntime,
-                systemTasks
-            });
-#endif
-
-            var documentIndex = 0;
-            foreach (var source in sources)
-            {
-                var fileName = "Test" + documentIndex + ".cs";
-                solution = solution.AddDocument(DocumentId.CreateNewId(projectId, fileName), fileName, SourceText.From(source));
-                documentIndex++;
-            }
-
-            var documents = solution.GetProject(projectId).Documents.ToList();
-
-            if (sources.Length != documents.Count)
+            if (sources.Length != documents.Length)
             {
                 throw new InvalidOperationException("The number of documents created does not match the number of sources.");
             }
 
+            return GetSortedDiagnosticsFromDocuments(analyzer, documents);
+        }
+
+        protected async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        {
             var diagnostics = new List<Diagnostic>();
             foreach (var project in new HashSet<Project>(documents.Select(document => document.Project)))
             {
-                var compilationWithAnalyzers = (await project.GetCompilationAsync(cancellationToken)).WithAnalyzers(ImmutableArray.Create(analyzer), cancellationToken: cancellationToken);
+                var compilation = await project.GetCompilationAsync(cancellationToken);
+                var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer));
+
+                using (var stream = new System.IO.MemoryStream())
+                {
+                    var emitResult = compilation.Emit(stream);
+                    if (!emitResult.Success)
+                    {
+                        foreach (var diagnostic in emitResult.Diagnostics)
+                        {
+                            Console.WriteLine(diagnostic.Location.GetMappedLineSpan() + " " + diagnostic.GetMessage());
+                        }
+                        throw new Exception("Test code did not compile.");
+                    }
+                }
 
                 foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken))
                 {
@@ -172,6 +161,50 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             }
 
             return diagnostics.OrderBy(diagnostic => diagnostic.Location.SourceSpan.Start).ToArray();
+        }
+
+        protected Project CreateProject(params string[] sources)
+        {
+            var projectId = ProjectId.CreateNewId("TestProject");
+
+            var projectInfo = ProjectInfo.Create(projectId, VersionStamp.Create(), "TestProject", "TestProject", LanguageNames.CSharp)
+                .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            // The max C# version is controlled by the Roslyn package in use - that's what's used to parse the code in tests
+            var parseOptions = new CSharpParseOptions(languageVersion: LanguageVersion.CSharp6);
+
+            var solution = new AdhocWorkspace()
+                .CurrentSolution
+                .AddProject(projectInfo)
+                .AddMetadataReference(projectId, CorlibReference)
+                .AddMetadataReference(projectId, SystemCoreReference)
+                .AddMetadataReference(projectId, CSharpSymbolsReference)
+                .AddMetadataReference(projectId, CodeAnalysisReference)
+                .AddMetadataReference(projectId, TestLib)
+                .AddMetadataReference(projectId, NServiceBusReference)
+                .WithProjectParseOptions(projectId, parseOptions);
+
+#if NETCOREAPP
+            var netstandard = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("netstandard").Location);
+            var systemTasks = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Threading.Tasks").Location);
+            var systemRuntime = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location);
+            solution = solution.AddMetadataReferences(projectId, new[]
+            {
+                netstandard,
+                systemRuntime,
+                systemTasks
+            });
+#endif
+            var documentIndex = 0;
+            foreach (var source in sources)
+            {
+                var fileName = "Test" + documentIndex + ".cs";
+                solution = solution.AddDocument(DocumentId.CreateNewId(projectId, fileName), fileName, SourceText.From(source));
+                documentIndex++;
+            }
+
+            var project = solution.GetProject(projectId);
+            return project;
         }
 
         static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
