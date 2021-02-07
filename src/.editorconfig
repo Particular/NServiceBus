@@ -1,4 +1,5 @@
-root = true
+# TODO: Uncomment when analyzer line ending problem is fixed
+#root = true
 
 [*.cs]
 
@@ -12,7 +13,8 @@ indent_style = space
 tab_width = 4
 
 # New line preferences
-end_of_line = crlf
+# TODO: Uncomment when analyzer line ending problem is fixed
+#end_of_line = unset
 insert_final_newline = false
 
 
