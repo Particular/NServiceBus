@@ -2397,7 +2397,7 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.SettingsHolder coreSettings = null) { }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
         public NServiceBus.Settings.ReadOnlySettings CoreSettings { get; }
         public System.Action<string, System.Exception> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
