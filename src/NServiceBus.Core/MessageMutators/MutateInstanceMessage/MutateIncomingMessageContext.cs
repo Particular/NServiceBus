@@ -1,6 +1,7 @@
 namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     /// Provides ways to mutate the outgoing message instance.
@@ -10,7 +11,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateIncomingMessageContext(object message, Dictionary<string, string> headers)
+        public MutateIncomingMessageContext(object message, Dictionary<string, string> headers, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(message), message);
@@ -36,6 +37,11 @@ namespace NServiceBus.MessageMutator
         /// The current incoming headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// A <see cref="CancellationToken"/> to observe.
+        /// </summary>
+        public CancellationToken CancellationToken { get; private set; }
 
         object message;
 

@@ -1653,27 +1653,31 @@ namespace NServiceBus.MessageMutator
     }
     public class MutateIncomingMessageContext
     {
-        public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object Message { get; set; }
     }
-    public class MutateIncomingTransportMessageContext
+    public class MutateIncomingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken) { }
         public byte[] Body { get; set; }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
     }
-    public class MutateOutgoingMessageContext
+    public class MutateOutgoingMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
+        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; set; }
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
-    public class MutateOutgoingTransportMessageContext
+    public class MutateOutgoingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.CancellationToken CancellationToken { get; }
         public byte[] OutgoingBody { get; set; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }

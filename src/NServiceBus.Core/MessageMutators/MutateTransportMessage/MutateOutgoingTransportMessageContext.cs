@@ -1,16 +1,17 @@
 namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     /// Context class for <see cref="IMutateOutgoingTransportMessages" />.
     /// </summary>
-    public class MutateOutgoingTransportMessageContext
+    public class MutateOutgoingTransportMessageContext : ICancellableContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders)
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingBody), outgoingBody);
@@ -47,6 +48,11 @@ namespace NServiceBus.MessageMutator
         /// The current outgoing headers.
         /// </summary>
         public Dictionary<string, string> OutgoingHeaders { get; }
+
+        /// <summary>
+        /// A <see cref="CancellationToken"/> to observe.
+        /// </summary>
+        public CancellationToken CancellationToken { get; private set; }
 
         /// <summary>
         /// Gets the incoming message that initiated the current send if it exists.
