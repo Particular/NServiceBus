@@ -6,7 +6,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_purging_queues
+    public class When_purging_queues : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_purge_before_FeatureStartupTasks()
