@@ -22,9 +22,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 .Done(c => c.FailedMessages.Any())
                 .Run(TimeSpan.FromSeconds(10));
 
-            var failedMessage = context.FailedMessages.Single();
+            var failedMessage = context.FailedMessages.Values.First().First();
 
-            StringAssert.AreNotEqualIgnoringCase(context.FailedMessages.First().Value.First().Headers[Headers.DelayedRetries], "5");
+            Assert.AreEqual(1, int.Parse(failedMessage.Headers[Headers.DelayedRetries]));
         }
 
         class Context : ScenarioContext
@@ -38,9 +38,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer, Context>((config, context) =>
                  {
-                     config.GetSettings().Set("Recoverablity.MaxDurationOfDelayedRetries", TimeSpan.FromSeconds(5));
+                     config.GetSettings().Set("Recoverablity.MaxDurationOfDelayedRetries", TimeSpan.FromSeconds(1));
                      var recoverability = config.Recoverability();
-                     recoverability.Delayed(settings => settings.NumberOfRetries(5).TimeIncrease(TimeSpan.FromSeconds(2)));
+                     recoverability.Delayed(settings => settings.NumberOfRetries(2).TimeIncrease(TimeSpan.FromSeconds(1)));
                  });
             }
 
@@ -52,7 +52,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 }
             }
         }
-
 
         public class MessageToBeRetried : IMessage
         {
