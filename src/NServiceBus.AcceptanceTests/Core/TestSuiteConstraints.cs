@@ -17,6 +17,8 @@
 
         public bool SupportsOutbox => true;
 
+        public bool SupportsPurgeOnStartup => true;
+
         public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointAcceptanceTestingTransport(SupportsNativePubSub, SupportsDelayedDelivery);
 
         public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointAcceptanceTestingPersistence();

@@ -14,6 +14,8 @@
 
         bool SupportsOutbox { get; }
 
+        bool SupportsPurgeOnStartup { get; }
+
         IConfigureEndpointTestExecution CreateTransportConfiguration();
 
         IConfigureEndpointTestExecution CreatePersistenceConfiguration();
