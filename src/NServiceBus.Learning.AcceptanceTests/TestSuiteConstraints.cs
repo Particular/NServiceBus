@@ -14,6 +14,8 @@
 
         public bool SupportsOutbox => false;
 
+        public bool SupportsPurgeOnStartup => true;
+
         public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointLearningTransport();
 
         public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointLearningPersistence();

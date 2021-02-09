@@ -51,5 +51,13 @@
                 Assert.Ignore("Ignoring this tests because it requires a persistence providing an Outbox storage.");
             }
         }
+
+        public static void PurgeOnStartupSupport()
+        {
+            if (!TestSuiteConstraints.Current.SupportsPurgeOnStartup)
+            {
+                Assert.Ignore("Ignoring this tests because it requires a transport able to purge queues at startup.");
+            }
+        }
     }
 }
