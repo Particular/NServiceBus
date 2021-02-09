@@ -9,7 +9,7 @@
     /// <summary>
     /// We want to test that subscriptions are possible while the receivers (that own the subscription manager) haven't been started yet.
     /// </summary>
-    public class When_subscribing_in_FST
+    public class When_subscribing_in_FST : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_subscribed_events_native()
