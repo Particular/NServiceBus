@@ -11,16 +11,19 @@
 
     static class TaskReturning
     {
-        static readonly List<MethodInfo> methods = typeof(IMessage).Assembly.GetTypes()
+        static readonly List<MethodInfo> allMethods = typeof(IMessage).Assembly.GetTypes()
             .Where(type => !type.IsObsolete())
             .SelectMany(type => type.GetMethods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic))
-            .Where(method => typeof(Task).IsAssignableFrom(method.ReturnType))
             .Where(method => !method.IsCompilerGenerated())
             .Where(method => !method.IsObsolete())
             .ToList();
 
+        static readonly List<MethodInfo> taskMethods = allMethods
+            .Where(method => typeof(Task).IsAssignableFrom(method.ReturnType))
+            .ToList();
+
 #pragma warning disable IDE0001 // Simplify Names
-        static readonly List<MethodInfo> noTokenPolicy = methods
+        static readonly List<MethodInfo> noTokenPolicy = taskMethods
             .Where(method =>
                 (typeof(Delegate).IsAssignableFrom(method.DeclaringType) && method.Name == "EndInvoke") ||
                 (method.HasCancellableContext() &&
@@ -46,7 +49,7 @@
             )
             .ToList();
 
-        static readonly List<MethodInfo> optionalTokenPolicy = methods
+        static readonly List<MethodInfo> optionalTokenPolicy = taskMethods
             .Where(method => !noTokenPolicy.Contains(method))
             .Where(method =>
                 method.IsOn(typeof(NServiceBus.Endpoint)) ||
@@ -57,7 +60,7 @@
             .ToList();
 #pragma warning restore IDE0001 // Simplify Names
 
-        static readonly List<MethodInfo> mandatoryTokenPolicy = methods
+        static readonly List<MethodInfo> mandatoryTokenPolicy = taskMethods
             .Where(method => !noTokenPolicy.Contains(method))
             .Where(method => !optionalTokenPolicy.Contains(method))
             .ToList();
@@ -66,7 +69,7 @@
         [TestCase(false)]
         public static void AllMethodsHaveASingleTokenPolicy(bool visible)
         {
-            var methodPolicies = methods
+            var methodPolicies = taskMethods
                 .Where(method => method.IsVisible() == visible)
                 .ToDictionary(method => method, method => new List<string>());
 
@@ -144,7 +147,7 @@
         [Test]
         public static void CancellationTokenNumberPolicy()
         {
-            var violators = methods
+            var violators = allMethods
                 .Where(method => method.GetParameters().Count(param => param.ParameterType == typeof(CancellationToken)) > 1)
                 .Prettify()
                 .ToList();
@@ -157,7 +160,8 @@
         [Test]
         public static void CancellationTokenPositionPolicy()
         {
-            var candidates = methods
+            var candidates = allMethods
+                .Where(method => !(typeof(Delegate).IsAssignableFrom(method.DeclaringType) && method.Name == "BeginInvoke"))
                 .Where(method => method.GetParameters().Any(param => param.ParameterType == typeof(CancellationToken)))
                 .ToList();
 
@@ -174,7 +178,7 @@
         [Test]
         public static void CancellationTokenNamePolicy()
         {
-            var violators = methods
+            var violators = allMethods
                 .Where(method => method.GetParameters().Any(param =>
                     param.ParameterType == typeof(CancellationToken) &&
                     !param.Name.Equals("cancellationToken", StringComparison.Ordinal) &&
@@ -190,10 +194,10 @@
         [Test]
         public static void FuncParameterMandatoryTokenAndPositionPolicy()
         {
-            var violators = methods
+            var violators = allMethods
                 .Where(method => !typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(method.DeclaringType))
                 .Where(method => method.GetParameters()
-                    .Where(param => typeof(Delegate).IsAssignableFrom(param.ParameterType))
+                    .Where(param => param.ParameterType != typeof(Delegate) && typeof(Delegate).IsAssignableFrom(param.ParameterType))
                     .Select(param => param.ParameterType.GetMethod("Invoke"))
                     .Where(invoke => typeof(Task).IsAssignableFrom(invoke.ReturnType))
                     .Select(invoke => invoke.GetParameters())
