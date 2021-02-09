@@ -21,7 +21,7 @@ namespace NServiceBus
 
         ISubscriptionManager mainReceiverSubscriptionManager;
 
-        public static ReceiveComponent Initialize(
+        public static ReceiveComponent Configure(
             Configuration configuration,
             string errorQueue,
             HostingComponent.Configuration hostingConfiguration,
@@ -128,7 +128,7 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task Start(IServiceProvider builder,
+        public async Task Initialize(IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
@@ -182,7 +182,10 @@ namespace NServiceBus
                     throw;
                 }
             }
+        }
 
+        public async Task Start()
+        {
             foreach (var messageReceiver in receivers)
             {
                 Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);

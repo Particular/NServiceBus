@@ -73,7 +73,7 @@ namespace NServiceBus
 
             hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            receiveComponent = ReceiveComponent.Initialize(
+            receiveComponent = ReceiveComponent.Configure(
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),
                 hostingConfiguration,

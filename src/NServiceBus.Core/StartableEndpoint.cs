@@ -40,6 +40,8 @@ namespace NServiceBus
             var rootContext = new RootContext(builder, messageOperations, pipelineCache);
             var messageSession = new MessageSession(rootContext);
 
+            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
+
 #if NETSTANDARD
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -52,7 +54,7 @@ namespace NServiceBus
 
             var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
-            await receiveComponent.Start(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure).ConfigureAwait(false);
+            await receiveComponent.Start().ConfigureAwait(false);
 
             return runningInstance;
         }
