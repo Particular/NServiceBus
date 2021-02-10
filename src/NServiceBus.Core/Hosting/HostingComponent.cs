@@ -72,11 +72,6 @@
 
             var installationUserName = GetInstallationUserName();
 
-            foreach (var internalInstaller in configuration.internalInstallers)
-            {
-                await internalInstaller(installationUserName).ConfigureAwait(false);
-            }
-
             foreach (var installer in builder.GetServices<INeedToInstallSomething>())
             {
                 await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
@@ -91,7 +86,7 @@
 
             var endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
 
-            configuration.CriticalError.SetEndpoint(endpointInstance);
+            configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
 
             return endpointInstance;
         }
