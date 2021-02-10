@@ -69,11 +69,6 @@
 
             public Func<string, CancellationToken, Task> HostDiagnosticsWriter { get; }
 
-            public void AddInstaller(Func<string, Task> installer)
-            {
-                internalInstallers.Add(installer);
-            }
-
             public string EndpointName { get; }
 
             public IServiceCollection Services { get; }
@@ -92,8 +87,6 @@
             public string InstallationUserName { get; }
 
             public List<Action<IServiceCollection>> UserRegistrations { get; }
-
-            internal ICollection<Func<string, Task>> internalInstallers = new List<Func<string, Task>>();
         }
     }
 }

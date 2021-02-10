@@ -42,7 +42,7 @@
                         typeof(NServiceBus.MessageMutator.IMutateOutgoingMessages),
                         typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages))) ||
                 method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
-                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull")) // TODO: Consider removing this type?
+                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull"))
             .ToList();
 
         static readonly List<MethodInfo> optionalTokenPolicy = taskMethods
