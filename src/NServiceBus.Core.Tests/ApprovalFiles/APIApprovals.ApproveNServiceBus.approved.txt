@@ -1651,7 +1651,7 @@ namespace NServiceBus.MessageMutator
     {
         System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
     }
-    public class MutateIncomingMessageContext
+    public class MutateIncomingMessageContext : NServiceBus.ICancellableContext
     {
         public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken) { }
         public System.Threading.CancellationToken CancellationToken { get; }
