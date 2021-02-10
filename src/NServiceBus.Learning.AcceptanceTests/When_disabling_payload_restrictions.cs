@@ -32,7 +32,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var transport = (LearningTransport)c.ConfigureTransport();
+                    var transport = c.ConfigureTransport<LearningTransport>();
                     transport.RestrictPayloadSize = false;
                 });
             }
