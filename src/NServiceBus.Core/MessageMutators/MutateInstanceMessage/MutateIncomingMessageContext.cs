@@ -6,7 +6,7 @@ namespace NServiceBus.MessageMutator
     /// <summary>
     /// Provides ways to mutate the outgoing message instance.
     /// </summary>
-    public class MutateIncomingMessageContext
+    public class MutateIncomingMessageContext : ICancellableContext
     {
         /// <summary>
         /// Initializes the context.

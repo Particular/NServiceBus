@@ -36,17 +36,16 @@
                         typeof(NServiceBus.IHandleTimeouts<>),
                         typeof(NServiceBus.Sagas.IHandleSagaNotFound),
                         typeof(NServiceBus.Pipeline.MessageHandler),
-                        typeof(NServiceBus.IUnicastPublishRouter)
+                        typeof(NServiceBus.IUnicastPublishRouter),
+                        typeof(NServiceBus.MessageMutator.IMutateIncomingMessages),
+                        typeof(NServiceBus.MessageMutator.IMutateIncomingTransportMessages),
+                        typeof(NServiceBus.MessageMutator.IMutateOutgoingMessages),
+                        typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages)
                         )) ||
                 method.IsOn(typeof(NServiceBus.IAsyncTimer)) ||
                 method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
                 method.IsOn(typeof(NServiceBus.DelayedMessagePoller)) ||
-                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull") || // TODO: Consider removing this type?
-                method.IsOn(typeof(NServiceBus.MessageMutator.IMutateIncomingMessages)) ||
-                method.IsOn(typeof(NServiceBus.MessageMutator.IMutateIncomingTransportMessages)) ||
-                method.IsOn(typeof(NServiceBus.MessageMutator.IMutateOutgoingMessages)) ||
-                method.IsOn(typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages))
-            )
+                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull")) // TODO: Consider removing this type?
             .ToList();
 
         static readonly List<MethodInfo> optionalTokenPolicy = taskMethods
