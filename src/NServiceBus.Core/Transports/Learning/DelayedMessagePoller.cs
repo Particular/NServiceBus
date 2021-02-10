@@ -3,6 +3,7 @@
     using System;
     using System.Globalization;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
@@ -11,7 +12,6 @@
         public DelayedMessagePoller(string basePath, string delayedDir)
         {
             this.basePath = basePath;
-            timer = new AsyncTimer();
 
             delayedRootDirectory = delayedDir;
         }
@@ -40,23 +40,42 @@
 
         public void Start()
         {
-            timer.Start(() =>
-            {
-                MoveDelayedMessagesToMainDirectory();
+            polling = new CancellationTokenSource();
 
-                return Task.CompletedTask;
-            },
-            TimeSpan.FromSeconds(1),
-            ex => Logger.Error("Unable to move expired messages to main input queue.", ex));
+            _ = Task.Run(async () =>
+              {
+                  while (!polling.Token.IsCancellationRequested)
+                  {
+                      try
+                      {
+                          await Task.Delay(TimeSpan.FromSeconds(1), polling.Token).ConfigureAwait(false);
+                          MoveDelayedMessagesToMainDirectory();
+                      }
+                      catch (OperationCanceledException)
+                      {
+                          // no-op
+                      }
+                      catch (Exception ex)
+                      {
+                          Logger.Error("Unable to move expired messages to main input queue.", ex);
+                      }
+                  }
+              });
         }
 
-        public Task Stop()
+        public void Stop()
         {
-            return timer.Stop();
+            if (polling == null)
+            {
+                return;
+            }
+
+            polling.Cancel();
+            polling.Dispose();
         }
 
         string delayedRootDirectory;
-        IAsyncTimer timer;
+        CancellationTokenSource polling;
         string basePath;
 
         static ILog Logger = LogManager.GetLogger<DelayedMessagePoller>();
