@@ -41,9 +41,7 @@
                         typeof(NServiceBus.MessageMutator.IMutateIncomingTransportMessages),
                         typeof(NServiceBus.MessageMutator.IMutateOutgoingMessages),
                         typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages))) ||
-                method.IsOn(typeof(NServiceBus.IAsyncTimer)) ||
                 method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
-                method.IsOn(typeof(NServiceBus.DelayedMessagePoller)) ||
                 (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull")) // TODO: Consider removing this type?
             .ToList();
 
