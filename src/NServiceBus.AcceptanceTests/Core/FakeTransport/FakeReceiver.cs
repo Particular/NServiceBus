@@ -1,20 +1,20 @@
 namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using Extensibility;
-    using Unicast.Messages;
     using System;
-    using System.Threading.Tasks;
-    using Transport;
     using System.Threading;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Transport;
+    using Unicast.Messages;
 
     class FakeReceiver : IMessageReceiver
     {
         readonly FakeTransport transportSettings;
         readonly FakeTransport.StartUpSequence startupSequence;
-        readonly Action<string, Exception> criticalErrorAction;
+        readonly Action<string, Exception, CancellationToken> criticalErrorAction;
 
         public FakeReceiver(string id, FakeTransport transportSettings, FakeTransport.StartUpSequence startupSequence,
-            Action<string, Exception> criticalErrorAction)
+            Action<string, Exception, CancellationToken> criticalErrorAction)
         {
             this.transportSettings = transportSettings;
             this.startupSequence = startupSequence;
@@ -35,7 +35,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             if (transportSettings.ErrorOnReceiverStart != null)
             {
                 criticalErrorAction(transportSettings.ErrorOnReceiverStart.Message,
-                    transportSettings.ErrorOnReceiverStart);
+                    transportSettings.ErrorOnReceiverStart, cancellationToken);
             }
 
             return Task.CompletedTask;

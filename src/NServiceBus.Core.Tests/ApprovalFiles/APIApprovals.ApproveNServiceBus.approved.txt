@@ -62,7 +62,7 @@ namespace NServiceBus
     }
     public static class ConfigureCriticalErrorAction
     {
-        public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalError) { }
+        public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> onCriticalError) { }
     }
     public static class ConfigureError
     {
@@ -178,8 +178,8 @@ namespace NServiceBus
     }
     public class CriticalError
     {
-        public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
-        public virtual void Raise(string errorMessage, System.Exception exception) { }
+        public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> onCriticalErrorAction) { }
+        public virtual void Raise(string errorMessage, System.Exception exception, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
@@ -2405,9 +2405,9 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
         public NServiceBus.Settings.ReadOnlySettings CoreSettings { get; }
-        public System.Action<string, System.Exception> CriticalErrorAction { get; }
+        public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
         public string Name { get; }
         public bool SetupInfrastructure { get; }

@@ -14,7 +14,7 @@
     {
         public LearningTransportMessagePump(string id,
             string basePath,
-            Action<string, Exception> criticalErrorAction,
+            Action<string, Exception, CancellationToken> criticalErrorAction,
             ISubscriptionManager subscriptionManager,
             ReceiveSettings receiveSettings,
             TransportTransactionMode transactionMode)
@@ -153,7 +153,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction("Failure to process messages", ex);
+                    criticalErrorAction("Failure to process messages", ex, CancellationToken.None);
                 }
             }
         }
@@ -324,7 +324,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex);
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex, CancellationToken.None);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
@@ -353,7 +353,7 @@
         string committedTransactionDir;
         string delayedDir;
 
-        Action<string, Exception> criticalErrorAction;
+        Action<string, Exception, CancellationToken> criticalErrorAction;
         readonly ReceiveSettings receiveSettings;
         readonly TransportTransactionMode transactionMode;
 

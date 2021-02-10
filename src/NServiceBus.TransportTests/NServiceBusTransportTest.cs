@@ -72,7 +72,7 @@
             configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null, CancellationToken cancellationToken = default)
+        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, CancellationToken cancellationToken = default)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
