@@ -18,7 +18,8 @@
                 null,
                 new FeatureComponent(settings),
                 new MessageSession(new FakeRootContext()),
-                null);
+                null,
+                default);
             return testInstance;
         }
 
