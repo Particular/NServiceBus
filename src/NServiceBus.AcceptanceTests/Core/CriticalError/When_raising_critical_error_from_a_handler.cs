@@ -18,7 +18,7 @@
         {
             var exceptions = new ConcurrentDictionary<string, Exception>();
 
-            Func<ICriticalErrorContext, Task> addCritical = criticalContext =>
+            Func<ICriticalErrorContext, CancellationToken, Task> addCritical = (criticalContext, _) =>
             {
                 exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
                 return Task.FromResult(0);
@@ -98,10 +98,10 @@
 
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
-                    criticalError.Raise("critical error 1", new SimulatedException());
+                    criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
                     testContext.CriticalErrorsRaised++;
 
-                    criticalError.Raise("critical error 2", new SimulatedException());
+                    criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
                     testContext.CriticalErrorsRaised++;
 
                     return Task.FromResult(0);

@@ -69,9 +69,9 @@
                 set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
             }
 
-            public Func<ICriticalErrorContext, Task> CustomCriticalErrorAction
+            public Func<ICriticalErrorContext, CancellationToken, Task> CustomCriticalErrorAction
             {
-                get { return settings.GetOrDefault<Func<ICriticalErrorContext, Task>>(CustomCriticalErrorActionSettingsKey); }
+                get { return settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey); }
                 set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
             }
 
