@@ -38,8 +38,9 @@ namespace NServiceBus
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
-            // This context is persisted in the IMessageSession for its lifetime, and should not carry the CancellationToken from Endpoint.Start()
-            var rootContext = new RootContext(builder, messageOperations, pipelineCache, CancellationToken.None);
+            var stoppingTokenSource = new CancellationTokenSource();
+
+            var rootContext = new RootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
             var messageSession = new MessageSession(rootContext);
 
             await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, cancellationToken).ConfigureAwait(false);
@@ -54,7 +55,7 @@ namespace NServiceBus
 #endif
             await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource);
 
             await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
 

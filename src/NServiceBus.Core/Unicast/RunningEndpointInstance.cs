@@ -9,7 +9,7 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource)
         {
             this.settings = settings;
             this.hostingComponent = hostingComponent;
@@ -17,6 +17,7 @@ namespace NServiceBus
             this.featureComponent = featureComponent;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
+            this.stoppingTokenSource = stoppingTokenSource;
         }
 
         public async Task Stop(CancellationToken cancellationToken = default)
@@ -25,6 +26,8 @@ namespace NServiceBus
             {
                 return;
             }
+
+            stoppingTokenSource.Cancel();
 
             try
             {
@@ -136,7 +139,7 @@ namespace NServiceBus
         FeatureComponent featureComponent;
         IMessageSession messageSession;
         readonly TransportInfrastructure transportInfrastructure;
-
+        readonly CancellationTokenSource stoppingTokenSource;
         SettingsHolder settings;
 
         volatile Status status = Status.Running;
