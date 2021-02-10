@@ -27,21 +27,20 @@
             .Where(method =>
                 (typeof(Delegate).IsAssignableFrom(method.DeclaringType) && method.Name == "EndInvoke") ||
                 (method.HasCancellableContext() &&
-                    method.IsOnOneOf(
+                    method.IsOn(
                         typeof(NServiceBus.Saga),
                         typeof(NServiceBus.IncomingMessageOperations),
-                        typeof(NServiceBus.IPipeline),
-                        typeof(NServiceBus.Pipeline.IBehavior),
                         typeof(NServiceBus.IHandleMessages<>),
                         typeof(NServiceBus.IHandleTimeouts<>),
+                        typeof(NServiceBus.IPipeline),
+                        typeof(NServiceBus.IUnicastPublishRouter),
                         typeof(NServiceBus.Sagas.IHandleSagaNotFound),
                         typeof(NServiceBus.Pipeline.MessageHandler),
-                        typeof(NServiceBus.IUnicastPublishRouter),
+                        typeof(NServiceBus.Pipeline.IBehavior),
                         typeof(NServiceBus.MessageMutator.IMutateIncomingMessages),
                         typeof(NServiceBus.MessageMutator.IMutateIncomingTransportMessages),
                         typeof(NServiceBus.MessageMutator.IMutateOutgoingMessages),
-                        typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages)
-                        )) ||
+                        typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages))) ||
                 method.IsOn(typeof(NServiceBus.IAsyncTimer)) ||
                 method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
                 method.IsOn(typeof(NServiceBus.DelayedMessagePoller)) ||
@@ -50,12 +49,12 @@
 
         static readonly List<MethodInfo> optionalTokenPolicy = taskMethods
             .Where(method => !noTokenPolicy.Contains(method))
-            .Where(method =>
-                method.IsOn(typeof(NServiceBus.Endpoint)) ||
-                method.IsOn(typeof(NServiceBus.IEndpointInstance)) ||
-                method.IsOn(typeof(NServiceBus.IMessageSession)) ||
-                method.IsOn(typeof(NServiceBus.IStartableEndpoint)) ||
-                method.IsOn(typeof(NServiceBus.IStartableEndpointWithExternallyManagedContainer)))
+            .Where(method => method.IsOn(
+                typeof(NServiceBus.Endpoint),
+                typeof(NServiceBus.IEndpointInstance),
+                typeof(NServiceBus.IMessageSession),
+                typeof(NServiceBus.IStartableEndpoint),
+                typeof(NServiceBus.IStartableEndpointWithExternallyManagedContainer)))
             .ToList();
 #pragma warning restore IDE0001 // Simplify Names
 
@@ -243,12 +242,10 @@
             method.ReturnType.IsObsolete() ||
             method.GetParameters().Any(param => param.ParameterType.IsObsolete());
 
-        static bool IsOnOneOf(this MethodInfo method, params Type[] types) =>
-            types.Any(type => method.IsOn(type));
-
-        static bool IsOn(this MethodInfo method, Type type) =>
-            type.IsAssignableFrom(method.DeclaringType) ||
-            (method.GetCustomAttributes<ExtensionAttribute>().Any() && type.IsAssignableFrom(method.GetParameters().First().ParameterType));
+        static bool IsOn(this MethodInfo method, params Type[] types) =>
+            types.Any(type =>
+                type.IsAssignableFrom(method.DeclaringType) ||
+                (method.GetCustomAttributes<ExtensionAttribute>().Any() && type.IsAssignableFrom(method.GetParameters().First().ParameterType)));
 
         static bool IsVisible(this MethodInfo method) =>
             method.DeclaringType.IsVisible && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
