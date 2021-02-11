@@ -4,7 +4,7 @@
 #if NETFRAMEWORK
     using System.Reflection;
 #endif
-#if NETSTANDARD
+#if NETCOREAPP
     using System.IO;
     using System.Reflection.Metadata;
     using System.Reflection.PortableExecutable;
@@ -39,7 +39,7 @@
         }
 #endif
 
-#if NETSTANDARD
+#if NETCOREAPP
         public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
             using (var stream = File.OpenRead(assemblyPath))

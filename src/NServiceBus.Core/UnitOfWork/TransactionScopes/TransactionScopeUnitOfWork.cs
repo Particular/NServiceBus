@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
-    using ConsistencyGuarantees;
     using System;
     using System.Transactions;
+    using ConsistencyGuarantees;
 
     class TransactionScopeUnitOfWork : Feature
     {

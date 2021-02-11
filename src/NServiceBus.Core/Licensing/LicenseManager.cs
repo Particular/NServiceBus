@@ -2,9 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
-#if NETSTANDARD
     using System.Runtime.InteropServices;
-#endif
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -178,7 +176,6 @@ namespace NServiceBus
             return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}";
         }
 
-#if NETSTANDARD
         string GetPlatformCode()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -198,9 +195,6 @@ namespace NServiceBus
 
             return "unknown";
         }
-#else
-        string GetPlatformCode() => "windows";
-#endif
 
         internal ActiveLicenseFindResult result;
 
