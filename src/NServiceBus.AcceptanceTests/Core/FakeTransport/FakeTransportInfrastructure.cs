@@ -40,9 +40,9 @@
             Dispatcher = new FakeDispatcher();
         }
 
-        public override Task DisposeAsync()
+        public override Task Shutdown()
         {
-            startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(DisposeAsync)}");
+            startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");
 
             if (transportSettings.ErrorOnTransportDispose != null)
             {

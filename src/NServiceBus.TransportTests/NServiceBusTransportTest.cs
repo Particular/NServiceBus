@@ -68,7 +68,7 @@
         {
             testCancellationTokenSource?.Dispose();
             receiver?.StopReceive().GetAwaiter().GetResult();
-            transportInfrastructure?.DisposeAsync().GetAwaiter().GetResult();
+            transportInfrastructure?.Shutdown().GetAwaiter().GetResult();
             configurer?.Cleanup().GetAwaiter().GetResult();
         }
 

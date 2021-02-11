@@ -24,7 +24,7 @@
                 $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
                 $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StartReceive)} for receiver Main",
                 $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StopReceive)} for receiver Main",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.DisposeAsync)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Shutdown)}",
             }, context.StartUpSequence);
         }
 
@@ -39,7 +39,7 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.DisposeAsync)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Shutdown)}",
             }, context.StartUpSequence);
         }
 
