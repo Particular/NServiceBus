@@ -103,7 +103,7 @@ namespace NServiceBus
             // get a reference to the subscription manager as soon as the transport has been created:
             configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
                 receiveComponent.mainReceiverSubscriptionManager =
-                    infrastructure.GetReceiver(MainReceiverId).Subscriptions;
+                    infrastructure.Receivers[MainReceiverId].Subscriptions;
 
             configuration.transportSeam.Configure(receiveSettings.ToArray());
 
@@ -140,7 +140,7 @@ namespace NServiceBus
                 return;
             }
 
-            var mainPump = transportInfrastructure.GetReceiver(MainReceiverId);
+            var mainPump = transportInfrastructure.Receivers[MainReceiverId];
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
@@ -152,7 +152,7 @@ namespace NServiceBus
                 recoverability.Invoke).ConfigureAwait(false);
             receivers.Add(mainPump);
 
-            var instanceSpecificPump = transportInfrastructure.GetReceiver(InstanceSpecificReceiverId);
+            var instanceSpecificPump = transportInfrastructure.Receivers[InstanceSpecificReceiverId];
             if (instanceSpecificPump != null)
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
@@ -167,7 +167,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    var satellitePump = transportInfrastructure.GetReceiver(satellite.Name);
+                    var satellitePump = transportInfrastructure.Receivers[satellite.Name];
 
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);

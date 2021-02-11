@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -102,7 +103,9 @@
             public FakeTransportInfrastructure(ReceiveSettings[] receiveSettings)
             {
                 Dispatcher = new FakeDispatcher();
-                Receivers = receiveSettings.Select(settings => new FakeReceiver()).ToList<IMessageReceiver>().AsReadOnly();
+                Receivers = new ReadOnlyDictionary<string, IMessageReceiver>(receiveSettings
+                    .Select(settings => new FakeReceiver())
+                    .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r));
             }
 
             public override Task Shutdown()
