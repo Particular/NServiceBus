@@ -7,6 +7,9 @@ namespace NServiceBus
 
     abstract class BehaviorContext : ContextBag, IBehaviorContext
     {
+        protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext, parentContext?.CancellationToken ?? default)
+        { }
+
         protected BehaviorContext(IBehaviorContext parentContext, CancellationToken cancellationToken) : base(parentContext?.Extensions)
         {
             if (parentContext != null)

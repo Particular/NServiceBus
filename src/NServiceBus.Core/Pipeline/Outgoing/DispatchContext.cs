@@ -7,7 +7,7 @@ namespace NServiceBus
     class DispatchContext : BehaviorContext, IDispatchContext
     {
         public DispatchContext(IReadOnlyCollection<TransportOperation> operations, IBehaviorContext parentContext)
-            : base(parentContext, parentContext.CancellationToken)
+            : base(parentContext)
         {
             Operations = operations;
         }

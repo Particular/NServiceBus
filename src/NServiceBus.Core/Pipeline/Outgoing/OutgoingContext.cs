@@ -8,6 +8,10 @@ namespace NServiceBus
 
     abstract class OutgoingContext : BehaviorContext, IOutgoingContext
     {
+        protected OutgoingContext(string messageId, Dictionary<string, string> headers, IBehaviorContext parentContext)
+            : this(messageId, headers, parentContext, parentContext?.CancellationToken ?? default)
+        { }
+
         protected OutgoingContext(string messageId, Dictionary<string, string> headers, IBehaviorContext parentContext, CancellationToken cancellationToken)
             : base(parentContext, cancellationToken)
         {

@@ -8,7 +8,7 @@ namespace NServiceBus
     abstract class IncomingContext : BehaviorContext, IIncomingContext
     {
         protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, IBehaviorContext parentContext)
-            : base(parentContext, parentContext?.CancellationToken ?? default)
+            : base(parentContext)
         {
             MessageId = messageId;
             ReplyToAddress = replyToAddress;

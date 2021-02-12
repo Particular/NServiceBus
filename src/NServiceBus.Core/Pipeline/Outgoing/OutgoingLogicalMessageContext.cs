@@ -7,7 +7,7 @@
     class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageContext
     {
         public OutgoingLogicalMessageContext(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, IBehaviorContext parentContext)
-            : base(messageId, headers, parentContext, parentContext?.CancellationToken ?? default)
+            : base(messageId, headers, parentContext)
         {
             Message = message;
             RoutingStrategies = routingStrategies;
