@@ -6,7 +6,7 @@ namespace NServiceBus
     class AuditContext : BehaviorContext, IAuditContext
     {
         public AuditContext(OutgoingMessage message, string auditAddress, IBehaviorContext parent)
-            : base(parent, parent.CancellationToken)
+            : base(parent)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNullAndEmpty(nameof(auditAddress), auditAddress);
