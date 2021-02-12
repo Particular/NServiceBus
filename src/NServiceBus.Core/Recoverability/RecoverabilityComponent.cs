@@ -137,12 +137,12 @@
             {
                 if (!transportSeam.TransportDefinition.SupportsDelayedDelivery)
                 {
-                    throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery.");
+                    throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'.");
                 }
 
                 if (!transactionsOn)
                 {
-                    throw new Exception("Delayed retries are not supported when running with TransportTransactionMode.None.");
+                    throw new Exception("Delayed retries are not supported when running with TransportTransactionMode.None. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))' or select a different TransportTransactionMode.");
                 }
             }
 

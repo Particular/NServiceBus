@@ -17,7 +17,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            StringAssert.Contains("Delayed retries are not supported when running with TransportTransactionMode.None.", exception.ToString());
+            StringAssert.Contains("Delayed retries are not supported when running with TransportTransactionMode.None. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))' or select a different TransportTransactionMode.", exception.ToString());
         }
 
         public class StartedEndpoint : EndpointConfigurationBuilder
