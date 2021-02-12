@@ -188,22 +188,27 @@ namespace NServiceBus
         {
             foreach (var messageReceiver in receivers)
             {
-                Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
-
-                await messageReceiver.StartReceive().ConfigureAwait(false);
-                //TODO: If we fails starting N-th receiver then we need to stop and dispose N-1 receivers
+                try
+                {
+                    Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
+                    await messageReceiver.StartReceive().ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    Logger.Fatal($"Receiver {messageReceiver.Id} failed to start.", e);
+                    throw;
+                }
             }
         }
 
-        public async Task Stop()
+        public Task Stop()
         {
             var receiverStopTasks = receivers.Select(async receiver =>
             {
-                Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
                 try
                 {
+                    Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
                     await receiver.StopReceive().ConfigureAwait(false);
-                    (receiver as IDisposable)?.Dispose();
                     Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
                 }
                 catch (Exception exception)
@@ -212,7 +217,7 @@ namespace NServiceBus
                 }
             });
 
-            await Task.WhenAll(receiverStopTasks).ConfigureAwait(false);
+            return Task.WhenAll(receiverStopTasks);
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)
