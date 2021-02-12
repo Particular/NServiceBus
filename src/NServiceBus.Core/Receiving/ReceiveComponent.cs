@@ -152,8 +152,7 @@ namespace NServiceBus
                 recoverability.Invoke).ConfigureAwait(false);
             receivers.Add(mainPump);
 
-            var instanceSpecificPump = transportInfrastructure.Receivers[InstanceSpecificReceiverId];
-            if (instanceSpecificPump != null)
+            if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
             {
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
