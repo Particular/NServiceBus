@@ -280,14 +280,26 @@ namespace NServiceBus
         ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
     public static class DurableMessagesConfig
     {
+        [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
+            ". See the upgrade guide for more details. The member currently throws a NotImple" +
+            "mentedException. Will be removed in version 9.0.0.", true)]
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
+        [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
+            ". See the upgrade guide for more details. The member currently throws a NotImple" +
+            "mentedException. Will be removed in version 9.0.0.", true)]
         public static bool DurableMessagesEnabled(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
+            ". See the upgrade guide for more details. The member currently throws a NotImple" +
+            "mentedException. Will be removed in version 9.0.0.", true)]
         public static void EnableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
     }
     [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
         ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
     public static class DurableMessagesConventionExtensions
     {
+        [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
+            ". See the upgrade guide for more details. The member currently throws a NotImple" +
+            "mentedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, bool> definesExpressMessageType) { }
     }
     public static class Endpoint
