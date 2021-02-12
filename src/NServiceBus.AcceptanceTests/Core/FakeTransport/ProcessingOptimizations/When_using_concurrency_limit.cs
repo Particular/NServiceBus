@@ -105,7 +105,7 @@
                 Receivers = receiveSettings.Select(settings => new FakeReceiver()).ToList<IMessageReceiver>().AsReadOnly();
             }
 
-            public override Task DisposeAsync()
+            public override Task Shutdown()
             {
                 return Task.CompletedTask;
             }

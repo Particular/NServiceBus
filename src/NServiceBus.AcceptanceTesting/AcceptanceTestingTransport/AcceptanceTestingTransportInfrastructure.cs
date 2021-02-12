@@ -74,7 +74,7 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
-        public override Task DisposeAsync()
+        public override Task Shutdown()
         {
             return Task.CompletedTask;
         }

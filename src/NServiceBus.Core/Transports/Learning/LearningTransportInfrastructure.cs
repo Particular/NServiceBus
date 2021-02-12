@@ -97,7 +97,7 @@
         public const string StorageLocationKey = "LearningTransport.StoragePath";
         public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
 
-        public override Task DisposeAsync()
+        public override Task Shutdown()
         {
             return Task.CompletedTask;
         }

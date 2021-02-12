@@ -47,7 +47,7 @@ namespace NServiceBus
                     await featureComponent.Stop().ConfigureAwait(false);
 
                     // Can throw
-                    await transportInfrastructure.DisposeAsync().ConfigureAwait(false);
+                    await transportInfrastructure.Shutdown().ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
