@@ -675,16 +675,28 @@ namespace NServiceBus
         RemoveInVersion = "9")]
     public static class DurableMessagesConfig
     {
+        [ObsoleteEx(
+            Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public static void EnableDurableMessages(this EndpointConfiguration config)
         {
             throw new NotImplementedException();
         }
 
+        [ObsoleteEx(
+            Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public static void DisableDurableMessages(this EndpointConfiguration config)
         {
             throw new NotImplementedException();
         }
 
+        [ObsoleteEx(
+            Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public static bool DurableMessagesEnabled(this ReadOnlySettings settings)
         {
             throw new NotImplementedException();
@@ -702,6 +714,10 @@ namespace NServiceBus
         RemoveInVersion = "9")]
     public static class DurableMessagesConventionExtensions
     {
+        [ObsoleteEx(
+            Message = "Non-durable delivery support has been moved to the transports that can support it. See the upgrade guide for more details.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public static ConventionsBuilder DefiningExpressMessagesAs(this ConventionsBuilder builder, Func<Type, bool> definesExpressMessageType)
         {
             throw new NotImplementedException();
