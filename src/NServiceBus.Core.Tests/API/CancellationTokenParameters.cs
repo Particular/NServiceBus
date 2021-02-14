@@ -10,15 +10,15 @@
 
     static class CancellationTokenParameters
     {
-        static readonly List<MethodInfo> methods = NServiceBusAssembly.Methods
-            .Where(method => method.GetParameters().Any(param => param.ParameterType == typeof(CancellationToken)))
+        static readonly List<MethodBase> methodsAndConstructors = NServiceBusAssembly.MethodsAndConstructors
+            .Where(methodBase => methodBase.GetParameters().Any(param => param.ParameterType == typeof(CancellationToken)))
             .ToList();
 
         [Test]
-        public static void AreUniquePerMethod()
+        public static void AreUniquePerSignature()
         {
-            var violators = methods
-                .Where(method => method.GetParameters().Count(param => param.ParameterType == typeof(CancellationToken)) > 1)
+            var violators = methodsAndConstructors
+                .Where(methodBase => methodBase.GetParameters().Count(param => param.ParameterType == typeof(CancellationToken)) > 1)
                 .Prettify()
                 .ToList();
 
@@ -30,8 +30,8 @@
         [Test]
         public static void AreLast()
         {
-            var violators = methods
-                .Where(method => method.GetParameters().Last().ParameterType != typeof(CancellationToken))
+            var violators = methodsAndConstructors
+                .Where(methodBase => methodBase.GetParameters().Last().ParameterType != typeof(CancellationToken))
                 .Prettify()
                 .ToList();
 
@@ -43,8 +43,8 @@
         [Test]
         public static void AreNamedCancellationToken()
         {
-            var violators = methods
-                .Where(method => method.GetParameters().Any(param =>
+            var violators = methodsAndConstructors
+                .Where(methodBase => methodBase.GetParameters().Any(param =>
                     param.ParameterType == typeof(CancellationToken) &&
                     !param.Name.Equals("cancellationToken", StringComparison.Ordinal) &&
                     !param.Name.EndsWith("CancellationToken", StringComparison.Ordinal))) // e.g. stopRequestedCancellationToken

@@ -18,7 +18,7 @@
 #pragma warning disable IDE0001 // Simplify Names
         static readonly List<MethodInfo> noTokenMethods = methods
             .Where(method =>
-                (method.HasCancellableContext() &&
+                (method.GetParameters().ContainsCancellableContext() &&
                     method.IsOn(
                         typeof(NServiceBus.Saga),
                         typeof(NServiceBus.IncomingMessageOperations),
@@ -67,7 +67,7 @@
 
             var violators = methodPolicies
                 .Where(pair => pair.Value.Count != 1)
-                .OrderBy(pair => pair.Key, MethodInfoComparer.Instance)
+                .OrderBy(pair => pair.Key, MethodBaseComparer.Instance)
                 .Select(pair => $"Method: {pair.Key.Prettify()}, Policies: {(pair.Value.Count == 0 ? "(none)" : string.Join(", ", pair.Value))}")
                 .ToList();
 

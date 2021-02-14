@@ -11,21 +11,37 @@
 
     static class TaskReturningDelegateParameters
     {
-        static readonly List<(MethodInfo Method, ParameterInfo Parameter, ParameterInfo[] InvokeParameters)> parameters =
-            NServiceBusAssembly.Methods
-                .SelectMany(method => method.GetParameters()
+        static readonly List<(MethodBase MethodBase, ParameterInfo Parameter, ParameterInfo[] InvokeParameters)> parameters =
+            NServiceBusAssembly.MethodsAndConstructors
+                .SelectMany(methodBase => methodBase.GetParameters()
                     .Where(param => param.ParameterType != typeof(Delegate) && typeof(Delegate).IsAssignableFrom(param.ParameterType))
                     .Select(param => (Parameter: param, InvokeMethod: param.ParameterType.GetMethod("Invoke")))
                     .Where(param => typeof(Task).IsAssignableFrom(param.InvokeMethod.ReturnType))
-                    .Select(param => (method, param.Parameter, param.InvokeMethod.GetParameters())))
+                    .Select(param => (methodBase, param.Parameter, param.InvokeMethod.GetParameters())))
                     .ToList();
 
         [Test]
         public static void HaveCancellationTokens()
         {
             var violators = parameters
-                .Where(param => !typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(param.Method.DeclaringType))
-                .Where(param => !param.InvokeParameters.Any(p => p.ParameterType == typeof(CancellationToken)))
+                .Where(param =>
+                    !(typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(param.MethodBase.DeclaringType) || param.InvokeParameters.ContainsCancellableContext()) &&
+                    !param.InvokeParameters.ContainsCancellationToken())
+                .Prettify()
+                .ToList();
+
+            Console.Error.WriteViolators(violators);
+
+            Assert.IsEmpty(violators);
+        }
+
+        [Test]
+        public static void DoNotHaveCancellationTokens()
+        {
+            var violators = parameters
+                .Where(param =>
+                    (typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(param.MethodBase.DeclaringType) || param.InvokeParameters.ContainsCancellableContext()) &&
+                    param.InvokeParameters.ContainsCancellationToken())
                 .Prettify()
                 .ToList();
 
@@ -62,10 +78,10 @@
             Assert.IsEmpty(violators);
         }
 
-        static IEnumerable<string> Prettify(this IEnumerable<(MethodInfo Method, ParameterInfo Parameter, ParameterInfo[] InvokeParameters)> parameters) =>
+        static IEnumerable<string> Prettify(this IEnumerable<(MethodBase MethodBase, ParameterInfo Parameter, ParameterInfo[] InvokeParameters)> parameters) =>
             parameters
-                .OrderBy(param => param.Method, MethodInfoComparer.Instance)
+                .OrderBy(param => param.MethodBase, MethodBaseComparer.Instance)
                 .ThenBy(param => param.Parameter.Name)
-                .Select(param => $"{param.Method.DeclaringType.FullName} {{ {param.Method} ({param.Parameter.Name}) }}");
+                .Select(param => $"{param.MethodBase.DeclaringType.FullName} {{ {param.MethodBase} ({param.Parameter.Name}) }}");
     }
 }

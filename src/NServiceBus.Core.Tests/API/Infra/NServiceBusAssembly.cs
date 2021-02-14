@@ -14,5 +14,16 @@
             .Where(method => !method.IsCompilerGenerated())
             .Where(method => !method.IsObsolete())
             .ToList();
+
+        public static readonly List<ConstructorInfo> Constructors = typeof(IMessage).Assembly.GetTypes()
+            .Where(type => !type.IsObsolete())
+            .SelectMany(type => type.GetConstructors(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic))
+            .Where(method => !method.IsCompilerGenerated())
+            .Where(method => !method.IsObsolete())
+            .ToList();
+
+        public static readonly List<MethodBase> MethodsAndConstructors = Methods
+            .Concat(Constructors.Cast<MethodBase>())
+            .ToList();
     }
 }
