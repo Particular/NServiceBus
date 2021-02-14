@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
 
     static partial class TypeExtensions
     {
@@ -31,5 +32,11 @@
                 _ = seenTypes.Pop();
             }
         }
+
+        public static bool IsCancellationToken(this Type type) =>
+            type == typeof(CancellationToken);
+
+        public static bool IsBehavior(this Type type) =>
+            typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(type);
     }
 }

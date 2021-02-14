@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Core.Tests.API.Infra;
     using NUnit.Framework;
@@ -25,8 +24,8 @@
         {
             var violators = parameters
                 .Where(param =>
-                    !(typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(param.MethodBase.DeclaringType) || param.InvokeParameters.ContainsCancellableContext()) &&
-                    !param.InvokeParameters.ContainsCancellationToken())
+                    !(param.MethodBase.DeclaringType.IsBehavior() || param.InvokeParameters.CancellableContexts().Any()) &&
+                    !param.InvokeParameters.CancellationTokens().Any())
                 .Prettify()
                 .ToList();
 
@@ -40,8 +39,8 @@
         {
             var violators = parameters
                 .Where(param =>
-                    (typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(param.MethodBase.DeclaringType) || param.InvokeParameters.ContainsCancellableContext()) &&
-                    param.InvokeParameters.ContainsCancellationToken())
+                    (param.MethodBase.DeclaringType.IsBehavior() || param.InvokeParameters.CancellableContexts().Any()) &&
+                    param.InvokeParameters.CancellationTokens().Any())
                 .Prettify()
                 .ToList();
 
@@ -54,7 +53,7 @@
         public static void HaveAtMostOnceCancellationToken()
         {
             var violators = parameters
-                .Where(param => param.InvokeParameters.Count(p => p.ParameterType == typeof(CancellationToken)) > 1)
+                .Where(param => param.InvokeParameters.CancellationTokens().Count() > 1)
                 .Prettify()
                 .ToList();
 
@@ -68,8 +67,8 @@
         {
             var violators = parameters
                 .Where(param =>
-                    param.InvokeParameters.Any(p => p.ParameterType == typeof(CancellationToken)) &&
-                    param.InvokeParameters.Last().ParameterType != typeof(CancellationToken))
+                    param.InvokeParameters.CancellationTokens().Any() &&
+                    !param.InvokeParameters.Last().ParameterType.IsCancellationToken())
                 .Prettify()
                 .ToList();
 
