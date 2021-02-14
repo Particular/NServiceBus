@@ -35,6 +35,19 @@
         }
 
         [Test]
+        public static void HaveAtMostOnceCancellationToken()
+        {
+            var violators = parameters
+                .Where(param => param.InvokeParameters.Count(p => p.ParameterType == typeof(CancellationToken)) > 1)
+                .Prettify()
+                .ToList();
+
+            Console.Error.WriteViolators(violators);
+
+            Assert.IsEmpty(violators);
+        }
+
+        [Test]
         public static void HaveCancellationTokensLast()
         {
             var violators = parameters
