@@ -2,14 +2,13 @@
 {
     using System;
     using System.ComponentModel;
-    using System.Threading;
     using Extensibility;
     using Pipeline;
 
     class SubscribeContext : BehaviorContext, ISubscribeContext
     {
-        public SubscribeContext(IBehaviorContext parentContext, Type[] eventTypes, ContextBag extensions, CancellationToken cancellationToken)
-            : base(parentContext, cancellationToken)
+        public SubscribeContext(IBehaviorContext parentContext, Type[] eventTypes, ContextBag extensions)
+            : base(parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);
             Guard.AgainstNull(nameof(eventTypes), eventTypes);

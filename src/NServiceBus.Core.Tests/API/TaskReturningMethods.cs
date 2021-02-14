@@ -17,21 +17,7 @@
 #pragma warning disable IDE0001 // Simplify Names
         static readonly List<MethodInfo> noTokenMethods = methods
             .Where(method =>
-                (method.GetParameters().CancellableContexts().Any() &&
-                    method.IsOn(
-                        typeof(NServiceBus.Saga),
-                        typeof(NServiceBus.IncomingMessageOperations),
-                        typeof(NServiceBus.IHandleMessages<>),
-                        typeof(NServiceBus.IHandleTimeouts<>),
-                        typeof(NServiceBus.IPipeline),
-                        typeof(NServiceBus.IUnicastPublishRouter),
-                        typeof(NServiceBus.Sagas.IHandleSagaNotFound),
-                        typeof(NServiceBus.Pipeline.MessageHandler),
-                        typeof(NServiceBus.Pipeline.IBehavior),
-                        typeof(NServiceBus.MessageMutator.IMutateIncomingMessages),
-                        typeof(NServiceBus.MessageMutator.IMutateIncomingTransportMessages),
-                        typeof(NServiceBus.MessageMutator.IMutateOutgoingMessages),
-                        typeof(NServiceBus.MessageMutator.IMutateOutgoingTransportMessages))) ||
+                method.GetParameters().CancellableContexts().Any() ||
                 method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
                 (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull"))
             .ToList();
