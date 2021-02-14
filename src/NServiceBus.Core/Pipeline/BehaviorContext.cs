@@ -5,12 +5,12 @@ namespace NServiceBus
     using Extensibility;
     using Pipeline;
 
-    abstract class BehaviorContext : ContextBag, IBehaviorContext
+    class BehaviorContext : ContextBag, IBehaviorContext
     {
         protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext, parentContext?.CancellationToken ?? default)
         { }
 
-        protected BehaviorContext(IBehaviorContext parentContext, CancellationToken cancellationToken) : base(parentContext?.Extensions)
+        public BehaviorContext(IBehaviorContext parentContext, CancellationToken cancellationToken) : base(parentContext?.Extensions)
         {
             if (parentContext != null)
             {

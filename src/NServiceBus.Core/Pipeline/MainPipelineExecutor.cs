@@ -29,7 +29,7 @@ namespace NServiceBus
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
 
-                var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext, cancellationToken);
+                var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 
                 try
                 {

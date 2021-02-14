@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Threading;
     using Pipeline;
     using Transport;
 
@@ -12,8 +11,8 @@
         /// <summary>
         /// Creates a new transport receive context.
         /// </summary>
-        public TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, RootContext rootContext, CancellationToken cancellationToken)
-            : base(rootContext, cancellationToken)
+        public TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, RootContext rootContext)
+            : base(rootContext)
         {
             Message = receivedMessage;
             Set(Message);
