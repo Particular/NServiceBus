@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Core.Tests.API.Infra;
     using NUnit.Framework;
@@ -18,7 +17,7 @@
 #pragma warning disable IDE0001 // Simplify Names
         static readonly List<MethodInfo> noTokenMethods = methods
             .Where(method =>
-                (method.GetParameters().ContainsCancellableContext() &&
+                (method.GetParameters().CancellableContexts().Any() &&
                     method.IsOn(
                         typeof(NServiceBus.Saga),
                         typeof(NServiceBus.IncomingMessageOperations),
@@ -89,7 +88,7 @@
         public static void HaveNoTokens(bool visible)
         {
             var violators = noTokenMethods
-                .Where(method => method.IsVisible() == visible && method.GetParameters().Any(param => param.ParameterType == typeof(CancellationToken)))
+                .Where(method => method.IsVisible() == visible && method.GetParameters().CancellationTokens().Any())
                 .Prettify()
                 .ToList();
 
@@ -103,7 +102,7 @@
         public static void HaveOptionalTokens(bool visible)
         {
             var violators = optionalTokenMethods
-                .Where(method => method.IsVisible() == visible && !method.GetParameters().Any(param => param.ParameterType == typeof(CancellationToken) && param.IsOptional))
+                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => param.IsOptional))
                 .Prettify()
                 .ToList();
 
@@ -117,7 +116,7 @@
         public static void HaveMandatoryTokens(bool visible)
         {
             var violators = mandatoryTokenMethods
-                .Where(method => method.IsVisible() == visible && !method.GetParameters().Any(param => param.ParameterType == typeof(CancellationToken) && !param.IsOptional))
+                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => !param.IsOptional))
                 .Prettify()
                 .ToList();
 

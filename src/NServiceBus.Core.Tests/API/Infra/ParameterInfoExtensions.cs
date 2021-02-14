@@ -3,14 +3,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Threading;
 
     static partial class ParameterInfoExtensions
     {
-        public static bool ContainsCancellableContext(this IEnumerable<ParameterInfo> parameters) =>
-            parameters.Any(parameter => typeof(ICancellableContext).IsAssignableFrom(parameter.ParameterType));
+        public static IEnumerable<ParameterInfo> CancellableContexts(this IEnumerable<ParameterInfo> parameters) =>
+            parameters.Where(parameter => typeof(ICancellableContext).IsAssignableFrom(parameter.ParameterType));
 
-        public static bool ContainsCancellationToken(this IEnumerable<ParameterInfo> parameters) =>
-            parameters.Any(parameter => parameter.ParameterType == typeof(CancellationToken));
+        public static IEnumerable<ParameterInfo> CancellationTokens(this IEnumerable<ParameterInfo> parameters) =>
+            parameters.Where(parameter => parameter.ParameterType.IsCancellationToken());
     }
 }
