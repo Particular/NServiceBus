@@ -92,7 +92,6 @@
 
             while (concurrencyLimiter.CurrentCount != maxConcurrency)
             {
-#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods that take one
                 // We are deliberately not forwarding the cancellation token here because
                 // this loop is our way of waiting for all pending messaging operations
                 // to participate in cooperative cancellation or not.
@@ -106,8 +105,7 @@
                 // If we ever require a method of stopping the endpoint such that
                 // all message processing is cancelled immediately,
                 // we can provide that as a separate feature.
-                await Task.Delay(50)
-#pragma warning restore CA2016 // Forward the 'CancellationToken' parameter to methods that take one
+                await Task.Delay(50, CancellationToken.None)
                     .ConfigureAwait(false);
             }
 
