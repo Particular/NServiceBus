@@ -13,7 +13,7 @@
     public partial class TestableMessageSession : IMessageSession
     {
         /// <summary>
-        /// Creates a new <see cref="TestableMessageHandlerContext" /> instance.
+        /// Creates a new <see cref="TestableMessageSession" /> instance.
         /// </summary>
         public TestableMessageSession(IMessageCreator messageCreator = null)
         {
@@ -26,12 +26,12 @@
         public TimeoutMessage<object>[] TimeoutMessages => timeoutMessages.ToArray();
 
         /// <summary>
-        /// A list of all messages sent by <see cref="IPipelineContext.Send" />.
+        /// A list of all messages sent by <see cref="IMessageSession.Send" />.
         /// </summary>
         public virtual SentMessage<object>[] SentMessages => sentMessages.ToArray();
 
         /// <summary>
-        /// A list of all messages published by <see cref="IPipelineContext.Publish" />,
+        /// A list of all messages published by <see cref="IMessageSession.Publish" />,
         /// </summary>
         public virtual PublishedMessage<object>[] PublishedMessages => publishedMessages.ToArray();
 
