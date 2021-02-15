@@ -17,15 +17,14 @@
                     .Select(param => (Parameter: param, InvokeMethod: param.ParameterType.GetMethod("Invoke")))
                     .Where(param => typeof(Task).IsAssignableFrom(param.InvokeMethod.ReturnType))
                     .Select(param => (methodBase, param.Parameter, param.InvokeMethod.GetParameters())))
-                    .ToList();
+                .ToList();
 
         [Test]
         public static void HaveCancellationTokens()
         {
             var violators = parameters
-                .Where(param =>
-                    !(param.MethodBase.DeclaringType.IsBehavior() || param.InvokeParameters.CancellableContexts().Any()) &&
-                    !param.InvokeParameters.CancellationTokens().Any())
+                .Where(param => !param.MethodBase.DeclaringType.IsBehavior() && !param.InvokeParameters.CancellableContexts().Any())
+                .Where(param => !param.InvokeParameters.CancellationTokens().Any())
                 .Prettify()
                 .ToList();
 
@@ -38,9 +37,8 @@
         public static void DoNotHaveCancellationTokens()
         {
             var violators = parameters
-                .Where(param =>
-                    (param.MethodBase.DeclaringType.IsBehavior() || param.InvokeParameters.CancellableContexts().Any()) &&
-                    param.InvokeParameters.CancellationTokens().Any())
+                .Where(param => param.MethodBase.DeclaringType.IsBehavior() || param.InvokeParameters.CancellableContexts().Any())
+                .Where(param => param.InvokeParameters.CancellationTokens().Any())
                 .Prettify()
                 .ToList();
 
