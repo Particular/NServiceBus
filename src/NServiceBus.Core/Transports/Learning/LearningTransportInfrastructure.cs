@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -9,7 +10,7 @@
 
     class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public LearningTransportInfrastructure(HostSettings settings, LearningTransport transport, ReceiveSettings[] receivers)
+        public LearningTransportInfrastructure(HostSettings settings, LearningTransport transport, ReceiveSettings[] receiverSettings)
         {
             this.settings = settings;
             this.transport = transport;
@@ -19,7 +20,7 @@
                 storagePath = FindStoragePath();
             }
 
-            this.receivers = receivers;
+            this.receiverSettings = receiverSettings;
         }
 
         static string FindStoragePath()
@@ -55,14 +56,14 @@
 
         public async Task ConfigureReceiveInfrastructure()
         {
-            var pumps = new List<IMessageReceiver>();
+            var receivers = new Dictionary<string, IMessageReceiver>();
 
-            foreach (var receiver in receivers)
+            foreach (var receiverSetting in receiverSettings)
             {
-                pumps.Add(await CreateReceiver(receiver).ConfigureAwait(false));
+                receivers.Add(receiverSetting.Id, await CreateReceiver(receiverSetting).ConfigureAwait(false));
             }
 
-            Receivers = Array.AsReadOnly(pumps.ToArray());
+            Receivers = new ReadOnlyDictionary<string, IMessageReceiver>(receivers);
         }
 
         public Task<IMessageReceiver> CreateReceiver(ReceiveSettings receiveSettings)
@@ -90,7 +91,7 @@
 
         string storagePath;
         HostSettings settings;
-        ReceiveSettings[] receivers;
+        ReceiveSettings[] receiverSettings;
         LearningTransport transport;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";

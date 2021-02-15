@@ -2624,8 +2624,7 @@ namespace NServiceBus.Transport
     {
         protected TransportInfrastructure() { }
         public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
-        public System.Collections.ObjectModel.ReadOnlyCollection<NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
-        public NServiceBus.Transport.IMessageReceiver GetReceiver(string receiverId) { }
+        public System.Collections.ObjectModel.ReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task Shutdown();
     }
     public class TransportOperation

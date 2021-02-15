@@ -79,7 +79,8 @@
 
             configurer = CreateConfigurer();
 
-            var hostSettings = new HostSettings(InputQueueName,
+            var hostSettings = new HostSettings(
+                InputQueueName,
                 string.Empty,
                 new StartupDiagnosticEntries(),
                 onCriticalError,
@@ -92,7 +93,8 @@
 
             transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
-            await transportInfrastructure.Receivers[0].Initialize(
+            receiver = transportInfrastructure.Receivers.Single().Value;
+            await receiver.Initialize(
                 new PushRuntimeSettings(8),
                 context =>
                 {
@@ -114,9 +116,7 @@
                     return Task.FromResult(ErrorHandleResult.Handled);
                 });
 
-            await transportInfrastructure.Receivers[0].StartReceive();
-
-            receiver = transportInfrastructure.Receivers[0];
+            await receiver.StartReceive();
         }
 
         string GetUserName()

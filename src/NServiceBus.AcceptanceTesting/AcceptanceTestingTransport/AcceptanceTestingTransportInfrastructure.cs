@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -9,11 +10,11 @@
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     {
-        public AcceptanceTestingTransportInfrastructure(HostSettings settings, AcceptanceTestingTransport transportSettings, ReceiveSettings[] receivers)
+        public AcceptanceTestingTransportInfrastructure(HostSettings settings, AcceptanceTestingTransport transportSettings, ReceiveSettings[] receiverSettings)
         {
             this.settings = settings;
             this.transportSettings = transportSettings;
-            this.receivers = receivers;
+            this.receiverSettings = receiverSettings;
 
             storagePath = transportSettings.StorageLocation ?? Path.Combine(FindSolutionRoot(), ".attransport");
         }
@@ -43,14 +44,14 @@
 
         public async Task ConfigureReceivers()
         {
-            var pumps = new List<IMessageReceiver>();
+            var receivers = new Dictionary<string, IMessageReceiver>();
 
-            foreach (var receiver in receivers)
+            foreach (var receiverSetting in receiverSettings)
             {
-                pumps.Add(await CreateReceiver(receiver).ConfigureAwait(false));
+                receivers.Add(receiverSetting.Id, await CreateReceiver(receiverSetting).ConfigureAwait(false));
             }
 
-            Receivers = Array.AsReadOnly(pumps.ToArray());
+            Receivers = new ReadOnlyDictionary<string, IMessageReceiver>(receivers);
         }
 
         Task<IMessageReceiver> CreateReceiver(ReceiveSettings receiveSettings)
@@ -82,6 +83,6 @@
         readonly string storagePath;
         readonly HostSettings settings;
         readonly AcceptanceTestingTransport transportSettings;
-        readonly ReceiveSettings[] receivers;
+        readonly ReceiveSettings[] receiverSettings;
     }
 }
