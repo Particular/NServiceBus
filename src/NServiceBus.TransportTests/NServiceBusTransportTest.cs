@@ -72,7 +72,7 @@
             configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, CancellationToken cancellationToken = default)
+        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -91,12 +91,12 @@
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
             transport.TransportTransactionMode = transactionMode;
 
-            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, cancellationToken);
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, default);
 
             receiver = transportInfrastructure.Receivers.Single().Value;
             await receiver.Initialize(
                 new PushRuntimeSettings(8),
-                (context, token) =>
+                (context, _) =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
                     {
@@ -105,7 +105,7 @@
 
                     return Task.FromResult(0);
                 },
-                (context, token) =>
+                (context, _) =>
                 {
                     if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
                         context.Message.Headers[TestIdHeaderName] == testId)
@@ -117,7 +117,7 @@
                 },
                 default);
 
-            await receiver.StartReceive(cancellationToken);
+            await receiver.StartReceive(default);
         }
 
         string GetUserName()
