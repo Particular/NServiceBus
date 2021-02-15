@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -51,7 +50,7 @@
                 receivers.Add(receiverSetting.Id, await CreateReceiver(receiverSetting).ConfigureAwait(false));
             }
 
-            Receivers = new ReadOnlyDictionary<string, IMessageReceiver>(receivers);
+            Receivers = receivers;
         }
 
         Task<IMessageReceiver> CreateReceiver(ReceiveSettings receiveSettings)

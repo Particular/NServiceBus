@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
-    using System.Collections.ObjectModel;
     using System.Linq;
     using Transport;
     using System.Threading.Tasks;
@@ -23,17 +22,15 @@
             this.transportSettings = transportSettings;
         }
 
-        public void ConfigureReceiveInfrastructure()
-        {
-            Receivers = new ReadOnlyDictionary<string, IMessageReceiver>(receivers
+        public void ConfigureReceiveInfrastructure() =>
+            Receivers = receivers
                 .Select(r =>
                     new FakeReceiver(
                         r.Id,
                         transportSettings,
                         startUpSequence,
                         hostSettings.CriticalErrorAction))
-                .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r));
-        }
+                .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
 
         public void ConfigureSendInfrastructure()
         {
