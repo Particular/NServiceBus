@@ -64,7 +64,7 @@ namespace NServiceBus
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
             ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
-        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
+        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition
         {
             throw new NotImplementedException();
         }

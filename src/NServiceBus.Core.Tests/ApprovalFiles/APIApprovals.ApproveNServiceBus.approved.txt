@@ -1168,7 +1168,7 @@ namespace NServiceBus
         [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. The member" +
             " currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.EndpointConfiguration endpointConfiguration)
-            where T : NServiceBus.Transport.TransportDefinition, new () { }
+            where T : NServiceBus.Transport.TransportDefinition { }
     }
     public static class XmlSerializationExtensions
     {
