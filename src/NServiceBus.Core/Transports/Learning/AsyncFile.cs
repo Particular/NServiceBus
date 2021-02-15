@@ -53,7 +53,11 @@ namespace NServiceBus
         {
             using (var stream = new StreamReader(CreateReadStream(filePath), Encoding.UTF8))
             {
+                // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
+                // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.
+                // This line makes the parameter "required".
                 cancellationToken.ThrowIfCancellationRequested();
+
                 var result = await stream.ReadToEndAsync().ConfigureAwait(false);
 
                 return result;
