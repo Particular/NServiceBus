@@ -72,7 +72,7 @@
             messagePumpCancellationTokenSource = new CancellationTokenSource();
             messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
-            messagePumpTask = Task.Run(() => ProcessMessages(messagePumpCancellationTokenSource.Token), cancellationToken);
+            messagePumpTask = Task.Run(() => ProcessMessages(messagePumpCancellationTokenSource.Token), messagePumpCancellationTokenSource.Token);
 
             delayedMessagePoller.Start();
 
