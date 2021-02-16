@@ -1,6 +1,6 @@
 namespace NServiceBus.Transport
 {
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -16,7 +16,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// A collection of all receivers.
         /// </summary>
-        public ReadOnlyDictionary<string, IMessageReceiver> Receivers { get; protected set; }
+        public IReadOnlyDictionary<string, IMessageReceiver> Receivers { get; protected set; }
 
         /// <summary>
         /// Disposes all transport internal resources.
