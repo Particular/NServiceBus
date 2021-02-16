@@ -16,6 +16,8 @@
         {
             var messageHandled = new TaskCompletionSource<Tuple<Transaction, Transaction>>();
 
+            OnTestTimeout(() => messageHandled.SetCanceled());
+
             await StartPump(
                 context =>
                 {
