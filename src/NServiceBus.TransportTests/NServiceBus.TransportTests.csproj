@@ -24,18 +24,11 @@
     <PackageId>NServiceBus.TransportTests.Sources</PackageId>
     <Description>Tests for transport seam implementations</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <BlockInvalidTargetFrameworks>false</BlockInvalidTargetFrameworks>
+    <IncludeSourceFilesInPackage>true</IncludeSourceFilesInPackage>
   </PropertyGroup>
 
-  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
-    <_PackageFiles Include="**\*.cs">
-      <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\NSB.TransportTests\;contentFiles\cs\any\NSB.TransportTests\</PackagePath>
-    </_PackageFiles>
-    <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
+    <RemoveSourceFileFromPackage Include="ConfigureLearningTransportInfrastructure.cs" />
   </ItemGroup>
-  <!-- End Workaround -->
 
 </Project>

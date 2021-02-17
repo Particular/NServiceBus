@@ -26,18 +26,11 @@
     <PackageId>NServiceBus.PersistenceTests.Sources</PackageId>
     <Description>Tests for persistence seam implementations</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <BlockInvalidTargetFrameworks>false</BlockInvalidTargetFrameworks>
+    <IncludeSourceFilesInPackage>true</IncludeSourceFilesInPackage>
   </PropertyGroup>
 
-  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
-    <_PackageFiles Include="**\*.cs;..\NServiceBus.Core\IdGeneration\CombGuid.cs;..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs">
-      <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\NSB.PersistenceTests\;contentFiles\cs\any\NSB.PersistenceTests\</PackagePath>
-    </_PackageFiles>
-    <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
+    <RemoveSourceFileFromPackage Include="PersistenceTestsConfiguration.cs" />
   </ItemGroup>
-  <!-- End Workaround -->
 
 </Project>
