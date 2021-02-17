@@ -19,7 +19,7 @@
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.FromResult(0);
