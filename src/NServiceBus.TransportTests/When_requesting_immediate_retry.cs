@@ -20,7 +20,7 @@ namespace NServiceBus.TransportTests
             var hasBeenCalled = false;
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     if (hasBeenCalled)
                     {

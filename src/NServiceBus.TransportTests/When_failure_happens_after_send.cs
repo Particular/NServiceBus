@@ -18,7 +18,7 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
-            await StartPump(async context =>
+            await StartPump(async (context, _) =>
             {
                 if (context.Headers.ContainsKey("CompleteTest"))
                 {

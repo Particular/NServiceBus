@@ -17,7 +17,7 @@
             var messageHandled = new TaskCompletionSource<Tuple<Transaction, Transaction>>();
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     var currentTransaction = Transaction.Current;
                     var contextTransaction = context.TransportTransaction.Get<Transaction>();

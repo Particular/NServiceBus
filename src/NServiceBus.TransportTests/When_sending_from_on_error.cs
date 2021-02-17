@@ -19,7 +19,7 @@ namespace NServiceBus.TransportTests
             OnTestTimeout(() => messageReceived.SetResult(false));
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     if (context.Headers.ContainsKey("FromOnError"))
                     {

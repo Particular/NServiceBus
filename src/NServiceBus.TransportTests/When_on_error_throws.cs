@@ -25,7 +25,7 @@
             string nativeMessageId = null;
 
             await StartPump(
-                context =>
+                (context, _) =>
                 {
                     nativeMessageId = context.MessageId;
 

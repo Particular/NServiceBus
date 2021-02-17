@@ -12,9 +12,9 @@
         {
             var onMessageCalled = new TaskCompletionSource<MessageContext>();
 
-            await StartPump(m =>
+            await StartPump((context, _) =>
                 {
-                    onMessageCalled.SetResult(m);
+                    onMessageCalled.SetResult(context);
                     return Task.FromResult(0);
                 },
                 error => Task.FromResult(ErrorHandleResult.Handled),

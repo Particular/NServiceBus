@@ -18,7 +18,7 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
-            await StartPump(context =>
+            await StartPump((context, _) =>
             {
                 throw new Exception("Simulated exception");
             },

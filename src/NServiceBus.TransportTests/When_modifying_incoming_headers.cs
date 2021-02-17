@@ -16,7 +16,7 @@
             var messageRetries = new TaskCompletionSource<MessageContext>();
             var firstInvocation = true;
 
-            await StartPump(context =>
+            await StartPump((context, _) =>
                 {
                     if (firstInvocation)
                     {
@@ -49,7 +49,7 @@
         {
             var errorHandled = new TaskCompletionSource<ErrorContext>();
 
-            await StartPump(context =>
+            await StartPump((context, _) =>
                 {
                     context.Headers["test-header"] = "modified";
                     throw new Exception();
@@ -79,7 +79,7 @@
             var messageRetries = new TaskCompletionSource<MessageContext>();
             var firstInvocation = true;
 
-            await StartPump(context =>
+            await StartPump((context, _) =>
                 {
                     if (firstInvocation)
                     {

@@ -19,7 +19,7 @@ namespace NServiceBus.TransportTests
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
             string body = null;
-            await StartPump(context =>
+            await StartPump((context, _) =>
             {
                 body = Encoding.UTF8.GetString(context.Body);
 

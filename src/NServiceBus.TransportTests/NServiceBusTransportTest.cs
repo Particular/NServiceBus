@@ -67,12 +67,12 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            receiver?.StopReceive(default).GetAwaiter().GetResult();
+            StopPump(default).GetAwaiter().GetResult();
             transportInfrastructure?.Shutdown(default).GetAwaiter().GetResult();
             configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -96,11 +96,11 @@
             receiver = transportInfrastructure.Receivers.Single().Value;
             await receiver.Initialize(
                 new PushRuntimeSettings(8),
-                (context, _) =>
+                (context, cancellationToken) =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
                     {
-                        return onMessage(context);
+                        return onMessage(context, cancellationToken);
                     }
 
                     return Task.FromResult(0);
@@ -118,6 +118,13 @@
                 default);
 
             await receiver.StartReceive(default);
+        }
+
+        protected async Task StopPump(CancellationToken cancellationToken)
+        {
+            await receiver?.StopReceive(cancellationToken);
+
+            receiver = null;
         }
 
         string GetUserName()
