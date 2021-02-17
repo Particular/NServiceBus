@@ -19,14 +19,14 @@ namespace NServiceBus.TransportTests
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
             string body = null;
-            await StartPump(context =>
+            await StartPump((context, _) =>
             {
                 body = Encoding.UTF8.GetString(context.Body);
 
                 onMessageCalled.SetResult(context);
                 return Task.FromResult(0);
             },
-                context => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
+                (context, _) => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string>
             {
