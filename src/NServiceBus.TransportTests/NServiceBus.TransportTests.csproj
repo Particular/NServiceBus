@@ -35,7 +35,6 @@
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
-    <_PackageFiles Remove="When_cancelling_stop.cs" />
   </ItemGroup>
   <!-- End Workaround -->
 
