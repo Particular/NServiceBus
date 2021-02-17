@@ -122,7 +122,12 @@
 
         protected async Task StopPump(CancellationToken cancellationToken)
         {
-            await receiver?.StopReceive(cancellationToken);
+            if (receiver == null)
+            {
+                return;
+            }
+
+            await receiver.StopReceive(cancellationToken);
 
             receiver = null;
         }
@@ -171,7 +176,7 @@
 
         protected void OnTestTimeout(Action onTimeoutAction)
         {
-            testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
 
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
@@ -210,6 +215,7 @@
         protected string InputQueueName;
         protected string ErrorQueueName;
         protected static TransportTestLoggerFactory LogFactory;
+        protected static TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
 
         string testId;
 

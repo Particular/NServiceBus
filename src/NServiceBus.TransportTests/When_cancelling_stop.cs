@@ -25,7 +25,7 @@
                     try
                     {
                         abortPumpStop.Cancel();
-                        await Task.Delay(TimeSpan.FromMinutes(1), token);
+                        await Task.Delay(TestTimeout, token);
                     }
                     catch (OperationCanceledException)
                     {
@@ -40,8 +40,6 @@
                 );
 
             await SendMessage(InputQueueName);
-
-            abortPumpStop.CancelAfter(TimeSpan.FromSeconds(1));
 
             await StopPump(abortPumpStop.Token);
 
