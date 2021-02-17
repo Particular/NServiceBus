@@ -67,12 +67,12 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            receiver?.StopReceive(default).GetAwaiter().GetResult();
+            StopPump(default).GetAwaiter().GetResult();
             transportInfrastructure?.Shutdown(default).GetAwaiter().GetResult();
             configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -96,21 +96,21 @@
             receiver = transportInfrastructure.Receivers.Single().Value;
             await receiver.Initialize(
                 new PushRuntimeSettings(8),
-                (context, _) =>
+                (context, cancellationToken) =>
                 {
                     if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
                     {
-                        return onMessage(context);
+                        return onMessage(context, cancellationToken);
                     }
 
                     return Task.FromResult(0);
                 },
-                (context, _) =>
+                (context, cancellationToken) =>
                 {
                     if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
                         context.Message.Headers[TestIdHeaderName] == testId)
                     {
-                        return onError(context);
+                        return onError(context, cancellationToken);
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
@@ -118,6 +118,18 @@
                 default);
 
             await receiver.StartReceive(default);
+        }
+
+        protected async Task StopPump(CancellationToken cancellationToken)
+        {
+            if (receiver == null)
+            {
+                return;
+            }
+
+            await receiver.StopReceive(cancellationToken);
+
+            receiver = null;
         }
 
         string GetUserName()
@@ -164,7 +176,7 @@
 
         protected void OnTestTimeout(Action onTimeoutAction)
         {
-            testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
 
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
@@ -203,6 +215,7 @@
         protected string InputQueueName;
         protected string ErrorQueueName;
         protected static TransportTestLoggerFactory LogFactory;
+        protected static TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
 
         string testId;
 

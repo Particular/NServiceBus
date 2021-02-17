@@ -18,7 +18,7 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
-            await StartPump(async context =>
+            await StartPump(async (context, _) =>
             {
                 if (context.Headers.ContainsKey("CompleteTest"))
                 {
@@ -37,7 +37,7 @@ namespace NServiceBus.TransportTests
                 throw new Exception("Simulated exception");
 
             },
-                async context =>
+                async (context, _) =>
                 {
                     await SendMessage(InputQueueName, new Dictionary<string, string> { { "CompleteTest", "true" } }, context.TransportTransaction);
 
