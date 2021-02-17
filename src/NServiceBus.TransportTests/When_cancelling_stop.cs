@@ -41,7 +41,6 @@
 
             await SendMessage(InputQueueName);
 
-
             abortPumpStop.CancelAfter(TimeSpan.FromSeconds(1));
 
             await StopPump(abortPumpStop.Token);
