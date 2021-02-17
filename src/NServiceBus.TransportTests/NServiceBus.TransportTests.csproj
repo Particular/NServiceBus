@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,25 +16,18 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.11.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="1.0.1" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>NServiceBus.TransportTests.Sources</PackageId>
     <Description>Tests for transport seam implementations</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <BlockInvalidTargetFrameworks>false</BlockInvalidTargetFrameworks>
+    <IncludeSourceFilesInPackage>true</IncludeSourceFilesInPackage>
   </PropertyGroup>
 
-  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
-    <_PackageFiles Include="**\*.cs">
-      <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\NSB.TransportTests\;contentFiles\cs\any\NSB.TransportTests\</PackagePath>
-    </_PackageFiles>
-    <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
+    <RemoveSourceFileFromPackage Include="ConfigureLearningTransportInfrastructure.cs" />
   </ItemGroup>
-  <!-- End Workaround -->
 
 </Project>

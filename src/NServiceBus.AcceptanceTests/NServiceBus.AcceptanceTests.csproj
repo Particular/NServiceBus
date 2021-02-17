@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,26 +20,19 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.11.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="1.0.1" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>NServiceBus.AcceptanceTests.Sources</PackageId>
     <Description>Acceptance tests for NServiceBus core functionality</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <BlockInvalidTargetFrameworks>false</BlockInvalidTargetFrameworks>
+    <IncludeSourceFilesInPackage>true</IncludeSourceFilesInPackage>
   </PropertyGroup>
 
-  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
-    <_PackageFiles Include="**\*.cs">
-      <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\NSB.AcceptanceTests\;contentFiles\cs\any\NSB.AcceptanceTests\</PackagePath>
-    </_PackageFiles>
-    <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="Core\**\*.cs" />
-    <_PackageFiles Remove="AssemblyInfo.cs" />
+    <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
+    <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
-  <!-- End Workaround -->
 
 </Project>
