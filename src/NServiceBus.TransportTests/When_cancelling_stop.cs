@@ -25,7 +25,7 @@
                     try
                     {
                         abortPumpStop.Cancel();
-                        await Task.Delay(TimeSpan.FromMilliseconds(50), token);
+                        await Task.Delay(TimeSpan.FromMinutes(1), token);
                     }
                     catch (OperationCanceledException)
                     {
