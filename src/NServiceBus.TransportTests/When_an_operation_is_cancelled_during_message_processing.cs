@@ -13,7 +13,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_recoverability(TransportTransactionMode transactionMode)
         {
-            var messageCompleted = new TaskCompletionSource<bool>();
+            var messageCompleted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var recoverabilityInvoked = false;
 
             OnTestTimeout(() => messageCompleted.SetCanceled());

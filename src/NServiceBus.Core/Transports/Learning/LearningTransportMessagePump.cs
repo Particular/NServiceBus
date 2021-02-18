@@ -249,9 +249,10 @@
                     log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}).");
                 }
 
+                bool wasCommitted;
                 try
                 {
-                    var wasCommitted = transaction.Complete();
+                    wasCommitted = transaction.Complete();
 
                     if (wasCommitted)
                     {
@@ -261,6 +262,18 @@
                 catch (Exception ex)
                 {
                     log.Debug($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
+
+                    wasCommitted = false;
+                }
+
+                try
+                {
+                    await onComplete(new CompleteContext { Successfull = wasCommitted }, messageProcessingCancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    log.Debug($"Failure while executing onComplete callback for  {filePath}({transaction.FileToProcess})" + filePath, ex);
+
                 }
 
                 concurrencyLimiter.Release();
@@ -316,8 +329,6 @@
                 log.Info("Message processing cancelled. Rolling back transaction.", ex);
                 transaction.Rollback();
 
-                await onComplete(new CompleteContext { Successfull = false }, messageProcessingCancellationToken).ConfigureAwait(false);
-
                 return;
             }
             catch (Exception exception)
@@ -341,8 +352,6 @@
                     log.Info("Message processing cancelled. Rolling back transaction.", ex);
                     transaction.Rollback();
 
-                    await onComplete(new CompleteContext { Successfull = false }, messageProcessingCancellationToken).ConfigureAwait(false);
-
                     return;
                 }
                 catch (Exception ex)
@@ -355,16 +364,12 @@
                 {
                     transaction.Rollback();
 
-                    await onComplete(new CompleteContext { Successfull = false }, messageProcessingCancellationToken).ConfigureAwait(false);
-
                     return;
                 }
             }
 
             await transaction.Commit(messageProcessingCancellationToken)
                 .ConfigureAwait(false);
-
-            await onComplete(new CompleteContext { Successfull = true }, messageProcessingCancellationToken).ConfigureAwait(false);
         }
 
         CancellationTokenSource messagePumpCancellationTokenSource;
