@@ -12,27 +12,30 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_critical_error(TransportTransactionMode transactionMode)
         {
-            var recoverabilityStarted = new TaskCompletionSource<bool>();
+            var messageCompleted = new TaskCompletionSource<bool>();
             var criticalErrorInvoked = false;
 
-            OnTestTimeout(() => recoverabilityStarted.SetCanceled());
+            OnTestTimeout(() => messageCompleted.SetCanceled());
 
             await StartPump(
                 (_, __) => throw new Exception(),
                 (_, cancellationToken) =>
                 {
-                    recoverabilityStarted.SetResult(true);
-
                     throw new OperationCanceledException();
                 },
                 transactionMode,
-                (_, __, ___) => criticalErrorInvoked = true);
+                (_, __, ___) => criticalErrorInvoked = true,
+                (_, __) =>
+                {
+                    messageCompleted.SetResult(true);
+
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName);
 
-            _ = await recoverabilityStarted.Task;
+            _ = await messageCompleted.Task;
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
 
             await StopPump(default);
 
