@@ -43,7 +43,7 @@
             await StopPump(default);
 
             Assert.True(recoverabilityInvoked);
-            Assert.False(messageCompletedSuccessfully);
+            Assert.True(messageCompletedSuccessfully, "Since the recoverability result is ErrorHandleResult.Handled the message should be completed successfully");
         }
     }
 }
