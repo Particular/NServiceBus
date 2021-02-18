@@ -49,10 +49,11 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnComplete onComplete, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
+            this.onComplete = onComplete;
 
             Init();
 
@@ -315,6 +316,8 @@
                 log.Info("Message processing cancelled. Rolling back transaction.", ex);
                 transaction.Rollback();
 
+                await onComplete(new CompleteContext { Successfull = false }, messageProcessingCancellationToken).ConfigureAwait(false);
+
                 return;
             }
             catch (Exception exception)
@@ -338,6 +341,8 @@
                     log.Info("Message processing cancelled. Rolling back transaction.", ex);
                     transaction.Rollback();
 
+                    await onComplete(new CompleteContext { Successfull = false }, messageProcessingCancellationToken).ConfigureAwait(false);
+
                     return;
                 }
                 catch (Exception ex)
@@ -350,12 +355,16 @@
                 {
                     transaction.Rollback();
 
+                    await onComplete(new CompleteContext { Successfull = false }, messageProcessingCancellationToken).ConfigureAwait(false);
+
                     return;
                 }
             }
 
             await transaction.Commit(messageProcessingCancellationToken)
                 .ConfigureAwait(false);
+
+            await onComplete(new CompleteContext { Successfull = true }, messageProcessingCancellationToken).ConfigureAwait(false);
         }
 
         CancellationTokenSource messagePumpCancellationTokenSource;
@@ -380,6 +389,7 @@
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
         OnMessage onMessage;
         OnError onError;
+        OnComplete onComplete;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";

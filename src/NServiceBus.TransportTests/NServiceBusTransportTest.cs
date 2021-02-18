@@ -72,7 +72,7 @@
             configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, OnComplete onComplete = null)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -103,7 +103,7 @@
                         return onMessage(context, cancellationToken);
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 },
                 (context, cancellationToken) =>
                 {
@@ -114,6 +114,15 @@
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                (context, cancellationToken) =>
+                {
+                    if (onComplete == null)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    return onComplete(context, cancellationToken);
                 },
                 default);
 
