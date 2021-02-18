@@ -15,6 +15,8 @@
         {
             var messageProcessingStarted = new TaskCompletionSource<bool>();
             var messageProcessingCancelled = new TaskCompletionSource<bool>();
+            var pumpAskedToStop = new TaskCompletionSource<bool>();
+            var messageProcessingCompleted = new TaskCompletionSource<bool>();
 
             OnTestTimeout(() =>
             {
@@ -29,7 +31,7 @@
 
                     try
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+                        await pumpAskedToStop.Task;
                     }
                     catch (OperationCanceledException)
                     {
@@ -39,13 +41,23 @@
                     messageProcessingCancelled.SetResult(false);
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                transactionMode);
+                transactionMode,
+                onComplete: (context, __) =>
+                {
+                    messageProcessingCompleted.SetResult(context.Successfull);
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName);
 
             _ = await messageProcessingStarted.Task;
 
-            await StopPump(default);
+            var stopPumpTask = StopPump(default);
+
+            pumpAskedToStop.SetResult(true);
+
+            await Task.WhenAll(stopPumpTask, messageProcessingCompleted.Task);
+
 
             Assert.False(await messageProcessingCancelled.Task);
         }
