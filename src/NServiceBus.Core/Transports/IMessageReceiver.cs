@@ -52,7 +52,7 @@
         /// <summary>
         ///
         /// </summary>
-        public bool Successfull { get; set; }
+        public bool Successful { get; set; }
     }
 
 

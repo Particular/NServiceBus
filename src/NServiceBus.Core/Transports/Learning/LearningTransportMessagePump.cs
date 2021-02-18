@@ -268,7 +268,7 @@
 
                 try
                 {
-                    await onComplete(new CompleteContext { Successfull = wasCommitted }, messageProcessingCancellationToken).ConfigureAwait(false);
+                    await onComplete(new CompleteContext { Successful = wasCommitted }, messageProcessingCancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

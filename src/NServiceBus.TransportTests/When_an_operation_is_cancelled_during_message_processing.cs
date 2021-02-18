@@ -32,7 +32,7 @@
                 transactionMode,
                 onComplete: (context, __) =>
                 {
-                    messageCompleted.SetResult(context.Successfull);
+                    messageCompleted.SetResult(context.Successful);
                     return Task.CompletedTask;
                 });
 

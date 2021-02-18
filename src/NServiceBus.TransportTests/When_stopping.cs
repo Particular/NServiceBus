@@ -44,7 +44,7 @@
                 transactionMode,
                 onComplete: (context, __) =>
                 {
-                    messageProcessingCompleted.SetResult(context.Successfull);
+                    messageProcessingCompleted.SetResult(context.Successful);
                     return Task.CompletedTask;
                 });
 
