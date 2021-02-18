@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    public class When_an_operation_is_cancelled_during_recoverability : NServiceBusTransportTest
+    public class When_op_cancelled_on_error : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]

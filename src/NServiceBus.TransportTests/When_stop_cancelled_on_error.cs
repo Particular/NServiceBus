@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_cancelling_stop_during_recoverability : NServiceBusTransportTest
+    public class When_stop_cancelled_on_error : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]

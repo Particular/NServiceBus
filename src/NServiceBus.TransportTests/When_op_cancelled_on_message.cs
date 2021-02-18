@@ -1,17 +1,17 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    using System.Threading;
+    using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
 
-    public class When_cancelling_stop_during_message_processing : NServiceBusTransportTest
+    public class When_op_cancelled_on_message : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode)
+        public async Task Should_invoke_recoverability(TransportTransactionMode transactionMode)
         {
             var messageProcessingStarted = new TaskCompletionSource<bool>();
             var recoverabilityInvoked = false;
@@ -19,11 +19,11 @@
             OnTestTimeout(() => messageProcessingStarted.SetCanceled());
 
             await StartPump(
-                async (_, cancellationToken) =>
+                (context, _) =>
                 {
                     messageProcessingStarted.SetResult(true);
 
-                    await Task.Delay(TestTimeout, cancellationToken);
+                    throw new OperationCanceledException();
                 },
                 (_, __) =>
                 {
@@ -37,9 +37,11 @@
 
             _ = await messageProcessingStarted.Task;
 
-            await StopPump(new CancellationToken(true));
+            await Task.Delay(TimeSpan.FromSeconds(1));
 
-            Assert.False(recoverabilityInvoked);
+            await StopPump(default);
+
+            Assert.True(recoverabilityInvoked);
         }
     }
 }
