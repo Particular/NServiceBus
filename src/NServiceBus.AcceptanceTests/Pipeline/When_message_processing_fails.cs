@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(failure =>
+                    c.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue((failure, _) =>
                     {
                         var testContext = (Context)r.ScenarioContext;
                         testContext.MessageFailed = true;

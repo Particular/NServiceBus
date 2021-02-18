@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -12,7 +13,7 @@
         /// <summary>
         /// Subscribes to notifications for completed receive pipelines.
         /// </summary>
-        public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, Task> subscription)
+        public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, CancellationToken, Task> subscription)
         {
             Guard.AgainstNull(nameof(pipelineSettings), pipelineSettings);
             Guard.AgainstNull(nameof(subscription), subscription);

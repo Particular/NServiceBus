@@ -6,7 +6,7 @@
     /// <summary>
     /// Base interface for a pipeline behavior.
     /// </summary>
-    public interface IBehaviorContext : IExtendable
+    public interface IBehaviorContext : ICancellableContext, IExtendable
     {
         /// <summary>
         /// The current <see cref="IServiceProvider" />.

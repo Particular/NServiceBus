@@ -22,19 +22,19 @@
             };
 
             var winningContextBag = configuration.GetContextBagForSagaStorage();
-            using (var winningSession = await configuration.SynchronizedStorage.OpenSession(winningContextBag))
+            using (var winningSession = await configuration.SynchronizedStorage.OpenSession(winningContextBag, default))
             {
                 await SaveSagaWithSession(saga1, winningSession, winningContextBag);
-                await winningSession.CompleteAsync();
+                await winningSession.CompleteAsync(default);
             }
 
             var losingContextBag = configuration.GetContextBagForSagaStorage();
-            using (var losingSession = await configuration.SynchronizedStorage.OpenSession(losingContextBag))
+            using (var losingSession = await configuration.SynchronizedStorage.OpenSession(losingContextBag, default))
             {
                 Assert.That(async () =>
                 {
                     await SaveSagaWithSession(saga2, losingSession, losingContextBag);
-                    await losingSession.CompleteAsync();
+                    await losingSession.CompleteAsync(default);
                 }, Throws.InstanceOf<Exception>());
             }
         }

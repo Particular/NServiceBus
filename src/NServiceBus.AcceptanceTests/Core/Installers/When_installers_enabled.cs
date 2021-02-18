@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Installers
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -40,7 +41,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Install(string identity)
+                public Task Install(string identity, CancellationToken cancellationToken)
                 {
                     testContext.InstallerCalled = true;
                     return Task.FromResult(0);

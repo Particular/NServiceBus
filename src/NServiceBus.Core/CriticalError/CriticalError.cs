@@ -2,11 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
     /// <summary>
-    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})"/>.
+    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, CancellationToken, Task})"/>.
     /// </summary>
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
@@ -17,11 +18,11 @@ namespace NServiceBus
         /// Initializes a new instance of <see cref="CriticalError" />.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
+        public CriticalError(Func<ICriticalErrorContext, CancellationToken, Task> onCriticalErrorAction)
         {
             if (onCriticalErrorAction == null)
             {
-                criticalErrorAction = DefaultCriticalErrorHandling;
+                criticalErrorAction = (_, __) => Task.CompletedTask;
             }
             else
             {
@@ -29,18 +30,13 @@ namespace NServiceBus
             }
         }
 
-        static Task DefaultCriticalErrorHandling(ICriticalErrorContext criticalErrorContext)
-        {
-            return Task.CompletedTask;
-        }
-
         /// <summary>
         /// Trigger the action defined by
         /// <see
-        ///     cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})" />
+        ///     cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, CancellationToken, Task})" />
         /// .
         /// </summary>
-        public virtual void Raise(string errorMessage, Exception exception)
+        public virtual void Raise(string errorMessage, Exception exception, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNullAndEmpty(nameof(errorMessage), errorMessage);
             Guard.AgainstNull(nameof(exception), exception);
@@ -60,32 +56,32 @@ namespace NServiceBus
             }
 
             // don't await the criticalErrorAction in order to avoid deadlocks
-            RaiseForEndpoint(errorMessage, exception);
+            RaiseForEndpoint(errorMessage, exception, cancellationToken);
         }
 
-        void RaiseForEndpoint(string errorMessage, Exception exception)
+        void RaiseForEndpoint(string errorMessage, Exception exception, CancellationToken cancellationToken)
         {
             _ = Task.Run(() =>
             {
                 var context = new CriticalErrorContext(endpoint.Stop, errorMessage, exception);
-                return criticalErrorAction(context);
-            });
+                return criticalErrorAction(context, cancellationToken);
+            }, cancellationToken);
         }
 
-        internal void SetEndpoint(IEndpointInstance endpointInstance)
+        internal void SetEndpoint(IEndpointInstance endpointInstance, CancellationToken cancellationToken)
         {
             lock (endpointCriticalLock)
             {
                 endpoint = endpointInstance;
                 foreach (var latentCritical in criticalErrors)
                 {
-                    RaiseForEndpoint(latentCritical.Message, latentCritical.Exception);
+                    RaiseForEndpoint(latentCritical.Message, latentCritical.Exception, cancellationToken);
                 }
                 criticalErrors.Clear();
             }
         }
 
-        Func<CriticalErrorContext, Task> criticalErrorAction;
+        Func<CriticalErrorContext, CancellationToken, Task> criticalErrorAction;
 
         List<LatentCritical> criticalErrors = new List<LatentCritical>();
         IEndpointInstance endpoint;

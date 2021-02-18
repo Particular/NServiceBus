@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Feature
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -62,13 +63,13 @@
                 {
                     this.dependency = dependency;
                 }
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     dependency.Start();
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     dependency.Stop();
                     return Task.FromResult(0);
@@ -93,13 +94,13 @@
                 {
                     this.dependency = dependency;
                 }
-                protected override Task OnStart(IMessageSession session)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
                 {
                     dependency.Initialize();
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(0);
                 }

@@ -43,7 +43,7 @@
 
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    using (var stream = await dataBus.Get(dataBusKey).ConfigureAwait(false))
+                    using (var stream = await dataBus.Get(dataBusKey, context.CancellationToken).ConfigureAwait(false))
                     {
                         var value = dataBusSerializer.Deserialize(stream);
 

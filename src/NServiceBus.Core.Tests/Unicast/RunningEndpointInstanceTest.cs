@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Settings;
@@ -18,7 +19,8 @@
                 null,
                 new FeatureComponent(settings),
                 new MessageSession(new FakeRootContext()),
-                null);
+                null,
+                new CancellationTokenSource());
             return testInstance;
         }
 

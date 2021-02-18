@@ -28,7 +28,7 @@
         {
             var mutatorsRegisteredInDI = context.Builder.GetServices<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;
-            var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
+            var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers, context.CancellationToken);
 
             var hasMutators = false;
 

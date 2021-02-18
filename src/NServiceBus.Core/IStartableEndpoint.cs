@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,6 +12,6 @@ namespace NServiceBus
         /// Starts the endpoint and returns a reference to it.
         /// </summary>
         /// <returns>A reference to the endpoint.</returns>
-        Task<IEndpointInstance> Start();
+        Task<IEndpointInstance> Start(CancellationToken cancellationToken = default);
     }
 }

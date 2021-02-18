@@ -16,7 +16,7 @@
         {
             var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
             var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();
-            return dispatcher.Dispatch(new TransportOperations(operations), transaction);
+            return dispatcher.Dispatch(new TransportOperations(operations), transaction, context.CancellationToken);
         }
 
         readonly IMessageDispatcher dispatcher;

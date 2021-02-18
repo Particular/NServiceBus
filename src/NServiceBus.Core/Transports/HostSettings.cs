@@ -1,6 +1,7 @@
 namespace NServiceBus.Transport
 {
     using System;
+    using System.Threading;
     using Settings;
 
     /// <summary>
@@ -11,7 +12,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new instance of <see cref="HostSettings"/>.
         /// </summary>
-        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null)
+        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception, CancellationToken> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null)
         {
             Name = name;
             HostDisplayName = hostDisplayName;
@@ -45,7 +46,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// A callback to invoke when exception occur that can't be handled by the transport.
         /// </summary>
-        public Action<string, Exception> CriticalErrorAction { get; }
+        public Action<string, Exception, CancellationToken> CriticalErrorAction { get; }
 
         /// <summary>
         /// A flag that indicates whether the transport should automatically setup necessary infrastructure.

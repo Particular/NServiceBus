@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Outbox;
 
     class AcceptanceTestingOutboxStorage : IOutboxStorage
     {
-        public Task<OutboxMessage> Get(string messageId, ContextBag context)
+        public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken)
         {
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {
@@ -18,12 +19,12 @@
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken)
         {
             return Task.FromResult<OutboxTransaction>(new AcceptanceTestingOutboxTransaction());
         }
 
-        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
+        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken)
         {
             var tx = (AcceptanceTestingOutboxTransaction)transaction;
             tx.Enlist(() =>
@@ -36,7 +37,7 @@
             return Task.CompletedTask;
         }
 
-        public Task SetAsDispatched(string messageId, ContextBag context)
+        public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken)
         {
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {

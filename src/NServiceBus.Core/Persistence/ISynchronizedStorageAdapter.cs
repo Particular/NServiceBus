@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Persistence
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Outbox;
@@ -15,15 +16,17 @@
         /// </summary>
         /// <param name="transaction">Outbox transaction.</param>
         /// <param name="context">Context.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>Session or null, if unable to adapt.</returns>
-        Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context);
+        Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Returns a synchronized storage session based on the outbox transaction if possible.
         /// </summary>
         /// <param name="transportTransaction">Transport transaction.</param>
         /// <param name="context">Context.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>Session or null, if unable to adapt.</returns>
-        Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context);
+        Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken);
     }
 }

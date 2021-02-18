@@ -29,7 +29,7 @@
             var logicalMessage = context.Message;
             var current = logicalMessage.Instance;
 
-            var mutatorContext = new MutateIncomingMessageContext(current, context.Headers);
+            var mutatorContext = new MutateIncomingMessageContext(current, context.Headers, context.CancellationToken);
 
             var hasMutators = false;
 
