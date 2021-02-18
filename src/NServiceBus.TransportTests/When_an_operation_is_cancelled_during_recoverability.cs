@@ -12,7 +12,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_critical_error(TransportTransactionMode transactionMode)
         {
-            var messageCompleted = new TaskCompletionSource<bool>();
+            var messageCompleted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var criticalErrorInvoked = false;
 
             OnTestTimeout(() => messageCompleted.SetCanceled());
