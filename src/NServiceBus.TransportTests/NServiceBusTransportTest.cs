@@ -83,7 +83,7 @@
                 InputQueueName,
                 string.Empty,
                 new StartupDiagnosticEntries(),
-                (message, ex) =>
+                (message, ex, cancellationToken) =>
                 {
                     if (onCriticalError == null)
                     {
@@ -91,7 +91,7 @@
                         Assert.Fail($"{message}{Environment.NewLine}{ex}");
                     }
 
-                    onCriticalError(message, ex);
+                    onCriticalError(message, ex, cancellationToken);
                 },
                 true);
 
