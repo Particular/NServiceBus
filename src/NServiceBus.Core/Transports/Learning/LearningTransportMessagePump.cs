@@ -194,10 +194,8 @@
                     }
                     catch (Exception ex)
                     {
-                        log.Debug($"Failed to begin transaction {filePath}", ex);
-
                         concurrencyLimiter.Release();
-                        throw;
+                        throw new Exception($"Failed to begin transaction {filePath}", ex);
                     }
 
                     _ = ProcessFileAndComplete(transaction, filePath, nativeMessageId);

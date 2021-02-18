@@ -83,7 +83,16 @@
                 InputQueueName,
                 string.Empty,
                 new StartupDiagnosticEntries(),
-                onCriticalError,
+                (message, ex) =>
+                {
+                    if (onCriticalError == null)
+                    {
+                        testCancellationTokenSource.Cancel();
+                        Assert.Fail($"{message}{Environment.NewLine}{ex}");
+                    }
+
+                    onCriticalError(message, ex);
+                },
                 true);
 
             var transport = configurer.CreateTransportDefinition();
