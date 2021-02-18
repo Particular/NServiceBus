@@ -188,7 +188,16 @@
         {
             testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
 
-            testCancellationTokenSource.Token.Register(onTimeoutAction);
+            testCancellationTokenSource.Token.Register(()=> {
+                Console.WriteLine("Test timed out, logs:");
+
+                foreach(var log in LogFactory.LogItems)
+                {
+                    Console.WriteLine($"{log.Level} - {log.Message}");
+                }
+
+                onTimeoutAction();
+            });
         }
 
         static string GetTestName()
