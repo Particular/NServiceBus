@@ -20,7 +20,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            StringAssert.Contains("Delayed retries are not supported when the transport does not support delayed delivery.", exception.ToString());
+            StringAssert.Contains("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'.", exception.ToString());
         }
 
         public class StartedEndpoint : EndpointConfigurationBuilder
