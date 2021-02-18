@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -14,31 +13,16 @@
         public async Task Should_allow_message_processing_to_complete(TransportTransactionMode transactionMode)
         {
             var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var messageProcessingCancelled = new TaskCompletionSource<bool>();
-            var pumpAskedToStop = new TaskCompletionSource<bool>();
+            var unpauseHandler = new TaskCompletionSource<bool>();
             var messageProcessingCompleted = new TaskCompletionSource<bool>();
 
-            OnTestTimeout(() =>
-            {
-                messageProcessingStarted.SetCanceled();
-                messageProcessingCancelled.SetCanceled();
-            });
+            OnTestTimeout(() => messageProcessingStarted.SetCanceled());
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
                     messageProcessingStarted.SetResult(true);
-
-                    try
-                    {
-                        await pumpAskedToStop.Task;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        messageProcessingCancelled.SetResult(true);
-                    }
-
-                    messageProcessingCancelled.SetResult(false);
+                    await unpauseHandler.Task;
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode,
@@ -54,12 +38,11 @@
 
             var stopPumpTask = StopPump(default);
 
-            pumpAskedToStop.SetResult(true);
+            unpauseHandler.SetResult(true);
 
-            await Task.WhenAll(stopPumpTask, messageProcessingCompleted.Task);
+            await stopPumpTask;
 
-
-            Assert.False(await messageProcessingCancelled.Task);
+            Assert.True(await messageProcessingCompleted.Task);
         }
     }
 }
