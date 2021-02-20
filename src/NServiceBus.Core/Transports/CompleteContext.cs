@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
+    using System;
     using NServiceBus.Extensibility;
 
     /// <summary>
@@ -12,14 +13,20 @@
         /// </summary>
         /// <param name="messageId">Native message id.</param>
         /// <param name="wasAcknowledged">True if the message was acknowledged and removed from the queue.</param>
+        /// <param name="startedAt">The time that processing started.</param>
+        /// <param name="completedAt">The time that processing started.</param>
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public CompleteContext(string messageId, bool wasAcknowledged, ContextBag context)
+        public CompleteContext(string messageId, bool wasAcknowledged, DateTimeOffset startedAt, DateTimeOffset completedAt, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
+            Guard.AgainstNull(nameof(startedAt), startedAt);
+            Guard.AgainstNull(nameof(completedAt), completedAt);
             Guard.AgainstNull(nameof(context), context);
 
             MessageId = messageId;
             WasAcknowledged = wasAcknowledged;
+            StartedAt = startedAt;
+            CompletedAt = completedAt;
             Extensions = context;
         }
 
@@ -32,6 +39,16 @@
         /// True if the message was acknowledged and removed from the queue.
         /// </summary>
         public bool WasAcknowledged { get; }
+
+        /// <summary>
+        /// The time that processing started.
+        /// </summary>
+        public DateTimeOffset StartedAt { get; }
+
+        /// <summary>
+        /// The time processing completed.
+        /// </summary>
+        public DateTimeOffset CompletedAt { get; }
 
         /// <summary>
         /// A <see cref="ContextBag" /> which can be used to extend the current object.

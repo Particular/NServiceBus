@@ -112,7 +112,7 @@
                         return onMessage(context, cancellationToken);
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 },
                 (context, cancellationToken) =>
                 {
@@ -123,6 +123,10 @@
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                (context, cancellationToken) =>
+                {
+                    return Task.CompletedTask;
                 },
                 default);
 

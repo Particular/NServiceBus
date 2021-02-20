@@ -49,10 +49,11 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
+            this.onCompleted = onCompleted;
 
             Init();
 
@@ -234,9 +235,12 @@
 
         async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
+            var startedAt = DateTimeOffset.UtcNow;
+            var processingContext = new ContextBag();
+
             try
             {
-                await ProcessFile(transaction, messageId, messageProcessingCancellationToken)
+                await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
             }
             finally
@@ -245,12 +249,12 @@
                 {
                     log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}).");
                 }
-
+                bool wasAcknowledged = false;
                 try
                 {
-                    var wasCommitted = transaction.Complete();
+                    wasAcknowledged = transaction.Complete();
 
-                    if (wasCommitted)
+                    if (wasAcknowledged)
                     {
                         File.Delete(Path.Combine(bodyDir, messageId + BodyFileSuffix));
                     }
@@ -260,11 +264,20 @@
                     log.Debug($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
                 }
 
+                try
+                {
+                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    log.Debug($"Failure when invoking OnComplete for {filePath}({transaction.FileToProcess})" + filePath, ex);
+                }
+
                 concurrencyLimiter.Release();
             }
         }
 
-        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
@@ -380,6 +393,7 @@
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
         OnMessage onMessage;
         OnError onError;
+        OnCompleted onCompleted;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
