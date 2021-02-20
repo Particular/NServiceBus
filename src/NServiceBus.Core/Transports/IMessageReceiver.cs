@@ -39,9 +39,13 @@
     /// </summary>
     public delegate Task OnMessage(MessageContext messageContext, CancellationToken cancellationToken);
 
-
     /// <summary>
     /// Processes a message that has failed processing.
     /// </summary>
     public delegate Task<ErrorHandleResult> OnError(ErrorContext errorContext, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Processes a message that has been completed.
+    /// </summary>
+    public delegate Task<ErrorHandleResult> OnCompleted(CompleteContext completeContext, CancellationToken cancellationToken);
 }
