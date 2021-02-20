@@ -28,7 +28,6 @@
         /// </summary>
         public bool WasAcknowledged;
 
-
         /// <summary>
         /// The time that processing started.
         /// </summary>
