@@ -31,7 +31,7 @@ namespace NServiceBus.TransportTests
                 return Task.FromResult(ErrorHandleResult.Handled);
             }, transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>());
+            await SendMessage(InputQueueName);
 
             var errorContext = await onErrorCalled.Task;
 
