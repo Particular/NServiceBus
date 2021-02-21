@@ -300,8 +300,9 @@
             {
                 transportTransaction.Set(transaction);
             }
+            var processingContext = new ContextBag();
 
-            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, new ContextBag());
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
 
             try
             {
@@ -323,7 +324,7 @@
                 headers = HeaderSerializer.Deserialize(message);
                 headers.Remove(LearningTransportHeaders.TimeToBeReceived);
 
-                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
+                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, processingContext);
 
                 ErrorHandleResult actionToTake;
                 try
