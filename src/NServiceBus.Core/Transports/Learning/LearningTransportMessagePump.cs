@@ -289,6 +289,8 @@
 
             if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
+                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+
                 var ttbr = TimeSpan.Parse(ttbrString);
 
                 //file.move preserves create time
@@ -302,8 +304,6 @@
                     log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
                     return headers;
                 }
-
-                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
             }
 
             var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken)
