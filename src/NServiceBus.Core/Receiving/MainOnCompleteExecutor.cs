@@ -13,7 +13,7 @@
 
         public Task Invoke(CompleteContext completeContext, CancellationToken cancellationToken)
         {
-            return processingCompletedSubscribers.Raise(new ProcessingCompleted(completeContext.MessageId, completeContext.WasAcknowledged, completeContext.StartedAt, completeContext.CompletedAt), cancellationToken);
+            return processingCompletedSubscribers.Raise(new ProcessingCompleted(completeContext.MessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt), cancellationToken);
         }
 
         readonly INotificationSubscriptions<ProcessingCompleted> processingCompletedSubscribers;

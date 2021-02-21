@@ -14,7 +14,15 @@
         public async Task Should_receive_notifications_for_successfull()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SubscribingEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
+                .WithEndpoint<SubscribingEndpoint>(b => b.When(session =>
+                {
+                    var options = new SendOptions();
+
+                    options.RouteToThisEndpoint();
+                    options.SetHeader("SomeKey", "SomeValue");
+
+                    return session.Send(new SomeMessage(), options);
+                }))
                 .Done(c => c.Event != null)
                 .Run();
 
@@ -23,6 +31,8 @@
             Assert.True(context.Event.WasAcknowledged, "Should be flagged as acknowledged");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.StartedAt, "StartedAt was not set");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
+            Assert.True(context.Event.Headers.ContainsKey("SomeKey"));
+            Assert.AreEqual(context.Event.Headers["SomeKey"], "SomeValue");
         }
 
         [Test]
@@ -37,7 +47,15 @@
                     //message will then go to error so we need to allow that
                     b.DoNotFailOnErrorMessages();
 
-                    b.When(session => session.SendLocal(new SomeMessage { Throw = true }));
+                    b.When(session =>
+                    {
+                        var options = new SendOptions();
+
+                        options.RouteToThisEndpoint();
+                        options.SetHeader("SomeKey", "SomeValue");
+
+                        return session.Send(new SomeMessage { Throw = true }, options);
+                    });
                 })
                 .Done(c => c.Event != null)
                 .Run();
@@ -47,6 +65,8 @@
             Assert.False(context.Event.WasAcknowledged, "Should be rolled back");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.StartedAt, "StartedAt was not set");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
+            Assert.True(context.Event.Headers.ContainsKey("SomeKey"));
+            Assert.AreEqual(context.Event.Headers["SomeKey"], "SomeValue");
         }
 
         class Context : ScenarioContext

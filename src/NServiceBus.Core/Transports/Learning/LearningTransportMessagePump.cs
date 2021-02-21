@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Threading;
@@ -237,10 +238,11 @@
         {
             var startedAt = DateTimeOffset.UtcNow;
             var processingContext = new ContextBag();
+            Dictionary<string, string> headers = null;
 
             try
             {
-                await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
+                headers = await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
             }
             finally
@@ -266,7 +268,7 @@
 
                 try
                 {
-                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
+                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -277,7 +279,7 @@
             }
         }
 
-        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
+        async Task<Dictionary<string, string>> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
@@ -287,8 +289,6 @@
 
             if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
-                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
-
                 var ttbr = TimeSpan.Parse(ttbrString);
 
                 //file.move preserves create time
@@ -300,8 +300,10 @@
                     await transaction.Commit(messageProcessingCancellationToken)
                         .ConfigureAwait(false);
                     log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
-                    return;
+                    return headers;
                 }
+
+                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
             }
 
             var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken)
@@ -328,7 +330,7 @@
                 log.Info("Message processing cancelled. Rolling back transaction.", ex);
                 transaction.Rollback();
 
-                return;
+                return headers;
             }
             catch (Exception exception)
             {
@@ -351,7 +353,7 @@
                     log.Info("Message processing cancelled. Rolling back transaction.", ex);
                     transaction.Rollback();
 
-                    return;
+                    return headers;
                 }
                 catch (Exception ex)
                 {
@@ -363,12 +365,15 @@
                 {
                     transaction.Rollback();
 
-                    return;
+                    return headers;
+
                 }
             }
 
             await transaction.Commit(messageProcessingCancellationToken)
                 .ConfigureAwait(false);
+
+            return headers;
         }
 
         CancellationTokenSource messagePumpCancellationTokenSource;

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Event raised when the transport has completed processing a message.
@@ -10,10 +11,11 @@
         /// <summary>
         /// Constructs the event.
         /// </summary>
-        public ProcessingCompleted(string messageId, bool wasAcknowledged, DateTimeOffset startedAt, DateTimeOffset completedAt)
+        public ProcessingCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt)
         {
             MessageId = messageId;
             WasAcknowledged = wasAcknowledged;
+            Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
         }
@@ -27,6 +29,11 @@
         /// True if the message was acknowledged and removed from the queue.
         /// </summary>
         public bool WasAcknowledged;
+
+        /// <summary>
+        /// The message headers.
+        /// </summary>
+        public Dictionary<string, string> Headers { get; }
 
         /// <summary>
         /// The time that processing started.
