@@ -63,7 +63,7 @@ namespace NServiceBus
 
             public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers => settings.GetOrCreate<Notification<ReceivePipelineCompleted>>();
 
-            public Notification<ProcessingCompleted> ProcessingCompletedSubscribers => settings.GetOrCreate<Notification<ProcessingCompleted>>();
+            public Notification<ReceiveCompleted> ProcessingCompletedSubscribers => settings.GetOrCreate<Notification<ReceiveCompleted>>();
 
             public bool IsSendOnlyEndpoint => settings.Get<bool>(EndpointSendOnlySettingKey);
 

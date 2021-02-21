@@ -6,14 +6,15 @@
     /// <summary>
     /// Event raised when the transport has completed processing a message.
     /// </summary>
-    public class ProcessingCompleted
+    public class ReceiveCompleted
+
     {
         /// <summary>
         /// Constructs the event.
         /// </summary>
-        public ProcessingCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt)
+        public ReceiveCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt)
         {
-            MessageId = messageId;
+            NativeMessageId = messageId;
             WasAcknowledged = wasAcknowledged;
             Headers = headers;
             StartedAt = startedAt;
@@ -21,9 +22,9 @@
         }
 
         /// <summary>
-        /// The ID of the message.
+        /// The native message ID.
         /// </summary>
-        public string MessageId;
+        public string NativeMessageId;
 
         /// <summary>
         /// True if the message was acknowledged and removed from the queue.

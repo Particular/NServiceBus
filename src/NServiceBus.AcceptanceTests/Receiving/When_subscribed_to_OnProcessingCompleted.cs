@@ -27,7 +27,7 @@
                 .Run();
 
             Assert.NotNull(context.Event, "Event was not raised");
-            Assert.AreEqual(context.MessageId, context.Event.MessageId, "MessageId should match");
+            Assert.AreEqual(context.MessageId, context.Event.NativeMessageId, "Native message ID should match");
             Assert.True(context.Event.WasAcknowledged, "Should be flagged as acknowledged");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.StartedAt, "StartedAt was not set");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
@@ -61,7 +61,7 @@
                 .Run();
 
             Assert.NotNull(context.Event, "Event was not raised");
-            Assert.AreEqual(context.MessageId, context.Event.MessageId, "MessageId should match");
+            Assert.AreEqual(context.MessageId, context.Event.NativeMessageId, "Native message ID should match");
             Assert.False(context.Event.WasAcknowledged, "Should be rolled back");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.StartedAt, "StartedAt was not set");
             Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
@@ -71,7 +71,7 @@
 
         class Context : ScenarioContext
         {
-            public ProcessingCompleted Event { get; set; }
+            public ReceiveCompleted Event { get; set; }
             public string MessageId { get; set; }
         }
 

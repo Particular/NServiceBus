@@ -812,22 +812,22 @@ namespace NServiceBus
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    public class ProcessingCompleted
-    {
-        public string MessageId;
-        public bool WasAcknowledged;
-        public ProcessingCompleted(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
-        public System.DateTimeOffset CompletedAt { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public System.DateTimeOffset StartedAt { get; }
-    }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
     }
+    public class ReceiveCompleted
+    {
+        public string NativeMessageId;
+        public bool WasAcknowledged;
+        public ReceiveCompleted(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
+        public System.DateTimeOffset CompletedAt { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public System.DateTimeOffset StartedAt { get; }
+    }
     public static class ReceiveConfigExtensions
     {
-        public static void OnMessageProcessingCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ProcessingCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
+        public static void OnMessageProcessingCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
     }
     public class ReceivePipelineCompleted
     {
