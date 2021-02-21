@@ -124,10 +124,7 @@
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                (context, cancellationToken) =>
-                {
-                    return Task.CompletedTask;
-                },
+                (context, cancellationToken) => Task.CompletedTask,
                 default);
 
             await receiver.StartReceive(default);
