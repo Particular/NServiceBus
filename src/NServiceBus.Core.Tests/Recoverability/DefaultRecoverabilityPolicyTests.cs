@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
     using Transport;
 
@@ -168,7 +169,8 @@
                 "message-id",
                 new byte[0],
                 new TransportTransaction(),
-                numberOfDeliveryAttempts);
+                numberOfDeliveryAttempts,
+                new ContextBag());
 
         static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, HashSet<Type> unrecoverableExceptions = null)
         {
