@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Extensibility;
 
     /// <summary>
     /// Allows the transport to pass signal that a message has been completed.
     /// </summary>
-    public class CompleteContext : IExtendable
+    public class CompleteContext
     {
         /// <summary>
         /// Initializes the context.
@@ -17,20 +16,17 @@
         /// <param name="headers">The message headers.</param>
         /// <param name="startedAt">The time that processing started.</param>
         /// <param name="completedAt">The time that processing started.</param>
-        /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public CompleteContext(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, ContextBag context)
+        public CompleteContext(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(startedAt), startedAt);
             Guard.AgainstNull(nameof(completedAt), completedAt);
-            Guard.AgainstNull(nameof(context), context);
 
             MessageId = messageId;
             WasAcknowledged = wasAcknowledged;
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
-            Extensions = context;
         }
 
         /// <summary>
@@ -57,10 +53,5 @@
         /// The time processing completed.
         /// </summary>
         public DateTimeOffset CompletedAt { get; }
-
-        /// <summary>
-        /// A <see cref="ContextBag" /> which can be used to extend the current object.
-        /// </summary>
-        public ContextBag Extensions { get; }
     }
 }

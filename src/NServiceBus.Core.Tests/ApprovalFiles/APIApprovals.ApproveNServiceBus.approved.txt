@@ -2399,11 +2399,10 @@ namespace NServiceBus.Timeout.Core
 }
 namespace NServiceBus.Transport
 {
-    public class CompleteContext : NServiceBus.Extensibility.IExtendable
+    public class CompleteContext
     {
-        public CompleteContext(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, NServiceBus.Extensibility.ContextBag context) { }
+        public CompleteContext(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
         public System.DateTimeOffset CompletedAt { get; }
-        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public System.DateTimeOffset StartedAt { get; }

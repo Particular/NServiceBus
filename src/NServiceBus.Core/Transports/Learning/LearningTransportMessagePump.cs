@@ -237,12 +237,11 @@
         async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             var startedAt = DateTimeOffset.UtcNow;
-            var processingContext = new ContextBag();
             Dictionary<string, string> headers = null;
 
             try
             {
-                headers = await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
+                headers = await ProcessFile(transaction, messageId, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
             }
             finally
@@ -268,7 +267,7 @@
 
                 try
                 {
-                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
+                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow), messageProcessingCancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -279,7 +278,7 @@
             }
         }
 
-        async Task<Dictionary<string, string>> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
+        async Task<Dictionary<string, string>> ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
