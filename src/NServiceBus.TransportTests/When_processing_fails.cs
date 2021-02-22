@@ -1,7 +1,6 @@
 namespace NServiceBus.TransportTests
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -18,18 +17,20 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
-            await StartPump((context, _) =>
-            {
-                context.Extensions.Set("MyKey", "MyValue");
+            await StartPump(
+                (context, _) =>
+                {
+                    context.Extensions.Set("MyKey", "MyValue");
 
-                throw new Exception("Simulated exception");
-            },
-            (context, _) =>
-            {
-                onErrorCalled.SetResult(context);
+                    throw new Exception("Simulated exception");
+                },
+                (context, _) =>
+                {
+                    onErrorCalled.SetResult(context);
 
-                return Task.FromResult(ErrorHandleResult.Handled);
-            }, transactionMode);
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                transactionMode);
 
             await SendMessage(InputQueueName);
 

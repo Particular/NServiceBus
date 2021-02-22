@@ -300,6 +300,7 @@
             {
                 transportTransaction.Set(transaction);
             }
+
             var processingContext = new ContextBag();
 
             var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
