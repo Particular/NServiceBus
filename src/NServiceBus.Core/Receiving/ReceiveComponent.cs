@@ -54,22 +54,17 @@ namespace NServiceBus
 
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
-            var externalHandlerRegistryUsed = hostingConfiguration.Services.HasComponent<MessageHandlerRegistry>();
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
 
-            if (!externalHandlerRegistryUsed)
+            var messageHandlerRegistry = configuration.messageHandlerRegistry;
+            RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
+
+            foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
             {
-                var messageHandlerRegistry = configuration.messageHandlerRegistry;
-
-                RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
-
-                foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
-                {
-                    handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
-                        .Select(handler => handler.HandlerType.FullName)
-                        .ToList();
-                }
+                handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
+                    .Select(handler => handler.HandlerType.FullName)
+                    .ToList();
             }
 
             var receiveSettings = new List<ReceiveSettings>
@@ -122,7 +117,6 @@ namespace NServiceBus
                     s.ReceiveAddress,
                     s.RuntimeSettings.MaxConcurrency
                 }).ToArray(),
-                ExternalHandlerRegistry = externalHandlerRegistryUsed,
                 MessageHandlers = handlerDiagnostics
             });
 
