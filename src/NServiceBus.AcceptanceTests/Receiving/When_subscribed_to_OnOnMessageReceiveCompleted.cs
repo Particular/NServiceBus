@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using NServiceBus.Transport;
 
-    class When_subscribed_to_OnProcessingCompleted : NServiceBusAcceptanceTest
+    class When_subscribed_to_OnOnMessageReceiveCompleted: NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_notifications_for_successfull()
@@ -91,7 +91,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.OnMessageProcessingCompleted((e, _) =>
+                    context.OnMessageReceiveCompleted((e, _) =>
                     {
                         var testContext = (Context)context.Settings.Get<ScenarioContext>();
 

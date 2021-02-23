@@ -827,7 +827,7 @@ namespace NServiceBus
     }
     public static class ReceiveConfigExtensions
     {
-        public static void OnMessageProcessingCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
+        public static void OnMessageReceiveCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
     }
     public class ReceivePipelineCompleted
     {
