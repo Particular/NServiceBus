@@ -22,9 +22,6 @@
         public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ContextBag context)
         {
             Guard.AgainstNull(nameof(exception), exception);
-            Guard.AgainstNull(nameof(headers), headers);
-            Guard.AgainstNullAndEmpty(nameof(transportMessageId), transportMessageId);
-            Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
             Guard.AgainstNegative(nameof(immediateProcessingFailures), immediateProcessingFailures);
             Guard.AgainstNull(nameof(context), context);
