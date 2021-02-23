@@ -39,7 +39,7 @@ namespace NServiceBus
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
-                settings.ProcessingCompletedSubscribers ?? new Notification<ReceiveCompleted>(),
+                settings.ReceiveCompletedSubscribers ?? new Notification<ReceiveCompleted>(),
                 isSendOnlyEndpoint,
                 settings.ExecuteTheseHandlersFirst,
                 settings.MessageHandlerRegistry,

@@ -6,7 +6,7 @@
     using NServiceBus.Features;
 
     /// <summary>
-    /// Provides access to processing complete notifications.
+    /// Provides access to receive complete notifications.
     /// </summary>
     public static class ReceiveConfigExtensions
     {
@@ -18,7 +18,7 @@
             Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
             Guard.AgainstNull(nameof(subscription), subscription);
 
-            featureConfigurationContext.Settings.Get<ReceiveComponent.Settings>().ProcessingCompletedSubscribers.Subscribe(subscription);
+            featureConfigurationContext.Settings.Get<ReceiveComponent.Settings>().ReceiveCompletedSubscribers.Subscribe(subscription);
         }
     }
 }
