@@ -13,7 +13,7 @@
         /// <summary>
         /// Subscribes to notifications for receive completed events.
         /// </summary>
-        public static void OnMessageReceiveCompleted(this FeatureConfigurationContext featureConfigurationContext, Func<ReceiveCompleted, CancellationToken, Task> subscription)
+        public static void OnReceiveCompleted(this FeatureConfigurationContext featureConfigurationContext, Func<ReceiveCompleted, CancellationToken, Task> subscription)
         {
             Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
             Guard.AgainstNull(nameof(subscription), subscription);

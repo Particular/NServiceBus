@@ -91,7 +91,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.OnMessageReceiveCompleted((e, _) =>
+                    context.OnReceiveCompleted((e, _) =>
                     {
                         var testContext = (Context)context.Settings.Get<ScenarioContext>();
 
