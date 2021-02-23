@@ -23,12 +23,12 @@
         /// <summary>
         /// The native message ID.
         /// </summary>
-        public string NativeMessageId;
+        public string NativeMessageId { get; }
 
         /// <summary>
         /// True if the message was acknowledged and removed from the queue.
         /// </summary>
-        public bool WasAcknowledged;
+        public bool WasAcknowledged { get; }
 
         /// <summary>
         /// The message headers.
