@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using NServiceBus.Transport;
 
-    class When_subscribed_to_OnOnMessageReceiveCompleted: NServiceBusAcceptanceTest
+    class When_subscribed_to_OnOnMessageReceiveCompleted : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_notifications_for_successfull()
