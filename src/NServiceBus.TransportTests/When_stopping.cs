@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
 
     public class When_stopping : NServiceBusTransportTest
     {
-        [Explicit("Each test delays by 10 seconds as well as there being a race condition between the delay and stopping the pump")]
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
@@ -15,12 +13,13 @@
         public async Task Should_allow_message_processing_to_complete(TransportTransactionMode transactionMode)
         {
             var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var messageProcessingCancelled = new TaskCompletionSource<bool>();
+            var pumpStopping = new TaskCompletionSource<bool>();
+            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
 
             OnTestTimeout(() =>
             {
                 messageProcessingStarted.SetCanceled();
-                messageProcessingCancelled.SetCanceled();
+                onCompleteCalled.SetCanceled();
             });
 
             await StartPump(
@@ -28,27 +27,32 @@
                 {
                     messageProcessingStarted.SetResult(true);
 
-                    try
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        messageProcessingCancelled.SetResult(true);
-                    }
-
-                    messageProcessingCancelled.SetResult(false);
+                    await pumpStopping.Task;
                 },
-                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                transactionMode);
+                (_, __) =>
+                {
+                    Assert.Fail("Recoverability should not have been invoked.");
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                transactionMode,
+                onComplete: (context, _) =>
+                {
+                    onCompleteCalled.SetResult(context);
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName);
 
             _ = await messageProcessingStarted.Task;
 
-            await StopPump();
+            var pumpTask = StopPump();
+            pumpStopping.SetResult(true);
 
-            Assert.False(await messageProcessingCancelled.Task);
+            await pumpTask;
+
+            var completeContext = await onCompleteCalled.Task;
+
+            Assert.True(completeContext.WasAcknowledged);
         }
     }
 }

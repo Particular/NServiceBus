@@ -8,7 +8,6 @@
 
     public class When_stop_cancelled_on_error : NServiceBusTransportTest
     {
-        [Explicit("Because failure only manifests as a test timeout")]
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
@@ -16,9 +15,13 @@
         public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode)
         {
             var recoverabilityStarted = new TaskCompletionSource<bool>();
-            var criticalErrorInvoked = false;
+            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
 
-            OnTestTimeout(() => recoverabilityStarted.SetCanceled());
+            OnTestTimeout(() =>
+            {
+                recoverabilityStarted.SetCanceled();
+                onCompleteCalled.SetCanceled();
+            });
 
             await StartPump(
                 (_, __) => throw new Exception(),
@@ -31,7 +34,12 @@
                     return ErrorHandleResult.Handled;
                 },
                 transactionMode,
-                (_, __, ___) => criticalErrorInvoked = true);
+                (_, __, ___) => Assert.Fail("Critical error should not be invoked"),
+                onComplete: (context, _) =>
+                {
+                    onCompleteCalled.SetResult(context);
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName);
 
@@ -39,7 +47,9 @@
 
             await StopPump(new CancellationToken(true));
 
-            Assert.False(criticalErrorInvoked);
+            var completeContext = await onCompleteCalled.Task;
+
+            Assert.False(completeContext.WasAcknowledged);
         }
     }
 }

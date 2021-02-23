@@ -8,7 +8,6 @@
 
     public class When_cancelling_stop : NServiceBusTransportTest
     {
-        [Explicit("Because failure only manifests as a test timeout")]
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
@@ -17,11 +16,13 @@
         {
             var messageProcessingStarted = new TaskCompletionSource<bool>();
             var messageProcessingCancelled = new TaskCompletionSource<bool>();
+            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
 
             OnTestTimeout(() =>
             {
                 messageProcessingStarted.SetCanceled();
                 messageProcessingCancelled.SetCanceled();
+                onCompleteCalled.SetCanceled();
             });
 
             await StartPump(
@@ -32,16 +33,22 @@
                     try
                     {
                         await Task.Delay(TestTimeout, cancellationToken);
+                        messageProcessingCancelled.SetResult(false);
                     }
                     catch (OperationCanceledException)
                     {
                         messageProcessingCancelled.SetResult(true);
+                        // Still need the pump to get the exception or the message will be ACK'ed
+                        throw;
                     }
-
-                    messageProcessingCancelled.SetResult(false);
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                transactionMode);
+                transactionMode,
+                onComplete: (context, _) =>
+                {
+                    onCompleteCalled.SetResult(context);
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName);
 
@@ -49,7 +56,12 @@
 
             await StopPump(new CancellationToken(true));
 
-            Assert.True(await messageProcessingCancelled.Task);
+            var wasCancelled = await messageProcessingCancelled.Task;
+
+            var completeContext = await onCompleteCalled.Task;
+
+            Assert.True(wasCancelled);
+            Assert.False(completeContext.WasAcknowledged);
         }
     }
 }

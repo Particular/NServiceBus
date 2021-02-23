@@ -7,7 +7,6 @@
 
     public class When_stop_cancelled_on_message : NServiceBusTransportTest
     {
-        [Explicit("Because failure only manifests as a test timeout")]
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
@@ -15,24 +14,32 @@
         public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode)
         {
             var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var recoverabilityInvoked = false;
+            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
 
-            OnTestTimeout(() => messageProcessingStarted.SetCanceled());
+            OnTestTimeout(() =>
+            {
+                messageProcessingStarted.SetCanceled();
+                onCompleteCalled.SetCanceled();
+            });
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
                     messageProcessingStarted.SetResult(true);
-
                     await Task.Delay(TestTimeout, cancellationToken);
                 },
                 (_, __) =>
                 {
-                    recoverabilityInvoked = true;
+                    Assert.Fail("Recoverability should not have been invoked.");
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                transactionMode);
+                transactionMode,
+                onComplete: (context, _) =>
+                {
+                    onCompleteCalled.SetResult(context);
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName);
 
@@ -40,7 +47,9 @@
 
             await StopPump(new CancellationToken(true));
 
-            Assert.False(recoverabilityInvoked);
+            var completeContext = await onCompleteCalled.Task;
+
+            Assert.IsFalse(completeContext.WasAcknowledged);
         }
     }
 }
