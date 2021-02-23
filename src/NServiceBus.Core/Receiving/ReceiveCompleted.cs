@@ -7,7 +7,6 @@
     /// Event raised when the transport has completed processing a message.
     /// </summary>
     public class ReceiveCompleted
-
     {
         /// <summary>
         /// Constructs the event.
