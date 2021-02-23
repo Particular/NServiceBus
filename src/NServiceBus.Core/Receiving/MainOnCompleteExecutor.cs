@@ -10,7 +10,7 @@
             this.processingCompletedSubscribers = processingCompletedSubscribers;
 
         public Task Invoke(CompleteContext completeContext, CancellationToken cancellationToken) =>
-            processingCompletedSubscribers.Raise(new ReceiveCompleted(completeContext.MessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt), cancellationToken);
+            processingCompletedSubscribers.Raise(new ReceiveCompleted(completeContext.TransportMessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt), cancellationToken);
 
         readonly INotificationSubscriptions<ReceiveCompleted> processingCompletedSubscribers;
     }

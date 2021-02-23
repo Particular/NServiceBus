@@ -35,7 +35,7 @@ namespace NServiceBus.TransportTests
 
             var messageContext = await onMessageCalled.Task;
 
-            Assert.False(string.IsNullOrEmpty(messageContext.MessageId), "Should pass the native message id");
+            Assert.False(string.IsNullOrEmpty(messageContext.TransportMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
             Assert.AreEqual("", body, "Should pass the body");
         }

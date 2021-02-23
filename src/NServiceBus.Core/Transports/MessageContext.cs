@@ -11,14 +11,14 @@
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        /// <param name="messageId">Native message id.</param>
+        /// <param name="transportMessageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, ContextBag context)
+        public MessageContext(string transportMessageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, ContextBag context)
         {
-            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
+            Guard.AgainstNullAndEmpty(nameof(transportMessageId), transportMessageId);
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
@@ -26,7 +26,7 @@
 
             Headers = headers;
             Body = body;
-            MessageId = messageId;
+            TransportMessageId = transportMessageId;
             Extensions = context;
             TransportTransaction = transportTransaction;
         }
@@ -34,7 +34,7 @@
         /// <summary>
         /// The native id of the message.
         /// </summary>
-        public string MessageId { get; }
+        public string TransportMessageId { get; }
 
         /// <summary>
         /// The message headers.

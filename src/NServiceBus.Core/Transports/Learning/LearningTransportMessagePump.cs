@@ -238,10 +238,11 @@
         {
             var startedAt = DateTimeOffset.UtcNow;
             Dictionary<string, string> headers = null;
+            var processingContext = new ContextBag();
 
             try
             {
-                headers = await ProcessFile(transaction, messageId, messageProcessingCancellationToken)
+                headers = await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
             }
             finally
@@ -267,7 +268,7 @@
 
                 try
                 {
-                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow), messageProcessingCancellationToken).ConfigureAwait(false);
+                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -278,7 +279,7 @@
             }
         }
 
-        async Task<Dictionary<string, string>> ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task<Dictionary<string, string>> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
@@ -314,8 +315,6 @@
             {
                 transportTransaction.Set(transaction);
             }
-
-            var processingContext = new ContextBag();
 
             var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
 
@@ -356,7 +355,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex, CancellationToken.None);
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.TransportMessageId}`", ex, CancellationToken.None);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 

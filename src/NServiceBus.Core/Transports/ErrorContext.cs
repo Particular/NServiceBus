@@ -18,9 +18,17 @@
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
-        /// <param name="context">A <see cref="ReadOnlyContextBag" /> which can be used to extend the current object.</param>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ReadOnlyContextBag context)
+        /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ContextBag context)
         {
+            Guard.AgainstNull(nameof(exception), exception);
+            Guard.AgainstNull(nameof(headers), headers);
+            Guard.AgainstNullAndEmpty(nameof(transportMessageId), transportMessageId);
+            Guard.AgainstNull(nameof(body), body);
+            Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
+            Guard.AgainstNegative(nameof(immediateProcessingFailures), immediateProcessingFailures);
+            Guard.AgainstNull(nameof(context), context);
+
             Exception = exception;
             TransportTransaction = transportTransaction;
             ImmediateProcessingFailures = immediateProcessingFailures;
@@ -59,6 +67,6 @@
         /// <summary>
         /// A collection of additional information provided by the transport.
         /// </summary>
-        public ReadOnlyContextBag Extensions { get; }
+        public ContextBag Extensions { get; }
     }
 }
