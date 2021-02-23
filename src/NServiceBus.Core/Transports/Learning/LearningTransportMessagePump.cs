@@ -355,7 +355,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.TransportMessageId}`", ex, CancellationToken.None);
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, CancellationToken.None);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 

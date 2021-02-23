@@ -12,21 +12,21 @@
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        /// <param name="transportMessageId">Native message id.</param>
+        /// <param name="nativeMessageId">Native message id.</param>
         /// <param name="wasAcknowledged">True if the message was acknowledged and removed from the queue.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="startedAt">The time that processing started.</param>
         /// <param name="completedAt">The time that processing started.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> containing the context for the message receive operation.</param>
-        public CompleteContext(string transportMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, ReadOnlyContextBag context)
+        public CompleteContext(string nativeMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, ReadOnlyContextBag context)
         {
-            Guard.AgainstNullAndEmpty(nameof(transportMessageId), transportMessageId);
+            Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(startedAt), startedAt);
             Guard.AgainstNull(nameof(completedAt), completedAt);
             Guard.AgainstNull(nameof(context), context);
 
-            TransportMessageId = transportMessageId;
+            NativeMessageId = nativeMessageId;
             WasAcknowledged = wasAcknowledged;
             Headers = headers;
             StartedAt = startedAt;
@@ -37,7 +37,7 @@
         /// <summary>
         /// The native id of the message.
         /// </summary>
-        public string TransportMessageId { get; }
+        public string NativeMessageId { get; }
 
         /// <summary>
         /// True if the message was acknowledged and removed from the queue.

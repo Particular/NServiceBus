@@ -1508,7 +1508,7 @@ namespace NServiceBus.Transport
         [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
         public CancellationTokenSource ReceiveCancellationTokenSource => throw new NotImplementedException();
 
-        [ObsoleteEx(ReplacementTypeOrMember = "TransportMessageId", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+        [ObsoleteEx(ReplacementTypeOrMember = "NativeMessageId", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
         public string MessageId { get; }
     }
 }
