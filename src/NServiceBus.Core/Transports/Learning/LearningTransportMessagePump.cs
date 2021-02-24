@@ -272,7 +272,7 @@
                 }
                 catch (Exception ex)
                 {
-                    log.Debug($"Failure when invoking OnComplete for {filePath}({transaction.FileToProcess})" + filePath, ex);
+                    log.Warn($"Failure when invoking OnComplete for {filePath}({transaction.FileToProcess})" + filePath, ex);
                 }
 
                 concurrencyLimiter.Release();
