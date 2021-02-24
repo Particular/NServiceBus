@@ -147,12 +147,16 @@ namespace NServiceBus
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
-            var onCompleteExecutor = new MainOnCompleteExecutor(configuration.ProcessingCompletedSubscribers);
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
 
+            var onCompleted = new OnCompleted((completeContext, token) =>
+               ((INotificationSubscriptions<ReceiveCompleted>)configuration.ProcessingCompletedSubscribers)
+               .Raise(new ReceiveCompleted(completeContext.NativeMessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt), token));
+
+
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke, onCompleteExecutor.Invoke, cancellationToken).ConfigureAwait(false);
+                recoverability.Invoke, onCompleted, cancellationToken).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
@@ -160,7 +164,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke, onCompleteExecutor.Invoke, cancellationToken).ConfigureAwait(false);
+                    instanceSpecificRecoverabilityExecutor.Invoke, onCompleted, cancellationToken).ConfigureAwait(false);
 
                 receivers.Add(instanceSpecificPump);
             }
