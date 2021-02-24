@@ -827,7 +827,7 @@ namespace NServiceBus
     }
     public static class ReceiveConfigExtensions
     {
-        public static void OnMessageReceiveCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
+        public static void OnReceiveCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
     }
     public class ReceivePipelineCompleted
     {
@@ -2401,12 +2401,12 @@ namespace NServiceBus.Transport
 {
     public class CompleteContext
     {
-        public CompleteContext(string transportMessageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public CompleteContext(string nativeMessageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
         public System.DateTimeOffset CompletedAt { get; }
         public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string NativeMessageId { get; }
         public System.DateTimeOffset StartedAt { get; }
-        public string TransportMessageId { get; }
         public bool WasAcknowledged { get; }
     }
     public enum DispatchConsistency
@@ -2532,7 +2532,7 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string transportMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, byte[], TransportTransact" +
             "ion, ContextBag)` instead. The member currently throws a NotImplementedException" +
             ". Will be removed in version 9.0.0.", true)]
@@ -2540,12 +2540,12 @@ namespace NServiceBus.Transport
         public byte[] Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        [System.Obsolete("Use `TransportMessageId` instead. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `NativeMessageId` instead. Will be removed in version 9.0.0.", true)]
         public string MessageId { get; }
+        public string NativeMessageId { get; }
         [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
             " 9.0.0.", true)]
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
-        public string TransportMessageId { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
