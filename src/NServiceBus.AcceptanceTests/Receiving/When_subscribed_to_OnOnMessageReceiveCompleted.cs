@@ -33,6 +33,7 @@
             Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
             Assert.True(context.Event.Headers.ContainsKey("SomeKey"));
             Assert.AreEqual(context.Event.Headers["SomeKey"], "SomeValue");
+            Assert.False(context.Event.ProcessingFailed);
         }
 
         [Test]
@@ -67,6 +68,7 @@
             Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
             Assert.True(context.Event.Headers.ContainsKey("SomeKey"));
             Assert.AreEqual(context.Event.Headers["SomeKey"], "SomeValue");
+            Assert.True(context.Event.ProcessingFailed);
         }
 
         class Context : ScenarioContext

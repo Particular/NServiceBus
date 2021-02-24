@@ -237,13 +237,22 @@
         async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             var startedAt = DateTimeOffset.UtcNow;
-            Dictionary<string, string> headers = null;
+            ProcessFileResult result = null;
             var processingContext = new ContextBag();
 
             try
             {
-                headers = await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
+                result = await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                result = new ProcessFileResult
+                {
+                    Headers = new Dictionary<string, string>()
+                };
+
+                throw;
             }
             finally
             {
@@ -268,7 +277,7 @@
 
                 try
                 {
-                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
+                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, result.Headers, startedAt, DateTimeOffset.UtcNow, result.ProcessingFailed, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -279,13 +288,14 @@
             }
         }
 
-        async Task<Dictionary<string, string>> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
+        async Task<ProcessFileResult> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
+            var result = new ProcessFileResult { Headers = headers };
 
             if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
@@ -302,7 +312,7 @@
                     await transaction.Commit(messageProcessingCancellationToken)
                         .ConfigureAwait(false);
                     log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
-                    return headers;
+                    return result;
                 }
             }
 
@@ -328,15 +338,19 @@
                 log.Info("Message processing cancelled. Rolling back transaction.", ex);
                 transaction.Rollback();
 
-                return headers;
+                return result;
             }
             catch (Exception exception)
             {
+                result.ProcessingFailed = true;
+
                 transaction.ClearPendingOutgoingOperations();
                 var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
                 headers = HeaderSerializer.Deserialize(message);
                 headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+
+                result.Headers = headers;
 
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, processingContext);
 
@@ -351,7 +365,7 @@
                     log.Info("Message processing cancelled. Rolling back transaction.", ex);
                     transaction.Rollback();
 
-                    return headers;
+                    return result;
                 }
                 catch (Exception ex)
                 {
@@ -363,15 +377,14 @@
                 {
                     transaction.Rollback();
 
-                    return headers;
-
+                    return result;
                 }
             }
 
             await transaction.Commit(messageProcessingCancellationToken)
                 .ConfigureAwait(false);
 
-            return headers;
+            return result;
         }
 
         CancellationTokenSource messagePumpCancellationTokenSource;
@@ -404,5 +417,11 @@
 
         const string CommittedDirName = ".committed";
         const string PendingDirName = ".pending";
+
+        class ProcessFileResult
+        {
+            public Dictionary<string, string> Headers;
+            public bool ProcessingFailed;
+        }
     }
 }

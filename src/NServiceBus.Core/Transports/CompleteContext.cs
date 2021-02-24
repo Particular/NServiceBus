@@ -17,8 +17,9 @@
         /// <param name="headers">The message headers.</param>
         /// <param name="startedAt">The time that processing started.</param>
         /// <param name="completedAt">The time that processing started.</param>
+        /// <param name="processingFailed">True if the call to OnMessage resulted in an exception.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> containing the context for the message receive operation.</param>
-        public CompleteContext(string nativeMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, ReadOnlyContextBag context)
+        public CompleteContext(string nativeMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool processingFailed, ReadOnlyContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(headers), headers);
@@ -31,6 +32,7 @@
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
+            ProcessingFailed = processingFailed;
             Extensions = context;
         }
 
@@ -58,6 +60,11 @@
         /// The time processing completed.
         /// </summary>
         public DateTimeOffset CompletedAt { get; }
+
+        /// <summary>
+        /// True if the call to OnMessage resulted in an exception.
+        /// </summary>
+        public bool ProcessingFailed { get; }
 
         /// <summary>
         /// A collection of additional information for this receive operation.

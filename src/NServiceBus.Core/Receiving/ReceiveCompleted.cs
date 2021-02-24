@@ -11,13 +11,14 @@
         /// <summary>
         /// Constructs the event.
         /// </summary>
-        public ReceiveCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt)
+        public ReceiveCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool processingFailed)
         {
             NativeMessageId = messageId;
             WasAcknowledged = wasAcknowledged;
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
+            ProcessingFailed = processingFailed;
         }
 
         /// <summary>
@@ -44,5 +45,10 @@
         /// The time processing completed.
         /// </summary>
         public DateTimeOffset CompletedAt { get; }
+
+        /// <summary>
+        /// True if the the message processing resulted in an exception.
+        /// </summary>
+        public bool ProcessingFailed { get; }
     }
 }

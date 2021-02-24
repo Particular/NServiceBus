@@ -125,9 +125,9 @@
                 },
                 (context, cancellationToken) =>
                 {
-                    if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
+                    if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId && onComplete != null)
                     {
-                        return onComplete?.Invoke(context, cancellationToken);
+                        return onComplete(context, cancellationToken);
                     }
 
                     return Task.CompletedTask;
