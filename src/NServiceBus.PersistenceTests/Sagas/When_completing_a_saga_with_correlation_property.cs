@@ -15,12 +15,12 @@
 
             const string correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, default))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                var sagaData = await configuration.SagaStorage.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context, default);
+                var sagaData = await configuration.SagaStorage.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 
-                await configuration.SagaStorage.Complete(sagaData, completeSession, context, default);
-                await completeSession.CompleteAsync(default);
+                await configuration.SagaStorage.Complete(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
             }
 
             var completedSaga = await GetByCorrelationProperty<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData);

@@ -23,16 +23,16 @@
             var firstTask = Task.Run(async () =>
             {
                 var winningContext = configuration.GetContextBagForSagaStorage();
-                using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext, default))
+                using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
                 {
-                    var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext, default);
+                    var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
 
                     startSecondTaskSync.SetResult(true);
                     await firstTaskCanCompleteSync.Task;
 
                     record.DateTimeProperty = DateTime.UtcNow;
-                    await persister.Update(record, winningSaveSession, winningContext, default);
-                    await winningSaveSession.CompleteAsync(default);
+                    await persister.Update(record, winningSaveSession, winningContext);
+                    await winningSaveSession.CompleteAsync();
                 }
             });
 
@@ -41,9 +41,9 @@
                 await startSecondTaskSync.Task;
 
                 var losingSaveContext = configuration.GetContextBagForSagaStorage();
-                using (var losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingSaveContext, default))
+                using (var losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingSaveContext))
                 {
-                    var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext, default);
+                    var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext);
 
                     firstTaskCanCompleteSync.SetResult(true);
                     await firstTask;
@@ -51,8 +51,8 @@
                     staleRecord.DateTimeProperty = DateTime.UtcNow.AddHours(1);
                     Assert.That(async () =>
                     {
-                        await persister.Update(staleRecord, losingSaveSession, losingSaveContext, default);
-                        await losingSaveSession.CompleteAsync(default);
+                        await persister.Update(staleRecord, losingSaveSession, losingSaveContext);
+                        await losingSaveSession.CompleteAsync();
                     }, Throws.InstanceOf<Exception>());
                 }
             });

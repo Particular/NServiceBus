@@ -63,13 +63,13 @@
                 {
                     this.dependency = dependency;
                 }
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     dependency.Start();
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     dependency.Stop();
                     return Task.FromResult(0);
@@ -94,13 +94,13 @@
                 {
                     this.dependency = dependency;
                 }
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     dependency.Initialize();
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(0);
                 }

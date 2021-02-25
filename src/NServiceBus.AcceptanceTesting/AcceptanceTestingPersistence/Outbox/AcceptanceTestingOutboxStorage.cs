@@ -9,7 +9,7 @@
 
     class AcceptanceTestingOutboxStorage : IOutboxStorage
     {
-        public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken)
+        public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
         {
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {
@@ -19,12 +19,12 @@
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult<OutboxTransaction>(new AcceptanceTestingOutboxTransaction());
         }
 
-        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken)
+        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             var tx = (AcceptanceTestingOutboxTransaction)transaction;
             tx.Enlist(() =>
@@ -37,7 +37,7 @@
             return Task.CompletedTask;
         }
 
-        public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken)
+        public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken = default)
         {
             if (!storage.TryGetValue(messageId, out var storedMessage))
             {

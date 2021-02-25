@@ -46,7 +46,7 @@
 
             _ = await messageProcessingStarted.Task;
 
-            await StopPump(default);
+            await StopPump();
 
             Assert.False(await messageProcessingCancelled.Task);
         }

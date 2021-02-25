@@ -89,12 +89,12 @@
 
                 class StartupTask : FeatureStartupTask
                 {
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                     {
                         return session.Subscribe<LocalEvent>(cancellationToken);
                     }
 
-                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken) => Task.CompletedTask;
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
                 }
             }
         }

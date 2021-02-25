@@ -77,9 +77,9 @@
                 this.exceptionToThrow = exceptionToThrow;
             }
 
-            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken) => throw exceptionToThrow;
+            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default) => throw exceptionToThrow;
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
     }
 }

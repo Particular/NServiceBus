@@ -19,7 +19,7 @@
             Transaction = null;
         }
 
-        public Task Commit(CancellationToken cancellationToken)
+        public Task Commit(CancellationToken cancellationToken = default)
         {
             Transaction.Commit();
             return Task.CompletedTask;

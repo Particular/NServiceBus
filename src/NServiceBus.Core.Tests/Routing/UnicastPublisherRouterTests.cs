@@ -139,17 +139,17 @@
         class FakeSubscriptionStorage : ISubscriptionStorage
         {
             public List<Subscriber> Subscribers { get; } = new List<Subscriber>();
-            public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken)
+            public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken)
+            public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken)
+            public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult<IEnumerable<Subscriber>>(Subscribers);
             }

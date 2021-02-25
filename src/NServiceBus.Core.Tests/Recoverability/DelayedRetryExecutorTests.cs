@@ -24,7 +24,7 @@
             var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction, default);
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction);
 
             Assert.AreEqual(dispatcher.Transaction, transportTransaction);
         }
@@ -36,7 +36,7 @@
             var incomingMessage = CreateMessage();
             var delay = TimeSpan.FromSeconds(42);
 
-            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction(), default);
+            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
             var deliveryConstraint = transportOperation.Properties.DelayDeliveryWith;
@@ -59,7 +59,7 @@
             });
 
             var now = DateTime.UtcNow;
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction(), default);
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
 
             var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;
 
@@ -79,7 +79,7 @@
             var delayedRetryExecutor = CreateExecutor();
             var incomingMessage = CreateMessage();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction(), default);
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
 
@@ -110,7 +110,7 @@
 
             public TransportTransaction Transaction { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 TransportOperations = outgoingMessages;
                 Transaction = transaction;

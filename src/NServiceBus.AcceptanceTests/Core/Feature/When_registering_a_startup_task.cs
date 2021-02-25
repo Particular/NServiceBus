@@ -60,13 +60,13 @@
                         this.scenarioContext = scenarioContext;
                     }
 
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                     {
                         scenarioContext.SendOnlyEndpointWasStarted = true;
                         return Task.FromResult(0);
                     }
 
-                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                     {
                         return Task.FromResult(0);
                     }

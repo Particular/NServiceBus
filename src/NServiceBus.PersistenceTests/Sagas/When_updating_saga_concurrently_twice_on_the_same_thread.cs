@@ -23,19 +23,19 @@
             var persister = configuration.SagaStorage;
 
             var winningContext1 = configuration.GetContextBagForSagaStorage();
-            var winningSaveSession1 = await configuration.SynchronizedStorage.OpenSession(winningContext1, default);
+            var winningSaveSession1 = await configuration.SynchronizedStorage.OpenSession(winningContext1);
 
             try
             {
-                var record1 = await persister.Get<TestSagaData>(saga.Id, winningSaveSession1, winningContext1, default);
+                var record1 = await persister.Get<TestSagaData>(saga.Id, winningSaveSession1, winningContext1);
 
                 losingContext1 = configuration.GetContextBagForSagaStorage();
-                losingSaveSession1 = await configuration.SynchronizedStorage.OpenSession(losingContext1, default);
-                staleRecord1 = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession1, losingContext1, default);
+                losingSaveSession1 = await configuration.SynchronizedStorage.OpenSession(losingContext1);
+                staleRecord1 = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession1, losingContext1);
 
                 record1.DateTimeProperty = DateTime.UtcNow;
-                await persister.Update(record1, winningSaveSession1, winningContext1, default);
-                await winningSaveSession1.CompleteAsync(default);
+                await persister.Update(record1, winningSaveSession1, winningContext1);
+                await winningSaveSession1.CompleteAsync();
             }
             finally
             {
@@ -46,8 +46,8 @@
             {
                 Assert.That(async () =>
                 {
-                    await persister.Update(staleRecord1, losingSaveSession1, losingContext1, default);
-                    await losingSaveSession1.CompleteAsync(default);
+                    await persister.Update(staleRecord1, losingSaveSession1, losingContext1);
+                    await losingSaveSession1.CompleteAsync();
                 }, Throws.InstanceOf<Exception>());
             }
             finally
@@ -60,18 +60,18 @@
             TestSagaData staleRecord2;
 
             var winningContext2 = configuration.GetContextBagForSagaStorage();
-            var winningSaveSession2 = await configuration.SynchronizedStorage.OpenSession(winningContext2, default);
+            var winningSaveSession2 = await configuration.SynchronizedStorage.OpenSession(winningContext2);
             try
             {
-                var record2 = await persister.Get<TestSagaData>(saga.Id, winningSaveSession2, winningContext2, default);
+                var record2 = await persister.Get<TestSagaData>(saga.Id, winningSaveSession2, winningContext2);
 
                 losingContext2 = configuration.GetContextBagForSagaStorage();
-                losingSaveSession2 = await configuration.SynchronizedStorage.OpenSession(losingContext2, default);
-                staleRecord2 = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession2, losingContext2, default);
+                losingSaveSession2 = await configuration.SynchronizedStorage.OpenSession(losingContext2);
+                staleRecord2 = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession2, losingContext2);
 
                 record2.DateTimeProperty = DateTime.UtcNow;
-                await persister.Update(record2, winningSaveSession2, winningContext2, default);
-                await winningSaveSession2.CompleteAsync(default);
+                await persister.Update(record2, winningSaveSession2, winningContext2);
+                await winningSaveSession2.CompleteAsync();
             }
             finally
             {
@@ -82,8 +82,8 @@
             {
                 Assert.That(async () =>
                  {
-                     await persister.Update(staleRecord2, losingSaveSession2, losingContext2, default);
-                     await losingSaveSession2.CompleteAsync(default);
+                     await persister.Update(staleRecord2, losingSaveSession2, losingContext2);
+                     await losingSaveSession2.CompleteAsync();
                  }, Throws.InstanceOf<Exception>());
             }
             finally

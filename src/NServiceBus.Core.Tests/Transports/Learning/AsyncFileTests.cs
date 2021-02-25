@@ -15,9 +15,9 @@
 
             try
             {
-                await AsyncFile.WriteText(filePath, originalContent, default);
+                await AsyncFile.WriteText(filePath, originalContent);
 
-                var content = await AsyncFile.ReadText(filePath, default);
+                var content = await AsyncFile.ReadText(filePath);
 
                 Assert.AreEqual(originalContent, content);
             }

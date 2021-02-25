@@ -60,17 +60,17 @@ namespace NServiceBus.Core.Tests.DataBus
         {
             public Dictionary<string, Stream> StreamsToReturn = new Dictionary<string, Stream>();
 
-            public Task<Stream> Get(string key, CancellationToken cancellationToken)
+            public Task<Stream> Get(string key, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(StreamsToReturn[key]);
             }
 
-            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Start(CancellationToken cancellationToken)
+            public Task Start(CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

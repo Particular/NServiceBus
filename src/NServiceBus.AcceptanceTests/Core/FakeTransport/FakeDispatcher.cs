@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     class FakeDispatcher : IMessageDispatcher
     {
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }

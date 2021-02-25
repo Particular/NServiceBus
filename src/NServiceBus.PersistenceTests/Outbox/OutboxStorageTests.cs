@@ -35,19 +35,19 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx, default);
+            await storage.Get(messageId, ctx);
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-            using (var transaction = await storage.BeginTransaction(ctx, default))
+            using (var transaction = await storage.BeginTransaction(ctx))
             {
-                await storage.Store(messageToStore, transaction, ctx, default);
+                await storage.Store(messageToStore, transaction, ctx);
 
-                await transaction.Commit(default);
+                await transaction.Commit();
             }
 
-            await storage.SetAsDispatched(messageId, ctx, default);
+            await storage.SetAsDispatched(messageId, ctx);
 
-            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox(), default);
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
             Assert.That(message, Is.Not.Null);
             CollectionAssert.IsEmpty(message.TransportOperations);
@@ -63,21 +63,21 @@
             var storage = configuration.OutboxStorage;
             var winningContextBag = configuration.GetContextBagForOutbox();
             var losingContextBag = configuration.GetContextBagForOutbox();
-            await storage.Get("MySpecialId", winningContextBag, default);
-            await storage.Get("MySpecialId", losingContextBag, default);
+            await storage.Get("MySpecialId", winningContextBag);
+            await storage.Get("MySpecialId", losingContextBag);
 
-            using (var transactionA = await storage.BeginTransaction(winningContextBag, default))
+            using (var transactionA = await storage.BeginTransaction(winningContextBag))
             {
-                await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionA, winningContextBag, default);
-                await transactionA.Commit(default);
+                await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionA, winningContextBag);
+                await transactionA.Commit();
             }
 
             try
             {
-                using (var transactionB = await storage.BeginTransaction(losingContextBag, default))
+                using (var transactionB = await storage.BeginTransaction(losingContextBag))
                 {
-                    await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionB, losingContextBag, default);
-                    await transactionB.Commit(default);
+                    await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionB, losingContextBag);
+                    await transactionB.Commit();
                 }
             }
             catch (Exception)
@@ -96,17 +96,17 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx, default);
+            await storage.Get(messageId, ctx);
 
-            using (var transaction = await storage.BeginTransaction(ctx, default))
+            using (var transaction = await storage.BeginTransaction(ctx))
             {
                 var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-                await storage.Store(messageToStore, transaction, ctx, default);
+                await storage.Store(messageToStore, transaction, ctx);
 
                 // do not commit
             }
 
-            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox(), default);
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
             Assert.Null(message);
         }
 
@@ -119,17 +119,17 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx, default);
+            await storage.Get(messageId, ctx);
 
-            using (var transaction = await storage.BeginTransaction(ctx, default))
+            using (var transaction = await storage.BeginTransaction(ctx))
             {
                 var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-                await storage.Store(messageToStore, transaction, ctx, default);
+                await storage.Store(messageToStore, transaction, ctx);
 
-                await transaction.Commit(default);
+                await transaction.Commit();
             }
 
-            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox(), default);
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
             Assert.NotNull(message);
         }
 

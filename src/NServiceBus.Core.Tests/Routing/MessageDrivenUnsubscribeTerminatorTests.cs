@@ -2,15 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using Transport;
-    using Unicast.Queuing;
     using NUnit.Framework;
     using Testing;
-    using System.Threading;
+    using Transport;
+    using Unicast.Queuing;
 
     [TestFixture]
     public class MessageDrivenUnsubscribeTerminatorTests
@@ -90,7 +90,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

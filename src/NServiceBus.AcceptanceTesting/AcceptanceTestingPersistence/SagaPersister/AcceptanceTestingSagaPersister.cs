@@ -21,7 +21,7 @@ namespace NServiceBus.AcceptanceTesting
             byCorrelationIdCollection = byCorrelationId;
         }
 
-        public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
+        public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
         {
             ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
@@ -43,7 +43,7 @@ namespace NServiceBus.AcceptanceTesting
             return Task.CompletedTask;
         }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
             where TSagaData : class, IContainSagaData
         {
             if (sagas.TryGetValue(sagaId, out var value))
@@ -57,7 +57,7 @@ namespace NServiceBus.AcceptanceTesting
             return CachedSagaDataTask<TSagaData>.Default;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
             where TSagaData : class, IContainSagaData
         {
             var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
@@ -71,7 +71,7 @@ namespace NServiceBus.AcceptanceTesting
             return CachedSagaDataTask<TSagaData>.Default;
         }
 
-        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
+        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
         {
             ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {
@@ -95,7 +95,7 @@ namespace NServiceBus.AcceptanceTesting
             return Task.CompletedTask;
         }
 
-        public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken)
+        public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
         {
             ((AcceptanceTestingSynchronizedStorageSession)session).Enlist(() =>
            {

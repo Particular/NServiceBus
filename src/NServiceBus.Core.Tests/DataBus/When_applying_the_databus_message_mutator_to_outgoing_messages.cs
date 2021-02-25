@@ -58,18 +58,18 @@ namespace NServiceBus.Core.Tests.DataBus
 
         class FakeDataBus : IDataBus
         {
-            public Task<Stream> Get(string key, CancellationToken cancellationToken)
+            public Task<Stream> Get(string key, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken = default)
             {
                 TTBRUsed = timeToBeReceived;
                 return Task.FromResult(Guid.NewGuid().ToString());
             }
 
-            public Task Start(CancellationToken cancellationToken)
+            public Task Start(CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

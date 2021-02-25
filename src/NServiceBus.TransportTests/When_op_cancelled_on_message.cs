@@ -44,7 +44,7 @@
 
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            await StopPump(default);
+            await StopPump();
 
             Assert.True(recoverabilityInvoked);
         }

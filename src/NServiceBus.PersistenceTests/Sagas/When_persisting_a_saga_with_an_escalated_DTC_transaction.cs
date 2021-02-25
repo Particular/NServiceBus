@@ -29,19 +29,19 @@
                     transportTransaction.Set(Transaction.Current);
 
                     var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
-                    using (var unenlistedSession = await configuration.SynchronizedStorage.OpenSession(unenlistedContextBag, default))
+                    using (var unenlistedSession = await configuration.SynchronizedStorage.OpenSession(unenlistedContextBag))
                     {
                         var enlistedContextBag = configuration.GetContextBagForSagaStorage();
-                        var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, enlistedContextBag, default);
+                        var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, enlistedContextBag);
 
-                        var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag, default);
+                        var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
 
-                        var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag, default);
+                        var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
 
-                        await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag, default);
-                        await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag, default);
+                        await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
+                        await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);
 
-                        await unenlistedSession.CompleteAsync(default);
+                        await unenlistedSession.CompleteAsync();
                     }
 
                     tx.Complete();

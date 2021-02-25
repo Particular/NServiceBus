@@ -17,26 +17,26 @@
 
             await SaveSaga(saga1);
             var context1 = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context1, default))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context1))
             {
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1, default);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
                 Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
 
-                await persister.Complete(sagaData, completeSession, context1, default);
-                await completeSession.CompleteAsync(default);
+                await persister.Complete(sagaData, completeSession, context1);
+                await completeSession.CompleteAsync();
             }
 
             Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga1.Id));
 
             await SaveSaga(saga2);
             var context2 = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context2, default))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context2))
             {
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2, default);
+                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
                 Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);
 
-                await persister.Complete(sagaData, completeSession, context2, default);
-                await completeSession.CompleteAsync(default);
+                await persister.Complete(sagaData, completeSession, context2);
+                await completeSession.CompleteAsync();
             }
 
             Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga2.Id));
