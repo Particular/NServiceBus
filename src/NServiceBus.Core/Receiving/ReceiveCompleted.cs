@@ -47,7 +47,7 @@
         public DateTimeOffset CompletedAt { get; }
 
         /// <summary>
-        /// True if the the message processing resulted in an exception.
+        /// True if the message processing resulted in an exception.
         /// </summary>
         public bool ProcessingFailed { get; }
     }
