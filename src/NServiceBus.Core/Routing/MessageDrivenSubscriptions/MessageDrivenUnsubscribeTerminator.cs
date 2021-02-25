@@ -51,7 +51,7 @@
             return Task.WhenAll(unsubscribeTasks);
         }
 
-        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)
+        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken = default)
         {
             var state = context.GetOrCreate<Settings>();
             try

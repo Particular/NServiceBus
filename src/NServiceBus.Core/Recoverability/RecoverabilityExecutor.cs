@@ -31,7 +31,7 @@
             raiseNotifications = raiseRecoverabilityNotifications;
         }
 
-        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken)
+        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 
@@ -74,7 +74,7 @@
             return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
         }
 
-        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
+        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
@@ -93,7 +93,7 @@
             return ErrorHandleResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken)
+        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken = default)
         {
             var message = errorContext.Message;
 
@@ -109,7 +109,7 @@
             return ErrorHandleResult.Handled;
         }
 
-        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext, CancellationToken cancellationToken)
+        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
             var message = errorContext.Message;
 

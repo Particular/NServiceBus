@@ -31,7 +31,7 @@ namespace NServiceBus
             fileStream = null;
         }
 
-        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken)
+        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken = default)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
@@ -43,14 +43,14 @@ namespace NServiceBus
             return OpenWithRetryOnConcurrency(filePath, FileMode.Open, cancellationToken);
         }
 
-        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken)
+        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken = default)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
             return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew, cancellationToken);
         }
 
-        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, CancellationToken cancellationToken)
+        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, CancellationToken cancellationToken = default)
         {
             var numRetries = 0;
 
@@ -76,7 +76,7 @@ namespace NServiceBus
             }
         }
 
-        public Task Write(IContainSagaData sagaData, CancellationToken cancellationToken)
+        public Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
         {
             // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
             // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.
@@ -93,7 +93,7 @@ namespace NServiceBus
             isCompleted = true;
         }
 
-        public async Task<TSagaData> Read<TSagaData>(CancellationToken cancellationToken) where TSagaData : class, IContainSagaData
+        public async Task<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
             // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
             // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.

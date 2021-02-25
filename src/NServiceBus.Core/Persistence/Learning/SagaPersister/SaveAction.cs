@@ -10,7 +10,7 @@ namespace NServiceBus
         {
         }
 
-        public override async Task Execute(CancellationToken cancellationToken)
+        public override async Task Execute(CancellationToken cancellationToken = default)
         {
             var sagaId = sagaData.Id;
             var sagaManifest = sagaManifests.GetForEntityType(sagaData.GetType());

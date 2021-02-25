@@ -100,7 +100,7 @@
             }
         }
 
-        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)
+        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken = default)
         {
             var state = context.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             try

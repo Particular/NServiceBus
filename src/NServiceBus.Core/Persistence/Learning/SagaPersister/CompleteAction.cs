@@ -10,7 +10,7 @@ namespace NServiceBus
         {
         }
 
-        public override Task Execute(CancellationToken cancellationToken)
+        public override Task Execute(CancellationToken cancellationToken = default)
         {
             var sagaFile = GetSagaFile();
 

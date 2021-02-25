@@ -10,7 +10,7 @@ namespace NServiceBus
         protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext, parentContext?.CancellationToken ?? default)
         { }
 
-        public BehaviorContext(IBehaviorContext parentContext, CancellationToken cancellationToken) : base(parentContext?.Extensions)
+        public BehaviorContext(IBehaviorContext parentContext, CancellationToken cancellationToken = default) : base(parentContext?.Extensions)
         {
             if (parentContext != null)
             {

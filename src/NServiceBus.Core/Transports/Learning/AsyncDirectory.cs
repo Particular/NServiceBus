@@ -6,7 +6,7 @@ namespace NServiceBus
 
     static class AsyncDirectory
     {
-        public static async Task Move(string sourcePath, string targetPath, CancellationToken cancellationToken)
+        public static async Task Move(string sourcePath, string targetPath, CancellationToken cancellationToken = default)
         {
             var count = 0;
             while (count <= 10)

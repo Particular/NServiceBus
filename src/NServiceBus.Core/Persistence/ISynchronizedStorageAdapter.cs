@@ -18,7 +18,7 @@
         /// <param name="context">Context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>Session or null, if unable to adapt.</returns>
-        Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken);
+        Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns a synchronized storage session based on the outbox transaction if possible.
@@ -27,6 +27,6 @@
         /// <param name="context">Context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>Session or null, if unable to adapt.</returns>
-        Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken);
+        Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default);
     }
 }

@@ -6,6 +6,6 @@
 
     interface IPipelineExecutor
     {
-        Task Invoke(MessageContext messageContext, CancellationToken cancellationToken);
+        Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default);
     }
 }

@@ -22,6 +22,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Disposes all transport internal resources.
         /// </summary>
-        public abstract Task Shutdown(CancellationToken cancellationToken);
+        public abstract Task Shutdown(CancellationToken cancellationToken = default);
     }
 }

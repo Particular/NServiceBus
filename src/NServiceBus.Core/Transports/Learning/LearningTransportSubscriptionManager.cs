@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus
 {
-    using Unicast.Messages;
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Transport;
-    using System.Threading;
+    using Unicast.Messages;
 
     class LearningTransportSubscriptionManager : ISubscriptionManager
     {
@@ -17,7 +17,7 @@
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken)
+        public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default)
         {
             var tasks = new Task[eventTypes.Length];
             for (int i = 0; i < eventTypes.Length; i++)
@@ -28,7 +28,7 @@
             return Task.WhenAll(tasks);
         }
 
-        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken)
+        public async Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
@@ -64,7 +64,7 @@
             }
         }
 
-        async Task Subscribe(MessageMetadata eventType, CancellationToken cancellationToken)
+        async Task Subscribe(MessageMetadata eventType, CancellationToken cancellationToken = default)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
 

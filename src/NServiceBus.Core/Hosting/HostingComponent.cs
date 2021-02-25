@@ -63,7 +63,7 @@
 
         // This can't happen at start due to an old "feature" that allowed users to
         // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-        public async Task RunInstallers(CancellationToken cancellationToken)
+        public async Task RunInstallers(CancellationToken cancellationToken = default)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -78,7 +78,7 @@
             }
         }
 
-        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint, CancellationToken cancellationToken)
+        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint, CancellationToken cancellationToken = default)
         {
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 

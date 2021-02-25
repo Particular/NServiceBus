@@ -59,7 +59,7 @@ namespace NServiceBus
             RaiseForEndpoint(errorMessage, exception, cancellationToken);
         }
 
-        void RaiseForEndpoint(string errorMessage, Exception exception, CancellationToken cancellationToken)
+        void RaiseForEndpoint(string errorMessage, Exception exception, CancellationToken cancellationToken = default)
         {
             _ = Task.Run(() =>
             {
@@ -68,7 +68,7 @@ namespace NServiceBus
             }, cancellationToken);
         }
 
-        internal void SetEndpoint(IEndpointInstance endpointInstance, CancellationToken cancellationToken)
+        internal void SetEndpoint(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default)
         {
             lock (endpointCriticalLock)
             {

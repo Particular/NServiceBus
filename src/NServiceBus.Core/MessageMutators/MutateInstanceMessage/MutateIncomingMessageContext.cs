@@ -11,7 +11,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateIncomingMessageContext(object message, Dictionary<string, string> headers, CancellationToken cancellationToken)
+        public MutateIncomingMessageContext(object message, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(message), message);

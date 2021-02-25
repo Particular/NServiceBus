@@ -31,12 +31,12 @@
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }
 
-        public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken)
+        public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
         {
             return featureActivator.StartFeatures(builder, messageSession, cancellationToken);
         }
 
-        public Task Stop(CancellationToken cancellationToken)
+        public Task Stop(CancellationToken cancellationToken = default)
         {
             return featureActivator.StopFeatures(cancellationToken);
         }

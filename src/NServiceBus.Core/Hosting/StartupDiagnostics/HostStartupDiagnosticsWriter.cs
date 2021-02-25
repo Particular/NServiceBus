@@ -16,7 +16,7 @@
             this.isCustomWriter = isCustomWriter;
         }
 
-        public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries, CancellationToken cancellationToken)
+        public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries, CancellationToken cancellationToken = default)
         {
             var deduplicatedEntries = DeduplicateEntries(entries);
             var dictionary = deduplicatedEntries

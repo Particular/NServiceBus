@@ -8,5 +8,5 @@
     /// <summary>
     /// Processes an incoming satellite message.
     /// </summary>
-    public delegate Task OnSatelliteMessage(IServiceProvider serviceProvider, MessageContext messageContext, CancellationToken cancellationToken);
+    public delegate Task OnSatelliteMessage(IServiceProvider serviceProvider, MessageContext messageContext, CancellationToken cancellationToken = default);
 }

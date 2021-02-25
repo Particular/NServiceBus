@@ -15,7 +15,7 @@
 
         public string Name { get; }
 
-        public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken)
+        public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
         {
             if (Log.IsDebugEnabled)
             {
@@ -26,7 +26,7 @@
             return instance.PerformStartup(messageSession, cancellationToken);
         }
 
-        public async Task Stop(CancellationToken cancellationToken)
+        public async Task Stop(CancellationToken cancellationToken = default)
         {
             try
             {

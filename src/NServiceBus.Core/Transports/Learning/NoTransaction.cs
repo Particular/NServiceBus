@@ -14,7 +14,7 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken)
+        public Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken = default)
         {
             Directory.CreateDirectory(processingDirectory);
             FileToProcess = Path.Combine(processingDirectory, Path.GetFileName(incomingFilePath));
@@ -22,9 +22,9 @@ namespace NServiceBus
             return AsyncFile.Move(incomingFilePath, FileToProcess, cancellationToken);
         }
 
-        public Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken) => AsyncFile.WriteText(messagePath, messageContents, cancellationToken);
+        public Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken = default) => AsyncFile.WriteText(messagePath, messageContents, cancellationToken);
 
-        public Task Commit(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task Commit(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public void Rollback() { }
 

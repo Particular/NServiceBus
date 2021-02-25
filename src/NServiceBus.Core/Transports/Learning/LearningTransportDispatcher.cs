@@ -22,14 +22,14 @@ namespace NServiceBus
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             return Task.WhenAll(
                 DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction, cancellationToken),
                 DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction, cancellationToken));
         }
 
-        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken)
+        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             var tasks = new List<Task>();
 
@@ -48,7 +48,7 @@ namespace NServiceBus
                 .ConfigureAwait(false);
         }
 
-        Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
+        Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             return Task.WhenAll(operations.Select(operation =>
             {
@@ -58,7 +58,7 @@ namespace NServiceBus
             }));
         }
 
-        async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction, CancellationToken cancellationToken)
+        async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
             var message = transportOperation.Message;
 
@@ -133,7 +133,7 @@ namespace NServiceBus
             }
         }
 
-        async Task<IEnumerable<string>> GetSubscribersFor(Type messageType, CancellationToken cancellationToken)
+        async Task<IEnumerable<string>> GetSubscribersFor(Type messageType, CancellationToken cancellationToken = default)
         {
             var subscribers = new HashSet<string>();
 

@@ -13,11 +13,11 @@
         /// <summary>
         /// Subscribes to all provided events.
         /// </summary>
-        Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken);
+        Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Unsubscribes from the given event.
         /// </summary>
-        Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken);
+        Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default);
     }
 }

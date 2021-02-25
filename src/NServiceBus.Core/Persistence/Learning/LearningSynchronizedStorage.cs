@@ -12,7 +12,7 @@ namespace NServiceBus
             this.sagaManifests = sagaManifests;
         }
 
-        public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken)
+        public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
         {
             return Task.FromResult<CompletableSynchronizedStorageSession>(new LearningSynchronizedStorageSession(sagaManifests));
         }

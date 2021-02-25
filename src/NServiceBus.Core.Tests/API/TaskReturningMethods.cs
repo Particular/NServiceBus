@@ -19,24 +19,13 @@
             .Where(method =>
                 method.GetParameters().CancellableContexts().Any() ||
                 method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
-                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull"))
+                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == nameof(TaskEx.ThrowIfNull)))
             .ToList();
 
         static readonly List<MethodInfo> optionalTokenMethods = methods
             .Where(method => !noTokenMethods.Contains(method))
-            .Where(method => method.IsOn(
-                typeof(NServiceBus.Endpoint),
-                typeof(NServiceBus.IEndpointInstance),
-                typeof(NServiceBus.IMessageSession),
-                typeof(NServiceBus.IStartableEndpoint),
-                typeof(NServiceBus.IStartableEndpointWithExternallyManagedContainer)))
             .ToList();
 #pragma warning restore IDE0001 // Simplify Names
-
-        static readonly List<MethodInfo> mandatoryTokenMethods = methods
-            .Where(method => !noTokenMethods.Contains(method))
-            .Where(method => !optionalTokenMethods.Contains(method))
-            .ToList();
 
         [TestCase(true)]
         [TestCase(false)]
@@ -48,7 +37,6 @@
 
             RecordPolicy(noTokenMethods, nameof(noTokenMethods));
             RecordPolicy(optionalTokenMethods, nameof(optionalTokenMethods));
-            RecordPolicy(mandatoryTokenMethods, nameof(mandatoryTokenMethods));
 
             var violators = methodPolicies
                 .Where(pair => pair.Value.Count != 1)
@@ -88,21 +76,7 @@
         public static void HaveOptionalTokens(bool visible)
         {
             var violators = optionalTokenMethods
-                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => param.IsOptional))
-                .Prettify()
-                .ToList();
-
-            Console.Error.WriteViolators(violators);
-
-            Assert.IsEmpty(violators);
-        }
-
-        [TestCase(true)]
-        [TestCase(false)]
-        public static void HaveMandatoryTokens(bool visible)
-        {
-            var violators = mandatoryTokenMethods
-                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => !param.IsOptional))
+                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => param.IsOptional || param.IsExplicitlyNamed()))
                 .Prettify()
                 .ToList();
 

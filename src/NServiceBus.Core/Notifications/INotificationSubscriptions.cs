@@ -5,6 +5,6 @@
 
     interface INotificationSubscriptions<TEvent>
     {
-        Task Raise(TEvent @event, CancellationToken cancellationToken);
+        Task Raise(TEvent @event, CancellationToken cancellationToken = default);
     }
 }

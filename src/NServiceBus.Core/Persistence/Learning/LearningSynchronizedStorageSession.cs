@@ -25,7 +25,7 @@ namespace NServiceBus
             sagaFiles.Clear();
         }
 
-        public async Task CompleteAsync(CancellationToken cancellationToken)
+        public async Task CompleteAsync(CancellationToken cancellationToken = default)
         {
             foreach (var action in deferredActions)
             {
@@ -34,7 +34,7 @@ namespace NServiceBus
             deferredActions.Clear();
         }
 
-        public async Task<TSagaData> Read<TSagaData>(Guid sagaId, CancellationToken cancellationToken) where TSagaData : class, IContainSagaData
+        public async Task<TSagaData> Read<TSagaData>(Guid sagaId, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
             var sagaStorageFile = await Open(sagaId, typeof(TSagaData), cancellationToken)
                 .ConfigureAwait(false);
@@ -63,7 +63,7 @@ namespace NServiceBus
             deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
         }
 
-        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, CancellationToken cancellationToken)
+        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, CancellationToken cancellationToken = default)
         {
             var sagaManifest = sagaManifests.GetForEntityType(entityType);
 

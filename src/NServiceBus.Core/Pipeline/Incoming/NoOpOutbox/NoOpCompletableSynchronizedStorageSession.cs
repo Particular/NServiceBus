@@ -10,7 +10,7 @@
     [SkipWeaving]
     class NoOpCompletableSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        public Task CompleteAsync(CancellationToken cancellationToken)
+        public Task CompleteAsync(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }

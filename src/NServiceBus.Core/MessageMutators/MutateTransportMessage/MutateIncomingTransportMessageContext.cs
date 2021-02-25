@@ -11,7 +11,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers, CancellationToken cancellationToken)
+        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);

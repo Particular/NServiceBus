@@ -25,7 +25,7 @@
             this.receivers = receivers;
         }
 
-        public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken)
+        public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken = default)
         {
             TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), cancellationToken)
                 .ConfigureAwait(false);

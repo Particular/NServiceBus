@@ -13,7 +13,7 @@
             satelliteDefinition = definition;
         }
 
-        public Task Invoke(MessageContext messageContext, CancellationToken cancellationToken)
+        public Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
         {
             messageContext.Extensions.Set(messageContext.TransportTransaction);
 

@@ -18,7 +18,7 @@ namespace NServiceBus
             this.receivePipeline = receivePipeline;
         }
 
-        public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken)
+        public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
 

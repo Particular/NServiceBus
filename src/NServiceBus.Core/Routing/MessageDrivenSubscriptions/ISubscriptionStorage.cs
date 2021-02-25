@@ -13,16 +13,16 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// <summary>
         /// Subscribes the given client to messages of a given type.
         /// </summary>
-        Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken);
+        Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Unsubscribes the given client from messages of given type.
         /// </summary>
-        Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken);
+        Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns a list of addresses for subscribers currently subscribed to the given message type.
         /// </summary>
-        Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken);
+        Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default);
     }
 }
