@@ -39,6 +39,7 @@
                 EndpointSetup<DefaultServer>(
                     b =>
                     {
+                        b.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                         b.AuditProcessedMessagesTo<AuditSpyEndpoint>();

@@ -27,6 +27,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
                     c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
 
+                    c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                     c.EnableOutbox();
                 });
             }

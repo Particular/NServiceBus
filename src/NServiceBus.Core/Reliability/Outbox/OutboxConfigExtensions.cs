@@ -17,7 +17,6 @@
 
             var outboxSettings = new OutboxSettings(config.Settings);
 
-            config.Settings.SetDefault(TransportTransactionMode.ReceiveOnly);
             config.EnableFeature<Features.Outbox>();
             return outboxSettings;
         }
