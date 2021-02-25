@@ -1,4 +1,4 @@
-﻿#pragma warning disable 1591
+#pragma warning disable 1591
 
 namespace NServiceBus.Gateway.Deduplication
 {
@@ -22,7 +22,6 @@ namespace NServiceBus
     using Container;
     using ObjectBuilder.Common;
     using Settings;
-    using Transport;
 
     public partial class EndpointConfiguration
     {
@@ -60,15 +59,6 @@ namespace NServiceBus
         ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
     public static class UseTransportExtensions
     {
-        [ObsoleteEx(
-            RemoveInVersion = "9",
-            TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
-        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition
-        {
-            throw new NotImplementedException();
-        }
-
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
