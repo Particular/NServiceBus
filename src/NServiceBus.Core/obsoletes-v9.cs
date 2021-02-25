@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     /// <summary>
     /// Provides support for <see cref="UseTransport{T}"/> transport APIs.
