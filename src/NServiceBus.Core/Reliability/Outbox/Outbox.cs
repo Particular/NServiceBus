@@ -2,6 +2,7 @@
 {
     using ConsistencyGuarantees;
     using System;
+    using Transport;
 
     /// <summary>
     /// Configure the Outbox.
@@ -27,6 +28,12 @@
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
                 throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
+            }
+
+            if (context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.ReceiveOnly)
+            {
+                throw new Exception(
+                    $"Outbox requires transport to be running in ${nameof(TransportTransactionMode.ReceiveOnly)} mode. Use ${nameof(TransportDefinition.TransportTransactionMode)} property on the transport definition to specify the transaction mode.");
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
