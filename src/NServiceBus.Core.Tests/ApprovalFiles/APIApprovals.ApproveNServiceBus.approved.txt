@@ -675,6 +675,26 @@ namespace NServiceBus
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
+    public static class LearningTransportApiExtensions
+    {
+        [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. Will be tr" +
+            "eated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static NServiceBus.LearningTransportSettings UseTransport<T>(this NServiceBus.EndpointConfiguration config)
+            where T : NServiceBus.LearningTransport { }
+    }
+    public class LearningTransportSettings
+    {
+        [System.Obsolete("Use `Use LearningTransport.RestrictPayloadSize` instead. Will be treated as an er" +
+            "ror from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        public NServiceBus.LearningTransportSettings NoPayloadSizeRestriction() { }
+        [System.Obsolete("Use `Use EndpointConfiguration.UseTransport() to access routing settings` instead" +
+            ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
+            "0.0.", false)]
+        public NServiceBus.RoutingSettings<NServiceBus.LearningTransport> Routing() { }
+        [System.Obsolete("Use `Use LearningTransport.StorageDirectory` instead. Will be treated as an error" +
+            " from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        public NServiceBus.LearningTransportSettings StorageDirectory(string storageDir) { }
+    }
     public static class LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
@@ -1181,10 +1201,6 @@ namespace NServiceBus
         [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. The member" +
             " currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Type transportDefinitionType) { }
-        [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. The member" +
-            " currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.EndpointConfiguration endpointConfiguration)
-            where T : NServiceBus.Transport.TransportDefinition { }
     }
     public static class XmlSerializationExtensions
     {

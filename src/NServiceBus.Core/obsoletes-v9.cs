@@ -3,7 +3,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides support for <see cref="UseTransport{T}"/> transport APIs.
     /// </summary>
-    public static class GenericApiExtensions
+    public static class LearningTransportApiExtensions
     {
         /// <summary>
         /// Configures NServiceBus to use the given transport.
