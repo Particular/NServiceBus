@@ -2575,13 +2575,10 @@ namespace NServiceBus.Transport
         public int MaxConcurrency { get; }
         public static NServiceBus.Transport.PushRuntimeSettings Default { get; }
     }
+    [System.Obsolete("Use `ReceiveSettings` instead. Will be removed in version 9.0.0.", true)]
     public class PushSettings
     {
-        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.TransportTransactionMode requiredTransactionMode) { }
-        public string ErrorQueue { get; }
-        public string InputQueue { get; }
-        public bool PurgeOnStartup { get; }
-        public NServiceBus.TransportTransactionMode RequiredTransactionMode { get; }
+        public PushSettings() { }
     }
     public class QueueAddress
     {
