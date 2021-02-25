@@ -76,7 +76,11 @@
         public static void HaveOptionalTokens(bool visible)
         {
             var violators = optionalTokenMethods
-                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => param.IsOptional || param.IsExplicitlyNamed()))
+                .Where(method => method.IsVisible() == visible)
+                .Where(method => !method.GetParameters().CancellationTokens().Any(param => param.IsOptional || param.IsExplicitlyNamed()))
+                // Methods explicitly implementing interfaces generate error CS1066: "The default value specified for parameter (name) will
+                // have no effect because it applies to a member that is used in contexts
+                .Where(method => !(method.IsExplicitInterfaceImplementation() && method.GetParameters().CancellationTokens().All(param => !param.IsOptional)))
                 .Prettify()
                 .ToList();
 
@@ -84,5 +88,9 @@
 
             Assert.IsEmpty(violators);
         }
+
+
+
+
     }
 }
