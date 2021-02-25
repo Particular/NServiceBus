@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Threading;
@@ -49,10 +50,11 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken)
         {
             this.onMessage = onMessage;
             this.onError = onError;
+            this.onCompleted = onCompleted;
 
             Init();
 
@@ -234,10 +236,23 @@
 
         async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
+            var startedAt = DateTimeOffset.UtcNow;
+            ProcessFileResult result = null;
+            var processingContext = new ContextBag();
+
             try
             {
-                await ProcessFile(transaction, messageId, messageProcessingCancellationToken)
+                result = await ProcessFile(transaction, messageId, processingContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                result = new ProcessFileResult
+                {
+                    Headers = new Dictionary<string, string>()
+                };
+
+                throw;
             }
             finally
             {
@@ -245,12 +260,12 @@
                 {
                     log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}).");
                 }
-
+                bool wasAcknowledged = false;
                 try
                 {
-                    var wasCommitted = transaction.Complete();
+                    wasAcknowledged = transaction.Complete();
 
-                    if (wasCommitted)
+                    if (wasAcknowledged)
                     {
                         File.Delete(Path.Combine(bodyDir, messageId + BodyFileSuffix));
                     }
@@ -260,17 +275,27 @@
                     log.Debug($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
                 }
 
+                try
+                {
+                    await onCompleted(new CompleteContext(messageId, wasAcknowledged, result.Headers, startedAt, DateTimeOffset.UtcNow, result.ProcessingFailed, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    log.Warn($"Failure when invoking OnComplete for {filePath}({transaction.FileToProcess})" + filePath, ex);
+                }
+
                 concurrencyLimiter.Release();
             }
         }
 
-        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task<ProcessFileResult> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
+            var result = new ProcessFileResult { Headers = headers };
 
             if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
@@ -287,7 +312,7 @@
                     await transaction.Commit(messageProcessingCancellationToken)
                         .ConfigureAwait(false);
                     log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
-                    return;
+                    return result;
                 }
             }
 
@@ -301,8 +326,6 @@
                 transportTransaction.Set(transaction);
             }
 
-            var processingContext = new ContextBag();
-
             var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
 
             try
@@ -315,15 +338,19 @@
                 log.Info("Message processing cancelled. Rolling back transaction.", ex);
                 transaction.Rollback();
 
-                return;
+                return result;
             }
             catch (Exception exception)
             {
+                result.ProcessingFailed = true;
+
                 transaction.ClearPendingOutgoingOperations();
                 var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
                 headers = HeaderSerializer.Deserialize(message);
                 headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+
+                result.Headers = headers;
 
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, processingContext);
 
@@ -338,11 +365,11 @@
                     log.Info("Message processing cancelled. Rolling back transaction.", ex);
                     transaction.Rollback();
 
-                    return;
+                    return result;
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex, CancellationToken.None);
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, CancellationToken.None);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
@@ -350,12 +377,14 @@
                 {
                     transaction.Rollback();
 
-                    return;
+                    return result;
                 }
             }
 
             await transaction.Commit(messageProcessingCancellationToken)
                 .ConfigureAwait(false);
+
+            return result;
         }
 
         CancellationTokenSource messagePumpCancellationTokenSource;
@@ -380,6 +409,7 @@
         static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
         OnMessage onMessage;
         OnError onError;
+        OnCompleted onCompleted;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
@@ -387,5 +417,11 @@
 
         const string CommittedDirName = ".committed";
         const string PendingDirName = ".pending";
+
+        class ProcessFileResult
+        {
+            public Dictionary<string, string> Headers;
+            public bool ProcessingFailed;
+        }
     }
 }

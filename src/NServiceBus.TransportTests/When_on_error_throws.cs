@@ -27,7 +27,7 @@
             await StartPump(
                 (context, _) =>
                 {
-                    nativeMessageId = context.MessageId;
+                    nativeMessageId = context.NativeMessageId;
 
                     throw new Exception("Simulated exception");
                 },

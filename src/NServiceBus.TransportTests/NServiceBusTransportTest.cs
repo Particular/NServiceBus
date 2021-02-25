@@ -72,7 +72,7 @@
             configurer?.Cleanup(default).GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, OnCompleted onComplete = null)
         {
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -112,17 +112,25 @@
                         return onMessage(context, cancellationToken);
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 },
                 (context, cancellationToken) =>
                 {
-                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
-                        context.Message.Headers[TestIdHeaderName] == testId)
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
                     {
                         return onError(context, cancellationToken);
                     }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                (context, cancellationToken) =>
+                {
+                    if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId && onComplete != null)
+                    {
+                        return onComplete(context, cancellationToken);
+                    }
+
+                    return Task.CompletedTask;
                 },
                 default);
 

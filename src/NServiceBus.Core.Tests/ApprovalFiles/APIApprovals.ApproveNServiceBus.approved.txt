@@ -816,6 +816,20 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class ReceiveCompleted
+    {
+        public ReceiveCompleted(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, bool processingFailed) { }
+        public System.DateTimeOffset CompletedAt { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string NativeMessageId { get; }
+        public bool ProcessingFailed { get; }
+        public System.DateTimeOffset StartedAt { get; }
+        public bool WasAcknowledged { get; }
+    }
+    public static class ReceiveConfigExtensions
+    {
+        public static void OnReceiveCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
+    }
     public class ReceivePipelineCompleted
     {
         public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
@@ -2386,6 +2400,17 @@ namespace NServiceBus.Timeout.Core
 }
 namespace NServiceBus.Transport
 {
+    public class CompleteContext
+    {
+        public CompleteContext(string nativeMessageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, bool processingFailed, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public System.DateTimeOffset CompletedAt { get; }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string NativeMessageId { get; }
+        public bool ProcessingFailed { get; }
+        public System.DateTimeOffset StartedAt { get; }
+        public bool WasAcknowledged { get; }
+    }
     public enum DispatchConsistency
     {
         Default = 1,
@@ -2401,10 +2426,10 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
@@ -2463,7 +2488,7 @@ namespace NServiceBus.Transport
     {
         string Id { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, NServiceBus.Transport.OnCompleted onCompleted, System.Threading.CancellationToken cancellationToken);
         System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken);
         System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken);
     }
@@ -2509,7 +2534,7 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, byte[], TransportTransact" +
             "ion, ContextBag)` instead. The member currently throws a NotImplementedException" +
             ". Will be removed in version 9.0.0.", true)]
@@ -2517,7 +2542,9 @@ namespace NServiceBus.Transport
         public byte[] Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        [System.Obsolete("Use `NativeMessageId` instead. Will be removed in version 9.0.0.", true)]
         public string MessageId { get; }
+        public string NativeMessageId { get; }
         [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
             " 9.0.0.", true)]
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
@@ -2531,6 +2558,7 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
+    public delegate System.Threading.Tasks.Task OnCompleted(NServiceBus.Transport.CompleteContext completeContext, System.Threading.CancellationToken cancellationToken);
     public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext, System.Threading.CancellationToken cancellationToken);
     public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken);
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
