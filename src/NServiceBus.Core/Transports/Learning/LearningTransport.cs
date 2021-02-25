@@ -81,8 +81,6 @@
         /// <summary>
         /// If set to true, limits the message maximum payload size to 64 kilobytes.
         /// </summary>
-        public bool RestrictPayloadSize { get; set; }
-
-
+        public bool RestrictPayloadSize { get; set; } = true;
     }
 }
