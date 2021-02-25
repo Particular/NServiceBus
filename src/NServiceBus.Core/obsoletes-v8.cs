@@ -1017,6 +1017,17 @@ namespace NServiceBus.Transport
 
 namespace NServiceBus.Transport
 {
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "ReceiveSettings",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+    public class PushSettings
+    {
+    }
+}
+
+namespace NServiceBus.Transport
+{
     using System;
     using System.Threading.Tasks;
 
