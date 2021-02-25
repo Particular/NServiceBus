@@ -818,11 +818,11 @@ namespace NServiceBus
     }
     public class ReceiveCompleted
     {
-        public ReceiveCompleted(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, bool processingFailed) { }
+        public ReceiveCompleted(string messageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, bool onMessageFailed) { }
         public System.DateTimeOffset CompletedAt { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string NativeMessageId { get; }
-        public bool ProcessingFailed { get; }
+        public bool OnMessageFailed { get; }
         public System.DateTimeOffset StartedAt { get; }
         public bool WasAcknowledged { get; }
     }
@@ -2402,12 +2402,12 @@ namespace NServiceBus.Transport
 {
     public class CompleteContext
     {
-        public CompleteContext(string nativeMessageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, bool processingFailed, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public CompleteContext(string nativeMessageId, bool wasAcknowledged, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, bool onMessageFailed, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
         public System.DateTimeOffset CompletedAt { get; }
         public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string NativeMessageId { get; }
-        public bool ProcessingFailed { get; }
+        public bool OnMessageFailed { get; }
         public System.DateTimeOffset StartedAt { get; }
         public bool WasAcknowledged { get; }
     }
@@ -2426,7 +2426,7 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }

@@ -145,9 +145,8 @@ namespace NServiceBus
                 .CreateDefault(configuration.LocalAddress);
 
             var onCompleted = new OnCompleted((completeContext, token) =>
-               ((INotificationSubscriptions<ReceiveCompleted>)configuration.ProcessingCompletedSubscribers)
-               .Raise(new ReceiveCompleted(completeContext.NativeMessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt, completeContext.ProcessingFailed), token));
-
+                ((INotificationSubscriptions<ReceiveCompleted>)configuration.ReceiveCompletedSubscribers)
+                    .Raise(new ReceiveCompleted(completeContext.NativeMessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt, completeContext.OnMessageFailed), token));
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                 recoverability.Invoke, onCompleted, cancellationToken).ConfigureAwait(false);
