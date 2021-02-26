@@ -329,10 +329,6 @@
             }
             catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
             {
-                // a handler may have just thrown an OperationCanceledException
-                // and messageProcessingCancellationToken.IsCancellationRequested may just happen to be also true
-                onMessageFailed = true;
-
                 log.Info("Message processing cancelled. Rolling back transaction.", ex);
                 transaction.Rollback();
 
