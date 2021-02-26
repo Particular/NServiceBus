@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Transport;
 
     /// <summary>
     /// Event raised when the transport has completed processing a message.
@@ -11,14 +12,14 @@
         /// <summary>
         /// Constructs the event.
         /// </summary>
-        public ReceiveCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool processingFailed)
+        public ReceiveCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool onMessageFailed)
         {
             NativeMessageId = messageId;
             WasAcknowledged = wasAcknowledged;
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
-            ProcessingFailed = processingFailed;
+            OnMessageFailed = onMessageFailed;
         }
 
         /// <summary>
@@ -47,8 +48,8 @@
         public DateTimeOffset CompletedAt { get; }
 
         /// <summary>
-        /// True if the message processing resulted in an exception.
+        /// <c>true</c> if the call to<see cref="OnMessage"/> threw an exception.
         /// </summary>
-        public bool ProcessingFailed { get; }
+        public bool OnMessageFailed { get; }
     }
 }

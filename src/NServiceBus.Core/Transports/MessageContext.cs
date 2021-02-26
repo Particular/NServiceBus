@@ -11,7 +11,7 @@
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        /// <param name="nativeMessageId">Native message id.</param>
+        /// <param name="nativeMessageId">The native message ID.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
@@ -32,7 +32,7 @@
         }
 
         /// <summary>
-        /// The native id of the message.
+        /// The native message ID.
         /// </summary>
         public string NativeMessageId { get; }
 

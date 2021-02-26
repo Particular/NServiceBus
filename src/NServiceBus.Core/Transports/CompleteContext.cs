@@ -12,14 +12,14 @@
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        /// <param name="nativeMessageId">Native message id.</param>
+        /// <param name="nativeMessageId">The native message ID.</param>
         /// <param name="wasAcknowledged">True if the message was acknowledged and removed from the queue.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="startedAt">The time that processing started.</param>
         /// <param name="completedAt">The time that processing started.</param>
-        /// <param name="processingFailed">True if the call to OnMessage resulted in an exception.</param>
+        /// <param name="onMessageFailed"><c>true</c> if the call to <see cref="OnMessage"/> threw an exception.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> containing the context for the message receive operation.</param>
-        public CompleteContext(string nativeMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool processingFailed, ReadOnlyContextBag context)
+        public CompleteContext(string nativeMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool onMessageFailed, ReadOnlyContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(headers), headers);
@@ -32,12 +32,12 @@
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
-            ProcessingFailed = processingFailed;
+            OnMessageFailed = onMessageFailed;
             Extensions = context;
         }
 
         /// <summary>
-        /// The native id of the message.
+        /// The native message ID.
         /// </summary>
         public string NativeMessageId { get; }
 
@@ -62,9 +62,9 @@
         public DateTimeOffset CompletedAt { get; }
 
         /// <summary>
-        /// True if the call to OnMessage resulted in an exception.
+        /// <c>true</c> if the call to <see cref="OnMessage"/> threw an exception.
         /// </summary>
-        public bool ProcessingFailed { get; }
+        public bool OnMessageFailed { get; }
 
         /// <summary>
         /// A collection of additional information for this receive operation.

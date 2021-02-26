@@ -11,7 +11,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new message.
         /// </summary>
-        /// <param name="nativeMessageId">Native message id.</param>
+        /// <param name="nativeMessageId">The native message ID.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
         public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, byte[] body)
@@ -39,12 +39,12 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// The ID of the message.
+        /// The message ID.
         /// </summary>
         public string MessageId { get; }
 
         /// <summary>
-        /// Native message ID.
+        /// The native message ID.
         /// </summary>
         public string NativeMessageId { get; }
 

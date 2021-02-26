@@ -3,49 +3,50 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Features;
     using EndpointTemplates;
-    using NUnit.Framework;
+    using Features;
     using NServiceBus.Transport;
+    using NUnit.Framework;
 
-    class When_subscribed_to_OnOnMessageReceiveCompleted : NServiceBusAcceptanceTest
+    class When_subscribed_to_OnReceiveCompleted : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_notifications_for_successfull()
+        public async Task Should_receive_when_OnMessage_succeeds()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SubscribingEndpoint>(b => b.When(session =>
-                {
-                    var options = new SendOptions();
+                .WithEndpoint<SubscribingEndpoint>(b =>
+                    b.When(session =>
+                    {
+                        var options = new SendOptions();
 
-                    options.RouteToThisEndpoint();
-                    options.SetHeader("SomeKey", "SomeValue");
+                        options.RouteToThisEndpoint();
+                        options.SetHeader("SomeKey", "SomeValue");
 
-                    return session.Send(new SomeMessage(), options);
-                }))
-                .Done(c => c.Event != null)
+                        return session.Send(new SomeMessage(), options);
+                    }))
+                .Done(c => c.ReceiveCompleted != null)
                 .Run();
 
-            Assert.NotNull(context.Event, "Event was not raised");
-            Assert.AreEqual(context.MessageId, context.Event.NativeMessageId, "Native message ID should match");
-            Assert.True(context.Event.WasAcknowledged, "Should be flagged as acknowledged");
-            Assert.AreNotEqual(DateTime.MinValue, context.Event.StartedAt, "StartedAt was not set");
-            Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
-            Assert.True(context.Event.Headers.ContainsKey("SomeKey"));
-            Assert.AreEqual(context.Event.Headers["SomeKey"], "SomeValue");
-            Assert.False(context.Event.ProcessingFailed);
+            Assert.NotNull(context.ReceiveCompleted, "Event was not received");
+            Assert.AreEqual(context.NativeMessageId, context.ReceiveCompleted.NativeMessageId, "Event native message ID does not match message native message ID");
+            Assert.True(context.ReceiveCompleted.WasAcknowledged, "Event indicates that message was not acknowleged");
+            Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.StartedAt, "StartedAt is not set");
+            Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.CompletedAt, "CompletedAt is not set");
+            Assert.True(context.ReceiveCompleted.Headers.ContainsKey("SomeKey"));
+            Assert.AreEqual(context.ReceiveCompleted.Headers["SomeKey"], "SomeValue");
+            Assert.False(context.ReceiveCompleted.OnMessageFailed, "Event indicates that OnMessage failed");
         }
 
         [Test]
-        public async Task Should_receive_notifications_for_rollback()
+        public async Task Should_receive_when_OnMessage_fails()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SubscribingEndpoint>(b =>
                 {
-                    //do one immediate retry to check that message is rolled back
+                    // do one immediate retry to check that message is rolled back
                     b.CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)));
 
-                    //message will then go to error so we need to allow that
+                    // message will then go to error so we need to allow that
                     b.DoNotFailOnErrorMessages();
 
                     b.When(session =>
@@ -58,70 +59,60 @@
                         return session.Send(new SomeMessage { Throw = true }, options);
                     });
                 })
-                .Done(c => c.Event != null)
+                .Done(c => c.ReceiveCompleted != null)
                 .Run();
 
-            Assert.NotNull(context.Event, "Event was not raised");
-            Assert.AreEqual(context.MessageId, context.Event.NativeMessageId, "Native message ID should match");
-            Assert.False(context.Event.WasAcknowledged, "Should be rolled back");
-            Assert.AreNotEqual(DateTime.MinValue, context.Event.StartedAt, "StartedAt was not set");
-            Assert.AreNotEqual(DateTime.MinValue, context.Event.CompletedAt, "CompletedAt was not set");
-            Assert.True(context.Event.Headers.ContainsKey("SomeKey"));
-            Assert.AreEqual(context.Event.Headers["SomeKey"], "SomeValue");
-            Assert.True(context.Event.ProcessingFailed);
+            Assert.NotNull(context.ReceiveCompleted, "Event was not received");
+            Assert.AreEqual(context.NativeMessageId, context.ReceiveCompleted.NativeMessageId, "Event native message ID does not match message native message ID");
+            Assert.False(context.ReceiveCompleted.WasAcknowledged, "Event indicates that message was acknowleged");
+            Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.StartedAt, "StartedAt is not set");
+            Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.CompletedAt, "CompletedAt is not set");
+            Assert.True(context.ReceiveCompleted.Headers.ContainsKey("SomeKey"));
+            Assert.AreEqual(context.ReceiveCompleted.Headers["SomeKey"], "SomeValue");
+            Assert.True(context.ReceiveCompleted.OnMessageFailed, "Event does not indicate that OnMessage failed");
         }
 
         class Context : ScenarioContext
         {
-            public ReceiveCompleted Event { get; set; }
-            public string MessageId { get; set; }
+            public ReceiveCompleted ReceiveCompleted { get; set; }
+
+            public string NativeMessageId { get; set; }
         }
 
         class SubscribingEndpoint : EndpointConfigurationBuilder
         {
-            public SubscribingEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public SubscribingEndpoint() => EndpointSetup<DefaultServer>();
 
             class EventEnablingFeature : Feature
             {
-                public EventEnablingFeature()
-                {
-                    EnableByDefault();
-                }
+                public EventEnablingFeature() => EnableByDefault();
 
-                protected override void Setup(FeatureConfigurationContext context)
-                {
-                    context.OnReceiveCompleted((e, _) =>
-                    {
-                        var testContext = (Context)context.Settings.Get<ScenarioContext>();
-
-                        if (testContext.Event == null)
+                protected override void Setup(FeatureConfigurationContext context) =>
+                    context.OnReceiveCompleted((receiveCompleted, _) =>
                         {
-                            testContext.Event = e;
-                        }
+                            var testContext = (Context)context.Settings.Get<ScenarioContext>();
 
-                        return Task.CompletedTask;
-                    });
-                }
+                            if (testContext.ReceiveCompleted == null)
+                            {
+                                testContext.ReceiveCompleted = receiveCompleted;
+                            }
+
+                            return Task.CompletedTask;
+                        });
             }
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
-                public SomeMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                public SomeMessageHandler(Context testContext) => this.testContext = testContext;
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    if (testContext.Event != null)
+                    if (testContext.ReceiveCompleted != null)
                     {
                         return Task.CompletedTask;
                     }
 
-                    testContext.MessageId = context.Extensions.Get<IncomingMessage>().NativeMessageId;
+                    testContext.NativeMessageId = context.Extensions.Get<IncomingMessage>().NativeMessageId;
 
                     if (message.Throw)
                     {
@@ -131,7 +122,7 @@
                     return Task.CompletedTask;
                 }
 
-                Context testContext;
+                readonly Context testContext;
             }
         }
 
