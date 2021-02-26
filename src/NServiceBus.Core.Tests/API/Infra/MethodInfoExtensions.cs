@@ -14,14 +14,5 @@
 
         public static bool IsVisible(this MethodInfo method) =>
             method.DeclaringType.IsVisible && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
-
-        public static bool IsExplicitInterfaceImplementation(this MethodInfo method)
-        {
-            const MethodAttributes explicitAttributes =
-                MethodAttributes.PrivateScope | MethodAttributes.Private | MethodAttributes.Final |
-                MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.VtableLayoutMask;
-
-            return !method.IsStatic && method.Attributes == explicitAttributes;
-        }
     }
 }
