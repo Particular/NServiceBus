@@ -90,7 +90,7 @@ namespace NServiceBus
             return addresses.Values;
         }
 
-        Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute, CancellationToken cancellationToken = default)
+        Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute, CancellationToken cancellationToken)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
             return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions, cancellationToken);

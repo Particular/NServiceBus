@@ -11,8 +11,5 @@
 
         public static IEnumerable<ParameterInfo> CancellationTokens(this IEnumerable<ParameterInfo> parameters) =>
             parameters.Where(parameter => parameter.ParameterType.IsCancellationToken());
-
-        public static bool IsExplicitlyNamed(this ParameterInfo parameter) =>
-            parameter.Name.Length > 17 && parameter.Name.EndsWith("CancellationToken");
     }
 }

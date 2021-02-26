@@ -14,18 +14,22 @@
             .Where(method => typeof(Task).IsAssignableFrom(method.ReturnType))
             .ToList();
 
-#pragma warning disable IDE0001 // Simplify Names
         static readonly List<MethodInfo> noTokenMethods = methods
             .Where(method =>
                 method.GetParameters().CancellableContexts().Any() ||
-                method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
-                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == nameof(TaskEx.ThrowIfNull)))
+                method.IsOn(typeof(ICancellableContext)) ||
+                (method.IsOn(typeof(TaskEx)) && method.Name == nameof(TaskEx.ThrowIfNull)))
+            .ToList();
+
+        static readonly List<MethodInfo> mandatoryTokenMethods = methods
+            .Where(method => !noTokenMethods.Contains(method))
+            .Where(method => method.IsPrivate)
             .ToList();
 
         static readonly List<MethodInfo> optionalTokenMethods = methods
             .Where(method => !noTokenMethods.Contains(method))
+            .Where(method => !mandatoryTokenMethods.Contains(method))
             .ToList();
-#pragma warning restore IDE0001 // Simplify Names
 
         [TestCase(true)]
         [TestCase(false)]
@@ -36,6 +40,7 @@
                 .ToDictionary(method => method, method => new List<string>());
 
             RecordPolicy(noTokenMethods, nameof(noTokenMethods));
+            RecordPolicy(mandatoryTokenMethods, nameof(mandatoryTokenMethods));
             RecordPolicy(optionalTokenMethods, nameof(optionalTokenMethods));
 
             var violators = methodPolicies
@@ -76,11 +81,7 @@
         public static void HaveOptionalTokens(bool visible)
         {
             var violators = optionalTokenMethods
-                .Where(method => method.IsVisible() == visible)
-                .Where(method => !method.GetParameters().CancellationTokens().Any(param => param.IsOptional || param.IsExplicitlyNamed()))
-                // Methods explicitly implementing interfaces generate error CS1066: "The default value specified for parameter (name) will
-                // have no effect because it applies to a member that is used in contexts
-                .Where(method => !(method.IsExplicitInterfaceImplementation() && method.GetParameters().CancellationTokens().All(param => !param.IsOptional)))
+                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => param.IsOptional))
                 .Prettify()
                 .ToList();
 
@@ -89,8 +90,18 @@
             Assert.IsEmpty(violators);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public static void HaveMandatoryTokens(bool visible)
+        {
+            var violators = mandatoryTokenMethods
+                .Where(method => method.IsVisible() == visible && !method.GetParameters().CancellationTokens().Any(param => !param.IsOptional))
+                .Prettify()
+                .ToList();
 
+            Console.Error.WriteViolators(violators);
 
-
+            Assert.IsEmpty(violators);
+        }
     }
 }

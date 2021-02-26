@@ -29,7 +29,7 @@ namespace NServiceBus
                 DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction, cancellationToken));
         }
 
-        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken = default)
+        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken)
         {
             var tasks = new List<Task>();
 
@@ -48,7 +48,7 @@ namespace NServiceBus
                 .ConfigureAwait(false);
         }
 
-        Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken = default)
+        Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
         {
             return Task.WhenAll(operations.Select(operation =>
             {
@@ -58,7 +58,7 @@ namespace NServiceBus
             }));
         }
 
-        async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction, CancellationToken cancellationToken = default)
+        async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction, CancellationToken cancellationToken)
         {
             var message = transportOperation.Message;
 
@@ -133,7 +133,7 @@ namespace NServiceBus
             }
         }
 
-        async Task<IEnumerable<string>> GetSubscribersFor(Type messageType, CancellationToken cancellationToken = default)
+        async Task<IEnumerable<string>> GetSubscribersFor(Type messageType, CancellationToken cancellationToken)
         {
             var subscribers = new HashSet<string>();
 

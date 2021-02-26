@@ -42,7 +42,7 @@ namespace NServiceBus
             return Task.CompletedTask;
         }
 
-        static Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+        static Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, CancellationToken cancellationToken) where TSagaData : class, IContainSagaData
         {
             var storageSession = (LearningSynchronizedStorageSession)session;
             return storageSession.Read<TSagaData>(sagaId, cancellationToken);

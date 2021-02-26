@@ -60,7 +60,7 @@
             }
         }
 
-        async Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag, CancellationToken cancellationToken = default)
+        async Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag, CancellationToken cancellationToken)
         {
             return await adapter.TryAdapt(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false)
                    ?? await adapter.TryAdapt(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false)

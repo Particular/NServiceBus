@@ -50,7 +50,7 @@ namespace NServiceBus
             return OpenWithRetryOnConcurrency(filePath, FileMode.CreateNew, cancellationToken);
         }
 
-        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, CancellationToken cancellationToken = default)
+        static async Task<SagaStorageFile> OpenWithRetryOnConcurrency(string filePath, FileMode fileAccess, CancellationToken cancellationToken)
         {
             var numRetries = 0;
 

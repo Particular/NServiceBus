@@ -63,7 +63,7 @@ namespace NServiceBus
             deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
         }
 
-        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, CancellationToken cancellationToken = default)
+        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, CancellationToken cancellationToken)
         {
             var sagaManifest = sagaManifests.GetForEntityType(entityType);
 

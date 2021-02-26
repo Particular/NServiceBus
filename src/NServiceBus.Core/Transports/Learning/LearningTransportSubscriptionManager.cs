@@ -64,7 +64,7 @@
             }
         }
 
-        async Task Subscribe(MessageMetadata eventType, CancellationToken cancellationToken = default)
+        async Task Subscribe(MessageMetadata eventType, CancellationToken cancellationToken)
         {
             var eventDir = GetEventDirectory(eventType.MessageType);
 
