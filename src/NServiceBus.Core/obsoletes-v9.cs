@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using Transport;
+
     /// <summary>
     /// Provides support for <see cref="UseTransport{T}"/> transport APIs.
     /// </summary>
@@ -28,15 +30,12 @@ namespace NServiceBus
     /// <summary>
     /// Learning transport configuration settings.
     /// </summary>
-    public class LearningTransportSettings
+    public class LearningTransportSettings : TransportSettings<LearningTransport>
     {
-        readonly LearningTransport transport;
-        readonly RoutingSettings<LearningTransport> routing;
-
         internal LearningTransportSettings(LearningTransport transport, RoutingSettings<LearningTransport> routing)
+            : base(transport, routing)
+
         {
-            this.transport = transport;
-            this.routing = routing;
         }
 
         /// <summary>
@@ -49,7 +48,7 @@ namespace NServiceBus
             ReplacementTypeOrMember = "Use LearningTransport.StorageDirectory")]
         public LearningTransportSettings StorageDirectory(string storageDir)
         {
-            transport.StorageDirectory = storageDir;
+            Transport.StorageDirectory = storageDir;
 
             return this;
         }
@@ -63,19 +62,43 @@ namespace NServiceBus
             ReplacementTypeOrMember = "Use LearningTransport.RestrictPayloadSize")]
         public LearningTransportSettings NoPayloadSizeRestriction()
         {
-            transport.RestrictPayloadSize = false;
+            Transport.RestrictPayloadSize = false;
 
             return this;
         }
+    }
+
+    /// <summary>
+    /// Holds transports settings
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class TransportSettings<T> where T : TransportDefinition
+    {
+        /// <summary>
+        /// Instance of <see cref="TransportDefinition"/>
+        /// </summary>
+        protected readonly T Transport;
+
+        readonly RoutingSettings<T> routing;
 
         /// <summary>
-        /// Configures the routing.
+        /// Creates an instance of <see cref="TransportSettings{T}"/>
         /// </summary>
+        protected TransportSettings(T transport, RoutingSettings<T> routing)
+        {
+            Transport = transport;
+            this.routing = routing;
+        }
+
+        /// <summary>
+        /// Routing configuration.
+        /// </summary>
+        /// <returns></returns>
         [ObsoleteEx(
             RemoveInVersion = "10",
             TreatAsErrorFromVersion = "9",
             ReplacementTypeOrMember = "Use EndpointConfiguration.UseTransport() to access routing settings")]
-        public RoutingSettings<LearningTransport> Routing() => routing;
+        public RoutingSettings<T> Routing() => routing;
     }
 }
 

@@ -682,15 +682,11 @@ namespace NServiceBus
         public static NServiceBus.LearningTransportSettings UseTransport<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.LearningTransport { }
     }
-    public class LearningTransportSettings
+    public class LearningTransportSettings : NServiceBus.TransportSettings<NServiceBus.LearningTransport>
     {
         [System.Obsolete("Use `Use LearningTransport.RestrictPayloadSize` instead. Will be treated as an er" +
             "ror from version 9.0.0. Will be removed in version 10.0.0.", false)]
         public NServiceBus.LearningTransportSettings NoPayloadSizeRestriction() { }
-        [System.Obsolete("Use `Use EndpointConfiguration.UseTransport() to access routing settings` instead" +
-            ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
-            "0.0.", false)]
-        public NServiceBus.RoutingSettings<NServiceBus.LearningTransport> Routing() { }
         [System.Obsolete("Use `Use LearningTransport.StorageDirectory` instead. Will be treated as an error" +
             " from version 9.0.0. Will be removed in version 10.0.0.", false)]
         public NServiceBus.LearningTransportSettings StorageDirectory(string storageDir) { }
@@ -1168,6 +1164,16 @@ namespace NServiceBus
         [System.Obsolete("Use `TransportDefinition.TransportTransactionMode` instead. The member currently " +
             "throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public new NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
+    }
+    public abstract class TransportSettings<T>
+        where T : NServiceBus.Transport.TransportDefinition
+    {
+        protected readonly T Transport;
+        protected TransportSettings(T transport, NServiceBus.RoutingSettings<T> routing) { }
+        [System.Obsolete("Use `Use EndpointConfiguration.UseTransport() to access routing settings` instead" +
+            ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
+            "0.0.", false)]
+        public NServiceBus.RoutingSettings<T> Routing() { }
     }
     public enum TransportTransactionMode
     {
