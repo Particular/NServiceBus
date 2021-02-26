@@ -14,30 +14,38 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_on_message(TransportTransactionMode transactionMode)
         {
-            var onMessageCalled = new TaskCompletionSource<MessageContext>();
+            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
 
-            OnTestTimeout(() => onMessageCalled.SetCanceled());
+            OnTestTimeout(() => onCompleteCalled.SetCanceled());
 
-            string body = null;
+            MessageContext messageContext = null;
+
             await StartPump((context, _) =>
             {
-                body = Encoding.UTF8.GetString(context.Body);
+                messageContext = context;
 
-                onMessageCalled.SetResult(context);
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             },
-                (context, _) => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
+            (context, _) => Task.FromResult(ErrorHandleResult.Handled),
+            transactionMode,
+            onComplete: (context, _) =>
+            {
+                onCompleteCalled.SetResult(context);
+                return Task.CompletedTask;
+            });
 
             await SendMessage(InputQueueName, new Dictionary<string, string>
             {
                 {"MyHeader", "MyValue"}
             });
 
-            var messageContext = await onMessageCalled.Task;
+            var completeContext = await onCompleteCalled.Task;
 
+            Assert.False(completeContext.OnMessageFailed, "Message failure should not be indicated");
+            Assert.NotNull(messageContext, "On message should have been called");
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
-            Assert.AreEqual("", body, "Should pass the body");
+            Assert.AreEqual("", Encoding.UTF8.GetString(messageContext.Body), "Should pass the body");
         }
     }
 }

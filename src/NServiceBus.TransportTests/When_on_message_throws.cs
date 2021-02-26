@@ -14,9 +14,10 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
-            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
+            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
+            ErrorContext errorContext = null;
 
-            OnTestTimeout(() => onErrorCalled.SetCanceled());
+            OnTestTimeout(() => onCompleteCalled.SetCanceled());
 
             await StartPump((context, _) =>
             {
@@ -24,15 +25,23 @@ namespace NServiceBus.TransportTests
             },
                 (context, _) =>
                 {
-                    onErrorCalled.SetResult(context);
+                    errorContext = context;
 
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }, transactionMode);
+                },
+                transactionMode,
+                onComplete: (context, _) =>
+                {
+                    onCompleteCalled.SetResult(context);
+                    return Task.CompletedTask;
+                });
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 
-            var errorContext = await onErrorCalled.Task;
+            var completeContext = await onCompleteCalled.Task;
 
+            Assert.True(completeContext.OnMessageFailed, "Message failure should be indicated");
+            Assert.NotNull(errorContext, "On error should have been called");
             Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
             Assert.AreEqual(1, errorContext.ImmediateProcessingFailures, "Should track the number of delivery attempts");
             Assert.AreEqual("MyValue", errorContext.Message.Headers["MyHeader"], "Should pass the message headers");
