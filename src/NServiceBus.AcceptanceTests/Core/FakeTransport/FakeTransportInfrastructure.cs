@@ -38,7 +38,7 @@
             Dispatcher = new FakeDispatcher();
         }
 
-        public override Task Shutdown(CancellationToken cancellationToken)
+        public override Task Shutdown(CancellationToken cancellationToken = default)
         {
             startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");
 

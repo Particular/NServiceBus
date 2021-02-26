@@ -24,7 +24,7 @@
         /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
         /// provide information anymore at this stage).
         /// </summary>
-        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(hostSettings), hostSettings);
             var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);

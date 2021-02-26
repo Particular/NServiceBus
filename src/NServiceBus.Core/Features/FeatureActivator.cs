@@ -57,7 +57,7 @@ namespace NServiceBus.Features
             return features.Select(t => t.Diagnostics).ToArray();
         }
 
-        public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken)
+        public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
         {
             // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
             foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))
@@ -69,7 +69,7 @@ namespace NServiceBus.Features
             }
         }
 
-        public Task StopFeatures(CancellationToken cancellationToken)
+        public Task StopFeatures(CancellationToken cancellationToken = default)
         {
             var featureStopTasks = enabledFeatures.Where(f => f.Feature.IsActive)
                 .SelectMany(f => f.TaskControllers)

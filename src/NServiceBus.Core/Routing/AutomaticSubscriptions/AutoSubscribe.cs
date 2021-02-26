@@ -61,7 +61,7 @@
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
             }
 
-            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 try
                 {
@@ -101,7 +101,7 @@
             }
 
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
             }

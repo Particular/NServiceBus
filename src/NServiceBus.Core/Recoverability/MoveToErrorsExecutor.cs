@@ -16,7 +16,7 @@
             this.headerCustomizations = headerCustomizations;
         }
 
-        public Task MoveToErrorQueue(string errorQueueAddress, IncomingMessage message, Exception exception, TransportTransaction transportTransaction, CancellationToken cancellationToken)
+        public Task MoveToErrorQueue(string errorQueueAddress, IncomingMessage message, Exception exception, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
             message.RevertToOriginalBodyIfNeeded();
 

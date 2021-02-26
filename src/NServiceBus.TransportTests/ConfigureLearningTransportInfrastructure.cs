@@ -17,7 +17,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         };
     }
 
-    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName, CancellationToken cancellationToken)
+    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName, CancellationToken cancellationToken = default)
     {
         var mainReceiverSettings = new ReceiveSettings(
             "mainReceiver",
@@ -35,7 +35,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         return transportInfrastructure;
     }
 
-    public Task Cleanup(CancellationToken cancellationToken)
+    public Task Cleanup(CancellationToken cancellationToken = default)
     {
         if (Directory.Exists(storageDir))
         {

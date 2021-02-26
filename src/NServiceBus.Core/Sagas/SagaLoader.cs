@@ -10,6 +10,6 @@ namespace NServiceBus
     interface SagaLoader
 #pragma warning restore IDE1006 // Naming Styles
     {
-        Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken);
+        Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken = default);
     }
 }

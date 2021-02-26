@@ -50,12 +50,12 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
 
                 class CustomTask : FeatureStartupTask
                 {
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                     {
                         return Task.FromResult(0);
                     }
 
-                    protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+                    protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                     {
                         await Task.Yield();
 

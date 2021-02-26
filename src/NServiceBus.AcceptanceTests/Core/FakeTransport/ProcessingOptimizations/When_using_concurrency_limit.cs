@@ -39,20 +39,20 @@
         {
             PushRuntimeSettings pushSettings;
 
-            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken)
+            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken = default)
             {
                 pushSettings = limitations;
                 return Task.CompletedTask;
             }
 
-            public Task StartReceive(CancellationToken cancellationToken)
+            public Task StartReceive(CancellationToken cancellationToken = default)
             {
                 Assert.AreEqual(10, pushSettings.MaxConcurrency);
 
                 return Task.CompletedTask;
             }
 
-            public Task StopReceive(CancellationToken cancellationToken)
+            public Task StopReceive(CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
             }
@@ -64,7 +64,7 @@
 
         class FakeDispatcher : IMessageDispatcher
         {
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(0);
             }
@@ -76,7 +76,7 @@
             {
             }
 
-            public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
+            public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
             }
@@ -108,7 +108,7 @@
                     .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
             }
 
-            public override Task Shutdown(CancellationToken cancellationToken)
+            public override Task Shutdown(CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
             }

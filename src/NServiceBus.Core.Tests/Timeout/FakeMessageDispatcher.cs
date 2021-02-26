@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, CancellationToken cancellationToken)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
             MessagesSent += outgoingMessages.MulticastTransportOperations.Count + outgoingMessages.UnicastTransportOperations.Count;
             return Task.CompletedTask;

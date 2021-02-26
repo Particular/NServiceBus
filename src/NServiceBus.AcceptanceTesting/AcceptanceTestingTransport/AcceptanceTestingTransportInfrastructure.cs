@@ -75,7 +75,7 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
         }
 
-        public override Task Shutdown(CancellationToken cancellationToken)
+        public override Task Shutdown(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }

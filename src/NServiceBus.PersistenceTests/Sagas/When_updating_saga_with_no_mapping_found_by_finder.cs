@@ -23,15 +23,15 @@
 
             var updateValue = Guid.NewGuid().ToString();
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, default))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
                 // the saga won't be loaded via a persister.Get operation in this case
                 var customFinder = new CustomFinder(saga);
-                var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context, default);
+                var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context);
                 sagaData.SomeSagaProperty = updateValue;
 
-                await configuration.SagaStorage.Update(sagaData, completeSession, context, default);
-                await completeSession.CompleteAsync(default);
+                await configuration.SagaStorage.Update(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
             }
 
             var result = await GetById<SagaWithoutCorrelationPropertyData>(saga.Id);
@@ -62,7 +62,7 @@
                 this.sagaToFind = sagaToFind;
             }
 
-            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
+            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(sagaToFind);
             }

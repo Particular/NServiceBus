@@ -22,20 +22,20 @@
 
             var persister = configuration.SagaStorage;
             var savingContextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag, default))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
             {
                 await SaveSagaWithSession(saga1, session, savingContextBag);
                 await SaveSagaWithSession(saga2, session, savingContextBag);
 
-                await session.CompleteAsync(default);
+                await session.CompleteAsync();
             }
 
             var readContextBag = configuration.GetContextBagForSagaStorage();
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag, default))
+            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
             {
-                var saga1Result = await persister.Get<SagaWithCorrelationPropertyData>(nameof(SagaWithCorrelationPropertyData.CorrelatedProperty), saga1.CorrelatedProperty, readSession, readContextBag, default);
+                var saga1Result = await persister.Get<SagaWithCorrelationPropertyData>(nameof(SagaWithCorrelationPropertyData.CorrelatedProperty), saga1.CorrelatedProperty, readSession, readContextBag);
 
-                var saga2Result = await persister.Get<AnotherSagaWithCorrelatedPropertyData>(nameof(AnotherSagaWithCorrelatedPropertyData.CorrelatedProperty), saga2.CorrelatedProperty, readSession, readContextBag, default);
+                var saga2Result = await persister.Get<AnotherSagaWithCorrelatedPropertyData>(nameof(AnotherSagaWithCorrelatedPropertyData.CorrelatedProperty), saga2.CorrelatedProperty, readSession, readContextBag);
 
                 Assert.AreEqual(saga1.CorrelatedProperty, saga1Result.CorrelatedProperty);
                 Assert.AreEqual(saga2.CorrelatedProperty, saga2Result.CorrelatedProperty);

@@ -16,7 +16,7 @@ namespace NServiceBus
 
         public TimeSpan MaxMessageTimeToLive { get; set; }
 
-        public Task<Stream> Get(string key, CancellationToken cancellationToken)
+        public Task<Stream> Get(string key, CancellationToken cancellationToken = default)
         {
             var filePath = Path.Combine(basePath, key);
 
@@ -26,7 +26,7 @@ namespace NServiceBus
             return Task.FromResult((Stream)fileStream);
         }
 
-        public async Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
+        public async Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken = default)
         {
             var key = GenerateKey(timeToBeReceived);
 
@@ -45,7 +45,7 @@ namespace NServiceBus
             return key;
         }
 
-        public Task Start(CancellationToken cancellationToken)
+        public Task Start(CancellationToken cancellationToken = default)
         {
             logger.Info("File share data bus started. Location: " + basePath);
             //TODO: Implement a clean up thread

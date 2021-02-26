@@ -11,7 +11,7 @@ namespace NServiceBus.AcceptanceTesting
 
     class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken)
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             if (transaction is AcceptanceTestingOutboxTransaction inMemOutboxTransaction)
             {
@@ -21,7 +21,7 @@ namespace NServiceBus.AcceptanceTesting
             return EmptyTask;
         }
 
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken)
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             if (transportTransaction.TryGet(out Transaction ambientTransaction))
             {

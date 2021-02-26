@@ -50,7 +50,7 @@
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken = default)
         {
             this.onMessage = onMessage;
             this.onError = onError;
@@ -69,7 +69,7 @@
             return Task.CompletedTask;
         }
 
-        public Task StartReceive(CancellationToken cancellationToken)
+        public Task StartReceive(CancellationToken cancellationToken = default)
         {
             messagePumpCancellationTokenSource = new CancellationTokenSource();
             messageProcessingCancellationTokenSource = new CancellationTokenSource();
@@ -81,7 +81,7 @@
             return Task.CompletedTask;
         }
 
-        public async Task StopReceive(CancellationToken cancellationToken)
+        public async Task StopReceive(CancellationToken cancellationToken = default)
         {
             messagePumpCancellationTokenSource?.Cancel();
 

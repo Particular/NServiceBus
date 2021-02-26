@@ -23,7 +23,7 @@
             var byteArray = Encoding.ASCII.GetBytes(content);
             using (var stream = new MemoryStream(byteArray))
             {
-                return await dataBus.Put(stream, timeToLive, default);
+                return await dataBus.Put(stream, timeToLive);
             }
         }
 
@@ -33,7 +33,7 @@
             const string content = "Test";
 
             var key = await Put(content, TimeSpan.MaxValue);
-            using (var stream = await dataBus.Get(key, default))
+            using (var stream = await dataBus.Get(key))
             using (var streamReader = new StreamReader(stream))
             {
                 Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
@@ -49,7 +49,7 @@
 
             Parallel.For(0, 10, async i =>
             {
-                using (var stream = await dataBus.Get(key, default))
+                using (var stream = await dataBus.Get(key))
                 using (var streamReader = new StreamReader(stream))
                 {
                     Assert.AreEqual(await streamReader.ReadToEndAsync(), content);

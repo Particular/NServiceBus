@@ -80,13 +80,13 @@
                 this.context = context;
             }
 
-            public Task<Stream> Get(string key, CancellationToken cancellationToken)
+            public Task<Stream> Get(string key, CancellationToken cancellationToken = default)
             {
                 var fileStream = new FileStream(context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
                 return Task.FromResult((Stream)fileStream);
             }
 
-            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken = default)
             {
                 using (var destination = File.OpenWrite(context.TempPath))
                 {
@@ -95,7 +95,7 @@
                 return Task.FromResult("key");
             }
 
-            public Task Start(CancellationToken cancellationToken)
+            public Task Start(CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(0);
             }

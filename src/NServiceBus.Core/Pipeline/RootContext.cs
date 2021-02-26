@@ -5,7 +5,7 @@ namespace NServiceBus
 
     class RootContext : BehaviorContext
     {
-        public RootContext(IServiceProvider builder, MessageOperations messageOperations, IPipelineCache pipelineCache, CancellationToken cancellationToken)
+        public RootContext(IServiceProvider builder, MessageOperations messageOperations, IPipelineCache pipelineCache, CancellationToken cancellationToken = default)
             : base(null, cancellationToken)
         {
             Set(messageOperations);

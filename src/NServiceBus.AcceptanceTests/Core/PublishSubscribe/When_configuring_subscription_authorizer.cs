@@ -113,9 +113,9 @@
                         testContext.SubscriptionStorage = (FakePersistence.FakeSubscriptionStorage)subscriptionStorage;
                     }
 
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken) => Task.CompletedTask;
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken) => Task.CompletedTask;
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
                 }
             }
         }
@@ -147,15 +147,15 @@
             {
                 public ConcurrentBag<string> SubscribedEvents { get; } = new ConcurrentBag<string>();
 
-                public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken)
+                public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
                 {
                     SubscribedEvents.Add(messageType.TypeName);
                     return Task.CompletedTask;
                 }
 
-                public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken) => throw new NotImplementedException();
+                public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
-                public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken) => throw new NotImplementedException();
+                public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
             }
         }
     }

@@ -24,12 +24,12 @@
             await SaveSaga(saga);
 
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, default))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                var sagaData = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(saga.Id, completeSession, context, default);
+                var sagaData = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(saga.Id, completeSession, context);
 
-                await configuration.SagaStorage.Complete(sagaData, completeSession, context, default);
-                await completeSession.CompleteAsync(default);
+                await configuration.SagaStorage.Complete(sagaData, completeSession, context);
+                await completeSession.CompleteAsync();
             }
 
             var result = await GetById<SagaWithoutCorrelationPropertyData>(saga.Id);
@@ -64,7 +64,7 @@
 
         public class CustomFinder : IFindSagas<SagaWithoutCorrelationPropertyData>.Using<SagaWithoutCorrelationPropertyStartingMessage>
         {
-            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken)
+            public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

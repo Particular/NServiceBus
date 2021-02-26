@@ -35,12 +35,12 @@
 
             class FailingStartupTask : FeatureStartupTask
             {
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     throw new SimulatedException();
                 }
 
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(0);
                 }

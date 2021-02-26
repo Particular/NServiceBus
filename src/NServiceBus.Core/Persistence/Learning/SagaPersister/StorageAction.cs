@@ -15,7 +15,7 @@ namespace NServiceBus
             sagaFileKey = $"{sagaData.GetType().FullName}{sagaData.Id}";
         }
 
-        public abstract Task Execute(CancellationToken cancellationToken);
+        public abstract Task Execute(CancellationToken cancellationToken = default);
 
         protected SagaStorageFile GetSagaFile()
         {

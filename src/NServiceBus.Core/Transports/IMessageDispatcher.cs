@@ -11,6 +11,6 @@
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken);
+        Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default);
     }
 }

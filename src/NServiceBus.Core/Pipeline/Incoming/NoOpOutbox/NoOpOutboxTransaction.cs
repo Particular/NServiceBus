@@ -10,7 +10,7 @@
         {
         }
 
-        public Task Commit(CancellationToken cancellationToken)
+        public Task Commit(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }

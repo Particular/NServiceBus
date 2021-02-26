@@ -22,13 +22,13 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             Id = id;
         }
 
-        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken)
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken = default)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
             return Task.CompletedTask;
         }
 
-        public Task StartReceive(CancellationToken cancellationToken)
+        public Task StartReceive(CancellationToken cancellationToken = default)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StartReceive)} for receiver {Id}");
 
@@ -41,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             return Task.CompletedTask;
         }
 
-        public async Task StopReceive(CancellationToken cancellationToken)
+        public async Task StopReceive(CancellationToken cancellationToken = default)
         {
             startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(StopReceive)} for receiver {Id}");
 
@@ -58,9 +58,9 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         class FakeSubscriptionManager : ISubscriptionManager
         {
-            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken) => Task.CompletedTask;
+            public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-            public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken) => Task.CompletedTask;
+            public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 }

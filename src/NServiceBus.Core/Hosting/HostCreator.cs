@@ -36,7 +36,7 @@
             return externallyManagedContainerHost;
         }
 
-        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration, CancellationToken cancellationToken)
+        public static async Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration, CancellationToken cancellationToken = default)
         {
             var settings = endpointConfiguration.Settings;
 

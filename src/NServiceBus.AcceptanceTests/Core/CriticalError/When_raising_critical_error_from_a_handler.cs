@@ -96,7 +96,7 @@
                     this.testContext = testContext;
                 }
 
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
                     testContext.CriticalErrorsRaised++;
@@ -107,7 +107,7 @@
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(0);
                 }

@@ -31,9 +31,9 @@
             var executor = CreateExecutor(policy, raiseNotifications: false);
             var errorContext = CreateErrorContext();
 
-            await executor.Invoke(errorContext, default); //force retry
-            await executor.Invoke(errorContext, default); //force delayed retry
-            await executor.Invoke(errorContext, default); //force move to errors
+            await executor.Invoke(errorContext); //force retry
+            await executor.Invoke(errorContext); //force delayed retry
+            await executor.Invoke(errorContext); //force move to errors
 
             Assert.IsEmpty(messageRetriedNotifications);
             Assert.IsEmpty(messageFaultedNotifications);
@@ -45,7 +45,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry());
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageRetriedNotifications.Single();
 
@@ -61,7 +61,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysDelay(TimeSpan.FromSeconds(10)));
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageRetriedNotifications.Single();
 
@@ -77,7 +77,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors());
             var errorContext = CreateErrorContext(exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -93,7 +93,7 @@
                 delayedRetriesSupported: false);
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -109,7 +109,7 @@
                 immediateRetriesSupported: false);
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -124,7 +124,7 @@
                 RetryPolicy.Unsupported());
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -139,7 +139,7 @@
                 RetryPolicy.Discard("not needed anymore"));
             var errorContext = CreateErrorContext(messageId: "message-id");
 
-            var result = await recoverabilityExecutor.Invoke(errorContext, default);
+            var result = await recoverabilityExecutor.Invoke(errorContext);
 
             Assert.AreEqual(ErrorHandleResult.Handled, result);
             Assert.IsEmpty(messageRetriedNotifications);
@@ -153,7 +153,7 @@
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors(customErrorQueueAddress));
             var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext, default);
+            await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -272,7 +272,7 @@
         {
             public TransportOperations TransportOperations { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 TransportOperations = outgoingMessages;
                 return Task.CompletedTask;

@@ -67,9 +67,9 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
-            StopPump(default).GetAwaiter().GetResult();
-            transportInfrastructure?.Shutdown(default).GetAwaiter().GetResult();
-            configurer?.Cleanup(default).GetAwaiter().GetResult();
+            StopPump().GetAwaiter().GetResult();
+            transportInfrastructure?.Shutdown().GetAwaiter().GetResult();
+            configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
         protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, OnCompleted onComplete = null)
@@ -100,7 +100,7 @@
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
             transport.TransportTransactionMode = transactionMode;
 
-            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, default);
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
             receiver = transportInfrastructure.Receivers.Single().Value;
             await receiver.Initialize(
@@ -134,10 +134,10 @@
                 },
                 default);
 
-            await receiver.StartReceive(default);
+            await receiver.StartReceive();
         }
 
-        protected async Task StopPump(CancellationToken cancellationToken)
+        protected async Task StopPump(CancellationToken cancellationToken = default)
         {
             if (receiver == null)
             {
@@ -188,7 +188,7 @@
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
-            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, default);
+            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

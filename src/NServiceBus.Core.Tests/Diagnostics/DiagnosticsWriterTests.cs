@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.Diagnostics
 
             var writer = new HostStartupDiagnosticsWriter(testWriter, true);
 
-            await writer.Write(diagnostics.entries, default);
+            await writer.Write(diagnostics.entries);
 
             Approver.Verify(output);
         }

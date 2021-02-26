@@ -53,12 +53,12 @@ namespace NServiceBus.Features
                 this.dataBus = dataBus;
             }
 
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 return dataBus.Start(cancellationToken);
             }
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
             }

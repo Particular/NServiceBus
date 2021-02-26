@@ -7,15 +7,15 @@ namespace NServiceBus
     {
         string FileToProcess { get; }
 
-        Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken);
+        Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken = default);
 
-        Task Commit(CancellationToken cancellationToken);
+        Task Commit(CancellationToken cancellationToken = default);
 
         void Rollback();
 
         void ClearPendingOutgoingOperations();
 
-        Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken);
+        Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken = default);
 
         bool Complete();
     }

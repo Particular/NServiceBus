@@ -16,7 +16,7 @@
         {
         }
 
-        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken)
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
             StartupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 

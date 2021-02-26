@@ -213,7 +213,7 @@
         class ParentContext : BehaviorContext, IParentContext
         {
             public ParentContext(IBehaviorContext parentContext)
-                : base(parentContext, default)
+                : base(parentContext)
             {
             }
         }
@@ -233,7 +233,7 @@
         class ChildContextNotInheritedFromParentContext : BehaviorContext
         {
             public ChildContextNotInheritedFromParentContext(IBehaviorContext parentContext)
-                : base(parentContext, default)
+                : base(parentContext)
             {
             }
         }

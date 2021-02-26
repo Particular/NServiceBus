@@ -31,7 +31,7 @@
             raiseNotifications = raiseRecoverabilityNotifications;
         }
 
-        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken)
+        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 

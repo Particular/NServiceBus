@@ -35,13 +35,13 @@
 
         class SendMessageAndDelayStartTask : FeatureStartupTask
         {
-            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken)
+            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 await session.SendLocal(new MyCommand(), cancellationToken);
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken)
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(0);
             }

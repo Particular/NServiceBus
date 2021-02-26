@@ -25,7 +25,7 @@
             Transaction = null;
         }
 
-        public Task CompleteAsync(CancellationToken cancellationToken)
+        public Task CompleteAsync(CancellationToken cancellationToken = default)
         {
             if (ownsTransaction)
             {

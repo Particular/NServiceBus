@@ -129,7 +129,7 @@ namespace NServiceBus
             PipelineComponent pipelineComponent,
             IPipelineCache pipelineCache,
             TransportInfrastructure transportInfrastructure,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -183,7 +183,7 @@ namespace NServiceBus
             }
         }
 
-        public async Task Start(CancellationToken cancellationToken)
+        public async Task Start(CancellationToken cancellationToken = default)
         {
             foreach (var messageReceiver in receivers)
             {
@@ -200,7 +200,7 @@ namespace NServiceBus
             }
         }
 
-        public Task Stop(CancellationToken cancellationToken)
+        public Task Stop(CancellationToken cancellationToken = default)
         {
             var receiverStopTasks = receivers.Select(async receiver =>
             {

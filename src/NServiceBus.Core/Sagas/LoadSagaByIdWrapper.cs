@@ -11,7 +11,7 @@ namespace NServiceBus
     class LoadSagaByIdWrapper<T> : SagaLoader
         where T : class, IContainSagaData
     {
-        public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken)
+        public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken = default)
         {
             return await persister.Get<T>(Guid.Parse(sagaId), storageSession, context, cancellationToken).ConfigureAwait(false);
         }

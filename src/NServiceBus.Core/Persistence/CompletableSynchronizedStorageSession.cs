@@ -14,6 +14,6 @@
         /// <summary>
         /// Completes the session by saving the changes.
         /// </summary>
-        Task CompleteAsync(CancellationToken cancellationToken);
+        Task CompleteAsync(CancellationToken cancellationToken = default);
     }
 }

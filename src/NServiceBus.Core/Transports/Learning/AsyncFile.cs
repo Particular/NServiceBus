@@ -7,7 +7,7 @@ namespace NServiceBus
 
     static class AsyncFile
     {
-        public static async Task WriteBytes(string filePath, byte[] bytes, CancellationToken cancellationToken)
+        public static async Task WriteBytes(string filePath, byte[] bytes, CancellationToken cancellationToken = default)
         {
             using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
@@ -16,7 +16,7 @@ namespace NServiceBus
         }
 
         //write to temp file first so we can do a atomic move
-        public static async Task WriteTextAtomic(string targetPath, string text, CancellationToken cancellationToken)
+        public static async Task WriteTextAtomic(string targetPath, string text, CancellationToken cancellationToken = default)
         {
             var tempFile = Path.GetTempFileName();
             var bytes = Encoding.UTF8.GetBytes(text);
@@ -42,14 +42,14 @@ namespace NServiceBus
             return new FileStream(filePath, fileMode, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
         }
 
-        public static Task WriteText(string filePath, string text, CancellationToken cancellationToken)
+        public static Task WriteText(string filePath, string text, CancellationToken cancellationToken = default)
         {
             var bytes = Encoding.UTF8.GetBytes(text);
 
             return WriteBytes(filePath, bytes, cancellationToken);
         }
 
-        public static async Task<string> ReadText(string filePath, CancellationToken cancellationToken)
+        public static async Task<string> ReadText(string filePath, CancellationToken cancellationToken = default)
         {
             using (var stream = new StreamReader(CreateReadStream(filePath), Encoding.UTF8))
             {
@@ -64,7 +64,7 @@ namespace NServiceBus
             }
         }
 
-        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken cancellationToken)
+        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken cancellationToken = default)
         {
             using (var stream = CreateReadStream(filePath))
             {
@@ -81,7 +81,7 @@ namespace NServiceBus
             return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
         }
 
-        public static async Task<bool> Move(string sourcePath, string targetPath, CancellationToken cancellationToken)
+        public static async Task<bool> Move(string sourcePath, string targetPath, CancellationToken cancellationToken = default)
         {
             try
             {

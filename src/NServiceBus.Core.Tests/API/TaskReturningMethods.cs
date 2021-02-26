@@ -14,28 +14,21 @@
             .Where(method => typeof(Task).IsAssignableFrom(method.ReturnType))
             .ToList();
 
-#pragma warning disable IDE0001 // Simplify Names
         static readonly List<MethodInfo> noTokenMethods = methods
             .Where(method =>
                 method.GetParameters().CancellableContexts().Any() ||
-                method.IsOn(typeof(NServiceBus.ICancellableContext)) ||
-                (method.IsOn(typeof(NServiceBus.TaskEx)) && method.Name == "ThrowIfNull"))
+                method.IsOn(typeof(ICancellableContext)) ||
+                (method.IsOn(typeof(TaskEx)) && method.Name == nameof(TaskEx.ThrowIfNull)))
+            .ToList();
+
+        static readonly List<MethodInfo> mandatoryTokenMethods = methods
+            .Where(method => !noTokenMethods.Contains(method))
+            .Where(method => method.IsPrivate)
             .ToList();
 
         static readonly List<MethodInfo> optionalTokenMethods = methods
             .Where(method => !noTokenMethods.Contains(method))
-            .Where(method => method.IsOn(
-                typeof(NServiceBus.Endpoint),
-                typeof(NServiceBus.IEndpointInstance),
-                typeof(NServiceBus.IMessageSession),
-                typeof(NServiceBus.IStartableEndpoint),
-                typeof(NServiceBus.IStartableEndpointWithExternallyManagedContainer)))
-            .ToList();
-#pragma warning restore IDE0001 // Simplify Names
-
-        static readonly List<MethodInfo> mandatoryTokenMethods = methods
-            .Where(method => !noTokenMethods.Contains(method))
-            .Where(method => !optionalTokenMethods.Contains(method))
+            .Where(method => !mandatoryTokenMethods.Contains(method))
             .ToList();
 
         [TestCase(true)]
@@ -47,8 +40,8 @@
                 .ToDictionary(method => method, method => new List<string>());
 
             RecordPolicy(noTokenMethods, nameof(noTokenMethods));
-            RecordPolicy(optionalTokenMethods, nameof(optionalTokenMethods));
             RecordPolicy(mandatoryTokenMethods, nameof(mandatoryTokenMethods));
+            RecordPolicy(optionalTokenMethods, nameof(optionalTokenMethods));
 
             var violators = methodPolicies
                 .Where(pair => pair.Value.Count != 1)

@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
     using Unicast.Queuing;
-    using System.Threading;
 
     [TestFixture]
     public class MessageDrivenSubscribeTerminatorTests
@@ -158,7 +158,7 @@
 
             public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

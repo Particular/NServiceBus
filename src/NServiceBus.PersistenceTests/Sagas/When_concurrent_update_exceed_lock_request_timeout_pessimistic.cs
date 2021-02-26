@@ -28,34 +28,34 @@
             async Task FirstSession()
             {
                 var firstSessionContext = configuration.GetContextBagForSagaStorage();
-                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstSessionContext, default))
+                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstSessionContext))
                 {
-                    var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstSessionContext, default);
+                    var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstSessionContext);
                     firstSessionGetDone.SetResult(true);
 
                     await Task.Delay(1000).ConfigureAwait(false);
                     await secondSessionGetDone.Task.ConfigureAwait(false);
 
                     record.SagaProperty = "session 1 value";
-                    await persister.Update(record, firstSaveSession, firstSessionContext, default);
-                    await firstSaveSession.CompleteAsync(default);
+                    await persister.Update(record, firstSaveSession, firstSessionContext);
+                    await firstSaveSession.CompleteAsync();
                 }
             }
 
             async Task SecondSession()
             {
                 var secondContext = configuration.GetContextBagForSagaStorage();
-                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext, default))
+                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext))
                 {
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
-                    var recordTask = persister.Get<TestSagaData>(saga.Id, secondSession, secondContext, default);
+                    var recordTask = persister.Get<TestSagaData>(saga.Id, secondSession, secondContext);
                     secondSessionGetDone.SetResult(true);
 
                     var record = await recordTask.ConfigureAwait(false);
                     record.SagaProperty = "session 2 value";
-                    await persister.Update(record, secondSession, secondContext, default);
-                    await secondSession.CompleteAsync(default);
+                    await persister.Update(record, secondSession, secondContext);
+                    await secondSession.CompleteAsync();
                 }
             }
 

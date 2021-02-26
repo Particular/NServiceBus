@@ -14,6 +14,6 @@ namespace NServiceBus.Outbox
         /// <summary>
         /// Commits the outbox transaction.
         /// </summary>
-        Task Commit(CancellationToken cancellationToken);
+        Task Commit(CancellationToken cancellationToken = default);
     }
 }

@@ -13,6 +13,6 @@ namespace NServiceBus.Installation
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        Task Install(string identity, CancellationToken cancellationToken);
+        Task Install(string identity, CancellationToken cancellationToken = default);
     }
 }

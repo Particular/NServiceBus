@@ -31,10 +31,10 @@
         protected async Task SaveSaga<TSagaData>(TSagaData saga) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
-            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag, default))
+            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
             {
                 await SaveSagaWithSession(saga, insertSession, insertContextBag);
-                await insertSession.CompleteAsync(default);
+                await insertSession.CompleteAsync();
             }
         }
 
@@ -43,7 +43,7 @@
         {
             SetupNewSaga(saga);
             var correlationProperty = GetSagaCorrelationProperty(saga);
-            await configuration.SagaStorage.Save(saga, correlationProperty, session, context, default);
+            await configuration.SagaStorage.Save(saga, correlationProperty, session, context);
         }
 
         protected async Task<TSagaData> GetByCorrelationProperty<TSagaData>(string correlatedPropertyName, object correlationPropertyData) where TSagaData : class, IContainSagaData, new()
@@ -52,11 +52,11 @@
             TSagaData sagaData;
             var persister = configuration.SagaStorage;
 
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, default))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
             {
-                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, default);
+                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 
-                await completeSession.CompleteAsync(default);
+                await completeSession.CompleteAsync();
             }
 
             return sagaData;
@@ -66,11 +66,11 @@
         {
             var readContextBag = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag, default))
+            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
             {
-                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, default);
+                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag);
 
-                await readSession.CompleteAsync(default);
+                await readSession.CompleteAsync();
             }
 
             return sagaData;

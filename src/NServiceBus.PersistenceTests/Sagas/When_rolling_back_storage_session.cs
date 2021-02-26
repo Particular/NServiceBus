@@ -17,12 +17,12 @@
             await SaveSaga(sagaData);
 
             var contextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag, default))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag, default);
+                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
                 sagaFromStorage.SomethingWeCareAbout = "Particular.Platform";
 
-                await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag, default);
+                await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
 
                 // Do not complete
             }
@@ -43,7 +43,7 @@
             };
 
             var contextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag, default))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
                 await SaveSagaWithSession(sagaData, session, contextBag);
                 // Do not complete
@@ -66,11 +66,11 @@
             await SaveSaga(sagaData);
 
             var contextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag, default))
+            using (var session = await configuration.SynchronizedStorage.OpenSession(contextBag))
             {
-                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag, default);
+                var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
 
-                await configuration.SagaStorage.Complete(sagaFromStorage, session, contextBag, default);
+                await configuration.SagaStorage.Complete(sagaFromStorage, session, contextBag);
 
                 // Do not complete
             }

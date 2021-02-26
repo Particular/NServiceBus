@@ -25,32 +25,32 @@
             async Task FirstSession()
             {
                 var firstContent = configuration.GetContextBagForSagaStorage();
-                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent, default))
+                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent))
                 {
-                    var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent, default);
+                    var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
                     firstSessionGetDone.SetResult(true);
 
                     record.DateTimeProperty = firstSessionDateTimeValue;
-                    await persister.Update(record, firstSaveSession, firstContent, default);
+                    await persister.Update(record, firstSaveSession, firstContent);
                     await secondSessionGetDone.Task.ConfigureAwait(false);
-                    await firstSaveSession.CompleteAsync(default);
+                    await firstSaveSession.CompleteAsync();
                 }
             }
 
             async Task SecondSession()
             {
                 var secondContext = configuration.GetContextBagForSagaStorage();
-                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext, default))
+                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext))
                 {
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
-                    var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext, default));
+                    var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext));
                     secondSessionGetDone.SetResult(true);
 
                     var record = await recordTask.ConfigureAwait(false);
                     record.DateTimeProperty = secondSessionDateTimeValue;
-                    await persister.Update(record, secondSession, secondContext, default);
-                    await secondSession.CompleteAsync(default);
+                    await persister.Update(record, secondSession, secondContext);
+                    await secondSession.CompleteAsync();
                 }
             }
 
