@@ -1,7 +1,6 @@
 namespace NServiceBus.TransportTests
 {
     using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -14,30 +13,30 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_on_message(TransportTransactionMode transactionMode)
         {
-            var onMessageCalled = new TaskCompletionSource<MessageContext>();
+            MessageContext messageContext = null;
 
-            OnTestTimeout(() => onMessageCalled.SetCanceled());
+            var completed = new TaskCompletionSource<CompleteContext>();
+            OnTestTimeout(() => completed.SetCanceled());
 
-            string body = null;
-            await StartPump((context, _) =>
-            {
-                body = Encoding.UTF8.GetString(context.Body);
+            await StartPump(
+                (context, _) =>
+                {
+                    messageContext = context;
+                    return Task.CompletedTask;
+                },
+                (context, _) => Task.FromResult(ErrorHandleResult.Handled),
+                (context, _) => completed.SetCompleted(context),
+                transactionMode);
 
-                onMessageCalled.SetResult(context);
-                return Task.FromResult(0);
-            },
-                (context, _) => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } }, body: new byte[] { 1, 2, 3 });
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"MyHeader", "MyValue"}
-            });
+            var completeContext = await completed.Task;
 
-            var messageContext = await onMessageCalled.Task;
-
+            Assert.False(completeContext.OnMessageFailed, "Message failure should not be indicated");
+            Assert.NotNull(messageContext, "On message should have been called");
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
-            Assert.AreEqual("", body, "Should pass the body");
+            Assert.AreEqual(new byte[] { 1, 2, 3 }, messageContext.Body, "Should pass the body");
         }
     }
 }

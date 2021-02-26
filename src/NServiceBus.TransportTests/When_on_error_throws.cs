@@ -9,57 +9,61 @@
 
     public class When_on_error_throws : NServiceBusTransportTest
     {
-        // [TestCase(TransportTransactionMode.None)] -- not relevant
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_critical_error_and_retry(TransportTransactionMode transactionMode)
         {
-            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
             var criticalErrorCalled = false;
             string criticalErrorMessage = null;
-
-            OnTestTimeout(() => onErrorCalled.SetCanceled());
-
-            var firstInvocation = true;
             string nativeMessageId = null;
+            Exception criticalErrorException = null;
+            var exceptionFromOnError = new Exception("Exception from onError");
+
+            var completed = new TaskCompletionSource<CompleteContext>();
+            OnTestTimeout(() => completed.SetCanceled());
+
+            var retrying = false;
+            var retried = false;
 
             await StartPump(
                 (context, _) =>
                 {
+                    if (retrying)
+                    {
+                        retried = true;
+                        return Task.CompletedTask;
+                    }
+
                     nativeMessageId = context.NativeMessageId;
 
-                    throw new Exception("Simulated exception");
+                    throw new Exception("Exception from onMessage");
                 },
                 (context, _) =>
                 {
-                    if (firstInvocation)
-                    {
-                        firstInvocation = false;
-
-                        throw new Exception("Exception from onError");
-                    }
-
-                    onErrorCalled.SetResult(context);
-
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    retrying = true;
+                    throw exceptionFromOnError;
                 },
+                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode,
                 (message, exception, _) =>
                 {
                     criticalErrorCalled = true;
                     criticalErrorMessage = message;
-                }
-                );
+                    criticalErrorException = exception;
+                });
+            ;
 
             LogFactory.LogItems.Clear();
+
             await SendMessage(InputQueueName);
 
-            var errorContext = await onErrorCalled.Task;
+            _ = await completed.Task;
 
-            Assert.AreEqual("Simulated exception", errorContext.Exception.Message, "Should retry the message");
             Assert.True(criticalErrorCalled, "Should invoke critical error");
             Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`", criticalErrorMessage);
+            Assert.AreEqual(exceptionFromOnError, criticalErrorException);
+
             Assert.False(LogFactory.LogItems.Any(item => item.Level > LogLevel.Info), "Transport should not log anything above LogLevel.Info");
         }
     }

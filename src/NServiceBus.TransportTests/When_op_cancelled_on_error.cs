@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Transport;
     using NUnit.Framework;
 
     // When an operation cancelled exception is thrown
@@ -10,38 +11,32 @@
     // (i.e. the endpoint shutting down)
     public class When_op_cancelled_on_error : NServiceBusTransportTest
     {
-        [Explicit("There is a race condition between the OperationCanceledException being thrown and stopping the pump")]
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_critical_error(TransportTransactionMode transactionMode)
         {
-            var recoverabilityStarted = new TaskCompletionSource<bool>();
             var criticalErrorInvoked = false;
 
-            OnTestTimeout(() => recoverabilityStarted.SetCanceled());
+            var completed = new TaskCompletionSource<CompleteContext>();
+            OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
                 (_, __) => throw new Exception(),
-                (_, cancellationToken) =>
-                {
-                    recoverabilityStarted.SetResult(true);
-
-                    throw new OperationCanceledException();
-                },
+                (_, __) => throw new OperationCanceledException(),
+                (context, _) => completed.SetCompleted(context),
                 transactionMode,
                 (_, __, ___) => criticalErrorInvoked = true);
 
             await SendMessage(InputQueueName);
 
-            _ = await recoverabilityStarted.Task;
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            var completeContext = await completed.Task;
 
             await StopPump();
-
             Assert.True(criticalErrorInvoked);
+            Assert.False(completeContext.WasAcknowledged);
+            Assert.True(completeContext.OnMessageFailed);
         }
     }
 }

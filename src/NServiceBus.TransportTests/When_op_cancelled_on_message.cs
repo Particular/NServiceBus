@@ -11,42 +11,35 @@
     // (i.e. the endpoint shutting down)
     public class When_op_cancelled_on_message : NServiceBusTransportTest
     {
-        [Explicit("There is a race condition between the OperationCanceledException being thrown and stopping the pump")]
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_recoverability(TransportTransactionMode transactionMode)
         {
-            var messageProcessingStarted = new TaskCompletionSource<bool>();
             var recoverabilityInvoked = false;
 
-            OnTestTimeout(() => messageProcessingStarted.SetCanceled());
+            var completed = new TaskCompletionSource<CompleteContext>();
+            OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
-                (context, _) =>
-                {
-                    messageProcessingStarted.SetResult(true);
-
-                    throw new OperationCanceledException();
-                },
+                (context, _) => throw new OperationCanceledException(),
                 (_, __) =>
                 {
                     recoverabilityInvoked = true;
-
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
+                (context, _) => completed.SetCompleted(context),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await messageProcessingStarted.Task;
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            var onCompleteContext = await completed.Task;
 
             await StopPump();
-
             Assert.True(recoverabilityInvoked);
+            Assert.True(onCompleteContext.WasAcknowledged);
+            Assert.True(onCompleteContext.OnMessageFailed);
         }
     }
 }
