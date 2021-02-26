@@ -69,20 +69,19 @@ namespace NServiceBus
     }
 
     /// <summary>
-    /// Holds transports settings
+    /// Holds transports settings.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public abstract class TransportSettings<T> where T : TransportDefinition
     {
         /// <summary>
-        /// Instance of <see cref="TransportDefinition"/>
+        /// Instance of <see cref="TransportDefinition"/>.
         /// </summary>
         protected readonly T Transport;
 
         readonly RoutingSettings<T> routing;
 
         /// <summary>
-        /// Creates an instance of <see cref="TransportSettings{T}"/>
+        /// Creates an instance of <see cref="TransportSettings{T}"/>.
         /// </summary>
         protected TransportSettings(T transport, RoutingSettings<T> routing)
         {
@@ -93,7 +92,6 @@ namespace NServiceBus
         /// <summary>
         /// Routing configuration.
         /// </summary>
-        /// <returns></returns>
         [ObsoleteEx(
             RemoveInVersion = "10",
             TreatAsErrorFromVersion = "9",
