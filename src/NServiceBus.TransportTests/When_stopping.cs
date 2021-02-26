@@ -12,34 +12,35 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_allow_message_processing_to_complete(TransportTransactionMode transactionMode)
         {
+            var recoverabilityInvoked = false;
+
             var messageProcessingStarted = new TaskCompletionSource<bool>();
             var pumpStopping = new TaskCompletionSource<bool>();
-            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<CompleteContext>();
 
             OnTestTimeout(() =>
             {
                 messageProcessingStarted.SetCanceled();
-                onCompleteCalled.SetCanceled();
+                completed.SetCanceled();
             });
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
                     messageProcessingStarted.SetResult(true);
-
                     await pumpStopping.Task;
                 },
                 (_, __) =>
                 {
-                    Assert.Fail("Recoverability should not have been invoked.");
+                    recoverabilityInvoked = true;
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                transactionMode,
-                onComplete: (context, _) =>
+                (context, _) =>
                 {
-                    onCompleteCalled.SetResult(context);
+                    completed.SetResult(context);
                     return Task.CompletedTask;
-                });
+                },
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
@@ -50,9 +51,11 @@
 
             await pumpTask;
 
-            var completeContext = await onCompleteCalled.Task;
+            var completeContext = await completed.Task;
 
+            Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
             Assert.True(completeContext.WasAcknowledged);
+            Assert.IsFalse(completeContext.OnMessageFailed);
         }
     }
 }

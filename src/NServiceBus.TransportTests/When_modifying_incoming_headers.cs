@@ -13,32 +13,40 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_between_processing_attempts(TransportTransactionMode transactionMode)
         {
-            var messageRetries = new TaskCompletionSource<MessageContext>();
-            var firstInvocation = true;
+            var completed = new TaskCompletionSource<CompleteContext>();
 
-            await StartPump((context, _) =>
+            OnTestTimeout(() => completed.SetCanceled());
+
+            var retrying = false;
+            var retried = false;
+            MessageContext retryMessageContext = null;
+
+            await StartPump(
+                (context, _) =>
                 {
-                    if (firstInvocation)
+                    if (retrying)
                     {
-                        context.Headers["test-header"] = "modified";
-                        firstInvocation = false;
-                        throw new Exception();
+                        retryMessageContext = context;
+                        retried = true;
+                        return Task.CompletedTask;
                     }
 
-                    messageRetries.SetResult(context);
-                    return Task.FromResult(0);
+                    context.Headers["test-header"] = "modified";
+                    throw new Exception();
                 },
-                (context, _) => Task.FromResult(ErrorHandleResult.RetryRequired),
+                (context, _) =>
+                {
+                    retrying = true;
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                },
+                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"test-header", "original"}
-            });
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
-            var retriedMessage = await messageRetries.Task;
+            _ = await completed.Task;
 
-            Assert.AreEqual("original", retriedMessage.Headers["test-header"]);
+            Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -47,27 +55,31 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_before_handling_error(TransportTransactionMode transactionMode)
         {
-            var errorHandled = new TaskCompletionSource<ErrorContext>();
+            var completed = new TaskCompletionSource<CompleteContext>();
 
-            await StartPump((context, _) =>
+            OnTestTimeout(() => completed.SetCanceled());
+
+            ErrorContext errorContext = null;
+
+            await StartPump(
+                (context, _) =>
                 {
                     context.Headers["test-header"] = "modified";
                     throw new Exception();
                 },
                 (context, __) =>
                 {
-                    errorHandled.SetResult(context);
+                    errorContext = context;
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
+                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"test-header", "original"}
-            });
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
-            var errorContext = await errorHandled.Task;
+            _ = await completed.Task;
 
+            Assert.NotNull(errorContext);
             Assert.AreEqual("original", errorContext.Message.Headers["test-header"]);
         }
 
@@ -76,35 +88,40 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_made_while_handling_error(TransportTransactionMode transactionMode)
         {
-            var messageRetries = new TaskCompletionSource<MessageContext>();
-            var firstInvocation = true;
+            MessageContext retryMessageContext = null;
 
-            await StartPump((context, _) =>
+            var completed = new TaskCompletionSource<CompleteContext>();
+            OnTestTimeout(() => completed.SetCanceled());
+
+            var retrying = false;
+            var retried = false;
+
+            await StartPump(
+                (context, _) =>
                 {
-                    if (firstInvocation)
+                    if (retrying)
                     {
-                        firstInvocation = false;
-                        throw new Exception();
+                        retryMessageContext = context;
+                        retried = true;
+                        return Task.CompletedTask;
                     }
 
-                    messageRetries.SetResult(context);
-                    return Task.FromResult(0);
+                    throw new Exception();
                 },
                 (context, __) =>
                 {
+                    retrying = true;
                     context.Message.Headers["test-header"] = "modified";
                     return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
+                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"test-header", "original"}
-            });
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
-            var retriedMessage = await messageRetries.Task;
+            _ = await completed.Task;
 
-            Assert.AreEqual("original", retriedMessage.Headers["test-header"]);
+            Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
         }
     }
 }

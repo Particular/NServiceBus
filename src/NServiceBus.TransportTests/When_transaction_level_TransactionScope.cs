@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
@@ -8,32 +7,32 @@
 
     public class When_transaction_level_TransactionScope : NServiceBusTransportTest
     {
-        //[TestCase(TransportTransactionMode.None)] -- not relevant
-        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- not relevant
-        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- not relevant
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_have_active_transaction(TransportTransactionMode transactionMode)
         {
-            var messageHandled = new TaskCompletionSource<Tuple<Transaction, Transaction>>();
+            Transaction currentTransaction = null;
+            Transaction contextTransaction = null;
+
+            var completed = new TaskCompletionSource<bool>();
+            OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
                 (context, _) =>
                 {
-                    var currentTransaction = Transaction.Current;
-                    var contextTransaction = context.TransportTransaction.Get<Transaction>();
-                    messageHandled.SetResult(new Tuple<Transaction, Transaction>(currentTransaction, contextTransaction));
-
-                    return Task.FromResult(0);
+                    currentTransaction = Transaction.Current;
+                    contextTransaction = context.TransportTransaction.Get<Transaction>();
+                    return Task.CompletedTask;
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
+                (_, __) => Task.CompletedTask,
                 transactionMode);
+
             await SendMessage(InputQueueName);
 
-            var transactions = await messageHandled.Task;
+            _ = await completed.Task;
 
-            Assert.That(transactions.Item1, Is.Not.Null);
-            Assert.That(transactions.Item2, Is.Not.Null);
-            Assert.AreSame(transactions.Item1, transactions.Item2);
+            Assert.NotNull(currentTransaction);
+            Assert.AreSame(currentTransaction, contextTransaction);
         }
     }
 }

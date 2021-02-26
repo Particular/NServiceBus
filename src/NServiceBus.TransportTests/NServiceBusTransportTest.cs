@@ -72,8 +72,12 @@
             configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, OnCompleted onComplete = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, OnCompleted onComplete, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
         {
+            onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
+            onError = onError ?? throw new ArgumentNullException(nameof(onError));
+            onComplete = onComplete ?? throw new ArgumentNullException(nameof(onComplete));
+
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
 
@@ -103,35 +107,15 @@
             transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
 
             receiver = transportInfrastructure.Receivers.Single().Value;
+
             await receiver.Initialize(
                 new PushRuntimeSettings(8),
                 (context, cancellationToken) =>
-                {
-                    if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
-                    {
-                        return onMessage(context, cancellationToken);
-                    }
-
-                    return Task.CompletedTask;
-                },
+                    context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, cancellationToken) : Task.CompletedTask,
                 (context, cancellationToken) =>
-                {
-                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
-                    {
-                        return onError(context, cancellationToken);
-                    }
-
-                    return Task.FromResult(ErrorHandleResult.Handled);
-                },
+                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ErrorHandleResult.Handled),
                 (context, cancellationToken) =>
-                {
-                    if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId && onComplete != null)
-                    {
-                        return onComplete(context, cancellationToken);
-                    }
-
-                    return Task.CompletedTask;
-                },
+                    context.Headers.Contains(TestIdHeaderName, testId) ? onComplete(context, cancellationToken) : Task.CompletedTask,
                 default);
 
             await receiver.StartReceive();
@@ -167,14 +151,16 @@
             }
         }
 
-        protected Task SendMessage(string address,
+        protected Task SendMessage(
+            string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
             DispatchProperties dispatchProperties = null,
-            DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
+            DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
+            byte[] body = null)
         {
             var messageId = Guid.NewGuid().ToString();
-            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), body ?? Array.Empty<byte>());
 
             if (message.Headers.ContainsKey(TestIdHeaderName) == false)
             {

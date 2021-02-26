@@ -26,10 +26,7 @@ namespace NServiceBus
 
         public Task Commit(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-        public void Rollback()
-        {
-            wasAcknowledged = false;
-        }
+        public void Rollback() => wasRolledback = true;
 
         public void ClearPendingOutgoingOperations() { }
 
@@ -37,10 +34,10 @@ namespace NServiceBus
         {
             Directory.Delete(processingDirectory, true);
 
-            return wasAcknowledged;
+            return !wasRolledback;
         }
 
         string processingDirectory;
-        bool wasAcknowledged = true;
+        bool wasRolledback;
     }
 }

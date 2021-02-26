@@ -14,13 +14,15 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode)
         {
+            var criticalErrorInvoked = false;
+
             var recoverabilityStarted = new TaskCompletionSource<bool>();
-            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<CompleteContext>();
 
             OnTestTimeout(() =>
             {
                 recoverabilityStarted.SetCanceled();
-                onCompleteCalled.SetCanceled();
+                completed.SetCanceled();
             });
 
             await StartPump(
@@ -33,13 +35,9 @@
 
                     return ErrorHandleResult.Handled;
                 },
+                (context, _) => completed.SetCompleted(context),
                 transactionMode,
-                (_, __, ___) => Assert.Fail("Critical error should not be invoked"),
-                onComplete: (context, _) =>
-                {
-                    onCompleteCalled.SetResult(context);
-                    return Task.CompletedTask;
-                });
+                (_, __, ___) => criticalErrorInvoked = true);
 
             await SendMessage(InputQueueName);
 
@@ -47,9 +45,11 @@
 
             await StopPump(new CancellationToken(true));
 
-            var completeContext = await onCompleteCalled.Task;
+            var completeContext = await completed.Task;
 
+            Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
             Assert.False(completeContext.WasAcknowledged);
+            Assert.True(completeContext.OnMessageFailed);
         }
     }
 }

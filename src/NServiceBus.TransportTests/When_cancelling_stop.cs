@@ -14,53 +14,49 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode)
         {
-            var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var messageProcessingCancelled = new TaskCompletionSource<bool>();
-            var onCompleteCalled = new TaskCompletionSource<CompleteContext>();
+            var wasCancelled = false;
+
+            var started = new TaskCompletionSource<bool>();
+            var completed = new TaskCompletionSource<CompleteContext>();
 
             OnTestTimeout(() =>
             {
-                messageProcessingStarted.SetCanceled();
-                messageProcessingCancelled.SetCanceled();
-                onCompleteCalled.SetCanceled();
+                started.SetCanceled();
+                completed.SetCanceled();
             });
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
-                    messageProcessingStarted.SetResult(true);
+                    started.SetResult(true);
 
                     try
                     {
                         await Task.Delay(TestTimeout, cancellationToken);
-                        messageProcessingCancelled.SetResult(false);
                     }
                     catch (OperationCanceledException)
                     {
-                        messageProcessingCancelled.SetResult(true);
-                        // Still need the pump to get the exception or the message will be ACK'ed
+                        wasCancelled = true;
+
+                        // propagate the cancellation
+                        // we are only catching the exception here to record the cancellation
                         throw;
                     }
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                transactionMode,
-                onComplete: (context, _) =>
-                {
-                    onCompleteCalled.SetResult(context);
-                    return Task.CompletedTask;
-                });
+                (context, _) => completed.SetCompleted(context),
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await messageProcessingStarted.Task;
+            _ = await started.Task;
 
             await StopPump(new CancellationToken(true));
 
-            var wasCancelled = await messageProcessingCancelled.Task;
-
-            var completeContext = await onCompleteCalled.Task;
+            var completeContext = await completed.Task;
 
             Assert.True(wasCancelled);
+            Assert.False(completeContext.OnMessageFailed);
             Assert.False(completeContext.WasAcknowledged);
         }
     }
