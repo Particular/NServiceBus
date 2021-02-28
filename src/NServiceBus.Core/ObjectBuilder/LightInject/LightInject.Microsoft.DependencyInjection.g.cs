@@ -1,7 +1,7 @@
 ﻿/*********************************************************************************
     The MIT License (MIT)
 
-    Copyright (c) 2019 bernhard.richter@gmail.com
+    Copyright (c) 2020 bernhard.richter@gmail.com
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,12 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 ******************************************************************************
-    LightInject.Microsoft.DependencyInjection version 3.2.0
+    LightInject.Microsoft.DependencyInjection version 3.3.6
     http://www.lightinject.net/
     http://twitter.com/bernhardrichter
 ******************************************************************************/
+
+//NOTE: This is LightInject.Microsoft.DependencyInjection version 3.3.6: https://github.com/seesharper/LightInject.Microsoft.DependencyInjection/blob/v3.3.6/src/LightInject.Microsoft.DependencyInjection/LightInject.Microsoft.DependencyInjection.cs with all public types made internal.
 
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1126:PrefixCallsCorrectly", Justification = "Reviewed")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:PrefixLocalCallsWithThis", Justification = "No inheritance")]
@@ -34,8 +36,6 @@
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "Performance")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("MaintainabilityRules", "SA1403", Justification = "One source file")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("DocumentationRules", "SA1649", Justification = "One source file")]
-
-
 
 namespace LightInject.Microsoft.DependencyInjection
 {
@@ -110,7 +110,7 @@ namespace LightInject.Microsoft.DependencyInjection
 
             var rootScope = container.BeginScope();
             rootScope.Completed += (a, s) => container.Dispose();
-            container.RegisterSingleton<IServiceProvider>(f => new LightInjectServiceProvider(rootScope));
+            container.Register<IServiceProvider>(f => new LightInjectServiceProvider(f));
             container.RegisterSingleton<IServiceScopeFactory>(f => new LightInjectServiceScopeFactory(container));
             RegisterServices(container, rootScope, serviceCollection);
             return new LightInjectServiceScope(rootScope).ServiceProvider;
@@ -217,11 +217,10 @@ namespace LightInject.Microsoft.DependencyInjection
             return (Delegate)closedGenericMethod.Invoke(null, new object[] { serviceDescriptor });
         }
 
+#pragma warning disable IDE0051
         private static Func<IServiceFactory, T> CreateTypedFactoryDelegate<T>(ServiceDescriptor serviceDescriptor)
-        {
-            //return serviceFactory => (T)serviceDescriptor.ImplementationFactory(serviceFactory.GetInstance<IServiceProvider>());
-            return serviceFactory => (T)serviceDescriptor.ImplementationFactory(new LightInjectServiceProvider(serviceFactory));
-        }
+            => serviceFactory => (T)serviceDescriptor.ImplementationFactory(new LightInjectServiceProvider(serviceFactory));
+#pragma warning restore IDE0051
     }
 
     /// <summary>
@@ -256,7 +255,7 @@ namespace LightInject.Microsoft.DependencyInjection
             EnableVariance = containerOptions.EnableVariance,
             LogFactory = containerOptions.LogFactory,
             VarianceFilter = containerOptions.VarianceFilter,
-            EnableOptionalArguments = containerOptions.EnableOptionalArguments
+            EnableOptionalArguments = containerOptions.EnableOptionalArguments,
         };
     }
 
@@ -304,9 +303,7 @@ namespace LightInject.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="serviceContainer">The <see cref="IServiceContainer"/> to be used.</param>
         public LightInjectServiceProviderFactory(IServiceContainer serviceContainer)
-        {
-            this.containerFactory = () => serviceContainer;
-        }
+            => containerFactory = () => serviceContainer;
 
         /// <inheritdoc/>
         public IServiceContainer CreateBuilder(IServiceCollection services)
@@ -317,10 +314,7 @@ namespace LightInject.Microsoft.DependencyInjection
 
         /// <inheritdoc/>
         public IServiceProvider CreateServiceProvider(IServiceContainer containerBuilder)
-        {
-            var provider = containerBuilder.CreateServiceProvider(services);
-            return provider;
-        }
+            => containerBuilder.CreateServiceProvider(services);
     }
 
     /// <summary>
@@ -337,9 +331,7 @@ namespace LightInject.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="serviceFactory">The underlying <see cref="IServiceFactory"/>.</param>
         public LightInjectServiceProvider(IServiceFactory serviceFactory)
-        {
-            this.serviceFactory = serviceFactory;
-        }
+            => this.serviceFactory = serviceFactory;
 
         public void Dispose()
         {
@@ -362,9 +354,7 @@ namespace LightInject.Microsoft.DependencyInjection
         /// <param name="serviceType">The service type to return.</param>
         /// <returns>An instance of the given <paramref name="serviceType"/>.</returns>
         public object GetService(Type serviceType)
-        {
-            return serviceFactory.TryGetInstance(serviceType);
-        }
+            => serviceFactory.TryGetInstance(serviceType);
     }
 
     /// <summary>
@@ -379,17 +369,11 @@ namespace LightInject.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="container">The <see cref="IServiceContainer"/> used to create new scopes.</param>
         public LightInjectServiceScopeFactory(IServiceContainer container)
-        {
-            this.container = container;
-        }
+            => this.container = container;
 
         /// <inheritdoc/>
         public IServiceScope CreateScope()
-        {
-            var scope = container.BeginScope();
-
-            return new LightInjectServiceScope(scope);
-        }
+            => new LightInjectServiceScope(container.BeginScope());
     }
 
     /// <summary>
@@ -415,10 +399,7 @@ namespace LightInject.Microsoft.DependencyInjection
         /// <summary>
         /// Disposes the wrapped <see cref="Scope"/>.
         /// </summary>
-        public void Dispose()
-        {
-            wrappedScope.Dispose();
-        }
+        public void Dispose() => wrappedScope.Dispose();
     }
 
     /// <summary>
@@ -428,7 +409,6 @@ namespace LightInject.Microsoft.DependencyInjection
     internal class PerRootScopeLifetime : ILifetime, ICloneableLifeTime
     {
         private readonly object syncRoot = new object();
-
         private readonly Scope rootScope;
         private object instance;
 
@@ -437,26 +417,22 @@ namespace LightInject.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="rootScope">The root <see cref="Scope"/>.</param>
         public PerRootScopeLifetime(Scope rootScope)
-        {
-            this.rootScope = rootScope;
-        }
+            => this.rootScope = rootScope;
 
         /// <inheritdoc/>
         [ExcludeFromCodeCoverage]
         public object GetInstance(Func<object> createInstance, Scope scope)
-        {
-            throw new NotImplementedException("Uses optimized non closing method");
-        }
+            => throw new NotImplementedException("Uses optimized non closing method");
 
         /// <inheritdoc/>
         public ILifetime Clone()
-        {
-            return new PerRootScopeLifetime(rootScope);
-        }
+            => new PerRootScopeLifetime(rootScope);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#pragma warning disable IDE0060
         public object GetInstance(GetInstanceDelegate createInstance, Scope scope, object[] arguments)
         {
+#pragma warning restore IDE0060
             if (instance != null)
             {
                 return instance;
