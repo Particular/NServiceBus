@@ -24,11 +24,7 @@
                     return Task.CompletedTask;
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                (_, __) =>
-                {
-                    completed.SetResult(true);
-                    return Task.CompletedTask;
-                },
+                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
