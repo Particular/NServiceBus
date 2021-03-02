@@ -36,6 +36,8 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
     <_PackageFiles Remove="StandardsTests.cs" />
+    <_PackageFiles Remove="When_modifying_incoming_headers_between_processing_attempts.cs" />
+    <_PackageFiles Remove="When_modifying_incoming_headers_while_handling_error.cs" />
   </ItemGroup>
   <!-- End Workaround -->
 
