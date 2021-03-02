@@ -35,8 +35,12 @@
 
             await StopPump();
             Assert.True(criticalErrorInvoked);
-            Assert.False(completeContext.WasAcknowledged);
             Assert.True(completeContext.OnMessageFailed);
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                Assert.False(completeContext.WasAcknowledged);
+            }
         }
     }
 }

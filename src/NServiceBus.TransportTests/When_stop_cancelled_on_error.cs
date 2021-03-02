@@ -48,8 +48,12 @@
             var completeContext = await completed.Task;
 
             Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
-            Assert.False(completeContext.WasAcknowledged);
             Assert.True(completeContext.OnMessageFailed);
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                Assert.False(completeContext.WasAcknowledged);
+            }
         }
     }
 }

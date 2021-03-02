@@ -47,8 +47,12 @@
             var completeContext = await completed.Task;
 
             Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
-            Assert.IsFalse(completeContext.WasAcknowledged);
             Assert.IsFalse(completeContext.OnMessageFailed);
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                Assert.False(completeContext.WasAcknowledged);
+            }
         }
     }
 }

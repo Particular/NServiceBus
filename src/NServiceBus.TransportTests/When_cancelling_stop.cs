@@ -57,7 +57,11 @@
 
             Assert.True(wasCancelled);
             Assert.False(completeContext.OnMessageFailed);
-            Assert.False(completeContext.WasAcknowledged);
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                Assert.False(completeContext.WasAcknowledged);
+            }
         }
     }
 }
