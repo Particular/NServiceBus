@@ -8,11 +8,11 @@
 
     public class When_stop_cancelled_on_error : NServiceBusTransportTest
     {
-        [TestCase(TransportTransactionMode.None)]
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode)
+        [TestCase(TransportTransactionMode.None, true)]
+        [TestCase(TransportTransactionMode.ReceiveOnly, false)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive, false)]
+        [TestCase(TransportTransactionMode.TransactionScope, false)]
+        public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode, bool acknowledgementExpected)
         {
             var criticalErrorInvoked = false;
 
@@ -49,11 +49,7 @@
 
             Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
             Assert.True(completeContext.OnMessageFailed);
-
-            if (transactionMode != TransportTransactionMode.None)
-            {
-                Assert.False(completeContext.WasAcknowledged);
-            }
+            Assert.AreEqual(acknowledgementExpected, completeContext.WasAcknowledged);
         }
     }
 }

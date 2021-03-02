@@ -8,11 +8,11 @@
 
     public class When_cancelling_stop : NServiceBusTransportTest
     {
-        [TestCase(TransportTransactionMode.None)]
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode)
+        [TestCase(TransportTransactionMode.None, true)]
+        [TestCase(TransportTransactionMode.ReceiveOnly, false)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive, false)]
+        [TestCase(TransportTransactionMode.TransactionScope, false)]
+        public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode, bool acknowledgementExpected)
         {
             var wasCancelled = false;
 
@@ -57,11 +57,7 @@
 
             Assert.True(wasCancelled);
             Assert.False(completeContext.OnMessageFailed);
-
-            if (transactionMode != TransportTransactionMode.None)
-            {
-                Assert.False(completeContext.WasAcknowledged);
-            }
+            Assert.AreEqual(acknowledgementExpected, completeContext.WasAcknowledged);
         }
     }
 }

@@ -7,11 +7,11 @@
 
     public class When_stop_cancelled_on_message : NServiceBusTransportTest
     {
-        [TestCase(TransportTransactionMode.None)]
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode)
+        [TestCase(TransportTransactionMode.None, true)]
+        [TestCase(TransportTransactionMode.ReceiveOnly, false)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive, false)]
+        [TestCase(TransportTransactionMode.TransactionScope, false)]
+        public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode, bool acknowledgementExpected)
         {
             var recoverabilityInvoked = false;
 
@@ -48,11 +48,7 @@
 
             Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
             Assert.IsFalse(completeContext.OnMessageFailed);
-
-            if (transactionMode != TransportTransactionMode.None)
-            {
-                Assert.False(completeContext.WasAcknowledged);
-            }
+            Assert.AreEqual(acknowledgementExpected, completeContext.WasAcknowledged);
         }
     }
 }
