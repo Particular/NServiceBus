@@ -64,7 +64,8 @@
             Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`", criticalErrorMessage);
             Assert.AreEqual(exceptionFromOnError, criticalErrorException);
 
-            Assert.False(LogFactory.LogItems.Any(item => item.Level > LogLevel.Info), "Transport should not log anything above LogLevel.Info");
+            var logItemsAboveInfo = LogFactory.LogItems.Where(item => item.Level > LogLevel.Info).Select(log => $"{log.Level}: {log.Message}").ToArray();
+            Assert.AreEqual(0, logItemsAboveInfo.Length, "Transport should not log anything above LogLevel.Info:" + string.Join(Environment.NewLine, logItemsAboveInfo));
         }
     }
 }
