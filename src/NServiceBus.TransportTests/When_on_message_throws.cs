@@ -16,7 +16,7 @@ namespace NServiceBus.TransportTests
         {
             ErrorContext errorContext = null;
 
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
@@ -24,22 +24,19 @@ namespace NServiceBus.TransportTests
                 (context, _) =>
                 {
                     errorContext = context;
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    return Task.FromResult(ReceiveResult.Discarded);
                 },
-                (context, _) => completed.SetCompleted(context),
+                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 
-            var completeContext = await completed.Task;
+            _ = await completed.Task;
 
             Assert.NotNull(errorContext, "On error should have been called");
             Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
             Assert.AreEqual(1, errorContext.ImmediateProcessingFailures, "Should track the number of delivery attempts");
             Assert.AreEqual("MyValue", errorContext.Message.Headers["MyHeader"], "Should pass the message headers");
-
-            Assert.True(completeContext.OnMessageFailed, "Message failure should be indicated");
-            Assert.True(completeContext.WasAcknowledged, "Message should be acknowleged");
         }
     }
 }

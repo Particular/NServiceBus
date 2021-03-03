@@ -144,12 +144,12 @@ namespace NServiceBus
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
 
-            var onCompleted = new OnCompleted((completeContext, token) =>
+            var onReceiveCompleted = new OnReceiveCompleted((context, token) =>
                 ((INotificationSubscriptions<ReceiveCompleted>)configuration.ReceiveCompletedSubscribers)
-                    .Raise(new ReceiveCompleted(completeContext.NativeMessageId, completeContext.WasAcknowledged, completeContext.Headers, completeContext.StartedAt, completeContext.CompletedAt, completeContext.OnMessageFailed), token));
+                    .Raise(new ReceiveCompleted(context.NativeMessageId, context.Result, context.Headers, context.StartedAt, context.CompletedAt), token));
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke, onCompleted, cancellationToken).ConfigureAwait(false);
+                recoverability.Invoke, onReceiveCompleted, cancellationToken).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
@@ -157,7 +157,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke, onCompleted, cancellationToken).ConfigureAwait(false);
+                    instanceSpecificRecoverabilityExecutor.Invoke, onReceiveCompleted, cancellationToken).ConfigureAwait(false);
 
                 receivers.Add(instanceSpecificPump);
             }

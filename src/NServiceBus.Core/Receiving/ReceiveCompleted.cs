@@ -5,21 +5,20 @@
     using NServiceBus.Transport;
 
     /// <summary>
-    /// Event raised when the transport has completed processing a message.
+    /// Event raised when the transport has completed receiving a message.
     /// </summary>
     public class ReceiveCompleted
     {
         /// <summary>
         /// Constructs the event.
         /// </summary>
-        public ReceiveCompleted(string messageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool onMessageFailed)
+        public ReceiveCompleted(string nativeMessageId, ReceiveResult result, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt)
         {
-            NativeMessageId = messageId;
-            WasAcknowledged = wasAcknowledged;
+            NativeMessageId = nativeMessageId;
+            Result = result;
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
-            OnMessageFailed = onMessageFailed;
         }
 
         /// <summary>
@@ -28,9 +27,9 @@
         public string NativeMessageId { get; }
 
         /// <summary>
-        /// True if the message was acknowledged and removed from the queue.
+        /// The <see cref="ReceiveResult"/>.
         /// </summary>
-        public bool WasAcknowledged { get; }
+        public ReceiveResult Result { get; }
 
         /// <summary>
         /// The message headers.
@@ -38,18 +37,13 @@
         public Dictionary<string, string> Headers { get; }
 
         /// <summary>
-        /// The time that processing started.
+        /// The time receiving started.
         /// </summary>
         public DateTimeOffset StartedAt { get; }
 
         /// <summary>
-        /// The time processing completed.
+        /// The time receiving completed.
         /// </summary>
         public DateTimeOffset CompletedAt { get; }
-
-        /// <summary>
-        /// <c>true</c> if the call to<see cref="OnMessage"/> threw an exception.
-        /// </summary>
-        public bool OnMessageFailed { get; }
     }
 }

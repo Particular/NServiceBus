@@ -8,16 +8,16 @@
 
     public class When_stop_cancelled_on_error : NServiceBusTransportTest
     {
-        [TestCase(TransportTransactionMode.None, true)]
-        [TestCase(TransportTransactionMode.ReceiveOnly, false)]
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive, false)]
-        [TestCase(TransportTransactionMode.TransactionScope, false)]
-        public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode, bool acknowledgementExpected)
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode)
         {
             var criticalErrorInvoked = false;
 
             var recoverabilityStarted = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
 
             OnTestTimeout(() =>
             {
@@ -33,9 +33,9 @@
 
                     await Task.Delay(TestTimeout, cancellationToken);
 
-                    return ErrorHandleResult.Handled;
+                    return ReceiveResult.Discarded;
                 },
-                (context, _) => completed.SetCompleted(context),
+                (_, __) => completed.SetCompleted(),
                 transactionMode,
                 (_, __, ___) => criticalErrorInvoked = true);
 
@@ -45,11 +45,9 @@
 
             await StopPump(new CancellationToken(true));
 
-            var completeContext = await completed.Task;
+            _ = await completed.Task;
 
             Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
-            Assert.True(completeContext.OnMessageFailed);
-            Assert.AreEqual(acknowledgementExpected, completeContext.WasAcknowledged);
         }
     }
 }

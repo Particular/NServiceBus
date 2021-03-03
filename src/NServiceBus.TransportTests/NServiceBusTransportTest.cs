@@ -72,11 +72,11 @@
             configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, OnCompleted onComplete, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, OnReceiveCompleted onReceiveCompleted, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
         {
             onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
             onError = onError ?? throw new ArgumentNullException(nameof(onError));
-            onComplete = onComplete ?? throw new ArgumentNullException(nameof(onComplete));
+            onReceiveCompleted = onReceiveCompleted ?? throw new ArgumentNullException(nameof(onReceiveCompleted));
 
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -113,9 +113,9 @@
                 (context, cancellationToken) =>
                     context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, cancellationToken) : Task.CompletedTask,
                 (context, cancellationToken) =>
-                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ErrorHandleResult.Handled),
+                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ReceiveResult.Discarded),
                 (context, cancellationToken) =>
-                    context.Headers.Contains(TestIdHeaderName, testId) ? onComplete(context, cancellationToken) : Task.CompletedTask,
+                    context.Headers.Contains(TestIdHeaderName, testId) ? onReceiveCompleted(context, cancellationToken) : Task.CompletedTask,
                 default);
 
             await receiver.StartReceive();

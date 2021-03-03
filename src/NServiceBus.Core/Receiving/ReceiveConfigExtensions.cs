@@ -6,7 +6,7 @@
     using NServiceBus.Features;
 
     /// <summary>
-    /// Provides access to receive complete notifications.
+    /// Provides access to receive completed notifications.
     /// </summary>
     public static class ReceiveConfigExtensions
     {

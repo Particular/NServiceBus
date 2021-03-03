@@ -19,27 +19,26 @@
         {
             var recoverabilityInvoked = false;
 
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
-                (context, _) => throw new OperationCanceledException(),
+                (_, __) => throw new OperationCanceledException(),
                 (_, __) =>
                 {
                     recoverabilityInvoked = true;
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    return Task.FromResult(ReceiveResult.Discarded);
                 },
-                (context, _) => completed.SetCompleted(context),
+                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            var onCompleteContext = await completed.Task;
+            _ = await completed.Task;
 
             await StopPump();
+
             Assert.True(recoverabilityInvoked);
-            Assert.True(onCompleteContext.WasAcknowledged);
-            Assert.True(onCompleteContext.OnMessageFailed);
         }
     }
 }

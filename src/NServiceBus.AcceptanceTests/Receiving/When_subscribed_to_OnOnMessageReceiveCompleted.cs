@@ -29,12 +29,11 @@
 
             Assert.NotNull(context.ReceiveCompleted, "Event was not received");
             Assert.AreEqual(context.NativeMessageId, context.ReceiveCompleted.NativeMessageId, "Event native message ID does not match message native message ID");
-            Assert.True(context.ReceiveCompleted.WasAcknowledged, "Event indicates that message was not acknowleged");
+            Assert.AreEqual(ReceiveResult.Succeeded, context.ReceiveCompleted.Result, "Event indicates that message receipt was not successful");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.StartedAt, "StartedAt is not set");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.CompletedAt, "CompletedAt is not set");
             Assert.True(context.ReceiveCompleted.Headers.ContainsKey("SomeKey"));
             Assert.AreEqual(context.ReceiveCompleted.Headers["SomeKey"], "SomeValue");
-            Assert.False(context.ReceiveCompleted.OnMessageFailed, "Event indicates that OnMessage failed");
         }
 
         [Test]
@@ -64,12 +63,11 @@
 
             Assert.NotNull(context.ReceiveCompleted, "Event was not received");
             Assert.AreEqual(context.NativeMessageId, context.ReceiveCompleted.NativeMessageId, "Event native message ID does not match message native message ID");
-            Assert.False(context.ReceiveCompleted.WasAcknowledged, "Event indicates that message was acknowleged");
+            Assert.AreEqual(ReceiveResult.RetryRequired, context.ReceiveCompleted.Result, "Event indicates that message receipt requires a retry");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.StartedAt, "StartedAt is not set");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.CompletedAt, "CompletedAt is not set");
             Assert.True(context.ReceiveCompleted.Headers.ContainsKey("SomeKey"));
             Assert.AreEqual(context.ReceiveCompleted.Headers["SomeKey"], "SomeValue");
-            Assert.True(context.ReceiveCompleted.OnMessageFailed, "Event does not indicate that OnMessage failed");
         }
 
         class Context : ScenarioContext

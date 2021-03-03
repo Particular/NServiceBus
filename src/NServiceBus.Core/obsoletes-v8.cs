@@ -1032,7 +1032,7 @@ namespace NServiceBus.Transport
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         Task Init(Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ErrorHandleResult>> onError,
+            Func<ErrorContext, Task<ReceiveResult>> onError,
             CriticalError criticalError,
             PushSettings settings);
 

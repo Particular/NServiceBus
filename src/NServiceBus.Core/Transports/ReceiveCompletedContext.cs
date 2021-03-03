@@ -5,21 +5,20 @@
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// Allows the transport to pass signal that a message has been completed.
+    /// Allows the transport to pass signal that it has completed receiving a message.
     /// </summary>
-    public class CompleteContext
+    public class ReceiveCompletedContext
     {
         /// <summary>
         /// Initializes the context.
         /// </summary>
         /// <param name="nativeMessageId">The native message ID.</param>
-        /// <param name="wasAcknowledged">True if the message was acknowledged and removed from the queue.</param>
+        /// <param name="result">The <see cref="ReceiveResult"/>.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="startedAt">The time that processing started.</param>
         /// <param name="completedAt">The time that processing started.</param>
-        /// <param name="onMessageFailed"><c>true</c> if the call to <see cref="OnMessage"/> threw an exception.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> containing the context for the message receive operation.</param>
-        public CompleteContext(string nativeMessageId, bool wasAcknowledged, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, bool onMessageFailed, ReadOnlyContextBag context)
+        public ReceiveCompletedContext(string nativeMessageId, ReceiveResult result, Dictionary<string, string> headers, DateTimeOffset startedAt, DateTimeOffset completedAt, ReadOnlyContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(headers), headers);
@@ -28,11 +27,10 @@
             Guard.AgainstNull(nameof(context), context);
 
             NativeMessageId = nativeMessageId;
-            WasAcknowledged = wasAcknowledged;
+            Result = result;
             Headers = headers;
             StartedAt = startedAt;
             CompletedAt = completedAt;
-            OnMessageFailed = onMessageFailed;
             Extensions = context;
         }
 
@@ -42,9 +40,9 @@
         public string NativeMessageId { get; }
 
         /// <summary>
-        /// True if the message was acknowledged and removed from the queue.
+        /// The <see cref="ReceiveResult"/>.
         /// </summary>
-        public bool WasAcknowledged { get; }
+        public ReceiveResult Result { get; }
 
         /// <summary>
         /// The message headers.
@@ -52,19 +50,14 @@
         public Dictionary<string, string> Headers { get; }
 
         /// <summary>
-        /// The time that processing started.
+        /// The time receiving started.
         /// </summary>
         public DateTimeOffset StartedAt { get; }
 
         /// <summary>
-        /// The time processing completed.
+        /// The time receiving completed.
         /// </summary>
         public DateTimeOffset CompletedAt { get; }
-
-        /// <summary>
-        /// <c>true</c> if the call to <see cref="OnMessage"/> threw an exception.
-        /// </summary>
-        public bool OnMessageFailed { get; }
 
         /// <summary>
         /// A collection of additional information for this receive operation.

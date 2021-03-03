@@ -8,16 +8,16 @@
 
     public class When_cancelling_stop : NServiceBusTransportTest
     {
-        [TestCase(TransportTransactionMode.None, true)]
-        [TestCase(TransportTransactionMode.ReceiveOnly, false)]
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive, false)]
-        [TestCase(TransportTransactionMode.TransactionScope, false)]
-        public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode, bool acknowledgementExpected)
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode)
         {
             var wasCancelled = false;
 
             var started = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
 
             OnTestTimeout(() =>
             {
@@ -43,8 +43,8 @@
                         throw;
                     }
                 },
-                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                (context, _) => completed.SetCompleted(context),
+                (_, __) => Task.FromResult(ReceiveResult.Discarded),
+                (context, _) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
@@ -53,11 +53,9 @@
 
             await StopPump(new CancellationToken(true));
 
-            var completeContext = await completed.Task;
+            _ = await completed.Task;
 
             Assert.True(wasCancelled);
-            Assert.False(completeContext.OnMessageFailed);
-            Assert.AreEqual(acknowledgementExpected, completeContext.WasAcknowledged);
         }
     }
 }

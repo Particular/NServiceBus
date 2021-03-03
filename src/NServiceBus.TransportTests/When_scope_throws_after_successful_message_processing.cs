@@ -19,8 +19,6 @@
             var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
-            var retried = false;
-
             await StartPump(
                 (context, _) =>
                 {
@@ -32,15 +30,14 @@
                     //perform an immediate retry to make sure the transport increments the counter properly
                     if (context.ImmediateProcessingFailures < 2)
                     {
-                        return Task.FromResult(ErrorHandleResult.RetryRequired);
+                        return Task.FromResult(ReceiveResult.RetryRequired);
                     }
 
                     errorContext = context;
-                    retried = true;
 
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    return Task.FromResult(ReceiveResult.Discarded);
                 },
-                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.RetryRequired ? Task.CompletedTask : completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
