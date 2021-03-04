@@ -17,13 +17,7 @@
             var criticalErrorInvoked = false;
 
             var recoverabilityStarted = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<bool>();
-
-            OnTestTimeout(() =>
-            {
-                recoverabilityStarted.SetCanceled();
-                completed.SetCanceled();
-            });
+            OnTestTimeout(() => recoverabilityStarted.SetCanceled());
 
             await StartPump(
                 (_, __) => throw new Exception(),
@@ -33,9 +27,8 @@
 
                     await Task.Delay(TestTimeout, cancellationToken);
 
-                    return ReceiveResult.Discarded;
+                    return ErrorHandleResult.Handled;
                 },
-                (_, __) => completed.SetCompleted(),
                 transactionMode,
                 (_, __, ___) => criticalErrorInvoked = true);
 
@@ -44,8 +37,6 @@
             _ = await recoverabilityStarted.Task;
 
             await StopPump(new CancellationToken(true));
-
-            _ = await completed.Task;
 
             Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
         }

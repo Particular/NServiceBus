@@ -2,47 +2,51 @@ namespace NServiceBus.TransportTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
 
     public class When_failure_happens_after_send : NServiceBusTransportTest
     {
+        //[TestCase(TransportTransactionMode.None)] - not relevant
+        //[TestCase(TransportTransactionMode.ReceiveOnly)] - not relevant
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_not_emit_messages(TransportTransactionMode transactionMode)
         {
-            var messageEmitted = false;
+            var onMessageCalled = new TaskCompletionSource<bool>();
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            OnTestTimeout(() => onMessageCalled.SetCanceled());
 
-            await StartPump(
+            await StartPump(async (context, _) =>
+            {
+                if (context.Headers.ContainsKey("CompleteTest"))
+                {
+                    onMessageCalled.SetResult(true);
+                    return;
+                }
+
+                if (context.Headers.ContainsKey("EnlistedSend"))
+                {
+                    onMessageCalled.SetResult(false);
+                    return;
+                }
+
+                await SendMessage(InputQueueName, new Dictionary<string, string> { { "EnlistedSend", "true" } }, context.TransportTransaction);
+
+                throw new Exception("Simulated exception");
+
+            },
                 async (context, _) =>
                 {
-                    if (context.Headers.ContainsKey("SentBeforeFailure"))
-                    {
-                        messageEmitted = true;
-                        return;
-                    }
+                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "CompleteTest", "true" } }, context.TransportTransaction);
 
-                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "" } }, context.TransportTransaction);
+                    return ErrorHandleResult.Handled;
+                }, transactionMode);
 
-                    throw new Exception("Simulated exception");
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 
-                },
-                (errorcontext, _) => Task.FromResult(ReceiveResult.Discarded),
-                (context, _) => completed.SetCompleted(),
-                transactionMode);
-
-            await SendMessage(InputQueueName);
-
-            _ = await completed.Task;
-
-            await StopPump(CancellationToken.None);
-
-            Assert.False(messageEmitted);
+            Assert.True(await onMessageCalled.Task, "Should not emit enlisted sends");
         }
     }
 }

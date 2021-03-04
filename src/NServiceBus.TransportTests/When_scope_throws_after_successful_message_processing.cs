@@ -14,35 +14,31 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Throwing_during_Transaction_Prepare_should_properly_increment_immediate_processing_failures(TransportTransactionMode transactionMode)
         {
-            ErrorContext errorContext = null;
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            OnTestTimeout(() => onErrorCalled.SetCanceled());
 
             await StartPump(
                 (context, _) =>
                 {
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 },
                 (context, _) =>
                 {
                     //perform an immediate retry to make sure the transport increments the counter properly
                     if (context.ImmediateProcessingFailures < 2)
                     {
-                        return Task.FromResult(ReceiveResult.RetryRequired);
+                        return Task.FromResult(ErrorHandleResult.RetryRequired);
                     }
+                    onErrorCalled.SetResult(context);
 
-                    errorContext = context;
-
-                    return Task.FromResult(ReceiveResult.Discarded);
-                },
-                (context, _) => context.Result == ReceiveResult.RetryRequired ? Task.CompletedTask : completed.SetCompleted(),
-                transactionMode);
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                }, transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            var errorContext = await onErrorCalled.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
             Assert.LessOrEqual(2, errorContext.ImmediateProcessingFailures);
@@ -53,13 +49,25 @@
     {
         public static readonly Guid Id = Guid.NewGuid();
 
-        // fail during prepare, this will cause scope.Complete to throw
-        public void Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.ForceRollback();
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            // fail during prepare, this will cause scope.Complete to throw
+            preparingEnlistment.ForceRollback();
+        }
 
-        public void Commit(Enlistment enlistment) => enlistment.Done();
+        public void Commit(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
 
-        public void Rollback(Enlistment enlistment) => enlistment.Done();
+        public void Rollback(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
 
-        public void InDoubt(Enlistment enlistment) => enlistment.Done();
+        public void InDoubt(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
     }
 }

@@ -14,15 +14,17 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_dispatch_the_message(TransportTransactionMode transactionMode)
         {
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var messageReceived = new TaskCompletionSource<bool>();
+
+            OnTestTimeout(() => messageReceived.SetResult(false));
 
             await StartPump(
                 (context, _) =>
                 {
                     if (context.Headers.ContainsKey("FromOnError"))
                     {
-                        return Task.CompletedTask;
+                        messageReceived.SetResult(true);
+                        return Task.FromResult(0);
                     }
 
                     throw new Exception("Simulated exception");
@@ -30,14 +32,13 @@ namespace NServiceBus.TransportTests
                 async (context, _) =>
                 {
                     await SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } }, context.TransportTransaction);
-                    return ReceiveResult.Discarded;
-                },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
-                transactionMode);
+
+                    return ErrorHandleResult.Handled;
+                }, transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            Assert.True(await messageReceived.Task, "Message not dispatched properly");
         }
     }
 }

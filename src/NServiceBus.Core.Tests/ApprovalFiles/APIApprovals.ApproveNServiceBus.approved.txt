@@ -832,19 +832,6 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
-    public class ReceiveCompleted
-    {
-        public ReceiveCompleted(string nativeMessageId, NServiceBus.Transport.ReceiveResult result, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
-        public System.DateTimeOffset CompletedAt { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string NativeMessageId { get; }
-        public NServiceBus.Transport.ReceiveResult Result { get; }
-        public System.DateTimeOffset StartedAt { get; }
-    }
-    public static class ReceiveConfigExtensions
-    {
-        public static void OnReceiveCompleted(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext, System.Func<NServiceBus.ReceiveCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
-    }
     public class ReceivePipelineCompleted
     {
         public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
@@ -2436,16 +2423,14 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
-        public NServiceBus.Extensibility.ContextBag Extensions { get; }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
-    [System.Obsolete("Use `NServiceBus.Transport.ReceiveResult` instead. Will be removed in version 9.0" +
-        ".0.", true)]
     public enum ErrorHandleResult
     {
         Handled = 0,
@@ -2500,7 +2485,7 @@ namespace NServiceBus.Transport
     {
         string Id { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
-        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, NServiceBus.Transport.OnReceiveCompleted onReceiveCompleted, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken = default);
     }
@@ -2570,9 +2555,8 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
-    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ReceiveResult> OnError(NServiceBus.Transport.ErrorContext errorContext, System.Threading.CancellationToken cancellationToken = default);
+    public delegate System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult> OnError(NServiceBus.Transport.ErrorContext errorContext, System.Threading.CancellationToken cancellationToken = default);
     public delegate System.Threading.Tasks.Task OnMessage(NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken = default);
-    public delegate System.Threading.Tasks.Task OnReceiveCompleted(NServiceBus.Transport.ReceiveCompletedContext receiveCompletedContext, System.Threading.CancellationToken cancellationToken = default);
     [System.Obsolete("This type is no longer necessary when implementing a transport. Will be removed i" +
         "n version 9.0.0.", true)]
     public class OutboundRoutingPolicy
@@ -2639,25 +2623,6 @@ namespace NServiceBus.Transport
             "otImplementedException. Will be removed in version 9.0.0.", true)]
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
-    }
-    public class ReceiveCompletedContext
-    {
-        public ReceiveCompletedContext(string nativeMessageId, NServiceBus.Transport.ReceiveResult result, System.Collections.Generic.Dictionary<string, string> headers, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
-        public System.DateTimeOffset CompletedAt { get; }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string NativeMessageId { get; }
-        public NServiceBus.Transport.ReceiveResult Result { get; }
-        public System.DateTimeOffset StartedAt { get; }
-    }
-    public enum ReceiveResult
-    {
-        Succeeded = 0,
-        Discarded = 1,
-        MovedToErrorQueue = 2,
-        QueuedForDelayedRetry = 3,
-        RetryRequired = 4,
-        Expired = 5,
     }
     public class ReceiveSettings
     {

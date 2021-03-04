@@ -14,29 +14,25 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
-            ErrorContext errorContext = null;
-
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
+            OnTestTimeout(() => onErrorCalled.SetResult(null));
 
             await StartPump(
                 (context, _) =>
                 {
                     // handler enlists a failing transaction enlistment to the DTC transaction which will fail when committing the transaction.
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
-                    return Task.CompletedTask;
+                    return Task.FromResult(0);
                 },
                 (context, _) =>
                 {
-                    errorContext = context;
-                    return Task.FromResult(ReceiveResult.Discarded);
-                },
-                (_, __) => completed.SetCompleted(),
-                transactionMode);
+                    onErrorCalled.SetResult(context);
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                }, transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            var errorContext = await onErrorCalled.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
 
@@ -49,14 +45,26 @@
         {
             public static readonly Guid Id = Guid.NewGuid();
 
-            // fail during prepare, this will cause scope.Complete to throw
-            public void Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.ForceRollback();
+            public void Prepare(PreparingEnlistment preparingEnlistment)
+            {
+                // fail during prepare, this will cause scope.Complete to throw
+                preparingEnlistment.ForceRollback();
+            }
 
-            public void Commit(Enlistment enlistment) => enlistment.Done();
+            public void Commit(Enlistment enlistment)
+            {
+                enlistment.Done();
+            }
 
-            public void Rollback(Enlistment enlistment) => enlistment.Done();
+            public void Rollback(Enlistment enlistment)
+            {
+                enlistment.Done();
+            }
 
-            public void InDoubt(Enlistment enlistment) => enlistment.Done();
+            public void InDoubt(Enlistment enlistment)
+            {
+                enlistment.Done();
+            }
         }
     }
 }

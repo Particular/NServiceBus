@@ -5,37 +5,36 @@ namespace NServiceBus.TransportTests
     using NUnit.Framework;
     using Transport;
 
-    public class When_receiving_message : NServiceBusTransportTest
+    public class When_processing_fails : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_float_context(TransportTransactionMode transactionMode)
+        public async Task Should_float_context_to_error(TransportTransactionMode transactionMode)
         {
-            var completed = new TaskCompletionSource<ReceiveCompletedContext>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var onError = new TaskCompletionSource<ErrorContext>();
+            OnTestTimeout(() => onError.SetCanceled());
 
             await StartPump(
                 (context, _) =>
                 {
-                    context.Extensions.Set("MyOnMessageKey", "MyOnMessageValue");
+                    context.Extensions.Set("MyKey", "MyValue");
+
                     throw new Exception("Simulated exception");
                 },
                 (context, _) =>
                 {
-                    context.Extensions.Set("MyOnErrorKey", "MyOnErrorValue");
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    onError.SetResult(context);
+                    return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                (context, _) => completed.SetCompleted(context),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            var completeContext = await completed.Task;
+            var errorContext = await onError.Task;
 
-            Assert.AreEqual("MyOnMessageValue", completeContext.Extensions.Get<string>("MyOnMessageKey"));
-            Assert.AreEqual("MyOnErrorValue", completeContext.Extensions.Get<string>("MyOnErrorKey"));
+            Assert.AreEqual("MyValue", errorContext.Extensions.Get<string>("MyKey"));
         }
     }
 }

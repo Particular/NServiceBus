@@ -8,42 +8,42 @@
 
     public class When_on_message_throws_after_immediate_retry : NServiceBusTransportTest
     {
+        //[TestCase(TransportTransactionMode.None)] - not relevant
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_persist_message_delivery_count_between_on_error_calls(TransportTransactionMode transactionMode)
         {
-            var maxAttempts = 3;
-            var attempts = 0;
-            ErrorContext errorContext = null;
+            var onErrorInvoked = new TaskCompletionSource<ErrorContext>();
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            OnTestTimeout(() => onErrorInvoked.SetCanceled());
+
+            var numberOfOnErrorInvocations = 0;
 
             await StartPump(
                 (context, _) =>
                 {
-                    attempts++;
                     throw new Exception("Simulated exception");
                 },
                 (context, _) =>
                 {
-                    if (attempts == maxAttempts)
+                    numberOfOnErrorInvocations += 1;
+
+                    if (numberOfOnErrorInvocations == 3)
                     {
-                        errorContext = context;
-                        return Task.FromResult(ReceiveResult.Discarded);
+                        onErrorInvoked.SetResult(context);
+
+                        return Task.FromResult(ErrorHandleResult.Handled);
                     }
 
-                    return Task.FromResult(ReceiveResult.RetryRequired);
-                },
-                (_, __) => attempts == maxAttempts ? completed.SetCompleted() : Task.CompletedTask,
-                transactionMode);
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                }, transactionMode);
 
-            await SendMessage(InputQueueName);
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 
-            _ = await completed.Task;
+            var errorContext = await onErrorInvoked.Task;
 
-            Assert.AreEqual(attempts, errorContext.ImmediateProcessingFailures, "Should track delivery attempts between immediate retries");
+            Assert.AreEqual(numberOfOnErrorInvocations, errorContext.ImmediateProcessingFailures, "Should track delivery attempts between immediate retries");
         }
     }
 }

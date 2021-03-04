@@ -10,19 +10,14 @@
         [Test]
         public async Task Should_support_unicode_characters()
         {
-            MessageContext messageContext = null;
+            var onMessageCalled = new TaskCompletionSource<MessageContext>();
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
-
-            await StartPump(
-                (context, _) =>
+            await StartPump((context, _) =>
                 {
-                    messageContext = context;
-                    return Task.CompletedTask;
+                    onMessageCalled.SetResult(context);
+                    return Task.FromResult(0);
                 },
-                (_, __) => Task.FromResult(ReceiveResult.Discarded),
-                (_, __) => completed.SetCompleted(),
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 TransportTransactionMode.None);
 
             var sentHeaders = new Dictionary<string, string>
@@ -35,10 +30,9 @@
                 { "a-B6", "a-😍-b" },
                 { "a-😅-B7", "a-B" },
             };
-
             await SendMessage(InputQueueName, sentHeaders);
 
-            _ = await completed.Task;
+            var messageContext = await onMessageCalled.Task;
 
             Assert.IsNotEmpty(messageContext.Headers);
             CollectionAssert.IsSupersetOf(messageContext.Headers, sentHeaders);

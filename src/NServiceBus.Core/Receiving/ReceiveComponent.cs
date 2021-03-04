@@ -144,12 +144,8 @@ namespace NServiceBus
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(configuration.LocalAddress);
 
-            var onReceiveCompleted = new OnReceiveCompleted((context, token) =>
-                ((INotificationSubscriptions<ReceiveCompleted>)configuration.ReceiveCompletedSubscribers)
-                    .Raise(new ReceiveCompleted(context.NativeMessageId, context.Result, context.Headers, context.StartedAt, context.CompletedAt), token));
-
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke, onReceiveCompleted, cancellationToken).ConfigureAwait(false);
+                recoverability.Invoke, cancellationToken).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
@@ -157,7 +153,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke, onReceiveCompleted, cancellationToken).ConfigureAwait(false);
+                    instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
 
                 receivers.Add(instanceSpecificPump);
             }
@@ -172,7 +168,7 @@ namespace NServiceBus
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
-                        satelliteRecoverabilityExecutor.Invoke, (_, __) => Task.CompletedTask, cancellationToken).ConfigureAwait(false);
+                        satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
                     receivers.Add(satellitePump);
                 }
                 catch (Exception ex)

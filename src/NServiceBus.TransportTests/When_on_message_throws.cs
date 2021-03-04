@@ -12,28 +12,27 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_call_on_error_and_indicate_failure(TransportTransactionMode transactionMode)
+        public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
-            ErrorContext errorContext = null;
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            OnTestTimeout(() => onErrorCalled.SetCanceled());
 
-            await StartPump(
-                (context, _) => throw new Exception("Simulated exception"),
+            await StartPump((context, _) =>
+            {
+                throw new Exception("Simulated exception");
+            },
                 (context, _) =>
                 {
-                    errorContext = context;
-                    return Task.FromResult(ReceiveResult.Discarded);
-                },
-                (_, __) => completed.SetCompleted(),
-                transactionMode);
+                    onErrorCalled.SetResult(context);
+
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                }, transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 
-            _ = await completed.Task;
+            var errorContext = await onErrorCalled.Task;
 
-            Assert.NotNull(errorContext, "On error should have been called");
             Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
             Assert.AreEqual(1, errorContext.ImmediateProcessingFailures, "Should track the number of delivery attempts");
             Assert.AreEqual("MyValue", errorContext.Message.Headers["MyHeader"], "Should pass the message headers");

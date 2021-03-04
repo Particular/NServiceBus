@@ -141,7 +141,7 @@
 
             var result = await recoverabilityExecutor.Invoke(errorContext);
 
-            Assert.AreEqual(ReceiveResult.Discarded, result);
+            Assert.AreEqual(ErrorHandleResult.Handled, result);
             Assert.IsEmpty(messageRetriedNotifications);
             Assert.IsEmpty(messageFaultedNotifications);
         }

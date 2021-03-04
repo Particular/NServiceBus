@@ -72,11 +72,10 @@
             configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, OnReceiveCompleted onReceiveCompleted, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
         {
             onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
             onError = onError ?? throw new ArgumentNullException(nameof(onError));
-            onReceiveCompleted = onReceiveCompleted ?? throw new ArgumentNullException(nameof(onReceiveCompleted));
 
             InputQueueName = GetTestName() + transactionMode;
             ErrorQueueName = $"{InputQueueName}.error";
@@ -113,9 +112,7 @@
                 (context, cancellationToken) =>
                     context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, cancellationToken) : Task.CompletedTask,
                 (context, cancellationToken) =>
-                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ReceiveResult.Discarded),
-                (context, cancellationToken) =>
-                    context.Headers.Contains(TestIdHeaderName, testId) ? onReceiveCompleted(context, cancellationToken) : Task.CompletedTask,
+                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ErrorHandleResult.Handled),
                 default);
 
             await receiver.StartReceive();
@@ -156,11 +153,10 @@
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
             DispatchProperties dispatchProperties = null,
-            DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
-            byte[] body = null)
+            DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
-            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), body ?? Array.Empty<byte>());
+            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), Array.Empty<byte>());
 
             if (message.Headers.ContainsKey(TestIdHeaderName) == false)
             {

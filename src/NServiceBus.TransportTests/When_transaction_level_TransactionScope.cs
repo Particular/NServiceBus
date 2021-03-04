@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.TransportTests
 {
+    using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
@@ -7,32 +8,32 @@
 
     public class When_transaction_level_TransactionScope : NServiceBusTransportTest
     {
+        //[TestCase(TransportTransactionMode.None)] -- not relevant
+        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- not relevant
+        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- not relevant
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_have_active_transaction(TransportTransactionMode transactionMode)
         {
-            Transaction currentTransaction = null;
-            Transaction contextTransaction = null;
-
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var messageHandled = new TaskCompletionSource<Tuple<Transaction, Transaction>>();
 
             await StartPump(
                 (context, _) =>
                 {
-                    currentTransaction = Transaction.Current;
-                    contextTransaction = context.TransportTransaction.Get<Transaction>();
-                    return Task.CompletedTask;
-                },
-                (_, __) => Task.FromResult(ReceiveResult.Discarded),
-                (_, __) => completed.SetCompleted(),
-                transactionMode);
+                    var currentTransaction = Transaction.Current;
+                    var contextTransaction = context.TransportTransaction.Get<Transaction>();
+                    messageHandled.SetResult(new Tuple<Transaction, Transaction>(currentTransaction, contextTransaction));
 
+                    return Task.FromResult(0);
+                },
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
+                transactionMode);
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            var transactions = await messageHandled.Task;
 
-            Assert.NotNull(currentTransaction);
-            Assert.AreSame(currentTransaction, contextTransaction);
+            Assert.That(transactions.Item1, Is.Not.Null);
+            Assert.That(transactions.Item2, Is.Not.Null);
+            Assert.AreSame(transactions.Item1, transactions.Item2);
         }
     }
 }
