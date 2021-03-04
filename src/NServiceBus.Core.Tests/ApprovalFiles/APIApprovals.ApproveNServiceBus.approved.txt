@@ -2444,6 +2444,13 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
+    [System.Obsolete("Use `NServiceBus.Transport.ReceiveResult` instead. Will be removed in version 9.0" +
+        ".0.", true)]
+    public enum ErrorHandleResult
+    {
+        Handled = 0,
+        RetryRequired = 1,
+    }
     public class HostSettings
     {
         public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
@@ -2507,7 +2514,7 @@ namespace NServiceBus.Transport
     public interface IPushMessages
     {
         [System.Obsolete("Use `IMessageReceiver.Initialize` instead. Will be removed in version 9.0.0.", true)]
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ReceiveResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
         [System.Obsolete("Use `IMessageReceiver.StartReceive` instead. Will be removed in version 9.0.0.", true)]
         void Start(NServiceBus.Transport.PushRuntimeSettings limitations);
         [System.Obsolete("Use `IMessageReceiver.StopReceive` instead. Will be removed in version 9.0.0.", true)]
