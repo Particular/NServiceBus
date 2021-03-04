@@ -35,6 +35,7 @@
                     catch (OperationCanceledException)
                     {
                         await completed.SetCompleted();
+                        throw;
                     }
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Discarded),
