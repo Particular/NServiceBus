@@ -1032,7 +1032,7 @@ namespace NServiceBus.Transport
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         Task Init(Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task<ReceiveResult>> onError,
+            Func<ErrorContext, Task<ErrorHandleResult>> onError,
             CriticalError criticalError,
             PushSettings settings);
 
@@ -1511,6 +1511,16 @@ namespace NServiceBus.Transport
 
         [ObsoleteEx(ReplacementTypeOrMember = "NativeMessageId", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
         public string MessageId { get; }
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    [ObsoleteEx(ReplacementTypeOrMember = "NServiceBus.Transport.ReceiveResult", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+    public enum ErrorHandleResult
+    {
+        Handled,
+        RetryRequired
     }
 }
 
