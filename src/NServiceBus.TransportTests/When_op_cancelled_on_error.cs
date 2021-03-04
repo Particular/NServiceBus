@@ -16,23 +16,19 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_critical_error(TransportTransactionMode transactionMode)
         {
-            var criticalErrorInvoked = false;
-
             var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
                 (_, __) => throw new Exception(),
                 (_, __) => throw new OperationCanceledException(),
-                (_, __) => completed.SetCompleted(),
+                (_, __) => Task.CompletedTask,
                 transactionMode,
-                (_, __, ___) => criticalErrorInvoked = true);
+                (_, __, ___) => completed.SetCompleted());
 
             await SendMessage(InputQueueName);
 
             _ = await completed.Task;
-
-            Assert.True(criticalErrorInvoked);
         }
     }
 }

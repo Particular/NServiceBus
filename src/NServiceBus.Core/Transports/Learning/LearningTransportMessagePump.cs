@@ -238,7 +238,7 @@
         {
             var startedAt = DateTimeOffset.UtcNow;
             Dictionary<string, string> headers = null;
-            ReceiveResult result = default;
+            ReceiveResult? result = null;
             var processingContext = new ContextBag();
 
             try
@@ -263,16 +263,19 @@
                 catch (Exception ex)
                 {
                     log.Debug($"Failure while trying to complete receive transaction for {filePath}({transaction.FileToProcess})", ex);
-                    result = ReceiveResult.RetryRequired;
+                    result = null;
                 }
 
-                try
+                if (result.HasValue)
                 {
-                    await onReceiveCompleted(new ReceiveCompletedContext(messageId, result, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    log.Warn($"Failure when invoking {nameof(OnReceiveCompleted)} for {filePath}({transaction.FileToProcess})", ex);
+                    try
+                    {
+                        await onReceiveCompleted(new ReceiveCompletedContext(messageId, result.Value, headers ?? new Dictionary<string, string>(), startedAt, DateTimeOffset.UtcNow, processingContext), messageProcessingCancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Warn($"Failure when invoking {nameof(OnReceiveCompleted)} for {filePath}({transaction.FileToProcess})", ex);
+                    }
                 }
 
                 concurrencyLimiter.Release();
@@ -280,7 +283,7 @@
         }
 
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of headers, and a <see cref="bool"/> indicating whether onMessage failed.</returns>
-        async Task<(Dictionary<string, string>, ReceiveResult)> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
+        async Task<(Dictionary<string, string>, ReceiveResult?)> ProcessFile(ILearningTransportTransaction transaction, string messageId, ContextBag processingContext, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
@@ -319,7 +322,7 @@
 
             var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
 
-            ReceiveResult result = default;
+            ErrorHandleResult? errorHandleResult = null;
 
             try
             {
@@ -328,8 +331,10 @@
             }
             catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
             {
-                log.Info("Message processing cancelled.", ex);
-                result = ReceiveResult.RetryRequired;
+                log.Info("Message processing cancelled. Rolling back transaction.", ex);
+                transaction.Rollback();
+
+                return (headers, null);
             }
             catch (Exception exception)
             {
@@ -344,29 +349,32 @@
 
                 try
                 {
-                    result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
+                    errorHandleResult = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
                 {
-                    log.Info("Message processing cancelled.", ex);
-                    result = ReceiveResult.RetryRequired;
+                    log.Info("Message processing cancelled. Rolling back transaction.", ex);
+                    transaction.Rollback();
+
+                    return (headers, null);
                 }
                 catch (Exception ex)
                 {
                     criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, CancellationToken.None);
-                    result = ReceiveResult.RetryRequired;
+                    errorHandleResult = ErrorHandleResult.RetryRequired;
                 }
 
-                if (result == ReceiveResult.RetryRequired)
+                if (errorHandleResult == ErrorHandleResult.RetryRequired)
                 {
                     transaction.Rollback();
-                    return (headers, result);
+
+                    return (headers, null);
                 }
             }
 
             await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
 
-            return (headers, result);
+            return (headers, errorHandleResult?.ToReceiveResult() ?? ReceiveResult.Processed);
         }
 
         CancellationTokenSource messagePumpCancellationTokenSource;

@@ -31,10 +31,10 @@
                     if (attempts == maxAttempts)
                     {
                         errorContext = context;
-                        return Task.FromResult(ReceiveResult.Discarded);
+                        return Task.FromResult(ErrorHandleResult.Discarded);
                     }
 
-                    return Task.FromResult(ReceiveResult.RetryRequired);
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
                 (_, __) => attempts == maxAttempts ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);

@@ -31,9 +31,9 @@ namespace NServiceBus.TransportTests
                 (_, __) =>
                 {
                     retrying = true;
-                    return Task.FromResult(ReceiveResult.RetryRequired);
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Processed ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName);

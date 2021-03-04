@@ -25,7 +25,7 @@ namespace NServiceBus.TransportTests
                 (context, _) =>
                 {
                     context.Extensions.Set("MyOnErrorKey", "MyOnErrorValue");
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    return Task.FromResult(ErrorHandleResult.Discarded);
                 },
                 (context, _) => completed.SetCompleted(context),
                 transactionMode);

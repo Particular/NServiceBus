@@ -42,7 +42,7 @@
     /// <summary>
     /// Processes a message that has failed processing.
     /// </summary>
-    public delegate Task<ReceiveResult> OnError(ErrorContext errorContext, CancellationToken cancellationToken = default);
+    public delegate Task<ErrorHandleResult> OnError(ErrorContext errorContext, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Invoked after message receipt has completed.

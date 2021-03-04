@@ -29,7 +29,7 @@
                 (context, _) =>
                 {
                     errorContext = context;
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    return Task.FromResult(ErrorHandleResult.Discarded);
                 },
                 (_, __) => completed.SetCompleted(),
                 transactionMode);

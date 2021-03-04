@@ -33,8 +33,8 @@
 
                     throw new Exception("Simulated exception");
                 },
-                (errorcontext, _) => Task.FromResult(ReceiveResult.Discarded),
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (errorcontext, _) => Task.FromResult(ErrorHandleResult.Discarded),
+                (context, _) => context.Result == ReceiveResult.Processed ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName);

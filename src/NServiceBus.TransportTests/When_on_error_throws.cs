@@ -42,7 +42,7 @@
                     retrying = true;
                     throw exceptionFromOnError;
                 },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Processed ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode,
                 (message, exception, _) =>
                 {

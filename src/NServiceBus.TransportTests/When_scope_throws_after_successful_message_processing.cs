@@ -30,14 +30,14 @@
                     //perform an immediate retry to make sure the transport increments the counter properly
                     if (context.ImmediateProcessingFailures < 2)
                     {
-                        return Task.FromResult(ReceiveResult.RetryRequired);
+                        return Task.FromResult(ErrorHandleResult.RetryRequired);
                     }
 
                     errorContext = context;
 
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    return Task.FromResult(ErrorHandleResult.Discarded);
                 },
-                (context, _) => context.Result == ReceiveResult.RetryRequired ? Task.CompletedTask : completed.SetCompleted(),
+                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);

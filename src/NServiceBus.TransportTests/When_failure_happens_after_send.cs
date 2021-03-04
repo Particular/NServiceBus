@@ -32,7 +32,7 @@ namespace NServiceBus.TransportTests
                     throw new Exception("Simulated exception");
 
                 },
-                (errorcontext, _) => Task.FromResult(ReceiveResult.Discarded),
+                (errorcontext, _) => Task.FromResult(ErrorHandleResult.Discarded),
                 (context, _) => completed.SetCompleted(),
                 transactionMode);
 

@@ -30,9 +30,9 @@ namespace NServiceBus.TransportTests
                 async (context, _) =>
                 {
                     await SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } }, context.TransportTransaction);
-                    return ReceiveResult.Discarded;
+                    return ErrorHandleResult.Discarded;
                 },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Processed ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName);

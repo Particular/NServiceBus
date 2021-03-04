@@ -113,7 +113,7 @@
                 (context, cancellationToken) =>
                     context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, cancellationToken) : Task.CompletedTask,
                 (context, cancellationToken) =>
-                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ReceiveResult.Discarded),
+                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ErrorHandleResult.Discarded),
                 (context, cancellationToken) =>
                     context.Headers.Contains(TestIdHeaderName, testId) ? onReceiveCompleted(context, cancellationToken) : Task.CompletedTask,
                 default);

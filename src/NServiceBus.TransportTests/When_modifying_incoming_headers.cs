@@ -35,9 +35,9 @@
                 (context, _) =>
                 {
                     retrying = true;
-                    return Task.FromResult(ReceiveResult.RetryRequired);
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Processed ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
@@ -67,7 +67,7 @@
                 (context, _) =>
                 {
                     errorContext = context;
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    return Task.FromResult(ErrorHandleResult.Discarded);
                 },
                 (_, __) => completed.SetCompleted(),
                 transactionMode);
@@ -107,9 +107,9 @@
                 {
                     retrying = true;
                     context.Message.Headers["test-header"] = "modified";
-                    return Task.FromResult(ReceiveResult.RetryRequired);
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Processed ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });

@@ -24,7 +24,7 @@ namespace NServiceBus.TransportTests
                     messageContext = context;
                     return Task.CompletedTask;
                 },
-                (context, _) => Task.FromResult(ReceiveResult.Discarded),
+                (context, _) => Task.FromResult(ErrorHandleResult.Discarded),
                 (context, _) => completed.SetCompleted(context),
                 transactionMode);
 
@@ -32,7 +32,7 @@ namespace NServiceBus.TransportTests
 
             var completedContext = await completed.Task;
 
-            Assert.AreEqual(completedContext.Result, ReceiveResult.Succeeded);
+            Assert.AreEqual(completedContext.Result, ReceiveResult.Processed);
             Assert.NotNull(messageContext, "On message should have been called");
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");

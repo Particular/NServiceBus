@@ -21,7 +21,7 @@
                     messageContext = context;
                     return Task.CompletedTask;
                 },
-                (_, __) => Task.FromResult(ReceiveResult.Discarded),
+                (_, __) => Task.FromResult(ErrorHandleResult.Discarded),
                 (_, __) => completed.SetCompleted(),
                 TransportTransactionMode.None);
 
