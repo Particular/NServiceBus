@@ -39,7 +39,7 @@
         {
             PushRuntimeSettings pushSettings;
 
-            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnCompleted onCompleted, CancellationToken cancellationToken = default)
+            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, OnReceiveCompleted onReceiveCompleted, CancellationToken cancellationToken = default)
             {
                 pushSettings = limitations;
                 return Task.CompletedTask;

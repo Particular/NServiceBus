@@ -20,18 +20,16 @@
             Exception criticalErrorException = null;
             var exceptionFromOnError = new Exception("Exception from onError");
 
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
             var retrying = false;
-            var retried = false;
 
             await StartPump(
                 (context, _) =>
                 {
                     if (retrying)
                     {
-                        retried = true;
                         return Task.CompletedTask;
                     }
 
@@ -44,7 +42,7 @@
                     retrying = true;
                     throw exceptionFromOnError;
                 },
-                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode,
                 (message, exception, _) =>
                 {

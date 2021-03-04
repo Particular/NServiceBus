@@ -1514,4 +1514,14 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus.Transport
+{
+    [ObsoleteEx(ReplacementTypeOrMember = "NServiceBus.Transport.ReceiveResult", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+    public enum ErrorHandleResult
+    {
+        Handled,
+        RetryRequired
+    }
+}
+
 #pragma warning restore 1591

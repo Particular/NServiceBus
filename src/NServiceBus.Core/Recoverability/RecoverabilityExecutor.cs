@@ -31,14 +31,14 @@
             raiseNotifications = raiseRecoverabilityNotifications;
         }
 
-        public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
+        public Task<ReceiveResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 
             if (recoveryAction is Discard discard)
             {
                 Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {discard.Reason}", errorContext.Exception);
-                return HandledTask;
+                return DiscardedTask;
             }
 
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
@@ -74,7 +74,7 @@
             return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
         }
 
-        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
+        async Task<ReceiveResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
         {
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
@@ -90,10 +90,10 @@
                     .ConfigureAwait(false);
             }
 
-            return ErrorHandleResult.RetryRequired;
+            return ReceiveResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken)
+        async Task<ReceiveResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken)
         {
             var message = errorContext.Message;
 
@@ -106,10 +106,10 @@
                 await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue), cancellationToken).ConfigureAwait(false);
             }
 
-            return ErrorHandleResult.Handled;
+            return ReceiveResult.MovedToErrorQueue;
         }
 
-        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, ErrorContext errorContext, CancellationToken cancellationToken)
+        async Task<ReceiveResult> DeferMessage(DelayedRetry action, ErrorContext errorContext, CancellationToken cancellationToken)
         {
             var message = errorContext.Message;
 
@@ -129,7 +129,7 @@
                     .ConfigureAwait(false);
             }
 
-            return ErrorHandleResult.Handled;
+            return ReceiveResult.QueuedForDelayedRetry;
         }
 
         readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
@@ -142,7 +142,7 @@
         bool delayedRetriesAvailable;
         RecoverabilityConfig configuration;
 
-        static Task<ErrorHandleResult> HandledTask = Task.FromResult(ErrorHandleResult.Handled);
+        static Task<ReceiveResult> DiscardedTask = Task.FromResult(ReceiveResult.Discarded);
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
     }
 }

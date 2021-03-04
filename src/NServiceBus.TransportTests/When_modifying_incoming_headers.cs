@@ -13,13 +13,12 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_between_processing_attempts(TransportTransactionMode transactionMode)
         {
-            var completed = new TaskCompletionSource<CompleteContext>();
+            MessageContext retryMessageContext = null;
 
+            var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
             var retrying = false;
-            var retried = false;
-            MessageContext retryMessageContext = null;
 
             await StartPump(
                 (context, _) =>
@@ -27,7 +26,6 @@
                     if (retrying)
                     {
                         retryMessageContext = context;
-                        retried = true;
                         return Task.CompletedTask;
                     }
 
@@ -37,9 +35,9 @@
                 (context, _) =>
                 {
                     retrying = true;
-                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                    return Task.FromResult(ReceiveResult.RetryRequired);
                 },
-                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
@@ -55,11 +53,10 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_before_handling_error(TransportTransactionMode transactionMode)
         {
-            var completed = new TaskCompletionSource<CompleteContext>();
-
-            OnTestTimeout(() => completed.SetCanceled());
-
             ErrorContext errorContext = null;
+
+            var completed = new TaskCompletionSource<bool>();
+            OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
                 (context, _) =>
@@ -67,10 +64,10 @@
                     context.Headers["test-header"] = "modified";
                     throw new Exception();
                 },
-                (context, __) =>
+                (context, _) =>
                 {
                     errorContext = context;
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    return Task.FromResult(ReceiveResult.Discarded);
                 },
                 (_, __) => completed.SetCompleted(),
                 transactionMode);
@@ -90,11 +87,10 @@
         {
             MessageContext retryMessageContext = null;
 
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
             OnTestTimeout(() => completed.SetCanceled());
 
             var retrying = false;
-            var retried = false;
 
             await StartPump(
                 (context, _) =>
@@ -102,19 +98,18 @@
                     if (retrying)
                     {
                         retryMessageContext = context;
-                        retried = true;
                         return Task.CompletedTask;
                     }
 
                     throw new Exception();
                 },
-                (context, __) =>
+                (context, _) =>
                 {
                     retrying = true;
                     context.Message.Headers["test-header"] = "modified";
-                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                    return Task.FromResult(ReceiveResult.RetryRequired);
                 },
-                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });

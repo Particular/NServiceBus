@@ -36,7 +36,7 @@
                         errorContext = context;
                     }
 
-                    return ErrorHandleResult.Handled;
+                    return ReceiveResult.Discarded;
                 },
                 (_, __) => sentDelayedMessage ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);

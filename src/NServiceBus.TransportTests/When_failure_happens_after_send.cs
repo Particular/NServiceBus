@@ -32,8 +32,8 @@ namespace NServiceBus.TransportTests
                     throw new Exception("Simulated exception");
 
                 },
-                (errorContext, __) => Task.FromResult(ErrorHandleResult.Handled),
-                (context, __) => completed.SetCompleted(),
+                (errorcontext, _) => Task.FromResult(ReceiveResult.Discarded),
+                (context, _) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);

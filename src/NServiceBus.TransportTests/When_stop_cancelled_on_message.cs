@@ -16,7 +16,7 @@
             var recoverabilityInvoked = false;
 
             var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
 
             OnTestTimeout(() =>
             {
@@ -33,9 +33,9 @@
                 (_, __) =>
                 {
                     recoverabilityInvoked = true;
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    return Task.FromResult(ReceiveResult.Discarded);
                 },
-                (context, _) => completed.SetCompleted(context),
+                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
@@ -44,11 +44,9 @@
 
             await StopPump(new CancellationToken(true));
 
-            var completeContext = await completed.Task;
+            _ = await completed.Task;
 
             Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
-            Assert.IsFalse(completeContext.WasAcknowledged);
-            Assert.IsFalse(completeContext.OnMessageFailed);
         }
     }
 }

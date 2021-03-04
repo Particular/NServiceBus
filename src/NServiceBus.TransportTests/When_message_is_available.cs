@@ -15,7 +15,7 @@ namespace NServiceBus.TransportTests
         {
             MessageContext messageContext = null;
 
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<ReceiveCompletedContext>();
             OnTestTimeout(() => completed.SetCanceled());
 
             await StartPump(
@@ -24,15 +24,15 @@ namespace NServiceBus.TransportTests
                     messageContext = context;
                     return Task.CompletedTask;
                 },
-                (context, _) => Task.FromResult(ErrorHandleResult.Handled),
+                (context, _) => Task.FromResult(ReceiveResult.Discarded),
                 (context, _) => completed.SetCompleted(context),
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } }, body: new byte[] { 1, 2, 3 });
 
-            var completeContext = await completed.Task;
+            var completedContext = await completed.Task;
 
-            Assert.False(completeContext.OnMessageFailed, "Message failure should not be indicated");
+            Assert.AreEqual(completedContext.Result, ReceiveResult.Succeeded);
             Assert.NotNull(messageContext, "On message should have been called");
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");

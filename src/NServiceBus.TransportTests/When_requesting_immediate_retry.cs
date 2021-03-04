@@ -17,25 +17,23 @@ namespace NServiceBus.TransportTests
             OnTestTimeout(() => completed.SetCanceled());
 
             var retrying = false;
-            var retried = true;
 
             await StartPump(
-                (context, _) =>
+                (_, __) =>
                 {
                     if (retrying)
                     {
-                        retried = true;
                         return Task.CompletedTask;
                     }
 
                     throw new Exception("Simulated exception");
                 },
-                (context, _) =>
+                (_, __) =>
                 {
                     retrying = true;
-                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                    return Task.FromResult(ReceiveResult.RetryRequired);
                 },
-                (_, __) => retried ? completed.SetCompleted() : Task.CompletedTask,
+                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName);

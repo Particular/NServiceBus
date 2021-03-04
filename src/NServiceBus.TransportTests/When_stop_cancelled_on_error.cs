@@ -17,7 +17,7 @@
             var criticalErrorInvoked = false;
 
             var recoverabilityStarted = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<CompleteContext>();
+            var completed = new TaskCompletionSource<bool>();
 
             OnTestTimeout(() =>
             {
@@ -33,9 +33,9 @@
 
                     await Task.Delay(TestTimeout, cancellationToken);
 
-                    return ErrorHandleResult.Handled;
+                    return ReceiveResult.Discarded;
                 },
-                (context, _) => completed.SetCompleted(context),
+                (_, __) => completed.SetCompleted(),
                 transactionMode,
                 (_, __, ___) => criticalErrorInvoked = true);
 
@@ -45,11 +45,9 @@
 
             await StopPump(new CancellationToken(true));
 
-            var completeContext = await completed.Task;
+            _ = await completed.Task;
 
             Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
-            Assert.False(completeContext.WasAcknowledged);
-            Assert.True(completeContext.OnMessageFailed);
         }
     }
 }
