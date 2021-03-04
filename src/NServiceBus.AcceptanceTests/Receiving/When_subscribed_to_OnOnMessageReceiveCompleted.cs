@@ -63,7 +63,7 @@
 
             Assert.NotNull(context.ReceiveCompleted, "Event was not received");
             Assert.AreEqual(context.NativeMessageId, context.ReceiveCompleted.NativeMessageId, "Event native message ID does not match message native message ID");
-            Assert.AreEqual(ReceiveResult.RetryRequired, context.ReceiveCompleted.Result, "Event indicates that message receipt requires a retry");
+            Assert.AreEqual(ReceiveResult.RetryRequired, context.ReceiveCompleted.Result, "Event indicates that message receipt does not require a retry");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.StartedAt, "StartedAt is not set");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceiveCompleted.CompletedAt, "CompletedAt is not set");
             Assert.True(context.ReceiveCompleted.Headers.ContainsKey("SomeKey"));

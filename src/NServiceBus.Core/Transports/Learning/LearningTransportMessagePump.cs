@@ -262,7 +262,7 @@
                 }
                 catch (Exception ex)
                 {
-                    log.Debug($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
+                    log.Debug($"Failure while trying to complete receive transaction for {filePath}({transaction.FileToProcess})", ex);
                     result = ReceiveResult.RetryRequired;
                 }
 
@@ -272,7 +272,7 @@
                 }
                 catch (Exception ex)
                 {
-                    log.Warn($"Failure when invoking {nameof(OnReceiveCompleted)} for {filePath}({transaction.FileToProcess})" + filePath, ex);
+                    log.Warn($"Failure when invoking {nameof(OnReceiveCompleted)} for {filePath}({transaction.FileToProcess})", ex);
                 }
 
                 concurrencyLimiter.Release();

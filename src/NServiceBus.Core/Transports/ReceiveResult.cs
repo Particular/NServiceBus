@@ -1,37 +1,37 @@
 ﻿namespace NServiceBus.Transport
 {
     /// <summary>
-    /// Provides information about message processing.
+    /// The result of receiving a message.
     /// </summary>
     public enum ReceiveResult
     {
         /// <summary>
-        /// Indicates that the infrastructure succeeded in processing the messsage.
+        /// The message was successfully received.
         /// </summary>
         Succeeded,
 
         /// <summary>
-        /// Indicates that the infrastructure discarded the current message.
+        /// The message was discarded.
         /// </summary>
         Discarded,
 
         /// <summary>
-        /// Indicates that the infrastructure moved the current message to the error queue.
+        /// The message was moved to the error queue.
         /// </summary>
         MovedToErrorQueue,
 
         /// <summary>
-        /// Indicates that the infrastructure queued the current message for a delayed retry.
+        /// The message was queued for a delayed retry.
         /// </summary>
         QueuedForDelayedRetry,
 
         /// <summary>
-        /// Indicates that the infrastructure was did not handle the current error. A retry is required.
+        /// The message was not successfully received and requires a retry.
         /// </summary>
         RetryRequired,
 
         /// <summary>
-        /// Indicates that the message expired and was not processed.
+        /// The message expired and was ignored.
         /// </summary>
         Expired
     }
