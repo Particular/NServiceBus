@@ -187,7 +187,7 @@
 
             if (!Debugger.IsAttached)
             {
-                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetCanceled());
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetException(new Exception("The test timed out.")));
             }
 
             return source;
@@ -199,7 +199,7 @@
 
             if (!Debugger.IsAttached)
             {
-                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetCanceled());
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetException(new Exception("The test timed out.")));
             }
 
             return source;
