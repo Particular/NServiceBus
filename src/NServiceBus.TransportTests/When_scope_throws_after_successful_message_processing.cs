@@ -14,8 +14,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Throwing_during_Transaction_Prepare_should_properly_increment_immediate_processing_failures(TransportTransactionMode transactionMode)
         {
-            var secondFailure = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => secondFailure.SetCanceled());
+            var secondFailure = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (_, __) =>

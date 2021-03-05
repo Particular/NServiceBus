@@ -14,8 +14,7 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_dispatch_the_message(TransportTransactionMode transactionMode)
         {
-            var messageDispatched = new TaskCompletionSource();
-            OnTestTimeout(() => messageDispatched.SetCanceled());
+            var messageDispatched = CreateTaskCompletionSource();
 
             await StartPump(
                 (context, _) => context.Headers.ContainsKey("FromOnError") ? messageDispatched.SetCompleted() : throw new Exception("Simulated exception"),

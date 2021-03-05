@@ -14,8 +14,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
-            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => onErrorCalled.SetCanceled());
+            var onErrorCalled = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (_, __) =>

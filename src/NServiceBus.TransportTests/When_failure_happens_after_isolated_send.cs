@@ -14,8 +14,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_emit_messages(TransportTransactionMode transactionMode)
         {
-            var messageEmitted = new TaskCompletionSource();
-            OnTestTimeout(() => messageEmitted.SetCanceled());
+            var messageEmitted = CreateTaskCompletionSource();
 
             await StartPump(
                 async (context, _) =>

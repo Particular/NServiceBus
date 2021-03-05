@@ -14,12 +14,11 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_complete(TransportTransactionMode transactionMode)
         {
-            CancellationToken token = default;
+            CancellationToken onErrorToken = default;
 
-            var onErrorStarted = new TaskCompletionSource();
-            OnTestTimeout(() => onErrorStarted.SetCanceled());
+            var onErrorStarted = CreateTaskCompletionSource();
 
-            var pumpStopping = new TaskCompletionSource();
+            var pumpStopping = CreateTaskCompletionSource();
 
             await StartPump(
                 (_, __) => throw new Exception(),
@@ -27,7 +26,7 @@
                 {
                     onErrorStarted.SetResult();
                     await pumpStopping.Task;
-                    token = cancellationToken;
+                    onErrorToken = cancellationToken;
                     return ErrorHandleResult.Handled;
                 },
                 transactionMode);
@@ -41,7 +40,7 @@
 
             await pumpTask;
 
-            Assert.False(token.IsCancellationRequested);
+            Assert.False(onErrorToken.IsCancellationRequested);
         }
     }
 }

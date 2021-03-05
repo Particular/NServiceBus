@@ -181,6 +181,42 @@
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
 
+        protected static TaskCompletionSource<TResult> CreateTaskCompletionSource<TResult>()
+        {
+            var source = new TaskCompletionSource<TResult>();
+
+            if (!Debugger.IsAttached)
+            {
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() =>
+                {
+                    if (!source.TrySetCanceled())
+                    {
+                        Console.Error.WriteLine();
+                    }
+                });
+            }
+
+            return source;
+        }
+
+        protected static TaskCompletionSource CreateTaskCompletionSource()
+        {
+            var source = new TaskCompletionSource();
+
+            if (!Debugger.IsAttached)
+            {
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() =>
+                {
+                    if (!source.TrySetCanceled())
+                    {
+                        Console.Error.WriteLine();
+                    }
+                });
+            }
+
+            return source;
+        }
+
         static string GetTestName()
         {
             var index = 1;

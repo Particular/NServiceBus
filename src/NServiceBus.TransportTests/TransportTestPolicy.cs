@@ -20,7 +20,7 @@
                 .Select(group => $"{Environment.NewLine}  - {group.Key.FullName}")
                 .ToArray();
 
-            Assert.AreEqual(0, multiTestClasses.Length, "Each transport test method should be in its own class. The class determines the queue name and can lead to subtle bugs between tests. Offenders:" + string.Join("", multiTestClasses));
+            Assert.IsEmpty(multiTestClasses, "Each transport test method should be in its own class. The class determines the queue name and can lead to subtle bugs between tests. Offenders:" + string.Join("", multiTestClasses));
         }
 
         static bool IsTestMethod(MethodInfo method) =>

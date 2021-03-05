@@ -10,8 +10,7 @@
         [Test]
         public async Task Should_support_unicode_characters()
         {
-            var messageProcessed = new TaskCompletionSource<MessageContext>();
-            OnTestTimeout(() => messageProcessed.SetCanceled());
+            var messageProcessed = CreateTaskCompletionSource<MessageContext>();
 
             await StartPump(
                 (context, _) => messageProcessed.SetCompleted(context),

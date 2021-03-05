@@ -6,22 +6,16 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_cancelling_stop : NServiceBusTransportTest
+    public class When_cancelling_stop_on_message : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode)
+        public async Task Should_cancel(TransportTransactionMode transactionMode)
         {
-            var started = new TaskCompletionSource();
-            var cancelled = new TaskCompletionSource();
-
-            OnTestTimeout(() =>
-            {
-                started.SetCanceled();
-                cancelled.SetCanceled();
-            });
+            var started = CreateTaskCompletionSource();
+            var wasCancelled = CreateTaskCompletionSource<bool>();
 
             await StartPump(
                 async (_, cancellationToken) =>
@@ -34,9 +28,11 @@
                     }
                     catch (OperationCanceledException)
                     {
-                        cancelled.SetResult();
+                        wasCancelled.SetResult(true);
                         throw;
                     }
+
+                    wasCancelled.SetResult(false);
                 },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
@@ -47,7 +43,7 @@
 
             await StopPump(new CancellationToken(true));
 
-            await cancelled.Task;
+            Assert.True(await wasCancelled.Task, "onMessage was not cancelled.");
         }
     }
 }

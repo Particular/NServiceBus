@@ -13,8 +13,7 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_retry_immediately(TransportTransactionMode transactionMode)
         {
-            var retried = new TaskCompletionSource();
-            OnTestTimeout(() => retried.SetCanceled());
+            var retried = CreateTaskCompletionSource();
 
             var retrying = false;
 

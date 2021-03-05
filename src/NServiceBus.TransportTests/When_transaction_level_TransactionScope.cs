@@ -13,8 +13,7 @@
             Transaction currentTransaction = null;
             Transaction contextTransaction = null;
 
-            var messageProcessed = new TaskCompletionSource();
-            OnTestTimeout(() => messageProcessed.SetCanceled());
+            var messageProcessed = CreateTaskCompletionSource();
 
             await StartPump(
                 (context, _) =>

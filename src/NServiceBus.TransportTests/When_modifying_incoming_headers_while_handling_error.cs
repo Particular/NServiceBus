@@ -13,8 +13,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_modifications(TransportTransactionMode transactionMode)
         {
-            var retried = new TaskCompletionSource<MessageContext>();
-            OnTestTimeout(() => retried.SetCanceled());
+            var retried = CreateTaskCompletionSource<MessageContext>();
 
             var retrying = false;
 

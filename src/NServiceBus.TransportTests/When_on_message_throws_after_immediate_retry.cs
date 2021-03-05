@@ -16,8 +16,7 @@
             var maxAttempts = 3;
             var attempts = 0;
 
-            var maxAttemptsReached = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => maxAttemptsReached.SetCanceled());
+            var maxAttemptsReached = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (_, __) => throw new Exception($"Simulated exception {++attempts}"),

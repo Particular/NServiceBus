@@ -13,8 +13,7 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_on_message(TransportTransactionMode transactionMode)
         {
-            var onMessageInvoked = new TaskCompletionSource<MessageContext>();
-            OnTestTimeout(() => onMessageInvoked.SetCanceled());
+            var onMessageInvoked = CreateTaskCompletionSource<MessageContext>();
 
             await StartPump(
                 (context, _) => onMessageInvoked.SetCompleted(context),

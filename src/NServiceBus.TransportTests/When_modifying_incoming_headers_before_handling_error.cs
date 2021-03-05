@@ -14,8 +14,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_modifications(TransportTransactionMode transactionMode)
         {
-            var errorHandled = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => errorHandled.SetCanceled());
+            var errorHandled = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (context, _) =>
