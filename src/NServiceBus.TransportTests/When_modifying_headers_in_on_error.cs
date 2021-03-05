@@ -6,12 +6,12 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_modifying_incoming_headers_while_handling_error : NServiceBusTransportTest
+    public class When_modifying_headers_in_on_error : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_roll_back_modifications(TransportTransactionMode transactionMode)
+        public async Task Should_roll_back(TransportTransactionMode transactionMode)
         {
             var retried = CreateTaskCompletionSource<MessageContext>();
 

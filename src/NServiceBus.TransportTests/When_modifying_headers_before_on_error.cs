@@ -6,40 +6,34 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_modifying_incoming_headers_between_attempts : NServiceBusTransportTest
+    public class When_modifying_headers_before_on_error : NServiceBusTransportTest
     {
+        [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_roll_back_modifications(TransportTransactionMode transactionMode)
+        public async Task Should_roll_back(TransportTransactionMode transactionMode)
         {
-            var retried = CreateTaskCompletionSource<MessageContext>();
-
-            var retrying = false;
+            var errorHandled = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (context, _) =>
                 {
-                    if (retrying)
-                    {
-                        return retried.SetCompleted(context);
-                    }
-
                     context.Headers["test-header"] = "modified";
                     throw new Exception();
                 },
-                (context, _) =>
+                (context, __) =>
                 {
-                    retrying = true;
-                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                    errorHandled.SetResult(context);
+                    return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
-            var retryMessageContext = await retried.Task;
+            var errorContext = await errorHandled.Task;
 
-            Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
+            Assert.AreEqual("original", errorContext.Message.Headers["test-header"]);
         }
     }
 }
