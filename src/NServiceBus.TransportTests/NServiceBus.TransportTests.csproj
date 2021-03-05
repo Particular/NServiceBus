@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="ConfigureLearningTransportInfrastructure.cs" />
+    <RemoveSourceFileFromPackage Include="TransportTestPolicy.cs" />
   </ItemGroup>
 
 </Project>
