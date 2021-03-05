@@ -17,28 +17,21 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_recoverability(TransportTransactionMode transactionMode)
         {
-            var recoverabilityInvoked = false;
-
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var recoverabilityInvoked = new TaskCompletionSource();
+            OnTestTimeout(() => recoverabilityInvoked.SetCanceled());
 
             await StartPump(
                 (_, __) => throw new OperationCanceledException(),
                 (_, __) =>
                 {
-                    recoverabilityInvoked = true;
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    recoverabilityInvoked.SetResult();
+                    return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
-
-            await StopPump();
-
-            Assert.True(recoverabilityInvoked);
+            await recoverabilityInvoked.Task;
         }
     }
 }

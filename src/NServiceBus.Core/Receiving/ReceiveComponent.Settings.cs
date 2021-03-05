@@ -63,8 +63,6 @@ namespace NServiceBus
 
             public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers => settings.GetOrCreate<Notification<ReceivePipelineCompleted>>();
 
-            public Notification<ReceiveCompleted> ReceiveCompletedSubscribers => settings.GetOrCreate<Notification<ReceiveCompleted>>();
-
             public bool IsSendOnlyEndpoint => settings.Get<bool>(EndpointSendOnlySettingKey);
 
             public void RegisterReceiveConfigurationForBackwardsCompatibility(Configuration configuration)

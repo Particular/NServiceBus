@@ -15,36 +15,27 @@
         {
             var recoverabilityInvoked = false;
 
-            var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<bool>();
-
-            OnTestTimeout(() =>
-            {
-                messageProcessingStarted.SetCanceled();
-                completed.SetCanceled();
-            });
+            var messageProcessingStarted = new TaskCompletionSource();
+            OnTestTimeout(() => messageProcessingStarted.SetCanceled());
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
-                    messageProcessingStarted.SetResult(true);
+                    messageProcessingStarted.SetResult();
                     await Task.Delay(TestTimeout, cancellationToken);
                 },
                 (_, __) =>
                 {
                     recoverabilityInvoked = true;
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await messageProcessingStarted.Task;
+            await messageProcessingStarted.Task;
 
             await StopPump(new CancellationToken(true));
-
-            _ = await completed.Task;
 
             Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
         }

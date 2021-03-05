@@ -14,14 +14,15 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_emit_messages(TransportTransactionMode transactionMode)
         {
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var messageEmitted = new TaskCompletionSource();
+            OnTestTimeout(() => messageEmitted.SetCanceled());
 
             await StartPump(
                 async (context, _) =>
                 {
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
+                        messageEmitted.SetResult();
                         return;
                     }
 
@@ -33,13 +34,12 @@
 
                     throw new Exception("Simulated exception");
                 },
-                (errorcontext, _) => Task.FromResult(ReceiveResult.Discarded),
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            await messageEmitted.Task;
         }
     }
 }

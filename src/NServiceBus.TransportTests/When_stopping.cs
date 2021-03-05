@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.TransportTests
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -12,44 +13,33 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_allow_message_processing_to_complete(TransportTransactionMode transactionMode)
         {
-            var recoverabilityInvoked = false;
+            CancellationToken token = default;
 
-            var messageProcessingStarted = new TaskCompletionSource<bool>();
-            var pumpStopping = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<bool>();
+            var messageProcessingStarted = new TaskCompletionSource();
+            OnTestTimeout(() => messageProcessingStarted.SetCanceled());
 
-            OnTestTimeout(() =>
-            {
-                messageProcessingStarted.SetCanceled();
-                completed.SetCanceled();
-            });
+            var pumpStopping = new TaskCompletionSource();
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
-                    messageProcessingStarted.SetResult(true);
+                    messageProcessingStarted.SetResult();
                     await pumpStopping.Task;
+                    token = cancellationToken;
                 },
-                (_, __) =>
-                {
-                    recoverabilityInvoked = true;
-                    return Task.FromResult(ReceiveResult.Discarded);
-                },
-                (_, __) => completed.SetCompleted(),
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await messageProcessingStarted.Task;
+            await messageProcessingStarted.Task;
 
             var pumpTask = StopPump();
-            pumpStopping.SetResult(true);
+            pumpStopping.SetResult();
 
             await pumpTask;
 
-            _ = await completed.Task;
-
-            Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
+            Assert.False(token.IsCancellationRequested);
         }
     }
 }

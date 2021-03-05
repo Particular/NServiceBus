@@ -14,21 +14,19 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_cancel_message_processing(TransportTransactionMode transactionMode)
         {
-            var wasCancelled = false;
-
-            var started = new TaskCompletionSource<bool>();
-            var completed = new TaskCompletionSource<bool>();
+            var started = new TaskCompletionSource();
+            var cancelled = new TaskCompletionSource();
 
             OnTestTimeout(() =>
             {
                 started.SetCanceled();
-                completed.SetCanceled();
+                cancelled.SetCanceled();
             });
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
-                    started.SetResult(true);
+                    started.SetResult();
 
                     try
                     {
@@ -36,26 +34,20 @@
                     }
                     catch (OperationCanceledException)
                     {
-                        wasCancelled = true;
-
-                        // propagate the cancellation
-                        // we are only catching the exception here to record the cancellation
+                        cancelled.SetResult();
                         throw;
                     }
                 },
-                (_, __) => Task.FromResult(ReceiveResult.Discarded),
-                (context, _) => completed.SetCompleted(),
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await started.Task;
+            await started.Task;
 
             await StopPump(new CancellationToken(true));
 
-            _ = await completed.Task;
-
-            Assert.True(wasCancelled);
+            await cancelled.Task;
         }
     }
 }

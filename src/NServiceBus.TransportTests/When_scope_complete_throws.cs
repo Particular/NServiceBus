@@ -14,13 +14,11 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
-            ErrorContext errorContext = null;
-
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
+            OnTestTimeout(() => onErrorCalled.SetCanceled());
 
             await StartPump(
-                (context, _) =>
+                (_, __) =>
                 {
                     // handler enlists a failing transaction enlistment to the DTC transaction which will fail when committing the transaction.
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
@@ -28,15 +26,14 @@
                 },
                 (context, _) =>
                 {
-                    errorContext = context;
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    onErrorCalled.SetResult(context);
+                    return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                (_, __) => completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            var errorContext = await onErrorCalled.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
 

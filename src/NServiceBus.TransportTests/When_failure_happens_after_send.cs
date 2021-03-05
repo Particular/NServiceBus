@@ -2,7 +2,6 @@ namespace NServiceBus.TransportTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -15,12 +14,18 @@ namespace NServiceBus.TransportTests
         {
             var messageEmitted = false;
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var sentFromErrorReceived = new TaskCompletionSource();
+            OnTestTimeout(() => sentFromErrorReceived.SetCanceled());
 
             await StartPump(
                 async (context, _) =>
                 {
+                    if (context.Headers.ContainsKey("SentFromOnError"))
+                    {
+                        sentFromErrorReceived.SetResult();
+                        return;
+                    }
+
                     if (context.Headers.ContainsKey("SentBeforeFailure"))
                     {
                         messageEmitted = true;
@@ -32,15 +37,18 @@ namespace NServiceBus.TransportTests
                     throw new Exception("Simulated exception");
 
                 },
-                (errorcontext, _) => Task.FromResult(ReceiveResult.Discarded),
-                (context, _) => completed.SetCompleted(),
+                async (context, _) =>
+                {
+                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "" } }, context.TransportTransaction);
+                    return ErrorHandleResult.Handled;
+                },
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            await sentFromErrorReceived.Task;
 
-            await StopPump(CancellationToken.None);
+            await StopPump();
 
             Assert.False(messageEmitted);
         }

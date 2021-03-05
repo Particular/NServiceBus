@@ -13,23 +13,22 @@
             Transaction currentTransaction = null;
             Transaction contextTransaction = null;
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var messageProcessed = new TaskCompletionSource();
+            OnTestTimeout(() => messageProcessed.SetCanceled());
 
             await StartPump(
                 (context, _) =>
                 {
                     currentTransaction = Transaction.Current;
                     contextTransaction = context.TransportTransaction.Get<Transaction>();
-                    return Task.CompletedTask;
+                    return messageProcessed.SetCompleted();
                 },
-                (_, __) => Task.FromResult(ReceiveResult.Discarded),
-                (_, __) => completed.SetCompleted(),
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            await messageProcessed.Task;
 
             Assert.NotNull(currentTransaction);
             Assert.AreSame(currentTransaction, contextTransaction);

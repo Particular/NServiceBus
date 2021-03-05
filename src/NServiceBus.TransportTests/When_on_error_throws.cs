@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using Logging;
     using NUnit.Framework;
-    using Transport;
 
     public class When_on_error_throws : NServiceBusTransportTest
     {
@@ -20,8 +19,8 @@
             Exception criticalErrorException = null;
             var exceptionFromOnError = new Exception("Exception from onError");
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var retried = new TaskCompletionSource();
+            OnTestTimeout(() => retried.SetCanceled());
 
             var retrying = false;
 
@@ -30,19 +29,18 @@
                 {
                     if (retrying)
                     {
-                        return Task.CompletedTask;
+                        return retried.SetCompleted();
                     }
 
                     nativeMessageId = context.NativeMessageId;
 
                     throw new Exception("Exception from onMessage");
                 },
-                (context, _) =>
+                (_, __) =>
                 {
                     retrying = true;
                     throw exceptionFromOnError;
                 },
-                (context, _) => context.Result == ReceiveResult.Succeeded ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode,
                 (message, exception, _) =>
                 {
@@ -50,13 +48,12 @@
                     criticalErrorMessage = message;
                     criticalErrorException = exception;
                 });
-            ;
 
             LogFactory.LogItems.Clear();
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            await retried.Task;
 
             Assert.True(criticalErrorCalled, "Should invoke critical error");
             Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`", criticalErrorMessage);

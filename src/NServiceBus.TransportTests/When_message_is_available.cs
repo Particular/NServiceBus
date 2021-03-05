@@ -13,27 +13,18 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_on_message(TransportTransactionMode transactionMode)
         {
-            MessageContext messageContext = null;
-
-            var completed = new TaskCompletionSource<ReceiveCompletedContext>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var onMessageInvoked = new TaskCompletionSource<MessageContext>();
+            OnTestTimeout(() => onMessageInvoked.SetCanceled());
 
             await StartPump(
-                (context, _) =>
-                {
-                    messageContext = context;
-                    return Task.CompletedTask;
-                },
-                (context, _) => Task.FromResult(ReceiveResult.Discarded),
-                (context, _) => completed.SetCompleted(context),
+                (context, _) => onMessageInvoked.SetCompleted(context),
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } }, body: new byte[] { 1, 2, 3 });
 
-            var completedContext = await completed.Task;
+            var messageContext = await onMessageInvoked.Task;
 
-            Assert.AreEqual(completedContext.Result, ReceiveResult.Succeeded);
-            Assert.NotNull(messageContext, "On message should have been called");
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
             Assert.AreEqual(new byte[] { 1, 2, 3 }, messageContext.Body, "Should pass the body");

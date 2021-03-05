@@ -14,13 +14,11 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Throwing_during_Transaction_Prepare_should_properly_increment_immediate_processing_failures(TransportTransactionMode transactionMode)
         {
-            ErrorContext errorContext = null;
-
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var secondFailure = new TaskCompletionSource<ErrorContext>();
+            OnTestTimeout(() => secondFailure.SetCanceled());
 
             await StartPump(
-                (context, _) =>
+                (_, __) =>
                 {
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.CompletedTask;
@@ -30,19 +28,18 @@
                     //perform an immediate retry to make sure the transport increments the counter properly
                     if (context.ImmediateProcessingFailures < 2)
                     {
-                        return Task.FromResult(ReceiveResult.RetryRequired);
+                        return Task.FromResult(ErrorHandleResult.RetryRequired);
                     }
 
-                    errorContext = context;
+                    secondFailure.SetResult(context);
 
-                    return Task.FromResult(ReceiveResult.Discarded);
+                    return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                (context, _) => context.Result == ReceiveResult.RetryRequired ? Task.CompletedTask : completed.SetCompleted(),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            var errorContext = await secondFailure.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
             Assert.LessOrEqual(2, errorContext.ImmediateProcessingFailures);

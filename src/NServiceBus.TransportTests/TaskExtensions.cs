@@ -9,5 +9,11 @@
             taskCompletionSource.SetResult(result);
             return taskCompletionSource.Task;
         }
+
+        public static Task SetCompleted(this TaskCompletionSource taskCompletionSource)
+        {
+            taskCompletionSource.SetResult();
+            return taskCompletionSource.Task;
+        }
     }
 }

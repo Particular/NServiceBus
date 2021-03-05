@@ -15,33 +15,27 @@
         {
             var maxAttempts = 3;
             var attempts = 0;
-            ErrorContext errorContext = null;
 
-            var completed = new TaskCompletionSource<bool>();
-            OnTestTimeout(() => completed.SetCanceled());
+            var maxAttemptsReached = new TaskCompletionSource<ErrorContext>();
+            OnTestTimeout(() => maxAttemptsReached.SetCanceled());
 
             await StartPump(
-                (context, _) =>
-                {
-                    attempts++;
-                    throw new Exception("Simulated exception");
-                },
+                (_, __) => throw new Exception($"Simulated exception {++attempts}"),
                 (context, _) =>
                 {
                     if (attempts == maxAttempts)
                     {
-                        errorContext = context;
-                        return Task.FromResult(ReceiveResult.Discarded);
+                        maxAttemptsReached.SetResult(context);
+                        return Task.FromResult(ErrorHandleResult.Handled);
                     }
 
-                    return Task.FromResult(ReceiveResult.RetryRequired);
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
-                (_, __) => attempts == maxAttempts ? completed.SetCompleted() : Task.CompletedTask,
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            _ = await completed.Task;
+            var errorContext = await maxAttemptsReached.Task;
 
             Assert.AreEqual(attempts, errorContext.ImmediateProcessingFailures, "Should track delivery attempts between immediate retries");
         }

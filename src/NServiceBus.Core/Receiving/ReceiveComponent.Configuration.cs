@@ -39,7 +39,6 @@ namespace NServiceBus
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
-                settings.ReceiveCompletedSubscribers ?? new Notification<ReceiveCompleted>(),
                 isSendOnlyEndpoint,
                 settings.ExecuteTheseHandlersFirst,
                 settings.MessageHandlerRegistry,
@@ -62,7 +61,6 @@ namespace NServiceBus
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
-                Notification<ReceiveCompleted> receiveCompletedSubscribers,
                 bool isSendOnlyEndpoint,
                 List<Type> executeTheseHandlersFirst,
                 MessageHandlerRegistry messageHandlerRegistry,
@@ -77,7 +75,6 @@ namespace NServiceBus
                 PurgeOnStartup = purgeOnStartup;
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
                 PipelineCompletedSubscribers = pipelineCompletedSubscribers;
-                ReceiveCompletedSubscribers = receiveCompletedSubscribers;
                 ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
                 satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
@@ -114,8 +111,6 @@ namespace NServiceBus
             }
 
             public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers;
-
-            public Notification<ReceiveCompleted> ReceiveCompletedSubscribers;
 
             //This should only be used by the receive component it self
             internal readonly MessageHandlerRegistry messageHandlerRegistry;
