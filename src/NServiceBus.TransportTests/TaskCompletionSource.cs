@@ -7,8 +7,6 @@
     {
         public Task Task => taskCompletionSource.Task;
 
-        public void SetCanceled() => taskCompletionSource.SetCanceled();
-
         public void SetResult() => taskCompletionSource.SetResult(default);
 
         public bool TrySetCanceled() => taskCompletionSource.TrySetCanceled();
