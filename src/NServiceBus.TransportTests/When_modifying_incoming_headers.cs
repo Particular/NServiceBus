@@ -13,32 +13,34 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_between_processing_attempts(TransportTransactionMode transactionMode)
         {
-            var messageRetries = new TaskCompletionSource<MessageContext>();
-            var firstInvocation = true;
+            var retried = new TaskCompletionSource<MessageContext>();
+            OnTestTimeout(() => retried.SetCanceled());
 
-            await StartPump((context, _) =>
+            var retrying = false;
+
+            await StartPump(
+                (context, _) =>
                 {
-                    if (firstInvocation)
+                    if (retrying)
                     {
-                        context.Headers["test-header"] = "modified";
-                        firstInvocation = false;
-                        throw new Exception();
+                        return retried.SetCompleted(context);
                     }
 
-                    messageRetries.SetResult(context);
-                    return Task.FromResult(0);
+                    context.Headers["test-header"] = "modified";
+                    throw new Exception();
                 },
-                (context, _) => Task.FromResult(ErrorHandleResult.RetryRequired),
+                (context, _) =>
+                {
+                    retrying = true;
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                },
                 transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"test-header", "original"}
-            });
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
-            var retriedMessage = await messageRetries.Task;
+            var retryMessageContext = await retried.Task;
 
-            Assert.AreEqual("original", retriedMessage.Headers["test-header"]);
+            Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -48,8 +50,10 @@
         public async Task Should_roll_back_header_modifications_before_handling_error(TransportTransactionMode transactionMode)
         {
             var errorHandled = new TaskCompletionSource<ErrorContext>();
+            OnTestTimeout(() => errorHandled.SetCanceled());
 
-            await StartPump((context, _) =>
+            await StartPump(
+                (context, _) =>
                 {
                     context.Headers["test-header"] = "modified";
                     throw new Exception();
@@ -61,10 +65,7 @@
                 },
                 transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"test-header", "original"}
-            });
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
             var errorContext = await errorHandled.Task;
 
@@ -76,35 +77,26 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_roll_back_header_modifications_made_while_handling_error(TransportTransactionMode transactionMode)
         {
-            var messageRetries = new TaskCompletionSource<MessageContext>();
-            var firstInvocation = true;
+            var retried = new TaskCompletionSource<MessageContext>();
+            OnTestTimeout(() => retried.SetCanceled());
 
-            await StartPump((context, _) =>
-                {
-                    if (firstInvocation)
-                    {
-                        firstInvocation = false;
-                        throw new Exception();
-                    }
+            var retrying = false;
 
-                    messageRetries.SetResult(context);
-                    return Task.FromResult(0);
-                },
-                (context, __) =>
+            await StartPump(
+                (context, _) => retrying ? retried.SetCompleted(context) : throw new Exception(),
+                (context, _) =>
                 {
+                    retrying = true;
                     context.Message.Headers["test-header"] = "modified";
                     return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
                 transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"test-header", "original"}
-            });
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "test-header", "original" } });
 
-            var retriedMessage = await messageRetries.Task;
+            var retryMessageContext = await retried.Task;
 
-            Assert.AreEqual("original", retriedMessage.Headers["test-header"]);
+            Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
         }
     }
 }

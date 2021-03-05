@@ -15,13 +15,13 @@
         {
             var recoverabilityInvoked = false;
 
-            var messageProcessingStarted = new TaskCompletionSource<bool>();
+            var messageProcessingStarted = new TaskCompletionSource();
             OnTestTimeout(() => messageProcessingStarted.SetCanceled());
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
-                    messageProcessingStarted.SetResult(true);
+                    messageProcessingStarted.SetResult();
                     await Task.Delay(TestTimeout, cancellationToken);
                 },
                 (_, __) =>
@@ -33,7 +33,7 @@
 
             await SendMessage(InputQueueName);
 
-            _ = await messageProcessingStarted.Task;
+            await messageProcessingStarted.Task;
 
             await StopPump(new CancellationToken(true));
 

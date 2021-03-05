@@ -5,13 +5,13 @@ namespace NServiceBus.TransportTests
     using NUnit.Framework;
     using Transport;
 
-    public class When_processing_fails : NServiceBusTransportTest
+    public class When_receiving_message : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_float_context_to_error(TransportTransactionMode transactionMode)
+        public async Task Should_float_context(TransportTransactionMode transactionMode)
         {
             var onError = new TaskCompletionSource<ErrorContext>();
             OnTestTimeout(() => onError.SetCanceled());
@@ -20,7 +20,6 @@ namespace NServiceBus.TransportTests
                 (context, _) =>
                 {
                     context.Extensions.Set("MyKey", "MyValue");
-
                     throw new Exception("Simulated exception");
                 },
                 (context, _) =>

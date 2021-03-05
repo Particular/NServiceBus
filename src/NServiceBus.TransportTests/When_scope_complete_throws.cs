@@ -15,20 +15,21 @@
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => onErrorCalled.SetResult(null));
+            OnTestTimeout(() => onErrorCalled.SetCanceled());
 
             await StartPump(
-                (context, _) =>
+                (_, __) =>
                 {
                     // handler enlists a failing transaction enlistment to the DTC transaction which will fail when committing the transaction.
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 },
                 (context, _) =>
                 {
                     onErrorCalled.SetResult(context);
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }, transactionMode);
+                },
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
@@ -45,26 +46,14 @@
         {
             public static readonly Guid Id = Guid.NewGuid();
 
-            public void Prepare(PreparingEnlistment preparingEnlistment)
-            {
-                // fail during prepare, this will cause scope.Complete to throw
-                preparingEnlistment.ForceRollback();
-            }
+            // fail during prepare, this will cause scope.Complete to throw
+            public void Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.ForceRollback();
 
-            public void Commit(Enlistment enlistment)
-            {
-                enlistment.Done();
-            }
+            public void Commit(Enlistment enlistment) => enlistment.Done();
 
-            public void Rollback(Enlistment enlistment)
-            {
-                enlistment.Done();
-            }
+            public void Rollback(Enlistment enlistment) => enlistment.Done();
 
-            public void InDoubt(Enlistment enlistment)
-            {
-                enlistment.Done();
-            }
+            public void InDoubt(Enlistment enlistment) => enlistment.Done();
         }
     }
 }

@@ -10,17 +10,15 @@
         [Test]
         public async Task Should_support_unicode_characters()
         {
-            var onMessageCalled = new TaskCompletionSource<MessageContext>();
+            var messageProcessed = new TaskCompletionSource<MessageContext>();
+            OnTestTimeout(() => messageProcessed.SetCanceled());
 
-            await StartPump((context, _) =>
-                {
-                    onMessageCalled.SetResult(context);
-                    return Task.FromResult(0);
-                },
+            await StartPump(
+                (context, _) => messageProcessed.SetCompleted(context),
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 TransportTransactionMode.None);
 
-            var sentHeaders = new Dictionary<string, string>
+            var headers = new Dictionary<string, string>
             {
                 { "a-B1", "a-B" },
                 { "a-B2", "a-ɤϡ֎ᾣ♥-b" },
@@ -30,12 +28,13 @@
                 { "a-B6", "a-😍-b" },
                 { "a-😅-B7", "a-B" },
             };
-            await SendMessage(InputQueueName, sentHeaders);
 
-            var messageContext = await onMessageCalled.Task;
+            await SendMessage(InputQueueName, headers);
+
+            var messageContext = await messageProcessed.Task;
 
             Assert.IsNotEmpty(messageContext.Headers);
-            CollectionAssert.IsSupersetOf(messageContext.Headers, sentHeaders);
+            CollectionAssert.IsSupersetOf(messageContext.Headers, headers);
         }
     }
 }

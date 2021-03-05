@@ -13,28 +13,23 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_retry_immediately(TransportTransactionMode transactionMode)
         {
-            var messageRetried = new TaskCompletionSource<bool>();
+            var retried = new TaskCompletionSource();
+            OnTestTimeout(() => retried.SetCanceled());
 
-            OnTestTimeout(() => messageRetried.SetResult(false));
-
-            var hasBeenCalled = false;
+            var retrying = false;
 
             await StartPump(
-                (context, _) =>
+                (_, __) => retrying ? retried.SetCompleted() : throw new Exception("Simulated exception"),
+                (_, __) =>
                 {
-                    if (hasBeenCalled)
-                    {
-                        messageRetried.SetResult(true);
-                        return Task.FromResult(0);
-                    }
-                    hasBeenCalled = true;
-                    throw new Exception("Simulated exception");
+                    retrying = true;
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
                 },
-                (context, _) => Task.FromResult(ErrorHandleResult.RetryRequired), transactionMode);
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
-            Assert.True(await messageRetried.Task, "Should retry if asked so");
+            await retried.Task;
         }
     }
 }

@@ -14,31 +14,32 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_emit_messages(TransportTransactionMode transactionMode)
         {
-            var onMessageCalled = new TaskCompletionSource<bool>();
+            var messageEmitted = new TaskCompletionSource();
+            OnTestTimeout(() => messageEmitted.SetCanceled());
 
-            OnTestTimeout(() => onMessageCalled.SetCanceled());
-
-            await StartPump(async (context, _) =>
+            await StartPump(
+                async (context, _) =>
                 {
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
-                        onMessageCalled.SetResult(true);
+                        messageEmitted.SetResult();
                         return;
                     }
 
-                    await SendMessage(InputQueueName, new Dictionary<string, string>
-                    {
-                        {"IsolatedSend", "true"}
-                    }, context.TransportTransaction, null, DispatchConsistency.Isolated);
+                    await SendMessage(
+                        InputQueueName,
+                        new Dictionary<string, string> { { "IsolatedSend", "" } },
+                        context.TransportTransaction,
+                        dispatchConsistency: DispatchConsistency.Isolated);
 
                     throw new Exception("Simulated exception");
                 },
-                (errorContext, __) => Task.FromResult(ErrorHandleResult.Handled),
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            Assert.True(await onMessageCalled.Task, "Should emit isolated sends");
+            await messageEmitted.Task;
         }
     }
 }

@@ -15,15 +15,15 @@
         {
             CancellationToken token = default;
 
-            var messageProcessingStarted = new TaskCompletionSource<bool>();
+            var messageProcessingStarted = new TaskCompletionSource();
             OnTestTimeout(() => messageProcessingStarted.SetCanceled());
 
-            var pumpStopping = new TaskCompletionSource<bool>();
+            var pumpStopping = new TaskCompletionSource();
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
-                    messageProcessingStarted.SetResult(true);
+                    messageProcessingStarted.SetResult();
                     await pumpStopping.Task;
                     token = cancellationToken;
                 },
@@ -32,10 +32,10 @@
 
             await SendMessage(InputQueueName);
 
-            _ = await messageProcessingStarted.Task;
+            await messageProcessingStarted.Task;
 
             var pumpTask = StopPump();
-            pumpStopping.SetResult(true);
+            pumpStopping.SetResult();
 
             await pumpTask;
 

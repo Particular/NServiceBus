@@ -15,19 +15,16 @@ namespace NServiceBus.TransportTests
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
-
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
-            await StartPump((context, _) =>
-            {
-                throw new Exception("Simulated exception");
-            },
+            await StartPump(
+                (_, __) => throw new Exception("Simulated exception"),
                 (context, _) =>
                 {
                     onErrorCalled.SetResult(context);
-
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }, transactionMode);
+                },
+                transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 

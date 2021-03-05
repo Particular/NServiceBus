@@ -153,10 +153,11 @@
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
             DispatchProperties dispatchProperties = null,
-            DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
+            DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
+            byte[] body = null)
         {
             var messageId = Guid.NewGuid().ToString();
-            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), Array.Empty<byte>());
+            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), body ?? Array.Empty<byte>());
 
             if (message.Headers.ContainsKey(TestIdHeaderName) == false)
             {

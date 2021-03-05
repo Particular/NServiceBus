@@ -16,14 +16,14 @@
         {
             var criticalErrorInvoked = false;
 
-            var recoverabilityStarted = new TaskCompletionSource<bool>();
+            var recoverabilityStarted = new TaskCompletionSource();
             OnTestTimeout(() => recoverabilityStarted.SetCanceled());
 
             await StartPump(
                 (_, __) => throw new Exception(),
                 async (_, cancellationToken) =>
                 {
-                    recoverabilityStarted.SetResult(true);
+                    recoverabilityStarted.SetResult();
 
                     await Task.Delay(TestTimeout, cancellationToken);
 
@@ -34,7 +34,7 @@
 
             await SendMessage(InputQueueName);
 
-            _ = await recoverabilityStarted.Task;
+            await recoverabilityStarted.Task;
 
             await StopPump(new CancellationToken(true));
 
