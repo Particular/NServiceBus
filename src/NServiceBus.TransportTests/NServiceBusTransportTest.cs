@@ -187,13 +187,7 @@
 
             if (!Debugger.IsAttached)
             {
-                _ = new CancellationTokenSource(TestTimeout).Token.Register(() =>
-                {
-                    if (!source.TrySetCanceled())
-                    {
-                        Console.Error.WriteLine();
-                    }
-                });
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetCanceled());
             }
 
             return source;
@@ -205,13 +199,7 @@
 
             if (!Debugger.IsAttached)
             {
-                _ = new CancellationTokenSource(TestTimeout).Token.Register(() =>
-                {
-                    if (!source.TrySetCanceled())
-                    {
-                        Console.Error.WriteLine();
-                    }
-                });
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetCanceled());
             }
 
             return source;
