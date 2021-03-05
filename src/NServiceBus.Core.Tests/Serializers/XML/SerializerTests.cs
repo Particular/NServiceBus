@@ -787,8 +787,12 @@ namespace NServiceBus.Serializers.XML.Test
 
             sw.Reset();
 
-            File.Delete("a.xml");
-            using (var fs = File.Open("a.xml", FileMode.OpenOrCreate))
+            var fileName = Path.GetTempFileName();
+            Console.Error.WriteLine($"{nameof(fileName)}: {fileName}");
+
+            File.Delete(fileName);
+
+            using (var fs = File.Open(fileName, FileMode.OpenOrCreate))
             {
                 DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, fs);
             }
