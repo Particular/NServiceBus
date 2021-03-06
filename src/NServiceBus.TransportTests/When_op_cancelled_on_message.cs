@@ -17,8 +17,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_recoverability(TransportTransactionMode transactionMode)
         {
-            var recoverabilityInvoked = new TaskCompletionSource();
-            OnTestTimeout(() => recoverabilityInvoked.SetCanceled());
+            var recoverabilityInvoked = CreateTaskCompletionSource();
 
             await StartPump(
                 (_, __) => throw new OperationCanceledException(),

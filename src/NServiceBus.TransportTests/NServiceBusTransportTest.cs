@@ -181,6 +181,30 @@
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
 
+        protected static TaskCompletionSource<TResult> CreateTaskCompletionSource<TResult>()
+        {
+            var source = new TaskCompletionSource<TResult>();
+
+            if (!Debugger.IsAttached)
+            {
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetException(new Exception("The test timed out.")));
+            }
+
+            return source;
+        }
+
+        protected static TaskCompletionSource CreateTaskCompletionSource()
+        {
+            var source = new TaskCompletionSource();
+
+            if (!Debugger.IsAttached)
+            {
+                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetException(new Exception("The test timed out.")));
+            }
+
+            return source;
+        }
+
         static string GetTestName()
         {
             var index = 1;

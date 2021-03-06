@@ -5,38 +5,40 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_stop_cancelled_on_message : NServiceBusTransportTest
+    public class When_stopping_on_message : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode)
+        public async Task Should_complete(TransportTransactionMode transactionMode)
         {
-            var recoverabilityInvoked = false;
+            CancellationToken onMessageToken = default;
 
             var onMessageStarted = CreateTaskCompletionSource();
+
+            var pumpStopping = CreateTaskCompletionSource();
 
             await StartPump(
                 async (_, cancellationToken) =>
                 {
                     onMessageStarted.SetResult();
-                    await Task.Delay(TestTimeout, cancellationToken);
+                    await pumpStopping.Task;
+                    onMessageToken = cancellationToken;
                 },
-                (_, __) =>
-                {
-                    recoverabilityInvoked = true;
-                    return Task.FromResult(ErrorHandleResult.Handled);
-                },
+                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
             await onMessageStarted.Task;
 
-            await StopPump(new CancellationToken(true));
+            var pumpTask = StopPump();
+            pumpStopping.SetResult();
 
-            Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
+            await pumpTask;
+
+            Assert.False(onMessageToken.IsCancellationRequested);
         }
     }
 }

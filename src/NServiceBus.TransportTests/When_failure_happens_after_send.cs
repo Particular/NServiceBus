@@ -14,8 +14,7 @@ namespace NServiceBus.TransportTests
         {
             var messageEmitted = false;
 
-            var sentFromErrorReceived = new TaskCompletionSource();
-            OnTestTimeout(() => sentFromErrorReceived.SetCanceled());
+            var sentFromErrorReceived = CreateTaskCompletionSource();
 
             await StartPump(
                 async (context, _) =>

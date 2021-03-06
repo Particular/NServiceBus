@@ -16,8 +16,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_invoke_critical_error(TransportTransactionMode transactionMode)
         {
-            var criticalErrorInvoked = new TaskCompletionSource();
-            OnTestTimeout(() => criticalErrorInvoked.SetCanceled());
+            var criticalErrorInvoked = CreateTaskCompletionSource();
 
             await StartPump(
                 (_, __) => throw new Exception(),

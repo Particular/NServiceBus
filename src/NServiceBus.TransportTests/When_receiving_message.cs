@@ -13,8 +13,7 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_float_context(TransportTransactionMode transactionMode)
         {
-            var onError = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => onError.SetCanceled());
+            var onError = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (context, _) =>

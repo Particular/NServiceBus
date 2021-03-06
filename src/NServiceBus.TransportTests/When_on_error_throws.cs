@@ -19,8 +19,7 @@
             Exception criticalErrorException = null;
             var exceptionFromOnError = new Exception("Exception from onError");
 
-            var retried = new TaskCompletionSource();
-            OnTestTimeout(() => retried.SetCanceled());
+            var retried = CreateTaskCompletionSource();
 
             var retrying = false;
 

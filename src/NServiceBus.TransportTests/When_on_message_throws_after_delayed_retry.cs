@@ -12,8 +12,7 @@
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_reset_delivery_counter(TransportTransactionMode transactionMode)
         {
-            var sentDelayedMessage = new TaskCompletionSource<ErrorContext>();
-            OnTestTimeout(() => sentDelayedMessage.SetCanceled());
+            var sentDelayedMessage = CreateTaskCompletionSource<ErrorContext>();
 
             var sendingDelayedMessage = false;
 
