@@ -19,7 +19,6 @@ namespace NServiceBus
         /// A length of time to allow messages that have already begun processing to complete naturally before throwing
         /// <see cref="OperationCanceledException"/> to forcefully abort them.
         /// </param>
-        /// <returns></returns>
         public static Task Stop(this IEndpointInstance endpoint, TimeSpan gracefulShutdownTimeout)
         {
             var timedCancellationTokenSource = new CancellationTokenSource(gracefulShutdownTimeout);
