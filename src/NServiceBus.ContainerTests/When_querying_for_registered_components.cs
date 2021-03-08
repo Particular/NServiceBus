@@ -1,10 +1,9 @@
-#pragma warning disable 0618
+#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus;
     using NUnit.Framework;
-    using ServiceCollection = MicrosoftExtensionsDependencyInjection.ServiceCollection;
 
     [TestFixture]
     public class When_querying_for_registered_components
@@ -59,4 +58,4 @@ namespace NServiceBus.ContainerTests
         }
     }
 }
-#pragma warning restore 0618
+#pragma warning restore CS0618

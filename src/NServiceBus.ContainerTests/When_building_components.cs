@@ -1,4 +1,4 @@
-#pragma warning disable 0618
+#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
     using System;
@@ -6,15 +6,16 @@ namespace NServiceBus.ContainerTests
     using NServiceBus;
     using NUnit.Framework;
 
-    public class When_building_components : ContainerTest
+    public class When_building_components
     {
         [Test]
         public void Singleton_components_should_yield_the_same_instance()
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
-            Assert.AreEqual(builder.GetService(typeof(SingletonComponent)), builder.GetService(typeof(SingletonComponent)));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            Assert.AreEqual(serviceProvider.GetService(typeof(SingletonComponent)), serviceProvider.GetService(typeof(SingletonComponent)));
         }
 
         [Test]
@@ -22,8 +23,9 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
-            Assert.AreNotEqual(builder.GetService<SinglecallComponent>(), builder.GetService<SinglecallComponent>());
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            Assert.AreNotEqual(serviceProvider.GetService<SinglecallComponent>(), serviceProvider.GetService<SinglecallComponent>());
         }
 
         [Test]
@@ -31,13 +33,12 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var instance1 = builder.GetService(typeof(InstancePerUoWComponent));
-            var instance2 = builder.GetService(typeof(InstancePerUoWComponent));
+            var instance1 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
+            var instance2 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
 
             Assert.AreSame(instance1, instance2);
-
         }
 
         [Test]
@@ -45,10 +46,10 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var instance1 = builder.GetService(typeof(LambdaComponentUoW));
-            var instance2 = builder.GetService(typeof(LambdaComponentUoW));
+            var instance1 = serviceProvider.GetService(typeof(LambdaComponentUoW));
+            var instance2 = serviceProvider.GetService(typeof(LambdaComponentUoW));
 
             Assert.AreSame(instance1, instance2);
         }
@@ -58,8 +59,9 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
-            Assert.AreNotEqual(builder.GetService(typeof(SingleCallLambdaComponent)), builder.GetService(typeof(SingleCallLambdaComponent)));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            Assert.AreNotEqual(serviceProvider.GetService(typeof(SingleCallLambdaComponent)), serviceProvider.GetService(typeof(SingleCallLambdaComponent)));
         }
 
         [Test]
@@ -67,8 +69,9 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
-            Assert.AreEqual(builder.GetService(typeof(SingletonLambdaComponent)), builder.GetService(typeof(SingletonLambdaComponent)));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            Assert.AreEqual(serviceProvider.GetService(typeof(SingletonLambdaComponent)), serviceProvider.GetService(typeof(SingletonLambdaComponent)));
         }
 
         [Test]
@@ -76,8 +79,9 @@ namespace NServiceBus.ContainerTests
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var builder = BuildContainer(serviceCollection);
-            Assert.IsEmpty(builder.GetServices(typeof(UnregisteredComponent)));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            Assert.IsEmpty(serviceProvider.GetServices(typeof(UnregisteredComponent)));
         }
 
         [Test]
@@ -87,8 +91,8 @@ namespace NServiceBus.ContainerTests
             {
                 var serviceCollection = new ServiceCollection();
                 InitializeServices(serviceCollection);
-                var builder = BuildContainer(serviceCollection);
-                builder.GetService(typeof(RecursiveComponent));
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+                serviceProvider.GetService(typeof(RecursiveComponent));
             }
             catch (Exception)
             {
@@ -118,7 +122,6 @@ namespace NServiceBus.ContainerTests
 
         public interface ISingletonComponentWithPropertyDependency
         {
-
         }
 
         public class SingletonComponentWithPropertyDependency : ISingletonComponentWithPropertyDependency
@@ -144,10 +147,6 @@ namespace NServiceBus.ContainerTests
         }
 
         public class SingleCallLambdaComponent
-        {
-        }
-
-        public When_building_components(Func<IServiceCollection, IServiceProvider> buildContainer) : base(buildContainer)
         {
         }
     }
@@ -184,4 +183,4 @@ namespace NServiceBus.ContainerTests
     {
     }
 }
-#pragma warning restore 0618
+#pragma warning restore CS0618
