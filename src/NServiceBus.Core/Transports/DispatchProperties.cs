@@ -25,7 +25,7 @@
         /// <summary>
         /// Creates a new instance of <see cref="DispatchProperties"/> an copies the values from the provided dictionary.
         /// </summary>
-        public DispatchProperties(Dictionary<string, string> properties) : base(properties)
+        public DispatchProperties(Dictionary<string, string> properties) : base(properties ?? new Dictionary<string, string>())
         {
         }
 
