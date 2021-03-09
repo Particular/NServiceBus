@@ -14,7 +14,7 @@ namespace NServiceBus
         /// granting a period of time to gracefully complete processing before forceful cancellation.
         /// </summary>
         /// <param name="endpoint">The endpoint to stop.</param>
-        /// <param name="gracefulShutdownTimeout">
+        /// <param name="gracefulStopTimeout">
         /// The length of time granted to gracefully complete processing.
         /// </param>
         public static Task Stop(this IEndpointInstance endpoint, TimeSpan gracefulStopTimeout) =>
