@@ -18,6 +18,6 @@ namespace NServiceBus
         /// The length of time granted to gracefully complete processing.
         /// </param>
         public static Task Stop(this IEndpointInstance endpoint, TimeSpan gracefulStopTimeout) =>
-            endpoint.Stop(new CancellationTokenSource(gracefulShutdownTimeout).Token);
+            endpoint.Stop(new CancellationTokenSource(gracefulStopTimeout).Token);
     }
 }
