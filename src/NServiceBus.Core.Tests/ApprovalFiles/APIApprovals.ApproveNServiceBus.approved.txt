@@ -481,7 +481,7 @@ namespace NServiceBus
     }
     public static class IEndpointInstanceExtensions
     {
-        public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulShutdownTimeout) { }
+        public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
     }
     public interface IEvent : NServiceBus.IMessage { }
     public interface IHandleMessages<T>
