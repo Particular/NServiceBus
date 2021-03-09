@@ -66,10 +66,10 @@
         [TearDown]
         public void TearDown()
         {
-            testCancellationTokenSource?.Dispose();
             StopPump().GetAwaiter().GetResult();
             transportInfrastructure?.Shutdown().GetAwaiter().GetResult();
             configurer?.Cleanup().GetAwaiter().GetResult();
+            testCancellationTokenSource?.Dispose();
         }
 
         protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
