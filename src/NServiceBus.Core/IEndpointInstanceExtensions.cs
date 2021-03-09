@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents an endpoint in the running phase.
+    /// Extensions for <see cref="IEndpointInstance"/>.
     /// </summary>
     public static class IEndpointInstanceExtensions
     {
@@ -19,10 +19,7 @@ namespace NServiceBus
         /// A length of time to allow messages that have already begun processing to complete naturally before throwing
         /// <see cref="OperationCanceledException"/> to forcefully abort them.
         /// </param>
-        public static Task Stop(this IEndpointInstance endpoint, TimeSpan gracefulShutdownTimeout)
-        {
-            var timedCancellationTokenSource = new CancellationTokenSource(gracefulShutdownTimeout);
-            return endpoint.Stop(timedCancellationTokenSource.Token);
-        }
+        public static Task Stop(this IEndpointInstance endpoint, TimeSpan gracefulShutdownTimeout) =>
+            endpoint.Stop(new CancellationTokenSource(gracefulShutdownTimeout).Token);
     }
 }
