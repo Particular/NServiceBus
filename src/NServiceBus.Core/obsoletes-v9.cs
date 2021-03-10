@@ -93,10 +93,23 @@ namespace NServiceBus
         /// Routing configuration.
         /// </summary>
         [ObsoleteEx(
-            RemoveInVersion = "10",
+            ReplacementTypeOrMember = "Use EndpointConfiguration.UseTransport() to access routing settings",
             TreatAsErrorFromVersion = "9",
-            ReplacementTypeOrMember = "Use EndpointConfiguration.UseTransport() to access routing settings")]
+            RemoveInVersion = "10")]
         public RoutingSettings<T> Routing() => routing;
+
+        /// <summary>
+        /// Configures the transport to use a specific transaction mode.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "9.0")]
+        public TransportSettings<T> Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            Transport.TransportTransactionMode = transportTransactionMode;
+            return this;
+        }
     }
 }
 

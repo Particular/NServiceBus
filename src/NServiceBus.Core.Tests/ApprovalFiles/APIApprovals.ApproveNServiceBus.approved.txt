@@ -1178,6 +1178,9 @@ namespace NServiceBus
             ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
             "0.0.", false)]
         public NServiceBus.RoutingSettings<T> Routing() { }
+        [System.Obsolete("Use `TransportDefinition.TransportTransactionMode` instead. Will be treated as an" +
+            " error from version 9.0.0. Will be removed in version 9.0.0.", false)]
+        public NServiceBus.TransportSettings<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     public enum TransportTransactionMode
     {
