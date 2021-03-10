@@ -18,9 +18,12 @@
             var temp = Path.GetTempPath();
             var storageFolder = Path.Combine(temp, "SagaStorage");
             var metaData = new SagaMetadataCollection();
-            metaData.Initialize(new[] {typeof(SagaUnderTest)});
+            metaData.Initialize(new[]
+            {
+                typeof(SagaUnderTest)
+            });
 
-            var sagaManifests = new SagaManifestCollection(metaData, storageFolder);
+            var sagaManifests = new SagaManifestCollection(metaData, storageFolder, s => s);
             var storage = new LearningSynchronizedStorageSession(sagaManifests);
 
             var pageId = 10;
@@ -32,13 +35,15 @@
                 Detail = new Details()
             };
             sagaData.Detail.AddPage(pageId, true);
-            await storage.Save(sagaData);
+
+            storage.Save(sagaData);
+
             await storage.CompleteAsync();
 
             storage.Dispose(); //to close the streams
 
             var readSagaData = await storage.Read<SagaDataContainer>(sagaId);
-            
+
             Assert.AreEqual(sagaId, readSagaData.Id);
             Assert.NotNull(readSagaData.Detail);
             Assert.NotNull(readSagaData.Detail.Pages);
