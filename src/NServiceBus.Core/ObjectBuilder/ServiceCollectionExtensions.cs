@@ -8,6 +8,10 @@
     /// <summary>
     /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by <see cref="IConfigureComponents"/>.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Use methods on IServiceCollection instead.",
+        TreatAsErrorFromVersion = "9.0",
+        RemoveInVersion = "10.0")]
     public static class ServiceCollectionExtensions
     {
         /// <summary>
