@@ -11,10 +11,10 @@
 
     static class PipelineExecutionExtensions
     {
-        public static Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(this IBehavior[] behaviors)
+        public static Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(this IBehavior[] behaviors, List<Expression> expressions = null)
             where TRootContext : IBehaviorContext
         {
-            return (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression();
+            return (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression(expressions);
         }
 
         /// <code>
