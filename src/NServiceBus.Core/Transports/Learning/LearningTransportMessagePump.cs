@@ -169,7 +169,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction("Failure to process messages", ex, CancellationToken.None);
+                    criticalErrorAction("Failure to process messages", ex, messagePumpCancellationToken);
                 }
             }
         }
@@ -340,7 +340,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, CancellationToken.None);
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, messageProcessingCancellationToken);
                     result = ErrorHandleResult.RetryRequired;
                 }
 
