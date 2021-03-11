@@ -445,6 +445,9 @@ namespace NServiceBus.Hosting.Helpers
             "nunit",
             "nunit.framework",
             "nunit.applicationdomain",
+            "nunit.engine",
+            "nunit.engine.api",
+            "nunit.engine.core",
 
             // NSB OSS Dependencies
             "nlog",
