@@ -1,9 +1,12 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Janitor;
+    using Logging;
     using Pipeline;
 
     [SkipWeaving]
@@ -23,7 +26,18 @@
             behaviors = coordinator.BuildPipelineModelFor<TContext>()
                 .Select(r => r.CreateBehavior(builder)).ToArray();
 
-            pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>();
+            List<Expression> expressions = null;
+            if (Logger.IsDebugEnabled)
+            {
+                expressions = new List<Expression>();
+            }
+
+            pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>(expressions);
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug(expressions.PrettyPrint());
+            }
         }
 
         public Task Invoke(TContext context)
@@ -33,5 +47,7 @@
 
         IBehavior[] behaviors;
         Func<TContext, Task> pipeline;
+
+        static ILog Logger = LogManager.GetLogger<Pipeline<TContext>>();
     }
 }
