@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -11,7 +12,7 @@ namespace NServiceBus.Core.Tests.Routing
     public class UnicastSendRouterTests
     {
         [Test]
-        public void Should_use_explicit_route_for_sends_if_present()
+        public async Task Should_use_explicit_route_for_sends_if_present()
         {
             var router = CreateRouter();
             var options = new SendOptions();
@@ -20,13 +21,13 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var result = router.Route(context);
+            var result = await router.Route(context);
             Assert.AreEqual("destination endpoint", ExtractDestination(result));
         }
 
 
         [Test]
-        public void Should_route_to_local_instance_if_requested_so()
+        public async Task Should_route_to_local_instance_if_requested_so()
         {
             var router = CreateRouter("MyInstance");
             var options = new SendOptions();
@@ -35,7 +36,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var result = router.Route(context);
+            var result = await router.Route(context);
 
             Assert.AreEqual("MyInstance", ExtractDestination(result));
         }
@@ -51,7 +52,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(() => router.Route(context));
             Assert.AreEqual(exception.Message, "Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
         }
 
@@ -67,7 +68,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(() => router.Route(context));
 
             StringAssert.Contains("send-only mode", exception.Message);
         }
@@ -83,7 +84,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(() => router.Route(context));
 
             StringAssert.Contains("send-only mode", exception.Message);
         }
@@ -99,7 +100,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var exception = Assert.Throws<Exception>(() => router.Route(context));
+            var exception = Assert.ThrowsAsync<Exception>(() => router.Route(context));
             StringAssert.Contains("No destination specified for message", exception.Message);
         }
 
@@ -118,12 +119,12 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var exception = Assert.Throws<Exception>(() => router.Route(context));
+            var exception = Assert.ThrowsAsync<Exception>(() => router.Route(context));
             StringAssert.Contains("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
         }
 
         [Test]
-        public void When_routing_to_specific_instance_should_select_appropriate_instance()
+        public async Task When_routing_to_specific_instance_should_select_appropriate_instance()
         {
             var table = new UnicastRoutingTable();
             var instances = new EndpointInstances();
@@ -144,13 +145,13 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options);
 
-            var route = router.Route(context);
+            var route = await router.Route(context);
             Assert.AreEqual("Endpoint-2", ExtractDestination(route));
         }
 
 
         [Test]
-        public void When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
+        public async Task When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
         {
             var logicalEndpointName = "Sales";
             var routingTable = new UnicastRoutingTable();
@@ -162,13 +163,13 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(new SendOptions(), new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable);
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
         }
 
         [Test]
-        public void When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
+        public async Task When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
         {
             var sales = "Sales";
             var routingTable = new UnicastRoutingTable();
@@ -187,13 +188,13 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(new SendOptions(), new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual("Sales-1", ExtractDestination(route));
         }
 
         [Test]
-        public void When_multiple_dynamic_instances_for_logical_endpoints_should_round_robin()
+        public async Task When_multiple_dynamic_instances_for_logical_endpoints_should_round_robin()
         {
             var sales = "Sales";
             var routingTable = new UnicastRoutingTable();
@@ -212,9 +213,9 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(new SendOptions(), new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route1 = router.Route(context);
-            var route2 = router.Route(context);
-            var route3 = router.Route(context);
+            var route1 = await router.Route(context);
+            var route2 = await router.Route(context);
+            var route3 = await router.Route(context);
 
             Assert.AreEqual("Sales-1", ExtractDestination(route1));
             Assert.AreEqual("Sales-2", ExtractDestination(route2));
@@ -228,12 +229,12 @@ namespace NServiceBus.Core.Tests.Routing
 
             var router = CreateRouter();
 
-            var exception = Assert.Throws<Exception>(() => router.Route(context));
+            var exception = Assert.ThrowsAsync<Exception>(() => router.Route(context));
             StringAssert.Contains("No destination specified for message", exception.Message);
         }
 
         [Test]
-        public void Should_route_to_local_endpoint_if_requested_so()
+        public async Task Should_route_to_local_endpoint_if_requested_so()
         {
             var options = new SendOptions();
 
@@ -242,13 +243,13 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(options, new MyMessage());
 
             var router = CreateRouter();
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual("Endpoint", ExtractDestination(route));
         }
 
         [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_should_route_message_to_a_single_instance()
+        public async Task When_multiple_dynamic_instances_for_local_endpoint_should_route_message_to_a_single_instance()
         {
             var endpointInstances = new EndpointInstances();
             endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
@@ -264,13 +265,13 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(options, new MyMessage());
 
             var router = CreateRouter(instances: endpointInstances);
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual("Endpoint-1", ExtractDestination(route));
         }
 
         [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_route_to_instance()
+        public async Task When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_route_to_instance()
         {
             var routingTable = new UnicastRoutingTable();
             routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
@@ -292,13 +293,13 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(options, new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual("Endpoint-2", ExtractDestination(route));
         }
 
         [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_not_round_robin()
+        public async Task When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_not_round_robin()
         {
             var routingTable = new UnicastRoutingTable();
             routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
@@ -320,9 +321,9 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(options, new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route1 = router.Route(context);
-            var route2 = router.Route(context);
-            var route3 = router.Route(context);
+            var route1 = await router.Route(context);
+            var route2 = await router.Route(context);
+            var route3 = await router.Route(context);
 
             Assert.AreEqual("Endpoint-2", ExtractDestination(route1));
             Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
@@ -330,7 +331,7 @@ namespace NServiceBus.Core.Tests.Routing
         }
 
         [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_should_round_robin()
+        public async Task When_multiple_dynamic_instances_for_local_endpoint_should_round_robin()
         {
             var endpointInstances = new EndpointInstances();
             endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
@@ -347,9 +348,9 @@ namespace NServiceBus.Core.Tests.Routing
 
             var router = CreateRouter(instances: endpointInstances);
 
-            var route1 = router.Route(context);
-            var route2 = router.Route(context);
-            var route3 = router.Route(context);
+            var route1 = await router.Route(context);
+            var route2 = await router.Route(context);
+            var route3 = await router.Route(context);
 
             Assert.AreEqual("Endpoint-1", ExtractDestination(route1));
             Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
@@ -357,7 +358,7 @@ namespace NServiceBus.Core.Tests.Routing
         }
 
         [Test]
-        public void When_route_with_physical_address_routes_to_physical_address()
+        public async Task When_route_with_physical_address_routes_to_physical_address()
         {
             var routingTable = new UnicastRoutingTable();
             routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
@@ -368,13 +369,13 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(new SendOptions(), new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable);
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual("Physical", ExtractDestination(route));
         }
 
         [Test]
-        public void When_route_with_endpoint_instance_routes_to_instance()
+        public async Task When_route_with_endpoint_instance_routes_to_instance()
         {
             var routingTable = new UnicastRoutingTable();
             routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
@@ -385,7 +386,7 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(new SendOptions(), new MyMessage());
 
             var router = CreateRouter(routingTable: routingTable);
-            var route = router.Route(context);
+            var route = await router.Route(context);
 
             Assert.AreEqual("Endpoint-2", ExtractDestination(route));
         }
@@ -403,7 +404,7 @@ namespace NServiceBus.Core.Tests.Routing
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, (i, _) => Task.FromResult(i.ToString()));
         }
 
         class MyMessage : ICommand

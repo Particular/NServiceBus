@@ -10,7 +10,7 @@
 
     class HostCreator
     {
-        public static ExternallyManagedContainerHost CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
+        public static async Task<ExternallyManagedContainerHost> CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection, CancellationToken cancellationToken = default)
         {
             var settings = endpointConfiguration.Settings;
 
@@ -29,7 +29,7 @@
                 Type = "external"
             });
 
-            var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
+            var endpointCreator = await EndpointCreator.Create(settings, hostingConfiguration, cancellationToken).ConfigureAwait(false);
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, false);
             var externallyManagedContainerHost = new ExternallyManagedContainerHost(endpointCreator, hostingComponent);
 
@@ -55,7 +55,7 @@
                 Type = "internal"
             });
 
-            var endpointCreator = EndpointCreator.Create(settings, hostingConfiguration);
+            var endpointCreator = await EndpointCreator.Create(settings, hostingConfiguration, cancellationToken).ConfigureAwait(false);
 
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, true);
 

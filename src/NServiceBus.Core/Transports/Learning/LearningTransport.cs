@@ -36,7 +36,7 @@
         }
 
         /// <inheritdoc />
-        public override string ToTransportAddress(QueueAddress queueAddress)
+        public override Task<string> ToTransportAddress(QueueAddress queueAddress, CancellationToken cancellationToken = default)
         {
             var address = queueAddress.BaseAddress;
             PathChecker.ThrowForBadPath(address, "endpoint name");
@@ -59,7 +59,7 @@
                 address += "-" + qualifier;
             }
 
-            return address;
+            return Task.FromResult(address);
         }
 
         /// <inheritdoc />

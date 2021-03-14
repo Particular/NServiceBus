@@ -15,13 +15,15 @@
             Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var outboxStorage = new AcceptanceTestingOutboxStorage();
 
             context.Services.AddSingleton(typeof(IOutboxStorage), outboxStorage);
 
             context.RegisterStartupTask(new OutboxCleaner(outboxStorage, TimeSpan.FromDays(5)));
+
+            return Task.CompletedTask;
         }
 
         class OutboxCleaner : FeatureStartupTask

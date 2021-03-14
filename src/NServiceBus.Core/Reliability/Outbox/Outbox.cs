@@ -2,6 +2,8 @@
 {
     using ConsistencyGuarantees;
     using System;
+    using System.Threading.Tasks;
+    using System.Threading;
     using Transport;
 
     /// <summary>
@@ -23,7 +25,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
@@ -38,6 +40,8 @@
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
+
+            return Task.CompletedTask;
         }
         internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
     }

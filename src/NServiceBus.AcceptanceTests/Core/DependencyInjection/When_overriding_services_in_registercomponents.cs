@@ -21,8 +21,7 @@
                         config =>
                         {
                             serviceCollection.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
-                            var configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
+                            return EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
                         },
                         configured =>
                         {
@@ -65,12 +64,14 @@
                     EnableByDefault();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.Services.AddSingleton<IDependencyFromFeature, OriginallyDefinedDependency>();
 
                     context.Services.AddTransient<StartupFeatureWithDependencies>();
                     context.RegisterStartupTask(sp => sp.GetRequiredService<StartupFeatureWithDependencies>());
+
+                    return Task.CompletedTask;
                 }
 
                 public class StartupFeatureWithDependencies : FeatureStartupTask

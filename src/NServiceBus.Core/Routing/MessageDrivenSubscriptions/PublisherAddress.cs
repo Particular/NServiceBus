@@ -3,6 +3,8 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents an address of a publisher.
@@ -48,7 +50,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         {
         }
 
-        internal IEnumerable<string> Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver, Func<EndpointInstance, string> addressResolver)
+        internal async Task<IEnumerable<string>> Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver, Func<EndpointInstance, CancellationToken, Task<string>> addressResolver, CancellationToken cancellationToken = default)
         {
             if (addresses != null)
             {
@@ -56,10 +58,22 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             }
             if (instances != null)
             {
-                return instances.Select(addressResolver);
+                return await GetAddresses(instances).ConfigureAwait(false);
             }
             var result = instanceResolver(endpoint);
-            return result.Select(addressResolver);
+            return await GetAddresses(result).ConfigureAwait(false);
+
+            async Task<IEnumerable<string>> GetAddresses(IEnumerable<EndpointInstance> instances)
+            {
+                var list = new List<string>();
+
+                foreach (var instance in instances)
+                {
+                    list.Add(await addressResolver(instance, cancellationToken).ConfigureAwait(false));
+                }
+
+                return list;
+            }
         }
 
         /// <summary>Returns a string that represents the current object.</summary>

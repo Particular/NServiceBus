@@ -171,7 +171,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             throw new NotImplementedException();
         }
 
-        public override string ToTransportAddress(QueueAddress address)
+        public override Task<string> ToTransportAddress(QueueAddress address, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -3,6 +3,8 @@ namespace NServiceBus.Features
     using Microsoft.Extensions.DependencyInjection;
     using Unicast.Messages;
     using Transport;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     class NativePublishSubscribeFeature : Feature
     {
@@ -13,7 +15,7 @@ namespace NServiceBus.Features
             Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled subscription migration mode");
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
@@ -29,6 +31,8 @@ namespace NServiceBus.Features
                 context.Pipeline.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
+
+            return Task.CompletedTask;
         }
     }
 }

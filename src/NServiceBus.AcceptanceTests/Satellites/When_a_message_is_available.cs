@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Satellites
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -46,16 +47,16 @@
                     EnableByDefault();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override async Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     var endpointQueueName = context.Settings.EndpointQueueName();
                     var queueAddress = new QueueAddress(endpointQueueName, null, null, "MySatellite");
 
-                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
+                    var satelliteAddress = await context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress, cancellationToken);
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
-                        (builder, messageContext, cancellationToken) =>
+                        (builder, messageContext, _) =>
                         {
                             var testContext = builder.GetService<Context>();
                             testContext.MessageReceived = true;

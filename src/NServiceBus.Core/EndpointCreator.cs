@@ -2,6 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Features;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -19,16 +21,16 @@ namespace NServiceBus
             this.conventions = conventions;
         }
 
-        public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration)
+        public static async Task<EndpointCreator> Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration, CancellationToken cancellationToken = default)
         {
             var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
 
-            endpointCreator.Configure();
+            await endpointCreator.Configure(cancellationToken).ConfigureAwait(false);
 
             return endpointCreator;
         }
 
-        void Configure()
+        async Task Configure(CancellationToken cancellationToken)
         {
             ConfigureMessageTypes();
 
@@ -44,10 +46,12 @@ namespace NServiceBus
 
             transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
-            var receiveConfiguration = ReceiveComponent.PrepareConfiguration(
+            var receiveConfiguration = await ReceiveComponent.PrepareConfiguration(
                 hostingConfiguration,
                 settings.Get<ReceiveComponent.Settings>(),
-                transportSeam);
+                transportSeam,
+                cancellationToken)
+                .ConfigureAwait(false);
 
             var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
@@ -58,7 +62,7 @@ namespace NServiceBus
 
             var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
 
-            featureComponent.Initalize(featureConfigurationContext);
+            await featureComponent.Initalize(featureConfigurationContext, cancellationToken).ConfigureAwait(false);
 
             recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration, transportSeam);
 

@@ -38,12 +38,12 @@ namespace NServiceBus.Features
         /// <summary>
         /// See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             // The MessageDrivenSubscriptions feature needs to be activated when using the subscription migration mode as some persister packages check this feature before enabling the subscription storage.
             if (SubscriptionMigrationMode.IsMigrationModeEnabled(context.Settings))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var transportDefinition = context.Settings.Get<TransportDefinition>();
@@ -67,7 +67,7 @@ namespace NServiceBus.Features
 
                 context.Pipeline.Register("UnicastPublishRouterConnector", b =>
                 {
-                    var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)), b.GetRequiredService<ISubscriptionStorage>());
+                    var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), (i, token) => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null), token), b.GetRequiredService<ISubscriptionStorage>());
                     return new UnicastPublishConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
 
@@ -88,7 +88,7 @@ namespace NServiceBus.Features
             if (canReceive)
             {
                 var subscriberAddress = context.Receiving.LocalAddress;
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, (i, token) => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null), token));
 
                 context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends subscription requests when message driven subscriptions is in use");
                 context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
@@ -101,6 +101,8 @@ namespace NServiceBus.Features
 
             // implementations of IInitializableSubscriptionStorage are optional and can be provided by persisters.
             context.RegisterStartupTask(b => new InitializableSubscriptionStorage(b.GetService<IInitializableSubscriptionStorage>()));
+
+            return Task.CompletedTask;
         }
 
         internal class InitializableSubscriptionStorage : FeatureStartupTask

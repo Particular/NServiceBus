@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Sagas;
 
@@ -35,7 +37,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Sagas>(context.Settings))
             {
@@ -68,6 +70,8 @@
             context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.GetRequiredService<ISagaPersister>(), sagaIdGenerator, sagaMetaModel), "Invokes the saga logic");
             context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");
             context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
+
+            return Task.CompletedTask;
         }
 
         static void RegisterCustomFindersInContainer(IServiceCollection container, IEnumerable<SagaMetadata> sagaMetaModel)

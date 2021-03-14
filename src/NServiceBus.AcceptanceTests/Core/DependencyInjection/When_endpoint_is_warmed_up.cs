@@ -22,7 +22,7 @@
                 .WithEndpoint<StartedEndpoint>(b =>
                 {
                     b.ToCreateInstance(
-                        endpointConfiguration => Task.FromResult(EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection)),
+                        endpointConfiguration => EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection),
                         startableEndpoint =>
                         {
                             spyContainer = new SpyConainer(serviceCollection);

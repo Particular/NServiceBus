@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
     using System;
     using System.Collections.Concurrent;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -51,9 +52,7 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
                 });
             }
 
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-            }
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
 
         public class Context : ScenarioContext

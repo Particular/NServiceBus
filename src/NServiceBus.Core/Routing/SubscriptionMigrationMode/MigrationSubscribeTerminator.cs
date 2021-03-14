@@ -54,7 +54,7 @@
             {
                 try
                 {
-                    var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+                    var publisherAddresses = await subscriptionRouter.GetAddressesForEventType(eventType, context.CancellationToken).ConfigureAwait(false);
                     if (publisherAddresses.Count == 0)
                     {
                         continue;

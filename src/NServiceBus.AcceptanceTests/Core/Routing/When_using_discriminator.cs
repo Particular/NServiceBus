@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -41,9 +42,10 @@
                     EnableByDefault();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.Settings.Get<Context>().InstanceDescriminatorFromSettingsExtensions = context.Settings.InstanceSpecificQueue();
+                    return Task.CompletedTask;
                 }
             }
         }

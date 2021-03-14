@@ -1,12 +1,14 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
+    using System.Threading;
     using System.Transactions;
     using ConsistencyGuarantees;
 
     class TransactionScopeUnitOfWork : Feature
     {
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
             {
@@ -15,6 +17,8 @@
 
             var transactionOptions = context.Settings.Get<Settings>().TransactionOptions;
             context.Pipeline.Register(new TransactionScopeUnitOfWorkBehavior.Registration(transactionOptions));
+
+            return Task.CompletedTask;
         }
 
         public class Settings

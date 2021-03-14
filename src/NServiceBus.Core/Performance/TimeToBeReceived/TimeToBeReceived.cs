@@ -3,6 +3,8 @@
     using Transport;
     using System.Linq;
     using Unicast.Messages;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     class TimeToBeReceived : Feature
     {
@@ -11,11 +13,13 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var mappings = GetMappings(context);
 
             context.Pipeline.Register("ApplyTimeToBeReceived", new ApplyTimeToBeReceivedBehavior(mappings), "Adds the `DiscardIfNotReceivedBefore` constraint to relevant messages");
+
+            return Task.CompletedTask;
         }
 
         static TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)

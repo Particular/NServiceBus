@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Threading.Tasks;
+    using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
@@ -15,7 +17,7 @@
             Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled subscription migration mode");
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var transportDefinition = context.Settings.Get<TransportDefinition>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
@@ -30,10 +32,10 @@
 
             context.Pipeline.Register(b =>
             {
-                var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i =>
+                var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), (i, token) =>
                 {
                     var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
-                    return transportDefinition.ToTransportAddress(queueAddress);
+                    return transportDefinition.ToTransportAddress(queueAddress, token);
                 }, b.GetRequiredService<ISubscriptionStorage>());
                 return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
@@ -42,10 +44,10 @@
             {
                 var endpointInstances = context.Routing.EndpointInstances;
 
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i =>
+                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, (i, token) =>
                 {
                     var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
-                    return transportDefinition.ToTransportAddress(queueAddress);
+                    return transportDefinition.ToTransportAddress(queueAddress, token);
                 });
                 var subscriberAddress = context.Receiving.LocalAddress;
 
@@ -70,6 +72,8 @@
 
             // implementations of IInitializableSubscriptionStorage are optional and can be provided by persisters.
             context.RegisterStartupTask(b => new MessageDrivenSubscriptions.InitializableSubscriptionStorage(b.GetService<IInitializableSubscriptionStorage>()));
+
+            return Task.CompletedTask;
         }
 
         public static bool IsMigrationModeEnabled(ReadOnlySettings settings)

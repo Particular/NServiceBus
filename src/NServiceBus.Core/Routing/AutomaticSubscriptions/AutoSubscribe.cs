@@ -24,7 +24,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             if (!context.Settings.TryGet(out SubscribeSettings settings))
             {
@@ -39,6 +39,8 @@
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
                 return new ApplySubscriptions(messageTypesHandled);
             });
+
+            return Task.CompletedTask;
         }
 
         static Type[] GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)

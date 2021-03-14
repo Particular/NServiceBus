@@ -55,8 +55,11 @@
             {
                 public FeatureWithStartupTask() => EnableByDefault();
 
-                protected override void Setup(FeatureConfigurationContext context) =>
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
+                {
                     context.RegisterStartupTask(new StartupTask());
+                    return Task.CompletedTask;
+                }
 
                 class StartupTask : FeatureStartupTask
                 {

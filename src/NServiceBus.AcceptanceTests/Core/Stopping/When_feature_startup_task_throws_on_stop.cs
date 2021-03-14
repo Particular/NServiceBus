@@ -43,9 +43,10 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
                     EnableByDefault();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.RegisterStartupTask(new CustomTask());
+                    return Task.CompletedTask;
                 }
 
                 class CustomTask : FeatureStartupTask

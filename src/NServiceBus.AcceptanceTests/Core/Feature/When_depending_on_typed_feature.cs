@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Feature
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -58,18 +59,18 @@
                 DependsOn<DependencyFeature>();
             }
 
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 var testContext = (Context)context.Settings.Get<ScenarioContext>();
                 testContext.TypedDependencyFeatureSetUp = true;
+
+                return Task.CompletedTask;
             }
         }
 
         public class DependencyFeature : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-            }
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 }

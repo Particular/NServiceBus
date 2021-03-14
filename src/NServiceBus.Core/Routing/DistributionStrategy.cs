@@ -1,5 +1,8 @@
 namespace NServiceBus.Routing
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Determines which instance of a given endpoint a message is to be sent.
     /// </summary>
@@ -21,7 +24,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
-        public abstract string SelectDestination(DistributionContext context);
+        public abstract Task<string> SelectDestination(DistributionContext context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The name of the endpoint this distribution strategy resolves instances for.

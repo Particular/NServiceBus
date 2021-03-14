@@ -27,9 +27,10 @@
 
         class DelayReceiverFromStarting : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.RegisterStartupTask(b => new DelayReceiverFromStartingTask());
+                return Task.CompletedTask;
             }
         }
 

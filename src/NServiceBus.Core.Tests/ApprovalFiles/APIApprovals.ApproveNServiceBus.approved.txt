@@ -342,7 +342,7 @@ namespace NServiceBus
     }
     public static class EndpointWithExternallyManagedContainer
     {
-        public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpointWithExternallyManagedContainer> Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public static class ErrorQueueSettings
     {
@@ -677,7 +677,7 @@ namespace NServiceBus
         public string StorageDirectory { get; set; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
-        public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
+        public override System.Threading.Tasks.Task<string> ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public static class LearningTransportApiExtensions
     {
@@ -1444,15 +1444,15 @@ namespace NServiceBus.Features
 {
     public class Audit : NServiceBus.Features.Feature
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class AutoSubscribe : NServiceBus.Features.Feature
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class DataBus : NServiceBus.Features.Feature
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public abstract class Feature
     {
@@ -1473,7 +1473,7 @@ namespace NServiceBus.Features
             where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
-        protected abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
+        protected abstract System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default);
         public override string ToString() { }
     }
     public class FeatureConfigurationContext
@@ -1514,15 +1514,15 @@ namespace NServiceBus.Features
     [System.Obsolete(@"It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class Sagas : NServiceBus.Features.Feature
     {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Threading.Tasks.Task Setup(NServiceBus.Features.FeatureConfigurationContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     [System.Obsolete("The built-in scheduler is no longer supported, see our upgrade guide for details " +
         "on how to migrate to plain .NET Timers. Will be removed in version 9.0.0.", true)]
@@ -2076,20 +2076,20 @@ namespace NServiceBus.Routing
     }
     public class DistributionContext : NServiceBus.Extensibility.IExtendable
     {
-        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
+        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, System.Threading.CancellationToken, System.Threading.Tasks.Task<string>> addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         public string MessageId { get; }
         public string[] ReceiverAddresses { get; }
-        public string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
+        public System.Threading.Tasks.Task<string> ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
         public string Endpoint { get; }
         public NServiceBus.DistributionStrategyScope Scope { get; }
-        public abstract string SelectDestination(NServiceBus.Routing.DistributionContext context);
+        public abstract System.Threading.Tasks.Task<string> SelectDestination(NServiceBus.Routing.DistributionContext context, System.Threading.CancellationToken cancellationToken = default);
     }
     public sealed class EndpointInstance
     {
@@ -2135,7 +2135,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
-        public override string SelectDestination(NServiceBus.Routing.DistributionContext context) { }
+        public override System.Threading.Tasks.Task<string> SelectDestination(NServiceBus.Routing.DistributionContext context, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2667,7 +2667,7 @@ namespace NServiceBus.Transport
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
-        public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
+        public abstract System.Threading.Tasks.Task<string> ToTransportAddress(NServiceBus.Transport.QueueAddress address, System.Threading.CancellationToken cancellationToken = default);
     }
     public abstract class TransportInfrastructure
     {

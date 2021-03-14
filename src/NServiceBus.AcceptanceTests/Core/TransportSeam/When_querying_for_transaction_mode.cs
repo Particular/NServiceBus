@@ -6,6 +6,7 @@
     using Features;
     using ConsistencyGuarantees;
     using NUnit.Framework;
+    using System.Threading;
 
     public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest
     {
@@ -40,9 +41,10 @@
             {
                 public Context TestContext { get; set; }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.Settings.Get<Context>().TransactionModeFromSettingsExtensions = context.Settings.GetRequiredTransactionModeForReceives();
+                    return Task.CompletedTask;
                 }
             }
         }

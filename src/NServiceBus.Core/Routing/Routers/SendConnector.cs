@@ -14,7 +14,7 @@ namespace NServiceBus
 
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
-            var routingStrategy = unicastSendRouter.Route(context);
+            var routingStrategy = await unicastSendRouter.Route(context).ConfigureAwait(false);
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, new[] { routingStrategy }, context);
 

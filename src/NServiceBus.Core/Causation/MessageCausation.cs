@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
+    using System.Threading;
     using Pipeline;
     using Settings;
 
@@ -11,11 +13,13 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var newIdGenerator = GetIdStrategy(context.Settings);
 
             context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
+
+            return Task.CompletedTask;
         }
 
         static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(ReadOnlySettings settings)

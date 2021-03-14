@@ -27,9 +27,10 @@
 
             class FeatureWithStartupTask : Feature
             {
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.RegisterStartupTask(new FailingStartupTask());
+                    return Task.CompletedTask;
                 }
             }
 

@@ -51,7 +51,7 @@ namespace NServiceBus
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,
-                i => transportSeam.TransportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+                (i, cancellationToken) => transportSeam.TransportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null), cancellationToken));
 
             if (configuration.EnforceBestPractices)
             {

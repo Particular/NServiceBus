@@ -49,10 +49,12 @@
                 DependsOn<DependencyFeature>();
             }
 
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.Services.AddSingleton<Runner>();
                 context.RegisterStartupTask(b => b.GetService<Runner>());
+
+                return Task.CompletedTask;
             }
 
             class Runner : FeatureStartupTask
@@ -79,11 +81,13 @@
 
         public class DependencyFeature : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.Services.AddSingleton<Dependency>();
                 context.Services.AddSingleton<Runner>();
                 context.RegisterStartupTask(b => b.GetService<Runner>());
+
+                return Task.CompletedTask;
             }
 
             class Runner : FeatureStartupTask

@@ -130,7 +130,7 @@
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
                 metadataRegistry,
-                i => string.Empty,
+                (i, _) => Task.FromResult(string.Empty),
                 subscriptionStorage);
 
             logStatements.Clear();

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -83,10 +84,7 @@
 
             public UnicastRoutingStrategy FixedDestination { get; set; }
 
-            public override UnicastRoutingStrategy Route(IOutgoingSendContext context)
-            {
-                return FixedDestination;
-            }
+            public override Task<UnicastRoutingStrategy> Route(IOutgoingSendContext context) => Task.FromResult(FixedDestination);
         }
 
         class MyMessage

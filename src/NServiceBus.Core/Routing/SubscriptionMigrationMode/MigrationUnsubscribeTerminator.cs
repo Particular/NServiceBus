@@ -33,7 +33,7 @@
             await subscriptionManager.Unsubscribe(eventMetadata, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
 
-            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+            var publisherAddresses = await subscriptionRouter.GetAddressesForEventType(eventType, context.CancellationToken).ConfigureAwait(false);
             if (publisherAddresses.Count == 0)
             {
                 return;

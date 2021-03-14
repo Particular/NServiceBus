@@ -15,7 +15,7 @@ namespace NServiceBus
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, CancellationToken, Task<string>> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.transportAddressTranslation = transportAddressTranslation;
@@ -28,7 +28,7 @@ namespace NServiceBus
 
             var subscribers = await GetSubscribers(publishContext, typesToRoute, publishContext.CancellationToken).ConfigureAwait(false);
 
-            var destinations = SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
+            var destinations = await SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers).ConfigureAwait(false);
 
             WarnIfNoSubscribersFound(messageType, destinations.Count);
 
@@ -43,7 +43,7 @@ namespace NServiceBus
             }
         }
 
-        Dictionary<string, UnicastRoutingStrategy>.ValueCollection SelectDestinationsForEachEndpoint(IOutgoingPublishContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
+        async Task<Dictionary<string, UnicastRoutingStrategy>.ValueCollection> SelectDestinationsForEachEndpoint(IOutgoingPublishContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
         {
             //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
             var addresses = new Dictionary<string, UnicastRoutingStrategy>();
@@ -78,7 +78,7 @@ namespace NServiceBus
                 {
                     var instances = group.Value.ToArray(); // could we avoid this?
                     var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, transportAddressTranslation, publishContext.Extensions);
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.Key, DistributionStrategyScope.Publish).SelectDestination(distributionContext);
+                    var subscriber = await distributionPolicy.GetDistributionStrategy(group.Key, DistributionStrategyScope.Publish).SelectDestination(distributionContext, publishContext.CancellationToken).ConfigureAwait(false);
 
                     if (!addresses.ContainsKey(subscriber))
                     {
@@ -97,7 +97,7 @@ namespace NServiceBus
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
-        Func<EndpointInstance, string> transportAddressTranslation;
+        Func<EndpointInstance, CancellationToken, Task<string>> transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
         static ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
     }

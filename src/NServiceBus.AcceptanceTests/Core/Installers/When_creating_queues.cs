@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
@@ -115,13 +116,15 @@
                     EnableByDefault();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.AddSatelliteReceiver("MySatellite",
                         "MySatelliteAddress",
                         PushRuntimeSettings.Default,
                         (_, __) => throw new NotImplementedException(),
                         (_, __, ___) => throw new NotImplementedException());
+
+                    return Task.CompletedTask;
                 }
             }
         }

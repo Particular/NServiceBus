@@ -30,7 +30,7 @@
             {
                 try
                 {
-                    var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+                    var publisherAddresses = await subscriptionRouter.GetAddressesForEventType(eventType, context.CancellationToken).ConfigureAwait(false);
                     if (publisherAddresses.Count == 0)
                     {
                         throw new Exception($"No publisher address could be found for message type '{eventType}'. Ensure that a publisher has been configured for the event type and that the configured publisher endpoint has at least one known instance.");

@@ -76,11 +76,11 @@
                 {
                 }
 
-                public override string SelectDestination(DistributionContext context)
+                public override async Task<string> SelectDestination(DistributionContext context, CancellationToken cancellationToken = default)
                 {
                     if (context.Message.Instance is MyCommand message)
                     {
-                        var address = context.ToTransportAddress(new EndpointInstance(Endpoint, message.Instance));
+                        var address = await context.ToTransportAddress(new EndpointInstance(Endpoint, message.Instance), cancellationToken);
                         return context.ReceiverAddresses.Single(a => a.Contains(address));
                     }
                     throw new InvalidOperationException("Unable to route!");

@@ -2,6 +2,8 @@
 {
     using MessageMutator;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     class Mutators : Feature
     {
@@ -10,7 +12,7 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var registry = context.Settings.GetOrDefault<RegisteredMutators>() ?? new RegisteredMutators();
 
@@ -18,6 +20,8 @@
             context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(registry.IncomingMessage), "Executes IMutateIncomingMessages");
             context.Pipeline.Register("MutateOutgoingMessages", new MutateOutgoingMessageBehavior(registry.OutgoingMessage), "Executes IMutateOutgoingMessages");
             context.Pipeline.Register("MutateOutgoingTransportMessage", new MutateOutgoingTransportMessageBehavior(registry.OutgoingTransportMessage), "Executes IMutateOutgoingTransportMessages");
+
+            return Task.CompletedTask;
         }
 
         public class RegisteredMutators

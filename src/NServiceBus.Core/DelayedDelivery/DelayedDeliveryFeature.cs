@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Threading.Tasks;
+    using System.Threading;
     using Transport;
 
     class DelayedDeliveryFeature : Feature
@@ -9,7 +11,7 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var transportHasNativeDelayedDelivery = context.Settings.Get<TransportDefinition>().SupportsDelayedDelivery;
 
@@ -17,6 +19,8 @@
             {
                 context.Pipeline.Register("ThrowIfCannotDeferMessage", new ThrowIfCannotDeferMessageBehavior(), "Throws an exception if an attempt is made to defer a message without infrastructure support.");
             }
+
+            return Task.CompletedTask;
         }
     }
 }

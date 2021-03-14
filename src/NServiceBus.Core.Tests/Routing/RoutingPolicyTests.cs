@@ -1,6 +1,8 @@
 namespace NServiceBus.Core.Tests.Routing
 {
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -8,7 +10,7 @@ namespace NServiceBus.Core.Tests.Routing
     public class RoutingPolicyTests
     {
         [Test]
-        public void ShouldScopeDistributionToEndpointName()
+        public async Task ShouldScopeDistributionToEndpointName()
         {
             var endpointA = "endpointA";
             var policy = new DistributionPolicy();
@@ -27,10 +29,10 @@ namespace NServiceBus.Core.Tests.Routing
 
             var result = new List<string>
             {
-                InvokeDistributionStrategy(policy, endpointA, endpointAInstances),
-                InvokeDistributionStrategy(policy, endpointB, endpointBInstances),
-                InvokeDistributionStrategy(policy, endpointA, endpointAInstances),
-                InvokeDistributionStrategy(policy, endpointB, endpointBInstances)
+                await InvokeDistributionStrategy(policy, endpointA, endpointAInstances),
+                await InvokeDistributionStrategy(policy, endpointB, endpointBInstances),
+                await InvokeDistributionStrategy(policy, endpointA, endpointAInstances),
+                await InvokeDistributionStrategy(policy, endpointB, endpointBInstances)
             };
 
             Assert.That(result.Count, Is.EqualTo(4));
@@ -40,9 +42,9 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.That(result, Has.Exactly(1).EqualTo(endpointBInstances[1]));
         }
 
-        static string InvokeDistributionStrategy(IDistributionPolicy policy, string endpointName, string[] instanceAddress)
+        static Task<string> InvokeDistributionStrategy(IDistributionPolicy policy, string endpointName, string[] instanceAddress, CancellationToken cancellationToken = default)
         {
-            return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Send).SelectDestination(new DistributionContext(instanceAddress, null, null, null, null, null));
+            return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Send).SelectDestination(new DistributionContext(instanceAddress, null, null, null, null, null), cancellationToken);
         }
     }
 }

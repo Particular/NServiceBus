@@ -90,9 +90,10 @@
 
         public class HardCodedPersistenceFeature : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.Services.AddSingleton(typeof(ISubscriptionStorage), typeof(HardcodedSubscriptionManager));
+                return Task.CompletedTask;
             }
         }
 

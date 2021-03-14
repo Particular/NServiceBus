@@ -68,9 +68,9 @@
                 {
                 }
 
-                public override string SelectDestination(DistributionContext context)
+                public override async Task<string> SelectDestination(DistributionContext context, CancellationToken cancellationToken = default)
                 {
-                    var address = context.ToTransportAddress(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    var address = await context.ToTransportAddress(new EndpointInstance(ReceiverEndpoint, "XYZ"), cancellationToken).ConfigureAwait(false);
                     return context.ReceiverAddresses.First(x => x == address);
                 }
             }

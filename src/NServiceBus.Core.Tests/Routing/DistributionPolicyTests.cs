@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -50,9 +52,9 @@
             {
             }
 
-            public override string SelectDestination(DistributionContext context)
+            public override Task<string> SelectDestination(DistributionContext context, CancellationToken cancellationToken = default)
             {
-                return null;
+                return Task.FromResult<string>(null);
             }
         }
     }

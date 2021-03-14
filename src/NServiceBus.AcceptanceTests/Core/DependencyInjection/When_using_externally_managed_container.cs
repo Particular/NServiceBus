@@ -23,11 +23,7 @@
                 IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
 
                 b.ToCreateInstance(
-                        config =>
-                        {
-                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
-                        },
+                        async config => configuredEndpoint = await EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
                         configured => configured.Start(serviceCollection.BuildServiceProvider())
                     )
                     .When((e, c) =>

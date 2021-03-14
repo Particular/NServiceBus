@@ -24,9 +24,9 @@
             }
         }
 
-        public void Initalize(FeatureConfigurationContext featureConfigurationContext)
+        public async Task Initalize(FeatureConfigurationContext featureConfigurationContext, CancellationToken cancellationToken = default)
         {
-            var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
+            var featureStats = await featureActivator.SetupFeatures(featureConfigurationContext, cancellationToken).ConfigureAwait(false);
 
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }

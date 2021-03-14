@@ -22,11 +22,11 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override Task Terminate(IUnsubscribeContext context)
+        protected override async Task Terminate(IUnsubscribeContext context)
         {
             var eventType = context.EventType;
 
-            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+            var publisherAddresses = await subscriptionRouter.GetAddressesForEventType(eventType, context.CancellationToken).ConfigureAwait(false);
             if (publisherAddresses.Count == 0)
             {
                 throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
@@ -48,7 +48,7 @@
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
             }
-            return Task.WhenAll(unsubscribeTasks);
+            await Task.WhenAll(unsubscribeTasks).ConfigureAwait(false);
         }
 
         async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)

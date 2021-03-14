@@ -92,10 +92,10 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
                     this.testContext = testContext;
                 }
 
-                public override string SelectDestination(DistributionContext context)
+                public override Task<string> SelectDestination(DistributionContext context, CancellationToken cancellationToken = default)
                 {
                     testContext.StrategyCalled = true;
-                    return context.ReceiverAddresses[0];
+                    return Task.FromResult(context.ReceiverAddresses[0]);
                 }
             }
         }

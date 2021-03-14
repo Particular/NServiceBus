@@ -1,6 +1,7 @@
 namespace NServiceBus.Routing
 {
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Selects a single instance based on a round-robin scheme.
@@ -20,16 +21,16 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
-        public override string SelectDestination(DistributionContext context)
+        public override Task<string> SelectDestination(DistributionContext context, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(context), context);
             if (context.ReceiverAddresses.Length == 0)
             {
-                return default;
+                return Task.FromResult<string>(default);
             }
             var i = Interlocked.Increment(ref index);
             var result = context.ReceiverAddresses[(int)(i % context.ReceiverAddresses.Length)];
-            return result;
+            return Task.FromResult(result);
         }
 
         // start with -1 so the index will be at 0 after the first increment.

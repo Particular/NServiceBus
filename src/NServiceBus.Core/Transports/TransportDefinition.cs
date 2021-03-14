@@ -36,7 +36,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
         /// </summary>
-        public abstract string ToTransportAddress(QueueAddress address);
+        public abstract Task<string> ToTransportAddress(QueueAddress address, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns a list of all supported transaction modes of this transport.

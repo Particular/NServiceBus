@@ -101,10 +101,14 @@
 
             class StorageAccessorFeature : Feature
             {
-                protected override void Setup(FeatureConfigurationContext context) =>
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
+                {
                     context.RegisterStartupTask(
                         sp => new StorageAccessor(sp.GetRequiredService<ISubscriptionStorage>(),
                             sp.GetRequiredService<Context>()));
+
+                    return Task.CompletedTask;
+                }
 
                 class StorageAccessor : FeatureStartupTask
                 {
@@ -137,9 +141,10 @@
 
             class SubscriptionStorageFeature : Feature
             {
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     context.Services.AddSingleton<ISubscriptionStorage>(new FakeSubscriptionStorage());
+                    return Task.CompletedTask;
                 }
             }
 

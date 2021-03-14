@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using System.Threading;
     using Features;
     using Logging;
     using MessageInterfaces;
@@ -18,7 +20,7 @@
             EnableByDefault();
         }
 
-        protected internal sealed override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var mapper = context.Settings.Get<IMessageMapper>();
             var settings = context.Settings;
@@ -70,6 +72,8 @@
                 },
                 AdditionalDeserializers = additionalDeserializerDiagnostics
             });
+
+            return Task.CompletedTask;
         }
 
         static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, ReadOnlySettings mainSettings)

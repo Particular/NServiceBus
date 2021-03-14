@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Pipeline;
     using Routing;
 
@@ -23,7 +25,7 @@ namespace NServiceBus
             IDistributionPolicy defaultDistributionPolicy,
             UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
-            Func<EndpointInstance, string> transportAddressTranslation)
+            Func<EndpointInstance, CancellationToken, Task<string>> transportAddressTranslation)
         {
             this.isSendOnly = isSendOnly;
             this.receiveQueueName = receiveQueueName;
@@ -34,7 +36,7 @@ namespace NServiceBus
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public virtual UnicastRoutingStrategy Route(IOutgoingSendContext context)
+        public virtual Task<UnicastRoutingStrategy> Route(IOutgoingSendContext context)
         {
             var state = context.Extensions.GetOrCreate<State>();
             var route = SelectRoute(state, context);
@@ -105,7 +107,7 @@ namespace NServiceBus
             return route;
         }
 
-        UnicastRoutingStrategy ResolveRoute(UnicastRoute route, IOutgoingSendContext context)
+        async Task<UnicastRoutingStrategy> ResolveRoute(UnicastRoute route, IOutgoingSendContext context)
         {
             if (route.PhysicalAddress != null)
             {
@@ -113,18 +115,24 @@ namespace NServiceBus
             }
             if (route.Instance != null)
             {
-                return new UnicastRoutingStrategy(transportAddressTranslation(route.Instance));
+                return new UnicastRoutingStrategy(await transportAddressTranslation(route.Instance, context.CancellationToken).ConfigureAwait(false));
             }
-            var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var distributionContext = new DistributionContext(instances, context.Message, context.MessageId, context.Headers, transportAddressTranslation, context.Extensions);
-            var selectedInstanceAddress = defaultDistributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectDestination(distributionContext);
+
+            var instances = new List<string>();
+            foreach (var instance in endpointInstances.FindInstances(route.Endpoint))
+            {
+                instances.Add(await transportAddressTranslation(instance, context.CancellationToken).ConfigureAwait(false));
+            }
+
+            var distributionContext = new DistributionContext(instances.ToArray(), context.Message, context.MessageId, context.Headers, transportAddressTranslation, context.Extensions);
+            var selectedInstanceAddress = await defaultDistributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectDestination(distributionContext, context.CancellationToken).ConfigureAwait(false);
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }
 
         string instanceSpecificQueue;
 
         EndpointInstances endpointInstances;
-        Func<EndpointInstance, string> transportAddressTranslation;
+        Func<EndpointInstance, CancellationToken, Task<string>> transportAddressTranslation;
         UnicastRoutingTable unicastRoutingTable;
         IDistributionPolicy defaultDistributionPolicy;
         readonly bool isSendOnly;

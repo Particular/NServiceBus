@@ -2,6 +2,8 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
     using Settings;
@@ -20,7 +22,7 @@
         }
 
         [Test]
-        public void Should_check_prerequisites()
+        public async Task Should_check_prerequisites()
         {
             var featureWithTrueCondition = new MyFeatureWithSatisfiedPrerequisite();
             var featureWithFalseCondition = new MyFeatureWithUnsatisfiedPrerequisite();
@@ -28,7 +30,7 @@
             featureSettings.Add(featureWithTrueCondition);
             featureSettings.Add(featureWithFalseCondition);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);
@@ -37,23 +39,23 @@
         }
 
         [Test]
-        public void Should_register_defaults_if_feature_is_activated()
+        public async Task Should_register_defaults_if_feature_is_activated()
         {
             featureSettings.Add(new MyFeatureWithDefaults());
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.True(settings.HasSetting("Test1"));
         }
 
         [Test]
         [Ignore("Discuss if this is possible since pre-requirements can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
-        public void Should_not_register_defaults_if_feature_is_not_activated()
+        public async Task Should_not_register_defaults_if_feature_is_not_activated()
         {
             featureSettings.Add(new MyFeatureWithDefaultsNotActive());
             featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.False(settings.HasSetting("Test1"));
             Assert.False(settings.HasSetting("Test2"));
@@ -136,9 +138,10 @@
         public Action<Feature> OnActivation;
         public Action<Feature> OnDefaults;
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             OnActivation?.Invoke(this);
+            return Task.CompletedTask;
         }
     }
 }

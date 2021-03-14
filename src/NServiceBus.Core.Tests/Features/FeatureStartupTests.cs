@@ -25,7 +25,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures();
@@ -42,7 +42,7 @@
             featureSettings.Add(new FeatureWithStartupTaskWithDependency(orderBuilder));
             featureSettings.Add(new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder));
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures();
@@ -63,7 +63,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures();
@@ -72,14 +72,14 @@
         }
 
         [Test]
-        public void Should_not_throw_when_feature_task_fails_on_start_and_abort_starting()
+        public async Task Should_not_throw_when_feature_task_fails_on_start_and_abort_starting()
         {
             var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStart: true, throwOnStop: false);
             var feature2 = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: false);
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
 
@@ -95,7 +95,7 @@
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
 
@@ -110,7 +110,7 @@
             var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
 
@@ -131,9 +131,10 @@
                 this.orderBuilder = orderBuilder;
             }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.RegisterStartupTask(new Runner(orderBuilder));
+                return Task.CompletedTask;
             }
 
             class Runner : FeatureStartupTask
@@ -170,9 +171,10 @@
                 this.orderBuilder = orderBuilder;
             }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.RegisterStartupTask(new Runner(orderBuilder));
+                return Task.CompletedTask;
             }
 
             class Runner : FeatureStartupTask
@@ -210,9 +212,10 @@
             public bool TaskStarted { get; private set; }
             public bool TaskStopped { get; private set; }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.RegisterStartupTask(new Runner(this));
+                return Task.CompletedTask;
             }
 
             public class Runner : FeatureStartupTask
@@ -252,9 +255,10 @@
             public bool TaskStopped { get; private set; }
             public bool TaskDisposed { get; private set; }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.RegisterStartupTask(new Runner(this));
+                return Task.CompletedTask;
             }
 
             bool throwOnStart;
@@ -305,9 +309,10 @@
 
             public bool TaskDisposed { get; private set; }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
             {
                 context.RegisterStartupTask(new Runner(this));
+                return Task.CompletedTask;
             }
 
             public class Runner : FeatureStartupTask, IDisposable

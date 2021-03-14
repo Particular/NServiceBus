@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Settings;
 
     /// <summary>
@@ -56,7 +58,7 @@
         /// <summary>
         /// Called when the features is activated.
         /// </summary>
-        protected internal abstract void Setup(FeatureConfigurationContext context);
+        protected internal abstract Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds a setup prerequisite condition. If false this feature won't be setup.
@@ -199,9 +201,9 @@
             return status;
         }
 
-        internal void SetupFeature(FeatureConfigurationContext config)
+        internal async Task SetupFeature(FeatureConfigurationContext config, CancellationToken cancellationToken = default)
         {
-            Setup(config);
+            await Setup(config, cancellationToken).ConfigureAwait(false);
 
             IsActive = true;
         }

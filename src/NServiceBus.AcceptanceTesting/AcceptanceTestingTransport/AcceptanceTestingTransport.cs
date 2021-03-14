@@ -25,7 +25,7 @@
             return infrastructure;
         }
 
-        public override string ToTransportAddress(QueueAddress address)
+        public override Task<string> ToTransportAddress(QueueAddress address, CancellationToken cancellationToken = default)
         {
             var baseAddress = address.BaseAddress;
             PathChecker.ThrowForBadPath(baseAddress, "endpoint name");
@@ -48,7 +48,7 @@
                 baseAddress += "-" + qualifier;
             }
 
-            return baseAddress;
+            return Task.FromResult(baseAddress);
         }
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()

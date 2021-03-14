@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
     using Settings;
@@ -10,7 +11,7 @@
     public class FeatureDifferingOnlyByNamespaceTests
     {
         [Test]
-        public void Should_activate_upstream_dependencies_first()
+        public async Task Should_activate_upstream_dependencies_first()
         {
             var order = new List<Feature>();
 
@@ -31,7 +32,7 @@
 
             settings.EnableFeatureByDefault<NamespaceA.MyFeature>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.True(dependingFeature.IsActive);
 

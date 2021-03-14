@@ -2,12 +2,14 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Transport;
     using Unicast;
 
     partial class ReceiveComponent
     {
-        public static Configuration PrepareConfiguration(HostingComponent.Configuration hostingConfiguration, Settings settings, TransportSeam transportSeam)
+        public static async Task<Configuration> PrepareConfiguration(HostingComponent.Configuration hostingConfiguration, Settings settings, TransportSeam transportSeam, CancellationToken cancellationToken = default)
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
@@ -22,12 +24,12 @@ namespace NServiceBus
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
-            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
+            var localAddress = await transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null), cancellationToken).ConfigureAwait(false);
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
+                instanceSpecificQueue = await transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null), cancellationToken).ConfigureAwait(false);
             }
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;

@@ -30,7 +30,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// Called when the features is activated.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             if (!context.Container.HasComponent<IDataBusSerializer>())
             {
@@ -42,6 +42,8 @@ namespace NServiceBus.Features
             var conventions = context.Settings.Get<Conventions>();
             context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
             context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
+
+            return Task.CompletedTask;
         }
 
         class IDataBusInitializer : FeatureStartupTask

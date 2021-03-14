@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Threading;
+    using System.Threading.Tasks;
     using Logging;
     using Transport;
 
@@ -22,7 +24,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             var auditConfig = context.Settings.Get<AuditConfigReader.Result>();
 
@@ -38,6 +40,8 @@
             });
 
             logger.InfoFormat($"Auditing processed messages to '{auditConfig.Address}'");
+
+            return Task.CompletedTask;
         }
 
         static readonly ILog logger = LogManager.GetLogger<Audit>();

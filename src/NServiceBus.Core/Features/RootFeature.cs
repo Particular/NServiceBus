@@ -1,5 +1,8 @@
 namespace NServiceBus.Features
 {
+    using System.Threading.Tasks;
+    using System.Threading;
+
     /// <summary>
     /// A root feature that is always enabled.
     /// </summary>
@@ -10,8 +13,6 @@ namespace NServiceBus.Features
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-        }
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

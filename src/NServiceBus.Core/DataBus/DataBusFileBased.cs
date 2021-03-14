@@ -1,6 +1,8 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
+    using System.Threading;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.DataBus;
 
@@ -14,7 +16,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// See <see cref="Feature.Setup" />
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             if (!context.Settings.TryGet("FileShareDataBusPath", out string basePath))
             {
@@ -23,6 +25,8 @@ namespace NServiceBus.Features
             var dataBus = new FileShareDataBusImplementation(basePath);
 
             context.Container.AddSingleton(typeof(IDataBus), dataBus);
+
+            return Task.CompletedTask;
         }
     }
 }

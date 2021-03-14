@@ -2,6 +2,8 @@ namespace NServiceBus.Routing
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Extensibility;
     using Pipeline;
 
@@ -13,7 +15,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Creates a new distribution context.
         /// </summary>
-        public DistributionContext(string[] receiverAddresses, OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, Func<EndpointInstance, string> addressTranslation, ContextBag extensions)
+        public DistributionContext(string[] receiverAddresses, OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, Func<EndpointInstance, CancellationToken, Task<string>> addressTranslation, ContextBag extensions)
         {
             this.addressTranslation = addressTranslation;
             ReceiverAddresses = receiverAddresses;
@@ -52,13 +54,14 @@ namespace NServiceBus.Routing
         /// Converts a given logical address to the transport address.
         /// </summary>
         /// <param name="endpointInstance">The endpoint instance.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>The transport address.</returns>
-        public string ToTransportAddress(EndpointInstance endpointInstance)
+        public Task<string> ToTransportAddress(EndpointInstance endpointInstance, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(endpointInstance), endpointInstance);
-            return addressTranslation(endpointInstance);
+            return addressTranslation(endpointInstance, cancellationToken);
         }
 
-        Func<EndpointInstance, string> addressTranslation;
+        Func<EndpointInstance, CancellationToken, Task<string>> addressTranslation;
     }
 }

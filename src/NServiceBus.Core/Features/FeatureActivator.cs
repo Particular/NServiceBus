@@ -32,7 +32,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
+        public async Task<FeatureDiagnosticData[]> SetupFeatures(FeatureConfigurationContext featureConfigurationContext, CancellationToken cancellationToken = default)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -51,7 +51,7 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
+                await ActivateFeature(feature, enabledFeatures, featureConfigurationContext, cancellationToken).ConfigureAwait(false);
             }
 
             return features.Select(t => t.Diagnostics).ToArray();
@@ -154,14 +154,14 @@ namespace NServiceBus.Features
             return false;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
+        async Task<bool> ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext, CancellationToken cancellationToken)
         {
             if (featureInfo.Feature.IsActive)
             {
                 return true;
             }
 
-            Func<List<string>, bool> dependencyActivator = dependencies =>
+            Func<List<string>, CancellationToken, Task<bool>> dependencyActivator = async (dependencies, token) =>
             {
                 var dependentFeaturesToActivate = new List<FeatureInfo>();
 
@@ -171,10 +171,27 @@ namespace NServiceBus.Features
                 {
                     dependentFeaturesToActivate.Add(dependency);
                 }
-                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
+
+                var result = false;
+                foreach (var f in dependentFeaturesToActivate)
+                {
+                    result |= await ActivateFeature(f, featuresToActivate, featureConfigurationContext, token).ConfigureAwait(false);
+                }
+
+                return result;
             };
             var featureType = featureInfo.Feature.GetType();
-            if (featureInfo.Feature.Dependencies.All(dependencyActivator))
+
+            var dependenciesAreMet = true;
+            foreach (var item in featureInfo.Feature.Dependencies)
+            {
+                if (!await dependencyActivator(item, cancellationToken).ConfigureAwait(false))
+                {
+                    dependenciesAreMet = false;
+                }
+            }
+
+            if (dependenciesAreMet)
             {
                 featureInfo.Diagnostics.DependenciesAreMet = true;
 
@@ -185,7 +202,7 @@ namespace NServiceBus.Features
                 }
                 settings.MarkFeatureAsActive(featureType);
 
-                featureInfo.InitializeFrom(featureConfigurationContext);
+                await featureInfo.InitializeFrom(featureConfigurationContext, cancellationToken).ConfigureAwait(false);
 
                 // because we reuse the context the task controller list needs to be cleared.
                 featureConfigurationContext.TaskControllers.Clear();
@@ -220,9 +237,9 @@ namespace NServiceBus.Features
             public Feature Feature { get; }
             public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
 
-            public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
+            public async Task InitializeFrom(FeatureConfigurationContext featureConfigurationContext, CancellationToken cancellationToken = default)
             {
-                Feature.SetupFeature(featureConfigurationContext);
+                await Feature.SetupFeature(featureConfigurationContext, cancellationToken).ConfigureAwait(false);
                 var featureStartupTasks = new List<string>();
                 foreach (var controller in featureConfigurationContext.TaskControllers)
                 {

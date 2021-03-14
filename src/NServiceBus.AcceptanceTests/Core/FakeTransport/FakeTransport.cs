@@ -30,9 +30,9 @@
             return Task.FromResult<TransportInfrastructure>(infrastructure);
         }
 
-        public override string ToTransportAddress(QueueAddress address)
+        public override Task<string> ToTransportAddress(QueueAddress address, CancellationToken cancellationToken = default)
         {
-            return new LearningTransport().ToTransportAddress(address);
+            return new LearningTransport().ToTransportAddress(address, cancellationToken);
         }
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()

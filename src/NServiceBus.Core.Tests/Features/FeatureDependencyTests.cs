@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
     using Settings;
@@ -52,20 +53,20 @@
         }
 
         [TestCaseSource(nameof(FeatureCombinationsForTests))]
-        public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
+        public async Task Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
         {
             var featureSettings = new FeatureActivator(new SettingsHolder());
             var dependingFeature = setup.DependingFeature;
             featureSettings.Add(dependingFeature);
             Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
 
         [Test]
-        public void Should_activate_upstream_dependencies_first()
+        public async Task Should_activate_upstream_dependencies_first()
         {
             var order = new List<Feature>();
 
@@ -86,7 +87,7 @@
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.True(dependingFeature.IsActive);
 
@@ -94,7 +95,7 @@
         }
 
         [Test]
-        public void Should_activate_named_dependency_first()
+        public async Task Should_activate_named_dependency_first()
         {
             var order = new List<Feature>();
 
@@ -115,14 +116,14 @@
 
             settings.EnableFeatureByDefault<MyFeature2>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.True(dependingFeature.IsActive);
             Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_not_activate_feature_when_named_dependency_disabled()
+        public async Task Should_not_activate_feature_when_named_dependency_disabled()
         {
             var order = new List<Feature>();
 
@@ -141,14 +142,14 @@
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.False(dependingFeature.IsActive);
             Assert.IsEmpty(order);
         }
 
         [Test]
-        public void Should_activate_all_upstream_dependencies_first()
+        public async Task Should_activate_all_upstream_dependencies_first()
         {
             var order = new List<Feature>();
 
@@ -181,7 +182,7 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             Assert.True(dependingFeature.IsActive);
 
@@ -191,7 +192,7 @@
         }
 
         [Test]
-        public void Should_activate_all_upstream_dependencies_when_chain_deep()
+        public async Task Should_activate_all_upstream_dependencies_when_chain_deep()
         {
             var order = new List<Feature>();
 
@@ -217,7 +218,7 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            await featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
@@ -250,7 +251,7 @@
             featureSettings.Add(level1);
             featureSettings.Add(level2);
 
-            Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext()));
+            Assert.ThrowsAsync<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext()));
         }
 
         public class Level1 : TestFeature

@@ -2,6 +2,8 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Diagnostics;
+    using System.Threading.Tasks;
+    using System.Threading;
     using Logging;
 
     class LicenseReminder : Feature
@@ -14,7 +16,7 @@ namespace NServiceBus.Features
             Defaults(s => s.SetDefault(LicenseFilePathSettingsKey, null));
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -25,7 +27,7 @@ namespace NServiceBus.Features
 
                 if (!licenseManager.HasLicenseExpired)
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 context.Pipeline.Register("LicenseReminder", new AuditInvalidLicenseBehavior(), "Audits that the message was processed by an endpoint with an expired license");
@@ -40,6 +42,8 @@ namespace NServiceBus.Features
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
+
+            return Task.CompletedTask;
         }
 
         static object GenerateLicenseDiagnostics(LicenseManager licenseManager)

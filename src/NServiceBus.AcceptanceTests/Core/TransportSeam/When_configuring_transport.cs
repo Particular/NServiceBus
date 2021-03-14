@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.TransportSeam
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -34,10 +35,12 @@
 
             class FeatureAccessingInfrastructure : Feature
             {
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
                 {
                     var testContext = (Context)context.Settings.Get<ScenarioContext>();
                     testContext.TransportDefinition = context.Settings.Get<TransportDefinition>();
+
+                    return Task.CompletedTask;
                 }
             }
         }

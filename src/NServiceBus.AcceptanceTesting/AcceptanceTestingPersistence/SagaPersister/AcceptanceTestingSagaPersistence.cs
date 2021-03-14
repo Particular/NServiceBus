@@ -3,6 +3,8 @@
     using Features;
     using Sagas;
     using Microsoft.Extensions.DependencyInjection;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     class AcceptanceTestingSagaPersistence : Feature
     {
@@ -12,9 +14,10 @@
             Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override Task Setup(FeatureConfigurationContext context, CancellationToken cancellationToken = default)
         {
             context.Services.AddSingleton<ISagaPersister, AcceptanceTestingSagaPersister>();
+            return Task.CompletedTask;
         }
     }
 }
