@@ -64,7 +64,6 @@ namespace NServiceBus
 
             var routingComponent = RoutingComponent.Initialize(
                 routingConfiguration,
-                transportSeam,
                 receiveConfiguration,
                 settings.Get<Conventions>(),
                 pipelineSettings);

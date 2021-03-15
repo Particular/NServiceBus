@@ -74,11 +74,12 @@
             var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
             var immediateRetriesAvailable = transactionsOn;
 
-            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
+            Func<QueueAddress, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
             {
+                //TODO how to get TI here to translate the address?
                 var staticFaultMetadata = new Dictionary<string, string>
                 {
-                    {FaultsHeaderKeys.FailedQ, localAddress},
+                    {FaultsHeaderKeys.FailedQ, "localAddress"},
                     {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
                     {Headers.ProcessingEndpoint, settings.EndpointName()},
                     {Headers.HostId, hostInformation.HostId.ToString("N")},
@@ -90,7 +91,7 @@
                 return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
             };
 
-            Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
+            Func<QueueAddress, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
             {
                 if (delayedRetriesAvailable)
                 {

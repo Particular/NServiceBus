@@ -43,7 +43,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.Settings.Get<Context>().InstanceDescriminatorFromSettingsExtensions = context.Settings.InstanceSpecificQueue();
+                    context.Settings.Get<Context>().InstanceDescriminatorFromSettingsExtensions = context.Settings.InstanceSpecificQueue().Discriminator;
                 }
             }
         }

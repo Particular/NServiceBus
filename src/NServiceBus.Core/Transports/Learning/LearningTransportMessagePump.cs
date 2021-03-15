@@ -14,6 +14,7 @@
     {
         public LearningTransportMessagePump(string id,
             string basePath,
+            string receiveAddress,
             Action<string, Exception, CancellationToken> criticalErrorAction,
             ISubscriptionManager subscriptionManager,
             ReceiveSettings receiveSettings,
@@ -21,6 +22,7 @@
         {
             Id = id;
             this.basePath = basePath;
+            this.receiveAddress = receiveAddress;
             this.criticalErrorAction = criticalErrorAction;
             Subscriptions = subscriptionManager;
             this.receiveSettings = receiveSettings;
@@ -29,9 +31,9 @@
 
         public void Init()
         {
-            PathChecker.ThrowForBadPath(receiveSettings.ReceiveAddress, "InputQueue");
+            //PathChecker.ThrowForBadPath(receiveSettings.ReceiveAddress, "InputQueue");
 
-            messagePumpBasePath = Path.Combine(basePath, receiveSettings.ReceiveAddress);
+            messagePumpBasePath = Path.Combine(basePath, receiveAddress);
             bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
             delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
 
@@ -362,6 +364,7 @@
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
         string basePath;
+        readonly string receiveAddress;
         DelayedMessagePoller delayedMessagePoller;
         int maxConcurrency;
         string bodyDir;

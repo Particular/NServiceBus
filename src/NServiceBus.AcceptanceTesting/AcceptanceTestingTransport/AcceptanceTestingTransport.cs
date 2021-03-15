@@ -25,32 +25,6 @@
             return infrastructure;
         }
 
-        public override string ToTransportAddress(QueueAddress address)
-        {
-            var baseAddress = address.BaseAddress;
-            PathChecker.ThrowForBadPath(baseAddress, "endpoint name");
-
-            var discriminator = address.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                baseAddress += "-" + discriminator;
-            }
-
-            var qualifier = address.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
-                baseAddress += "-" + qualifier;
-            }
-
-            return baseAddress;
-        }
-
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
         {
             return new[]

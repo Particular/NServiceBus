@@ -30,11 +30,10 @@
 
             context.Pipeline.Register(b =>
             {
-                var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i =>
-                {
-                    var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
-                    return transportDefinition.ToTransportAddress(queueAddress);
-                }, b.GetRequiredService<ISubscriptionStorage>());
+                var unicastPublishRouter = new UnicastPublishRouter(
+                    b.GetRequiredService<MessageMetadataRegistry>(),
+                    b.GetRequiredService<ISubscriptionStorage>(),
+                    b.GetRequiredService<TransportInfrastructure>());
                 return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
 
@@ -42,17 +41,26 @@
             {
                 var endpointInstances = context.Routing.EndpointInstances;
 
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i =>
-                {
-                    var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
-                    return transportDefinition.ToTransportAddress(queueAddress);
-                });
+                //TODO bubble up usage of TI to method (and let terminators use it, as they need to translate the subscriber address anyway
+                context.Container.AddSingleton(sp => new SubscriptionRouter(publishers, endpointInstances,
+                    sp.GetRequiredService<TransportInfrastructure>()));
+
                 var subscriberAddress = context.Receiving.LocalAddress;
 
+                //TODO translate when resolving
                 context.Pipeline.Register(b =>
-                    new MigrationSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(),
+                        b.GetRequiredService<SubscriptionRouter>(),
+                        b.GetRequiredService<IMessageDispatcher>(),
+                        "subscriberAddress",
+                        context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                //TODO translate when resolving
                 context.Pipeline.Register(b =>
-                    new MigrationUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(),
+                        b.GetRequiredService<SubscriptionRouter>(),
+                        b.GetRequiredService<IMessageDispatcher>(),
+                        "subscriberAddress",
+                        context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using Settings;
+    using Transport;
 
     /// <summary>
     /// Provides extensions to the settings holder.
@@ -27,10 +28,11 @@ namespace NServiceBus
             return settings.Get<string>("NServiceBus.Routing.EndpointName");
         }
 
+        //TODO this one might be a big breaking change
         /// <summary>
         /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
-        public static string LocalAddress(this ReadOnlySettings settings)
+        public static QueueAddress LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -60,7 +62,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
-        public static string InstanceSpecificQueue(this ReadOnlySettings settings)
+        public static QueueAddress InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 

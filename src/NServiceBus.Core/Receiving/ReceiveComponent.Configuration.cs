@@ -22,19 +22,19 @@ namespace NServiceBus
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
-            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
+            var localAddress2 = new QueueAddress(queueNameBase, null, null, null);
 
-            string instanceSpecificQueue = null;
+            QueueAddress instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
+                instanceSpecificQueue = new QueueAddress(queueNameBase, discriminator, null, null);
             }
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
                 queueNameBase,
-                localAddress,
+                localAddress2,
                 instanceSpecificQueue,
                 pushRuntimeSettings,
                 purgeOnStartup,
@@ -56,8 +56,8 @@ namespace NServiceBus
         {
             public Configuration(
                 string queueNameBase,
-                string localAddress,
-                string instanceSpecificQueue,
+                QueueAddress localAddress,
+                QueueAddress instanceSpecificQueue,
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
@@ -83,9 +83,9 @@ namespace NServiceBus
                 this.transportSeam = transportSeam;
             }
 
-            public string LocalAddress { get; }
+            public QueueAddress LocalAddress { get; }
 
-            public string InstanceSpecificQueue { get; }
+            public QueueAddress InstanceSpecificQueue { get; }
 
             public PushRuntimeSettings PushRuntimeSettings { get; }
 
@@ -103,7 +103,7 @@ namespace NServiceBus
 
             public Conventions Conventions { get; }
 
-            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
+            public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 

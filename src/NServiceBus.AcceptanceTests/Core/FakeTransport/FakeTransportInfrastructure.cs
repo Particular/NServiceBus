@@ -49,5 +49,29 @@
 
             return Task.CompletedTask;
         }
+
+        /// <inheritdoc />
+        public override string ToTransportAddress(QueueAddress queueAddress)
+        {
+            var address = queueAddress.BaseAddress;
+
+            var discriminator = queueAddress.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+
+                address += "-" + discriminator;
+            }
+
+            var qualifier = queueAddress.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+
+                address += "-" + qualifier;
+            }
+
+            return address;
+        }
     }
 }

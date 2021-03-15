@@ -32,12 +32,6 @@ namespace NServiceBus.Transport
         /// </summary>
         public abstract Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default);
 
-
-        /// <summary>
-        /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
-        /// </summary>
-        public abstract string ToTransportAddress(QueueAddress address);
-
         /// <summary>
         /// Returns a list of all supported transaction modes of this transport.
         /// </summary>

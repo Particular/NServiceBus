@@ -81,11 +81,6 @@
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
             }
 
-            public override string ToTransportAddress(QueueAddress address)
-            {
-                return address.ToString();
-            }
-
             public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
             {
                 return new[]
@@ -111,6 +106,11 @@
             public override Task Shutdown(CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
+            }
+
+            public override string ToTransportAddress(QueueAddress address)
+            {
+                return address.ToString();
             }
         }
     }

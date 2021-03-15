@@ -42,6 +42,32 @@
             }
         }
 
+        public override string ToTransportAddress(QueueAddress address)
+        {
+            var baseAddress = address.BaseAddress;
+            PathChecker.ThrowForBadPath(baseAddress, "endpoint name");
+
+            var discriminator = address.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
+                baseAddress += "-" + discriminator;
+            }
+
+            var qualifier = address.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
+                baseAddress += "-" + qualifier;
+            }
+
+            return baseAddress;
+        }
+
         public async Task ConfigureReceivers()
         {
             var receivers = new Dictionary<string, IMessageReceiver>();
@@ -64,9 +90,9 @@
             ISubscriptionManager subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe && transportSettings.SupportsPublishSubscribe)
             {
-                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, ToTransportAddress(receiveSettings.ReceiveAddress));
             }
-            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, ToTransportAddress(receiveSettings.ReceiveAddress), settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
             return Task.FromResult<IMessageReceiver>(pump);
         }
 

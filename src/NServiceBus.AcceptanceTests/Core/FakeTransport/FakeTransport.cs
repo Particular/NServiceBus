@@ -25,14 +25,9 @@
             infrastructure.ConfigureSendInfrastructure();
             infrastructure.ConfigureReceiveInfrastructure();
 
-            OnTransportInitialize((receivers.Select(r => r.ReceiveAddress).ToArray(), sendingAddresses, hostSettings.SetupInfrastructure));
+            OnTransportInitialize((receivers.Select(r => r.ReceiveAddress.BaseAddress).ToArray(), sendingAddresses, hostSettings.SetupInfrastructure));
 
             return Task.FromResult<TransportInfrastructure>(infrastructure);
-        }
-
-        public override string ToTransportAddress(QueueAddress address)
-        {
-            return new LearningTransport().ToTransportAddress(address);
         }
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()

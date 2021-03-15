@@ -14,7 +14,7 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.Address, new MyMessage())))
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(@"¯\_(ツ)_/¯", new MyMessage())))
                 .Done(c => c.MessageReceived)
                 .Run();
 
@@ -51,9 +51,7 @@
                     var endpointQueueName = context.Settings.EndpointQueueName();
                     var queueAddress = new QueueAddress(endpointQueueName, null, null, "MySatellite");
 
-                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
-
-                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
+                    context.AddSatelliteReceiver("Test satellite", queueAddress, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, messageContext, cancellationToken) =>
                         {
@@ -62,11 +60,7 @@
                             testContext.TransportTransactionAddedToContext = ReferenceEquals(messageContext.Extensions.Get<TransportTransaction>(), messageContext.TransportTransaction);
                             return Task.FromResult(true);
                         });
-
-                    Address = satelliteAddress;
                 }
-
-                public static string Address;
             }
         }
 

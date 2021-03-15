@@ -9,17 +9,18 @@ namespace NServiceBus
     using Logging;
     using Pipeline;
     using Routing;
+    using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, TransportInfrastructure transportInfrastructure)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
-            this.transportAddressTranslation = transportAddressTranslation;
             this.subscriptionStorage = subscriptionStorage;
+            this.transportInfrastructure = transportInfrastructure;
         }
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
@@ -77,7 +78,7 @@ namespace NServiceBus
                 foreach (var group in groups)
                 {
                     var instances = group.Value.ToArray(); // could we avoid this?
-                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, transportAddressTranslation, publishContext.Extensions);
+                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, transportInfrastructure, publishContext.Extensions);
                     var subscriber = distributionPolicy.GetDistributionStrategy(group.Key, DistributionStrategyScope.Publish).SelectDestination(distributionContext);
 
                     if (!addresses.ContainsKey(subscriber))
@@ -97,8 +98,8 @@ namespace NServiceBus
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
-        Func<EndpointInstance, string> transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
+        readonly TransportInfrastructure transportInfrastructure;
         static ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
     }
 }

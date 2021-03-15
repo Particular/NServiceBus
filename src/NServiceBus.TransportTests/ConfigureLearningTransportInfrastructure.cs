@@ -21,7 +21,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
     {
         var mainReceiverSettings = new ReceiveSettings(
             "mainReceiver",
-            inputQueueName,
+            new QueueAddress(inputQueueName, null, null, null),
             transportDefinition.SupportsPublishSubscribe,
             true,
             errorQueueName);

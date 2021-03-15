@@ -35,32 +35,7 @@
             return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
         }
 
-        /// <inheritdoc />
-        public override string ToTransportAddress(QueueAddress queueAddress)
-        {
-            var address = queueAddress.BaseAddress;
-            PathChecker.ThrowForBadPath(address, "endpoint name");
 
-            var discriminator = queueAddress.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                address += "-" + discriminator;
-            }
-
-            var qualifier = queueAddress.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
-                address += "-" + qualifier;
-            }
-
-            return address;
-        }
 
         /// <inheritdoc />
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()

@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using Transport;
     using Pipeline;
 
     partial class RoutingComponent
@@ -17,7 +16,6 @@ namespace NServiceBus
 
         public static RoutingComponent Initialize(
             Configuration configuration,
-            TransportSeam transportSeam,
             ReceiveComponent.Configuration receiveConfiguration,
             Conventions conventions,
             PipelineSettings pipelineSettings)
@@ -36,22 +34,22 @@ namespace NServiceBus
             var isSendOnlyEndpoint = receiveConfiguration.IsSendOnlyEndpoint;
             if (!isSendOnlyEndpoint)
             {
+                //TODO: translate address at resolve time
                 pipelineSettings.Register(
                     new ApplyReplyToAddressBehavior(
-                        receiveConfiguration.LocalAddress,
-                        receiveConfiguration.InstanceSpecificQueue,
+                        "receiveConfiguration.LocalAddress",
+                        "receiveConfiguration.InstanceSpecificQueue",
                         configuration.PublicReturnAddress),
                     "Applies the public reply to address to outgoing messages");
             }
 
             var sendRouter = new UnicastSendRouter(
                 isSendOnlyEndpoint,
-                receiveConfiguration?.QueueNameBase,
+                receiveConfiguration?.QueueNameBase, // shouldn't this be LocalAddress?
                 receiveConfiguration?.InstanceSpecificQueue,
                 distributionPolicy,
                 unicastRoutingTable,
-                endpointInstances,
-                i => transportSeam.TransportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+                endpointInstances);
 
             if (configuration.EnforceBestPractices)
             {

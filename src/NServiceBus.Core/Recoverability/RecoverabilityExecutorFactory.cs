@@ -8,8 +8,8 @@
         public RecoverabilityExecutorFactory(
             Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy,
             RecoverabilityConfig configuration,
-            Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory,
-            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory,
+            Func<QueueAddress, DelayedRetryExecutor> delayedRetryExecutorFactory,
+            Func<QueueAddress, MoveToErrorsExecutor> moveToErrorsExecutorFactory,
             bool immediateRetriesAvailable,
             bool delayedRetriesAvailable,
             INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
@@ -25,17 +25,17 @@
             this.messageFaultedNotification = messageFaultedNotification;
         }
 
-        public RecoverabilityExecutor CreateDefault(string localAddress)
+        public RecoverabilityExecutor CreateDefault(QueueAddress localAddress)
         {
             return Create(defaultRecoverabilityPolicy, localAddress, raiseNotifications: true);
         }
 
-        public RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, string localAddress)
+        public RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, QueueAddress localAddress)
         {
             return Create(customRecoverabilityPolicy, localAddress, raiseNotifications: false);
         }
 
-        RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, string localAddress, bool raiseNotifications)
+        RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, QueueAddress localAddress, bool raiseNotifications)
         {
             var delayedRetryExecutor = delayedRetryExecutorFactory(localAddress);
             var moveToErrorsExecutor = moveToErrorsExecutorFactory(localAddress);
@@ -58,8 +58,8 @@
         readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
 
         Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy;
-        Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory;
-        Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
+        Func<QueueAddress, DelayedRetryExecutor> delayedRetryExecutorFactory;
+        Func<QueueAddress, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
         RecoverabilityConfig configuration;
     }
 }

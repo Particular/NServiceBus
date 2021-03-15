@@ -67,7 +67,10 @@ namespace NServiceBus.Features
 
                 context.Pipeline.Register("UnicastPublishRouterConnector", b =>
                 {
-                    var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)), b.GetRequiredService<ISubscriptionStorage>());
+                    var unicastPublishRouter = new UnicastPublishRouter(
+                        b.GetRequiredService<MessageMetadataRegistry>(),
+                        b.GetRequiredService<ISubscriptionStorage>(),
+                        b.GetRequiredService<TransportInfrastructure>());
                     return new UnicastPublishConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
 
@@ -88,10 +91,21 @@ namespace NServiceBus.Features
             if (canReceive)
             {
                 var subscriberAddress = context.Receiving.LocalAddress;
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+                //TODO bubble up usage of TI to method (and let terminators use it, as they need to translate the subscriber address anyway
+                context.Container.AddSingleton(sp => new SubscriptionRouter(publishers, endpointInstances,
+                    sp.GetRequiredService<TransportInfrastructure>()));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                //TODO resolve addresses at resolve time or inject TI
+                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(
+                    b.GetRequiredService<SubscriptionRouter>(),
+                    "subscriberAddress", context.Settings.EndpointName(),
+                    b.GetRequiredService<IMessageDispatcher>()),
+                    "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(b.GetRequiredService<SubscriptionRouter>(),
+                    "subscriberAddress",
+                    context.Settings.EndpointName(),
+                    b.GetRequiredService<IMessageDispatcher>()),
+                    "Sends requests to unsubscribe when message driven subscriptions is in use");
             }
             else
             {

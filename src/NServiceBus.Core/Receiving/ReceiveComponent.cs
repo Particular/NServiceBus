@@ -78,7 +78,7 @@ namespace NServiceBus
             };
 
 
-            if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
+            if (configuration.InstanceSpecificQueue != null)
             {
                 receiveSettings.Add(new ReceiveSettings(
                     InstanceSpecificReceiverId,
@@ -95,6 +95,7 @@ namespace NServiceBus
                 configuration.PurgeOnStartup,
                 errorQueue)));
 
+            //TODO this could be made easier by resolving transportinfrastructure instead of using the ugly event
             hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
             // get a reference to the subscription manager as soon as the transport has been created:
             configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>

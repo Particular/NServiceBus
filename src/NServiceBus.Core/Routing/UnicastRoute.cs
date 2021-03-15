@@ -1,5 +1,7 @@
 namespace NServiceBus.Routing
 {
+    using Transport;
+
     /// <summary>
     /// A destination of address routing.
     /// </summary>
@@ -14,10 +16,15 @@ namespace NServiceBus.Routing
         /// </summary>
         public string Endpoint { get; private set; }
 
+        /////// <summary>
+        /////// The endpoint instance if present.
+        /////// </summary>
+        ////public EndpointInstance Instance { get; private set; }
+
         /// <summary>
-        /// The endpoint instance if present.
+        /// TODO
         /// </summary>
-        public EndpointInstance Instance { get; private set; }
+        public QueueAddress QueueAddress { get; set; }
 
         /// <summary>
         /// The physical address if present.
@@ -39,17 +46,24 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="queueAddress"></param>
+        /// <returns></returns>
+        public static UnicastRoute CreateFromQueueAddress(QueueAddress queueAddress)
+        {
+            return new UnicastRoute { QueueAddress = queueAddress };
+        }
+
+        /// <summary>
         /// Creates a destination based on the name of the endpoint instance.
         /// </summary>
         /// <param name="instance">Destination instance name.</param>
         /// <returns>The new destination route.</returns>
         public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
         {
-            Guard.AgainstNull(nameof(instance), instance);
-            return new UnicastRoute
-            {
-                Instance = instance
-            };
+            return CreateFromQueueAddress(new QueueAddress(instance.Endpoint, instance.Discriminator, instance.Properties,
+                null));
         }
 
         /// <summary>
@@ -66,6 +80,7 @@ namespace NServiceBus.Routing
             };
         }
 
+        //TODO:implement ToString in QueueAddress
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
@@ -74,9 +89,9 @@ namespace NServiceBus.Routing
             {
                 return Endpoint;
             }
-            if (Instance != null)
+            if (QueueAddress != null)
             {
-                return $"[{Instance}]";
+                return $"[{QueueAddress}]";
             }
             return $"<{PhysicalAddress}>";
         }

@@ -3,18 +3,20 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Pipeline;
+    using Transport;
     using Unicast.Queuing;
 
     class SendConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        public SendConnector(UnicastSendRouter unicastSendRouter)
+        public SendConnector(UnicastSendRouter unicastSendRouter, TransportInfrastructure transportInfrastructure)
         {
             this.unicastSendRouter = unicastSendRouter;
+            this.transportInfrastructure = transportInfrastructure;
         }
 
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
-            var routingStrategy = unicastSendRouter.Route(context);
+            var routingStrategy = unicastSendRouter.Route(context, transportInfrastructure);
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, new[] { routingStrategy }, context);
 
@@ -29,5 +31,6 @@ namespace NServiceBus
         }
 
         readonly UnicastSendRouter unicastSendRouter;
+        readonly TransportInfrastructure transportInfrastructure;
     }
 }

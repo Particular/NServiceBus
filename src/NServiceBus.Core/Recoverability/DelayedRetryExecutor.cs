@@ -10,7 +10,7 @@
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IMessageDispatcher dispatcher)
+        public DelayedRetryExecutor(QueueAddress endpointInputQueue, IMessageDispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
             this.endpointInputQueue = endpointInputQueue;
@@ -29,7 +29,8 @@
             {
                 DelayDeliveryWith = new DelayDeliveryWith(delay)
             };
-            var messageDestination = new UnicastAddressTag(endpointInputQueue);
+            //TODO need to inject TI somehow and translate address
+            var messageDestination = new UnicastAddressTag(endpointInputQueue.ToString());
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 
@@ -39,6 +40,6 @@
         }
 
         IMessageDispatcher dispatcher;
-        string endpointInputQueue;
+        QueueAddress endpointInputQueue;
     }
 }

@@ -5,7 +5,7 @@
 
     class SatelliteDefinition
     {
-        public SatelliteDefinition(string name, string receiveAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
+        public SatelliteDefinition(string name, QueueAddress receiveAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
@@ -16,7 +16,7 @@
 
         public string Name { get; }
 
-        public string ReceiveAddress { get; }
+        public QueueAddress ReceiveAddress { get; }
 
         public PushRuntimeSettings RuntimeSettings { get; }
 

@@ -115,7 +115,7 @@
             {
                 return true;
             }
-            return obj is EndpointInstance && Equals((EndpointInstance)obj);
+            return obj is EndpointInstance instance && Equals(instance);
         }
 
         /// <summary>

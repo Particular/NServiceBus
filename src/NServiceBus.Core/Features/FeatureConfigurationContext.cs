@@ -66,10 +66,10 @@
         /// <param name="runtimeSettings">Transport runtime settings.</param>
         /// <param name="recoverabilityPolicy">Recoverability policy to be if processing fails.</param>
         /// <param name="onMessage">The message func.</param>
-        public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
+        public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
-            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
+            Guard.AgainstNull(nameof(transportAddress), transportAddress);
             Guard.AgainstNull(nameof(runtimeSettings), runtimeSettings);
             Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
             Guard.AgainstNull(nameof(onMessage), onMessage);

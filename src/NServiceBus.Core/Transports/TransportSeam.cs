@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
 
@@ -48,6 +49,7 @@
 
             var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 
+            hostingConfiguration.Services.AddTransient(_ => transportSeam.TransportInfrastructure);
             hostingConfiguration.Services.ConfigureComponent(() => transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
 
             return transportSeam;

@@ -10,6 +10,8 @@ namespace NServiceBus.Transport
     {
         static readonly IReadOnlyDictionary<string, string> EmptyProperties = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(0));
 
+
+        //TODO remove qualifier from public API?
         /// <summary>
         /// Creates a new instance of <see cref="QueueAddress"/>.
         /// </summary>
