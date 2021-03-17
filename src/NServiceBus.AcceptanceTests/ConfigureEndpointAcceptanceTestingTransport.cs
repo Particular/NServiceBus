@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTestExecution
 {
-    public ConfigureEndpointAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery, TransportTransactionMode transactionMode = TransportTransactionMode.ReceiveOnly)
+    public ConfigureEndpointAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery, TransportTransactionMode? transactionMode = null)
     {
         this.useNativePubSub = useNativePubSub;
         this.useNativeDelayedDelivery = useNativeDelayedDelivery;
@@ -47,8 +47,13 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
             enableNativePublishSubscribe: useNativePubSub)
         {
             StorageLocation = storageDir,
-            TransportTransactionMode = transactionMode
         };
+
+        if (transactionMode.HasValue)
+        {
+            acceptanceTestingTransport.TransportTransactionMode = transactionMode.Value;
+        }
+
         var routing = configuration.UseTransport(acceptanceTestingTransport);
 
         if (!useNativePubSub)
@@ -68,7 +73,7 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
 
     readonly bool useNativePubSub;
     readonly bool useNativeDelayedDelivery;
-    readonly TransportTransactionMode transactionMode;
+    readonly TransportTransactionMode? transactionMode;
 
     string storageDir;
 }
