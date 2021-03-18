@@ -12,17 +12,17 @@
         [Test]
         public async Task Should_send_headers()
         {
-            var customeHeaderValue = Guid.NewGuid();
+            var customHeaderValue = Guid.NewGuid();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga
                 {
-                    CustomHeaderValue = customeHeaderValue
+                    CustomHeaderValue = customHeaderValue
                 })))
                 .Done(c => c.CustomHeaderOnReply != null)
                 .Run();
 
-            Assert.AreEqual(customeHeaderValue.ToString(), context.CustomHeaderOnReply, "Header values should be forwarded");
+            Assert.AreEqual(customHeaderValue.ToString(), context.CustomHeaderOnReply, "Header values should be forwarded");
         }
 
         public class Context : ScenarioContext
