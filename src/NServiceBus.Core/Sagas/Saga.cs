@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
 
@@ -92,7 +94,7 @@ namespace NServiceBus
         /// <summary>
         /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
         /// </summary>
-        protected Task ReplyToOriginator(IMessageHandlerContext context, object message)
+        protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string> outgoingHeaders = null)
         {
             if (string.IsNullOrEmpty(Entity.Originator))
             {
@@ -100,6 +102,11 @@ namespace NServiceBus
             }
 
             var options = new ReplyOptions();
+
+            foreach (var keyValuePair in outgoingHeaders ?? Enumerable.Empty<KeyValuePair<string, string>>())
+            {
+                options.OutgoingHeaders.Add(keyValuePair.Key, keyValuePair.Value);
+            }
 
             options.SetDestination(Entity.Originator);
             context.Extensions.Set(new AttachCorrelationIdBehavior.State { CustomCorrelationId = Entity.OriginalMessageId });
