@@ -39,7 +39,7 @@
                 );
             }
 
-            public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,
+            public class ReplyingSaga : Saga<ReplyingSaga.ReplyingSagaData>,
                 IAmStartedByMessages<InitiateRequestingSaga>
             {
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
@@ -48,13 +48,13 @@
                     return ReplyToOriginator(context, new MyReplyToOriginator(), customHeaders);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyingSagaData> mapper)
                 {
                     mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.CustomHeaderValue)
                         .ToSaga(s => s.CustomHeaderValue);
                 }
 
-                public class RequestingSagaData : ContainSagaData
+                public class ReplyingSagaData : ContainSagaData
                 {
                     public virtual Guid CustomHeaderValue { get; set; }
                 }
