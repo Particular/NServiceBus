@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Sagas
 {
+    using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -43,7 +44,7 @@
 
         static Task SetSagaNotFound(IIncomingLogicalMessageContext context)
         {
-            context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
+            context.Extensions.Get<SagaInvocationResult>().SagaNotFound(typeof(object));
             return Task.CompletedTask;
         }
 
@@ -52,7 +53,7 @@
 
         class HandleSagaNotFoundReturnsNull1 : IHandleSagaNotFound
         {
-            public Task Handle(object message, IMessageProcessingContext context)
+            public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
             {
                 return null;
             }
@@ -62,7 +63,7 @@
         {
             public bool Handled { get; private set; }
 
-            public Task Handle(object message, IMessageProcessingContext context)
+            public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
             {
                 Handled = true;
 

@@ -66,7 +66,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(object message, IMessageProcessingContext context)
+                public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
                 {
                     testContext.NotFoundHandlerCalled = true;
                     return Task.FromResult(0);

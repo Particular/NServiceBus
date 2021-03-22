@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,9 @@ namespace NServiceBus
 
             await next(context).ConfigureAwait(false);
 
-            if (invocationResult.WasFound)
+            var sagaTypes = invocationResult.Results.Where(x => x.Value == SagaInvocationResult.State.SagaNotFound).Select(y => y.Key).ToArray();
+
+            if (sagaTypes.Length == 0)
             {
                 return;
             }
@@ -27,10 +30,13 @@ namespace NServiceBus
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
 
-                await handler
-                    .Handle(context.Message.Instance, context)
-                    .ThrowIfNull()
-                    .ConfigureAwait(false);
+                foreach (var sagaType in sagaTypes)
+                {
+                    await handler
+                        .Handle(context.Message.Instance, context, sagaType)
+                        .ThrowIfNull()
+                        .ConfigureAwait(false);
+                }
             }
         }
 

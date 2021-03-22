@@ -68,7 +68,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(object message, IMessageProcessingContext context)
+                public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
                 {
                     if (message is SomeOtherMessage)
                     {
