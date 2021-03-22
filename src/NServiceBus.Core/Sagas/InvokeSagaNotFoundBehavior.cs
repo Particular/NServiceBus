@@ -28,6 +28,11 @@ namespace NServiceBus
 
             foreach (var handler in context.Builder.GetServices<IHandleSagaNotFound>())
             {
+                if (handler is Saga)
+                {
+                    throw new InvalidOperationException("It is not allowed to inherit `IHandleSagaNotFound` on a Saga type.");
+                }
+
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
 
                 foreach (var sagaType in sagaTypes)
