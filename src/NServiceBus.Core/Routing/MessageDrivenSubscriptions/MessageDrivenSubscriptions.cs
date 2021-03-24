@@ -1,8 +1,6 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Transport;
     using Unicast.Messages;
@@ -97,30 +95,6 @@ namespace NServiceBus.Features
             {
                 context.Pipeline.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
                 context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
-            }
-
-            // implementations of IInitializableSubscriptionStorage are optional and can be provided by persisters.
-            context.RegisterStartupTask(b => new InitializableSubscriptionStorage(b.GetService<IInitializableSubscriptionStorage>()));
-        }
-
-        internal class InitializableSubscriptionStorage : FeatureStartupTask
-        {
-            IInitializableSubscriptionStorage subscriptionStorage;
-
-            public InitializableSubscriptionStorage(IInitializableSubscriptionStorage subscriptionStorage)
-            {
-                this.subscriptionStorage = subscriptionStorage;
-            }
-
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                subscriptionStorage?.Init();
-                return Task.CompletedTask;
-            }
-
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
             }
         }
     }
