@@ -2810,6 +2810,7 @@ namespace NServiceBus.Unicast.Queuing
 }
 namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
+    [System.Obsolete("Will be removed in version 9.0.0.", true)]
     public interface IInitializableSubscriptionStorage : NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage
     {
         void Init();
