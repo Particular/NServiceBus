@@ -1008,7 +1008,7 @@ namespace NServiceBus.Transport
 namespace NServiceBus.Transport
 {
     [ObsoleteEx(
-        ReplacementTypeOrMember = "ReceiveSettings",
+        ReplacementTypeOrMember = nameof(ReceiveSettings),
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public class PushSettings
@@ -1022,7 +1022,7 @@ namespace NServiceBus.Transport
     using System.Threading.Tasks;
 
     [ObsoleteEx(
-        ReplacementTypeOrMember = "IMessageReceiver",
+        ReplacementTypeOrMember = nameof(IMessageReceiver),
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface IPushMessages
@@ -1165,7 +1165,7 @@ namespace NServiceBus.Transport
     using Extensibility;
 
     [ObsoleteEx(
-        ReplacementTypeOrMember = "ISubscriptionManager",
+        ReplacementTypeOrMember = nameof(ISubscriptionManager),
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public interface IManageSubscriptions
@@ -1188,18 +1188,19 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Transport;
     using Routing;
 
     [ObsoleteEx(
         RemoveInVersion = "9",
         TreatAsErrorFromVersion = "8",
-        ReplacementTypeOrMember = "QueueAddress")]
+        ReplacementTypeOrMember = nameof(QueueAddress))]
     public struct LogicalAddress
     {
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = "QueueAddress")]
+            ReplacementTypeOrMember = nameof(QueueAddress))]
         public static LogicalAddress CreateRemoteAddress(EndpointInstance endpointInstance)
         {
             throw new NotImplementedException();
@@ -1208,7 +1209,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = "QueueAddress")]
+            ReplacementTypeOrMember = nameof(QueueAddress))]
         public static LogicalAddress CreateLocalAddress(string queueName, IReadOnlyDictionary<string, string> properties)
         {
             throw new NotImplementedException();
@@ -1217,7 +1218,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = "QueueAddress")]
+            ReplacementTypeOrMember = nameof(QueueAddress))]
         public LogicalAddress CreateQualifiedAddress(string qualifier)
         {
             throw new NotImplementedException();
@@ -1226,7 +1227,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = "QueueAddress")]
+            ReplacementTypeOrMember = nameof(QueueAddress))]
         public LogicalAddress CreateIndividualizedAddress(string discriminator)
         {
             throw new NotImplementedException();
@@ -1241,7 +1242,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = "QueueAddress")]
+            ReplacementTypeOrMember = nameof(QueueAddress))]
         public EndpointInstance EndpointInstance => throw new NotImplementedException();
     }
 }
@@ -1288,9 +1289,10 @@ namespace NServiceBus.Transport
 namespace NServiceBus.DeliveryConstraints
 {
     using System;
+    using NServiceBus.Transport;
 
     [ObsoleteEx(
-        ReplacementTypeOrMember = "OperationProperties",
+        ReplacementTypeOrMember = nameof(DispatchProperties),
         RemoveInVersion = "9",
         TreatAsErrorFromVersion = "8")]
     public abstract class DeliveryConstraint
@@ -1304,32 +1306,32 @@ namespace NServiceBus.DeliveryConstraints
     public static class DeliveryConstraintContextExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "OperationProperties",
+            ReplacementTypeOrMember = nameof(DispatchProperties),
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8")]
         public static void AddDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "OperationProperties",
+            ReplacementTypeOrMember = nameof(DispatchProperties),
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8")]
         public static System.Collections.Generic.List<DeliveryConstraint> GetDeliveryConstraints(this Extensibility.ContextBag context) => throw new NotImplementedException();
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "OperationProperties",
+            ReplacementTypeOrMember = nameof(DispatchProperties),
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8")]
         public static void RemoveDeliveryConstraint(this Extensibility.ContextBag context, DeliveryConstraint constraint) => throw new NotImplementedException();
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "OperationProperties",
+            ReplacementTypeOrMember = nameof(DispatchProperties),
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8")]
         public static bool TryGetDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
             where T : DeliveryConstraint => throw new NotImplementedException();
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "OperationProperties",
+            ReplacementTypeOrMember = nameof(DispatchProperties),
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8")]
         public static bool TryRemoveDeliveryConstraint<T>(this Extensibility.ContextBag context, out T constraint)
@@ -1367,7 +1369,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EventTypes",
+            ReplacementTypeOrMember = nameof(EventTypes),
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         Type EventType { get; }
@@ -1509,7 +1511,7 @@ namespace NServiceBus.Transport
         [ObsoleteEx(TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
         public CancellationTokenSource ReceiveCancellationTokenSource => throw new NotImplementedException();
 
-        [ObsoleteEx(ReplacementTypeOrMember = "NativeMessageId", TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
+        [ObsoleteEx(ReplacementTypeOrMember = nameof(NativeMessageId), TreatAsErrorFromVersion = "8", RemoveInVersion = "9")]
         public string MessageId { get; }
     }
 }

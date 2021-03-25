@@ -1323,7 +1323,7 @@ namespace NServiceBus.DelayedDelivery
 }
 namespace NServiceBus.DeliveryConstraints
 {
-    [System.Obsolete("Use `OperationProperties` instead. Will be removed in version 9.0.0.", true)]
+    [System.Obsolete("Use `DispatchProperties` instead. Will be removed in version 9.0.0.", true)]
     public abstract class DeliveryConstraint
     {
         [System.Obsolete("Will be removed in version 9.0.0.", true)]
@@ -1331,21 +1331,21 @@ namespace NServiceBus.DeliveryConstraints
     }
     public static class DeliveryConstraintContextExtensions
     {
-        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
-            "ception. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `DispatchProperties` instead. The member currently throws a NotImplementedExc" +
+            "eption. Will be removed in version 9.0.0.", true)]
         public static void AddDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
-        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
-            "ception. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `DispatchProperties` instead. The member currently throws a NotImplementedExc" +
+            "eption. Will be removed in version 9.0.0.", true)]
         public static System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
-        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
-            "ception. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `DispatchProperties` instead. The member currently throws a NotImplementedExc" +
+            "eption. Will be removed in version 9.0.0.", true)]
         public static void RemoveDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
-        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
-            "ception. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `DispatchProperties` instead. The member currently throws a NotImplementedExc" +
+            "eption. Will be removed in version 9.0.0.", true)]
         public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
-        [System.Obsolete("Use `OperationProperties` instead. The member currently throws a NotImplementedEx" +
-            "ception. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `DispatchProperties` instead. The member currently throws a NotImplementedExc" +
+            "eption. Will be removed in version 9.0.0.", true)]
         public static bool TryRemoveDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
     }
