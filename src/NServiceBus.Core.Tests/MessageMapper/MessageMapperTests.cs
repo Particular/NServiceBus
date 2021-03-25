@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NServiceBus;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
 
@@ -46,6 +47,8 @@
             });
         }
 
+#if NETCOREAPP
+#nullable enable
         [Test]
         public void Should_handle_messages_with_nullable_reference_types()
         {
@@ -53,8 +56,20 @@
 
             // Type defined in separate assembly as a workaround
             // because we can't use nullable refeference types yet
-            mapper.CreateInstance<WithDodgyNullable.IMyMessage>();
+            mapper.CreateInstance<IMessageWithNullableProperties>();
         }
+
+        public interface IMessageWithNullableProperties : ICommand, IMessage
+        {
+            string Schema { get; set; }
+
+            string? Notes { get; set; }
+            object[]? NullableComplexType { get; set; }
+        }
+#nullable disable
+#endif
+
+
 
         [Test]
         public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
@@ -252,6 +267,7 @@
             [NullableProperty(0)]
             object Value { get; set; }
         }
+
 
     }
 }
