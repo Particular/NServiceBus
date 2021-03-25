@@ -20,6 +20,7 @@ insert_final_newline = false
 
 #### Code quality analysis
 
+dotnet_diagnostic.CA1068.severity = error
 dotnet_diagnostic.CA2007.severity = error
 dotnet_diagnostic.CA2016.severity = error
 
