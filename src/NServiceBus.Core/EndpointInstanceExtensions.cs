@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// Extensions for <see cref="IEndpointInstance"/>.
     /// </summary>
-    public static class IEndpointInstanceExtensions
+    public static class EndpointInstanceExtensions
     {
         /// <summary>
         /// Stops the endpoint from processing new messages,

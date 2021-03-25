@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IPipelineContext", "obj.Publish(new object(), new PublishOptions());")]
         [TestCase("IPipelineContext", "obj.Publish<object>(_ => { }, new PublishOptions());")]
 
-        // IPipelineContextExtensions
+        // PipelineContextExtensions
         [TestCase("IPipelineContext", "obj.Send(new object());")]
         [TestCase("IPipelineContext", "obj.Send<object>(_ => { });")]
         [TestCase("IPipelineContext", "obj.Send(\"destination\", new object());")]
@@ -32,7 +32,7 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IMessageProcessingContext", "obj.Reply<object>(_ => { }, new ReplyOptions());")]
         [TestCase("IMessageProcessingContext", "obj.ForwardCurrentMessageTo(\"destination\");")]
 
-        // IMessageProcessingContextExtensions
+        // MessageProcessingContextExtensions
         [TestCase("IMessageProcessingContext", "obj.Reply(new object());")]
         [TestCase("IMessageProcessingContext", "obj.Reply<object>(_ => { });")]
 
@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IMessageSession", "obj.Subscribe(typeof(object), new SubscribeOptions());")]
         [TestCase("IMessageSession", "obj.Unsubscribe(typeof(object), new UnsubscribeOptions());")]
 
-        // IMessageSessionExtensions
+        // MessageSessionExtensions
         [TestCase("IMessageSession", "obj.Send(new object());")]
         [TestCase("IMessageSession", "obj.Send<object>(_ => { });")]
         [TestCase("IMessageSession", "obj.Send(\"destination\", new object());")]

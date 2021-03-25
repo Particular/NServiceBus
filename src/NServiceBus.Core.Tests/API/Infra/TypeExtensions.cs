@@ -38,5 +38,8 @@
 
         public static bool IsBehavior(this Type type) =>
             typeof(NServiceBus.Pipeline.IBehavior).IsAssignableFrom(type);
+
+        public static bool IsStatic(this Type type) =>
+            type.IsAbstract && type.IsSealed;
     }
 }
