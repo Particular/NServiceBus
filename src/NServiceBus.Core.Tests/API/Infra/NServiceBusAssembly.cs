@@ -7,16 +7,18 @@
 
     static class NServiceBusAssembly
     {
-        public static readonly List<MethodInfo> Methods = typeof(IMessage).Assembly.GetTypes()
+        public static readonly List<Type> Types = typeof(IMessage).Assembly.GetTypes()
             .Where(type => !type.IsObsolete())
+            .ToList();
+
+        public static readonly List<MethodInfo> Methods = Types
             .SelectMany(type => type.GetMethods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic))
             .Where(method => !typeof(Delegate).IsAssignableFrom(method.DeclaringType) || method.Name == "Invoke")
             .Where(method => !method.IsCompilerGenerated())
             .Where(method => !method.IsObsolete())
             .ToList();
 
-        public static readonly List<ConstructorInfo> Constructors = typeof(IMessage).Assembly.GetTypes()
-            .Where(type => !type.IsObsolete())
+        public static readonly List<ConstructorInfo> Constructors = Types
             .SelectMany(type => type.GetConstructors(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic))
             .Where(method => !method.IsCompilerGenerated())
             .Where(method => !method.IsObsolete())

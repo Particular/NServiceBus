@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Syntactic sugar for <see cref="IMessageProcessingContext" />.
     /// </summary>
-    public static class IMessageProcessingContextExtensions
+    public static class MessageProcessingContextExtensions
     {
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.

@@ -19,8 +19,8 @@
                 method.GetParameters().CancellableContexts().Any() ||
                 method.IsOn(typeof(ICancellableContext)) ||
                 (method.IsOn(typeof(TaskEx)) && method.Name == nameof(TaskEx.ThrowIfNull)) ||
-                (method.IsOn(typeof(IEndpointInstanceExtensions)) &&
-                    method.Name == nameof(IEndpointInstanceExtensions.Stop) &&
+                (method.IsOn(typeof(EndpointInstanceExtensions)) &&
+                    method.Name == nameof(EndpointInstanceExtensions.Stop) &&
                     method.GetParameters().Any(parameter => parameter.ParameterType == typeof(TimeSpan))))
             .ToList();
 

@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Syntactic sugar for <see cref="IPipelineContext" />.
     /// </summary>
-    public static class IPipelineContextExtensions
+    public static class PipelineContextExtensions
     {
         /// <summary>
         /// Sends the provided message.

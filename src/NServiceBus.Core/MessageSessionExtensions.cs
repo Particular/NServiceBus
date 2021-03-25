@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Syntactic sugar for <see cref="IMessageSession" />.
     /// </summary>
-    public static class IMessageSessionExtensions
+    public static class MessageSessionExtensions
     {
         /// <summary>
         /// Sends the provided message.

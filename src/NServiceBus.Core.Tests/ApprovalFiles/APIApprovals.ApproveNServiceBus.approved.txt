@@ -340,6 +340,10 @@ namespace NServiceBus
         public static void EnableFeature<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Features.Feature { }
     }
+    public static class EndpointInstanceExtensions
+    {
+        public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
+    }
     public static class EndpointWithExternallyManagedContainer
     {
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
@@ -479,10 +483,6 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
-    public static class IEndpointInstanceExtensions
-    {
-        public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
-    }
     public interface IEvent : NServiceBus.IMessage { }
     public interface IHandleMessages<T>
     {
@@ -520,11 +520,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options);
         System.Threading.Tasks.Task Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
     }
-    public static class IMessageProcessingContextExtensions
-    {
-        public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
-    }
     public interface IMessageSession
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
@@ -533,22 +528,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions, System.Threading.CancellationToken cancellationToken = default);
-    }
-    public static class IMessageSessionExtensions
-    {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public interface INeedInitialization
     {
@@ -560,18 +539,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
-    }
-    public static class IPipelineContextExtensions
-    {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
     public interface IStartableEndpoint
     {
@@ -767,9 +734,30 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
+    public static class MessageProcessingContextExtensions
+    {
+        public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
+        public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+    }
     public static class MessageProcessingOptimizationExtensions
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
+    }
+    public static class MessageSessionExtensions
+    {
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
@@ -831,6 +819,18 @@ namespace NServiceBus
         where S : NServiceBus.StorageType
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    public static class PipelineContextExtensions
+    {
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {

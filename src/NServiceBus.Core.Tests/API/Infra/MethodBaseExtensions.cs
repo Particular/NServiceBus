@@ -23,5 +23,10 @@
                 .Select(methodBase => methodBase.Prettify());
 
         public static string Prettify(this MethodBase methodBase) => $"{methodBase.DeclaringType.FullName} {{ {methodBase} }}";
+
+        public static IEnumerable<string> Prettify(this IEnumerable<Type> types) =>
+            types
+                .OrderBy(type => type.FullName)
+                .Select(type => type.FullName);
     }
 }
