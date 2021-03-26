@@ -61,15 +61,16 @@
 
         public interface IMessageWithNullableProperties : ICommand, IMessage
         {
-            string Schema { get; set; }
+            string? NullableString { get; set; }
+            object[]? NullableArray { get; set; }
+            List<NullableComplexTypeItem>? NullableList { get; set; }
+        }
 
-            string? Notes { get; set; }
-            object[]? NullableComplexType { get; set; }
+        public class NullableComplexTypeItem
+        {
         }
 #nullable disable
 #endif
-
-
 
         [Test]
         public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
