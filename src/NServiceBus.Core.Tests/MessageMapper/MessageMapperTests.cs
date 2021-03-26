@@ -54,8 +54,6 @@
         {
             var mapper = new MessageMapper();
 
-            // Type defined in separate assembly as a workaround
-            // because we can't use nullable refeference types yet
             mapper.CreateInstance<IMessageWithNullableProperties>();
         }
 
