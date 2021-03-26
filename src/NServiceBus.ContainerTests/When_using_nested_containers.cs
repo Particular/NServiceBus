@@ -1,11 +1,11 @@
-#pragma warning disable 0618
+#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
-    public class When_using_nested_containers : ContainerTest
+    public class When_using_nested_containers
     {
         [Test]
         public void Instance_per_uow__components_should_be_disposed_when_the_child_container_is_disposed()
@@ -13,8 +13,8 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = BuildContainer(serviceCollection);
-            using (var scope = builder.CreateScope())
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            using (var scope = serviceProvider.CreateScope())
             {
                 scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
             }
@@ -27,9 +27,9 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = BuildContainer(serviceCollection);
-            var parentInstance = builder.GetService(typeof(InstancePerUoWComponent));
-            using (var scope = builder.CreateScope())
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var parentInstance = serviceProvider.GetService(typeof(InstancePerUoWComponent));
+            using (var scope = serviceProvider.CreateScope())
             {
                 var childInstance = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
 
@@ -43,15 +43,15 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = BuildContainer(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
             object instance1;
-            using (var scope = builder.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 instance1 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
             }
 
             object instance2;
-            using (var scope = builder.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 instance2 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
             }
@@ -65,15 +65,15 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.ConfigureComponent(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
 
-            var builder = BuildContainer(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
             object instance1;
-            using (var scope = builder.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 instance1 = scope.ServiceProvider.GetService(typeof(InstancePerCallComponent));
             }
 
             object instance2;
-            using (var scope = builder.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 instance2 = scope.ServiceProvider.GetService(typeof(InstancePerCallComponent));
             }
@@ -87,8 +87,8 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = BuildContainer(serviceCollection);
-            using (var scope = builder.CreateScope())
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            using (var scope = serviceProvider.CreateScope())
             {
                 var instance1 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
                 var instance2 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
@@ -103,13 +103,13 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = BuildContainer(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (builder.CreateScope())
+            using (serviceProvider.CreateScope())
             {
             }
-            var instance1 = builder.GetService(typeof(InstancePerUoWComponent));
-            var instance2 = builder.GetService(typeof(InstancePerUoWComponent));
+            var instance1 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
+            var instance2 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
             Assert.AreSame(instance1, instance2, "UoW's should be singletons in the root container");
         }
 
@@ -121,8 +121,8 @@ namespace NServiceBus.ContainerTests
             serviceCollection.AddSingleton(typeof(ISingletonComponent), singletonInMainContainer);
             serviceCollection.ConfigureComponent(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
 
-            var builder = BuildContainer(serviceCollection);
-            using (var scope = builder.CreateScope())
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            using (var scope = serviceProvider.CreateScope())
             {
                 scope.ServiceProvider.GetService(typeof(ComponentThatDependsOfSingleton));
             }
@@ -139,8 +139,8 @@ namespace NServiceBus.ContainerTests
             serviceCollection.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
 
-            var builder = BuildContainer(serviceCollection);
-            using (var scope = builder.CreateScope())
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            using (var scope = serviceProvider.CreateScope())
             {
                 scope.ServiceProvider.GetService(typeof(DisposableComponent));
             }
@@ -171,10 +171,6 @@ namespace NServiceBus.ContainerTests
         }
 
         class ComponentThatDependsOfSingleton
-        {
-        }
-
-        public When_using_nested_containers(Func<IServiceCollection, IServiceProvider> buildContainer) : base(buildContainer)
         {
         }
     }
@@ -228,4 +224,4 @@ namespace NServiceBus.ContainerTests
         }
     }
 }
-#pragma warning restore 0618
+#pragma warning restore CS0618

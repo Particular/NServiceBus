@@ -3,8 +3,6 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using LightInject;
-    using LightInject.Microsoft.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
 
@@ -46,7 +44,7 @@
 
             endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
-            var serviceCollection = new MicrosoftExtensionsDependencyInjection.ServiceCollection();
+            var serviceCollection = new ServiceCollection();
 
             var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, serviceCollection);
 
@@ -59,11 +57,7 @@
 
             var hostingComponent = HostingComponent.Initialize(hostingConfiguration, serviceCollection, true);
 
-            var containerOptions = new ContainerOptions
-            {
-                EnableVariance = false
-            }.WithMicrosoftSettings();
-            var serviceProvider = serviceCollection.CreateLightInjectServiceProvider(containerOptions);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, hostingComponent);
             hostingComponent.RegisterBuilder(serviceProvider);
 
