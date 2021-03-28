@@ -17,7 +17,7 @@
             var messageEmitted = CreateTaskCompletionSource();
 
             await StartPump(
-                async (context, _) =>
+                async (context, cancellationToken) =>
                 {
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
@@ -29,7 +29,8 @@
                         InputQueueName,
                         new Dictionary<string, string> { { "IsolatedSend", "" } },
                         context.TransportTransaction,
-                        dispatchConsistency: DispatchConsistency.Isolated);
+                        dispatchConsistency: DispatchConsistency.Isolated,
+                        cancellationToken: cancellationToken);
 
                     throw new Exception("Simulated exception");
                 },

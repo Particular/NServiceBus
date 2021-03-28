@@ -72,7 +72,7 @@
             testCancellationTokenSource?.Dispose();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, CancellationToken cancellationToken = default)
         {
             onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
             onError = onError ?? throw new ArgumentNullException(nameof(onError));
@@ -86,7 +86,7 @@
                 InputQueueName,
                 string.Empty,
                 new StartupDiagnosticEntries(),
-                (message, ex, cancellationToken) =>
+                (message, ex, token) =>
                 {
                     if (onCriticalError == null)
                     {
@@ -94,7 +94,7 @@
                         Assert.Fail($"{message}{Environment.NewLine}{ex}");
                     }
 
-                    onCriticalError(message, ex, cancellationToken);
+                    onCriticalError(message, ex, token);
                 },
                 true);
 
@@ -103,19 +103,19 @@
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
             transport.TransportTransactionMode = transactionMode;
 
-            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName);
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, cancellationToken);
 
             receiver = transportInfrastructure.Receivers.Single().Value;
 
             await receiver.Initialize(
                 new PushRuntimeSettings(8),
-                (context, cancellationToken) =>
-                    context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, cancellationToken) : Task.CompletedTask,
-                (context, cancellationToken) =>
-                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, cancellationToken) : Task.FromResult(ErrorHandleResult.Handled),
-                default);
+                (context, token) =>
+                    context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, token) : Task.CompletedTask,
+                (context, token) =>
+                    context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, token) : Task.FromResult(ErrorHandleResult.Handled),
+                cancellationToken);
 
-            await receiver.StartReceive();
+            await receiver.StartReceive(cancellationToken);
         }
 
         protected async Task StopPump(CancellationToken cancellationToken = default)
@@ -154,7 +154,8 @@
             TransportTransaction transportTransaction = null,
             DispatchProperties dispatchProperties = null,
             DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
-            byte[] body = null)
+            byte[] body = null,
+            CancellationToken cancellationToken = default)
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), body ?? Array.Empty<byte>());
@@ -171,7 +172,7 @@
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
-            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction);
+            return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, cancellationToken);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

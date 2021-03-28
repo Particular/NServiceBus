@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.Outbox;
@@ -28,7 +29,7 @@
 
         public IOutboxStorage OutboxStorage { get; private set; }
 
-        public Task Configure()
+        public Task Configure(CancellationToken cancellationToken = default)
         {
             SagaIdGenerator = new LearningSagaIdGenerator();
             SagaStorage = new LearningSagaPersister();
@@ -44,7 +45,7 @@
             return Task.CompletedTask;
         }
 
-        public Task Cleanup()
+        public Task Cleanup(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }
