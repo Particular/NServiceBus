@@ -45,6 +45,10 @@
     <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Particular.CodeRules" Version="0.9.0-token-default.1" />
+  </ItemGroup>
+
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1469 -->
   <PropertyGroup>
     <DisableLockFileFrameworks>true</DisableLockFileFrameworks>

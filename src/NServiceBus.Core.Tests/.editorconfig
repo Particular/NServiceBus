@@ -2,3 +2,4 @@
 
 # Justification: Test project
 dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.PCR0005.severity = none   # A parameter of type CancellationToken on a private delegate or method should be required

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -54,7 +55,7 @@
             }
             catch (Exception exception)
             {
-                var trailingExceptions = await AppendEndExceptions(unitsOfWork, exception).ConfigureAwait(false);
+                var trailingExceptions = await AppendEndExceptions(unitsOfWork, exception, context.CancellationToken).ConfigureAwait(false);
                 if (trailingExceptions.Any())
                 {
                     trailingExceptions.Insert(0, exception);
@@ -64,7 +65,7 @@
             }
         }
 
-        static async Task<List<Exception>> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException)
+        static async Task<List<Exception>> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException, CancellationToken cancellationToken)
         {
             var exceptionsToThrow = new List<Exception>();
             while (unitsOfWork.Count > 0)

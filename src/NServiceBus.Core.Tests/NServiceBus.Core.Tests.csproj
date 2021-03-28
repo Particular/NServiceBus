@@ -32,4 +32,8 @@
     <None Update="TestDlls/**/*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Particular.CodeRules" Version="0.9.0-token-default.1" />
+  </ItemGroup>
+
 </Project>

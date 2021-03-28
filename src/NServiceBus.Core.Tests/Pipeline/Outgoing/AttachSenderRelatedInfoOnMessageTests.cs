@@ -7,6 +7,7 @@
     using Transport;
     using NUnit.Framework;
     using Testing;
+    using System.Threading;
 
     [TestFixture]
     public class AttachSenderRelatedInfoOnMessageTests
@@ -55,12 +56,12 @@
             Assert.AreEqual(nsbVersion, message.Headers[Headers.NServiceBusVersion]);
         }
 
-        static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null)
+        static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, CancellationToken cancellationToken = default)
         {
             var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
 
             await new AttachSenderRelatedInfoOnMessageBehavior()
-                .Invoke(new TestableRoutingContext { Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") } }, _ => Task.CompletedTask);
+                .Invoke(new TestableRoutingContext { Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }, CancellationToken = cancellationToken }, _ => Task.CompletedTask);
 
             return message;
         }

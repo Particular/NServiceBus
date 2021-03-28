@@ -26,4 +26,8 @@
     <Compile Remove="../NServiceBus.AcceptanceTests/Core/TestSuiteConstraints.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Particular.CodeRules" Version="0.9.0-token-default.1" />
+  </ItemGroup>
+
 </Project>

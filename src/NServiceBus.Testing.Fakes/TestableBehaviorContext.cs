@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,7 @@
             return builder;
         }
 
+        [SuppressMessage("Code", "PCR0003:Instance methods on types implementing ICancellableContext should not have a CancellationToken parameter", Justification = "Designed for testing.")]
         public CancellationToken CancellationToken { get; set; }
     }
 }

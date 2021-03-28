@@ -2,3 +2,6 @@
 
 # Justification: Test project
 dotnet_diagnostic.CA2007.severity = none
+
+# may be enabled in future
+dotnet_diagnostic.PCR0019.severity = suggestion # A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext

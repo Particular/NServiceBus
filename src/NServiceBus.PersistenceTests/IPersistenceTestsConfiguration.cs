@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Outbox;
@@ -34,9 +35,9 @@
 
         SagaMetadataCollection SagaMetadataCollection { get; }
 
-        Task Configure();
+        Task Configure(CancellationToken cancellationToken = default);
 
-        Task Cleanup();
+        Task Cleanup(CancellationToken cancellationToken = default);
 
         Func<ContextBag> GetContextBagForSagaStorage { get; }
 

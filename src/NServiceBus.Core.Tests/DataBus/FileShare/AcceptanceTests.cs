@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -18,12 +19,12 @@
         FileShareDataBusImplementation dataBus;
         string basePath = Path.GetTempPath();
 
-        async Task<string> Put(string content, TimeSpan timeToLive)
+        async Task<string> Put(string content, TimeSpan timeToLive, CancellationToken cancellationToken = default)
         {
             var byteArray = Encoding.ASCII.GetBytes(content);
             using (var stream = new MemoryStream(byteArray))
             {
-                return await dataBus.Put(stream, timeToLive);
+                return await dataBus.Put(stream, timeToLive, cancellationToken);
             }
         }
 
