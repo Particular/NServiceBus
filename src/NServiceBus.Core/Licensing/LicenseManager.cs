@@ -11,9 +11,9 @@ namespace NServiceBus
 
     class LicenseManager
     {
-        internal bool HasLicenseExpired => result?.License.HasExpired() ?? true;
+        public bool HasLicenseExpired => result?.License.HasExpired() ?? true;
 
-        internal void InitializeLicense(string licenseText, string licenseFilePath)
+        public void InitializeLicense(string licenseText, string licenseFilePath)
         {
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
@@ -31,7 +31,7 @@ namespace NServiceBus
             }
         }
 
-        internal void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
+        public void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
         {
             var whenLicenseExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilLicenseExpires());
             var whenUpgradeProtectedExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires());
@@ -97,8 +97,7 @@ namespace NServiceBus
 
         static void LogFindResults(ActiveLicenseFindResult result)
         {
-
-            if (DebugLoggingEnabled)
+            if (Logger.IsDebugEnabled)
             {
                 var report = new StringBuilder("Looking for license in the following locations:");
 
@@ -109,11 +108,8 @@ namespace NServiceBus
 
                 Logger.Debug(report.ToString());
             }
-            else
-            {
-                var report = string.Join(Environment.NewLine, result.SelectedLicenseReport);
-                Logger.Info(report);
-            }
+
+            Logger.Info(string.Join(Environment.NewLine, result.SelectedLicenseReport));
 
 #if REGISTRYLICENSESOURCE
             if (result.Location.StartsWith("HKEY_"))
@@ -199,6 +195,5 @@ namespace NServiceBus
         internal ActiveLicenseFindResult result;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-        static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
     }
 }
