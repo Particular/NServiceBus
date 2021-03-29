@@ -13,18 +13,6 @@ If you see the build failing, check that you haven't put the source of NServiceB
 
 NServiceBus is licensed under the RPL 1.5 license. More details can be found [here](LICENSE.md).
 
-### [LightInject](http://www.lightinject.net/) 
-
-LightInject is licensed under the MIT license as described [here](https://github.com/seesharper/LightInject/blob/master/license.md).
-
-LightInject sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/seesharper/LightInject/blob/master/license.md).
-
-### [LightInject.Microsoft.DependencyInjection]
-
-LightInject.Microsoft.DependencyInjection is licensed under the MIT license as described [here](https://github.com/seesharper/LightInject.Microsoft.DependencyInjection/blob/master/license.md).
-
-LightInject.Microsoft.DependencyInjection sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/seesharper/LightInject.Microsoft.DependencyInjection/blob/master/license.md).
-
 ### [SimpleJson](https://github.com/facebook-csharp-sdk/simple-json/) 
 
 SimpleJson is licensed under the MIT license as described [here](https://github.com/facebook-csharp-sdk/simple-json/blob/master/LICENSE.txt).
@@ -42,9 +30,3 @@ net-object-deep-copy sources are compiled into the NServiceBus distribution as a
 FastExpressionCompiler is licensed under the MIT license as described [here](https://github.com/dadhi/FastExpressionCompiler/blob/master/LICENSE).
 
 FastExpressionCompiler sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/dadhi/FastExpressionCompiler/blob/master/LICENSE).
-
-### [ServiceCollection.cs](https://github.com/aspnet/DependencyInjection/blob/master/src/DI/ServiceCollection.cs)
-
-ServiceCollection.cs is licensed under the Apache 2.0 License as described [here](NOTICE.txt).
-
-ServiceCollection.cs sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](NOTICE.txt).
