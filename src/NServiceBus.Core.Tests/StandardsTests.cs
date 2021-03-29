@@ -42,7 +42,6 @@
                     !x.FullName.Contains("System") &&
                     !x.FullName.Contains("JetBrains") &&
                     !x.FullName.StartsWith("Newtonsoft.Json") &&
-                    !x.FullName.StartsWith("LightInject") &&
                     !x.FullName.StartsWith("SimpleJson") &&
                     !x.FullName.StartsWith("FastExpressionCompiler") &&
                     x.Name != "GitVersionInformation" &&
