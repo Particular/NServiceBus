@@ -46,15 +46,28 @@
             });
         }
 
+#if NETCOREAPP
+#nullable enable
         [Test]
         public void Should_handle_messages_with_nullable_reference_types()
         {
             var mapper = new MessageMapper();
 
-            // Type defined in separate assembly as a workaround
-            // because we can't use nullable refeference types yet
-            mapper.CreateInstance<WithDodgyNullable.IMyMessage>();
+            mapper.CreateInstance<IMessageWithNullableProperties>();
         }
+
+        public interface IMessageWithNullableProperties : NServiceBus.ICommand, NServiceBus.IMessage
+        {
+            string? NullableString { get; set; }
+            object[]? NullableArray { get; set; }
+            List<NullableComplexTypeItem>? NullableList { get; set; }
+        }
+
+        public class NullableComplexTypeItem
+        {
+        }
+#nullable disable
+#endif
 
         [Test]
         public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
@@ -252,6 +265,7 @@
             [NullableProperty(0)]
             object Value { get; set; }
         }
+
 
     }
 }
