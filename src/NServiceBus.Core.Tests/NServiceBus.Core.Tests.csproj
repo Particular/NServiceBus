@@ -11,12 +11,6 @@
     <ProjectReference Include="..\NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj" />
   </ItemGroup>
 
-  <!-- Workaround reference because we can't use nullable reference types yet -->
-  <ItemGroup>
-    <Reference Include="WithDodgyNullable" HintPath="TestDlls\WithDodgyNullable.dll" />
-  </ItemGroup>
-  <!-- End workaround -->
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="11.1.0" />
   </ItemGroup>
