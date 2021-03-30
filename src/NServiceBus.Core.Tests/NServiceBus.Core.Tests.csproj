@@ -16,12 +16,6 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
-  <!-- Workaround reference because we can't use nullable reference types yet -->
-  <ItemGroup>
-    <Reference Include="WithDodgyNullable" HintPath="TestDlls\WithDodgyNullable.dll" />
-  </ItemGroup>
-  <!-- End workaround -->
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="Mono.Cecil" Version="0.10.4" />

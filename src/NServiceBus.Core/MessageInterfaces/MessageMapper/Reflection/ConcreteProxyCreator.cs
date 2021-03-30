@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
@@ -99,24 +100,37 @@ namespace NServiceBus
         {
             var namedArguments = attributeData.NamedArguments;
 
+            object[] constructorArgs = attributeData.ConstructorArguments.Select(ExtractValue).ToArray();
             if (namedArguments == null)
             {
                 var attributeBuilder = new CustomAttributeBuilder(
                     attributeData.Constructor,
-                    attributeData.ConstructorArguments.Select(x => x.Value).ToArray());
+                    constructorArgs);
 
                 propBuilder.SetCustomAttribute(attributeBuilder);
             }
             else
             {
+                PropertyInfo[] namedProperties = namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray();
+                object[] propertyValues = namedArguments.Select(x => x.TypedValue.Value).ToArray();
+
                 var attributeBuilder = new CustomAttributeBuilder(
                     attributeData.Constructor,
-                    attributeData.ConstructorArguments.Select(x => x.Value).ToArray(),
-                    namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray(),
-                    namedArguments.Select(x => x.TypedValue.Value).ToArray());
+                    constructorArgs,
+                    namedProperties,
+                    propertyValues);
 
                 propBuilder.SetCustomAttribute(attributeBuilder);
             }
+        }
+
+        static object ExtractValue(CustomAttributeTypedArgument arg)
+        {
+            if (arg.Value is ReadOnlyCollection<CustomAttributeTypedArgument> nestedValue)
+            {
+                return nestedValue.Select(x => x.Value).ToArray();
+            }
+            return arg.Value;
         }
 
         /// <summary>
