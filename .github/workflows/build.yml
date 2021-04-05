@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-2019, ubuntu-18.04 ]
+        os: [ windows-latest, ubuntu-latest ]
       fail-fast: false
     steps:
       - name: Checkout
@@ -31,15 +31,15 @@ jobs:
       - name: Build
         run: dotnet build src/NServiceBus.sln --configuration Release
       - name: Upload packages
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
           name: NuGet packages
           path: nugets/
           retention-days: 7
       - name: Run Windows tests
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
       - name: Run Linux tests
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-latest'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
