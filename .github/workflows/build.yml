@@ -1,0 +1,40 @@
+name: Build & Test
+on:
+  push:
+    branches:
+      - master
+      - release-*
+  pull_request:
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-2019, ubuntu-18.04 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Build
+        run: dotnet build src/NServiceBus.sln --configuration Release
+      - name: Upload packages
+        if: matrix.os == 'windows-2019'
+        uses: actions/upload-artifact@v2
+        with:
+          name: NuGet packages
+          path: nugets/
+      - name: Run Windows tests
+        if: matrix.os == 'windows-2019'
+        run: dotnet test src/NServiceBus.sln --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
+      - name: Run Linux tests
+        if: matrix.os == 'ubuntu-18.04'
+        run: dotnet test src/NServiceBus.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"

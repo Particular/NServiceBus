@@ -1,0 +1,76 @@
+name: Deploy
+on:
+  push:
+    tags: '*'
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  staging:
+    runs-on: windows-2019 # Because code signing https://github.com/NuGet/Home/issues/7939
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Parse repo name
+        run: |
+          $FullName = "$env:GITHUB_REPOSITORY"
+          $Org,$RepoName = $FullName.Split('/')
+          echo "PARTICULAR_REPO_NAME=$RepoName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Setup NuGet for signing
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-api-key: ${{ secrets.NuGetAPIKey }}
+      - name: Build
+        run: |
+          cd src
+          dotnet build --configuration Release
+        shell: pwsh
+      - name: Get signing cert
+        run: |
+          [IO.File]::WriteAllBytes("signing-cert.pfx", [Convert]::FromBase64String("${{ secrets.NUGET_SIGNING_CERT_BASE64 }}"))
+        shell: pwsh
+      - name: Sign NuGet Packages
+        run: nuget sign nugets\*.nupkg -CertificatePath signing-cert.pfx -Timestamper "http://timestamp.digicert.com/?alg=sha256" -NonInteractive
+        shell: pwsh
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nugets
+          path: nugets/*
+          retention-days: 1
+      - name: Install Octopus CLI
+        uses: OctopusDeploy/install-octopus-cli-action@v1.1.1
+        with:
+          version: latest
+      - name: Create Octopus Package
+        run: |
+          mkdir packaging
+          mkdir packaging/content
+          cp nugets/** packaging/content
+          @"
+          `$Branch = "${{env.GitVersion_BranchName}}"
+          `$Version = "${{env.GitVersion_LegacySemVer}}"
+          `$Product = "${{env.PARTICULAR_REPO_NAME}}"
+          `$Major = "${{env.GitVersion_Major}}"
+          `$Minor = "${{env.GitVersion_Minor}}"
+          `$Commit = "${{env.GitVersion_Sha}}"
+          "@ > packaging/Metadata.ps1
+          octo pack --id="${{env.PARTICULAR_REPO_NAME}}.Deploy" --format="nupkg" --version="${{env.GitVersion_SemVer}}" --basePath="packaging" --outFolder="octopus-package"
+        shell: pwsh
+      - name: Publish Octopus Package Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: octopus-package
+          path: octopus-package/*
+          retention-days: 1
+      # Still need to create the Octopus release and/or push the package to Octopus
+      # Don't want to create a whole project in Octopus to do that though.
+      # Between these two packages we should be covered:
+      #  * https://github.com/marketplace/actions/create-release-in-octopus-deploy
+      #  * https://github.com/marketplace/actions/push-package-to-octopus-deploy
