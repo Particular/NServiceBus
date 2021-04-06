@@ -17,11 +17,11 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: 5.0.x
       - name: Setup .NET Core 3.1 runtime
@@ -34,7 +34,7 @@ jobs:
         run: dotnet build src/NServiceBus.sln --configuration Release --no-restore
       - name: Upload packages
         if: matrix.os == 'windows-2019'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.2.2
         with:
           name: NuGet packages
           path: nugets/
