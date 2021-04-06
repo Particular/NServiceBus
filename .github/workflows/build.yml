@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-2019, ubuntu-20.04 ]
+        os: [ windows-2019, ubuntu-18.04 ]
       fail-fast: false
     steps:
       - name: Checkout
