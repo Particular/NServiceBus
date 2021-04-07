@@ -28,10 +28,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.x
-      - name: Restore
-        run: dotnet restore src/NServiceBus.sln --disable-parallel          
       - name: Build
-        run: dotnet build src/NServiceBus.sln --configuration Release --no-restore
+        run: dotnet build src/NServiceBus.sln --configuration Release
       - name: Upload packages
         if: matrix.os == 'windows-2019'
         uses: actions/upload-artifact@v2.2.2
