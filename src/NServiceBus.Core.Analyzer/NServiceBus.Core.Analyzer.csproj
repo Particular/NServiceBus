@@ -7,6 +7,7 @@
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GitVersion_ToolArgments>$(GitVersion_ToolArgments) -config "$(GitVersionPath)\GitVersion.yml"</GitVersion_ToolArgments>
   </PropertyGroup>
 
   <ItemGroup>
