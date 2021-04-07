@@ -41,5 +41,5 @@ jobs:
         if: matrix.os == 'windows-2019'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
       - name: Run Linux tests
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-20.04'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
