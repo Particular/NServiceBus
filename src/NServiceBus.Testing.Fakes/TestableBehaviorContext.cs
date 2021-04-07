@@ -41,7 +41,7 @@
             return builder;
         }
 
-        [SuppressMessage("Code", "PCR0003:Instance methods on types implementing ICancellableContext should not have a CancellationToken parameter", Justification = "Designed for testing.")]
+        [SuppressMessage("Code", "PS0002:Instance methods on types implementing ICancellableContext should not have a CancellationToken parameter", Justification = "Designed for testing.")]
         public CancellationToken CancellationToken { get; set; }
     }
 }

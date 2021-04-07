@@ -19,7 +19,7 @@
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TFromContext,TFromContext}" /> in the chain to execute.</param>
         /// <param name="fork">The next <see cref="IBehavior{TForkContext,TForkContext}" /> in the chain to fork and execute.</param>
-        [SuppressMessage("Code", "PCR0015:A Func used as a method parameter with a Task, ValueTask, or ValueTask<T> return type argument should have at least one CancellationToken parameter type argument or one parameter type argument implementing ICancellableContext", Justification = "<Pending>")]
+        [SuppressMessage("Code", "PS0013:A Func used as a method parameter with a Task, ValueTask, or ValueTask<T> return type argument should have at least one CancellationToken parameter type argument unless it has a parameter type argument implementing ICancellableContext", Justification = "<Pending>")]
         public abstract Task Invoke(TFromContext context, Func<Task> next, Func<TForkContext, Task> fork);
 
         /// <inheritdoc />

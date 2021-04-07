@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Tests
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
@@ -12,6 +11,7 @@ namespace NServiceBus.Unicast.Tests
     using UnitOfWork;
 
     [TestFixture]
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Obsolete")]
     public class UnitOfWorkBehaviorTests
     {
         [Test]
@@ -169,7 +169,7 @@ namespace NServiceBus.Unicast.Tests
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
-        static Task InvokeBehavior(IServiceCollection services, Exception toThrow = null, UnitOfWorkBehavior behavior = null, CancellationToken cancellationToken = default)
+        static Task InvokeBehavior(IServiceCollection services, Exception toThrow = null, UnitOfWorkBehavior behavior = null)
         {
             var runner = behavior ?? new UnitOfWorkBehavior();
 
@@ -189,7 +189,6 @@ namespace NServiceBus.Unicast.Tests
             });
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
         {
             public bool BeginCalled;
@@ -209,7 +208,6 @@ namespace NServiceBus.Unicast.Tests
             }
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class UnitOfWorkThatThrowsFromBegin : IManageUnitsOfWork
         {
             public bool EndCalled;
@@ -227,7 +225,6 @@ namespace NServiceBus.Unicast.Tests
             }
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class UnitOfWork : IManageUnitsOfWork
         {
             public bool BeginCalled;
@@ -248,7 +245,6 @@ namespace NServiceBus.Unicast.Tests
             }
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class UnitOfWorkThatReturnsNullForBegin : IManageUnitsOfWork
         {
             public Task Begin()
@@ -262,7 +258,6 @@ namespace NServiceBus.Unicast.Tests
             }
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class UnitOfWorkThatReturnsNullForEnd : IManageUnitsOfWork
         {
             public Task Begin()
@@ -299,7 +294,6 @@ namespace NServiceBus.Unicast.Tests
             Assert.AreEqual(1, unitOfWork3.EndCallIndex);
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class CountingUnitOfWork : IManageUnitsOfWork
         {
             static int BeginCallCount;
@@ -338,7 +332,6 @@ namespace NServiceBus.Unicast.Tests
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, unitOfWork.Exception);
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork
         {
             public Task Begin()
@@ -355,7 +348,6 @@ namespace NServiceBus.Unicast.Tests
             public Exception Exception;
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
         class OrderAwareUnitOfWork : IManageUnitsOfWork
         {
             string name;

@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TContext, TContext}" /> in the chain to execute.</param>
-        [SuppressMessage("Code", "PCR0015:A Func used as a method parameter with a Task, ValueTask, or ValueTask<T> return type argument should have at least one CancellationToken parameter type argument or one parameter type argument implementing ICancellableContext", Justification = "Behaviors use a context that includes a cancellation token, and provide a next() delegate as a convenience.")]
+        [SuppressMessage("Code", "PS0013:A Func used as a method parameter with a Task, ValueTask, or ValueTask<T> return type argument should have at least one CancellationToken parameter type argument unless it has a parameter type argument implementing ICancellableContext", Justification = "Behaviors use a context that includes a cancellation token, and provide a next() delegate as a convenience.")]
         public abstract Task Invoke(TContext context, Func<Task> next);
     }
 }

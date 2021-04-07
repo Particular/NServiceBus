@@ -5,14 +5,14 @@
 
     static class TaskExtensions
     {
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Task extension method.")]
+        [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Task extension method.")]
         public static Task SetCompleted<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TResult result = default)
         {
             taskCompletionSource.SetResult(result);
             return taskCompletionSource.Task;
         }
 
-        [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Task extension method.")]
+        [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Task extension method.")]
         public static Task SetCompleted(this TaskCompletionSource taskCompletionSource)
         {
             taskCompletionSource.SetResult();

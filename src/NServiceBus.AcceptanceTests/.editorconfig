@@ -4,4 +4,4 @@
 dotnet_diagnostic.CA2007.severity = none
 
 # may be enabled in future
-dotnet_diagnostic.PCR0019.severity = suggestion # A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext
+dotnet_diagnostic.PS0018.severity = suggestion  # A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext

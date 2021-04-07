@@ -9,7 +9,7 @@ namespace NServiceBus.UnitOfWork
     /// message processing pipeline.
     /// </summary>
     [ObsoleteEx(Message = "The unit of work pattern is more straightforward to implement in a pipeline behavior, where the using keyword and try/catch blocks can be used.", ReplacementTypeOrMember = "NServiceBus.Pipeline.Behavior<TContext>", TreatAsErrorFromVersion = "9", RemoveInVersion = "10")]
-    [SuppressMessage("Code", "PCR0019:A task-returning method should have a CancellationToken parameter or a parameter implementing ICancellableContext", Justification = "Obsolete.")]
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Obsolete.")]
     public interface IManageUnitsOfWork
     {
         /// <summary>

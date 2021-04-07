@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -106,9 +105,8 @@
                 // If we ever require a method of stopping the endpoint such that
                 // all message processing is cancelled immediately,
                 // we can provide that as a separate feature.
-#pragma warning disable PCR0009 // CancellationToken.None should not be used as a CancellationToken argument
-                await Task.Delay(50, CancellationToken.None).ConfigureAwait(false);
-#pragma warning restore PCR0009 // CancellationToken.None should not be used as a CancellationToken argument
+                await Task.Delay(50, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
 
             concurrencyLimiter.Dispose();
@@ -156,7 +154,6 @@
         }
 
         [DebuggerNonUserCode]
-        [SuppressMessage("Code", "PCR0010:Single CancellationToken parameters should be named cancellationToken", Justification = "Multiple cancellation tokens flying around.")]
         async Task ProcessMessages(CancellationToken messagePumpCancellationToken)
         {
             while (!messagePumpCancellationToken.IsCancellationRequested)
@@ -177,7 +174,6 @@
             }
         }
 
-        [SuppressMessage("Code", "PCR0010:Single CancellationToken parameters should be named cancellationToken", Justification = "Multiple cancellation tokens flying around.")]
         async Task InnerProcessMessages(CancellationToken messagePumpCancellationToken)
         {
             log.Debug($"Started polling for new messages in {messagePumpBasePath}");
@@ -236,7 +232,6 @@
             return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
-        [SuppressMessage("Code", "PCR0010:Single CancellationToken parameters should be named cancellationToken", Justification = "Multiple cancellation tokens flying around.")]
         async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             try
@@ -267,7 +262,6 @@
             }
         }
 
-        [SuppressMessage("Code", "PCR0010:Single CancellationToken parameters should be named cancellationToken", Justification = "Multiple cancellation tokens flying around.")]
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)

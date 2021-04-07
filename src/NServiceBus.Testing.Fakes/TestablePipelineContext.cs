@@ -114,7 +114,7 @@
         ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();
         ConcurrentQueue<TimeoutMessage<object>> timeoutMessages = new ConcurrentQueue<TimeoutMessage<object>>();
 
-        [SuppressMessage("Code", "PCR0003:Instance methods on types implementing ICancellableContext should not have a CancellationToken parameter", Justification = "Designed for testing.")]
+        [SuppressMessage("Code", "PS0002:Instance methods on types implementing ICancellableContext should not have a CancellationToken parameter", Justification = "Designed for testing.")]
         public CancellationToken CancellationToken { get; set; }
     }
 }
