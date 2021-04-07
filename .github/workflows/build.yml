@@ -23,11 +23,11 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: 5.0.x
+          dotnet-version: 5.0.202
       - name: Setup .NET Core 3.1 runtime
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.x
+          dotnet-version: 3.1.407
       - name: Build
         run: dotnet build src/NServiceBus.sln --configuration Release
       - name: Upload packages
