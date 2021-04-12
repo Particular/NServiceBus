@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Particular.CodeRules" Version="0.8.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Analyzers" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

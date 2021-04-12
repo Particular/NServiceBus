@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Persistence;
@@ -28,49 +29,49 @@
             await configuration.Cleanup();
         }
 
-        protected async Task SaveSaga<TSagaData>(TSagaData saga) where TSagaData : class, IContainSagaData, new()
+        protected async Task SaveSaga<TSagaData>(TSagaData saga, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
-            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag))
+            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag, cancellationToken))
             {
-                await SaveSagaWithSession(saga, insertSession, insertContextBag);
-                await insertSession.CompleteAsync();
+                await SaveSagaWithSession(saga, insertSession, insertContextBag, cancellationToken);
+                await insertSession.CompleteAsync(cancellationToken);
             }
         }
 
-        protected async Task SaveSagaWithSession<TSagaData>(TSagaData saga, CompletableSynchronizedStorageSession session, ContextBag context)
+        protected async Task SaveSagaWithSession<TSagaData>(TSagaData saga, CompletableSynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
             where TSagaData : class, IContainSagaData, new()
         {
             SetupNewSaga(saga);
             var correlationProperty = GetSagaCorrelationProperty(saga);
-            await configuration.SagaStorage.Save(saga, correlationProperty, session, context);
+            await configuration.SagaStorage.Save(saga, correlationProperty, session, context, cancellationToken);
         }
 
-        protected async Task<TSagaData> GetByCorrelationProperty<TSagaData>(string correlatedPropertyName, object correlationPropertyData) where TSagaData : class, IContainSagaData, new()
+        protected async Task<TSagaData> GetByCorrelationProperty<TSagaData>(string correlatedPropertyName, object correlationPropertyData, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var context = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
             var persister = configuration.SagaStorage;
 
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, cancellationToken))
             {
-                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, cancellationToken);
 
-                await completeSession.CompleteAsync();
+                await completeSession.CompleteAsync(cancellationToken);
             }
 
             return sagaData;
         }
 
-        protected async Task<TSagaData> GetById<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData, new()
+        protected async Task<TSagaData> GetById<TSagaData>(Guid sagaId, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var readContextBag = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
+            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag, cancellationToken))
             {
-                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag);
+                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, cancellationToken);
 
-                await readSession.CompleteAsync();
+                await readSession.CompleteAsync(cancellationToken);
             }
 
             return sagaData;

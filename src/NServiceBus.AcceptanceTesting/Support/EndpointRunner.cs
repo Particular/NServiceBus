@@ -104,14 +104,14 @@
             }
         }
 
-        public override async Task Start(CancellationToken token)
+        public override async Task Start(CancellationToken cancellationToken = default)
         {
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
                 endpointInstance = await startCallback(startable).ConfigureAwait(false);
 
-                if (token.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                 {
                     throw new OperationCanceledException("Endpoint start was aborted");
                 }
@@ -124,7 +124,7 @@
             }
         }
 
-        public override async Task ComponentsStarted(CancellationToken token)
+        public override async Task ComponentsStarted(CancellationToken cancellationToken = default)
         {
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
@@ -135,21 +135,21 @@
                     {
                         var executedWhens = new HashSet<Guid>();
 
-                        while (!token.IsCancellationRequested)
+                        while (!cancellationToken.IsCancellationRequested)
                         {
                             if (executedWhens.Count == behavior.Whens.Count)
                             {
                                 break;
                             }
 
-                            if (token.IsCancellationRequested)
+                            if (cancellationToken.IsCancellationRequested)
                             {
                                 break;
                             }
 
                             foreach (var when in behavior.Whens)
                             {
-                                if (token.IsCancellationRequested)
+                                if (cancellationToken.IsCancellationRequested)
                                 {
                                     break;
                                 }
@@ -167,7 +167,7 @@
 
                             await Task.Yield(); // enforce yield current context, tight loop could introduce starvation
                         }
-                    }, token).ConfigureAwait(false);
+                    }, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

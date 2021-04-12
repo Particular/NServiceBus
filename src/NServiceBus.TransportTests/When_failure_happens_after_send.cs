@@ -17,7 +17,7 @@ namespace NServiceBus.TransportTests
             var sentFromErrorReceived = CreateTaskCompletionSource();
 
             await StartPump(
-                async (context, _) =>
+                async (context, cancellationToken) =>
                 {
                     if (context.Headers.ContainsKey("SentFromOnError"))
                     {
@@ -31,14 +31,14 @@ namespace NServiceBus.TransportTests
                         return;
                     }
 
-                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "" } }, context.TransportTransaction);
+                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
 
                     throw new Exception("Simulated exception");
 
                 },
-                async (context, _) =>
+                async (context, cancellationToken) =>
                 {
-                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "" } }, context.TransportTransaction);
+                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
                     return ErrorHandleResult.Handled;
                 },
                 transactionMode);

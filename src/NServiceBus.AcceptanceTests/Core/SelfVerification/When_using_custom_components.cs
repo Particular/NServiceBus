@@ -47,16 +47,16 @@
 
                 public override string Name => "MyComponent";
 
-                public override Task Start(CancellationToken token)
+                public override Task Start(CancellationToken cancellationToken = default)
                 {
                     context.Starting = true;
-                    return base.Start(token);
+                    return base.Start(cancellationToken);
                 }
 
-                public override Task ComponentsStarted(CancellationToken token)
+                public override Task ComponentsStarted(CancellationToken cancellationToken = default)
                 {
                     context.ComponentsStarted = true;
-                    return base.ComponentsStarted(token);
+                    return base.ComponentsStarted(cancellationToken);
                 }
 
                 public override Task Stop()

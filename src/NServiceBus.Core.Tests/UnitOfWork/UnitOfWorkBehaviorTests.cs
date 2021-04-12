@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
@@ -10,6 +11,7 @@ namespace NServiceBus.Unicast.Tests
     using UnitOfWork;
 
     [TestFixture]
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Obsolete")]
     public class UnitOfWorkBehaviorTests
     {
         [Test]

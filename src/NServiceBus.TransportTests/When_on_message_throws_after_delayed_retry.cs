@@ -18,12 +18,12 @@
 
             await StartPump(
                 (_, __) => throw new Exception("Simulated exception"),
-                async (context, _) =>
+                async (context, cancellationToken) =>
                 {
                     if (!sendingDelayedMessage)
                     {
                         sendingDelayedMessage = true;
-                        await SendMessage(InputQueueName, context.Message.Headers, context.TransportTransaction);
+                        await SendMessage(InputQueueName, context.Message.Headers, context.TransportTransaction, cancellationToken: cancellationToken);
                     }
                     else
                     {

@@ -59,7 +59,7 @@ namespace NServiceBus
             RaiseForEndpoint(errorMessage, exception, cancellationToken);
         }
 
-        void RaiseForEndpoint(string errorMessage, Exception exception, CancellationToken cancellationToken = default)
+        void RaiseForEndpoint(string errorMessage, Exception exception, CancellationToken cancellationToken)
         {
             _ = Task.Run(() =>
             {

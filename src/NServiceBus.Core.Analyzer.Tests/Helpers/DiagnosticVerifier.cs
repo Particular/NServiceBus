@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
     using System.Collections.Immutable;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
@@ -24,13 +25,15 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
 
         protected abstract DiagnosticAnalyzer GetAnalyzer();
 
-        protected Task Verify(string source, params DiagnosticResult[] expectedResults) => Verify(new[] { source }, expectedResults);
+        protected Task Verify(string source, DiagnosticResult expectedResult, CancellationToken cancellationToken = default) => Verify(new[] { source }, new[] { expectedResult }, cancellationToken);
 
-        async Task Verify(string[] sources, params DiagnosticResult[] expectedResults)
+        protected Task Verify(string source, DiagnosticResult[] expectedResults, CancellationToken cancellationToken = default) => Verify(new[] { source }, expectedResults, cancellationToken);
+
+        async Task Verify(string[] sources, DiagnosticResult[] expectedResults, CancellationToken cancellationToken)
         {
             var analyzer = GetAnalyzer();
 
-            var actualResults = await GetSortedDiagnostics(sources, analyzer);
+            var actualResults = await GetSortedDiagnostics(sources, analyzer, cancellationToken);
 
             var expectedCount = expectedResults.Length;
             var actualCount = actualResults.Length;
@@ -103,7 +106,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             }
         }
 
-        static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer)
+        static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, CancellationToken cancellationToken)
         {
             var projectId = ProjectId.CreateNewId("TestProject");
 
@@ -147,9 +150,9 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             var diagnostics = new List<Diagnostic>();
             foreach (var project in new HashSet<Project>(documents.Select(document => document.Project)))
             {
-                var compilationWithAnalyzers = (await project.GetCompilationAsync()).WithAnalyzers(ImmutableArray.Create(analyzer));
+                var compilationWithAnalyzers = (await project.GetCompilationAsync(cancellationToken)).WithAnalyzers(ImmutableArray.Create(analyzer), cancellationToken: cancellationToken);
 
-                foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync())
+                foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken))
                 {
                     if (diagnostic.Location == Location.None || diagnostic.Location.IsInMetadata)
                     {
@@ -159,7 +162,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                     {
                         foreach (var document in documents)
                         {
-                            if (await document.GetSyntaxTreeAsync() == diagnostic.Location.SourceTree)
+                            if (await document.GetSyntaxTreeAsync(cancellationToken) == diagnostic.Location.SourceTree)
                             {
                                 diagnostics.Add(diagnostic);
                             }

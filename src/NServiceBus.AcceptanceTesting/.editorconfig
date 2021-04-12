@@ -1,0 +1,5 @@
+[*.cs]
+
+# may be enabled in future
+dotnet_diagnostic.PS0013.severity = suggestion  # A Func used as a method parameter with a Task, ValueTask, or ValueTask<T> return type argument should have at least one CancellationToken parameter type argument unless it has a parameter type argument implementing ICancellableContext
+dotnet_diagnostic.PS0018.severity = suggestion  # A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext

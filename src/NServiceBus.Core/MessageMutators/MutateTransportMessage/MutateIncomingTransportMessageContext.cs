@@ -45,7 +45,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// A <see cref="CancellationToken"/> to observe.
         /// </summary>
-        public CancellationToken CancellationToken { get; private set; }
+        public CancellationToken CancellationToken { get; }
 
         byte[] body;
 
