@@ -25,6 +25,8 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
 
         protected abstract DiagnosticAnalyzer GetAnalyzer();
 
+        protected Task Verify(string source, DiagnosticResult expectedResult, CancellationToken cancellationToken = default) => Verify(new[] { source }, new[] { expectedResult }, cancellationToken);
+
         protected Task Verify(string source, DiagnosticResult[] expectedResults, CancellationToken cancellationToken = default) => Verify(new[] { source }, expectedResults, cancellationToken);
 
         async Task Verify(string[] sources, DiagnosticResult[] expectedResults, CancellationToken cancellationToken)

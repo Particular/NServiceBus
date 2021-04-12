@@ -2,9 +2,9 @@ namespace NServiceBus.Core.Analyzer.Tests
 {
     using System;
     using System.Threading.Tasks;
+    using Helpers;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.Diagnostics;
-    using Helpers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -89,7 +89,7 @@ class Foo
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 9) },
             };
 
-            return Verify(source, new[] { expected });
+            return Verify(source, expected);
         }
 
         [TestCase("session.Send(new object());")]
@@ -125,7 +125,7 @@ class Foo
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 9) },
             };
 
-            return Verify(source, new[] { expected });
+            return Verify(source, expected);
         }
 
         [TestCase("RequestTimeout<object>(context, DateTime.Now);")]
@@ -151,7 +151,7 @@ class TestSaga : Saga<object>
                 Severity = DiagnosticSeverity.Error,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 9) },
             };
-            return Verify(source, new[] { expected });
+            return Verify(source, expected);
         }
 
         [Test]
@@ -174,7 +174,7 @@ class Foo
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 9) },
             };
 
-            return Verify(source, new[] { expected });
+            return Verify(source, expected);
         }
 
         [TestCase(
