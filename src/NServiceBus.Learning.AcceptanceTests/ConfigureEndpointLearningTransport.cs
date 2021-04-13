@@ -21,7 +21,7 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
     {
         var testRunId = TestContext.CurrentContext.Test.ID;
 
-        storageDir = Path.Combine(Path.GetTempPath(), testRunId);
+        storageDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), testRunId);
 
         //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);

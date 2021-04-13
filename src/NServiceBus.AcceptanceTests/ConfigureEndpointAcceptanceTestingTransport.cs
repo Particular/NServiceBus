@@ -40,7 +40,7 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
             tempDir = Path.GetTempPath();
         }
 
-        storageDir = Path.Combine(tempDir, testRunId);
+        storageDir = Path.Combine(tempDir, Path.GetRandomFileName(), testRunId);
 
         var acceptanceTestingTransport = new AcceptanceTestingTransport(
             enableNativeDelayedDelivery: useNativeDelayedDelivery,

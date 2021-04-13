@@ -23,7 +23,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
             tempDir = Path.GetTempPath();
         }
 
-        storageDir = Path.Combine(tempDir, testRunId);
+        storageDir = Path.Combine(tempDir, Path.GetRandomFileName(), testRunId);
 
         configuration.UsePersistence<LearningPersistence, StorageType.Sagas>()
             .SagaStorageDirectory(storageDir);
