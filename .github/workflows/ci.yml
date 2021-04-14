@@ -5,6 +5,7 @@ on:
       - master
       - release-*
   pull_request:
+  workflow_dispatch:
 env:
   DOTNET_NOLOGO: true
 jobs:
