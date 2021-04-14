@@ -15,9 +15,9 @@ jobs:
       matrix:
         include:
           - os: windows-2019
-            name: windows
+            name: Windows
           - os: ubuntu-20.04
-            name: linux
+            name: Linux
       fail-fast: false
     steps:
       - name: Checkout
