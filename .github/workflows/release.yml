@@ -23,7 +23,7 @@ jobs:
         with:
           dotnet-version: 5.0.x
       - name: Setup NuGet for signing
-        uses: nuget/setup-nuget@v1
+        uses: nuget/setup-nuget@v1.0.5
         with:
           nuget-api-key: ${{ secrets.NuGetAPIKey }}
       - name: Build
