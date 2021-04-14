@@ -1,4 +1,4 @@
-name: Build & Test
+name: CI
 on:
   push:
     branches:
@@ -9,11 +9,15 @@ env:
   DOTNET_NOLOGO: true
 jobs:
   build:
-    name: ${{ matrix.os }}
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-2019, ubuntu-20.04 ]
+        include:
+          - os: windows-2019
+            name: windows
+          - os: ubuntu-20.04
+            name: linux
       fail-fast: false
     steps:
       - name: Checkout
