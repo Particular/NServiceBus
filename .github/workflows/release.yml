@@ -1,11 +1,11 @@
-name: Deploy
+name: Release
 on:
   push:
     tags: '*'
 env:
   DOTNET_NOLOGO: true
 jobs:
-  staging:
+  release:
     runs-on: windows-2019 # Code signing requirement https://github.com/NuGet/Home/issues/7939
     steps:
       - name: Checkout
