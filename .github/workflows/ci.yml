@@ -36,15 +36,15 @@ jobs:
       - name: Build
         run: dotnet build src/NServiceBus.sln --configuration Release
       - name: Upload packages
-        if: matrix.os == 'windows-2019'
+        if: matrix.name == 'Windows'
         uses: actions/upload-artifact@v2.2.2
         with:
           name: NuGet packages
           path: nugets/
           retention-days: 7
       - name: Run Windows tests
-        if: startsWith(matrix.os, 'windows')
+        if: matrix.name == 'Windows'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
       - name: Run Linux tests
-        if: startsWith(matrix.os, 'ubuntu')
+        if: matrix.name == 'Linux'
         run: dotnet test src/NServiceBus.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
