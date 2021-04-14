@@ -100,7 +100,16 @@
         {
             if (!cachedTypes.TryGetValue(messageTypeIdentifier, out var type))
             {
-                type = Type.GetType(messageTypeIdentifier, false);
+                try
+                {
+                    type = Type.GetType(messageTypeIdentifier);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded", ex);
+                }
+
+                // we cache null values as well to prevent trying to load the type multiple times
                 cachedTypes[messageTypeIdentifier] = type;
             }
 
