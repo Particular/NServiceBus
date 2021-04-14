@@ -9,10 +9,14 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
 {
     public Task Cleanup()
     {
-        if (Directory.Exists(storageDir))
+        try
         {
-            Directory.Delete(storageDir, true);
+            if (Directory.Exists(storageDir))
+            {
+                Directory.Delete(storageDir, true);
+            }
         }
+        catch { }
 
         return Task.FromResult(0);
     }
