@@ -27,10 +27,7 @@ jobs:
         with:
           nuget-api-key: ${{ secrets.NuGetAPIKey }}
       - name: Build
-        run: |
-          cd src
-          dotnet build --configuration Release
-        shell: pwsh
+        run: dotnet build src --configuration Release
       - name: Get signing cert
         run: |
           [IO.File]::WriteAllBytes("signing-cert.pfx", [Convert]::FromBase64String("${{ secrets.NUGET_SIGNING_CERT_BASE64 }}"))
