@@ -71,11 +71,11 @@
     update_type: all
 
 - match:
-    dependency_name: Particular.Approvals
+    dependency_name: Particular.Analyzers
     update_type: all
 
 - match:
-    dependency_name: Particular.CodeRules
+    dependency_name: Particular.Approvals
     update_type: all
 
 - match:
