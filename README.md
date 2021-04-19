@@ -1,4 +1,4 @@
-## Building
+## Building on master
 
 To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
 
