@@ -8,7 +8,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
     [TestFixture]
     public class When_scanning_top_level_only
     {
-        static string baseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
+        static string baseDirectoryToScan = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), "empty");
         static string someSubDirectory = Path.Combine(baseDirectoryToScan, "subDir");
 
         [SetUp]

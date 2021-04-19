@@ -1,0 +1,100 @@
+name: Virus scan
+on:
+  release:
+    types: [published]
+jobs:
+  virus-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ClamAV
+        id: installClamAV
+        run: |
+          sudo apt-get update && sudo apt-get install clamav
+          clamVersion=$(clamscan --version)
+          echo $clamVersion
+          echo "CLAMAV_VERSION=$clamVersion" >> $GITHUB_ENV
+      - name: Update virus signature database
+        run: |
+          sudo systemctl stop clamav-freshclam
+          sudo freshclam
+          sudo systemctl start clamav-freshclam
+      - name: Get release
+        uses: actions/github-script@v3.1.1
+        id: getRelease
+        with:
+          github-token: ${{secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4}}
+          script: |
+            const fs = require('fs');
+            
+            await io.mkdirP('github-release-assets');
+            
+            let release = await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: '${{ github.event.release.name }}'
+            });
+            
+            core.exportVariable('RELEASE_ID', release.data.id);
+            core.exportVariable('RELEASE_BODY', release.data.body);
+            core.exportVariable('RELEASE_HTML_URL', release.data.html_url);
+            
+            for (const assetInfo of release.data.assets) {
+              let asset = await github.request(assetInfo.browser_download_url);
+              await fs.writeFile('github-release-assets/' + assetInfo.name, Buffer.from(asset.data), () => {});
+            }
+            
+            let zipball = await github.request(release.data.zipball_url);
+            await fs.writeFile('github-release-assets/source.zip', Buffer.from(zipball.data), () => {});
+            
+            let tarball = await github.request(release.data.tarball_url);
+            await fs.writeFile('github-release-assets/source.tar.gz', Buffer.from(tarball.data), () => {});
+            
+      - name: Run ClamAV
+        # Don't automatically fail on first non-zero return code by skipping -e parameter
+        # May highlight as error but docs say is valid: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#custom-shell
+        shell: "/usr/bin/bash {0}"
+        run: |
+          sudo clamscan --infected github-release-assets/ > scan-results.log
+          echo "CLAMAV_RETURN_CODE=$?" >> $GITHUB_ENV
+          exit 0;
+      - name: Notify Slack on viruses detected
+        if: ${{ env.CLAMAV_RETURN_CODE == '1' }}
+        uses: 8398a7/action-slack@v3.9.0
+        with:
+          username: ClamAV Virus Scanning Workflow
+          status: failure
+          text: "ClamAV has detected a virus in the release at ${{ env.RELEASE_HTML_URL }}"
+          author_name: ""
+          fields: repo,ref,action,commit,author
+          icon_emoji: ":biohazard_sign:"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.RELEASE_ANTIVIRUS_SLACK_WEBHOOK_URL }}
+      - name: Update release notes
+        if: ${{ always() }}
+        uses: actions/github-script@v3.1.1
+        with:
+          github-token: ${{secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4}}
+          script: |
+            const { CLAMAV_VERSION, CLAMAV_RETURN_CODE, RELEASE_ID, RELEASE_BODY } = process.env;
+            const fs = require('fs');
+            let status = 'No viruses detected';
+            if (CLAMAV_RETURN_CODE === '1') {
+              status = 'Virus(es) detected';
+            } else if (CLAMAV_RETURN_CODE === '2') {
+              status = 'Scanning error occurred';
+            }
+            fs.readFile('scan-results.log', { encoding: 'utf8' }, (err, fileText) => {
+            
+              console.log(fileText);
+
+              let releaseBody = RELEASE_BODY + '\n\n<details><summary><b>🛡 ClamAV virus scan results: ' + 
+                status + '</b></summary>\n\n```\nVersion: ' + CLAMAV_VERSION + 
+                '\nScan Date: ' + new Date().toUTCString() + '\n' + fileText + '\n```\n\n</details>';
+
+              github.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: RELEASE_ID,
+                body: releaseBody
+              });
+            });
