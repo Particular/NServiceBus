@@ -5,6 +5,8 @@ on:
       - master
       - release-[7-9].*
   pull_request:
+    branches-ignore:
+      - release-[0-6].*
   workflow_dispatch:
 env:
   DOTNET_NOLOGO: true
