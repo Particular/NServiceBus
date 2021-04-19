@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - release-*
+      - release-[7-9].*
   pull_request:
   workflow_dispatch:
 env:
