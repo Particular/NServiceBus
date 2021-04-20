@@ -1,4 +1,4 @@
-## Building
+## Building on 5.2
 
 To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
 
