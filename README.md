@@ -1,4 +1,4 @@
-## Building
+## Building for Fun
 
 To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
 
