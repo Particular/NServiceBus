@@ -10,10 +10,14 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
 {
     public Task Cleanup()
     {
-        if (Directory.Exists(storageDir))
+        try
         {
-            Directory.Delete(storageDir, true);
+            if (Directory.Exists(storageDir))
+            {
+                Directory.Delete(storageDir, true);
+            }
         }
+        catch { }
 
         return Task.FromResult(0);
     }
@@ -36,7 +40,7 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
             tempDir = Path.GetTempPath();
         }
 
-        storageDir = Path.Combine(tempDir, testRunId);
+        storageDir = Path.Combine(Path.GetTempPath(), "learn", testRunId);
 
         //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
