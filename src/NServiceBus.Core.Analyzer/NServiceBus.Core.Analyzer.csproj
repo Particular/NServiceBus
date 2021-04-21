@@ -14,4 +14,9 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
   </ItemGroup>
 
+  <!-- Workaround to make sure GitVersion uses the project specific config file -->
+  <PropertyGroup>
+    <GitVersion_ToolArgments>$(GitVersion_ToolArgments) -config "$(MSBuildProjectDirectory)\GitVersion.yml"</GitVersion_ToolArgments>
+  </PropertyGroup>
+
 </Project>
