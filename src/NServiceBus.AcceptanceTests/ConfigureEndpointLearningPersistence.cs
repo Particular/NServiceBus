@@ -23,7 +23,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
             tempDir = Path.GetTempPath();
         }
 
-        storageDir = Path.Combine(tempDir, testRunId);
+        storageDir = Path.Combine(tempDir, "learn", testRunId);
 
         configuration.UsePersistence<LearningPersistence, StorageType.Sagas>()
             .SagaStorageDirectory(storageDir);
@@ -33,10 +33,15 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
 
     public Task Cleanup()
     {
-        if (Directory.Exists(storageDir))
+        try
         {
-            Directory.Delete(storageDir, true);
+            if (Directory.Exists(storageDir))
+            {
+                Directory.Delete(storageDir, true);
+            }
         }
+        catch { }
+
         return Task.FromResult(0);
     }
 

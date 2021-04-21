@@ -1,0 +1,93 @@
+name: Release
+on:
+  push:
+    tags:
+      - '[7-9].[0-9]+.[0-9]+'
+      - '[7-9].[0-9]+.[0-9]+-*'
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  release:
+    runs-on: windows-2019 # Code signing requirement https://github.com/NuGet/Home/issues/7939
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Parse repo name
+        run: |
+          $FullName = "$env:GITHUB_REPOSITORY"
+          $Org,$RepoName = $FullName.Split('/')
+          echo "PARTICULAR_REPO_NAME=$RepoName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 5.0.x
+      - name: Build
+        run: dotnet build src --configuration Release
+      - name: Get signing cert
+        run: |
+          [IO.File]::WriteAllBytes("signing-cert.pfx", [Convert]::FromBase64String("${{ secrets.NUGET_SIGNING_CERT_BASE64 }}"))
+        shell: pwsh
+      - name: Setup NuGet for signing
+        uses: nuget/setup-nuget@v1.0.5
+      - name: Sign NuGet Packages
+        run: nuget sign nugets\*.nupkg -CertificatePath signing-cert.pfx -Timestamper "http://timestamp.digicert.com/?alg=sha256" -NonInteractive
+        shell: pwsh
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v2.2.2
+        with:
+          name: nugets
+          path: nugets/*
+          retention-days: 1
+      - name: Install Octopus CLI
+        uses: OctopusDeploy/install-octopus-cli-action@v1.1.1
+        with:
+          version: latest
+      - name: Create Octopus Package
+        run: |
+          # Creating the expected file layout for the Octopus package, including intermediate directories
+          mkdir -p packaging/content
+          
+          # Octopus expects NuGet packages to have an extra .nzip extension for NuGet, .czip for Chocolatey
+          $nugets = Get-ChildItem -Path "./nugets/*.nupkg"
+          foreach ($file in $nugets) {
+            cp $file "./packaging/content/$($file.Name).nzip"
+          }
+          
+          # Octopus Deploy scripts need an executable file to recreate this metadata
+          @"
+          `$Branch = "${{env.GitVersion_BranchName}}"
+          `$Version = "${{env.GitVersion_LegacySemVer}}"
+          `$Product = "${{env.PARTICULAR_REPO_NAME}}"
+          `$Major = "${{env.GitVersion_Major}}"
+          `$Minor = "${{env.GitVersion_Minor}}"
+          `$Commit = "${{env.GitVersion_Sha}}"
+          "@ > packaging/Metadata.ps1
+          
+          # Create the Octopus package
+          octo pack --id="${{env.PARTICULAR_REPO_NAME}}.Deploy" --version="${{env.GitVersion_SemVer}}" --format="nupkg" --basePath="packaging" --outFolder="octopus-package"
+        shell: pwsh
+      - name: Publish Octopus Package Artifacts
+        uses: actions/upload-artifact@v2.2.2
+        with:
+          name: octopus-package
+          path: octopus-package/*
+          retention-days: 1
+      - name: Push package to Octopus Deploy
+        uses: OctopusDeploy/push-package-action@v1.0.0
+        with:
+          server: https://deploy.particular.net
+          api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
+          packages: octopus-package/${{env.PARTICULAR_REPO_NAME}}.Deploy.${{env.GitVersion_SemVer}}.nupkg
+      - name: Create Octopus Deploy release
+        uses: OctopusDeploy/create-release-action@v1.0.2
+        with:
+          server: https://deploy.particular.net
+          api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
+          project: ${{env.PARTICULAR_REPO_NAME}}
+          release_number: ${{env.GitVersion_SemVer}}
+          package_version: ${{env.GitVersion_SemVer}}
+          package: "GitReleaseManager:0.11.0"
+          

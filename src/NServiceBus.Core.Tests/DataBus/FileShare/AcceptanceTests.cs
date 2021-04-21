@@ -16,7 +16,7 @@
         }
 
         FileShareDataBusImplementation dataBus;
-        string basePath = Path.GetTempPath();
+        string basePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
         async Task<string> Put(string content, TimeSpan timeToLive)
         {

@@ -10,8 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="1.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
   </ItemGroup>
+
+  <!-- Workaround to make sure GitVersion uses the project specific config file -->
+  <PropertyGroup>
+    <GitVersion_ToolArgments>$(GitVersion_ToolArgments) -config "$(MSBuildProjectDirectory)\GitVersion.yml"</GitVersion_ToolArgments>
+  </PropertyGroup>
 
 </Project>
