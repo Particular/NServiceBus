@@ -6,3 +6,6 @@ updates:
     interval: daily
     time: "04:00"
   open-pull-requests-limit: 10
+  ignore:
+    # Particular.Analyzers updates are distributed via RepoStandards
+    - dependency-name: "Particular.Analyzers"
