@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Analyzer.Tests
 {
-    using System;
     using System.Threading.Tasks;
     using Helpers;
     using Microsoft.CodeAnalysis;
@@ -268,7 +267,7 @@ class Foo
     }
 }",
             Description = "because the send operation task is accessed.")]
-        public Task NoDiagnosticIsReported(string source) => Verify(source, Array.Empty<DiagnosticResult>());
+        public Task NoDiagnosticIsReported(string source) => NoDiagnostic(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer();
     }

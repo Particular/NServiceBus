@@ -25,6 +25,8 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
 
         protected abstract DiagnosticAnalyzer GetAnalyzer();
 
+        protected Task NoDiagnostic(string source, CancellationToken cancellationToken = default) => Verify(new[] { source }, Array.Empty<DiagnosticResult>(), cancellationToken);
+
         protected Task Verify(string source, DiagnosticResult expectedResult, CancellationToken cancellationToken = default) => Verify(new[] { source }, new[] { expectedResult }, cancellationToken);
 
         protected Task Verify(string source, DiagnosticResult[] expectedResults, CancellationToken cancellationToken = default) => Verify(new[] { source }, expectedResults, cancellationToken);
@@ -106,7 +108,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             }
         }
 
-        static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, CancellationToken cancellationToken)
+        static Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, CancellationToken cancellationToken)
         {
             Project newProject = CreateProject(sources);
 
@@ -117,20 +119,20 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 throw new InvalidOperationException("The number of documents created does not match the number of sources.");
             }
 
-            return GetSortedDiagnosticsFromDocuments(analyzer, documents);
+            return GetSortedDiagnosticsFromDocuments(analyzer, documents, cancellationToken);
         }
 
-        protected async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        protected static async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents, CancellationToken cancellationToken = default)
         {
             var diagnostics = new List<Diagnostic>();
             foreach (var project in new HashSet<Project>(documents.Select(document => document.Project)))
             {
                 var compilation = await project.GetCompilationAsync(cancellationToken);
-                var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer));
+                var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer), cancellationToken: cancellationToken);
 
                 using (var stream = new System.IO.MemoryStream())
                 {
-                    var emitResult = compilation.Emit(stream);
+                    var emitResult = compilation.Emit(stream, cancellationToken: cancellationToken);
                     if (!emitResult.Success)
                     {
                         foreach (var diagnostic in emitResult.Diagnostics)
@@ -163,7 +165,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             return diagnostics.OrderBy(diagnostic => diagnostic.Location.SourceSpan.Start).ToArray();
         }
 
-        protected Project CreateProject(params string[] sources)
+        protected static Project CreateProject(params string[] sources)
         {
             var projectId = ProjectId.CreateNewId("TestProject");
 

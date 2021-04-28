@@ -15,7 +15,7 @@
     {
         protected abstract CodeFixProvider GetCodeFixProvider();
 
-        protected virtual async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        protected virtual async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false, CancellationToken cancellationToken = default)
         {
             var analyzer = GetAnalyzer();
             var codeFixProvider = GetCodeFixProvider();
@@ -23,8 +23,8 @@
             var adhocProject = CreateProject(oldSource);
 
             var document = adhocProject.Documents.First();
-            var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
-            var compilerDiagnostics = await GetCompilerDiagnostics(document);
+            var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, cancellationToken);
+            var compilerDiagnostics = await GetCompilerDiagnostics(document, cancellationToken);
             var attempts = analyzerDiagnostics.Length;
 
             for (int i = 0; i < attempts; ++i)
@@ -40,26 +40,26 @@
 
                 if (codeFixIndex != null)
                 {
-                    document = await ApplyFix(document, actions.ElementAt((int)codeFixIndex));
+                    document = await ApplyFix(document, actions.ElementAt((int)codeFixIndex), cancellationToken);
                     break;
                 }
 
-                document = await ApplyFix(document, actions.ElementAt(0));
-                analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
+                document = await ApplyFix(document, actions.ElementAt(0), cancellationToken);
+                analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, cancellationToken);
 
-                var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, await GetCompilerDiagnostics(document));
+                var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, await GetCompilerDiagnostics(document, cancellationToken));
 
                 //check if applying the code fix introduced any new compiler diagnostics
                 if (!allowNewCompilerDiagnostics && newCompilerDiagnostics.Any())
                 {
                     // Format and get the compiler diagnostics again so that the locations make sense in the output
-                    document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
-                    newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, await GetCompilerDiagnostics(document));
+                    document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync(cancellationToken).Result, Formatter.Annotation, document.Project.Solution.Workspace, cancellationToken: cancellationToken));
+                    newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, await GetCompilerDiagnostics(document, cancellationToken));
 
                     Assert.True(false,
                         string.Format("Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
                             string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString())),
-                            document.GetSyntaxRootAsync().Result.ToFullString()));
+                            document.GetSyntaxRootAsync(cancellationToken).Result.ToFullString()));
                 }
 
                 //check if there are analyzer diagnostics left after the code fix
@@ -70,7 +70,7 @@
             }
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
-            var actual = await GetStringFromDocument(document);
+            var actual = await GetStringFromDocument(document, cancellationToken);
 
             // Normalize line endings, just in case
             actual = actual.Replace("\r\n", "\n");
@@ -100,21 +100,21 @@
             }
         }
 
-        static async Task<IEnumerable<Diagnostic>> GetCompilerDiagnostics(Document document)
+        static async Task<IEnumerable<Diagnostic>> GetCompilerDiagnostics(Document document, CancellationToken cancellationToken)
         {
-            var model = await document.GetSemanticModelAsync();
-            return model.GetDiagnostics();
+            var model = await document.GetSemanticModelAsync(cancellationToken);
+            return model.GetDiagnostics(cancellationToken: cancellationToken);
         }
 
-        static async Task<string> GetStringFromDocument(Document document)
+        static async Task<string> GetStringFromDocument(Document document, CancellationToken cancellationToken)
         {
-            var simplifiedDoc = await Simplifier.ReduceAsync(document, Simplifier.Annotation);
-            var root = await simplifiedDoc.GetSyntaxRootAsync();
-            root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace);
+            var simplifiedDoc = await Simplifier.ReduceAsync(document, Simplifier.Annotation, cancellationToken: cancellationToken);
+            var root = await simplifiedDoc.GetSyntaxRootAsync(cancellationToken);
+            root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace, cancellationToken: cancellationToken);
             return root.GetText().ToString();
         }
 
-        static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
+        static async Task<Document> ApplyFix(Document document, CodeAction codeAction, CancellationToken cancellationToken)
         {
             var operations = await codeAction.GetOperationsAsync(CancellationToken.None);
             var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;

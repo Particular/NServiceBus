@@ -269,7 +269,7 @@ public static class BarExtensions
         [Test]
         public Task NoDiagnosticWhenNoBaseType()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System;
 using System.Threading;
@@ -302,7 +302,7 @@ public interface IMadeUpContext {}
         [Test]
         public Task NoDiagnosticWhenNotNServiceBus()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -348,7 +348,7 @@ public abstract class Behavior<TContext>
         [Test]
         public Task NoDiagnosticWhenTokenPassedToStaticMethod()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -371,7 +371,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenStaticMethodDoesNotSupportToken()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -392,7 +392,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenTokenPassedToExternalStaticMethod()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -415,7 +415,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenExternalStaticMethodDoesNotSupportToken()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -437,7 +437,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenTokenPassedToExternalStaticMethodWithStaticUsing()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -461,7 +461,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenExternalStaticMethodDoesNotSupportTokenWithStaticUsing()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -484,7 +484,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenTokenPassedToMemberMethod()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -507,7 +507,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenMemberMethodDoesNotSupportToken()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -528,7 +528,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticWhenMethodCandidateTakes2Tokens()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -550,7 +550,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticIfCancellationTokenIsNotLastParameter()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -572,7 +572,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticIfMethodCandidateDoesntMatchExistingParameters()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -594,7 +594,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticOnNamedRandomOrderParameters()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -617,7 +617,7 @@ public class TestMessage : ICommand {}
         [Test]
         public Task NoDiagnosticOnNamedRandomOrderParametersInExtensionMethod()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -644,7 +644,7 @@ public static class BarExtensions
         [Test]
         public Task NoDiagnosticOnCrazyWaysToCreateAToken()
         {
-            return Verify(@"
+            return NoDiagnostic(@"
 using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
