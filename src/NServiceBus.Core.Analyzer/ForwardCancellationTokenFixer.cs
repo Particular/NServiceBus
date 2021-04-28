@@ -27,6 +27,7 @@
             var diagnostic = context.Diagnostics.First();
             var contextVarName = diagnostic.Properties["ContextParamName"];
             var methodName = diagnostic.Properties["MethodName"];
+            var explicitParameterName = diagnostic.Properties["ExplicitParameterName"];
             var sourceLocation = diagnostic.Location;
             var diagnosticSpan = sourceLocation.SourceSpan;
 
@@ -38,13 +39,26 @@
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(title, ct =>
-                AddCancellationToken(context.Document, invocationSyntax, contextVarName, ct), equivalenceKey: title), diagnostic);
+                AddCancellationToken(context.Document, invocationSyntax, contextVarName, explicitParameterName, ct), equivalenceKey: title), diagnostic);
 
         }
 
-        static async Task<Document> AddCancellationToken(Document document, InvocationExpressionSyntax invocationSyntax, string contextVarName, CancellationToken cancellationToken)
+        static async Task<Document> AddCancellationToken(Document document, InvocationExpressionSyntax invocationSyntax, string contextVarName, string explicitParameterName, CancellationToken cancellationToken)
         {
-            var newArg = SyntaxFactory.Argument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(contextVarName), SyntaxFactory.IdentifierName("CancellationToken")));
+            // The context.CancellationToken part. This is always required.
+            var simpleMemberAccess = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(contextVarName), SyntaxFactory.IdentifierName("CancellationToken"));
+
+            ArgumentSyntax newArg;
+            if (explicitParameterName != null)
+            {
+                // Add the prefix `token: context.CancellationToken` if adding 1 argument would not be in the correct location
+                var nameColon = SyntaxFactory.NameColon(SyntaxFactory.IdentifierName(explicitParameterName));
+                newArg = SyntaxFactory.Argument(nameColon, default, simpleMemberAccess);
+            }
+            else
+            {
+                newArg = SyntaxFactory.Argument(simpleMemberAccess);
+            }
             var newArgList = invocationSyntax.ArgumentList.AddArguments(newArg);
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);

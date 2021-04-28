@@ -215,6 +215,44 @@ public class TestMessage : ICommand {}
             return VerifyFix(test, fixedTest);
         }
 
+        [Test]
+        public Task MultipleOptionalParameters()
+        {
+            var test = @"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod(1);
+    }
+
+    Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}
+public class TestMessage : ICommand {}
+";
+
+            var fixedTest = @"
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await TestMethod(1, token: context.CancellationToken);
+    }
+
+    Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}
+public class TestMessage : ICommand {}
+";
+
+            return VerifyFix(test, fixedTest);
+        }
+
         protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenAnalyzer();
 
         protected override CodeFixProvider GetCodeFixProvider() => new ForwardCancellationTokenFixer();

@@ -141,9 +141,9 @@
                 return;
             }
 
-            if (InvocationMethodTakesAToken(methodSymbol, knownTypes))
+            if (InvocationMethodTakesAToken(methodSymbol, knownTypes, invocationArgs, out var explicitParamName))
             {
-                ReportDiagnostic(context, invocation, contextParamName, methodSymbol);
+                ReportDiagnostic(context, invocation, contextParamName, methodSymbol, explicitParamName);
                 return;
             }
 
@@ -242,8 +242,10 @@
                 });
         }
 
-        static bool InvocationMethodTakesAToken(IMethodSymbol method, KnownTypes knownTypes)
+        static bool InvocationMethodTakesAToken(IMethodSymbol method, KnownTypes knownTypes, ArgumentSyntax[] arguments, out string explicitParamName)
         {
+            explicitParamName = null;
+
             // If is an NServiceBus-namespace extension method that extends IMessageHandlerContext, then skip
             if (method.IsExtensionMethod && method.ContainingNamespace?.Name == "NServiceBus")
             {
@@ -265,18 +267,23 @@
             // If parameter has a default value being used
             if (lastParameter.Type.Equals(knownTypes.CancellationToken) && lastParameter.IsOptional)
             {
+                if (method.Parameters.Length != arguments.Length + 1)
+                {
+                    explicitParamName = lastParameter.Name;
+                }
                 return true;
             }
 
             return false;
         }
 
-        static void ReportDiagnostic(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, string contextParamName, IMethodSymbol methodSymbol)
+        static void ReportDiagnostic(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, string contextParamName, IMethodSymbol methodSymbol, string explicitParamName = null)
         {
             var properties = new Dictionary<string, string>
             {
                 { "ContextParamName", contextParamName },
-                { "MethodName", methodSymbol.Name }
+                { "MethodName", methodSymbol.Name },
+                { "ExplicitParameterName", explicitParamName }
             }.ToImmutableDictionary();
 
             var diagnostic = Diagnostic.Create(ForwardCancellationTokenDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
