@@ -118,20 +118,8 @@
                 return;
             }
 
-            // Check cancellation before getting expensive symbol info in ArgumentIsACancellationToken
-            if (context.CancellationToken.IsCancellationRequested)
-            {
-                return;
-            }
-
             var invocationArgs = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
             if (invocationArgs.Any(arg => ArgumentIsACancellationToken(context, arg, contextParamName, knownTypes)))
-            {
-                return;
-            }
-
-            // Check cancellation again before getting method symbol
-            if (context.CancellationToken.IsCancellationRequested)
             {
                 return;
             }
@@ -154,11 +142,6 @@
                 var memberAccessIdentifier = memberAccessExpr.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
                 if (memberAccessIdentifier != null)
                 {
-                    if (context.CancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
                     var memberAccessSymbolInfo = context.SemanticModel.GetSymbolInfo(memberAccessIdentifier, context.CancellationToken);
                     if (memberAccessSymbolInfo.Symbol is ILocalSymbol localSymbol && localSymbol.Type is INamedTypeSymbol memberExpressionInstanceType)
                     {
