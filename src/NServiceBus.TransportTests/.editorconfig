@@ -2,3 +2,6 @@
 
 # Justification: Test project
 dotnet_diagnostic.CA2007.severity = none
+
+# Justification: Tests don't support cancellation and don't need to forward IMessageHandlerContext.CancellationToken
+dotnet_diagnostic.NSB0002.severity = suggestion
