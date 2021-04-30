@@ -28,6 +28,11 @@ namespace NServiceBus
 
             foreach (var handler in context.Builder.GetServices<IHandleSagaNotFound>())
             {
+                if (handler is Saga)
+                {
+                    throw new InvalidOperationException("Saga types can't implement `IHandleSagaNotFound`. The not found handlers are not bound to a specific saga type and are invoked if none of the sagas mapped to a given message is found.");
+                }
+
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
 
                 foreach (var sagaType in sagaTypes)
