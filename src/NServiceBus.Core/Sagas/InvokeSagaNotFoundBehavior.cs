@@ -30,7 +30,7 @@ namespace NServiceBus
             {
                 if (handler is Saga)
                 {
-                    throw new InvalidOperationException("It is not allowed to inherit `IHandleSagaNotFound` on a Saga type.");
+                    throw new InvalidOperationException("Saga types can't implement `IHandleSagaNotFound`. The not found handlers are not bound to a specific saga type and are invoked if none of the sagas mapped to a given message is found.");
                 }
 
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
