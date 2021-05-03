@@ -72,7 +72,7 @@
             messagePumpCancellationTokenSource = new CancellationTokenSource();
             messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
-            messagePumpTask = Task.Run(() => ProcessMessages(messagePumpCancellationTokenSource.Token), messagePumpCancellationTokenSource.Token);
+            messagePumpTask = Task.Run(() => ProcessMessages(messagePumpCancellationTokenSource.Token), CancellationToken.None);
 
             delayedMessagePoller.Start();
 
@@ -163,9 +163,9 @@
                     await InnerProcessMessages(messagePumpCancellationToken)
                         .ConfigureAwait(false);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
-                    // graceful shutdown
+                    log.Debug("Message receiving cancelled.", ex);
                 }
                 catch (Exception ex)
                 {
@@ -308,9 +308,17 @@
                 await onMessage(messageContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException ex)
             {
-                log.Info("Message processing cancelled. Rolling back transaction.", ex);
+                if (messageProcessingCancellationToken.IsCancellationRequested)
+                {
+                    log.Debug("Message processing cancelled. Rolling back transaction.", ex);
+                }
+                else
+                {
+                    log.Warn("OperationCanceledException thrown. Rolling back transaction.", ex);
+                }
+
                 transaction.Rollback();
 
                 return;
@@ -331,9 +339,17 @@
                 {
                     result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
+                catch (OperationCanceledException ex)
                 {
-                    log.Info("Message processing cancelled. Rolling back transaction.", ex);
+                    if (messageProcessingCancellationToken.IsCancellationRequested)
+                    {
+                        log.Debug("Message processing cancelled. Rolling back transaction.", ex);
+                    }
+                    else
+                    {
+                        log.Warn("OperationCanceledException thrown. Rolling back transaction.", ex);
+                    }
+
                     transaction.Rollback();
 
                     return;
