@@ -72,26 +72,37 @@
         }
 
         [Test]
-        public void Should_not_throw_when_feature_task_fails_on_start_and_abort_starting()
+        public void Should_throw_when_feature_task_fails_on_start_and_should_stop_previously_started_tasks_and_should_abort_starting()
         {
-            var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStart: true, throwOnStop: false);
-            var feature2 = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: false);
+            var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
+            var feature2 = new FeatureWithStartupTaskThatThrows(throwOnStart: true, throwOnStop: false);
+            var feature3 = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: false);
+
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
+            featureSettings.Add(feature3);
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
+            var aggregateException = Assert.ThrowsAsync<AggregateException>(async () => await featureSettings.StartFeatures(null, null));
 
-            Assert.False(feature1.TaskStarted && feature1.TaskStopped);
-            Assert.False(feature2.TaskStarted && feature2.TaskStopped);
+            Assert.AreEqual(2, aggregateException.InnerExceptions);
+            CollectionAssert.AllItemsAreInstancesOfType(aggregateException.InnerExceptions, typeof(InvalidOperationException));
+
+            Assert.True(feature1.TaskStarted);
+            Assert.True(feature1.TaskStopped);
+            Assert.True(feature2.TaskStarted);
+            Assert.False(feature2.TaskStopped);
+            Assert.False(feature3.TaskStarted);
+            Assert.False(feature3.TaskStopped);
         }
 
         [Test]
-        public async Task Should_not_throw_when_feature_task_fails_on_stop_and_not_abort_stopping()
+        public async Task Should_not_throw_when_feature_task_fails_on_stop_and_should_not_abort_stopping()
         {
             var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: false);
             var feature2 = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
+
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
@@ -100,6 +111,7 @@
             await featureSettings.StartFeatures(null, null);
 
             Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures());
+
             Assert.True(feature1.TaskStarted && feature1.TaskStopped);
             Assert.True(feature2.TaskStarted && !feature2.TaskStopped);
         }
