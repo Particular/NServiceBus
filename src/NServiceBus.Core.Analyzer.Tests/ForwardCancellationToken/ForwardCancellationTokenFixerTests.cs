@@ -2,18 +2,16 @@
 {
     using System.Threading.Tasks;
     using Helpers;
-    using Microsoft.CodeAnalysis.CodeFixes;
-    using Microsoft.CodeAnalysis.Diagnostics;
     using NUnit.Framework;
 
     [TestFixture]
-    public class ForwardCancellationTokenFixerTests : CodeFixVerifier
+    public class ForwardCancellationTokenFixerTests : CodeFixTestFixture<ForwardCancellationTokenAnalyzer, ForwardCancellationTokenFixer>
     {
         [Test]
         public Task Simple()
         {
-            var test = @"
-using NServiceBus;
+            var original =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -25,11 +23,10 @@ public class Foo : IHandleMessages<TestMessage>
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            var fixedTest = @"
-using NServiceBus;
+            var expected =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -41,17 +38,16 @@ public class Foo : IHandleMessages<TestMessage>
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            return VerifyFix(test, fixedTest);
+            return Assert(original, expected);
         }
 
         [Test]
-        public Task NonStandardContextVaraibleName()
+        public Task NonStandardContextVariableName()
         {
-            var test = @"
-using NServiceBus;
+            var original =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -63,11 +59,10 @@ public class Foo : IHandleMessages<TestMessage>
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            var fixedTest = @"
-using NServiceBus;
+            var expected =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -79,17 +74,16 @@ public class Foo : IHandleMessages<TestMessage>
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            return VerifyFix(test, fixedTest);
+            return Assert(original, expected);
         }
 
         [Test]
         public Task OverloadsAndThis()
         {
-            var test = @"
-using NServiceBus;
+            var original =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -103,11 +97,10 @@ public class Foo : IHandleMessages<TestMessage>
     Task TestMethod() { return Task.CompletedTask; }
     Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            var fixedTest = @"
-using NServiceBus;
+            var expected =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -121,17 +114,16 @@ public class Foo : IHandleMessages<TestMessage>
     Task TestMethod() { return Task.CompletedTask; }
     Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            return VerifyFix(test, fixedTest);
+            return Assert(original, expected);
         }
 
         [Test]
         public Task DontMessUpGenericTypeParams()
         {
-            var test = @"
-using NServiceBus;
+            var original =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -146,11 +138,10 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task<T> TestMethod<T>(T value, CancellationToken token = default(CancellationToken)) { return Task.FromResult(value); }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            var fixedTest = @"
-using NServiceBus;
+            var expected =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -165,17 +156,16 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task<T> TestMethod<T>(T value, CancellationToken token = default(CancellationToken)) { return Task.FromResult(value); }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            return VerifyFix(test, fixedTest);
+            return Assert(original, expected);
         }
 
         [Test]
         public Task DontMessUpTrivia()
         {
-            var test = @"
-using NServiceBus;
+            var original =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -190,11 +180,10 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task TestMethod(int a, int b, int c, int d, int e, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            var fixedTest = @"
-using NServiceBus;
+            var expected =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -209,17 +198,16 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task TestMethod(int a, int b, int c, int d, int e, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            return VerifyFix(test, fixedTest);
+            return Assert(original, expected);
         }
 
         [Test]
         public Task MultipleOptionalParameters()
         {
-            var test = @"
-using NServiceBus;
+            var original =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -231,11 +219,10 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            var fixedTest = @"
-using NServiceBus;
+            var expected =
+@"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -247,14 +234,9 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}
-";
+public class TestMessage : ICommand {}";
 
-            return VerifyFix(test, fixedTest);
+            return Assert(original, expected);
         }
-
-        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenAnalyzer();
-
-        protected override CodeFixProvider GetCodeFixProvider() => new ForwardCancellationTokenFixer();
     }
 }

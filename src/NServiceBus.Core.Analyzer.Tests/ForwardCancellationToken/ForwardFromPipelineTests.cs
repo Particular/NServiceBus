@@ -1,32 +1,30 @@
-﻿#pragma warning disable IDE0022 // Use expression body for methods
-namespace NServiceBus.Core.Analyzer.Tests
+﻿namespace NServiceBus.Core.Analyzer.Tests
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Helpers;
     using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Diagnostics;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
     [TestFixture]
-    public class ForwardFromPipelineTests : DiagnosticVerifier
+    public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationTokenAnalyzer>
     {
         [Test]
-        [SuppressMessage("Style", "IDE0001:Simplify Names", Justification = "Clarity of different type names")]
         public void EachTypeHasABasicTest()
         {
             // These abstract classes are only extended internally
             var ignoredTypes = new[] {
+#pragma warning disable IDE0001 // Simplify Names
                 typeof(NServiceBus.Pipeline.ForkConnector<,>),
                 typeof(NServiceBus.Pipeline.PipelineTerminator<>),
                 typeof(NServiceBus.Pipeline.StageConnector<,>),
                 typeof(NServiceBus.Pipeline.StageForkConnector<,,>),
+#pragma warning restore IDE0001 // Simplify Names
             };
 
             var pipelineTypes = typeof(EndpointConfiguration).Assembly.GetTypes()
@@ -60,7 +58,7 @@ namespace NServiceBus.Core.Analyzer.Tests
                 TestContext.WriteLine(t.FullName);
             }
 
-            Assert.AreEqual(0, missingTestCases.Length, $"One or more pipeline type(s) are not covered by the {nameof(RunTestOnType)} test in this class.");
+            NUnit.Framework.Assert.AreEqual(0, missingTestCases.Length, $"One or more pipeline type(s) are not covered by the {nameof(RunTestOnType)} test in this class.");
         }
 
         [TestCase(typeof(IHandleMessages<>), "TestMessage", "Handle", "TestMessage message, IMessageHandlerContext context")]
@@ -75,9 +73,8 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase(typeof(IMutateOutgoingMessages), null, "MutateOutgoing", "MutateOutgoingMessageContext context")]
         public Task RunTestOnType(Type type, string genericTypeArgs, string methodName, string methodArguments)
         {
-            const string sourceFormat =
-        @"
-using NServiceBus;
+            const string codeFormat =
+@"using NServiceBus;
 using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
 using NServiceBus.Sagas;
@@ -88,19 +85,18 @@ public class Foo : BASE_TYPE_WITH_ARGUMENTS
 {
     public Task METHOD_NAME(METHOD_ARGUMENTS)
     {
-        return TestMethod();
+        return [|TestMethod()|];
     }
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}
-public class TestTimeout {}
-";
+public class TestTimeout {}";
 
             var baseTypeWithArgs = Regex.Replace(type.Name, "`.*", "") + (genericTypeArgs != null ? $"<{genericTypeArgs}>" : "");
 
             // Too confusing to do normal string interpolation or formatting with all the curly braces
-            var code = sourceFormat
+            var code = codeFormat
                 .Replace("BASE_TYPE_WITH_ARGUMENTS", baseTypeWithArgs)
                 .Replace("METHOD_NAME", methodName)
                 .Replace("METHOD_ARGUMENTS", methodArguments);
@@ -110,12 +106,10 @@ public class TestTimeout {}
                 code = code.Replace("public Task", "public override Task");
             }
 
-            var expected = NotForwardedAt(13, 16);
-
             TestContext.WriteLine($"Source Code for test case: {type.FullName}:");
             TestContext.WriteLine(code);
 
-            return Verify(code, expected);
+            return Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, code);
         }
 
         static bool HasMethodWithContextParameter(Type type)
@@ -127,9 +121,9 @@ public class TestTimeout {}
             {
                 foreach (var method in typeOrInterface.GetMethods())
                 {
-                    foreach (var p in method.GetParameters())
+                    foreach (var param in method.GetParameters())
                     {
-                        if (typeof(ICancellableContext).IsAssignableFrom(p.ParameterType))
+                        if (typeof(ICancellableContext).IsAssignableFrom(param.ParameterType))
                         {
                             return true;
                         }
@@ -139,18 +133,5 @@ public class TestTimeout {}
 
             return false;
         }
-
-        static DiagnosticResult NotForwardedAt(int line, int character)
-        {
-            return new DiagnosticResult
-            {
-                Id = "NSB0002",
-                Severity = DiagnosticSeverity.Warning,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, character) }
-            };
-        }
-
-        protected override DiagnosticAnalyzer GetAnalyzer() => new ForwardCancellationTokenAnalyzer();
     }
 }
-#pragma warning restore IDE0022 // Use expression body for methods
