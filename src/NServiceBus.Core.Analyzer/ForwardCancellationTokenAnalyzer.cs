@@ -20,9 +20,9 @@
             ForwardCancellationTokenDiagnostic
         );
 
-        static AnalysisTarget[] targets;
-        static HashSet<string> targetMethodNames;
-        static HashSet<string> targetContextNames;
+        static readonly AnalysisTarget[] targets;
+        static readonly HashSet<string> targetMethodNames;
+        static readonly HashSet<string> targetContextNames;
 
         static ForwardCancellationTokenAnalyzer()
         {
