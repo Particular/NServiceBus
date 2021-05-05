@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,35 +11,25 @@
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
     {
+        static readonly AnalysisTarget[] targets = new[]
+        {
+            new AnalysisTarget("NServiceBus.IHandleMessages`1", "Handle", "IMessageHandlerContext"),
+            new AnalysisTarget("NServiceBus.IAmStartedByMessages`1", "Handle", "IMessageHandlerContext"),
+            new AnalysisTarget("NServiceBus.IHandleTimeouts`1", "Timeout", "IMessageHandlerContext"),
+            new AnalysisTarget("NServiceBus.Sagas.IHandleSagaNotFound", "Handle", "IMessageProcessingContext"),
+            new AnalysisTarget("NServiceBus.Pipeline.Behavior`1", "Invoke", null), // Context based on generic type argument
+            new AnalysisTarget("NServiceBus.Pipeline.IBehavior`2", "Invoke", null), // Context based on generic type argument
+            new AnalysisTarget("NServiceBus.MessageMutator.IMutateIncomingMessages", "MutateIncoming", "MutateIncomingMessageContext"),
+            new AnalysisTarget("NServiceBus.MessageMutator.IMutateIncomingTransportMessages", "MutateIncoming", "MutateIncomingTransportMessageContext"),
+            new AnalysisTarget("NServiceBus.MessageMutator.IMutateOutgoingMessages", "MutateOutgoing", "MutateOutgoingMessageContext"),
+            new AnalysisTarget("NServiceBus.MessageMutator.IMutateOutgoingTransportMessages", "MutateOutgoing", "MutateOutgoingTransportMessageContext"),
+        };
+
         public const string DiagnosticId = "NSB0002";
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             ForwardCancellationTokenDiagnostic
         );
-
-        static readonly AnalysisTarget[] targets;
-        static readonly HashSet<string> targetMethodNames;
-        static readonly HashSet<string> targetContextNames;
-
-        static ForwardCancellationTokenAnalyzer()
-        {
-            targets = new[]
-            {
-                new AnalysisTarget("NServiceBus.IHandleMessages`1", "Handle", "IMessageHandlerContext"),
-                new AnalysisTarget("NServiceBus.IAmStartedByMessages`1", "Handle", "IMessageHandlerContext"),
-                new AnalysisTarget("NServiceBus.IHandleTimeouts`1", "Timeout", "IMessageHandlerContext"),
-                new AnalysisTarget("NServiceBus.Sagas.IHandleSagaNotFound", "Handle", "IMessageProcessingContext"),
-                new AnalysisTarget("NServiceBus.Pipeline.Behavior`1", "Invoke", null), // Context based on generic type argument
-                new AnalysisTarget("NServiceBus.Pipeline.IBehavior`2", "Invoke", null), // Context based on generic type argument
-                new AnalysisTarget("NServiceBus.MessageMutator.IMutateIncomingMessages", "MutateIncoming", "MutateIncomingMessageContext"),
-                new AnalysisTarget("NServiceBus.MessageMutator.IMutateIncomingTransportMessages", "MutateIncoming", "MutateIncomingTransportMessageContext"),
-                new AnalysisTarget("NServiceBus.MessageMutator.IMutateOutgoingMessages", "MutateOutgoing", "MutateOutgoingMessageContext"),
-                new AnalysisTarget("NServiceBus.MessageMutator.IMutateOutgoingTransportMessages", "MutateOutgoing", "MutateOutgoingTransportMessageContext"),
-            };
-
-            targetMethodNames = new HashSet<string>(targets.Select(target => target.MethodName).Distinct());
-            targetContextNames = new HashSet<string>(targets.Select(target => target.ContextTypeName).Where(name => name != null).Distinct());
-        }
 
         class AnalysisTarget
         {
@@ -48,12 +37,8 @@
             public string MethodName { get; }
             public string ContextTypeName { get; }
 
-            public AnalysisTarget(string typeName, string methodName, string contextTypeName)
-            {
-                TypeName = typeName;
-                MethodName = methodName;
-                ContextTypeName = contextTypeName;
-            }
+            public AnalysisTarget(string typeName, string methodName, string contextTypeName) =>
+                (TypeName, MethodName, ContextTypeName) = (typeName, methodName, contextTypeName);
         }
 
         public override void Initialize(AnalysisContext context) =>
@@ -70,22 +55,27 @@
 
         class KnownTypes
         {
-            public INamedTypeSymbol CancellationToken { get; }
-            public INamedTypeSymbol IPipelineContext { get; }
+            public INamedTypeSymbol CancellationTokenType { get; }
+            public INamedTypeSymbol CancellableContextType { get; }
             public ImmutableArray<INamedTypeSymbol> AnalysisTypes { get; }
 
-            public bool IsValid => CancellationToken != null && IPipelineContext != null;
+            public bool IsValid => CancellationTokenType != null && CancellableContextType != null;
 
             public KnownTypes(Compilation compilation)
             {
-                CancellationToken = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
-                IPipelineContext = compilation.GetTypeByMetadataName("NServiceBus.IPipelineContext");
-                AnalysisTypes = targets.Select(target =>
-                {
-                    var type = compilation.GetTypeByMetadataName(target.TypeName);
-                    // Translate IBehavior<TFromContext, TToContext> to IBehavior<,>
-                    return type.IsGenericType ? type.ConstructUnboundGenericType() : type;
-                }).ToImmutableArray();
+                CancellationTokenType = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+
+                CancellableContextType = compilation.GetTypeByMetadataName("NServiceBus.ICancellableContext");
+
+                AnalysisTypes = targets
+                    .Select(target =>
+                    {
+                        var type = compilation.GetTypeByMetadataName(target.TypeName);
+
+                        // Translate IBehavior<TFromContext, TToContext> to IBehavior<,>
+                        return type.IsGenericType ? type.ConstructUnboundGenericType() : type;
+                    })
+                    .ToImmutableArray();
             }
         }
 
@@ -96,134 +86,72 @@
                 return;
             }
 
-            // Get the parent method and make sure it's got one of the names we care about (i.e. Handle, Invoke)
-            var parentMethodDeclaration = GetParent<MethodDeclarationSyntax>(invocation);
-            if (parentMethodDeclaration == null || !targetMethodNames.Contains(parentMethodDeclaration.Identifier.ValueText))
+            if (!(invocation.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault() is MethodDeclarationSyntax callingMethodSyntax))
             {
                 return;
             }
 
-            // Make sure the parent (i.e. Handle) method has a parameter that is a known context, learn the type and variable name
-            if (!ParametersContainsAValidContext(parentMethodDeclaration, out var contextParamType, out var contextParamName))
+            if (!(context.SemanticModel.GetDeclaredSymbol(callingMethodSyntax) is IMethodSymbol callingMethod))
             {
                 return;
             }
 
-            // Get the owner class declaration and make sure it includes a target type (e.g. IHandle...) in its ancestry
-            var classDeclaration = GetParent<ClassDeclarationSyntax>(parentMethodDeclaration);
-            if (!ClassInheritsATargetType(context, classDeclaration, knownTypes))
+            if (!(callingMethod.Parameters.FirstOrDefault(param => IsCancellableContext(param.Type, knownTypes)) is IParameterSymbol contextParam))
             {
                 return;
             }
 
-            var invocationArgs = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
-            if (invocationArgs.Any(arg => ArgumentIsACancellationToken(context, arg, contextParamName, knownTypes)))
+            var args = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
+
+            if (args.Any(arg => IsCancellationToken(arg, contextParam.Name, knownTypes.CancellationTokenType, context)))
             {
                 return;
             }
 
-            if (!(context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is IMethodSymbol methodSymbol))
+            if (!(context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is IMethodSymbol calledMethod))
             {
                 return;
             }
 
-            if (InvocationMethodTakesAToken(methodSymbol, knownTypes, invocationArgs, out var explicitParamName))
+            if (HasACancellationTokenParameter(calledMethod, knownTypes, args, out var explicitParamName))
             {
-                ReportDiagnostic(context, invocation, contextParamName, methodSymbol, explicitParamName);
+                ReportDiagnostic(context, invocation, contextParam.Name, calledMethod, explicitParamName);
                 return;
             }
 
-            var namedType = methodSymbol.ContainingType;
-            var memberAccessExpr = invocation.ChildNodes().OfType<MemberAccessExpressionSyntax>().FirstOrDefault();
-            if (memberAccessExpr != null)
+            // get the type containing the method being called
+            var calledType = calledMethod.ContainingType;
+
+            if (invocation.ChildNodes().OfType<MemberAccessExpressionSyntax>().FirstOrDefault() is MemberAccessExpressionSyntax memberAccess)
             {
-                var memberAccessIdentifier = memberAccessExpr.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                var memberAccessIdentifier = memberAccess.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+
                 if (memberAccessIdentifier != null)
                 {
                     var memberAccessSymbolInfo = context.SemanticModel.GetSymbolInfo(memberAccessIdentifier, context.CancellationToken);
                     if (memberAccessSymbolInfo.Symbol is ILocalSymbol localSymbol && localSymbol.Type is INamedTypeSymbol memberExpressionInstanceType)
                     {
-                        namedType = memberExpressionInstanceType;
+                        calledType = memberExpressionInstanceType;
                     }
                 }
             }
 
-            for (var containingType = namedType; containingType != null && containingType.Name != "System.Object"; containingType = containingType.BaseType)
+            // walk the type ancestors and look for a method with a token
+            for (; calledType != null && calledType.Name != "System.Object"; calledType = calledType.BaseType)
             {
-                if (MethodHasOverloadWithCancellation(containingType, methodSymbol))
+                if (HasOverloadWithCancellationToken(calledType, calledMethod))
                 {
-                    ReportDiagnostic(context, invocation, contextParamName, methodSymbol);
+                    ReportDiagnostic(context, invocation, contextParam.Name, calledMethod);
                     return;
                 }
             }
         }
 
-        static bool ParametersContainsAValidContext(MethodDeclarationSyntax parentMethodDeclaration, out string contextParamType, out string contextParamName)
-        {
-            contextParamType = null;
-            contextParamName = null;
-            string[] genericTypeArgumentNames = null;
+        static bool IsCancellableContext(ITypeSymbol type, KnownTypes knownTypes) =>
+            type.Equals(knownTypes.CancellableContextType) ||
+            type.AllInterfaces.Any(@interface => @interface.Equals(knownTypes.CancellableContextType));
 
-            var parameters = parentMethodDeclaration.ParameterList.ChildNodes().OfType<ParameterSyntax>().ToArray();
-
-            foreach (var parameter in parameters)
-            {
-                if (parameter.Type is IdentifierNameSyntax contextTypeIdentifier)
-                {
-                    contextParamType = contextTypeIdentifier.Identifier.ValueText;
-                    contextParamName = parameter.Identifier.ValueText;
-                    if (targetContextNames.Contains(contextParamType))
-                    {
-                        return true;
-                    }
-
-                    if (contextParamType.EndsWith("Context"))
-                    {
-                        if (genericTypeArgumentNames == null)
-                        {
-                            genericTypeArgumentNames = parentMethodDeclaration.Ancestors()
-                                .OfType<ClassDeclarationSyntax>()
-                                .FirstOrDefault()
-                                ?.BaseList
-                                ?.DescendantNodes()
-                                .OfType<TypeArgumentListSyntax>()
-                                .SelectMany(list => list.DescendantNodes().OfType<IdentifierNameSyntax>())
-                                .Select(genericTypeNameSyntax => genericTypeNameSyntax.Identifier.ValueText)
-                                .ToArray();
-                        }
-
-                        if (genericTypeArgumentNames != null && genericTypeArgumentNames.Contains(contextParamType))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        static bool ClassInheritsATargetType(SyntaxNodeAnalysisContext context, ClassDeclarationSyntax classDeclaration, KnownTypes knownTypes)
-        {
-            if (classDeclaration == null || classDeclaration.BaseList == null)
-            {
-                return false;
-            }
-
-            return classDeclaration.BaseList.DescendantNodes().OfType<SimpleNameSyntax>()
-                .Any(baseTypeSyntax =>
-                {
-                    var baseTypeSymbolInfo = context.SemanticModel.GetSymbolInfo(baseTypeSyntax, context.CancellationToken);
-                    if (baseTypeSymbolInfo.Symbol is INamedTypeSymbol baseType)
-                    {
-                        var nonGenericType = baseType.IsGenericType ? baseType.ConstructUnboundGenericType() : baseType;
-                        return knownTypes.AnalysisTypes.Any(analysisType => analysisType.Equals(nonGenericType));
-                    }
-                    return false;
-                });
-        }
-
-        static bool InvocationMethodTakesAToken(IMethodSymbol method, KnownTypes knownTypes, ArgumentSyntax[] arguments, out string explicitParamName)
+        static bool HasACancellationTokenParameter(IMethodSymbol method, KnownTypes knownTypes, ArgumentSyntax[] arguments, out string explicitParamName)
         {
             explicitParamName = null;
 
@@ -233,7 +161,7 @@
                 if (method.ReducedFrom is IMethodSymbol reducedFromExtensionMethodDefinition)
                 {
                     var thisParam = reducedFromExtensionMethodDefinition.Parameters.FirstOrDefault();
-                    if (thisParam != null && thisParam.Type.Equals(knownTypes.IPipelineContext))
+                    if (thisParam != null && thisParam.Type.Equals(knownTypes.CancellableContextType))
                     {
                         return false;
                     }
@@ -246,7 +174,7 @@
             }
 
             // If parameter has a default value being used
-            if (lastParameter.Type.Equals(knownTypes.CancellationToken) && lastParameter.IsOptional)
+            if (lastParameter.Type.Equals(knownTypes.CancellationTokenType) && lastParameter.IsOptional)
             {
                 if (method.Parameters.Length != arguments.Length + 1)
                 {
@@ -268,24 +196,21 @@
             }.ToImmutableDictionary();
 
             var diagnostic = Diagnostic.Create(ForwardCancellationTokenDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
+
             context.ReportDiagnostic(diagnostic);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool MethodHasOverloadWithCancellation(INamedTypeSymbol type, IMethodSymbol currentMethod)
+        static bool HasOverloadWithCancellationToken(INamedTypeSymbol type, IMethodSymbol method)
         {
-            var possibilities = type.GetMembers(currentMethod.Name)
+            var candidates = type.GetMembers(method.Name)
                 .OfType<IMethodSymbol>()
-                .Where(method => method.Parameters.LastOrDefault()?.Type.Name == "CancellationToken");
+                .Where(candidate => candidate.Parameters.LastOrDefault()?.Type.Name == "CancellationToken");
 
-            if (possibilities.Any())
+            foreach (var candidate in candidates)
             {
-                foreach (var alternateMethod in possibilities)
+                if (MethodIsMatch(candidate, method))
                 {
-                    if (MethodIsMatch(alternateMethod, currentMethod))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -316,23 +241,7 @@
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static T GetParent<T>(SyntaxNode node) where T : SyntaxNode
-        {
-            if (node == null)
-            {
-                return null;
-            }
-
-            while (node != null && !(node is T))
-            {
-                node = node.Parent;
-            }
-            return node as T;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool ArgumentIsACancellationToken(SyntaxNodeAnalysisContext context, ArgumentSyntax arg, string contextParamName, KnownTypes types)
+        static bool IsCancellationToken(ArgumentSyntax arg, string contextParamName, INamedTypeSymbol cancellationTokenType, SyntaxNodeAnalysisContext context)
         {
             if (arg.Expression is LiteralExpressionSyntax)
             {
@@ -340,14 +249,17 @@
                 return false;
             }
 
-            if (arg.Expression is ObjectCreationExpressionSyntax objectCreation && objectCreation.Type is IdentifierNameSyntax creationId && creationId.Identifier.ValueText == "CancellationToken")
+            if (arg.Expression is ObjectCreationExpressionSyntax objectCreation &&
+                objectCreation.Type is IdentifierNameSyntax objectCreationTypeName &&
+                objectCreationTypeName.Identifier.ValueText == "CancellationToken")
             {
                 return true;
             }
 
             if (arg.Expression is MemberAccessExpressionSyntax memberAccess)
             {
-                if (memberAccess.IsKind(SyntaxKind.SimpleMemberAccessExpression) && memberAccess.Expression is IdentifierNameSyntax exprId)
+                if (memberAccess.IsKind(SyntaxKind.SimpleMemberAccessExpression) &&
+                    memberAccess.Expression is IdentifierNameSyntax exprId)
                 {
                     var parent = exprId.Identifier.ValueText;
                     var member = memberAccess.Name.Identifier.ValueText;
@@ -366,22 +278,23 @@
             }
 
             var expressionSymbol = context.SemanticModel.GetSymbolInfo(arg.Expression, context.CancellationToken);
+
             switch (expressionSymbol.Symbol)
             {
                 case IFieldSymbol fieldSymbol:
-                    return fieldSymbol.Type.Equals(types.CancellationToken);
+                    return fieldSymbol.Type.Equals(cancellationTokenType);
                 case IPropertySymbol propertySymbol:
-                    return propertySymbol.Type.Equals(types.CancellationToken);
+                    return propertySymbol.Type.Equals(cancellationTokenType);
                 case IMethodSymbol methodSymbol:
-                    return methodSymbol.ReturnType.Equals(types.CancellationToken);
+                    return methodSymbol.ReturnType.Equals(cancellationTokenType);
                 case ILocalSymbol localSymbol:
-                    return localSymbol.Type.Equals(types.CancellationToken);
+                    return localSymbol.Type.Equals(cancellationTokenType);
                 default:
                     return false;
             }
         }
 
-        // {0} = Variable name for the IMessageHandlerContext parameter
+        // {0} = IMessageHandlerContext parameter name
         // {1} = Name of method being invoked
         static readonly DiagnosticDescriptor ForwardCancellationTokenDiagnostic = new DiagnosticDescriptor(
             id: DiagnosticId,

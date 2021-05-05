@@ -96,7 +96,7 @@ public class TestMessage : ICommand {}
         }
 
         [Test]
-        public Task MethodAcceptingTokenIsOnASuperClass()
+        public Task MethodAcceptingTokenIsOnADerivedClass()
         {
             var source =
 @"using NServiceBus;
@@ -267,9 +267,10 @@ public static class BarExtensions
         }
 
         [Test]
-        public Task NoDiagnosticWhenNoBaseType()
+        public Task NoBaseType()
         {
-            return NoDiagnostic(@"
+            var source =
+@"
 using NServiceBus;
 using System;
 using System.Threading;
@@ -296,7 +297,17 @@ public class Foo
 }
 public class TestMessage : ICommand {}
 public interface IMadeUpContext {}
-");
+";
+
+            var expecteds = new[]
+            {
+                NotForwardedAt(10, 15),
+                NotForwardedAt(11, 15),
+                NotForwardedAt(12, 15),
+                NotForwardedAt(13, 15),
+            };
+
+            return Verify(source, expecteds);
         }
 
         [Test]
