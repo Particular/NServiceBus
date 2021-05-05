@@ -10,7 +10,6 @@
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Diagnostics;
 
-    [Shared]
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
     {
