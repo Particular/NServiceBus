@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Composition;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using Microsoft.CodeAnalysis;
