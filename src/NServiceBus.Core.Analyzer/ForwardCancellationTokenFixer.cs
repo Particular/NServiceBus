@@ -22,49 +22,62 @@
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-
+            // Since all the diagnostics have the same span
+            // https://github.com/dotnet/roslyn-api-docs/blob/live/dotnet/xml/Microsoft.CodeAnalysis.CodeFixes/CodeFixContext.xml#L187
+            // and the fixer only fixes one type of diagnostic,
+            // we can assume there is only one diagnostic.
+            // If there are duplicates then the analyzer is broken and its tests should catch that.
             var diagnostic = context.Diagnostics.First();
-            var contextVarName = diagnostic.Properties["ContextParamName"];
-            var methodName = diagnostic.Properties["MethodName"];
-            var explicitParameterName = diagnostic.Properties["ExplicitParameterName"];
-            var sourceLocation = diagnostic.Location;
-            var diagnosticSpan = sourceLocation.SourceSpan;
 
-            var startToken = root.FindToken(diagnosticSpan.Start);
+            var contextParamName = diagnostic.Properties["ContextParamName"];
+            var methodName = diagnostic.Properties["MethodName"];
+            var explicitParamName = diagnostic.Properties["ExplicitParameterName"];
+
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var startToken = root.FindToken(diagnostic.Location.SourceSpan.Start);
             var invocationSyntax = startToken.Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
 
-            string title = $"Forward {contextVarName}.CancellationToken to {methodName}";
+            var title = $"Forward {contextParamName}.CancellationToken to {methodName}";
 
             // Register a code action that will invoke the fix.
-            context.RegisterCodeFix(
-                CodeAction.Create(title, ct =>
-                AddCancellationToken(context.Document, invocationSyntax, contextVarName, explicitParameterName, ct), equivalenceKey: title), diagnostic);
+            var action = CodeAction.Create(
+                title,
+                token => ForwardCancellationToken(context.Document, invocationSyntax, contextParamName, explicitParamName, token),
+                equivalenceKey: title);
 
+            context.RegisterCodeFix(action, diagnostic);
         }
 
-        static async Task<Document> AddCancellationToken(Document document, InvocationExpressionSyntax invocationSyntax, string contextVarName, string explicitParameterName, CancellationToken cancellationToken)
+        static async Task<Document> ForwardCancellationToken(
+            Document document,
+            InvocationExpressionSyntax invocation,
+            string contextParamName,
+            string explicitParamName,
+            CancellationToken cancellationToken)
         {
             // The context.CancellationToken part. This is always required.
-            var simpleMemberAccess = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(contextVarName), SyntaxFactory.IdentifierName("CancellationToken"));
+            var memberAccess = SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxFactory.IdentifierName(contextParamName),
+                SyntaxFactory.IdentifierName("CancellationToken"));
 
             ArgumentSyntax newArg;
-            if (explicitParameterName != null)
+
+            if (explicitParamName != null)
             {
-                // Add the prefix `token: context.CancellationToken` if adding 1 argument would not be in the correct location
-                var nameColon = SyntaxFactory.NameColon(SyntaxFactory.IdentifierName(explicitParameterName));
-                newArg = SyntaxFactory.Argument(nameColon, default, simpleMemberAccess);
+                // Add the prefix `token:` if adding 1 argument would not be in the correct location.
+                var nameColon = SyntaxFactory.NameColon(SyntaxFactory.IdentifierName(explicitParamName));
+                newArg = SyntaxFactory.Argument(nameColon, default, memberAccess);
             }
             else
             {
-                newArg = SyntaxFactory.Argument(simpleMemberAccess);
+                newArg = SyntaxFactory.Argument(memberAccess);
             }
-            var newArgList = invocationSyntax.ArgumentList.AddArguments(newArg);
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-            var newRoot = root.ReplaceNode(invocationSyntax.ArgumentList, newArgList);
-
+            var newArgList = invocation.ArgumentList.AddArguments(newArg);
+            var newRoot = root.ReplaceNode(invocation.ArgumentList, newArgList);
             var newDocument = document.WithSyntaxRoot(newRoot);
 
             return newDocument;
