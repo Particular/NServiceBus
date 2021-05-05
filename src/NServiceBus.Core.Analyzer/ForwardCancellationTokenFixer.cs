@@ -31,7 +31,7 @@
 
             var contextParamName = diagnostic.Properties["ContextParamName"];
             var methodName = diagnostic.Properties["MethodName"];
-            var explicitParamName = diagnostic.Properties["ExplicitParameterName"];
+            var explicitParamName = diagnostic.Properties["ExplicitParamName"];
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var startToken = root.FindToken(diagnostic.Location.SourceSpan.Start);

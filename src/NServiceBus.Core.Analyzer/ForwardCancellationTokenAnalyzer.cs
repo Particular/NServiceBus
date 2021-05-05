@@ -264,7 +264,7 @@
             {
                 { "ContextParamName", contextParamName },
                 { "MethodName", methodSymbol.Name },
-                { "ExplicitParameterName", explicitParamName }
+                { "ExplicitParamName", explicitParamName }
             }.ToImmutableDictionary();
 
             var diagnostic = Diagnostic.Create(ForwardCancellationTokenDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
