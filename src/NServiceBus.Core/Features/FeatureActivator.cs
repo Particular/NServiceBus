@@ -59,12 +59,25 @@ namespace NServiceBus.Features
 
         public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
         {
+            var startedTaskControllers = new List<FeatureStartupTaskController>();
+
             // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
             foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
                 {
-                    await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception)
+                    {
+                        await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(cancellationToken))).ConfigureAwait(false);
+
+                        throw;
+                    }
+
+                    startedTaskControllers.Add(taskController);
                 }
             }
         }
