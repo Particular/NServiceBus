@@ -70,22 +70,11 @@ namespace NServiceBus.Features
                     {
                         await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
                     }
-                    catch (Exception startException)
+                    catch (Exception)
                     {
-                        var exceptions = new List<Exception> { startException };
+                        await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(cancellationToken))).ConfigureAwait(false);
 
-                        var stop = Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(cancellationToken)));
-
-                        try
-                        {
-                            await stop.ConfigureAwait(false);
-                        }
-                        catch (Exception ex) when (stop.Exception?.InnerException == ex)
-                        {
-                            exceptions.AddRange(stop.Exception.InnerExceptions);
-                        }
-
-                        throw new AggregateException(exceptions);
+                        throw;
                     }
 
                     startedTaskControllers.Add(taskController);
