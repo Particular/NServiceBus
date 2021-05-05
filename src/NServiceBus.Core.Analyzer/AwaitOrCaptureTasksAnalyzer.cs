@@ -18,7 +18,7 @@ namespace NServiceBus.Core.Analyzer
         public override void Initialize(AnalysisContext context) =>
             context.WithDefaultSettings().RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
 
-        void Analyze(SyntaxNodeAnalysisContext context)
+        static void Analyze(SyntaxNodeAnalysisContext context)
         {
             if (!(context.Node is InvocationExpressionSyntax call))
             {
