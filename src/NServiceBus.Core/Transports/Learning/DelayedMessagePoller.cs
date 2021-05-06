@@ -49,11 +49,16 @@
                       try
                       {
                           await Task.Delay(TimeSpan.FromSeconds(1), polling.Token).ConfigureAwait(false);
-                          MoveDelayedMessagesToMainDirectory();
                       }
                       catch (OperationCanceledException)
                       {
-                          // no-op
+                          // polling is being stopped
+                          break;
+                      }
+
+                      try
+                      {
+                          MoveDelayedMessagesToMainDirectory();
                       }
                       catch (Exception ex)
                       {
