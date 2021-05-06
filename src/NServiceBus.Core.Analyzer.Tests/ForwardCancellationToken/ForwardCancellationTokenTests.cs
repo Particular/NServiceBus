@@ -7,184 +7,103 @@
     [TestFixture]
     public class ForwardCancellationTokenTests : AnalyzerTestFixture<ForwardCancellationTokenAnalyzer>
     {
-        [Test]
-        public Task Simple() => Assert(
+        [TestCase("IMessageHandlerContext context")]
+        [TestCase("int a, string b, IMessageHandlerContext context")]
+        [TestCase("IMessageHandlerContext context, int a, string b")]
+        [TestCase("int a, string b, IMessageHandlerContext context, float c, double d")]
+        [TestCase("IMessageHandlerContext context, string s = null, int i = 0")]
+        [TestCase("[Silly] IMessageHandlerContext context")]
+        [TestCase("IMessageHandlerContext mc")]
+        [TestCase("ICancellableContext context")]
+        [TestCase("IPipelineContext context")]
+        [TestCase("IMessageProcessingContext context")]
+        [TestCase("IBehaviorContext context")]
+        [TestCase("IIncomingLogicalMessageContext context")]
+        [TestCase("IOutgoingLogicalMessageContext context")]
+        [TestCase("IIncomingPhysicalMessageContext context")]
+        [TestCase("IOutgoingPhysicalMessageContext context")]
+        [TestCase("MutateIncomingMessageContext context")]
+        [TestCase("MutateOutgoingMessageContext context")]
+        [TestCase("MutateIncomingTransportMessageContext context")]
+        [TestCase("MutateOutgoingTransportMessageContext context")]
+        public Task NormalUsage(string arguments) => Assert(
             ForwardCancellationTokenAnalyzer.DiagnosticId,
 @"using NServiceBus;
+using NServiceBus.MessageMutator;
+using NServiceBus.Pipeline;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Method(" + arguments + @")
     {
-        return [|TestMethod()|];
-    }
+        await [|StaticMethod()|];
+        await [|InstanceMethod()|];
+        await [|this.InstanceMethod()|];
 
-    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task MethodAcceptingTokenIsOnDifferentClass() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
         var thing = new Thing();
-        return [|thing.TestMethod()|];
+        await [|thing.OtherClassMethod()|];
+        await [|thing.ExtensionMethod(true)|];
+
+        var derived = new DerivedClass();
+        await [|derived.TokenMethodOnBase()|];
+        await [|derived.TokenMethodOnDerived()|];
+
+        await [|LotsOfParameters(true, false, true, false, true)|];
+
+        await [|LotsOfOverloadsAllTakeToken(true)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false, true)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false, true, false)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false, true, false, true)|];
+
+        await LotsOfOverloadsOneTakesToken(true);
+        await LotsOfOverloadsOneTakesToken(true, false);
+        await LotsOfOverloadsOneTakesToken(true, false, true);
+        await LotsOfOverloadsOneTakesToken(true, false, true, false);
+        await [|LotsOfOverloadsOneTakesToken(true, false, true, false, true)|];
     }
+    static Task StaticMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    Task InstanceMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+
+    static Task LotsOfParameters(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+
+    static Task LotsOfOverloadsAllTakeToken(bool p1, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, bool p4, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+
+    static Task LotsOfOverloadsOneTakesToken(bool p1) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
 public class Thing
 {
-    public Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    public Task OtherClassMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task MethodAcceptingTokenIsOnABaseClass() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public static class ThingExtensions
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        var thing = new Thing();
-        return [|thing.TestMethod()|];
-    }
-}
-public class Thing : BaseThing
-{
-    public Task TestMethod()
-    {
-        return base.TestMethod(CancellationToken.None);
-    }
-}
-public class BaseThing
-{
-    public Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task MethodAcceptingTokenIsOnADerivedClass() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        var thing = new Thing();
-        return [|thing.TestMethod()|];
-    }
-}
-public class Thing : BaseThing
-{
-    public Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
-}
-public class BaseThing
-{
-    public Task TestMethod() { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task LotsOfParameters() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        return [|TestMethod(true, false, true, false, true)|];
-    }
-
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task LotsOfOverloadsThatAllTakeToken() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        await [|TestMethod(true)|];
-        await [|TestMethod(true, false)|];
-        await [|TestMethod(true, false, true)|];
-        await [|TestMethod(true, false, true, false)|];
-        await [|TestMethod(true, false, true, false, true)|];
-    }
-
-    static Task TestMethod(bool p1, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, bool p3, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task LotsOfOverloadsButOnlyOneTakesToken() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        await TestMethod(true);
-        await TestMethod(true, false);
-        await TestMethod(true, false, true);
-        await TestMethod(true, false, true, false);
-        await [|TestMethod(true, false, true, false, true)|];
-    }
-
-    static Task TestMethod(bool p1) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, bool p3) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4) { return Task.CompletedTask; }
-    static Task TestMethod(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task CancellationTokenOnExtensionMethod() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        var bar = new Bar();
-        await [|bar.DoSomething(true)|];
-    }
-}
-public class TestMessage : ICommand {}
-public class Bar { }
-public static class BarExtensions
-{
-    public static Task DoSomething(this Bar bar, bool value, CancellationToken token = default(CancellationToken))
+    public static Task ExtensionMethod(this Thing thing, bool value, CancellationToken token = default(CancellationToken))
     {
         return Task.CompletedTask;
     }
-}");
+}
+public class DerivedClass : BaseClass
+{
+    public Task TokenMethodOnBase() { return base.TokenMethodOnBase(CancellationToken.None); }
+    public Task TokenMethodOnDerived(CancellationToken token) { return Task.CompletedTask; }
+}
+public class BaseClass
+{
+    public Task TokenMethodOnBase(CancellationToken token) { return Task.CompletedTask; }
+    public Task TokenMethodOnDerived() { return Task.CompletedTask; }
+}
+[System.AttributeUsage(System.AttributeTargets.All)]
+public class SillyAttribute : System.Attribute { }
+");
 
         [Test]
         public Task NoBaseType() => Assert(
