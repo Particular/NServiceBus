@@ -11,35 +11,11 @@
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
     {
-        static readonly AnalysisTarget[] targets = new[]
-        {
-            new AnalysisTarget("NServiceBus.IHandleMessages`1", "Handle", "IMessageHandlerContext"),
-            new AnalysisTarget("NServiceBus.IAmStartedByMessages`1", "Handle", "IMessageHandlerContext"),
-            new AnalysisTarget("NServiceBus.IHandleTimeouts`1", "Timeout", "IMessageHandlerContext"),
-            new AnalysisTarget("NServiceBus.Sagas.IHandleSagaNotFound", "Handle", "IMessageProcessingContext"),
-            new AnalysisTarget("NServiceBus.Pipeline.Behavior`1", "Invoke", null), // Context based on generic type argument
-            new AnalysisTarget("NServiceBus.Pipeline.IBehavior`2", "Invoke", null), // Context based on generic type argument
-            new AnalysisTarget("NServiceBus.MessageMutator.IMutateIncomingMessages", "MutateIncoming", "MutateIncomingMessageContext"),
-            new AnalysisTarget("NServiceBus.MessageMutator.IMutateIncomingTransportMessages", "MutateIncoming", "MutateIncomingTransportMessageContext"),
-            new AnalysisTarget("NServiceBus.MessageMutator.IMutateOutgoingMessages", "MutateOutgoing", "MutateOutgoingMessageContext"),
-            new AnalysisTarget("NServiceBus.MessageMutator.IMutateOutgoingTransportMessages", "MutateOutgoing", "MutateOutgoingTransportMessageContext"),
-        };
-
         public const string DiagnosticId = "NSB0002";
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             ForwardCancellationTokenDiagnostic
         );
-
-        class AnalysisTarget
-        {
-            public string TypeName { get; }
-            public string MethodName { get; }
-            public string ContextTypeName { get; }
-
-            public AnalysisTarget(string typeName, string methodName, string contextTypeName) =>
-                (TypeName, MethodName, ContextTypeName) = (typeName, methodName, contextTypeName);
-        }
 
         public override void Initialize(AnalysisContext context) =>
             context.WithDefaultSettings().RegisterCompilationStartAction(AnalyzeCompilationStart);
@@ -57,25 +33,13 @@
         {
             public INamedTypeSymbol CancellationTokenType { get; }
             public INamedTypeSymbol CancellableContextType { get; }
-            public ImmutableArray<INamedTypeSymbol> AnalysisTypes { get; }
 
             public bool IsValid => CancellationTokenType != null && CancellableContextType != null;
 
             public KnownTypes(Compilation compilation)
             {
                 CancellationTokenType = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
-
                 CancellableContextType = compilation.GetTypeByMetadataName("NServiceBus.ICancellableContext");
-
-                AnalysisTypes = targets
-                    .Select(target =>
-                    {
-                        var type = compilation.GetTypeByMetadataName(target.TypeName);
-
-                        // Translate IBehavior<TFromContext, TToContext> to IBehavior<,>
-                        return type.IsGenericType ? type.ConstructUnboundGenericType() : type;
-                    })
-                    .ToImmutableArray();
             }
         }
 
@@ -104,7 +68,7 @@
 
         static void AnalyzeInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IParameterSymbol contextParam, KnownTypes knownTypes)
         {
-            var args = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
+            var args = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToImmutableArray();
 
             if (args.Any(arg => IsCancellationToken(arg, contextParam.Name, knownTypes.CancellationTokenType, context)))
             {
@@ -154,7 +118,7 @@
             type.Equals(knownTypes.CancellableContextType) ||
             type.AllInterfaces.Any(@interface => @interface.Equals(knownTypes.CancellableContextType));
 
-        static bool HasACancellationTokenParameter(IMethodSymbol method, KnownTypes knownTypes, ArgumentSyntax[] arguments, out string explicitParamName)
+        static bool HasACancellationTokenParameter(IMethodSymbol method, KnownTypes knownTypes, ImmutableArray<ArgumentSyntax> arguments, out string explicitParamName)
         {
             explicitParamName = null;
 
