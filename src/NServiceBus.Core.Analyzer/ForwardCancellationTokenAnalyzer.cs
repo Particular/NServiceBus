@@ -49,7 +49,7 @@
             var knownTypes = new KnownTypes(startContext.Compilation);
             if (knownTypes.IsValid)
             {
-                startContext.RegisterSyntaxNodeAction(context => AnalyzeSyntax(context, knownTypes), SyntaxKind.InvocationExpression);
+                startContext.RegisterSyntaxNodeAction(context => AnalyzeMethod(context, knownTypes), SyntaxKind.MethodDeclaration);
             }
         }
 
@@ -79,28 +79,31 @@
             }
         }
 
-        static void AnalyzeSyntax(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
+        static void AnalyzeMethod(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
         {
-            if (!(context.Node is InvocationExpressionSyntax invocation))
+            if (!(context.Node is MethodDeclarationSyntax parentMethodSyntax))
             {
                 return;
             }
 
-            if (!(invocation.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault() is MethodDeclarationSyntax callingMethodSyntax))
+            if (!(context.SemanticModel.GetDeclaredSymbol(parentMethodSyntax) is IMethodSymbol parentMethod))
             {
                 return;
             }
 
-            if (!(context.SemanticModel.GetDeclaredSymbol(callingMethodSyntax) is IMethodSymbol callingMethod))
+            if (!(parentMethod.Parameters.FirstOrDefault(param => IsCancellableContext(param.Type, knownTypes)) is IParameterSymbol contextParam))
             {
                 return;
             }
 
-            if (!(callingMethod.Parameters.FirstOrDefault(param => IsCancellableContext(param.Type, knownTypes)) is IParameterSymbol contextParam))
+            foreach (var invocation in parentMethodSyntax.Body.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
-                return;
+                AnalyzeInvocation(context, invocation, contextParam, knownTypes);
             }
+        }
 
+        static void AnalyzeInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IParameterSymbol contextParam, KnownTypes knownTypes)
+        {
             var args = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToArray();
 
             if (args.Any(arg => IsCancellationToken(arg, contextParam.Name, knownTypes.CancellationTokenType, context)))
