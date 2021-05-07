@@ -12,7 +12,7 @@ namespace NServiceBus
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
     /// </returns>
-    public class CriticalError
+    public partial class CriticalError
     {
         /// <summary>
         /// Initializes a new instance of <see cref="CriticalError" />.

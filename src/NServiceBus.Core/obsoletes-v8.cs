@@ -1518,4 +1518,21 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public partial class CriticalError
+    {
+        [ObsoleteEx(
+           ReplacementTypeOrMember = "Use the overload that accepts a Func with a cancellation token.",
+           TreatAsErrorFromVersion = "8",
+           RemoveInVersion = "9")]
+        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
+        {
+        }
+    }
+}
+
 #pragma warning restore 1591
