@@ -33,53 +33,6 @@ using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo
-{
-    public async Task Method(" + arguments + @")
-    {
-        await [|StaticMethod()|];
-        await [|InstanceMethod()|];
-        await [|this.InstanceMethod()|];
-
-        var thing = new Thing();
-        await [|thing.OtherClassMethod()|];
-        await [|thing.ExtensionMethod(true)|];
-
-        var derived = new DerivedClass();
-        await [|derived.TokenMethodOnBase()|];
-        await [|derived.TokenMethodOnDerived()|];
-
-        await [|LotsOfParameters(true, false, true, false, true)|];
-
-        await [|LotsOfOverloadsAllTakeToken(true)|];
-        await [|LotsOfOverloadsAllTakeToken(true, false)|];
-        await [|LotsOfOverloadsAllTakeToken(true, false, true)|];
-        await [|LotsOfOverloadsAllTakeToken(true, false, true, false)|];
-        await [|LotsOfOverloadsAllTakeToken(true, false, true, false, true)|];
-
-        await LotsOfOverloadsOneTakesToken(true);
-        await LotsOfOverloadsOneTakesToken(true, false);
-        await LotsOfOverloadsOneTakesToken(true, false, true);
-        await LotsOfOverloadsOneTakesToken(true, false, true, false);
-        await [|LotsOfOverloadsOneTakesToken(true, false, true, false, true)|];
-    }
-    static Task StaticMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    Task InstanceMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-
-    static Task LotsOfParameters(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-
-    static Task LotsOfOverloadsAllTakeToken(bool p1, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, bool p4, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-
-    static Task LotsOfOverloadsOneTakesToken(bool p1) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4) { return Task.CompletedTask; }
-    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
 public class Thing
 {
     public Task OtherClassMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
@@ -103,7 +56,60 @@ public class BaseClass
 }
 [System.AttributeUsage(System.AttributeTargets.All)]
 public class SillyAttribute : System.Attribute { }
-");
+public class Foo
+{
+    static Task StaticMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    Task InstanceMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+
+    static Task LotsOfParameters(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+
+    static Task LotsOfOverloadsAllTakeToken(bool p1, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, bool p4, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsAllTakeToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+
+    static Task LotsOfOverloadsOneTakesToken(bool p1) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4) { return Task.CompletedTask; }
+    static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    
+    static Task Overloads(bool p1) { return Task.CompletedTask; }
+    static Task Overloads(bool p1, CancellationToken cancellationToken) { return Task.CompletedTask; }
+
+    public async Task Method(" + arguments + @")
+    {
+        var thing = new Thing();
+        var derived = new DerivedClass();
+
+        await [|derived.TokenMethodOnBase()|];
+        await [|derived.TokenMethodOnDerived()|];
+    }
+}");
+
+        [Test]
+        public Task DelegateBody() => Assert(
+            ForwardCancellationTokenAnalyzer.DiagnosticId,
+@"using System;
+using System.Threading;
+using NServiceBus;
+
+public class MyClass
+{
+    void MyMethod(CancellationToken cancellationToken = default(CancellationToken)) { }
+
+    void Foo(ICancellableContext context)
+    {
+        Action<ICancellableContext> myAction1 = delegate(ICancellableContext _) { [|MyMethod()|]; };
+        Action<ICancellableContext> myAction2 = _ => [|MyMethod()|];
+        Action<ICancellableContext> myAction3 = (_) => { [|MyMethod()|]; };
+
+        // test that the context param of Foo isn't considered
+        // CA2016 doesn't raise a diagnostic for the equivalent case with CancellationToken
+        Action myAction4 = () => { MyMethod(); };
+    }
+}");
 
         [Test]
         public Task NoBaseType() => Assert(
@@ -326,7 +332,7 @@ public class Foo : IHandleMessages<TestMessage>
 public class TestMessage : ICommand {}");
 
         [Test]
-        public Task NoDiagnosticWhenMethodCandidateTakes2Tokens() => Assert(
+        public Task NoDiagnosticWhenMethodCandidateTakesASecondRequiredToken() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -339,25 +345,7 @@ public class Foo : IHandleMessages<TestMessage>
     }
 
     Task TestMethod() { return Task.CompletedTask; }
-    Task TestMethod(CancellationToken token1 = default(CancellationToken), CancellationToken token2 = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}");
-
-        [Test]
-        public Task NoDiagnosticIfCancellationTokenIsNotLastParameter() => Assert(
-@"using NServiceBus;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
-{
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
-    {
-        await TestMethod(true);
-        await this.TestMethod(false);
-    }
-
-    Task TestMethod(bool value) { return Task.CompletedTask; }
-    Task TestMethod(CancellationToken token, bool value) { return Task.CompletedTask; }
+    Task TestMethod(CancellationToken token1, CancellationToken token2) { return Task.CompletedTask; }
 }
 public class TestMessage : ICommand {}");
 

@@ -36,6 +36,7 @@ namespace NServiceBus.Core.Analyzer
                 {
                     return;
                 }
+
                 // check syntax tree (cheap) first for possible call requiring await and then check semantic model (expensive) to confirm
                 if (CouldBeMethodRequiringAwait(token) && IsMethodRequiringAwait(call, context))
                 {
@@ -49,7 +50,7 @@ namespace NServiceBus.Core.Analyzer
             syntaxToken.Kind() == SyntaxKind.IdentifierToken && methodNames.Contains(syntaxToken.Text);
 
         static bool IsMethodRequiringAwait(ExpressionSyntax call, SyntaxNodeAnalysisContext context) =>
-            context.SemanticModel.GetSymbolInfo(call).Symbol is IMethodSymbol methodSymbol &&
+            context.SemanticModel.GetSymbolInfo(call, context.CancellationToken).Symbol is IMethodSymbol methodSymbol &&
             methods.Contains(methodSymbol.GetFullName());
 
         static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(

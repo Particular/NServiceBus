@@ -35,15 +35,16 @@
                 concurrentAnalysis: false,
                 logAnalyzerExecutionTime: false);
 
+            var diagnostics = await compilation
+                .WithAnalyzers(ImmutableArray.Create(analyzer), analysisOptions)
+                .GetAnalyzerDiagnosticsAsync(cancellationToken);
 
             if (exceptions.Any())
             {
                 throw new AggregateException(exceptions);
             }
 
-            return (await compilation
-                .WithAnalyzers(ImmutableArray.Create(analyzer), analysisOptions)
-                .GetAnalyzerDiagnosticsAsync(cancellationToken))
+            return diagnostics
                 .OrderBy(diagnostic => diagnostic.Location.SourceSpan)
                 .ThenBy(diagnostic => diagnostic.Id);
         }
