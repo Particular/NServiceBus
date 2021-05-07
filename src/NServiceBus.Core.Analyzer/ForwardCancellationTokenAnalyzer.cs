@@ -13,263 +13,364 @@
     {
         public const string DiagnosticId = "NSB0002";
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            ForwardCancellationTokenDiagnostic
-        );
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnosticDescriptor);
 
         public override void Initialize(AnalysisContext context) =>
-            context.WithDefaultSettings().RegisterCompilationStartAction(AnalyzeCompilationStart);
+            context.WithDefaultSettings().RegisterCompilationStartAction(Analyze);
 
-        static void AnalyzeCompilationStart(CompilationStartAnalysisContext startContext)
+        static void Analyze(CompilationStartAnalysisContext startContext)
         {
-            var knownTypes = new KnownTypes(startContext.Compilation);
-            if (knownTypes.IsValid)
+            // "Feature 'not pattern' is not available in C# 7.3. Please use language version 9.0 or greater." (╯°□°）╯︵ ┻━┻
+            if (!(startContext.Compilation.GetTypeByMetadataName("NServiceBus.ICancellableContext") is INamedTypeSymbol cancellableContextInterface))
             {
-                startContext.RegisterSyntaxNodeAction(context => AnalyzeMethod(context, knownTypes), SyntaxKind.MethodDeclaration);
+                return;
+            }
+
+            if (!(startContext.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken") is INamedTypeSymbol cancellationTokenType))
+            {
+                return;
+            }
+
+            var genericTaskType = startContext.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
+            var genericValueTaskType = startContext.Compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask`1");
+
+            startContext.RegisterSyntaxNodeAction(
+                context => Analyze(context, cancellableContextInterface, cancellationTokenType, genericTaskType, genericValueTaskType),
+                SyntaxKind.MethodDeclaration,
+                SyntaxKind.AnonymousMethodExpression,
+                SyntaxKind.SimpleLambdaExpression,
+                SyntaxKind.ParenthesizedLambdaExpression);
+        }
+
+        static void Analyze(
+            SyntaxNodeAnalysisContext context,
+            INamedTypeSymbol cancellableContextInterface,
+            INamedTypeSymbol cancellationTokenType,
+            INamedTypeSymbol genericTaskType,
+            INamedTypeSymbol genericValueTaskType)
+        {
+            IMethodSymbol method;
+            SyntaxNode body;
+
+            if (context.Node is BaseMethodDeclarationSyntax declaration)
+            {
+                method = context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken);
+                body = declaration.Body;
+            }
+            else if (context.Node is AnonymousFunctionExpressionSyntax expression)
+            {
+                method = context.SemanticModel.GetSymbolInfo(expression, context.CancellationToken).Symbol as IMethodSymbol;
+                body = expression.Body;
+            }
+            else
+            {
+                return;
+            }
+
+            if (method == null)
+            {
+                return;
+            }
+
+            // if method has no cancellable context param
+            if (!(method.Parameters.FirstOrDefault(param => param.Type.Implements(cancellableContextInterface)) is IParameterSymbol cancellableContextParam))
+            {
+                return;
+            }
+
+            foreach (var call in body
+                .DescendantNodesAndSelf(descendant =>
+                    !(descendant is BaseMethodDeclarationSyntax) &&
+                    !(descendant is AnonymousFunctionExpressionSyntax))
+                .OfType<InvocationExpressionSyntax>())
+            {
+                context.CancellationToken.ThrowIfCancellationRequested();
+
+                Analyze(call, cancellableContextParam, cancellableContextInterface, cancellationTokenType, genericTaskType, genericValueTaskType, context);
             }
         }
 
-        class KnownTypes
+        static void Analyze(
+            InvocationExpressionSyntax call,
+            IParameterSymbol callerCancellableContextParam,
+            INamedTypeSymbol cancellableContextInterface,
+            INamedTypeSymbol cancellationTokenType,
+            INamedTypeSymbol genericTaskType,
+            INamedTypeSymbol genericValueTaskType,
+            SyntaxNodeAnalysisContext context)
         {
-            public INamedTypeSymbol CancellationTokenType { get; }
-            public INamedTypeSymbol CancellableContextType { get; }
-
-            public bool IsValid => CancellationTokenType != null && CancellableContextType != null;
-
-            public KnownTypes(Compilation compilation)
-            {
-                CancellationTokenType = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
-                CancellableContextType = compilation.GetTypeByMetadataName("NServiceBus.ICancellableContext");
-            }
-        }
-
-        static void AnalyzeMethod(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
-        {
-            if (!(context.Node is MethodDeclarationSyntax parentMethodSyntax))
+            // if the call at least looks like it has a cancellation token arg
+            if (call.ArgumentList.Arguments.Any(arg =>
+                CouldBeCancellationToken(arg.Expression) &&
+                (LooksLikeCancellationToken(arg.Expression, callerCancellableContextParam.Name) ||
+                    IsCancellationToken(arg.Expression, context, cancellationTokenType))))
             {
                 return;
             }
 
-            if (!(context.SemanticModel.GetDeclaredSymbol(parentMethodSyntax) is IMethodSymbol parentMethod))
+            if (!(context.SemanticModel.GetSymbolInfo(call, context.CancellationToken).Symbol is IMethodSymbol calledMethod))
             {
                 return;
             }
 
-            if (!(parentMethod.Parameters.FirstOrDefault(param => IsCancellableContext(param.Type, knownTypes)) is IParameterSymbol contextParam))
+            // short-circuit our extension methods on ICancellableContext such as Send(), Publish()
+            if (calledMethod.ContainingNamespace?.Name == "NServiceBus" && calledMethod.Extends(cancellableContextInterface))
             {
                 return;
             }
 
-            foreach (var invocation in parentMethodSyntax.Body.DescendantNodes().OfType<InvocationExpressionSyntax>())
-            {
-                AnalyzeInvocation(context, invocation, contextParam, knownTypes);
-            }
-        }
-
-        static void AnalyzeInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IParameterSymbol contextParam, KnownTypes knownTypes)
-        {
-            var args = invocation.ArgumentList.ChildNodes().OfType<ArgumentSyntax>().ToImmutableArray();
-
-            if (args.Any(arg => IsCancellationToken(arg, contextParam.Name, knownTypes.CancellationTokenType, context)))
+            if (!(GetRecommendedMethod(calledMethod, cancellationTokenType, genericTaskType, genericValueTaskType, call, context, out var requiredArgName) is IMethodSymbol recommendedMethod))
             {
                 return;
             }
 
-            if (!(context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is IMethodSymbol calledMethod))
-            {
-                return;
-            }
-
-            if (HasACancellationTokenParameter(calledMethod, knownTypes, args, out var explicitParamName))
-            {
-                ReportDiagnostic(context, invocation, contextParam.Name, calledMethod, explicitParamName);
-                return;
-            }
-
-            // get the type containing the method being called
-            var calledType = calledMethod.ContainingType;
-
-            if (invocation.ChildNodes().OfType<MemberAccessExpressionSyntax>().FirstOrDefault() is MemberAccessExpressionSyntax memberAccess)
-            {
-                var memberAccessIdentifier = memberAccess.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
-
-                if (memberAccessIdentifier != null)
-                {
-                    var memberAccessSymbolInfo = context.SemanticModel.GetSymbolInfo(memberAccessIdentifier, context.CancellationToken);
-                    if (memberAccessSymbolInfo.Symbol is ILocalSymbol localSymbol && localSymbol.Type is INamedTypeSymbol memberExpressionInstanceType)
-                    {
-                        calledType = memberExpressionInstanceType;
-                    }
-                }
-            }
-
-            // walk the type ancestors and look for a method with a token
-            for (; calledType != null && calledType.Name != "System.Object"; calledType = calledType.BaseType)
-            {
-                if (HasOverloadWithCancellationToken(calledType, calledMethod))
-                {
-                    ReportDiagnostic(context, invocation, contextParam.Name, calledMethod);
-                    return;
-                }
-            }
-        }
-
-        static bool IsCancellableContext(ITypeSymbol type, KnownTypes knownTypes) =>
-            type.Equals(knownTypes.CancellableContextType) ||
-            type.AllInterfaces.Any(@interface => @interface.Equals(knownTypes.CancellableContextType));
-
-        static bool HasACancellationTokenParameter(IMethodSymbol method, KnownTypes knownTypes, ImmutableArray<ArgumentSyntax> arguments, out string explicitParamName)
-        {
-            explicitParamName = null;
-
-            // If is an NServiceBus-namespace extension method that extends IMessageHandlerContext, then skip
-            if (method.IsExtensionMethod && method.ContainingNamespace?.Name == "NServiceBus")
-            {
-                if (method.ReducedFrom is IMethodSymbol reducedFromExtensionMethodDefinition)
-                {
-                    var thisParam = reducedFromExtensionMethodDefinition.Parameters.FirstOrDefault();
-                    if (thisParam != null && thisParam.Type.Equals(knownTypes.CancellableContextType))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (method.Parameters.IsEmpty || !(method.Parameters[method.Parameters.Length - 1] is IParameterSymbol lastParameter))
-            {
-                return false;
-            }
-
-            // If parameter has a default value being used
-            if (lastParameter.Type.Equals(knownTypes.CancellationTokenType) && lastParameter.IsOptional)
-            {
-                if (method.Parameters.Length != arguments.Length + 1)
-                {
-                    explicitParamName = lastParameter.Name;
-                }
-                return true;
-            }
-
-            return false;
-        }
-
-        static void ReportDiagnostic(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, string contextParamName, IMethodSymbol methodSymbol, string explicitParamName = null)
-        {
             var properties = new Dictionary<string, string>
             {
-                { "ContextParamName", contextParamName },
-                { "MethodName", methodSymbol.Name },
-                { "ExplicitParamName", explicitParamName }
+                { "CallerCancellableContextParamName", callerCancellableContextParam.Name },
+                { "CalledMethodName", calledMethod.Name },
+                { "RequiredArgName", requiredArgName },
             }.ToImmutableDictionary();
 
-            var diagnostic = Diagnostic.Create(ForwardCancellationTokenDiagnostic, invocation.GetLocation(), properties, contextParamName, methodSymbol.Name);
+            var diagnostic = Diagnostic.Create(diagnosticDescriptor, call.GetLocation(), properties, callerCancellableContextParam.Name, calledMethod);
 
             context.ReportDiagnostic(diagnostic);
         }
 
-        static bool HasOverloadWithCancellationToken(INamedTypeSymbol type, IMethodSymbol method)
+        // may return false positives
+        static bool CouldBeCancellationToken(ExpressionSyntax expression)
         {
-            var candidates = type.GetMembers(method.Name)
-                .OfType<IMethodSymbol>()
-                .Where(candidate => candidate.Parameters.LastOrDefault()?.Type.Name == "CancellationToken");
-
-            foreach (var candidate in candidates)
+            switch (expression)
             {
-                if (MethodIsMatch(candidate, method))
-                {
+                // 3, 'x', default, etc....
+                case LiteralExpressionSyntax literal:
+                    // only the default literal can be a cancellation token
+                    return literal.Kind() == SyntaxKind.DefaultLiteralExpression;
+                default:
                     return true;
-                }
             }
-
-            return false;
         }
 
-        static bool MethodIsMatch(IMethodSymbol alternate, IMethodSymbol current)
+        static bool LooksLikeCancellationToken(ExpressionSyntax expression, string callerCancellableContextParam)
         {
-            if (alternate == current)
+            if (expression is MemberAccessExpressionSyntax memberAccess)
             {
-                // This means it's the same method, but the CancellationToken at the end is an optional parameter
-                return true;
-            }
-
-            if (alternate.Parameters.Length != current.Parameters.Length + 1)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < current.Parameters.Length; i++)
-            {
-                if (alternate.Parameters[i].Type != current.Parameters[i].Type)
+                if (memberAccess.IsKind(SyntaxKind.SimpleMemberAccessExpression) &&
+                    memberAccess.Expression is SimpleNameSyntax @ref)
                 {
-                    return false;
+                    var refName = @ref.Identifier.ValueText;
+                    var memberName = memberAccess.Name.Identifier.ValueText;
+
+                    // Is context.CancellationToken
+                    if (refName == callerCancellableContextParam && memberName == "CancellationToken")
+                    {
+                        return true;
+                    }
+
+                    if (refName == "CancellationToken" && memberName == "None")
+                    {
+                        return true;
+                    }
                 }
             }
 
-            return true;
-        }
-
-        static bool IsCancellationToken(ArgumentSyntax arg, string contextParamName, INamedTypeSymbol cancellationTokenType, SyntaxNodeAnalysisContext context)
-        {
-            if (arg.Expression is LiteralExpressionSyntax)
-            {
-                // Values like true, 3, 'x' are not cancellation tokens
-                return false;
-            }
-
-            if (arg.Expression is ObjectCreationExpressionSyntax objectCreation &&
+            if (expression is ObjectCreationExpressionSyntax objectCreation &&
                 objectCreation.Type is IdentifierNameSyntax objectCreationTypeName &&
                 objectCreationTypeName.Identifier.ValueText == "CancellationToken")
             {
                 return true;
             }
 
-            if (arg.Expression is MemberAccessExpressionSyntax memberAccess)
+            return false;
+        }
+
+        static bool IsCancellationToken(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellationTokenType)
+        {
+            var expressionSymbol = context.SemanticModel.GetSymbolInfo(expressionSyntax, context.CancellationToken).Symbol;
+            return expressionSymbol.GetTypeSymbolOrDefault()?.Equals(cancellationTokenType) ?? false;
+        }
+
+        static IMethodSymbol GetRecommendedMethod(
+            IMethodSymbol calledMethod,
+            INamedTypeSymbol cancellationTokenType,
+            INamedTypeSymbol genericTaskType,
+            INamedTypeSymbol genericValueTaskType,
+            InvocationExpressionSyntax call,
+            SyntaxNodeAnalysisContext context,
+            out string requiredArgName)
+        {
+            requiredArgName = null;
+
+            var extraParam = calledMethod.Parameters.FirstOrDefault(param => param.Type.Equals(cancellationTokenType));
+
+            if (extraParam != null)
             {
-                if (memberAccess.IsKind(SyntaxKind.SimpleMemberAccessExpression) &&
-                    memberAccess.Expression is IdentifierNameSyntax exprId)
+                requiredArgName = GetRequiredArgName(calledMethod, extraParam, call.ArgumentList.Arguments);
+
+                // the called method has an optional cancellation token param
+                // but no argument is being passed
+                return calledMethod;
+            }
+
+            var calledType = GetCalledType(call, calledMethod, context);
+
+            // Walk the methods of the called type, and its ancestors if applicable, and
+            // look for an overload which only requires a cancellation token more.
+            // We do not search for extension methods because CA2016 doesn't.
+            var types = calledMethod.IsStatic ? new[] { calledType } : calledType.BaseTypesAndSelf().Where(type => !type.IsSystemObjectType());
+
+            var overloads = types.SelectMany(type => type.GetMembers(calledMethod.Name).OfType<IMethodSymbol>());
+
+            var overloadsWithASingleCancellationTokenLast = overloads
+                .Where(overload =>
+                    overload.Parameters.Count(param => param.Type.Equals(cancellationTokenType)) == 1 &&
+                    overload.Parameters.Last().Type.Equals(cancellationTokenType))
+                .Select(overload => (Overload: overload, CancellationTokenParam: overload.Parameters.Last()));
+
+            var candidates = overloadsWithASingleCancellationTokenLast
+                .Where(item => HasSameParametersPlusCancellationToken(genericTaskType, genericValueTaskType, calledMethod, item.Overload));
+
+            var (recommendedMethod, cancellationTokenParam) = candidates.FirstOrDefault();
+
+            if (recommendedMethod == null)
+            {
+                return null;
+            }
+
+            requiredArgName = GetRequiredArgName(recommendedMethod, cancellationTokenParam, call.ArgumentList.Arguments);
+
+            return recommendedMethod;
+        }
+
+        // if adding a cancellation token to the args will not put it in the right place
+        static string GetRequiredArgName(IMethodSymbol recommendedMethod, IParameterSymbol extraParam, SeparatedSyntaxList<ArgumentSyntax> args) =>
+            recommendedMethod.Parameters[args.Count] != extraParam ? extraParam.Name : null;
+
+        static INamedTypeSymbol GetCalledType(InvocationExpressionSyntax call, IMethodSymbol calledMethod, SyntaxNodeAnalysisContext context)
+        {
+            if (call.Expression is IdentifierNameSyntax)
+            {
+                return calledMethod.ContainingType;
+            }
+
+            if (!(call.Expression is MemberAccessExpressionSyntax memberAccess))
+            {
+                return calledMethod.ContainingType;
+            }
+
+            if (!(memberAccess.Expression is IdentifierNameSyntax refSyntax))
+            {
+                return calledMethod.ContainingType;
+            }
+
+            var @ref = context.SemanticModel.GetSymbolInfo(refSyntax, context.CancellationToken).Symbol;
+
+            if (@ref.GetTypeSymbolOrDefault() is INamedTypeSymbol type)
+            {
+                return type;
+            }
+
+            return calledMethod.ContainingType;
+        }
+
+        // largely copied from https://github.com/dotnet/roslyn-analyzers/blob/8236e8bdf092bd9ae21cf42d12b8c480459b5e36/src/NetAnalyzers/Core/Microsoft.NetCore.Analyzers/Runtime/ForwardCancellationTokenToInvocations.Analyzer.cs#L349
+        // Checks if the parameters of the two passed methods only differ in a ct.
+        static bool HasSameParametersPlusCancellationToken(
+            INamedTypeSymbol genericTask,
+            INamedTypeSymbol genericValueTask,
+            IMethodSymbol originalMethod,
+            IMethodSymbol methodToCompare)
+        {
+            // Avoid comparing to itself, or when there are no parameters, or when the last parameter is not a ct
+            if (originalMethod.Equals(methodToCompare))
+            {
+                return false;
+            }
+
+            IMethodSymbol originalMethodWithAllParameters = (originalMethod.ReducedFrom ?? originalMethod).OriginalDefinition;
+            IMethodSymbol methodToCompareWithAllParameters = (methodToCompare.ReducedFrom ?? methodToCompare).OriginalDefinition;
+
+            // Ensure parameters only differ by one - the ct
+            if (originalMethodWithAllParameters.Parameters.Length != methodToCompareWithAllParameters.Parameters.Length - 1)
+            {
+                return false;
+            }
+
+            // Now compare the types of all parameters before the ct
+            // The largest i is the number of parameters in the method that has fewer parameters
+            for (int i = 0; i < originalMethodWithAllParameters.Parameters.Length; i++)
+            {
+                IParameterSymbol originalParameter = originalMethodWithAllParameters.Parameters[i];
+                IParameterSymbol comparedParameter = methodToCompareWithAllParameters.Parameters[i];
+                if (!originalParameter.Type.Equals(comparedParameter.Type))
                 {
-                    var parent = exprId.Identifier.ValueText;
-                    var member = memberAccess.Name.Identifier.ValueText;
-
-                    // Is context.CancellationToken
-                    if (parent == contextParamName && member == "CancellationToken")
-                    {
-                        return true;
-                    }
-
-                    if (parent == "CancellationToken" && member == "None")
-                    {
-                        return true;
-                    }
+                    return false;
                 }
             }
 
-            var expressionSymbol = context.SemanticModel.GetSymbolInfo(arg.Expression, context.CancellationToken);
-
-            switch (expressionSymbol.Symbol)
+            // Overload is  valid if its return type is implicitly convertable
+            var toCompareReturnType = methodToCompareWithAllParameters.ReturnType;
+            var originalReturnType = originalMethodWithAllParameters.ReturnType;
+            if (!toCompareReturnType.IsAssignableTo(originalReturnType))
             {
-                case IFieldSymbol fieldSymbol:
-                    return fieldSymbol.Type.Equals(cancellationTokenType);
-                case IPropertySymbol propertySymbol:
-                    return propertySymbol.Type.Equals(cancellationTokenType);
-                case IMethodSymbol methodSymbol:
-                    return methodSymbol.ReturnType.Equals(cancellationTokenType);
-                case ILocalSymbol localSymbol:
-                    return localSymbol.Type.Equals(cancellationTokenType);
-                default:
+                // Generic Task-like types are special since awaiting them essentially erases the task-like type.
+                // If both types are Task-like we will warn if their generic arguments are convertable to each other.
+                if (IsTaskLikeType(originalReturnType) && IsTaskLikeType(toCompareReturnType) &&
+                    originalReturnType is INamedTypeSymbol originalNamedType &&
+                    toCompareReturnType is INamedTypeSymbol toCompareNamedType &&
+                    TypeArgumentsAreConvertable(originalNamedType, toCompareNamedType))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return true;
+
+            bool IsTaskLikeType(ITypeSymbol typeSymbol)
+            {
+                if (genericTask != null &&
+                    typeSymbol.OriginalDefinition.Equals(genericTask))
+                {
+                    return true;
+                }
+
+                if (genericValueTask != null &&
+                    typeSymbol.OriginalDefinition.Equals(genericValueTask))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            bool TypeArgumentsAreConvertable(INamedTypeSymbol left, INamedTypeSymbol right)
+            {
+                if (left.Arity != 1 ||
+                    right.Arity != 1 ||
+                    left.Arity != right.Arity)
+                {
                     return false;
+                }
+
+                var leftTypeArgument = left.TypeArguments[0];
+                var rightTypeArgument = right.TypeArguments[0];
+                if (!leftTypeArgument.IsAssignableTo(rightTypeArgument))
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
 
-        // {0} = IMessageHandlerContext parameter name
-        // {1} = Name of method being invoked
-        static readonly DiagnosticDescriptor ForwardCancellationTokenDiagnostic = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor diagnosticDescriptor = new DiagnosticDescriptor(
             id: DiagnosticId,
-            title: "Forward `context.CancellationToken` to methods",
-            messageFormat: "Forward `{0}.CancellationToken` to the `{1}` method.",
+            title: "Forward the `CancellationToken` property of the context parameter to methods",
+            messageFormat: "Forward '{0}.CancellationToken' to the '{1}' method or pass in 'CancellationToken.None' explicitly to indicate intentionally not propagating the token",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Forward the `CancellationToken` from the context parameter to methods that take one to ensure the operation cancellation notifications are properly propagated. This ensures that message processing can be halted cleanly if necessary. Consider elevating the severity of \"CA2016: Forward the CancellationToken parameter to methods that take one\" to `warning` to ensure the token is passed correctly to other methods as well.");
+            description: "Forward the `CancellationToken` property of the context parameter to methods to ensure the operation cancellation notifications are properly propagated, or pass in 'CancellationToken.None' explicitly to indicate intentionally not propagating the token. Forwarding the token allows cancellation of message processing when necessary. Also consider elevating the severity of \"CA2016: Forward the 'CancellationToken parameter' to methods\" to 'warning' to ensure 'CancellationToken' parameters are forwarded appropriately.");
     }
 }

@@ -29,20 +29,22 @@
             // If there are duplicates then the analyzer is broken and its tests should catch that.
             var diagnostic = context.Diagnostics.First();
 
-            var contextParamName = diagnostic.Properties["ContextParamName"];
-            var methodName = diagnostic.Properties["MethodName"];
-            var explicitParamName = diagnostic.Properties["ExplicitParamName"];
+            var callerCancellableContextParamName = diagnostic.Properties["CallerCancellableContextParamName"];
+            var calledMethodName = diagnostic.Properties["CalledMethodName"];
+            var requiredArgName = diagnostic.Properties["RequiredArgName"];
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var startToken = root.FindToken(diagnostic.Location.SourceSpan.Start);
             var invocationSyntax = startToken.Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
 
-            var title = $"Forward {contextParamName}.CancellationToken to {methodName}";
+            // TODO: consider whether analyzer should pass in name of property, i.e. "CancellationToken",
+            // so that that information doesn't have to spread across both the analyzer and the fixer
+            var title = $"Forward {callerCancellableContextParamName}.CancellationToken to {calledMethodName}";
 
             // Register a code action that will invoke the fix.
             var action = CodeAction.Create(
                 title,
-                token => ForwardCancellationToken(context.Document, invocationSyntax, contextParamName, explicitParamName, token),
+                token => ForwardCancellationToken(context.Document, invocationSyntax, callerCancellableContextParamName, requiredArgName, token),
                 equivalenceKey: title);
 
             context.RegisterCodeFix(action, diagnostic);
@@ -51,22 +53,22 @@
         static async Task<Document> ForwardCancellationToken(
             Document document,
             InvocationExpressionSyntax invocation,
-            string contextParamName,
-            string explicitParamName,
+            string callerCancellableContextParamName,
+            string requiredArgName,
             CancellationToken cancellationToken)
         {
             // The context.CancellationToken part. This is always required.
             var memberAccess = SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                SyntaxFactory.IdentifierName(contextParamName),
+                SyntaxFactory.IdentifierName(callerCancellableContextParamName),
                 SyntaxFactory.IdentifierName("CancellationToken"));
 
             ArgumentSyntax newArg;
 
-            if (explicitParamName != null)
+            if (requiredArgName != null)
             {
-                // Add the prefix `token:` if adding 1 argument would not be in the correct location.
-                var nameColon = SyntaxFactory.NameColon(SyntaxFactory.IdentifierName(explicitParamName));
+                // Name the argument, e.g. `token:`, since it is out of position
+                var nameColon = SyntaxFactory.NameColon(SyntaxFactory.IdentifierName(requiredArgName));
                 newArg = SyntaxFactory.Argument(nameColon, default, memberAccess);
             }
             else
