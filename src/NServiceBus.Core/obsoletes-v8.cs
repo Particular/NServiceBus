@@ -1552,4 +1552,21 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Configuration.AdvancedExtensibility;
+    using Faults;
+
+    public partial class DelayedRetriesSettings : ExposeSettings
+    {
+        [ObsoleteEx(
+        ReplacementTypeOrMember = "Use the overload that accepts a callback with a cancellation token.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+        public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback) => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore 1591
