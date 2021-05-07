@@ -178,11 +178,17 @@ namespace NServiceBus
     }
     public class CriticalError
     {
+        [System.Obsolete("Use the overload that accepts a Func with a cancellation token. Will be removed i" +
+            "n version 9.0.0.", true)]
+        public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
         public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> onCriticalErrorAction) { }
         public virtual void Raise(string errorMessage, System.Exception exception, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
+        [System.Obsolete("Use the overload that accepts a Func with a cancellation token. Will be removed i" +
+            "n version 9.0.0.", true)]
+        public CriticalErrorContext(System.Func<System.Threading.Tasks.Task> stop, string error, System.Exception exception) { }
         public CriticalErrorContext(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> stop, string error, System.Exception exception) { }
         public string Error { get; }
         public System.Exception Exception { get; }
@@ -243,6 +249,9 @@ namespace NServiceBus
     public class DelayedRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
+        [System.Obsolete("Use the overload that accepts a callback with a cancellation token. The member cu" +
+            "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public NServiceBus.DelayedRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.DelayedRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.DelayedRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.DelayedRetryMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
@@ -259,6 +268,9 @@ namespace NServiceBus
     public static class DiagnosticSettingsExtensions
     {
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.ReadOnlySettings settings, string sectionName, object section) { }
+        [System.Obsolete("Use the overload that accepts a callback with a cancellation token. Will be remov" +
+            "ed in version 9.0.0.", true)]
+        public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
@@ -571,6 +583,9 @@ namespace NServiceBus
     public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void NumberOfRetries(int numberOfRetries) { }
+        [System.Obsolete("Use the overload that accepts a callback with a cancellation token. The member cu" +
+            "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
@@ -845,6 +860,9 @@ namespace NServiceBus
     }
     public static class ReceivePipelineConfigExtensions
     {
+        [System.Obsolete("Use the overload that accepts a callback with a cancellation token. Will be remov" +
+            "ed in version 9.0.0.", true)]
+        public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.Tasks.Task> subscription) { }
         public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.CancellationToken, System.Threading.Tasks.Task> subscription) { }
     }
     public static class ReceiveSettingsExtensions
@@ -892,6 +910,9 @@ namespace NServiceBus
     public class RetryFailedSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
+        [System.Obsolete("Use the overload that accepts a callback with a cancellation token. The member cu" +
+            "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Func<NServiceBus.Faults.FailedMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Func<NServiceBus.Faults.FailedMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public static class RoutingFeatureSettingsExtensions
@@ -2447,6 +2468,9 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
+        [System.Obsolete("Use the overload that accepts a callback with a cancellation token. Will be remov" +
+            "ed in version 9.0.0.", true)]
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
         public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
         public NServiceBus.Settings.ReadOnlySettings CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
