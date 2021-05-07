@@ -8,7 +8,7 @@
     /// <summary>
     /// Provides access to receive pipeline notifications.
     /// </summary>
-    public static class ReceivePipelineConfigExtensions
+    public static partial class ReceivePipelineConfigExtensions
     {
         /// <summary>
         /// Subscribes to notifications for completed receive pipelines.

@@ -1603,4 +1603,22 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Pipeline;
+
+    public static partial class ReceivePipelineConfigExtensions
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a callback with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, Task> subscription)
+        {
+        }
+    }
+}
+
 #pragma warning restore 1591
