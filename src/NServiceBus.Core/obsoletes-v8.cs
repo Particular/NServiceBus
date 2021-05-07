@@ -1526,7 +1526,7 @@ namespace NServiceBus
     public partial class CriticalError
     {
         [ObsoleteEx(
-           ReplacementTypeOrMember = "Use the overload that accepts a Func with a cancellation token.",
+           Message = "Use the overload that accepts a Func with a cancellation token.",
            TreatAsErrorFromVersion = "8",
            RemoveInVersion = "9")]
         public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
@@ -1543,7 +1543,7 @@ namespace NServiceBus
     public partial class CriticalErrorContext : ICriticalErrorContext
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Use the overload that accepts a Func with a cancellation token.",
+            Message = "Use the overload that accepts a Func with a cancellation token.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public CriticalErrorContext(Func<Task> stop, string error, Exception exception)
@@ -1562,7 +1562,7 @@ namespace NServiceBus
     public partial class DelayedRetriesSettings : ExposeSettings
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Use the overload that accepts a callback with a cancellation token.",
+            Message = "Use the overload that accepts a callback with a cancellation token.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback) => throw new NotImplementedException();
@@ -1577,7 +1577,7 @@ namespace NServiceBus
     public static partial class DiagnosticSettingsExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "Use the overload that accepts a callback with a cancellation token.",
+            Message = "Use the overload that accepts a callback with a cancellation token.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void CustomDiagnosticsWriter(this EndpointConfiguration config, Func<string, Task> customDiagnosticsWriter)
@@ -1585,4 +1585,22 @@ namespace NServiceBus
         }
     }
 }
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Configuration.AdvancedExtensibility;
+    using Faults;
+
+    public partial class ImmediateRetriesSettings : ExposeSettings
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a callback with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public ImmediateRetriesSettings OnMessageBeingRetried(Func<ImmediateRetryMessage, Task> notificationCallback) => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore 1591
