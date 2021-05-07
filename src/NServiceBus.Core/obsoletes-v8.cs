@@ -1543,9 +1543,9 @@ namespace NServiceBus
     public partial class CriticalErrorContext : ICriticalErrorContext
     {
         [ObsoleteEx(
-        ReplacementTypeOrMember = "Use the overload that accepts a Func with a cancellation token.",
-        TreatAsErrorFromVersion = "8",
-        RemoveInVersion = "9")]
+            ReplacementTypeOrMember = "Use the overload that accepts a Func with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public CriticalErrorContext(Func<Task> stop, string error, Exception exception)
         {
         }
@@ -1562,11 +1562,27 @@ namespace NServiceBus
     public partial class DelayedRetriesSettings : ExposeSettings
     {
         [ObsoleteEx(
-        ReplacementTypeOrMember = "Use the overload that accepts a callback with a cancellation token.",
-        TreatAsErrorFromVersion = "8",
-        RemoveInVersion = "9")]
+            ReplacementTypeOrMember = "Use the overload that accepts a callback with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
         public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback) => throw new NotImplementedException();
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public static partial class DiagnosticSettingsExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Use the overload that accepts a callback with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void CustomDiagnosticsWriter(this EndpointConfiguration config, Func<string, Task> customDiagnosticsWriter)
+        {
+        }
+    }
+}
 #pragma warning restore 1591
