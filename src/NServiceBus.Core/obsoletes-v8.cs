@@ -1638,4 +1638,21 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus.Transport
+{
+    using System;
+    using Settings;
+
+    public partial class HostSettings
+    {
+        [ObsoleteEx(
+           Message = "Use the overload that accepts a callback with a cancellation token.",
+           TreatAsErrorFromVersion = "8",
+           RemoveInVersion = "9")]
+        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null)
+        {
+        }
+    }
+}
+
 #pragma warning restore 1591
