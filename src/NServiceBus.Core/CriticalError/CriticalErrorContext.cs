@@ -7,7 +7,7 @@
     /// <summary>
     /// See <see cref="ICriticalErrorContext" />.
     /// </summary>
-    public class CriticalErrorContext : ICriticalErrorContext
+    public partial class CriticalErrorContext : ICriticalErrorContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="CriticalErrorContext" />.

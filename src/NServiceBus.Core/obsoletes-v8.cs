@@ -1535,4 +1535,21 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public partial class CriticalErrorContext : ICriticalErrorContext
+    {
+        [ObsoleteEx(
+        ReplacementTypeOrMember = "Use the overload that accepts a Func with a cancellation token.",
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9")]
+        public CriticalErrorContext(Func<Task> stop, string error, Exception exception)
+        {
+        }
+    }
+}
+
 #pragma warning restore 1591
