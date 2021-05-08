@@ -1529,9 +1529,7 @@ namespace NServiceBus
            Message = "Use the overload that accepts a Func with a cancellation token.",
            TreatAsErrorFromVersion = "8",
            RemoveInVersion = "9")]
-        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
-        {
-        }
+        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction) => throw new NotImplementedException();
     }
 }
 
@@ -1546,9 +1544,7 @@ namespace NServiceBus
             Message = "Use the overload that accepts a Func with a cancellation token.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public CriticalErrorContext(Func<Task> stop, string error, Exception exception)
-        {
-        }
+        public CriticalErrorContext(Func<Task> stop, string error, Exception exception) => throw new NotImplementedException();
     }
 }
 
@@ -1580,9 +1576,7 @@ namespace NServiceBus
             Message = "Use the overload that accepts a callback with a cancellation token.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public static void CustomDiagnosticsWriter(this EndpointConfiguration config, Func<string, Task> customDiagnosticsWriter)
-        {
-        }
+        public static void CustomDiagnosticsWriter(this EndpointConfiguration config, Func<string, Task> customDiagnosticsWriter) => throw new NotImplementedException();
     }
 }
 
@@ -1615,9 +1609,7 @@ namespace NServiceBus
             Message = "Use the overload that accepts a callback with a cancellation token.",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
-        public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, Task> subscription)
-        {
-        }
+        public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, Task> subscription) => throw new NotImplementedException();
     }
 }
 
@@ -1649,10 +1641,24 @@ namespace NServiceBus.Transport
            Message = "Use the overload that accepts a callback with a cancellation token.",
            TreatAsErrorFromVersion = "8",
            RemoveInVersion = "9")]
-        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null)
-        {
-        }
+        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null) => throw new NotImplementedException();
     }
 }
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public static partial class ConfigureCriticalErrorAction
+    {
+        [ObsoleteEx(
+             Message = "Use the overload that accepts a callback with a cancellation token.",
+             TreatAsErrorFromVersion = "8",
+             RemoveInVersion = "9")]
+        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, Task> onCriticalError) => throw new NotImplementedException();
+    }
+}
+
 
 #pragma warning restore 1591
