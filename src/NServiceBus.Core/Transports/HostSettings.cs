@@ -7,7 +7,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Contains information about the hosting environment that is using the transport.
     /// </summary>
-    public class HostSettings
+    public partial class HostSettings
     {
         /// <summary>
         /// Creates a new instance of <see cref="HostSettings"/>.

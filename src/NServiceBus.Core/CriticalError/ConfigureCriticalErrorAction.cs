@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Allow override critical error action.
     /// </summary>
-    public static class ConfigureCriticalErrorAction
+    public static partial class ConfigureCriticalErrorAction
     {
         /// <summary>
         /// Defines the action that the endpoint performs if a critical error occurs.

@@ -11,7 +11,7 @@ namespace NServiceBus
     /// <summary>
     /// Configuration settings for Immediate Retries.
     /// </summary>
-    public class ImmediateRetriesSettings : ExposeSettings
+    public partial class ImmediateRetriesSettings : ExposeSettings
     {
         internal ImmediateRetriesSettings(SettingsHolder settings) : base(settings)
         {

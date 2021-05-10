@@ -11,7 +11,7 @@ namespace NServiceBus
     /// <summary>
     /// Configuration settings for Delayed Retries.
     /// </summary>
-    public class DelayedRetriesSettings : ExposeSettings
+    public partial class DelayedRetriesSettings : ExposeSettings
     {
         internal DelayedRetriesSettings(SettingsHolder settings) : base(settings)
         {

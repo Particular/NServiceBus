@@ -1518,4 +1518,146 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public partial class CriticalError
+    {
+        [ObsoleteEx(
+           Message = "Use the overload that accepts a delegate with a cancellation token.",
+           TreatAsErrorFromVersion = "8",
+           RemoveInVersion = "9")]
+        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public partial class CriticalErrorContext : ICriticalErrorContext
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a delegate with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public CriticalErrorContext(Func<Task> stop, string error, Exception exception) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Configuration.AdvancedExtensibility;
+    using Faults;
+
+    public partial class DelayedRetriesSettings : ExposeSettings
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a delegate with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public static partial class DiagnosticSettingsExtensions
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a delegate with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void CustomDiagnosticsWriter(this EndpointConfiguration config, Func<string, Task> customDiagnosticsWriter) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Configuration.AdvancedExtensibility;
+    using Faults;
+
+    public partial class ImmediateRetriesSettings : ExposeSettings
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a delegate with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public ImmediateRetriesSettings OnMessageBeingRetried(Func<ImmediateRetryMessage, Task> notificationCallback) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Pipeline;
+
+    public static partial class ReceivePipelineConfigExtensions
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a delegate with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, Task> subscription) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using Configuration.AdvancedExtensibility;
+    using Faults;
+
+    public partial class RetryFailedSettings : ExposeSettings
+    {
+        [ObsoleteEx(
+            Message = "Use the overload that accepts a delegate with a cancellation token.",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public RetryFailedSettings OnMessageSentToErrorQueue(Func<FailedMessage, Task> notificationCallback) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus.Transport
+{
+    using System;
+    using Settings;
+
+    public partial class HostSettings
+    {
+        [ObsoleteEx(
+           Message = "Use the overload that accepts a delegate with a cancellation token.",
+           TreatAsErrorFromVersion = "8",
+           RemoveInVersion = "9")]
+        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+
+    public static partial class ConfigureCriticalErrorAction
+    {
+        [ObsoleteEx(
+             Message = "Use the overload that accepts a delegate with a cancellation token.",
+             TreatAsErrorFromVersion = "8",
+             RemoveInVersion = "9")]
+        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, Task> onCriticalError) => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore 1591

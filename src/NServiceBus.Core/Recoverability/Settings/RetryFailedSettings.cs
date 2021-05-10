@@ -11,7 +11,7 @@ namespace NServiceBus
     /// <summary>
     /// Configuration settings for retry faults.
     /// </summary>
-    public class RetryFailedSettings : ExposeSettings
+    public partial class RetryFailedSettings : ExposeSettings
     {
         internal RetryFailedSettings(SettingsHolder settings) : base(settings)
         {
