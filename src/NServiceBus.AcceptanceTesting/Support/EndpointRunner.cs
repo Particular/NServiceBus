@@ -110,11 +110,6 @@
             try
             {
                 endpointInstance = await startCallback(startable).ConfigureAwait(false);
-
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException("Endpoint start was aborted");
-                }
             }
             catch (Exception ex)
             {
