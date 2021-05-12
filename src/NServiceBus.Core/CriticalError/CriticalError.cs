@@ -39,9 +39,7 @@ namespace NServiceBus
         public virtual void Raise(string errorMessage, Exception exception = null, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNullAndEmpty(nameof(errorMessage), errorMessage);
-            
             var logger = LogManager.GetLogger("NServiceBus");
-            
             if (exception != null)
             {
                 logger.Fatal(errorMessage, exception);
