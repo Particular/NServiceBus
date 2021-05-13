@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Host
 {
     using System;
+    using NServiceBus.Support;
     using NUnit.Framework;
 
     [TestFixture]
@@ -27,6 +28,17 @@
 
             var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
             Assert.AreEqual(DeterministicGuid.Create("Instance", "Host"), configuredId);
+        }
+
+        [Test]
+        public void It_overrides_the_machine_name()
+        {
+            var busConfig = new EndpointConfiguration("myendpoint");
+
+            busConfig.UniquelyIdentifyRunningInstance().OverrideHostName("overridenhostname");
+
+            var hostName = RuntimeEnvironment.MachineName;
+            Assert.AreEqual("overridenhostname", hostName);
         }
     }
 }

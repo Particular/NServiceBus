@@ -8,7 +8,6 @@
     using Configuration.AdvancedExtensibility;
     using Faults;
     using Logging;
-    using NServiceBus.Support;
     using Transport;
 
     public class EndpointRunner : ComponentRunner
@@ -41,11 +40,6 @@
                 configuration = endpointBehavior.EndpointBuilder.Get();
                 configuration.EndpointName = endpointName;
 
-                if (!string.IsNullOrEmpty(configuration.CustomMachineName))
-                {
-                    RuntimeEnvironment.MachineNameAction = () => configuration.CustomMachineName;
-                }
-
                 //apply custom config settings
                 if (configuration.GetConfiguration == null)
                 {
@@ -54,6 +48,11 @@
                 var endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
                 RegisterInheritanceHierarchyOfContextInSettings(scenarioContext, endpointConfiguration);
                 TrackFailingMessages(endpointName, endpointConfiguration);
+
+                if (!string.IsNullOrEmpty(configuration.CustomMachineName))
+                {
+                    endpointConfiguration.UniquelyIdentifyRunningInstance().OverrideHostName(configuration.CustomMachineName);
+                }
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 

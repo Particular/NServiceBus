@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Hosting;
+    using NServiceBus.Support;
 
     /// <summary>
     /// Configuration class for <see cref="HostInformation" /> settings.
@@ -64,6 +65,16 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(displayName), displayName);
             config.Settings.Get<HostingComponent.Settings>().DisplayName = displayName;
+            return this;
+        }
+
+        /// <summary>
+        /// Allows overriding the host name of the endpoint.
+        /// </summary>
+        public HostInfoSettings OverrideHostName(string hostName)
+        {
+            Guard.AgainstNullAndEmpty(nameof(hostName), hostName);
+            RuntimeEnvironment.SetMachineName(hostName);
             return this;
         }
 
