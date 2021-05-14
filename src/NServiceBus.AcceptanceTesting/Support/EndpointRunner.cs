@@ -51,7 +51,7 @@
 
                 if (!string.IsNullOrEmpty(configuration.CustomMachineName))
                 {
-                    endpointConfiguration.UniquelyIdentifyRunningInstance().OverrideHostName(configuration.CustomMachineName);
+                    endpointConfiguration.UniquelyIdentifyRunningInstance().UsingHostName(configuration.CustomMachineName);
                 }
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));

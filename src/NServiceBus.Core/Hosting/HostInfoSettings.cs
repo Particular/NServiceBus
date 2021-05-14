@@ -71,7 +71,7 @@ namespace NServiceBus
         /// <summary>
         /// Allows overriding the host name of the endpoint.
         /// </summary>
-        public HostInfoSettings OverrideHostName(string hostName)
+        public HostInfoSettings UsingHostName(string hostName)
         {
             Guard.AgainstNullAndEmpty(nameof(hostName), hostName);
             RuntimeEnvironment.SetMachineName(hostName);

@@ -448,9 +448,9 @@ namespace NServiceBus
     }
     public class HostInfoSettings
     {
-        public NServiceBus.HostInfoSettings OverrideHostName(string hostName) { }
         public NServiceBus.HostInfoSettings UsingCustomDisplayName(string displayName) { }
         public NServiceBus.HostInfoSettings UsingCustomIdentifier(System.Guid id) { }
+        public NServiceBus.HostInfoSettings UsingHostName(string hostName) { }
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }

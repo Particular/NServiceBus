@@ -35,7 +35,7 @@
         {
             var busConfig = new EndpointConfiguration("myendpoint");
 
-            busConfig.UniquelyIdentifyRunningInstance().OverrideHostName("overridenhostname");
+            busConfig.UniquelyIdentifyRunningInstance().UsingHostName("overridenhostname");
 
             var hostName = RuntimeEnvironment.MachineName;
             Assert.AreEqual("overridenhostname", hostName);
