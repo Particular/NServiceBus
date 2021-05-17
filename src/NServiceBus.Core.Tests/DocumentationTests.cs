@@ -19,7 +19,7 @@
         public void EnsureNoDocumentationIsEmpty()
         {
             var assembly = typeof(Endpoint).Assembly;
-            var codeBase = assembly.CodeBase;
+            var codeBase = assembly.Location;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
             var assemblyMembers = DocReader.Read(assembly, Path.ChangeExtension(path, "xml"));

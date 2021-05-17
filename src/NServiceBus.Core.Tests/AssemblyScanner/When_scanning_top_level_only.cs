@@ -43,7 +43,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var allEncounteredFileNames =
                 results.Assemblies
                     .Where(x => !x.IsDynamic)
-                    .Select(a => a.CodeBase)
+                    .Select(a => a.Location)
                     .Concat(results.SkippedFiles.Select(s => s.FilePath))
                     .ToList();
 

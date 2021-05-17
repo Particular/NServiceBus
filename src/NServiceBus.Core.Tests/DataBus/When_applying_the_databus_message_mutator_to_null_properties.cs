@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -18,16 +17,16 @@ namespace NServiceBus.Core.Tests.DataBus
                 Message = new OutgoingLogicalMessage(typeof(MessageWithNullDataBusProperty), new MessageWithNullDataBusProperty())
             };
 
-            var sendBehavior = new DataBusSendBehavior(null, new DefaultDataBusSerializer(), new Conventions());
+            var sendBehavior = new DataBusSendBehavior(null, new XmlDataBusSerializer<string>(), new Conventions());
 
             using (var stream = new MemoryStream())
             {
-                new BinaryFormatter().Serialize(stream, "test");
+                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(string));
+                serializer.Serialize(stream, "test");
                 stream.Position = 0;
 
                 await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
             }
         }
-
     }
 }

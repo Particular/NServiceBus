@@ -23,7 +23,15 @@ namespace NServiceBus.AcceptanceTests.Core.Pipeline
             var pipelineLogs = context.Logs.Where(x => x.LoggerName.StartsWith("NServiceBus.Pipeline"))
                 .Distinct(LoggerNameComparer.Instance).Select(x => x.Message);
 
-            Approver.Verify(string.Join(Environment.NewLine, pipelineLogs));
+#if NET5_0_OR_GREATER
+            // System.Threading.Tasks.Task has changed to System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult] in .net5
+            // This ifdef is to make sure the new type is only validated for .net5 or greater.
+            var scenario = "net5";
+#else
+            var scenario = string.Empty;
+#endif
+
+            Approver.Verify(string.Join(Environment.NewLine, pipelineLogs), scenario: scenario);
         }
 
         class LoggerNameComparer : IEqualityComparer<ScenarioContext.LogItem>

@@ -93,7 +93,15 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-            Approver.Verify(expressions.PrettyPrint());
+#if NET5_0_OR_GREATER
+            // System.Threading.Tasks.Task has changed to System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult] in .net5
+            // This ifdef is to make sure the new type is only validated for .net5 or greater.
+            var scenario = "net5";
+#else
+            var scenario = string.Empty;
+#endif
+
+            Approver.Verify(expressions.PrettyPrint(), scenario: scenario);
         }
 
         [Test]
