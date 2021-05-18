@@ -19,7 +19,13 @@
         public void EnsureNoDocumentationIsEmpty()
         {
             var assembly = typeof(Endpoint).Assembly;
+#if NET452
+            var codeBase = assembly.CodeBase;
+            var uri = new UriBuilder(codeBase);
+            var path = Uri.UnescapeDataString(uri.Path);
+#else
             var path = AppContext.BaseDirectory + Path.GetFileName(assembly.Location);
+#endif
             var assemblyMembers = DocReader.Read(assembly, Path.ChangeExtension(path, "xml"));
 
             var list = GetListOfMissingDocs(assemblyMembers).ToList();

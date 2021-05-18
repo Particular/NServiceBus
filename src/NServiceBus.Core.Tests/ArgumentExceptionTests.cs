@@ -14,10 +14,13 @@
         public void WriteAllPublicMembersWithNoArgumentChecking()
         {
             var stringWriter = new StringWriter();
+#if NET452
             var codeBase = typeof(Endpoint).Assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
-
+#else
+            var path = AppContext.BaseDirectory + Path.GetFileName(typeof(Endpoint).Assembly.Location);
+#endif
             var readerParameters = new ReaderParameters
             {
                 ReadSymbols = true
