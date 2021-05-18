@@ -3,7 +3,6 @@ namespace NServiceBus.Core.Tests.DataBus
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
@@ -29,11 +28,12 @@ namespace NServiceBus.Core.Tests.DataBus
             });
 
             var fakeDatabus = new FakeDataBus();
-            var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+            var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, new XmlDataBusSerializer<string>(), new Conventions());
 
             using (var stream = new MemoryStream())
             {
-                new BinaryFormatter().Serialize(stream, "test");
+                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(string));
+                serializer.Serialize(stream, "test");
                 stream.Position = 0;
 
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
