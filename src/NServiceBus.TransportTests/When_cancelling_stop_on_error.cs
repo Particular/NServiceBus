@@ -15,7 +15,7 @@
         public async Task Should_cancel(TransportTransactionMode transactionMode)
         {
             var started = CreateTaskCompletionSource();
-            var wasCancelled = CreateTaskCompletionSource<bool>();
+            var wasCanceled = CreateTaskCompletionSource<bool>();
 
             await StartPump(
                 (_, __) => throw new Exception(),
@@ -29,11 +29,11 @@
                     }
                     catch (OperationCanceledException)
                     {
-                        wasCancelled.SetResult(true);
+                        wasCanceled.SetResult(true);
                         throw;
                     }
 
-                    wasCancelled.SetResult(false);
+                    wasCanceled.SetResult(false);
 
                     return ErrorHandleResult.Handled;
                 },
@@ -45,7 +45,7 @@
 
             await StopPump(new CancellationToken(true));
 
-            Assert.True(await wasCancelled.Task, "onError was not cancelled.");
+            Assert.True(await wasCanceled.Task, "onError was not canceled.");
         }
     }
 }

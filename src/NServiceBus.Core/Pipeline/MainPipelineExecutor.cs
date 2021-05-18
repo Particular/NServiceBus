@@ -35,12 +35,12 @@ namespace NServiceBus
                 {
                     await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
                 }
-                catch (Exception e)
+                catch (Exception ex) when (!(ex is OperationCanceledException))
                 {
-                    e.Data["Message ID"] = message.MessageId;
+                    ex.Data["Message ID"] = message.MessageId;
                     if (message.NativeMessageId != message.MessageId)
                     {
-                        e.Data["Transport message ID"] = message.NativeMessageId;
+                        ex.Data["Transport message ID"] = message.NativeMessageId;
                     }
 
                     throw;

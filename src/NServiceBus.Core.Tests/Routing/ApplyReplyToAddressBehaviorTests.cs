@@ -101,7 +101,7 @@
                 await behavior.Invoke(context, ctx => Task.CompletedTask);
                 Assert.Fail("Expected exception");
             }
-            catch (Exception)
+            catch (Exception ex) when (!(ex is OperationCanceledException))
             {
                 Assert.Pass();
             }
@@ -123,7 +123,7 @@
                 await behavior.Invoke(context, ctx => Task.CompletedTask);
                 Assert.Fail("Expected exception");
             }
-            catch (Exception)
+            catch (Exception ex) when (!(ex is OperationCanceledException))
             {
                 Assert.Pass();
             }

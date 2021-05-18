@@ -70,7 +70,9 @@ namespace NServiceBus.Features
                     {
                         await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
                     }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - OCE handling is the same
                     catch (Exception)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
                     {
                         await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(cancellationToken))).ConfigureAwait(false);
 

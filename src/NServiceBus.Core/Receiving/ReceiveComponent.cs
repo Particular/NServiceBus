@@ -171,7 +171,7 @@ namespace NServiceBus
                         satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
                     receivers.Add(satellitePump);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is OperationCanceledException))
                 {
                     Logger.Fatal("Satellite failed to start.", ex);
                     throw;
@@ -188,7 +188,7 @@ namespace NServiceBus
                     Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
                     await messageReceiver.StartReceive(cancellationToken).ConfigureAwait(false);
                 }
-                catch (Exception e)
+                catch (Exception e) when (!(e is OperationCanceledException))
                 {
                     Logger.Fatal($"Receiver {messageReceiver.Id} failed to start.", e);
                     throw;
@@ -206,9 +206,9 @@ namespace NServiceBus
                     await receiver.StopReceive(cancellationToken).ConfigureAwait(false);
                     Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
                 }
-                catch (Exception exception)
+                catch (Exception ex) when (!(ex is OperationCanceledException))
                 {
-                    Logger.Warn($"Receiver {receiver.Id} threw an exception on stopping.", exception);
+                    Logger.Warn($"Receiver {receiver.Id} threw an exception on stopping.", ex);
                 }
             });
 

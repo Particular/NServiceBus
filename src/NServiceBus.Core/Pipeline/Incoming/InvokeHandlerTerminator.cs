@@ -27,7 +27,7 @@
                     .ThrowIfNull()
                     .ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (Exception e) when (!(e is OperationCanceledException))
             {
                 e.Data["Message type"] = context.MessageMetadata.MessageType.FullName;
                 e.Data["Handler type"] = context.MessageHandler.HandlerType.FullName;

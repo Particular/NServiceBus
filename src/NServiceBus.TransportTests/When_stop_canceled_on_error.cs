@@ -1,42 +1,43 @@
 ﻿namespace NServiceBus.TransportTests
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
 
-    public class When_stop_cancelled_on_message : NServiceBusTransportTest
+    public class When_stop_canceled_on_error : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode)
+        public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode)
         {
-            var recoverabilityInvoked = false;
+            var criticalErrorInvoked = false;
 
-            var onMessageStarted = CreateTaskCompletionSource();
+            var onErrorStarted = CreateTaskCompletionSource();
 
             await StartPump(
+                (_, __) => throw new Exception(),
                 async (_, cancellationToken) =>
                 {
-                    onMessageStarted.SetResult();
+                    onErrorStarted.SetResult();
+
                     await Task.Delay(TestTimeout, cancellationToken);
+
+                    return ErrorHandleResult.Handled;
                 },
-                (_, __) =>
-                {
-                    recoverabilityInvoked = true;
-                    return Task.FromResult(ErrorHandleResult.Handled);
-                },
-                transactionMode);
+                transactionMode,
+                (_, __, ___) => criticalErrorInvoked = true);
 
             await SendMessage(InputQueueName);
 
-            await onMessageStarted.Task;
+            await onErrorStarted.Task;
 
             await StopPump(new CancellationToken(true));
 
-            Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
+            Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
         }
     }
 }

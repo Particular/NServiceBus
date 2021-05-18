@@ -1,43 +1,42 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
 
-    public class When_stop_cancelled_on_error : NServiceBusTransportTest
+    public class When_stop_canceled_on_message : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_invoke_critical_error(TransportTransactionMode transactionMode)
+        public async Task Should_not_invoke_recoverability(TransportTransactionMode transactionMode)
         {
-            var criticalErrorInvoked = false;
+            var recoverabilityInvoked = false;
 
-            var onErrorStarted = CreateTaskCompletionSource();
+            var onMessageStarted = CreateTaskCompletionSource();
 
             await StartPump(
-                (_, __) => throw new Exception(),
                 async (_, cancellationToken) =>
                 {
-                    onErrorStarted.SetResult();
-
+                    onMessageStarted.SetResult();
                     await Task.Delay(TestTimeout, cancellationToken);
-
-                    return ErrorHandleResult.Handled;
                 },
-                transactionMode,
-                (_, __, ___) => criticalErrorInvoked = true);
+                (_, __) =>
+                {
+                    recoverabilityInvoked = true;
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
-            await onErrorStarted.Task;
+            await onMessageStarted.Task;
 
             await StopPump(new CancellationToken(true));
 
-            Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
+            Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
         }
     }
 }

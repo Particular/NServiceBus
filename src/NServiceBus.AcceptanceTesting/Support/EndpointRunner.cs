@@ -130,24 +130,16 @@
                     {
                         var executedWhens = new HashSet<Guid>();
 
-                        while (!cancellationToken.IsCancellationRequested)
+                        while (true)
                         {
                             if (executedWhens.Count == behavior.Whens.Count)
                             {
                                 break;
                             }
 
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                break;
-                            }
-
                             foreach (var when in behavior.Whens)
                             {
-                                if (cancellationToken.IsCancellationRequested)
-                                {
-                                    break;
-                                }
+                                cancellationToken.ThrowIfCancellationRequested();
 
                                 if (executedWhens.Contains(when.Id))
                                 {
@@ -162,10 +154,10 @@
 
                             await Task.Yield(); // enforce yield current context, tight loop could introduce starvation
                         }
-                    }, cancellationToken).ConfigureAwait(false);
+                    }, CancellationToken.None).ConfigureAwait(false);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is OperationCanceledException))
             {
                 Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
 

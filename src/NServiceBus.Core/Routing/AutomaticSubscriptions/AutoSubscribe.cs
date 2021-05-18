@@ -87,8 +87,16 @@
                     }
                     //swallow
                 }
+                catch (QueueNotFoundException)
+                {
+                    throw;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
                 // also catch regular exceptions in case a transport does not throw an AggregateException
-                catch (Exception e) when (!(e is QueueNotFoundException))
+                catch (Exception e)
                 {
                     LogFailedSubscription(e);
                     // swallow exception
