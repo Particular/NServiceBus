@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
@@ -87,13 +86,14 @@
             {
                 context.SerializeCalled = true;
 
-                var serializer = new BinaryFormatter();
+                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
+
                 serializer.Serialize(stream, message);
             }
 
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
             {
-                var serializer = new BinaryFormatter();
+                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
 
                 stream.Position = 0;
                 var msg = serializer.Deserialize(stream);
