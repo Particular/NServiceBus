@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;net472;netcoreapp3.1</TargetFrameworks>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
