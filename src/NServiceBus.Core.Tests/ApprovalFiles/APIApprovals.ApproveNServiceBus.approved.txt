@@ -694,17 +694,18 @@ namespace NServiceBus
         [System.Obsolete("Use `QueueAddress.Qualifier` instead. The member currently throws a NotImplemente" +
             "dException. Will be removed in version 9.0.0.", true)]
         public string Qualifier { get; }
-        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
-            ". Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Directly construct a QueueAddress with the discriminator. The member currently th" +
+            "rows a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.LogicalAddress CreateIndividualizedAddress(string discriminator) { }
-        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
-            ". Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Directly construct a QueueAddress with the qualifier. The member currently throws" +
+            " a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.LogicalAddress CreateQualifiedAddress(string qualifier) { }
-        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
-            ". Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Directly construct a QueueAddress with the queueName as the BaseAddress. The memb" +
+            "er currently throws a NotImplementedException. Will be removed in version 9.0.0." +
+            "", true)]
         public static NServiceBus.LogicalAddress CreateLocalAddress(string queueName, System.Collections.Generic.IReadOnlyDictionary<string, string> properties) { }
-        [System.Obsolete("Use `QueueAddress` instead. The member currently throws a NotImplementedException" +
-            ". Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Directly construct a QueueAddress. The member currently throws a NotImplementedEx" +
+            "ception. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.LogicalAddress CreateRemoteAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
     }
     public static class MessageCausationConfigurationExtensions

@@ -1202,7 +1202,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = nameof(QueueAddress))]
+            Message = "Directly construct a QueueAddress.")]
         public static LogicalAddress CreateRemoteAddress(EndpointInstance endpointInstance)
         {
             throw new NotImplementedException();
@@ -1211,7 +1211,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = nameof(QueueAddress))]
+            Message = "Directly construct a QueueAddress with the queueName as the BaseAddress.")]
         public static LogicalAddress CreateLocalAddress(string queueName, IReadOnlyDictionary<string, string> properties)
         {
             throw new NotImplementedException();
@@ -1220,7 +1220,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = nameof(QueueAddress))]
+            Message = "Directly construct a QueueAddress with the qualifier.")]
         public LogicalAddress CreateQualifiedAddress(string qualifier)
         {
             throw new NotImplementedException();
@@ -1229,7 +1229,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
-            ReplacementTypeOrMember = nameof(QueueAddress))]
+            Message = "Directly construct a QueueAddress with the discriminator.")]
         public LogicalAddress CreateIndividualizedAddress(string discriminator)
         {
             throw new NotImplementedException();
