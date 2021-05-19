@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install ClamAV
-        id: installClamAV
         run: |
           sudo apt-get update && sudo apt-get install clamav
           clamVersion=$(clamscan --version)
@@ -20,7 +19,6 @@ jobs:
           sudo systemctl start clamav-freshclam
       - name: Get release
         uses: actions/github-script@v3.1.1
-        id: getRelease
         with:
           github-token: ${{secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4}}
           script: |
@@ -70,7 +68,6 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.RELEASE_ANTIVIRUS_SLACK_WEBHOOK_URL }}
       - name: Update release notes
-        if: ${{ always() }}
         uses: actions/github-script@v3.1.1
         with:
           github-token: ${{secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4}}
