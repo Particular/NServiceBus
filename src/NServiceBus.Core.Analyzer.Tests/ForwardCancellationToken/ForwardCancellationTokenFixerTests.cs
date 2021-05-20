@@ -14,31 +14,29 @@
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public Task Bar(IMessageHandlerContext context)
     {
         return TestMethod();
     }
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    public Task Bar(IMessageHandlerContext context)
     {
         return TestMethod(context.CancellationToken);
     }
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             return Assert(original, expected);
         }
@@ -50,31 +48,29 @@ public class TestMessage : ICommand {}";
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext iRenamedItCuzICan)
+    public Task Bar(IMessageHandlerContext iRenamedItCuzICan)
     {
         return TestMethod();
     }
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public Task Handle(TestMessage message, IMessageHandlerContext iRenamedItCuzICan)
+    public Task Bar(IMessageHandlerContext iRenamedItCuzICan)
     {
         return TestMethod(iRenamedItCuzICan.CancellationToken);
     }
 
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             return Assert(original, expected);
         }
@@ -86,9 +82,9 @@ public class TestMessage : ICommand {}";
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         await TestMethod();
         await this.TestMethod();
@@ -96,16 +92,15 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task TestMethod() { return Task.CompletedTask; }
     Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         await TestMethod(context.CancellationToken);
         await this.TestMethod(context.CancellationToken);
@@ -113,8 +108,7 @@ public class Foo : IHandleMessages<TestMessage>
 
     Task TestMethod() { return Task.CompletedTask; }
     Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             return Assert(original, expected);
         }
@@ -126,9 +120,9 @@ public class TestMessage : ICommand {}";
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         int answer1 = await TestMethod(42);
         int answer2 = await TestMethod<int>(42);
@@ -137,16 +131,15 @@ public class Foo : IHandleMessages<TestMessage>
     }
 
     Task<T> TestMethod<T>(T value, CancellationToken token = default(CancellationToken)) { return Task.FromResult(value); }
-}
-public class TestMessage : ICommand {}";
+}";
 
             var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         int answer1 = await TestMethod(42, context.CancellationToken);
         int answer2 = await TestMethod<int>(42, context.CancellationToken);
@@ -155,8 +148,7 @@ public class Foo : IHandleMessages<TestMessage>
     }
 
     Task<T> TestMethod<T>(T value, CancellationToken token = default(CancellationToken)) { return Task.FromResult(value); }
-}
-public class TestMessage : ICommand {}";
+}";
 
             return Assert(original, expected);
         }
@@ -168,9 +160,9 @@ public class TestMessage : ICommand {}";
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         await TestMethod(1, 2, // comment
                          3, /*comment*/      4, // comment
@@ -179,16 +171,15 @@ public class Foo : IHandleMessages<TestMessage>
     }
 
     Task TestMethod(int a, int b, int c, int d, int e, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         await TestMethod(1, 2, // comment
                          3, /*comment*/      4, // comment
@@ -197,8 +188,7 @@ public class Foo : IHandleMessages<TestMessage>
     }
 
     Task TestMethod(int a, int b, int c, int d, int e, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             return Assert(original, expected);
         }
@@ -210,31 +200,29 @@ public class TestMessage : ICommand {}";
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         await TestMethod(1);
     }
 
     Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
-public class Foo : IHandleMessages<TestMessage>
+public class Foo
 {
-    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    public async Task Bar(IMessageHandlerContext context)
     {
         await TestMethod(1, token: context.CancellationToken);
     }
 
     Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}";
+}";
 
             return Assert(original, expected);
         }
