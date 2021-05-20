@@ -74,17 +74,35 @@ public class Foo
     static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3) { return Task.CompletedTask; }
     static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4) { return Task.CompletedTask; }
     static Task LotsOfOverloadsOneTakesToken(bool p1, bool p2, bool p3, bool p4, bool p5, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-    
+
     static Task Overloads(bool p1) { return Task.CompletedTask; }
     static Task Overloads(bool p1, CancellationToken cancellationToken) { return Task.CompletedTask; }
 
     public async Task Method(" + arguments + @")
     {
-        var thing = new Thing();
-        var derived = new DerivedClass();
+        await [|StaticMethod()|];
+        await [|InstanceMethod()|];
+        await [|this.InstanceMethod()|];
 
+        var thing = new Thing();
+        await [|thing.OtherClassMethod()|];
+        await [|thing.ExtensionMethod(true)|];
+
+        var derived = new DerivedClass();
         await [|derived.TokenMethodOnBase()|];
         await [|derived.TokenMethodOnDerived()|];
+
+        await [|LotsOfParameters(true, false, true, false, true)|];
+        await [|LotsOfOverloadsAllTakeToken(true)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false, true)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false, true, false)|];
+        await [|LotsOfOverloadsAllTakeToken(true, false, true, false, true)|];
+        await LotsOfOverloadsOneTakesToken(true);
+        await LotsOfOverloadsOneTakesToken(true, false);
+        await LotsOfOverloadsOneTakesToken(true, false, true);
+        await LotsOfOverloadsOneTakesToken(true, false, true, false);
+        await [|LotsOfOverloadsOneTakesToken(true, false, true, false, true)|];
     }
 }");
 
