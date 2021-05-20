@@ -429,7 +429,8 @@ public static class BarExtensions
 
         [Test]
         public Task NoDiagnosticOnCrazyWaysToCreateAToken() => Assert(
-@"using NServiceBus;
+@"using System;
+using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 public class Foo : IHandleMessages<TestMessage>
@@ -448,6 +449,10 @@ public class Foo : IHandleMessages<TestMessage>
         await DoSomething(true, this.MyToken);
         await DoSomething(true, privateToken);
         await DoSomething(true, this.privateToken);
+
+        Func<CancellationToken> tokenMaker = () => CancellationToken.None;
+        await DoSomething(true, tokenMaker());
+        await DoSomething(true, tokenMaker.Invoke());
     }
 
     private Task DoSomething(bool value, CancellationToken token = default(CancellationToken))
