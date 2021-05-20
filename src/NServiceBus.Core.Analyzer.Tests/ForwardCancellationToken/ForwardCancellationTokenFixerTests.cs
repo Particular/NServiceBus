@@ -207,7 +207,7 @@ public class Foo
         await TestMethod(1);
     }
 
-    Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken), int e = 5) { return Task.CompletedTask; }
 }";
 
             var expected =
@@ -221,7 +221,7 @@ public class Foo
         await TestMethod(1, token: context.CancellationToken);
     }
 
-    Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+    Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken), int e = 5) { return Task.CompletedTask; }
 }";
 
             return Assert(original, expected);
