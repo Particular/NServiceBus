@@ -27,12 +27,15 @@
                     .ThrowIfNull()
                     .ConfigureAwait(false);
             }
-            catch (Exception e) when (!(e is OperationCanceledException))
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
+            catch (Exception ex)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
-                e.Data["Message type"] = context.MessageMetadata.MessageType.FullName;
-                e.Data["Handler type"] = context.MessageHandler.HandlerType.FullName;
-                e.Data["Handler start time"] = DateTimeOffsetHelper.ToWireFormattedString(startTime);
-                e.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
+                ex.Data["Message type"] = context.MessageMetadata.MessageType.FullName;
+                ex.Data["Handler type"] = context.MessageHandler.HandlerType.FullName;
+                ex.Data["Handler start time"] = DateTimeOffsetHelper.ToWireFormattedString(startTime);
+                ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
+                ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
                 throw;
             }
         }

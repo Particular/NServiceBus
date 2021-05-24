@@ -35,13 +35,18 @@ namespace NServiceBus
                 {
                     await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (!(ex is OperationCanceledException))
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
+                catch (Exception ex)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
                 {
                     ex.Data["Message ID"] = message.MessageId;
+
                     if (message.NativeMessageId != message.MessageId)
                     {
                         ex.Data["Transport message ID"] = message.NativeMessageId;
                     }
+
+                    ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
                     throw;
                 }
