@@ -45,7 +45,7 @@
             var action = CodeAction.Create(
                 title,
                 token => ForwardCancellationToken(context.Document, invocationSyntax, callerCancellableContextParamName, requiredArgName, token),
-                equivalenceKey: title);
+                equivalenceKey: EquivalenceKey);
 
             context.RegisterCodeFix(action, diagnostic);
         }
@@ -84,5 +84,9 @@
 
             return newDocument;
         }
+
+        // Value really doesn't matter but is required by RS1010 analyzer. Can not be the title because
+        // the title is dynamic based on the context name and target method name.
+        static readonly string EquivalenceKey = typeof(ForwardCancellationTokenFixer).FullName;
     }
 }
