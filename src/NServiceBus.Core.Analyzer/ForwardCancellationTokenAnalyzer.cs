@@ -366,11 +366,11 @@
 
         static readonly DiagnosticDescriptor diagnosticDescriptor = new DiagnosticDescriptor(
             id: DiagnosticId,
-            title: "Forward the `CancellationToken` property of the context parameter to methods",
+            title: "Forward the 'CancellationToken' property of the context parameter to methods",
             messageFormat: "Forward '{0}.CancellationToken' to the '{1}' method or pass in 'CancellationToken.None' explicitly to indicate intentionally not propagating the token",
             category: "NServiceBus.Code",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Forward the `CancellationToken` property of the context parameter to methods to ensure the operation cancellation notifications are properly propagated, or pass in 'CancellationToken.None' explicitly to indicate intentionally not propagating the token. Forwarding the token allows cancellation of message processing when necessary. Also consider elevating the severity of \"CA2016: Forward the 'CancellationToken parameter' to methods\" to 'warning' to ensure 'CancellationToken' parameters are forwarded appropriately.");
+            description: "Forward the 'CancellationToken' property of the context parameter to methods to ensure the operation cancellation notifications are properly propagated, or pass in 'CancellationToken.None' explicitly to indicate intentionally not propagating the token. Forwarding the token allows cancellation of message processing when necessary. Also consider elevating the severity of \"CA2016: Forward the 'CancellationToken parameter' to methods\" to 'warning' to ensure 'CancellationToken' parameters are forwarded appropriately.");
     }
 }

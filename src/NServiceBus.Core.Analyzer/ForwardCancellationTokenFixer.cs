@@ -39,7 +39,7 @@
 
             // TODO: consider whether analyzer should pass in name of property, i.e. "CancellationToken",
             // so that that information doesn't have to spread across both the analyzer and the fixer
-            var title = $"Forward {callerCancellableContextParamName}.CancellationToken to {calledMethodName}";
+            var title = $"Forward '{callerCancellableContextParamName}.CancellationToken' to '{calledMethodName}'";
 
             // Register a code action that will invoke the fix.
             var action = CodeAction.Create(
