@@ -157,36 +157,24 @@
         [DebuggerNonUserCode]
         async Task ReceiveMessagesAndSwallowExceptions(CancellationToken messageReceivingCancellationToken)
         {
-            try
+            while (true)
             {
-                while (true)
+                try
                 {
+                    // ensure the loop can exit, regardless of whether ReceiveMessages supports cancellation
                     messageReceivingCancellationToken.ThrowIfCancellationRequested();
 
-                    try
-                    {
-                        await ReceiveMessages(messageReceivingCancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception ex) when (!(ex is OperationCanceledException))
-                    {
-                        criticalErrorAction("Failure to process messages", ex, messageReceivingCancellationToken);
-                    }
+                    await ReceiveMessages(messageReceivingCancellationToken).ConfigureAwait(false);
                 }
-            }
-            catch (OperationCanceledException ex)
-            {
-                if (messageReceivingCancellationToken.IsCancellationRequested)
+                catch (OperationCanceledException ex) when (messageReceivingCancellationToken.IsCancellationRequested)
                 {
                     log.Debug("Message receiving canceled.", ex);
+                    break;
                 }
-                else
+                catch (Exception ex)
                 {
-                    log.Warn("OperationCanceledException thrown.", ex);
+                    criticalErrorAction("Message receiving failed.", ex, messageReceivingCancellationToken);
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Message receiving failed.", ex);
             }
         }
 
@@ -224,7 +212,7 @@
                             continue;
                         }
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException) when (messageReceivingCancellationToken.IsCancellationRequested)
                     {
                         concurrencyLimiter.Release();
                         throw;
@@ -262,16 +250,9 @@
             {
                 await ProcessMessage(transaction, filePath, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
             {
-                if (messageProcessingCancellationToken.IsCancellationRequested)
-                {
-                    log.Debug("Message processing canceled.", ex);
-                }
-                else
-                {
-                    log.Warn("OperationCanceledException thrown.", ex);
-                }
+                log.Debug("Message processing canceled.", ex);
             }
             catch (Exception ex)
             {
@@ -357,9 +338,9 @@
                 await onMessage(messageContext, messageProcessingCancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
             {
-                log.Debug("OperationCanceledException thrown. Rolling back transaction.", ex);
+                log.Debug("Message processing cancelled. Rolling back transaction.", ex);
 
                 transaction.Rollback();
 
@@ -381,9 +362,9 @@
                 {
                     result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException ex)
+                catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
                 {
-                    log.Debug("OperationCanceledException thrown. Rolling back transaction.", ex);
+                    log.Debug("Message processing cancelled. Rolling back transaction.", ex);
 
                     transaction.Rollback();
 

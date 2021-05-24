@@ -50,7 +50,7 @@
                       {
                           await Task.Delay(TimeSpan.FromSeconds(1), polling.Token).ConfigureAwait(false);
                       }
-                      catch (OperationCanceledException)
+                      catch (OperationCanceledException) when (polling.Token.IsCancellationRequested)
                       {
                           // polling is being stopped
                           break;

@@ -32,7 +32,7 @@ namespace NServiceBus
                     await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 // When we introduced cancellation, the general catch was already present.
                 // We didn't want to change the behavior there,
