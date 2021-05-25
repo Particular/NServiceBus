@@ -55,7 +55,7 @@
             if (context.Node is BaseMethodDeclarationSyntax declaration)
             {
                 method = context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken);
-                body = declaration.Body;
+                body = (SyntaxNode)declaration.Body ?? declaration.ExpressionBody;
             }
             else if (context.Node is AnonymousFunctionExpressionSyntax expression)
             {
@@ -67,7 +67,7 @@
                 return;
             }
 
-            if (method == null)
+            if (method == null || body == null)
             {
                 return;
             }
