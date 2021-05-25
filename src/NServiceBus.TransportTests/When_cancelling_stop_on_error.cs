@@ -27,7 +27,7 @@
                     {
                         await Task.Delay(TestTimeout, cancellationToken);
                     }
-                    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                    catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
                     {
                         wasCanceled.SetResult(true);
                         throw;

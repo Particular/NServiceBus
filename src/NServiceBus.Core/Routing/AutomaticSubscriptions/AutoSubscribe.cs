@@ -91,14 +91,10 @@
                 {
                     throw;
                 }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
                 // also catch regular exceptions in case a transport does not throw an AggregateException
-                catch (Exception e)
+                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
                 {
-                    LogFailedSubscription(e);
+                    LogFailedSubscription(ex);
                     // swallow exception
                 }
 

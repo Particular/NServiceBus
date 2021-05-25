@@ -101,7 +101,7 @@
                 await behavior.Invoke(context, ctx => Task.CompletedTask);
                 Assert.Fail("Expected exception");
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
                 Assert.Pass();
             }
@@ -112,10 +112,11 @@
         {
             var behavior = new ApplyReplyToAddressBehavior("MyEndpoint", "MyInstance", null);
 
+            var options = new SendOptions();
+            var context = CreateContext(options);
+
             try
             {
-                var options = new SendOptions();
-                var context = CreateContext(options);
 
                 options.RouteReplyToAnyInstance();
                 options.RouteReplyToThisInstance();
@@ -123,7 +124,7 @@
                 await behavior.Invoke(context, ctx => Task.CompletedTask);
                 Assert.Fail("Expected exception");
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
                 Assert.Pass();
             }

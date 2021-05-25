@@ -157,7 +157,7 @@
                     }, CancellationToken.None).ConfigureAwait(false);
                 }
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
 

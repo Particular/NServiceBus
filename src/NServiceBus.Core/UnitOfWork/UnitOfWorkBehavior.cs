@@ -53,7 +53,7 @@
             {
                 throw;
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
                 var trailingExceptions = await AppendEndExceptions(unitsOfWork, ex, context.CancellationToken).ConfigureAwait(false);
                 if (trailingExceptions.Any())

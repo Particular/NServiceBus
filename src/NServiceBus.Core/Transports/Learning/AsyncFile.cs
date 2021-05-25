@@ -32,7 +32,7 @@ namespace NServiceBus
                     await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
             {
                 // When we introduced cancellation, the general catch was already present.
                 // We didn't want to change the behavior there,
@@ -42,9 +42,9 @@ namespace NServiceBus
                 {
                     File.Delete(tempFile);
                 }
-                catch (Exception ex)
+                catch (Exception deleteEx)
                 {
-                    log.Warn("Failed to delete file.", ex);
+                    log.Warn("Failed to delete file.", deleteEx);
                 }
 
                 throw;

@@ -54,9 +54,9 @@ namespace NServiceBus
                     // Can throw
                     await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
                 }
-                catch (Exception exception) when (!(exception is OperationCanceledException))
+                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
                 {
-                    Log.Error("Shutdown of the transport infrastructure failed.", exception);
+                    Log.Error("Shutdown of the transport infrastructure failed.", ex);
 
                     // TODO: Not throwing because reason unknown :)
                 }

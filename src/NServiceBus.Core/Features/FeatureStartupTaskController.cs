@@ -32,7 +32,7 @@
             {
                 await instance.PerformStop(cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 Log.Warn($"Exception occurred during stopping of feature startup task '{Name}'.", ex);
             }

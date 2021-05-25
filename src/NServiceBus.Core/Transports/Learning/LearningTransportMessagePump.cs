@@ -88,8 +88,7 @@
 
             cancellationToken.Register(() => messageProcessingCancellationTokenSource?.Cancel());
 
-            await messageReceivingTask
-                .ConfigureAwait(false);
+            await messageReceivingTask.ConfigureAwait(false);
 
             while (concurrencyLimiter.CurrentCount != maxConcurrency)
             {
@@ -106,8 +105,7 @@
                 // If we ever require a method of stopping the endpoint such that
                 // all message processing is canceled immediately,
                 // we can provide that as a separate feature.
-                await Task.Delay(50, CancellationToken.None)
-                    .ConfigureAwait(false);
+                await Task.Delay(50, CancellationToken.None).ConfigureAwait(false);
             }
 
             concurrencyLimiter.Dispose();
@@ -164,15 +162,18 @@
                     // ensure the loop can exit, regardless of whether ReceiveMessages supports cancellation
                     messageReceivingCancellationToken.ThrowIfCancellationRequested();
 
+                    log.Debug($"Started polling for new messages in {messagePumpBasePath}");
+
                     await ReceiveMessages(messageReceivingCancellationToken).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException ex) when (messageReceivingCancellationToken.IsCancellationRequested)
+                catch (Exception ex) when (ex.IsCausedBy(messageReceivingCancellationToken))
                 {
                     log.Debug("Message receiving canceled.", ex);
                     break;
                 }
                 catch (Exception ex)
                 {
+                    // core guarantees this doesn't throw
                     criticalErrorAction("Message receiving failed.", ex, messageReceivingCancellationToken);
                 }
             }
@@ -180,57 +181,49 @@
 
         async Task ReceiveMessages(CancellationToken messageReceivingCancellationToken)
         {
-            log.Debug($"Started polling for new messages in {messagePumpBasePath}");
+            var filesFound = false;
 
-            while (true)
+            foreach (var filePath in Directory.EnumerateFiles(messagePumpBasePath, "*.*"))
             {
-                messageReceivingCancellationToken.ThrowIfCancellationRequested();
+                filesFound = true;
 
-                var filesFound = false;
+                var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
-                foreach (var filePath in Directory.EnumerateFiles(messagePumpBasePath, "*.*"))
+                await concurrencyLimiter.WaitAsync(messageReceivingCancellationToken).ConfigureAwait(false);
+
+                ILearningTransportTransaction transaction;
+
+                try
                 {
-                    filesFound = true;
+                    transaction = GetTransaction();
 
-                    var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
+                    var ableToLockFile = await transaction.BeginTransaction(filePath, messageReceivingCancellationToken).ConfigureAwait(false);
 
-                    await concurrencyLimiter.WaitAsync(messageReceivingCancellationToken)
-                        .ConfigureAwait(false);
-
-                    ILearningTransportTransaction transaction;
-
-                    try
+                    if (!ableToLockFile)
                     {
-                        transaction = GetTransaction();
-
-                        var ableToLockFile = await transaction.BeginTransaction(filePath, messageReceivingCancellationToken).ConfigureAwait(false);
-
-                        if (!ableToLockFile)
-                        {
-                            log.Debug($"Unable to lock file {filePath}({transaction.FileToProcess})");
-                            concurrencyLimiter.Release();
-                            continue;
-                        }
-                    }
-                    catch (OperationCanceledException) when (messageReceivingCancellationToken.IsCancellationRequested)
-                    {
+                        log.Debug($"Unable to lock file {filePath}({transaction.FileToProcess})");
                         concurrencyLimiter.Release();
-                        throw;
+                        continue;
                     }
-                    catch (Exception ex)
-                    {
-                        concurrencyLimiter.Release();
-                        throw new Exception($"Failed to begin transaction {filePath}", ex);
-                    }
-
-                    // no Task.Run() here to avoid a closure
-                    _ = ProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiter(transaction, filePath, nativeMessageId, messageProcessingCancellationTokenSource.Token);
+                }
+                catch (Exception ex) when (ex.IsCausedBy(messageReceivingCancellationToken))
+                {
+                    concurrencyLimiter.Release();
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    concurrencyLimiter.Release();
+                    throw new Exception($"Failed to begin transaction {filePath}", ex);
                 }
 
-                if (!filesFound)
-                {
-                    await Task.Delay(10, messageReceivingCancellationToken).ConfigureAwait(false);
-                }
+                // no Task.Run() here to avoid a closure
+                _ = ProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiter(transaction, filePath, nativeMessageId, messageProcessingCancellationTokenSource.Token);
+            }
+
+            if (!filesFound)
+            {
+                await Task.Delay(10, messageReceivingCancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -250,7 +243,7 @@
             {
                 await ProcessMessage(transaction, filePath, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
+            catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
             {
                 log.Debug("Message processing canceled.", ex);
             }
@@ -268,8 +261,7 @@
         {
             try
             {
-                await ProcessMessage(transaction, messageId, messageProcessingCancellationToken)
-                    .ConfigureAwait(false);
+                await ProcessMessage(transaction, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -294,8 +286,7 @@
 
         async Task ProcessMessage(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
         {
-            var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken)
-                    .ConfigureAwait(false);
+            var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
@@ -310,17 +301,16 @@
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
                 var utcNow = DateTime.UtcNow;
+
                 if (sentTime + ttbr < utcNow)
                 {
-                    await transaction.Commit(messageProcessingCancellationToken)
-                        .ConfigureAwait(false);
+                    await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
                     log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
                     return;
                 }
             }
 
-            var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken)
-                .ConfigureAwait(false);
+            var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken).ConfigureAwait(false);
 
             var transportTransaction = new TransportTransaction();
 
@@ -335,15 +325,12 @@
 
             try
             {
-                await onMessage(messageContext, messageProcessingCancellationToken)
-                    .ConfigureAwait(false);
+                await onMessage(messageContext, messageProcessingCancellationToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
+            catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
             {
                 log.Debug("Message processing cancelled. Rolling back transaction.", ex);
-
                 transaction.Rollback();
-
                 throw;
             }
             catch (Exception exception)
@@ -358,16 +345,15 @@
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, processingContext);
 
                 ErrorHandleResult result;
+
                 try
                 {
                     result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException ex) when (messageProcessingCancellationToken.IsCancellationRequested)
+                catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
                 {
                     log.Debug("Message processing cancelled. Rolling back transaction.", ex);
-
                     transaction.Rollback();
-
                     throw;
                 }
                 catch (Exception ex)
@@ -379,7 +365,6 @@
                 if (result == ErrorHandleResult.RetryRequired)
                 {
                     transaction.Rollback();
-
                     return;
                 }
             }
@@ -391,24 +376,23 @@
         CancellationTokenSource messageProcessingCancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
         Task messageReceivingTask;
-        ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
-        string basePath;
         DelayedMessagePoller delayedMessagePoller;
         int maxConcurrency;
         string bodyDir;
         string pendingTransactionDir;
         string committedTransactionDir;
         string delayedDir;
+        OnMessage onMessage;
+        OnError onError;
 
-        Action<string, Exception, CancellationToken> criticalErrorAction;
+        readonly ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
+        readonly string basePath;
+        readonly Action<string, Exception, CancellationToken> criticalErrorAction;
         readonly ReceiveSettings receiveSettings;
         readonly TransportTransactionMode transactionMode;
 
-
-        static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
-        OnMessage onMessage;
-        OnError onError;
+        static readonly ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";

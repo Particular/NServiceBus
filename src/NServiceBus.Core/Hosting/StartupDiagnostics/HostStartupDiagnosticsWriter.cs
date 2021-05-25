@@ -39,7 +39,7 @@
                 await diagnosticsWriter(data, cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 if (isCustomWriter)
                 {
