@@ -104,6 +104,8 @@ public class Foo
         await LotsOfOverloadsOneTakesToken(true, false, true, false);
         await [|LotsOfOverloadsOneTakesToken(true, false, true, false, true)|];
     }
+
+    public async Task ArrowMethod(" + arguments + @") => await [|StaticMethod()|];
 }");
 
         [Test]
