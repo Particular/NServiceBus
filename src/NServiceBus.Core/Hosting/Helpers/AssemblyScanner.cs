@@ -92,7 +92,7 @@ namespace NServiceBus.Hosting.Helpers
 
             var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
 
-            if (platformAssembliesString != null)
+            if (!string.IsNullOrEmpty(platformAssembliesString))
             {
                 var platformAssemblies = platformAssembliesString.Split(Path.PathSeparator);
 
