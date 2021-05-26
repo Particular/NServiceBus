@@ -216,7 +216,7 @@
                     throw new Exception($"Failed to begin transaction {filePath}", ex);
                 }
 
-                _ = RunProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiterTask(transaction, filePath, nativeMessageId, messageProcessingCancellationTokenSource.Token);
+                _ = TaskRunProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiter(transaction, filePath, nativeMessageId, messageProcessingCancellationTokenSource.Token);
             }
 
             if (!filesFound)
@@ -235,10 +235,10 @@
             return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
-        async Task RunProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiterTask(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task TaskRunProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiter(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
-            // yield immediately instead of using Task.Run()
-            await Task.Yield();
+            // yield immediately instead of using Task.Run(..., CancellationToken.None)
+            await Task.CompletedTask.ConfigureAwait(false);
 
             try
             {
