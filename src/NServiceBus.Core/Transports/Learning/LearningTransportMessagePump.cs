@@ -72,8 +72,7 @@
             messagePumpCancellationTokenSource = new CancellationTokenSource();
             messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
-            // Task.Run() so the call returns immediately instead of waiting for the first await or return down the call stack
-            messagePumpTask = Task.Run(() => PumpMessagesAndSwallowExceptions(messagePumpCancellationTokenSource.Token), CancellationToken.None);
+            messagePumpTask = TaskRunPumpMessagesAndSwallowExceptions(messagePumpCancellationTokenSource.Token);
 
             delayedMessagePoller.Start();
 
@@ -153,8 +152,11 @@
         }
 
         [DebuggerNonUserCode]
-        async Task PumpMessagesAndSwallowExceptions(CancellationToken messagePumpCancellationToken)
+        async Task TaskRunPumpMessagesAndSwallowExceptions(CancellationToken messagePumpCancellationToken)
         {
+            // yield immediately instead of using Task.Run(..., CancellationToken.None)
+            await Task.CompletedTask.ConfigureAwait(false);
+
             while (!messagePumpCancellationToken.IsCancellationRequested)
             {
                 try
@@ -214,8 +216,7 @@
                     throw new Exception($"Failed to begin transaction {filePath}", ex);
                 }
 
-                // no Task.Run() here to avoid a closure
-                _ = ProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiter(transaction, filePath, nativeMessageId, messageProcessingCancellationTokenSource.Token);
+                _ = RunProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiterTask(transaction, filePath, nativeMessageId, messageProcessingCancellationTokenSource.Token);
             }
 
             if (!filesFound)
@@ -234,8 +235,11 @@
             return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
-        async Task ProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiter(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task RunProcessMessageSwallowExceptionsAndReleaseConcurrencyLimiterTask(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
+            // yield immediately instead of using Task.Run()
+            await Task.Yield();
+
             try
             {
                 await ProcessFileAndComplete(transaction, filePath, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
