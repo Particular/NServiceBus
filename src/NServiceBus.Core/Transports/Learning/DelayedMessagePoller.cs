@@ -52,7 +52,7 @@
                       }
                       catch (Exception ex) when (ex.IsCausedBy(polling.Token))
                       {
-                          // polling is being stopped
+                          // private token, polling is being stopped
                           break;
                       }
 

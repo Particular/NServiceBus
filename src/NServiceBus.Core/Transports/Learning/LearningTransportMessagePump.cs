@@ -69,11 +69,11 @@
 
         public Task StartReceive(CancellationToken cancellationToken = default)
         {
-            messageReceivingCancellationTokenSource = new CancellationTokenSource();
+            messagePumpCancellationTokenSource = new CancellationTokenSource();
             messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
             // Task.Run() so the call returns immediately instead of waiting for the first await or return down the call stack
-            messageReceivingTask = Task.Run(() => ReceiveMessagesAndSwallowExceptions(messageReceivingCancellationTokenSource.Token), CancellationToken.None);
+            messagePumpTask = Task.Run(() => PumpMessagesAndSwallowExceptions(messagePumpCancellationTokenSource.Token), CancellationToken.None);
 
             delayedMessagePoller.Start();
 
@@ -82,13 +82,13 @@
 
         public async Task StopReceive(CancellationToken cancellationToken = default)
         {
-            messageReceivingCancellationTokenSource?.Cancel();
+            messagePumpCancellationTokenSource?.Cancel();
 
             delayedMessagePoller.Stop();
 
             cancellationToken.Register(() => messageProcessingCancellationTokenSource?.Cancel());
 
-            await messageReceivingTask.ConfigureAwait(false);
+            await messagePumpTask.ConfigureAwait(false);
 
             while (concurrencyLimiter.CurrentCount != maxConcurrency)
             {
@@ -153,33 +153,30 @@
         }
 
         [DebuggerNonUserCode]
-        async Task ReceiveMessagesAndSwallowExceptions(CancellationToken messageReceivingCancellationToken)
+        async Task PumpMessagesAndSwallowExceptions(CancellationToken messagePumpCancellationToken)
         {
-            while (true)
+            while (!messagePumpCancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    // ensure the loop can exit, regardless of whether ReceiveMessages supports cancellation
-                    messageReceivingCancellationToken.ThrowIfCancellationRequested();
-
                     log.Debug($"Started polling for new messages in {messagePumpBasePath}");
 
-                    await ReceiveMessages(messageReceivingCancellationToken).ConfigureAwait(false);
+                    await PumpMessages(messagePumpCancellationToken).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ex.IsCausedBy(messageReceivingCancellationToken))
+                catch (Exception ex) when (ex.IsCausedBy(messagePumpCancellationToken))
                 {
-                    log.Debug("Message receiving canceled.", ex);
+                    // private token, pump is being stopped
                     break;
                 }
                 catch (Exception ex)
                 {
                     // core guarantees this doesn't throw
-                    criticalErrorAction("Message receiving failed.", ex, messageReceivingCancellationToken);
+                    criticalErrorAction("Message receiving failed.", ex, messagePumpCancellationToken);
                 }
             }
         }
 
-        async Task ReceiveMessages(CancellationToken messageReceivingCancellationToken)
+        async Task PumpMessages(CancellationToken messagePumpCancellationToken)
         {
             var filesFound = false;
 
@@ -189,7 +186,7 @@
 
                 var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
-                await concurrencyLimiter.WaitAsync(messageReceivingCancellationToken).ConfigureAwait(false);
+                await concurrencyLimiter.WaitAsync(messagePumpCancellationToken).ConfigureAwait(false);
 
                 ILearningTransportTransaction transaction;
 
@@ -197,7 +194,7 @@
                 {
                     transaction = GetTransaction();
 
-                    var ableToLockFile = await transaction.BeginTransaction(filePath, messageReceivingCancellationToken).ConfigureAwait(false);
+                    var ableToLockFile = await transaction.BeginTransaction(filePath, messagePumpCancellationToken).ConfigureAwait(false);
 
                     if (!ableToLockFile)
                     {
@@ -206,7 +203,7 @@
                         continue;
                     }
                 }
-                catch (Exception ex) when (ex.IsCausedBy(messageReceivingCancellationToken))
+                catch (Exception ex) when (ex.IsCausedBy(messagePumpCancellationToken))
                 {
                     concurrencyLimiter.Release();
                     throw;
@@ -223,7 +220,7 @@
 
             if (!filesFound)
             {
-                await Task.Delay(10, messageReceivingCancellationToken).ConfigureAwait(false);
+                await Task.Delay(10, messagePumpCancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -241,7 +238,7 @@
         {
             try
             {
-                await ProcessMessage(transaction, filePath, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
+                await ProcessFileAndComplete(transaction, filePath, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
             {
@@ -257,11 +254,11 @@
             }
         }
 
-        async Task ProcessMessage(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             try
             {
-                await ProcessMessage(transaction, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
+                await ProcessFile(transaction, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -284,7 +281,7 @@
             }
         }
 
-        async Task ProcessMessage(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
+        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
         {
             var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
 
@@ -372,10 +369,10 @@
             await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
         }
 
-        CancellationTokenSource messageReceivingCancellationTokenSource;
+        CancellationTokenSource messagePumpCancellationTokenSource;
         CancellationTokenSource messageProcessingCancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
-        Task messageReceivingTask;
+        Task messagePumpTask;
         string messagePumpBasePath;
         DelayedMessagePoller delayedMessagePoller;
         int maxConcurrency;
