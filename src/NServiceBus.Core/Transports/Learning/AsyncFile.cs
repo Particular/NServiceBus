@@ -1,12 +1,16 @@
 namespace NServiceBus
 {
+    using System;
     using System.IO;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Logging;
 
     static class AsyncFile
     {
+        static readonly ILog log = LogManager.GetLogger(typeof(AsyncFile));
+
         public static async Task WriteBytes(string filePath, byte[] bytes, CancellationToken cancellationToken = default)
         {
             using (var stream = CreateWriteStream(filePath, FileMode.Create))
@@ -27,6 +31,23 @@ namespace NServiceBus
                 {
                     await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
                 }
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                // When we introduced cancellation, the general catch was already present.
+                // We didn't want to change the behavior there,
+                // but we did want to prevent deleting the file from throwing an exception
+                // which would mask the OperationCanceledException.
+                try
+                {
+                    File.Delete(tempFile);
+                }
+                catch (Exception deleteEx)
+                {
+                    log.Warn("Failed to delete file.", deleteEx);
+                }
+
+                throw;
             }
             catch
             {
@@ -94,16 +115,18 @@ namespace NServiceBus
 
             var count = 0;
 
-            while (!cancellationToken.IsCancellationRequested && IsFileLocked(targetPath))
+            while (count <= 10)
             {
-                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                count++;
-
-                if (count > 10)
+                if (!IsFileLocked(targetPath))
                 {
                     break;
                 }
+
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+
+                count++;
             }
 
             return true;

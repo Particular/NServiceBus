@@ -52,7 +52,9 @@
                         subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
                     }
                 }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - Tasks are not observed until below
                 catch (Exception e)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
                 {
                     subscribeTasks.Add(Task.FromException(e));
                 }

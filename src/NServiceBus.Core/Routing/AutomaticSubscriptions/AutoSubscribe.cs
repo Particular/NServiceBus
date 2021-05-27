@@ -87,10 +87,14 @@
                     }
                     //swallow
                 }
-                // also catch regular exceptions in case a transport does not throw an AggregateException
-                catch (Exception e) when (!(e is QueueNotFoundException))
+                catch (QueueNotFoundException)
                 {
-                    LogFailedSubscription(e);
+                    throw;
+                }
+                // also catch regular exceptions in case a transport does not throw an AggregateException
+                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+                {
+                    LogFailedSubscription(ex);
                     // swallow exception
                 }
 

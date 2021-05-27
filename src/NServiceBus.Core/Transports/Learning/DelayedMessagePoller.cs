@@ -50,9 +50,10 @@
                       {
                           await Task.Delay(TimeSpan.FromSeconds(1), polling.Token).ConfigureAwait(false);
                       }
-                      catch (OperationCanceledException)
+                      catch (Exception ex) when (ex.IsCausedBy(polling.Token))
                       {
-                          // polling is being stopped
+                          // private token, poller is being stopped, log the exception in case the stack trace is ever needed for debugging
+                          Logger.Debug("Operation canceled while stopping delayed message polling.", ex);
                           break;
                       }
 

@@ -39,14 +39,14 @@
                 await diagnosticsWriter(data, cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 if (isCustomWriter)
                 {
-                    logger.Error($"Failed to write startup diagnostics using the custom delegate defined by {nameof(DiagnosticSettingsExtensions.CustomDiagnosticsWriter)}", exception);
+                    logger.Error($"Failed to write startup diagnostics using the custom delegate defined by {nameof(DiagnosticSettingsExtensions.CustomDiagnosticsWriter)}", ex);
                     return;
                 }
-                logger.Error("Failed to write startup diagnostics", exception);
+                logger.Error("Failed to write startup diagnostics", ex);
             }
         }
 

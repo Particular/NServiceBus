@@ -53,12 +53,12 @@
             {
                 throw;
             }
-            catch (Exception exception)
+            catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
-                var trailingExceptions = await AppendEndExceptions(unitsOfWork, exception, context.CancellationToken).ConfigureAwait(false);
+                var trailingExceptions = await AppendEndExceptions(unitsOfWork, ex, context.CancellationToken).ConfigureAwait(false);
                 if (trailingExceptions.Any())
                 {
-                    trailingExceptions.Insert(0, exception);
+                    trailingExceptions.Insert(0, ex);
                     throw new AggregateException(trailingExceptions);
                 }
                 throw;

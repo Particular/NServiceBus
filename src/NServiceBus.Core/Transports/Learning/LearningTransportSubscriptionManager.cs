@@ -38,6 +38,8 @@
             // since we have a design that can run into concurrency exceptions we perform a few retries
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     if (!File.Exists(subscriptionEntryPath))
@@ -78,6 +80,8 @@
             // since we have a design that can run into concurrency exceptions we perform a few retries
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     await AsyncFile.WriteText(subscriptionEntryPath, localAddress, cancellationToken).ConfigureAwait(false);
