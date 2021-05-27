@@ -24,7 +24,6 @@
             var notProperDotNetDlls = new[]
                 {
                     "libzmq-v120-mt-3_2_3.dll",
-                    "Tail.exe",
                     "some_random.dll",
                     "some_random.exe"
                 };
