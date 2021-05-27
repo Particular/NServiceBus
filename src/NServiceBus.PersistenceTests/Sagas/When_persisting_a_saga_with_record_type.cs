@@ -74,7 +74,7 @@
             public string CorrelationProperty { get; set; }
             public Person SomePerson { get; set; }
 
-            //public record Person(string FirstName, string LastName);
+            // A mutable record type. Immutable won't deserialize
             public record Person
             {
                 public string FirstName { get; set; }
