@@ -49,4 +49,6 @@ jobs:
         run: dotnet test src --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
       - name: Run Linux tests
         if: matrix.name == 'Linux'
-        run: dotnet test src --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
+        run: |
+          dotnet test src --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
+          dotnet test src --configuration Release --no-build --framework net5.0 --logger "GitHubActions;report-warnings=false"
