@@ -327,7 +327,7 @@
             }
             catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
             {
-                log.Debug("Message processing cancelled. Rolling back transaction.", ex);
+                log.Debug("Message processing canceled. Rolling back transaction.", ex);
                 transaction.Rollback();
                 throw;
             }
@@ -350,7 +350,7 @@
                 }
                 catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
                 {
-                    log.Debug("Message processing cancelled. Rolling back transaction.", ex);
+                    log.Debug("Message processing canceled. Rolling back transaction.", ex);
                     transaction.Rollback();
                     throw;
                 }
