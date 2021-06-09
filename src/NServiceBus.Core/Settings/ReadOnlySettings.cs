@@ -35,7 +35,7 @@ namespace NServiceBus.Settings
         /// <typeparam name="T">The type of the setting.</typeparam>
         /// <param name="key">The key of the setting to get.</param>
         /// <param name="val">The setting value.</param>
-        /// <returns>True if found, false otherwise</returns>
+        /// <returns>True if found, false otherwise.</returns>
         bool TryGet<T>(string key, out T val);
 
         /// <summary>
