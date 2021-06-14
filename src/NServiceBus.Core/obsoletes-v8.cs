@@ -1660,4 +1660,14 @@ namespace NServiceBus
     }
 }
 
+namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0")]
+    public interface IInitializableSubscriptionStorage : ISubscriptionStorage
+    {
+        void Init();
+    }
+}
 #pragma warning restore 1591
