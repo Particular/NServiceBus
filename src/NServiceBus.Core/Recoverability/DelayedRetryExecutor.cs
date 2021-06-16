@@ -10,8 +10,9 @@
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IMessageDispatcher dispatcher)
+        public DelayedRetryExecutor(string endpointInputQueue, IMessageDispatcher dispatcher, string timeoutManagerAddress = null)
         {
+            this.timeoutManagerAddress = timeoutManagerAddress;
             this.dispatcher = dispatcher;
             this.endpointInputQueue = endpointInputQueue;
         }
@@ -26,10 +27,22 @@
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
             var dispatchProperties = new DispatchProperties
-            {
-                DelayDeliveryWith = new DelayDeliveryWith(delay)
-            };
-            var messageDestination = new UnicastAddressTag(endpointInputQueue);
+
+            UnicastAddressTag messageDestination;
+
+if (timeoutManagerAddress == null)
+
+
+                dispatchProperties.DelayDeliveryWith = new DelayDeliveryWith(delay);
+                messageDestination = new UnicastAddressTag(endpointInputQueue);
+
+}
+else{
+                // transport doesn't support native deferred messages, reroute to timeout manager:
+                outgoingMessage.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = endpointInputQueue;
+                outgoingMessage.Headers[TimeoutManagerHeaders.Expire] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow + delay);
+                messageDestination = new UnicastAddressTag(timeoutManagerAddress);
+}
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 
@@ -40,5 +53,6 @@
 
         IMessageDispatcher dispatcher;
         string endpointInputQueue;
+        string timeoutManagerAddress;
     }
 }

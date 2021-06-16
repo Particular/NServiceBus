@@ -12,10 +12,11 @@
 
     class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
     {
-        public SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection)
+        public SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
             this.sagaIdGenerator = sagaIdGenerator;
             sagaPersister = persister;
+            this.timeoutCancellation = timeoutCancellation;
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
@@ -128,6 +129,11 @@
                     await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
                 }
 
+                if (saga.Entity.Id != Guid.Empty)
+                {
+                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context).ConfigureAwait(false);
+                }
+
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
 
                 sagaInstanceState.Completed();
@@ -215,7 +221,7 @@
                 return false;
             }
 
-            if (headers.TryGetValue("NServiceBus.Timeout.Expire", out var expire))
+            if (headers.TryGetValue(TimeoutManagerHeaders.Expire, out var expire))
             {
                 if (string.IsNullOrEmpty(expire))
                 {
@@ -313,6 +319,7 @@
 
         readonly SagaMetadataCollection sagaMetadataCollection;
         readonly ISagaPersister sagaPersister;
+        readonly ICancelDeferredMessages timeoutCancellation;
         readonly ISagaIdGenerator sagaIdGenerator;
 
         static readonly Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));

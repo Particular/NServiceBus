@@ -71,7 +71,12 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
+            var delayedDelivery = settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
+            var timeoutManager = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null)
+
+            var canDelayMessages = delayedDelivery || timeoutManager;
+
+            var delayedRetriesAvailable = transactionsOn && canDelayMessages;
             var immediateRetriesAvailable = transactionsOn;
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -94,7 +99,19 @@
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IMessageDispatcher>());
+                    var timeoutManagerAddress = null;
+
+
+                    if(transportSeam.TransportDefinition.SupportsDelayedDelivery)
+                    {
+                        timeoutManagerAddress = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress)
+                    }
+
+                    return new DelayedRetryExecutor(
+                        localAddress,
+                        builder.GetRequiredService<IDispatchMessages>(),
+                        timeoutManagerAddress
+                        );
                 }
 
                 return null;
