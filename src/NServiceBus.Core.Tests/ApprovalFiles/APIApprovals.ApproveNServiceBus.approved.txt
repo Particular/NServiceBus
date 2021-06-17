@@ -450,6 +450,7 @@ namespace NServiceBus
     {
         public NServiceBus.HostInfoSettings UsingCustomDisplayName(string displayName) { }
         public NServiceBus.HostInfoSettings UsingCustomIdentifier(System.Guid id) { }
+        public NServiceBus.HostInfoSettings UsingHostName(string hostName) { }
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
@@ -2385,6 +2386,8 @@ namespace NServiceBus.Support
     public static class RuntimeEnvironment
     {
         public static string MachineName { get; }
+        [System.Obsolete("Use `HostInfoSettings.OverrideHostName` instead. Will be treated as an error from" +
+            " version 9.0.0. Will be removed in version 10.0.0.", false)]
         public static System.Func<string> MachineNameAction { get; set; }
     }
 }

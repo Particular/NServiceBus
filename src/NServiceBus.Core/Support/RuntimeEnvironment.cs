@@ -23,6 +23,15 @@
         /// <summary>
         /// Get the machine name, allows for overrides.
         /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "HostInfoSettings.OverrideHostName",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public static Func<string> MachineNameAction { get; set; }
+
+        internal static void SetMachineName(string machineName)
+        {
+            MachineNameAction = () => machineName;
+        }
     }
 }
