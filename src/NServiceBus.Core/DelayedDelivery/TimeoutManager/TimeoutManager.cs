@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Threading;
     using DelayedDelivery;
     using DeliveryConstraints;
     using Microsoft.Extensions.DependencyInjection;
@@ -67,14 +68,14 @@
             var requiredTransactionSupport = context.Receiving.TransactionMode;
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, pushRuntimeSettings, RecoverabilityPolicy,
-                (builder, messageContext) =>
+                (builder, messageContext, cancellationToken) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
                         builder.GetRequiredService<IDispatchMessages>(),
                         builder.GetRequiredService<IPersistTimeouts>(),
                         requiredTransactionSupport);
 
-                    return dispatchBehavior.Invoke(messageContext);
+                    return dispatchBehavior.Invoke(messageContext); // TODO: Maybe do something with CT here?
                 });
 
             return satelliteAddress;
@@ -86,7 +87,7 @@
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, pushRuntimeSettings, RecoverabilityPolicy,
-                (builder, messageContext) =>
+                (builder, messageContext, cancellationToken) =>
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
                         builder.GetRequiredService<ExpiredTimeoutsPoller>(),
@@ -94,7 +95,7 @@
                         builder.GetRequiredService<IPersistTimeouts>(),
                         context.Settings.EndpointName());
 
-                    return storeBehavior.Invoke(messageContext);
+                    return storeBehavior.Invoke(messageContext); // TODO: Maybe do something with CT here?
                 });
 
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(satelliteAddress);
