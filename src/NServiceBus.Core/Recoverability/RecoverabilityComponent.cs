@@ -108,7 +108,7 @@
 
                     return new DelayedRetryExecutor(
                         localAddress,
-                        builder.GetRequiredService<IDispatchMessages>(),
+                        builder.GetRequiredService<IMessageDispatcher>(),
                         timeoutManagerAddress
                         );
                 }
