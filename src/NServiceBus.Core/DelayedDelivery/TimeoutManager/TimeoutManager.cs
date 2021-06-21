@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features
+﻿using System.Runtime.Remoting.Contexts;
+
+namespace NServiceBus.Features
 {
     using System;
     using System.Threading;
@@ -21,7 +23,7 @@
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
             Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings), "A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
-            Prerequisite(c => !c.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || IsMigrationModeEnabled(c.Settings), "The selected transport supports delayed delivery natively");
+            Prerequisite(c => !c.Settings.Get<TransportDefinition>().SupportsDelayedDelivery || IsMigrationModeEnabled(c.Settings), "The selected transport supports delayed delivery natively");
         }
 
         /// <summary>
