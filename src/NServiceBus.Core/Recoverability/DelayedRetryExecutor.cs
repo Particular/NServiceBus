@@ -26,23 +26,22 @@
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var dispatchProperties = new DispatchProperties
+            var dispatchProperties = new DispatchProperties();
 
             UnicastAddressTag messageDestination;
 
-if (timeoutManagerAddress == null)
-
-
+            if (timeoutManagerAddress == null)
+            {
                 dispatchProperties.DelayDeliveryWith = new DelayDeliveryWith(delay);
                 messageDestination = new UnicastAddressTag(endpointInputQueue);
-
-}
-else{
+            }
+            else
+            {
                 // transport doesn't support native deferred messages, reroute to timeout manager:
                 outgoingMessage.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = endpointInputQueue;
                 outgoingMessage.Headers[TimeoutManagerHeaders.Expire] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow + delay);
                 messageDestination = new UnicastAddressTag(timeoutManagerAddress);
-}
+            }
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
 

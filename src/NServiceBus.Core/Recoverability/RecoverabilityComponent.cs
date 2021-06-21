@@ -71,8 +71,8 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedDelivery = settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
-            var timeoutManager = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null)
+            var delayedDelivery = settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var timeoutManager = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
 
             var canDelayMessages = delayedDelivery || timeoutManager;
 
@@ -99,12 +99,11 @@
             {
                 if (delayedRetriesAvailable)
                 {
-                    var timeoutManagerAddress = null;
-
+                    string timeoutManagerAddress = null;
 
                     if(transportSeam.TransportDefinition.SupportsDelayedDelivery)
                     {
-                        timeoutManagerAddress = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress)
+                        timeoutManagerAddress = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
                     }
 
                     return new DelayedRetryExecutor(

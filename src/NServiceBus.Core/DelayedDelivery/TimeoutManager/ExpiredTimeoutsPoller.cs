@@ -32,9 +32,9 @@ namespace NServiceBus
             //Injected
         }
 
-        public void Start()
+        public void Start(CancellationToken cancellationToken)
         {
-            tokenSource = new CancellationTokenSource();
+            tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             var token = tokenSource.Token;
 

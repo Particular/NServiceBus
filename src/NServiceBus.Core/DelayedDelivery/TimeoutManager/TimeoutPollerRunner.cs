@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace NServiceBus.Features
 {
     using System.Threading.Tasks;
@@ -9,13 +11,13 @@ namespace NServiceBus.Features
             this.poller = poller;
         }
 
-        protected override Task OnStart(IMessageSession session)
+        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
-            poller.Start();
+            poller.Start(cancellationToken);
             return Task.CompletedTask;
         }
 
-        protected override Task OnStop(IMessageSession session)
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
         {
             return poller.Stop();
         }
