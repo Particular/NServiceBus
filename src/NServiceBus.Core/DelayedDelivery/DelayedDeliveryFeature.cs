@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using DelayedDelivery;
     using Transport;
 
     class DelayedDeliveryFeature : Feature
@@ -18,6 +19,7 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportHasNativeDelayedDelivery = context.Settings.Get<TransportDefinition>().SupportsDelayedDelivery;
+            var timeoutManagerAddress = context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
 
             if (!transportHasNativeDelayedDelivery)
             {
