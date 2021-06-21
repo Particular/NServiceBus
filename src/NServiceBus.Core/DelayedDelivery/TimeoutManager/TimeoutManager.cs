@@ -1,11 +1,6 @@
-﻿using System.Runtime.Remoting.Contexts;
-
-namespace NServiceBus.Features
+﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Threading;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Timeout.Core;
@@ -65,9 +60,9 @@ namespace NServiceBus.Features
 
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, PushRuntimeSettings pushRuntimeSettings)
         {
-            var satelliteLogicalAddress = context.Receiving.LogicalAddress.CreateQualifiedAddress("TimeoutsDispatcher");
-            var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
-            var requiredTransactionSupport = context.Receiving.TransactionMode;
+            var satelliteLogicalAddress = new QueueAddress(context.Receiving.LocalAddress, null, null, "TimeoutsDispatcher");
+            var satelliteAddress = context.Receiving.transportSeam.TransportDefinition.ToTransportAddress(satelliteLogicalAddress); // TODO: Unknown how to get access to current transport definition.
+            var requiredTransactionSupport = context.Receiving.transportSeam.TransportDefinition.TransportTransactionMode;
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, messageContext, cancellationToken) =>
@@ -85,8 +80,8 @@ namespace NServiceBus.Features
 
         static void SetupStorageSatellite(FeatureConfigurationContext context, PushRuntimeSettings pushRuntimeSettings)
         {
-            var satelliteLogicalAddress = context.Receiving.LogicalAddress.CreateQualifiedAddress("Timeouts");
-            var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
+            var satelliteLogicalAddress = new QueueAddress(context.Receiving.LocalAddress, null, null, "Timeouts");
+            var satelliteAddress = context.Receiving.transportSeam.TransportDefinition.ToTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, messageContext, cancellationToken) =>

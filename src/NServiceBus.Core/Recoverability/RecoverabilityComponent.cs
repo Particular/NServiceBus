@@ -71,7 +71,7 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
         {
-            var delayedDelivery = settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var delayedDelivery = settings.Get<TransportDefinition>().SupportsDelayedDelivery;
             var timeoutManager = settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
 
             var canDelayMessages = delayedDelivery || timeoutManager;

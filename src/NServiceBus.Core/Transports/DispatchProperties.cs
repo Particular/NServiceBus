@@ -11,8 +11,8 @@
     public class DispatchProperties : Dictionary<string, string>
     {
         //These can't be changed to be backwards compatible with previous versions of the core
-        static string DoNotDeliverBeforeKeyName = "DeliverAt";
-        static string DelayDeliveryWithKeyName = "DelayDeliveryFor";
+        internal static string DoNotDeliverBeforeKeyName = "DeliverAt";
+        internal static string DelayDeliveryWithKeyName = "DelayDeliveryFor";
         static string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
 
         /// <summary>

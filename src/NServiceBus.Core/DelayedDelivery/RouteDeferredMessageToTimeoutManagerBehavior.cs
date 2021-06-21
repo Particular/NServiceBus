@@ -10,6 +10,7 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
+    using Transport;
 
     class RouteDeferredMessageToTimeoutManagerBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
@@ -25,7 +26,9 @@ namespace NServiceBus
                 return next(context);
             }
 
-            if (context.Extensions.TryGetDeliveryConstraint(out DiscardIfNotReceivedBefore _))
+            var dispatchProperties = context.Extensions.Get<DispatchProperties>(); // TODO: Unsure this is available here, hooray to the locator pattern :-(
+            
+            if (dispatchProperties.DiscardIfNotReceivedBefore != null)
             {
                 throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{context.Message.Headers[Headers.EnclosedMessageTypes]}'.");
             }
@@ -50,14 +53,19 @@ namespace NServiceBus
         static bool IsDeferred(IExtendable context, out DateTimeOffset deliverAt)
         {
             deliverAt = DateTimeOffset.MinValue;
-            if (context.Extensions.TryRemoveDeliveryConstraint(out DoNotDeliverBefore doNotDeliverBefore))
+
+            var dispatchProperties = context.Extensions.Get<DispatchProperties>();
+
+            if (dispatchProperties.DoNotDeliverBefore != null)
             {
-                deliverAt = doNotDeliverBefore.At;
+                deliverAt = dispatchProperties.DoNotDeliverBefore.At;
+                dispatchProperties.Remove(DispatchProperties.DoNotDeliverBeforeKeyName);
                 return true;
             }
-            if (context.Extensions.TryRemoveDeliveryConstraint(out DelayDeliveryWith delayDeliveryWith))
+            if (dispatchProperties.DelayDeliveryWith != null)
             {
-                deliverAt = DateTimeOffset.UtcNow + delayDeliveryWith.Delay;
+                deliverAt = DateTimeOffset.UtcNow + dispatchProperties.DelayDeliveryWith.Delay;
+                dispatchProperties.Remove(DispatchProperties.DelayDeliveryWithKeyName);
                 return true;
             }
             return false;
