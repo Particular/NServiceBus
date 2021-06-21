@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features
+﻿using NServiceBus.Transport;
+
+namespace NServiceBus.Features
 {
     using System;
     using System.Collections.Generic;
