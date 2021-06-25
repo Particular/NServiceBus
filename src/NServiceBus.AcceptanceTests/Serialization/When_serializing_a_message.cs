@@ -16,7 +16,9 @@
             var expectedDateTimeLocal = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Local);
             var expectedDateTimeUtc = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Utc);
             var expectedDateTimeOffset = new DateTimeOffset(2012, 12, 12, 12, 12, 12, TimeSpan.FromHours(6));
+#pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
             var expectedDateTimeOffsetLocal = DateTimeOffset.Now;
+#pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
             var expectedDateTimeOffsetUtc = DateTimeOffset.UtcNow;
 
             var context = await Scenario.Define<Context>()

@@ -13,6 +13,7 @@
 
     public class ScenarioRunner
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
         public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
             TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
