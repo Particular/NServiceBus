@@ -46,7 +46,9 @@ namespace NServiceBus
             }
 
             var stringBuilder = new StringBuilder();
+#pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For logging
             var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+#pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
             var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
 
             stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);

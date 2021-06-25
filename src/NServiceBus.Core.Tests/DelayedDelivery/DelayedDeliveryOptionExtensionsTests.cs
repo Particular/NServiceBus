@@ -28,7 +28,7 @@
         public void GetDeliveryDateShouldReturnTheConfiguredDeliveryDate()
         {
             var options = new SendOptions();
-            DateTimeOffset deliveryDate = new DateTime(2012, 12, 12, 12, 12, 12);
+            var deliveryDate = new DateTimeOffset(2012, 12, 12, 12, 12, 12, TimeSpan.Zero);
             options.DoNotDeliverBefore(deliveryDate);
 
             Assert.AreEqual(deliveryDate, options.GetDeliveryDate());
@@ -46,7 +46,7 @@
         public void DelayDeliveryWithShouldThrowExceptionWhenDoNotDeliverBeforeAlreadyExists()
         {
             var options = new SendOptions();
-            options.DoNotDeliverBefore(DateTimeOffset.Now.AddDays(1));
+            options.DoNotDeliverBefore(DateTimeOffset.UtcNow.AddDays(1));
 
             Assert.Throws<InvalidOperationException>(() => options.DelayDeliveryWith(TimeSpan.FromDays(1)));
         }
@@ -57,7 +57,7 @@
             var options = new SendOptions();
             options.DelayDeliveryWith(TimeSpan.FromDays(1));
 
-            Assert.Throws<InvalidOperationException>(() => options.DoNotDeliverBefore(DateTimeOffset.Now.AddDays(1)));
+            Assert.Throws<InvalidOperationException>(() => options.DoNotDeliverBefore(DateTimeOffset.UtcNow.AddDays(1)));
         }
     }
 }

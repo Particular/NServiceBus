@@ -50,6 +50,7 @@
 
         public class LogItem
         {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test Logging")]
             public DateTime Timestamp { get; } = DateTime.Now;
             public string Endpoint { get; set; }
             public string LoggerName { get; set; }

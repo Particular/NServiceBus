@@ -1,4 +1,3 @@
-#pragma warning disable DE0006
 namespace NServiceBus.Serializers.XML.Test
 {
     using System;
@@ -615,9 +614,9 @@ namespace NServiceBus.Serializers.XML.Test
                 Accuracy = 0.314M
             };
             o.Some = SomeEnum.B;
-            o.Start = DateTime.Now;
+            o.Start = DateTime.UtcNow;
             o.Duration = TimeSpan.Parse("-01:15:27.123");
-            o.Offset = DateTimeOffset.Now;
+            o.Offset = DateTimeOffset.UtcNow;
             o.Lookup = new MyDictionary
             {
                 ["1"] = "1"
@@ -994,9 +993,9 @@ namespace NServiceBus.Serializers.XML.Test
                     Accuracy = 0.314M
                 },
                 Some = SomeEnum.B,
-                Start = DateTime.Now,
+                Start = DateTime.UtcNow,
                 Duration = TimeSpan.Parse("-01:15:27.123"),
-                Offset = DateTimeOffset.Now,
+                Offset = DateTimeOffset.UtcNow,
                 Parent = new FirstSerializableMessage
                 {
                     Age = 10,
@@ -1084,7 +1083,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Messages_with_generic_properties_closing_nullables_should_be_supported()
         {
-            var theTime = DateTime.Now;
+            var theTime = DateTime.UtcNow;
 
             var result = ExecuteSerializer.ForMessage<MessageWithGenericPropClosingNullable>(
                 m =>
@@ -1564,4 +1563,3 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
         public IInterfaceProperty InterfaceProperty { get; set; }
     }
 }
-#pragma warning restore DE0006

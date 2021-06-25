@@ -142,7 +142,7 @@
         [Test]
         public void ShouldCapTheRetryMaxTimeTo24Hours()
         {
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
             var baseDelay = TimeSpan.FromSeconds(10);
 
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 2, delayedRetryDelay: baseDelay);
