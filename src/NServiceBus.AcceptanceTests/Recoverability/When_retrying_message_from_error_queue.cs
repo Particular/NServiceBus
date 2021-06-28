@@ -90,7 +90,7 @@
             }
         }
 
-        class FailedMessage : IMessage
+        public class FailedMessage : IMessage
         {
         }
     }
