@@ -14,7 +14,7 @@
     using Transport;
     using Unicast.Transport;
 
-    public class When_retrying_control_message_from_error_queue
+    public class When_retrying_control_message_from_error_queue : NServiceBusAcceptanceTest
     {
         static readonly string RetryId = Guid.NewGuid().ToString("D");
 
