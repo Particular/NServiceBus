@@ -20,16 +20,16 @@
             var routingPipeline = new RoutingPipeline();
             var behavior = new ManualRetryNotificationBehavior(errorQueue);
 
-            TestableIncomingLogicalMessageContext context = SetupTestableContext(routingPipeline);
+            var context = SetupTestableContext(routingPipeline);
             // Set necessary SC headers
-            context.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
-            context.Headers["ServiceControl.Version"] = "42";
+            context.Message.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
+            context.Message.Headers["ServiceControl.Version"] = "42";
 
             await behavior.Invoke(context, _ => Task.CompletedTask);
 
             var outgoingMessage = routingPipeline.ForkInvocations.Single();
             Assert.AreEqual(
-                context.Headers["ServiceControl.Retry.UniqueMessageId"],
+                context.Message.Headers["ServiceControl.Retry.UniqueMessageId"],
                 outgoingMessage.Message.Headers["ServiceControl.Retry.UniqueMessageId"]);
 
             Assert.IsTrue(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"));
@@ -49,10 +49,10 @@
             var routingPipeline = new RoutingPipeline();
             var behavior = new ManualRetryNotificationBehavior(errorQueue);
 
-            TestableIncomingLogicalMessageContext context = SetupTestableContext(routingPipeline);
+            var context = SetupTestableContext(routingPipeline);
             // Set necessary SC headers
-            context.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
-            context.Headers["ServiceControl.Version"] = "42";
+            context.Message.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
+            context.Message.Headers["ServiceControl.Version"] = "42";
 
             var exception = new Exception("some pipeline failure");
             var thrownException = Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
@@ -69,8 +69,8 @@
             var routingPipeline = new RoutingPipeline();
             var behavior = new ManualRetryNotificationBehavior(errorQueue);
 
-            TestableIncomingLogicalMessageContext context = SetupTestableContext(routingPipeline);
-            context.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
+            var context = SetupTestableContext(routingPipeline);
+            context.Message.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
 
             await behavior.Invoke(context, _ => Task.CompletedTask);
 
@@ -84,17 +84,17 @@
             var routingPipeline = new RoutingPipeline();
             var behavior = new ManualRetryNotificationBehavior(errorQueue);
 
-            TestableIncomingLogicalMessageContext context = SetupTestableContext(routingPipeline);
-            context.Headers["ServiceControl.Version"] = "42";
+            var context = SetupTestableContext(routingPipeline);
+            context.Message.Headers["ServiceControl.Version"] = "42";
 
             await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
         }
 
-        static TestableIncomingLogicalMessageContext SetupTestableContext(RoutingPipeline routingPipeline)
+        static TestableTransportReceiveContext SetupTestableContext(RoutingPipeline routingPipeline)
         {
-            var context = new TestableIncomingLogicalMessageContext();
+            var context = new TestableTransportReceiveContext();
 
             //setup fork pipeline
             var serviceCollection = new ServiceCollection();

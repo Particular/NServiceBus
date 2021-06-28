@@ -7,7 +7,7 @@
     using Routing;
     using Transport;
 
-    class ManualRetryNotificationBehavior : IForkConnector<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext, IRoutingContext>
+    class ManualRetryNotificationBehavior : IForkConnector<ITransportReceiveContext, ITransportReceiveContext, IRoutingContext>
     {
         const string RetryUniqueMessageIdHeader = "ServiceControl.Retry.UniqueMessageId";
 
@@ -18,7 +18,7 @@
             this.errorQueue = errorQueue;
         }
 
-        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
             await next(context).ConfigureAwait(false);
 
@@ -45,9 +45,9 @@
             bool IsRetriedMessage(out string retryUniqueMessageId)
             {
                 // check if the message is coming from a manual retry attempt
-                if (context.Headers.TryGetValue(RetryUniqueMessageIdHeader, out var uniqueMessageId) &&
+                if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeader, out var uniqueMessageId) &&
                     // The SC version that supports the confirmation message also started to add the SC version header
-                    context.Headers.ContainsKey("ServiceControl.Version"))
+                    context.Message.Headers.ContainsKey("ServiceControl.Version"))
                 {
                     retryUniqueMessageId = uniqueMessageId;
                     return true;
