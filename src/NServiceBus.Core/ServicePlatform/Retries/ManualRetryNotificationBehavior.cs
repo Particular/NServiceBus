@@ -34,7 +34,8 @@
                     new Dictionary<string, string>
                     {
                         { "ServiceControl.Retry.Successful", DateTimeOffset.UtcNow.ToString("O") },
-                        { RetryUniqueMessageIdHeader, id }
+                        { RetryUniqueMessageIdHeader, id },
+                        { Headers.ControlMessageHeader, bool.TrueString }
                     },
                     new byte[0]);
                 var routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(errorQueue), context);
