@@ -1,9 +1,7 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Features
 {
-    using Features;
-
     /// <summary>
-    /// Provides notifications to ServiceControl about successfully retried messages
+    /// Provides notifications to ServiceControl about successfully retried messages.
     /// </summary>
     public class PlatformRetryNotifications : Feature
     {
