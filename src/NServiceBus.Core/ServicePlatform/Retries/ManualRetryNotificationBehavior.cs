@@ -20,9 +20,16 @@
 
         public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
+            var useRetryAcknowledgement = UseRetryAcknowledgement(out var id);
+
+            if (useRetryAcknowledgement)
+            {
+                context.Extensions.Set(new MarkAsAcknowledgedBehavior.State());
+            }
+
             await next(context).ConfigureAwait(false);
 
-            if (IsRetriedMessage(out var id))
+            if (useRetryAcknowledgement)
             {
                 await ConfirmSuccessfulRetry().ConfigureAwait(false);
             }
@@ -42,7 +49,7 @@
                 await this.Fork(routingContext).ConfigureAwait(false);
             }
 
-            bool IsRetriedMessage(out string retryUniqueMessageId)
+            bool UseRetryAcknowledgement(out string retryUniqueMessageId)
             {
                 // check if the message is coming from a manual retry attempt
                 if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeader, out var uniqueMessageId) &&

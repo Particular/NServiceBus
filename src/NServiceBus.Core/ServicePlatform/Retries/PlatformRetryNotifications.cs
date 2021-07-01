@@ -13,6 +13,7 @@
             var errorQueueAddress = context.Settings.ErrorQueueAddress();
             var forkBehavior = new ManualRetryNotificationBehavior(errorQueueAddress);
             context.Pipeline.Register(forkBehavior, "Provides retry notifications to ServiceControl");
+            context.Pipeline.Register(new MarkAsAcknowledgedBehavior(), "Adds audit information about direct retry acknowledgement");
         }
     }
 }
