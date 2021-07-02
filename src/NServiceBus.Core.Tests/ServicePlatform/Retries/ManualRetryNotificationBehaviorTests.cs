@@ -40,6 +40,8 @@
 
             var addressTag = outgoingMessage.RoutingStrategies.Single().Apply(new Dictionary<string, string>()) as UnicastAddressTag;
             Assert.AreEqual(addressTag.Destination, acknowledgementQueue);
+
+            Assert.IsTrue(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
         }
 
         [Test]
@@ -73,6 +75,7 @@
             await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
+            Assert.IsFalse(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
         }
 
         [Test]
@@ -87,6 +90,7 @@
             await behavior.Invoke(context, _ => Task.CompletedTask);
 
             Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
+            Assert.IsFalse(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
         }
 
         static TestableTransportReceiveContext SetupTestableContext(RoutingPipeline routingPipeline)
