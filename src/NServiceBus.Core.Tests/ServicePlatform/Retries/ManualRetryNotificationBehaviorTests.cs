@@ -14,16 +14,16 @@
     public class ManualRetryNotificationBehaviorTests
     {
         [Test]
-        public async Task Should_confirm_successful_retries_to_error_queue()
+        public async Task Should_confirm_successful_retries_to_acknowledgement_queue()
         {
-            const string errorQueue = "configuredErrorQueue";
+            const string acknowledgementQueue = "configuredAcknowledgementQueue";
             var routingPipeline = new RoutingPipeline();
-            var behavior = new ManualRetryNotificationBehavior(errorQueue);
+            var behavior = new ManualRetryNotificationBehavior();
 
             var context = SetupTestableContext(routingPipeline);
             // Set necessary SC headers
-            context.Message.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
-            context.Message.Headers["ServiceControl.Version"] = "42";
+            context.Message.Headers[ManualRetryNotificationBehavior.RetryUniqueMessageIdHeaderKey] = Guid.NewGuid().ToString("N");
+            context.Message.Headers[ManualRetryNotificationBehavior.RetryConfirmationQueueHeaderKey] = acknowledgementQueue;
 
             await behavior.Invoke(context, _ => Task.CompletedTask);
 
@@ -39,20 +39,19 @@
             Assert.AreEqual(bool.TrueString, outgoingMessage.Message.Headers[Headers.ControlMessageHeader]);
 
             var addressTag = outgoingMessage.RoutingStrategies.Single().Apply(new Dictionary<string, string>()) as UnicastAddressTag;
-            Assert.AreEqual(addressTag.Destination, errorQueue);
+            Assert.AreEqual(addressTag.Destination, acknowledgementQueue);
         }
 
         [Test]
         public void Should_not_confirm_when_processing_fails()
         {
-            const string errorQueue = "configuredErrorQueue";
             var routingPipeline = new RoutingPipeline();
-            var behavior = new ManualRetryNotificationBehavior(errorQueue);
+            var behavior = new ManualRetryNotificationBehavior();
 
             var context = SetupTestableContext(routingPipeline);
             // Set necessary SC headers
             context.Message.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
-            context.Message.Headers["ServiceControl.Version"] = "42";
+            context.Message.Headers[ManualRetryNotificationBehavior.RetryConfirmationQueueHeaderKey] = "SomeQueue";
 
             var exception = new Exception("some pipeline failure");
             var thrownException = Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
@@ -63,11 +62,10 @@
 
         [Test]
         // A missing SC version header indicates an older version of SC that cannot handle the confirmation message yet
-        public async Task Should_not_confirm_when_message_does_not_contain_SC_version_header()
+        public async Task Should_not_confirm_when_message_does_not_contain_acknowledgementQueue_header()
         {
-            const string errorQueue = "configuredErrorQueue";
             var routingPipeline = new RoutingPipeline();
-            var behavior = new ManualRetryNotificationBehavior(errorQueue);
+            var behavior = new ManualRetryNotificationBehavior();
 
             var context = SetupTestableContext(routingPipeline);
             context.Message.Headers["ServiceControl.Retry.UniqueMessageId"] = Guid.NewGuid().ToString("N");
@@ -78,14 +76,13 @@
         }
 
         [Test]
-        public async Task Should_not_confirm_when_message_does_not_retry_header()
+        public async Task Should_not_confirm_when_message_does_not_contain_retry_header()
         {
-            const string errorQueue = "configuredErrorQueue";
             var routingPipeline = new RoutingPipeline();
-            var behavior = new ManualRetryNotificationBehavior(errorQueue);
+            var behavior = new ManualRetryNotificationBehavior();
 
             var context = SetupTestableContext(routingPipeline);
-            context.Message.Headers["ServiceControl.Version"] = "42";
+            context.Message.Headers[ManualRetryNotificationBehavior.RetryConfirmationQueueHeaderKey] = "SomeQueue";
 
             await behavior.Invoke(context, _ => Task.CompletedTask);
 

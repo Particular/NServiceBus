@@ -9,21 +9,16 @@
 
     class ManualRetryNotificationBehavior : IForkConnector<ITransportReceiveContext, ITransportReceiveContext, IRoutingContext>
     {
-        const string RetryUniqueMessageIdHeader = "ServiceControl.Retry.UniqueMessageId";
-
-        readonly string errorQueue;
-
-        public ManualRetryNotificationBehavior(string errorQueue)
-        {
-            this.errorQueue = errorQueue;
-        }
+        internal const string RetryUniqueMessageIdHeaderKey = "ServiceControl.Retry.UniqueMessageId";
+        internal const string RetryConfirmationQueueHeaderKey = "ServiceControl.Retry.AcknowledgementQueue";
 
         public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
-            var useRetryAcknowledgement = UseRetryAcknowledgement(out var id);
+            var useRetryAcknowledgement = IsRetriedMessage(context, out var id, out var acknowledgementQueue);
 
             if (useRetryAcknowledgement)
             {
+                // notify the ServiceControl audit instance that the retry has already been acknowledged by the endpoint
                 context.Extensions.Set(new MarkAsAcknowledgedBehavior.State());
             }
 
@@ -41,28 +36,30 @@
                     new Dictionary<string, string>
                     {
                         { "ServiceControl.Retry.Successful", DateTimeOffset.UtcNow.ToString("O") },
-                        { RetryUniqueMessageIdHeader, id },
+                        { RetryUniqueMessageIdHeaderKey, id },
                         { Headers.ControlMessageHeader, bool.TrueString }
                     },
                     new byte[0]);
-                var routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(errorQueue), context);
+                var routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(acknowledgementQueue), context);
                 await this.Fork(routingContext).ConfigureAwait(false);
             }
+        }
 
-            bool UseRetryAcknowledgement(out string retryUniqueMessageId)
+        static bool IsRetriedMessage(ITransportReceiveContext context, out string retryUniqueMessageId, out string retryAcknowledgementQueue)
+        {
+            // check if the message is coming from a manual retry attempt
+            if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeaderKey, out var uniqueMessageId) &&
+                // The SC version that supports the confirmation message also started to add the SC version header
+                context.Message.Headers.TryGetValue(RetryConfirmationQueueHeaderKey, out var acknowledgementQueue))
             {
-                // check if the message is coming from a manual retry attempt
-                if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeader, out var uniqueMessageId) &&
-                    // The SC version that supports the confirmation message also started to add the SC version header
-                    context.Message.Headers.ContainsKey("ServiceControl.Version"))
-                {
-                    retryUniqueMessageId = uniqueMessageId;
-                    return true;
-                }
-
-                retryUniqueMessageId = null;
-                return false;
+                retryUniqueMessageId = uniqueMessageId;
+                retryAcknowledgementQueue = acknowledgementQueue;
+                return true;
             }
+
+            retryUniqueMessageId = null;
+            retryAcknowledgementQueue = null;
+            return false;
         }
     }
 }

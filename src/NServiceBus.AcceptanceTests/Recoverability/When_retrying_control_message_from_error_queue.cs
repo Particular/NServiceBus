@@ -25,7 +25,7 @@
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ProcessingEndpoint>()
-                .WithEndpoint<ErrorSpy>()
+                .WithEndpoint<RetryAckSpy>()
                 .Done(c => c.ConfirmedRetryId != null)
                 .Run();
 
@@ -45,7 +45,6 @@
             public ProcessingEndpoint() => EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<ControlMessageFeature>();
-                c.SendFailedMessagesTo<ErrorSpy>();
             });
 
             class ControlMessageFeature : Feature
@@ -74,7 +73,7 @@
                     controlMessage.Headers.Add(Headers.ReplyToAddress, "TestSubscriberAddress");
                     // set SC headers
                     controlMessage.Headers.Add("ServiceControl.Retry.UniqueMessageId", RetryId);
-                    controlMessage.Headers.Add("ServiceControl.Version", Math.PI.ToString("N"));
+                    controlMessage.Headers.Add("ServiceControl.Retry.AcknowledgementQueue", Conventions.EndpointNamingConvention(typeof(RetryAckSpy)));
                     var messageOperation = new TransportOperation(controlMessage, new UnicastAddressTag(Conventions.EndpointNamingConvention(typeof(ProcessingEndpoint))));
                     await dispatcher.Dispatch(new TransportOperations(messageOperation), new TransportTransaction(), cancellationToken);
                 }
@@ -83,9 +82,9 @@
             }
         }
 
-        class ErrorSpy : EndpointConfigurationBuilder
+        class RetryAckSpy : EndpointConfigurationBuilder
         {
-            public ErrorSpy() => EndpointSetup<DefaultServer>((e, r) => e.Pipeline.Register(
+            public RetryAckSpy() => EndpointSetup<DefaultServer>((e, r) => e.Pipeline.Register(
                 new ControlMessageBehavior(r.ScenarioContext as Context),
                 "Checks for confirmation control message"));
 

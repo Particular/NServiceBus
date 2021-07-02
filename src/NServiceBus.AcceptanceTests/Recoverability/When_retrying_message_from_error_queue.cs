@@ -23,11 +23,11 @@
                         var sendOptions = new SendOptions();
                         sendOptions.RouteToThisEndpoint();
                         // set SC retry header information
-                        sendOptions.SetHeader("ServiceControl.Version", "42");
                         sendOptions.SetHeader("ServiceControl.Retry.UniqueMessageId", retryId);
+                        sendOptions.SetHeader("ServiceControl.Retry.AcknowledgementQueue", Conventions.EndpointNamingConvention(typeof(RetryAckSpy)));
                         return s.Send(new FailedMessage(), sendOptions);
                     }))
-                .WithEndpoint<ErrorSpy>()
+                .WithEndpoint<RetryAckSpy>()
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.ConfirmedRetryId != null && c.AuditHeaders != null)
                 .Run();
@@ -53,7 +53,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.SendFailedMessagesTo<ErrorSpy>();
                     c.AuditProcessedMessagesTo<AuditSpy>();
                 });
             }
@@ -75,9 +74,9 @@
             }
         }
 
-        class ErrorSpy : EndpointConfigurationBuilder
+        class RetryAckSpy : EndpointConfigurationBuilder
         {
-            public ErrorSpy() => EndpointSetup<DefaultServer>((e, r) => e.Pipeline.Register(
+            public RetryAckSpy() => EndpointSetup<DefaultServer>((e, r) => e.Pipeline.Register(
                 new ControlMessageBehavior(r.ScenarioContext as Context),
                 "Checks for confirmation control message"));
 
@@ -143,6 +142,4 @@
         {
         }
     }
-
-
 }
