@@ -118,7 +118,5 @@
                 return Task.CompletedTask;
             }
         }
-
-        //TODO also for control messages
     }
 }
