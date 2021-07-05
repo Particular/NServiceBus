@@ -12,7 +12,7 @@
     public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_confirm_successful_processing_to_error_queue()
+        public async Task Should_confirm_successful_processing()
         {
             var retryId = Guid.NewGuid().ToString("D");
 

@@ -19,7 +19,7 @@
         static readonly string RetryId = Guid.NewGuid().ToString("D");
 
         [Test]
-        public async Task Should_confirm_successful_processing_to_error_queue()
+        public async Task Should_confirm_successful_processing()
         {
             Requires.MessageDrivenPubSub(); //required for subscription control message support
 
