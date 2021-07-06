@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -12,7 +13,7 @@ namespace NServiceBus
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var outgoingMessage = new OutgoingMessage(
                             messageBeingProcessed.MessageId,
-                            messageBeingProcessed.Headers,
+                            new Dictionary<string, string>(messageBeingProcessed.Headers),
                             messageBeingProcessed.Body);
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);

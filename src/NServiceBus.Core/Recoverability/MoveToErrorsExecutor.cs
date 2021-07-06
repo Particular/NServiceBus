@@ -9,7 +9,7 @@
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<IDictionary<string, string>> headerCustomizations)
         {
             this.dispatcher = dispatcher;
             this.staticFaultMetadata = staticFaultMetadata;
@@ -42,6 +42,6 @@
 
         IMessageDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
-        Action<Dictionary<string, string>> headerCustomizations;
+        Action<IDictionary<string, string>> headerCustomizations;
     }
 }

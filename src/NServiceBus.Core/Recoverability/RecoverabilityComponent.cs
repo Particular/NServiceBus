@@ -85,7 +85,7 @@
                     {Headers.HostDisplayName, hostInformation.DisplayName}
                 };
 
-                var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
+                var headerCustomizations = settings.Get<Action<IDictionary<string, string>>>(FaultHeaderCustomization);
 
                 return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
             };

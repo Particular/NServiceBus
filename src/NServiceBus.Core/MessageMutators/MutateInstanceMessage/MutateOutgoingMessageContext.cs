@@ -11,7 +11,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateOutgoingMessageContext(object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
+        public MutateOutgoingMessageContext(object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
@@ -58,13 +58,13 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Gets the incoming headers that initiated the current send if it exists.
         /// </summary>
-        public bool TryGetIncomingHeaders(out IReadOnlyDictionary<string, string> incomingHeaders)
+        public bool TryGetIncomingHeaders(out IDictionary<string, string> incomingHeaders)
         {
             incomingHeaders = this.incomingHeaders;
             return incomingHeaders != null;
         }
 
-        IReadOnlyDictionary<string, string> incomingHeaders;
+        IDictionary<string, string> incomingHeaders;
         object incomingMessage;
 
         internal bool MessageInstanceChanged;

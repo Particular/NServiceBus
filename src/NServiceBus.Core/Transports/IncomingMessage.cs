@@ -14,7 +14,7 @@ namespace NServiceBus.Transport
         /// <param name="nativeMessageId">The native message ID.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
-        public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, byte[] body)
+        public IncomingMessage(string nativeMessageId, IDictionary<string, string> headers, byte[] body)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(body), body);
@@ -51,7 +51,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; }
+        public IDictionary<string, string> Headers { get; }
 
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.

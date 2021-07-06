@@ -10,6 +10,6 @@
 
     abstract class SagaFinder
     {
-        public abstract Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default);
+        public abstract Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default);
     }
 }

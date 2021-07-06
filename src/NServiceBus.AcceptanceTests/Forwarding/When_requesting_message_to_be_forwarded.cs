@@ -25,8 +25,8 @@
         public class Context : ScenarioContext
         {
             public bool GotForwardedMessage { get; set; }
-            public IReadOnlyDictionary<string, string> ForwardedHeaders { get; set; }
-            public IReadOnlyDictionary<string, string> ReceivedHeaders { get; set; }
+            public IDictionary<string, string> ForwardedHeaders { get; set; }
+            public IDictionary<string, string> ReceivedHeaders { get; set; }
         }
 
         public class ForwardReceiver : EndpointConfigurationBuilder

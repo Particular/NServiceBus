@@ -11,7 +11,7 @@
         {
         }
 
-        public IncomingLogicalMessageContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, IBehaviorContext parentContext)
+        public IncomingLogicalMessageContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, IDictionary<string, string> headers, IBehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, parentContext)
         {
             Message = logicalMessage;
@@ -21,7 +21,7 @@
 
         public LogicalMessage Message { get; }
 
-        public Dictionary<string, string> Headers { get; }
+        public IDictionary<string, string> Headers { get; }
 
         public bool MessageHandled { get; set; }
 

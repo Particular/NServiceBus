@@ -7,7 +7,7 @@ namespace NServiceBus
 
     abstract class IncomingContext : BehaviorContext, IIncomingContext
     {
-        protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, IBehaviorContext parentContext)
+        protected IncomingContext(string messageId, string replyToAddress, IDictionary<string, string> headers, IBehaviorContext parentContext)
             : base(parentContext)
         {
             MessageId = messageId;
@@ -21,7 +21,7 @@ namespace NServiceBus
 
         public string ReplyToAddress { get; }
 
-        public IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        public IDictionary<string, string> MessageHeaders { get; }
 
         public Task Send(object message, SendOptions options)
         {

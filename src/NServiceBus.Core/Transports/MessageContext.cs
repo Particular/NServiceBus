@@ -16,7 +16,7 @@
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public MessageContext(string nativeMessageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, ContextBag context)
+        public MessageContext(string nativeMessageId, IReadOnlyDictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(body), body);
@@ -39,7 +39,7 @@
         /// <summary>
         /// The message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; }
+        public IReadOnlyDictionary<string, string> Headers { get; }
 
         /// <summary>
         /// The message body.

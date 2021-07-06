@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -23,7 +24,7 @@
                     if (!sendingDelayedMessage)
                     {
                         sendingDelayedMessage = true;
-                        await SendMessage(InputQueueName, context.Message.Headers, context.TransportTransaction, cancellationToken: cancellationToken);
+                        await SendMessage(InputQueueName, new Dictionary<string, string>(context.Message.Headers), context.TransportTransaction, cancellationToken: cancellationToken);
                     }
                     else
                     {

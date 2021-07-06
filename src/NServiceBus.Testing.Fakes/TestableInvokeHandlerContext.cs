@@ -46,7 +46,7 @@
         /// <summary>
         /// Message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// The message instance being handled.

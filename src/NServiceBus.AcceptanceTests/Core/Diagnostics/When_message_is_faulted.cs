@@ -44,7 +44,7 @@
         {
             public bool IsMessageHandledByTheAuditEndpoint { get; set; }
             public bool IsMessageHandledByTheFaultEndpoint { get; set; }
-            public IReadOnlyDictionary<string, string> Headers { get; set; }
+            public IDictionary<string, string> Headers { get; set; }
             public IReadOnlyDictionary<string, string> FaultHeaders { get; set; }
             public DateTimeOffset TimeSentOnTheFailingMessageWhenItWasHandled { get; set; }
         }

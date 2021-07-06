@@ -106,7 +106,6 @@
             transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, cancellationToken);
 
             receiver = transportInfrastructure.Receivers.Single().Value;
-
             await receiver.Initialize(
                 new PushRuntimeSettings(8),
                 (context, token) =>

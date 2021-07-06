@@ -21,7 +21,7 @@ namespace NServiceBus
         /// Configures a header customization action which gets called after all fault headers have been applied.
         /// </summary>
         /// <param name="customization">The customization action.</param>
-        public RetryFailedSettings HeaderCustomization(Action<Dictionary<string, string>> customization)
+        public RetryFailedSettings HeaderCustomization(Action<IDictionary<string, string>> customization)
         {
             Guard.AgainstNull(nameof(customization), customization);
 

@@ -11,7 +11,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingBody), outgoingBody);
@@ -68,13 +68,14 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Gets the incoming headers that initiated the current send if it exists.
         /// </summary>
-        public bool TryGetIncomingHeaders(out IReadOnlyDictionary<string, string> incomingHeaders)
+        public bool TryGetIncomingHeaders(out IDictionary<string, string> incomingHeaders)
         {
             incomingHeaders = this.incomingHeaders;
             return incomingHeaders != null;
         }
 
-        IReadOnlyDictionary<string, string> incomingHeaders;
+        //TODO: kinda weird, but we'd either have to create a completely new ReadOnlyDictionary, ruining all saved allocations or change the Incoming headers type from IDictionary a concrete type that implements both IDictionary and IReadOnlyDictionary
+        IDictionary<string, string> incomingHeaders;
         object incomingMessage;
 
         internal bool MessageBodyChanged;

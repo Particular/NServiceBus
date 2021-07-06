@@ -16,7 +16,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Message headers.
         /// </summary>
-        Dictionary<string, string> Headers { get; }
+        IDictionary<string, string> Headers { get; }
 
         /// <summary>
         /// The message instance being handled.

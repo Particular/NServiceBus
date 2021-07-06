@@ -123,7 +123,7 @@
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]);
             var exception = new InvalidOperationException("test exception");
 
-            Dictionary<string, string> passedInHeaders = null;
+            IDictionary<string, string> passedInHeaders = null;
             moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, staticFaultMetadata, headers => { passedInHeaders = headers; });
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, exception, new TransportTransaction());

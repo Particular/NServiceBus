@@ -7,7 +7,7 @@ namespace NServiceBus
 
     static class HeaderSerializer
     {
-        public static string Serialize(Dictionary<string, string> dictionary)
+        public static string Serialize(IDictionary<string, string> dictionary)
         {
             using (var stream = new MemoryStream())
             {

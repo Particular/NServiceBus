@@ -21,7 +21,7 @@
             }
         }
 
-        public IMessageSerializer Resolve(Dictionary<string, string> headers)
+        public IMessageSerializer Resolve(IDictionary<string, string> headers)
         {
             if (headers.TryGetValue(Headers.ContentType, out var contentType))
             {

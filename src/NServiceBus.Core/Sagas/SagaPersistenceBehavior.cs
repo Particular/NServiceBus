@@ -186,7 +186,7 @@
             return context.MessageMetadata.MessageHierarchy.Any(messageType => sagaMetadata.IsMessageAllowedToStartTheSaga(messageType.FullName));
         }
 
-        static bool IsTimeoutMessage(Dictionary<string, string> headers)
+        static bool IsTimeoutMessage(IDictionary<string, string> headers)
         {
             if (headers.TryGetValue(Headers.IsSagaTimeoutMessage, out _))
             {

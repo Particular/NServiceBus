@@ -24,7 +24,8 @@ namespace NServiceBus
 
             using (var childScope = rootBuilder.CreateScope())
             {
-                var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
+                var changeTrackingHeaders = new ChangeTrackingDictionary(messageContext.Headers);
+                var message = new IncomingMessage(messageContext.NativeMessageId, changeTrackingHeaders, messageContext.Body);
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);

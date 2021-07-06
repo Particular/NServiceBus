@@ -6,7 +6,7 @@
 
     static class ExceptionHeaderHelper
     {
-        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e)
+        public static void SetExceptionHeaders(IDictionary<string, string> headers, Exception e)
         {
             headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 

@@ -15,7 +15,7 @@
         /// <summary>
         /// Headers for the incoming message.
         /// </summary>
-        Dictionary<string, string> Headers { get; }
+        IDictionary<string, string> Headers { get; }
 
         /// <summary>
         /// Tells if the message has been handled.

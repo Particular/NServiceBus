@@ -12,7 +12,7 @@ namespace NServiceBus
         {
         }
 
-        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, SynchronizedStorageSession storageSession, IBehaviorContext parentContext)
+        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, IDictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, SynchronizedStorageSession storageSession, IBehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, parentContext)
         {
             MessageHandler = handler;
@@ -26,7 +26,7 @@ namespace NServiceBus
 
         public SynchronizedStorageSession SynchronizedStorageSession => Get<SynchronizedStorageSession>();
 
-        public Dictionary<string, string> Headers { get; }
+        public IDictionary<string, string> Headers { get; }
 
         public object MessageBeingHandled { get; }
 

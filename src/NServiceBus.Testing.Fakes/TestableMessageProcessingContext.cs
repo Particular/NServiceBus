@@ -3,7 +3,6 @@ namespace NServiceBus.Testing
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -76,7 +75,6 @@ namespace NServiceBus.Testing
         /// </summary>
         public string ReplyToAddress { get; set; } = "reply address";
 
-        IReadOnlyDictionary<string, string> IMessageProcessingContext.MessageHeaders => new ReadOnlyDictionary<string, string>(MessageHeaders);
         ConcurrentQueue<string> forwardedMessages = new ConcurrentQueue<string>();
 
         ConcurrentQueue<RepliedMessage<object>> repliedMessages = new ConcurrentQueue<RepliedMessage<object>>();
