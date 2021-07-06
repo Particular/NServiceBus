@@ -19,6 +19,11 @@ namespace NServiceBus
 
         public class State
         {
+            public static readonly State Instance = new State();
+
+            State()
+            {
+            }
         }
     }
 }

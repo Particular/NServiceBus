@@ -19,7 +19,7 @@
             if (useRetryAcknowledgement)
             {
                 // notify the ServiceControl audit instance that the retry has already been acknowledged by the endpoint
-                context.Extensions.Set(new MarkAsAcknowledgedBehavior.State());
+                context.Extensions.Set(MarkAsAcknowledgedBehavior.State.Instance);
             }
 
             await next(context).ConfigureAwait(false);
