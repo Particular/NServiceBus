@@ -19,7 +19,7 @@
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> which can be used to extend the current object.</param>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ReadOnlyContextBag context)
+        public ErrorContext(Exception exception, IReadOnlyDictionary<string, string> headers, string nativeMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ReadOnlyContextBag context)
         {
             Guard.AgainstNull(nameof(exception), exception);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
@@ -30,7 +30,8 @@
             TransportTransaction = transportTransaction;
             ImmediateProcessingFailures = immediateProcessingFailures;
 
-            Message = new IncomingMessage(nativeMessageId, headers, body);
+            var changeTrackingHeaders = new ChangeTrackingDictionary(headers);
+            Message = new IncomingMessage(nativeMessageId, changeTrackingHeaders, body);
 
             DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
             Extensions = context;
