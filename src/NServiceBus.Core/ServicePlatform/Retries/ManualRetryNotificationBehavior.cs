@@ -35,7 +35,7 @@
                     CombGuid.Generate().ToString(),
                     new Dictionary<string, string>
                     {
-                        { "ServiceControl.Retry.Successful", DateTimeOffset.UtcNow.ToString("O") },
+                        { "ServiceControl.Retry.Successful", DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow) },
                         { RetryUniqueMessageIdHeaderKey, id },
                         { Headers.ControlMessageHeader, bool.TrueString }
                     },
