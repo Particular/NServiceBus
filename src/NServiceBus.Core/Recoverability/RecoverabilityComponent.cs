@@ -21,7 +21,7 @@
             settings.SetDefault(NumberOfDelayedRetries, DefaultNumberOfRetries);
             settings.SetDefault(DelayedRetriesTimeIncrease, DefaultTimeIncrease);
             settings.SetDefault(NumberOfImmediateRetries, 5);
-            settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(headers => { }));
+            settings.SetDefault(FaultHeaderCustomization, new Action<IDictionary<string, string>>(headers => { }));
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
