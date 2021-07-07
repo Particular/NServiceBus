@@ -30,7 +30,7 @@
                 .Run();
 
             Assert.AreEqual(RetryId, context.ConfirmedRetryId);
-            var processingTime = DateTimeOffset.Parse(context.RetryProcessingTimestamp);
+            var processingTime = DateTimeOffsetHelper.ToDateTimeOffset(context.RetryProcessingTimestamp);
             Assert.That(processingTime, Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromMinutes(1)));
         }
 
