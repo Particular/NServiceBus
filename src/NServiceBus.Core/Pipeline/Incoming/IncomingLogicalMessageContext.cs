@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Collections.Generic;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
@@ -11,7 +10,7 @@
         {
         }
 
-        public IncomingLogicalMessageContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, IBehaviorContext parentContext)
+        public IncomingLogicalMessageContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, HeaderDictionary headers, IBehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, parentContext)
         {
             Message = logicalMessage;
@@ -21,7 +20,7 @@
 
         public LogicalMessage Message { get; }
 
-        public Dictionary<string, string> Headers { get; }
+        public HeaderDictionary Headers { get; }
 
         public bool MessageHandled { get; set; }
 

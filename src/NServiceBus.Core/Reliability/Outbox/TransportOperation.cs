@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Outbox
 {
-    using System.Collections.Generic;
     using Transport;
 
     /// <summary>
@@ -11,7 +10,7 @@
         /// <summary>
         /// Creates a new instance of a <see cref="TransportOperation" />.
         /// </summary>
-        public TransportOperation(string messageId, DispatchProperties properties, byte[] body, Dictionary<string, string> headers)
+        public TransportOperation(string messageId, DispatchProperties properties, byte[] body, HeaderDictionary headers)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
 
@@ -39,6 +38,6 @@
         /// <summary>
         /// Gets outgoing message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; }
+        public HeaderDictionary Headers { get; }
     }
 }

@@ -2,11 +2,10 @@
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
 
     static class ExceptionHeaderHelper
     {
-        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e)
+        public static void SetExceptionHeaders(HeaderDictionary headers, Exception e)
         {
             headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 

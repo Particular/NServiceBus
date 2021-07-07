@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Collections.Generic;
     using Pipeline;
 
     /// <summary>
@@ -11,7 +10,7 @@
         /// <summary>
         /// Creates a new context.
         /// </summary>
-        public ConversationIdStrategyContext(OutgoingLogicalMessage message, IReadOnlyDictionary<string, string> headers)
+        public ConversationIdStrategyContext(OutgoingLogicalMessage message, HeaderDictionary headers)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(headers), headers);
@@ -29,6 +28,6 @@
         /// <summary>
         /// The headers attached to the outgoing message.
         /// </summary>
-        public IReadOnlyDictionary<string, string> Headers { get; }
+        public HeaderDictionary Headers { get; }
     }
 }

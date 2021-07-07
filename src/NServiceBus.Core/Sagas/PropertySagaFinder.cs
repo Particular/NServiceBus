@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
@@ -15,7 +14,7 @@ namespace NServiceBus
             this.sagaPersister = sagaPersister;
         }
 
-        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, HeaderDictionary messageHeaders, CancellationToken cancellationToken = default)
         {
             var propertyAccessor = (Func<object, object>)finderDefinition.Properties["property-accessor"];
             var propertyValue = propertyAccessor(message);

@@ -1,13 +1,12 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
 
     abstract class IncomingContext : BehaviorContext, IIncomingContext
     {
-        protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, IBehaviorContext parentContext)
+        protected IncomingContext(string messageId, string replyToAddress, HeaderDictionary headers, IBehaviorContext parentContext)
             : base(parentContext)
         {
             MessageId = messageId;
@@ -21,7 +20,7 @@ namespace NServiceBus
 
         public string ReplyToAddress { get; }
 
-        public IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        public HeaderDictionary MessageHeaders { get; }
 
         public Task Send(object message, SendOptions options)
         {

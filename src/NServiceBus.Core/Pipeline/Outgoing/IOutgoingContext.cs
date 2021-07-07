@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// The base interface for everything inside the outgoing pipeline.
     /// </summary>
@@ -15,6 +13,6 @@
         /// <summary>
         /// The headers of the outgoing message.
         /// </summary>
-        Dictionary<string, string> Headers { get; }
+        HeaderDictionary Headers { get; }
     }
 }

@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// A context of behavior execution in logical message processing stage.
     /// </summary>
@@ -15,7 +13,7 @@
         /// <summary>
         /// Headers for the incoming message.
         /// </summary>
-        Dictionary<string, string> Headers { get; }
+        HeaderDictionary Headers { get; }
 
         /// <summary>
         /// Tells if the message has been handled.

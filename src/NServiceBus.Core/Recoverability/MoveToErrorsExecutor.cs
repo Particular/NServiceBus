@@ -9,7 +9,7 @@
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<HeaderDictionary> headerCustomizations)
         {
             this.dispatcher = dispatcher;
             this.staticFaultMetadata = staticFaultMetadata;
@@ -20,7 +20,7 @@
         {
             message.RevertToOriginalBodyIfNeeded();
 
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            var outgoingMessage = new OutgoingMessage(message.MessageId, new HeaderDictionary(message.Headers), message.Body);
 
             var headers = outgoingMessage.Headers;
             headers.Remove(Headers.DelayedRetries);
@@ -42,6 +42,6 @@
 
         IMessageDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
-        Action<Dictionary<string, string>> headerCustomizations;
+        Action<HeaderDictionary> headerCustomizations;
     }
 }

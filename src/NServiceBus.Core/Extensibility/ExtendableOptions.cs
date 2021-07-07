@@ -1,6 +1,5 @@
 namespace NServiceBus.Extensibility
 {
-    using System.Collections.Generic;
     using Transport;
 
     /// <summary>
@@ -17,7 +16,7 @@ namespace NServiceBus.Extensibility
         protected ExtendableOptions()
         {
             Context = new ContextBag();
-            OutgoingHeaders = new Dictionary<string, string>();
+            OutgoingHeaders = new HeaderDictionary();
         }
 
         internal DispatchProperties DispatchProperties { get; } = new DispatchProperties();
@@ -26,6 +25,6 @@ namespace NServiceBus.Extensibility
 
         internal string UserDefinedMessageId { get; set; }
 
-        internal Dictionary<string, string> OutgoingHeaders { get; }
+        internal HeaderDictionary OutgoingHeaders { get; }
     }
 }

@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using FakeTransport;
     using NUnit.Framework;

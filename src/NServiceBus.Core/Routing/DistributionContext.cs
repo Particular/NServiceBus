@@ -1,7 +1,6 @@
 namespace NServiceBus.Routing
 {
     using System;
-    using System.Collections.Generic;
     using Extensibility;
     using Pipeline;
 
@@ -13,7 +12,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Creates a new distribution context.
         /// </summary>
-        public DistributionContext(string[] receiverAddresses, OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, Func<EndpointInstance, string> addressTranslation, ContextBag extensions)
+        public DistributionContext(string[] receiverAddresses, OutgoingLogicalMessage message, string messageId, HeaderDictionary headers, Func<EndpointInstance, string> addressTranslation, ContextBag extensions)
         {
             this.addressTranslation = addressTranslation;
             ReceiverAddresses = receiverAddresses;
@@ -36,7 +35,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// The headers of the outgoing message.
         /// </summary>
-        public Dictionary<string, string> Headers { get; }
+        public HeaderDictionary Headers { get; }
 
         /// <summary>
         /// The outgoing message.

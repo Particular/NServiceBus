@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -22,7 +21,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the list of key/value pairs found in the header of the message.
         /// </summary>
-        IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        HeaderDictionary MessageHeaders { get; }
 
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled.

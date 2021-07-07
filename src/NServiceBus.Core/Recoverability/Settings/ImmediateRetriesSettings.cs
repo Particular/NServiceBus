@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
@@ -44,7 +43,7 @@ namespace NServiceBus
                     return Task.CompletedTask;
                 }
 
-                var headerCopy = new Dictionary<string, string>(retry.Message.Headers);
+                var headerCopy = new HeaderDictionary(retry.Message.Headers);
                 var bodyCopy = retry.Message.Body.Copy();
                 return notificationCallback(new ImmediateRetryMessage(retry.Message.MessageId, headerCopy, bodyCopy, retry.Exception, retry.Attempt), cancellationToken);
             });

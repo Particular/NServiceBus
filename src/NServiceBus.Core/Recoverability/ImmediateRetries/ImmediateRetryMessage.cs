@@ -1,7 +1,6 @@
 namespace NServiceBus.Faults
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Immediate Retry event data.
@@ -16,7 +15,7 @@ namespace NServiceBus.Faults
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
         /// <param name="retryAttempt">Number of retry attempt.</param>
-        public ImmediateRetryMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
+        public ImmediateRetryMessage(string messageId, HeaderDictionary headers, byte[] body, Exception exception, int retryAttempt)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(headers), headers);
@@ -38,7 +37,7 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Gets the message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; }
+        public HeaderDictionary Headers { get; }
 
         /// <summary>
         /// Gets a byte array to the body content of the message.

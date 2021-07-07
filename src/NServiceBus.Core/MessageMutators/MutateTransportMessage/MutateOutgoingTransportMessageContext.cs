@@ -1,6 +1,5 @@
 namespace NServiceBus.MessageMutator
 {
-    using System.Collections.Generic;
     using System.Threading;
 
     /// <summary>
@@ -11,7 +10,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, HeaderDictionary outgoingHeaders, object incomingMessage, HeaderDictionary incomingHeaders, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingBody), outgoingBody);
@@ -49,7 +48,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current outgoing headers.
         /// </summary>
-        public Dictionary<string, string> OutgoingHeaders { get; }
+        public HeaderDictionary OutgoingHeaders { get; }
 
         /// <summary>
         /// A <see cref="CancellationToken"/> to observe.
@@ -68,13 +67,13 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Gets the incoming headers that initiated the current send if it exists.
         /// </summary>
-        public bool TryGetIncomingHeaders(out IReadOnlyDictionary<string, string> incomingHeaders)
+        public bool TryGetIncomingHeaders(out HeaderDictionary incomingHeaders)
         {
             incomingHeaders = this.incomingHeaders;
             return incomingHeaders != null;
         }
 
-        IReadOnlyDictionary<string, string> incomingHeaders;
+        HeaderDictionary incomingHeaders;
         object incomingMessage;
 
         internal bool MessageBodyChanged;

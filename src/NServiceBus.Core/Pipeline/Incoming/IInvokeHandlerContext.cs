@@ -1,6 +1,5 @@
 namespace NServiceBus.Pipeline
 {
-    using System.Collections.Generic;
     using Unicast.Messages;
 
     /// <summary>
@@ -16,7 +15,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Message headers.
         /// </summary>
-        Dictionary<string, string> Headers { get; }
+        HeaderDictionary Headers { get; }
 
         /// <summary>
         /// The message instance being handled.

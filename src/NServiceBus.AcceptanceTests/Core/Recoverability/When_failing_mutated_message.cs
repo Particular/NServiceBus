@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using MessageMutator;
     using NUnit.Framework;
 

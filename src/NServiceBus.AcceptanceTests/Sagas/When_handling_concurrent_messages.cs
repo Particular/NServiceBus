@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTests;
