@@ -7,7 +7,7 @@
     using Routing;
     using Transport;
 
-    class ManualRetryNotificationBehavior : IForkConnector<ITransportReceiveContext, ITransportReceiveContext, IRoutingContext>
+    class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, ITransportReceiveContext, IRoutingContext>
     {
         internal const string RetryUniqueMessageIdHeaderKey = "ServiceControl.Retry.UniqueMessageId";
         internal const string RetryConfirmationQueueHeaderKey = "ServiceControl.Retry.AcknowledgementQueue";

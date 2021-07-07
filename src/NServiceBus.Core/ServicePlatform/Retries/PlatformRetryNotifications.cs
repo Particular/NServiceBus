@@ -10,7 +10,7 @@
         /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var forkBehavior = new ManualRetryNotificationBehavior();
+            var forkBehavior = new RetryAcknowledgementBehavior();
             context.Pipeline.Register(forkBehavior, "Provides retry notifications to ServiceControl");
             context.Pipeline.Register(new MarkAsAcknowledgedBehavior(), "Adds audit information about direct retry acknowledgement");
         }

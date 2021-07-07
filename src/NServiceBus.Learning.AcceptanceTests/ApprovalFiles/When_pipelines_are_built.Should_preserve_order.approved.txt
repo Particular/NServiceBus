@@ -51,7 +51,7 @@ context0 => value(NServiceBus.EnforceUnsubscribeBestPracticesBehavior).Invoke(co
     context1 => value(NServiceBus.NativeUnsubscribeTerminator).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IUnsubscribeContext],System.Threading.Tasks.Task])),
 
 context0 => value(NServiceBus.AcceptanceTesting.Support.CaptureExceptionBehavior).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.ITransportReceiveContext,System.Threading.Tasks.Task])),
-    context1 => value(NServiceBus.ManualRetryNotificationBehavior).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.ITransportReceiveContext,System.Threading.Tasks.Task])),
+    context1 => value(NServiceBus.RetryAcknowledgementBehavior).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.ITransportReceiveContext,System.Threading.Tasks.Task])),
         context2 => value(NServiceBus.TransportReceiveToPhysicalMessageConnector).Invoke(context2, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
             context3 => value(NServiceBus.ProcessingStatisticsBehavior).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
                 context4 => value(NServiceBus.MutateIncomingTransportMessageBehavior).Invoke(context4, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
