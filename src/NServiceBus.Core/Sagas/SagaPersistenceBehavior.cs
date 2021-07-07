@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
@@ -186,7 +185,7 @@
             return context.MessageMetadata.MessageHierarchy.Any(messageType => sagaMetadata.IsMessageAllowedToStartTheSaga(messageType.FullName));
         }
 
-        static bool IsTimeoutMessage(Dictionary<string, string> headers)
+        static bool IsTimeoutMessage(HeaderDictionary headers)
         {
             if (headers.TryGetValue(Headers.IsSagaTimeoutMessage, out _))
             {

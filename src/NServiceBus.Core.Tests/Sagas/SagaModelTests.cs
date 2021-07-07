@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;
-    using System.Diagnostics.PerformanceData;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus;

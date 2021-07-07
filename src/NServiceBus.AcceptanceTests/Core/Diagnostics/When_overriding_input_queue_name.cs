@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_overriding_input_queue_name : NServiceBusAcceptanceTest

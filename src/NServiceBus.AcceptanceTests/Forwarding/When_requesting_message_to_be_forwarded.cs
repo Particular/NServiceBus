@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Forwarding
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;

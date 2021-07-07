@@ -4,7 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
 

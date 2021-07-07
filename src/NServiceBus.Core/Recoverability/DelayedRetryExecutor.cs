@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
@@ -18,7 +17,7 @@
 
         public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            var outgoingMessage = new OutgoingMessage(message.MessageId, new HeaderDictionary(message.Headers), message.Body);
 
             var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
 

@@ -1,6 +1,5 @@
 namespace NServiceBus.MessageMutator
 {
-    using System.Collections.Generic;
     using System.Threading;
 
     /// <summary>
@@ -11,7 +10,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
+        public MutateIncomingTransportMessageContext(byte[] body, HeaderDictionary headers, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);
@@ -40,7 +39,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current incoming headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; }
+        public HeaderDictionary Headers { get; }
 
         /// <summary>
         /// A <see cref="CancellationToken"/> to observe.

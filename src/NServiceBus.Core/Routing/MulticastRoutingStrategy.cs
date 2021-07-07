@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Routing
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// A routing strategy for multicast routing.
@@ -20,7 +19,7 @@
         /// Applies the routing strategy to the message.
         /// </summary>
         /// <param name="headers">Message headers.</param>
-        public override AddressTag Apply(Dictionary<string, string> headers)
+        public override AddressTag Apply(HeaderDictionary headers)
         {
             Guard.AgainstNull(nameof(headers), headers);
             return new MulticastAddressTag(messageType);

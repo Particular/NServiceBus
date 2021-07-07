@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,7 +17,7 @@
             this.persister = persister;
         }
 
-        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+        public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message, HeaderDictionary messageHeaders, CancellationToken cancellationToken = default)
         {
             var headerName = (string)finderDefinition.Properties["message-header-name"];
 

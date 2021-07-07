@@ -7,7 +7,6 @@
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 

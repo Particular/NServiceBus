@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus
 {
-    using System.Collections.Generic;
     using Extensibility;
     using Pipeline;
 
     class OutgoingSendContext : OutgoingContext, IOutgoingSendContext
     {
-        public OutgoingSendContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
+        public OutgoingSendContext(OutgoingLogicalMessage message, string messageId, HeaderDictionary headers, ContextBag extensions, IBehaviorContext parentContext)
             : base(messageId, headers, parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);

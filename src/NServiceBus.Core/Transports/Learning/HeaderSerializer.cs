@@ -1,13 +1,12 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Json;
     using System.Text;
 
     static class HeaderSerializer
     {
-        public static string Serialize(Dictionary<string, string> dictionary)
+        public static string Serialize(HeaderDictionary dictionary)
         {
             using (var stream = new MemoryStream())
             {
@@ -21,16 +20,16 @@ namespace NServiceBus
             }
         }
 
-        public static Dictionary<string, string> Deserialize(string value)
+        public static HeaderDictionary Deserialize(string value)
         {
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(value)))
             {
-                return (Dictionary<string, string>)serializer.ReadObject(ms);
+                return (HeaderDictionary)serializer.ReadObject(ms);
             }
         }
 
         static DataContractJsonSerializer serializer = new DataContractJsonSerializer(
-            type: typeof(Dictionary<string, string>),
+            type: typeof(HeaderDictionary),
             settings: new DataContractJsonSerializerSettings
             {
                 UseSimpleDictionaryFormat = true

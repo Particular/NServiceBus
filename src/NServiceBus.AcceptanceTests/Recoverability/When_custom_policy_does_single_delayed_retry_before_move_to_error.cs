@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using Transport;
 

@@ -5,7 +5,6 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Helpers;
-    using Microsoft.CodeAnalysis;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;

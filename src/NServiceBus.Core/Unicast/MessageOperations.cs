@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces;
@@ -48,7 +47,7 @@ namespace NServiceBus
         Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            var headers = new HeaderDictionary(options.OutgoingHeaders)
             {
                 [Headers.MessageId] = messageId
             };
@@ -109,7 +108,7 @@ namespace NServiceBus
         Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            var headers = new HeaderDictionary(options.OutgoingHeaders)
             {
                 [Headers.MessageId] = messageId
             };
@@ -141,7 +140,7 @@ namespace NServiceBus
         Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            var headers = new HeaderDictionary(options.OutgoingHeaders)
             {
                 [Headers.MessageId] = messageId
             };

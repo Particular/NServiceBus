@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
@@ -19,7 +18,7 @@
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
+            var processedMessage = new OutgoingMessage(context.Message.MessageId, new HeaderDictionary(context.Message.Headers), context.Message.Body);
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
 
