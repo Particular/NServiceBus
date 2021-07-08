@@ -1692,6 +1692,10 @@ namespace NServiceBus.Features
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class PlatformRetryNotifications : NServiceBus.Features.Feature
+    {
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
         "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
     public class ReceiveStatisticsPerformanceCounters
