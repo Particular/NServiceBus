@@ -25,7 +25,7 @@
             Guard.AgainstNull(nameof(context), context);
 
             Headers = headers;
-            Body = body;
+            Body = new MessageBody(body);
             NativeMessageId = nativeMessageId;
             Extensions = context;
             TransportTransaction = transportTransaction;
@@ -44,7 +44,7 @@
         /// <summary>
         /// The message body.
         /// </summary>
-        public byte[] Body { get; }
+        public MessageBody Body { get; }
 
         /// <summary>
         /// Transaction (along with connection if applicable) used to receive the message.

@@ -18,7 +18,7 @@
 
         public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body.Bytes);
 
             var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
 

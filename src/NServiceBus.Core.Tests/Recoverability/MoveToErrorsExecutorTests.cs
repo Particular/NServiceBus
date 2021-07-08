@@ -24,7 +24,7 @@
         {
             var customErrorQueue = "random_error_queue";
             var transportTransaction = new TransportTransaction();
-            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]);
+            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MessageBody(new byte[0]));
 
             await moveToErrorsExecutor.MoveToErrorQueue(customErrorQueue, incomingMessage, new Exception(), transportTransaction);
 
@@ -46,7 +46,7 @@
                 {"key2", "value2"}
             };
 
-            var incomingMessage = new IncomingMessage("messageId", incomingMessageHeaders, new byte[0]);
+            var incomingMessage = new IncomingMessage("messageId", incomingMessageHeaders, new MessageBody(new byte[0]));
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
@@ -62,7 +62,7 @@
                 {Headers.ImmediateRetries, "42"},
                 {Headers.DelayedRetries, "21"}
             };
-            var incomingMessage = new IncomingMessage("messageId", retryHeaders, new byte[0]);
+            var incomingMessage = new IncomingMessage("messageId", retryHeaders, new MessageBody(new byte[0]));
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
@@ -74,7 +74,7 @@
         [Test]
         public async Task MoveToErrorQueue_should_add_exception_headers()
         {
-            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]);
+            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MessageBody(new byte[0]));
             var exception = new InvalidOperationException("test exception");
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, exception, new TransportTransaction());
@@ -92,7 +92,7 @@
         public async Task MoveToErrorQueue_should_add_static_fault_info_to_headers()
         {
             staticFaultMetadata.Add("staticFaultMetadataKey", "staticFaultMetadataValue");
-            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]);
+            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MessageBody(new byte[0]));
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
@@ -106,7 +106,7 @@
         public async Task MoveToErrorQueue_should_apply_header_customizations_before_dispatch()
         {
             staticFaultMetadata.Add("staticFaultMetadataKey", "staticFaultMetadataValue");
-            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]);
+            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MessageBody(new byte[0]));
             var exception = new InvalidOperationException("test exception");
 
             Dictionary<string, string> passedInHeaders = null;

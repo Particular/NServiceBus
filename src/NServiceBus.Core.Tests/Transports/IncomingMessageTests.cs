@@ -11,7 +11,7 @@
         public void Should_assign_transport_message_id_when_NServiceBus_message_id_header_is_missing()
         {
             var headers = new Dictionary<string, string>();
-            var message = new IncomingMessage("nativeId", headers, new byte[] { });
+            var message = new IncomingMessage("nativeId", headers, new MessageBody(new byte[0]));
 
             Assert.AreEqual("nativeId", message.NativeMessageId);
             Assert.AreEqual("nativeId", message.MessageId);
@@ -25,7 +25,7 @@
             {
                 { Headers.MessageId, "coreId" }
             };
-            var message = new IncomingMessage("nativeId", headers, new byte[] { });
+            var message = new IncomingMessage("nativeId", headers, new MessageBody(new byte[0]));
 
             Assert.AreEqual("nativeId", message.NativeMessageId);
             Assert.AreEqual("coreId", message.MessageId);
@@ -38,7 +38,7 @@
             {
                 { Headers.MessageId, "" }
             };
-            var message = new IncomingMessage("nativeId", headers, new byte[] { });
+            var message = new IncomingMessage("nativeId", headers, new MessageBody(new byte[0]));
 
             Assert.AreEqual("nativeId", message.NativeMessageId);
             Assert.AreEqual("nativeId", message.MessageId);

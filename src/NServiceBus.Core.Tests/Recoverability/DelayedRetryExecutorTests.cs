@@ -91,7 +91,7 @@
 
         IncomingMessage CreateMessage(Dictionary<string, string> headers = null)
         {
-            return new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), new byte[0]);
+            return new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), new MessageBody(new byte[0]));
         }
 
         DelayedRetryExecutor CreateExecutor()

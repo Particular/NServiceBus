@@ -68,7 +68,7 @@
             var behavior = new MutateOutgoingMessageBehavior(new HashSet<IMutateOutgoingMessages>());
 
             var context = new TestableOutgoingLogicalMessageContext();
-            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]));
+            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string>(), new MessageBody(new byte[0])));
             context.Extensions.Set(new LogicalMessage(null, null));
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutateOutgoingMessagesReturnsNull());
 

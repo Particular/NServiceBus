@@ -2,6 +2,7 @@ namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
     using System.Threading;
+    using Transport;
 
     /// <summary>
     /// Context class for <see cref="IMutateIncomingTransportMessages" />.
@@ -11,18 +12,19 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
+        public MutateIncomingTransportMessageContext(MessageBody body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);
             Headers = headers;
 
             // Intentionally assign to field to not set the MessageBodyChanged flag.
-            this.body = body;
+            this.body = body.Bytes;
 
             CancellationToken = cancellationToken;
         }
 
+        //TODO what to expose here?
         /// <summary>
         /// The body of the message.
         /// </summary>

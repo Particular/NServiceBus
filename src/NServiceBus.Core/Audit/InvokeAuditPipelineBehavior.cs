@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
@@ -19,7 +20,7 @@
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
+            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body.ToArray());
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
 
