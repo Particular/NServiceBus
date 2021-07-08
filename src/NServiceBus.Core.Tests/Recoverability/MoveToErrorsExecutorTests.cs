@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -53,19 +52,6 @@
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(incomingMessage.Headers, Is.SubsetOf(outgoingMessage.Message.Headers));
-        }
-
-        [Test]
-        public async Task MoveToErrorQueue_should_dispatch_original_message_body()
-        {
-            var originalMessageBody = Encoding.UTF8.GetBytes("message body");
-            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), originalMessageBody);
-            incomingMessage.UpdateBody(Encoding.UTF8.GetBytes("new body"));
-
-            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
-
-            var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
-            Assert.That(outgoingMessage.Message.Body, Is.EqualTo(originalMessageBody));
         }
 
         [Test]

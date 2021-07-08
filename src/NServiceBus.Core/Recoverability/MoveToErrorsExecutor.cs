@@ -18,8 +18,6 @@
 
         public Task MoveToErrorQueue(string errorQueueAddress, IncomingMessage message, Exception exception, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
-            message.RevertToOriginalBodyIfNeeded();
-
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
             var headers = outgoingMessage.Headers;
