@@ -16,26 +16,37 @@
             this.headerCustomizations = headerCustomizations;
         }
 
-        public Task MoveToErrorQueue(string errorQueueAddress, IncomingMessage message, Exception exception, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
+        public async Task MoveToErrorQueue(string errorQueueAddress, IncomingMessage message, Exception exception, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            var headers = MainPipelineExecutor.HeaderPool.Get();
+            message.Headers.CopyTo(headers);
 
-            var headers = outgoingMessage.Headers;
-            headers.Remove(Headers.DelayedRetries);
-            headers.Remove(Headers.ImmediateRetries);
-
-            ExceptionHeaderHelper.SetExceptionHeaders(headers, exception);
-
-            foreach (var faultMetadata in staticFaultMetadata)
+            try
             {
-                headers[faultMetadata.Key] = faultMetadata.Value;
+                var outgoingMessage = new OutgoingMessage(message.MessageId, headers, message.Body);
+
+                headers.Remove(Headers.DelayedRetries);
+                headers.Remove(Headers.ImmediateRetries);
+
+                ExceptionHeaderHelper.SetExceptionHeaders(headers, exception);
+
+                foreach (var faultMetadata in staticFaultMetadata)
+                {
+                    headers[faultMetadata.Key] = faultMetadata.Value;
+                }
+
+                headerCustomizations(headers);
+
+                var transportOperations =
+                    new TransportOperations(new TransportOperation(outgoingMessage,
+                        new UnicastAddressTag(errorQueueAddress)));
+
+                await dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken);
             }
-
-            headerCustomizations(headers);
-
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
-
-            return dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken);
+            finally
+            {
+                MainPipelineExecutor.HeaderPool.Return(headers);
+            }
         }
 
         IMessageDispatcher dispatcher;

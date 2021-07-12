@@ -45,24 +45,31 @@ namespace NServiceBus
             return Publish(context, messageType, message, options);
         }
 
-        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+        async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+
+            var headers = MainPipelineExecutor.HeaderPool.Get();
+            options.OutgoingHeaders.CopyTo(headers);
+            headers.Add(Headers.MessageId, messageId);
+
+            try
             {
-                [Headers.MessageId] = messageId
-            };
+                var publishContext = new OutgoingPublishContext(
+                    new OutgoingLogicalMessage(messageType, message),
+                    messageId,
+                    headers,
+                    options.Context,
+                    context);
 
-            var publishContext = new OutgoingPublishContext(
-                new OutgoingLogicalMessage(messageType, message),
-                messageId,
-                headers,
-                options.Context,
-                context);
+                MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            MergeDispatchProperties(publishContext, options.DispatchProperties);
-
-            return publishPipeline.Invoke(publishContext);
+                await publishPipeline.Invoke(publishContext);
+            }
+            finally
+            {
+                MainPipelineExecutor.HeaderPool.Return(headers);
+            }
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -106,24 +113,30 @@ namespace NServiceBus
             return SendMessage(context, messageType, message, options);
         }
 
-        Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+        async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            var headers = MainPipelineExecutor.HeaderPool.Get();
+            options.OutgoingHeaders.CopyTo(headers);
+            headers.Add(Headers.MessageId, messageId);
+
+            try
             {
-                [Headers.MessageId] = messageId
-            };
+                var outgoingContext = new OutgoingSendContext(
+                    new OutgoingLogicalMessage(messageType, message),
+                    messageId,
+                    headers,
+                    options.Context,
+                    context);
 
-            var outgoingContext = new OutgoingSendContext(
-                new OutgoingLogicalMessage(messageType, message),
-                messageId,
-                headers,
-                options.Context,
-                context);
+                MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            MergeDispatchProperties(outgoingContext, options.DispatchProperties);
-
-            return sendPipeline.Invoke(outgoingContext);
+                await sendPipeline.Invoke(outgoingContext);
+            }
+            finally
+            {
+                MainPipelineExecutor.HeaderPool.Return(headers);
+            }
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)

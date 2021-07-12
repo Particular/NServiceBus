@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
@@ -18,24 +17,35 @@
 
         public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
         {
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            var headers = MainPipelineExecutor.HeaderPool.Get();
+            message.Headers.CopyTo(headers);
 
-            var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
-
-            outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
-            outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
-
-            var dispatchProperties = new DispatchProperties
+            try
             {
-                DelayDeliveryWith = new DelayDeliveryWith(delay)
-            };
-            var messageDestination = new UnicastAddressTag(endpointInputQueue);
+                var outgoingMessage = new OutgoingMessage(message.MessageId,
+                    headers, message.Body);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
+                var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
 
-            await dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken).ConfigureAwait(false);
+                outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
+                outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            return currentDelayedRetriesAttempt;
+                var dispatchProperties = new DispatchProperties { DelayDeliveryWith = new DelayDeliveryWith(delay) };
+                var messageDestination = new UnicastAddressTag(endpointInputQueue);
+
+                var transportOperations =
+                    new TransportOperations(new TransportOperation(outgoingMessage, messageDestination,
+                        dispatchProperties));
+
+                await dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken)
+                    .ConfigureAwait(false);
+
+                return currentDelayedRetriesAttempt;
+            }
+            finally
+            {
+                MainPipelineExecutor.HeaderPool.Return(headers);
+            }
         }
 
         IMessageDispatcher dispatcher;
