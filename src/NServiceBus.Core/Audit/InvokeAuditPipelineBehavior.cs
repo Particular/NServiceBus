@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
     using Transport;
@@ -19,11 +18,21 @@
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
+            var headers = MainPipelineExecutor.HeaderPool.Get();
+            context.Message.Headers.CopyTo(headers);
 
-            var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
+            try
+            {
+                var processedMessage = new OutgoingMessage(context.Message.MessageId, headers, context.Message.Body);
 
-            await this.Fork(auditContext).ConfigureAwait(false);
+                var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
+
+                await this.Fork(auditContext).ConfigureAwait(false);
+            }
+            finally
+            {
+                MainPipelineExecutor.HeaderPool.Return(headers);
+            }
         }
 
         readonly string auditAddress;
