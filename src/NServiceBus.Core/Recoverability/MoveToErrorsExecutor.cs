@@ -41,7 +41,7 @@
                     new TransportOperations(new TransportOperation(outgoingMessage,
                         new UnicastAddressTag(errorQueueAddress)));
 
-                await dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken);
+                await dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken).ConfigureAwait(false);
             }
             finally
             {

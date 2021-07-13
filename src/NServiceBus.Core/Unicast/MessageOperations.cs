@@ -64,7 +64,7 @@ namespace NServiceBus
 
                 MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-                await publishPipeline.Invoke(publishContext);
+                await publishPipeline.Invoke(publishContext).ConfigureAwait(false);
             }
             finally
             {
@@ -131,7 +131,7 @@ namespace NServiceBus
 
                 MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-                await sendPipeline.Invoke(outgoingContext);
+                await sendPipeline.Invoke(outgoingContext).ConfigureAwait(false);
             }
             finally
             {
