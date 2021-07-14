@@ -55,14 +55,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.
         /// </summary>
-        public MessageBody Body { get; private set; }
-
-        /// <summary>
-        /// Use this method to update the body if this message.
-        /// </summary>
-        internal void UpdateBody(MessageBody updatedBody)
-        {
-            Body = updatedBody;
-        }
+        public MessageBody Body { get; internal set; }
     }
 }
