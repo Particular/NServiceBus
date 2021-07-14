@@ -54,7 +54,7 @@
 
             if (mutatorContext.MessageBodyChanged)
             {
-                context.UpdateMessage(mutatorContext.Body);
+                context.UpdateMessage(mutatorContext.Body.Bytes);
             }
 
             await next(context).ConfigureAwait(false);

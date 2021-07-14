@@ -5,9 +5,9 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using MessageMutator;
     using NUnit.Framework;
+    using Transport;
 
     public class When_failing_mutated_message : NServiceBusAcceptanceTest
     {
@@ -30,7 +30,7 @@
 
         class Context : ScenarioContext
         {
-            public byte[] OriginalBody { get; set; }
+            public MessageBody OriginalBody { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -54,13 +54,12 @@
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
-                    var originalBody = transportMessage.Body;
-                    testContext.OriginalBody = originalBody;
-                    var newBody = new byte[originalBody.Length];
-                    Buffer.BlockCopy(originalBody, 0, newBody, 0, originalBody.Length);
+                    testContext.OriginalBody = transportMessage.Body;
+
+                    var newBody = transportMessage.Body.CreateCopy();
                     //corrupt
                     newBody[1]++;
-                    transportMessage.Body = newBody;
+                    transportMessage.UpdateMessage(newBody);
                     return Task.FromResult(0);
                 }
 

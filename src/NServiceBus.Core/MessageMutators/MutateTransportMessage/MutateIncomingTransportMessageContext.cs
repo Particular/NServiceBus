@@ -18,26 +18,15 @@ namespace NServiceBus.MessageMutator
             Guard.AgainstNull(nameof(body), body);
             Headers = headers;
 
-            // Intentionally assign to field to not set the MessageBodyChanged flag.
-            this.body = body.Bytes;
+            Body = body;
 
             CancellationToken = cancellationToken;
         }
 
-        //TODO what to expose here?
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public byte[] Body
-        {
-            get => body;
-            set
-            {
-                Guard.AgainstNull(nameof(value), value);
-                MessageBodyChanged = true;
-                body = value;
-            }
-        }
+        public MessageBody Body { get; private set; }
 
         /// <summary>
         /// The current incoming headers.
@@ -49,7 +38,15 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public CancellationToken CancellationToken { get; }
 
-        byte[] body;
+        /// <summary>
+        /// Replace the message body
+        /// </summary>
+        /// <param name="messageBody"></param>
+        public void UpdateMessage(byte[] messageBody)
+        {
+            MessageBodyChanged = true;
+            Body = new MessageBody(messageBody);
+        }
 
         internal bool MessageBodyChanged;
     }

@@ -1,6 +1,5 @@
 namespace NServiceBus.Transport
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -61,29 +60,9 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Use this method to update the body if this message.
         /// </summary>
-        internal void UpdateBody(byte[] updatedBody)
+        internal void UpdateBody(MessageBody updatedBody)
         {
-            //preserve the original body if needed
-            if (Body.Bytes != null && originalBody == null)
-            {
-                originalBody = new byte[Body.Count];
-                Buffer.BlockCopy(Body.Bytes, 0, originalBody, 0, Body.Bytes.Length);
-            }
-
-            Body.Bytes = updatedBody;
+            Body = updatedBody;
         }
-
-        /// <summary>
-        /// Makes sure that the body is reset to the exact state as it was when the message was created.
-        /// </summary>
-        internal void RevertToOriginalBodyIfNeeded()
-        {
-            if (originalBody != null)
-            {
-                Body.Bytes = originalBody;
-            }
-        }
-
-        byte[] originalBody;
     }
 }

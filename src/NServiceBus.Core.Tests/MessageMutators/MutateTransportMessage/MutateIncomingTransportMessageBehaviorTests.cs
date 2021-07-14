@@ -158,7 +158,7 @@
         {
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
-                context.Body = new byte[0];
+                context.UpdateMessage(new byte[0]);
 
                 return Task.CompletedTask;
             }
