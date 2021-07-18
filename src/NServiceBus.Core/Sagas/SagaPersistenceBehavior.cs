@@ -80,7 +80,7 @@
             {
                 if (IsMessageAllowedToStartTheSaga(context, currentSagaMetadata))
                 {
-                    context.Extensions.Get<SagaInvocationResult>().SagaFound();
+                    context.Extensions.Get<SagaInvocationResult>().SagaFound(currentSagaMetadata.SagaType);
                     sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(currentSagaMetadata, context));
                 }
                 else
@@ -99,18 +99,18 @@
                     //we don't invoke not found handlers for timeouts
                     if (isTimeoutMessage)
                     {
-                        context.Extensions.Get<SagaInvocationResult>().SagaFound();
+                        context.Extensions.Get<SagaInvocationResult>().SagaFound(currentSagaMetadata.SagaType);
                         logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
                     }
                     else
                     {
-                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
+                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound(currentSagaMetadata.SagaType);
                     }
                 }
             }
             else
             {
-                context.Extensions.Get<SagaInvocationResult>().SagaFound();
+                context.Extensions.Get<SagaInvocationResult>().SagaFound(currentSagaMetadata.SagaType);
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 

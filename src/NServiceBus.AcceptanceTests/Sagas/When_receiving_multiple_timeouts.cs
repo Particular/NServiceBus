@@ -122,7 +122,7 @@
             {
                 public Context TestContext { get; set; }
 
-                public Task Handle(object message, IMessageProcessingContext context)
+                public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
                 {
                     if (((dynamic)message).ContextId != TestContext.Id)
                     {

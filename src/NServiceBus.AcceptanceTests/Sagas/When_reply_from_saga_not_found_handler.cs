@@ -92,7 +92,7 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Task Handle(object message, IMessageProcessingContext context)
+                public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
                 {
                     return context.Reply(new Reply());
                 }

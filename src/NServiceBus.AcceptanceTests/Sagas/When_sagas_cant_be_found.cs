@@ -20,7 +20,7 @@
                 .Done(c => c.Done)
                 .Run();
 
-            Assert.AreEqual(1, context.TimesFired);
+            Assert.AreEqual(2, context.TimesFired, "NotFound invocations");
         }
 
         [Test]
@@ -34,7 +34,7 @@
                 .Done(c => c.Done)
                 .Run();
 
-            Assert.AreEqual(0, context.TimesFired);
+            Assert.AreEqual(1, context.TimesFired, "NotFound invocations");
         }
 
         public class Context : ScenarioContext
@@ -109,7 +109,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(object message, IMessageProcessingContext context)
+                public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
                 {
                     testContext.TimesFired++;
                     testContext.Done = true;
@@ -196,7 +196,7 @@
                     testContext = context;
                 }
 
-                public Task Handle(object message, IMessageProcessingContext context)
+                public Task Handle(object message, IMessageProcessingContext context, Type sagaType)
                 {
                     testContext.TimesFired++;
                     return Task.FromResult(0);

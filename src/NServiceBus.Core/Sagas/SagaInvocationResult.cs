@@ -1,27 +1,24 @@
 namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+
     class SagaInvocationResult
     {
-        public bool WasFound => state != State.SagaNotFound;
-
-        public void SagaFound()
+        public void SagaFound(Type type)
         {
-            state = State.SagaFound;
+            Results[type] = State.SagaFound;
         }
 
-        public void SagaNotFound()
+        public void SagaNotFound(Type type)
         {
-            if (state == State.Unknown)
-            {
-                state = State.SagaNotFound;
-            }
+            Results[type] = State.SagaNotFound;
         }
 
-        State state;
+        public Dictionary<Type, State> Results { get; set; } = new Dictionary<Type, State>();
 
-        enum State
+        public enum State
         {
-            Unknown,
             SagaFound,
             SagaNotFound
         }
