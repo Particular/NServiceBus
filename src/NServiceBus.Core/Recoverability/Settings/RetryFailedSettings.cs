@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
@@ -42,8 +41,7 @@ namespace NServiceBus
             subscriptions.MessageFaultedNotification.Subscribe((faulted, cancellationToken) =>
             {
                 var headerCopy = new Dictionary<string, string>(faulted.Message.Headers);
-                var bodyCopy = faulted.Message.Body.ToArray();
-                return notificationCallback(new FailedMessage(faulted.Message.MessageId, headerCopy, bodyCopy, faulted.Exception, faulted.ErrorQueue), cancellationToken);
+                return notificationCallback(new FailedMessage(faulted.Message.MessageId, headerCopy, faulted.Message.Body, faulted.Exception, faulted.ErrorQueue), cancellationToken);
             });
 
             return this;

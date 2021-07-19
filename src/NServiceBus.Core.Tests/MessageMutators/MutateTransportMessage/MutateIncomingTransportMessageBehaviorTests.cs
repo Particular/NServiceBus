@@ -77,13 +77,13 @@
         {
             var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
-            var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
+            var context = new TestableIncomingPhysicalMessageContext();
 
             context.Services.AddTransient<IMutateIncomingTransportMessages>(sp => new MutatorWhichDoesNotMutateTheBody());
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-            Assert.False(context.UpdateMessageBodyCalled);
+            Assert.AreSame(context.Message.OriginalMessageBody, context.Message.Body);
         }
 
         [Test]
@@ -91,13 +91,13 @@
         {
             var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
-            var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
+            var context = new TestableIncomingPhysicalMessageContext();
 
             context.Services.AddTransient(sp => new IMutateIncomingTransportMessages[] { });
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-            Assert.False(context.UpdateMessageBodyCalled);
+            Assert.AreSame(context.Message.OriginalMessageBody, context.Message.Body);
         }
 
         [Test]
@@ -105,25 +105,13 @@
         {
             var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
-            var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
+            var context = new TestableIncomingPhysicalMessageContext();
 
             context.Services.AddTransient<IMutateIncomingTransportMessages>(sp => new MutatorWhichMutatesTheBody());
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-            Assert.True(context.UpdateMessageBodyCalled);
-        }
-
-        class InterceptUpdateMessageIncomingPhysicalMessageContext : TestableIncomingPhysicalMessageContext
-        {
-            public bool UpdateMessageBodyCalled { get; private set; }
-
-            public override void UpdateMessage(byte[] body)
-            {
-                base.UpdateMessage(body);
-
-                UpdateMessageBodyCalled = true;
-            }
+            Assert.AreNotSame(context.Message.OriginalMessageBody, context.Message.Body);
         }
 
         class MutatorThatIndicatesIfItWasCalled : IMutateIncomingTransportMessages

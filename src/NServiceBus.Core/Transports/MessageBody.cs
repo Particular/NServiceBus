@@ -4,13 +4,15 @@
     using System.Collections;
     using System.Collections.Generic;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// A reference to a read-only message body.
+    /// </summary>
     public class MessageBody : IReadOnlyCollection<byte>
     {
         internal byte[] Bytes;
 
         /// <summary>
-        /// Blabla.
+        /// Creates a new instance of <see cref="MessageBody"/>.
         /// </summary>
         public MessageBody(byte[] body)
         {
@@ -27,7 +29,7 @@
         public int Count => Bytes.Length;
 
         /// <summary>
-        /// Creates a copy of the message body
+        /// Creates a copy of the message body.
         /// </summary>
         public byte[] CreateCopy()
         {

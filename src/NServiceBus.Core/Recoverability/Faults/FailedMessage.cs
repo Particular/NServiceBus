@@ -2,6 +2,7 @@ namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
+    using Transport;
 
     /// <summary>
     /// Error message event data.
@@ -16,7 +17,7 @@ namespace NServiceBus.Faults
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
         /// <param name="errorQueue">Error queue address.</param>
-        public FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception, string errorQueue)
+        public FailedMessage(string messageId, Dictionary<string, string> headers, MessageBody body, Exception exception, string errorQueue)
         {
             MessageId = messageId;
             Headers = headers;
@@ -33,7 +34,7 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Gets a byte array to the body content of the message.
         /// </summary>
-        public byte[] Body { get; }
+        public MessageBody Body { get; }
 
         /// <summary>
         /// The exception that caused this message to fail.

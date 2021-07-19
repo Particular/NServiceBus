@@ -39,9 +39,8 @@ namespace NServiceBus.MessageMutator
         public CancellationToken CancellationToken { get; }
 
         /// <summary>
-        /// Replace the message body
+        /// Replace the current message body.
         /// </summary>
-        /// <param name="messageBody"></param>
         public void UpdateMessage(byte[] messageBody)
         {
             MessageBodyChanged = true;

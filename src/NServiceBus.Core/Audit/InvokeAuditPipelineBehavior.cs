@@ -17,7 +17,6 @@
         {
             await next(context).ConfigureAwait(false);
 
-            //TODO consider change the Body type of OutgoingMessage as well
             var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.OriginalMessageBody.CreateCopy());
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
