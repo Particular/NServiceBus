@@ -1417,8 +1417,8 @@ namespace NServiceBus.Faults
 {
     public class DelayedRetryMessage
     {
-        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
+        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body, System.Exception exception, int retryAttempt) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
@@ -1445,8 +1445,8 @@ namespace NServiceBus.Faults
     }
     public class FailedMessage
     {
-        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, string errorQueue) { }
-        public byte[] Body { get; }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body, System.Exception exception, string errorQueue) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public string ErrorQueue { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -1458,8 +1458,8 @@ namespace NServiceBus.Faults
     }
     public class ImmediateRetryMessage
     {
-        public ImmediateRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
+        public ImmediateRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body, System.Exception exception, int retryAttempt) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
@@ -1734,9 +1734,10 @@ namespace NServiceBus.MessageMutator
     public class MutateIncomingTransportMessageContext : NServiceBus.ICancellableContext
     {
         public MutateIncomingTransportMessageContext(NServiceBus.Transport.MessageBody body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
-        public byte[] Body { get; set; }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public void UpdateMessage(byte[] messageBody) { }
     }
     public class MutateOutgoingMessageContext : NServiceBus.ICancellableContext
     {
@@ -2577,6 +2578,7 @@ namespace NServiceBus.Transport
     {
         public MessageBody(byte[] body) { }
         public int Count { get; }
+        public byte[] CreateCopy() { }
         public System.Collections.Generic.IEnumerator<byte> GetEnumerator() { }
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
