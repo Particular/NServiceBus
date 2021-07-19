@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup .NET Core 6 Preview
-        uses: uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
