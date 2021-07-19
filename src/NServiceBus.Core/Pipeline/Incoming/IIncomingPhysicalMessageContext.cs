@@ -11,10 +11,5 @@
         /// The physical message being processed.
         /// </summary>
         IncomingMessage Message { get; }
-
-        /// <summary>
-        /// Updates the message with the given body.
-        /// </summary>
-        void UpdateMessage(byte[] body);
     }
 }

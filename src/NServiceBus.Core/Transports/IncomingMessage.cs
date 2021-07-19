@@ -34,7 +34,7 @@ namespace NServiceBus.Transport
 
             Headers = headers;
 
-            Body = body;
+            Body = OriginalMessageBody = body;
         }
 
         /// <summary>
@@ -56,5 +56,7 @@ namespace NServiceBus.Transport
         /// Gets/sets a byte array to the body content of the message.
         /// </summary>
         public MessageBody Body { get; internal set; }
+
+        internal MessageBody OriginalMessageBody { get; }
     }
 }
