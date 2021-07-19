@@ -14,7 +14,7 @@
     <!-- this package can only be upgraded when we drop support for older versions of Visual Studio -->
     <!-- see https://docs.microsoft.com/en-us/visualstudio/extensibility/roslyn-version-support -->
     <!-- cannot upgrade to 2.10.0 - see https://github.com/dotnet/roslyn-analyzers/issues/1803 -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.10.0" />
   </ItemGroup>
 
   <!-- Workaround to make sure GitVersion uses the project specific config file -->
