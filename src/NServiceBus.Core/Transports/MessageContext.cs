@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
+    using System;
     using System.Collections.Generic;
     using Extensibility;
 
@@ -16,7 +17,7 @@
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public MessageContext(string nativeMessageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, ContextBag context)
+        public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(body), body);
@@ -44,7 +45,7 @@
         /// <summary>
         /// The message body.
         /// </summary>
-        public byte[] Body { get; }
+        public ReadOnlyMemory<byte> Body { get; }
 
         /// <summary>
         /// Transaction (along with connection if applicable) used to receive the message.

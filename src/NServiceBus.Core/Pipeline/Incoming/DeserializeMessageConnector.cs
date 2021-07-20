@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
@@ -60,7 +59,7 @@
                 return NoMessagesFound;
             }
 
-            if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
+            if (physicalMessage.Body.Length == 0)
             {
                 log.Debug("Received a message without body. Skipping deserialization.");
                 return NoMessagesFound;
@@ -104,17 +103,14 @@
             // add the default content type
             physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-            using (var stream = new MemoryStream(physicalMessage.Body))
+            var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
+            var logicalMessages = new LogicalMessage[deserializedMessages.Length];
+            for (var i = 0; i < deserializedMessages.Length; i++)
             {
-                var deserializedMessages = messageSerializer.Deserialize(stream, messageTypes);
-                var logicalMessages = new LogicalMessage[deserializedMessages.Length];
-                for (var i = 0; i < deserializedMessages.Length; i++)
-                {
-                    var x = deserializedMessages[i];
-                    logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
-                }
-                return logicalMessages;
+                var x = deserializedMessages[i];
+                logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
             }
+            return logicalMessages;
         }
 
         static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)

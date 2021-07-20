@@ -45,7 +45,7 @@ namespace NServiceBus
                 }
 
                 var headerCopy = new Dictionary<string, string>(retry.Message.Headers);
-                var bodyCopy = retry.Message.Body.Copy();
+                var bodyCopy = retry.Message.Body;
                 return notificationCallback(new ImmediateRetryMessage(retry.Message.MessageId, headerCopy, bodyCopy, retry.Exception, retry.Attempt), cancellationToken);
             });
 
