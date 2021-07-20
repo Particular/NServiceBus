@@ -22,17 +22,16 @@
             this.sanitizeInput = sanitizeInput;
         }
 
-        public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypesToDeserialize = null)
+        public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
         {
+            if (stream == null)
+            {
+                return null;
+            }
+
             var result = new List<object>();
 
-            //TODO: use more efficient memory stream
-            XmlDocument doc = null;
-
-            using (var stream = new MemoryStream(body.ToArray()))
-            {
-                doc = ReadStreamIntoDocument(stream, sanitizeInput);
-            }
+            var doc = ReadStreamIntoDocument(stream, sanitizeInput);
 
             if (NothingToBeProcessed(doc))
             {
