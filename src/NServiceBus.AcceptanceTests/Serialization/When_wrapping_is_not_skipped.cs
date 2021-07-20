@@ -77,7 +77,7 @@
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    testContext.XmlMessage = XDocument.Parse(Encoding.UTF8.GetString(context.Body));
+                    testContext.XmlMessage = XDocument.Parse(Encoding.UTF8.GetString(context.Body.Span));
 
                     return Task.FromResult(0);
                 }

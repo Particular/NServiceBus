@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
@@ -103,7 +104,12 @@
             // add the default content type
             physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-            var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
+            object[] deserializedMessages;
+            using (var stream = new MemoryStream(physicalMessage.Body.ToArray()))
+            {
+                deserializedMessages = messageSerializer.Deserialize(stream, messageTypes);
+            }
+
             var logicalMessages = new LogicalMessage[deserializedMessages.Length];
             for (var i = 0; i < deserializedMessages.Length; i++)
             {
