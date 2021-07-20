@@ -1,5 +1,6 @@
 namespace NServiceBus.Transport
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace NServiceBus.Transport
         /// <param name="messageId">The message id to use.</param>
         /// <param name="headers">The headers associated with this message.</param>
         /// <param name="body">The body of the message.</param>
-        public OutgoingMessage(string messageId, Dictionary<string, string> headers, byte[] body)
+        public OutgoingMessage(string messageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
         {
             MessageId = messageId;
             Headers = headers;
@@ -23,7 +24,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The body to be sent.
         /// </summary>
-        public byte[] Body { get; }
+        public ReadOnlyMemory<byte> Body { get; }
 
 
         /// <summary>

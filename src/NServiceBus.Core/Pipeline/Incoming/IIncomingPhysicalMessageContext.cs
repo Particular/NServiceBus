@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System;
     using Transport;
 
     /// <summary>
@@ -15,6 +16,6 @@
         /// <summary>
         /// Updates the message with the given body.
         /// </summary>
-        void UpdateMessage(byte[] body);
+        void UpdateMessage(ReadOnlyMemory<byte> body);
     }
 }

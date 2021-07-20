@@ -14,7 +14,7 @@ namespace NServiceBus.Transport
         /// <param name="nativeMessageId">The native message ID.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
-        public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, byte[] body)
+        public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(body), body);
@@ -56,18 +56,17 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.
         /// </summary>
-        public byte[] Body { get; private set; }
+        public ReadOnlyMemory<byte> Body { get; private set; }
 
         /// <summary>
         /// Use this method to update the body if this message.
         /// </summary>
-        internal void UpdateBody(byte[] updatedBody)
+        internal void UpdateBody(ReadOnlyMemory<byte> updatedBody)
         {
-            //preserve the original body if needed
-            if (Body != null && originalBody == null)
+            if (bodyChanged == false)
             {
-                originalBody = new byte[Body.Length];
-                Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
+                originalBody = Body;
+                bodyChanged = true;
             }
 
             Body = updatedBody;
@@ -78,12 +77,10 @@ namespace NServiceBus.Transport
         /// </summary>
         internal void RevertToOriginalBodyIfNeeded()
         {
-            if (originalBody != null)
-            {
-                Body = originalBody;
-            }
+            Body = originalBody;
         }
 
-        byte[] originalBody;
+        ReadOnlyMemory<byte> originalBody;
+        bool bodyChanged;
     }
 }
