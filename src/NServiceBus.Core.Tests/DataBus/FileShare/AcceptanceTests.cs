@@ -71,7 +71,7 @@
             dataBus.MaxMessageTimeToLive = TimeSpan.FromDays(1);
 
             await Put("Test", TimeSpan.MaxValue);
-            Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.Now.AddDays(1).ToString("yyyy-MM-dd_HH"))));
+            Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd_HH"))));
         }
     }
 }

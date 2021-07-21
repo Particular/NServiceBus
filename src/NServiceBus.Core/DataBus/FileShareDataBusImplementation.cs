@@ -63,7 +63,7 @@ namespace NServiceBus
 
             if (timeToBeReceived < TimeSpan.MaxValue)
             {
-                keepMessageUntil = DateTimeOffset.Now + timeToBeReceived;
+                keepMessageUntil = DateTimeOffset.UtcNow + timeToBeReceived;
             }
 
             return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_HH"), Guid.NewGuid().ToString());

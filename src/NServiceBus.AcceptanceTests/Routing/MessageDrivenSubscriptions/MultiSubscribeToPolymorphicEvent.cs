@@ -6,7 +6,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
+    public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Both_events_should_be_delivered()
@@ -57,7 +57,7 @@
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {
                         context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
-                        if (args.MessageType.Contains(nameof(When_multi_subscribing_to_a_polymorphic_event.IMyEvent)))
+                        if (args.MessageType.Contains(nameof(IMyEvent)))
                         {
                             context.Publisher1HasASubscriberForIMyEvent = true;
                         }
@@ -79,7 +79,7 @@
                     {
                         context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
 
-                        if (args.MessageType.Contains(nameof(When_multi_subscribing_to_a_polymorphic_event.MyEvent2)))
+                        if (args.MessageType.Contains(nameof(MyEvent2)))
                         {
                             context.Publisher2HasDetectedASubscriberForEvent2 = true;
                         }

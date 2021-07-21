@@ -175,7 +175,9 @@ namespace NServiceBus
 
         protected string currentfilePath;
         long currentFileSize;
+#pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For rollover of log files, want to use local time
         internal Func<DateTimeOffset> GetDate = () => DateTimeOffset.Now.Date;
+#pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
         DateTimeOffset lastWriteDate;
         long maxFileSize;
         int numberOfArchiveFilesToKeep;

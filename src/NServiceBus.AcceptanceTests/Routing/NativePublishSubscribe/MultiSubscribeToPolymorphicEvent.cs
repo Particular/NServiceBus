@@ -5,7 +5,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
+    public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Both_events_should_be_delivered()

@@ -123,7 +123,9 @@
                     Message = message
                 });
 
+#pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For test logging
                 TestContext.WriteLine($"{DateTime.Now:T} {level} {name}: {message}");
+#pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
             }
 
             string name;

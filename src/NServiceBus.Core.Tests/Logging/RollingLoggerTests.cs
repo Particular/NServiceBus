@@ -15,7 +15,7 @@
         {
             using (var tempPath = new TempPath())
             {
-                DateTimeOffset dateTime = new DateTime(2010, 10, 1);
+                var dateTime = new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero);
                 var logger1 = new RollingLogger(tempPath.TempDirectory)
                 {
                     GetDate = () => dateTime
@@ -42,7 +42,7 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Foo");
                 var single = tempPath.GetSingle();
@@ -59,7 +59,7 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Foo");
                 var single = tempPath.GetSingle();
@@ -83,7 +83,7 @@
             {
                 var logger = new RollingLoggerThatDeletesBeforeWrite(tempPath.TempDirectory)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Foo");
                 var singleFile = tempPath.GetSingle();
@@ -112,7 +112,7 @@
         {
             using (var tempPath = new TempPath())
             {
-                DateTimeOffset dateTime = new DateTime(2010, 10, 1);
+                var dateTime = new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero);
                 var logger1 = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
                     GetDate = () => dateTime
@@ -144,12 +144,12 @@
             {
                 var logger1 = new RollingLogger(tempPath.TempDirectory)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger1.WriteLine("Foo");
                 var logger2 = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
-                    GetDate = () => new DateTime(2010, 10, 2)
+                    GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger2.WriteLine("Bar");
                 var files = tempPath.GetFiles();
@@ -198,7 +198,7 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Some long text");
                 logger.WriteLine("Bar");
@@ -222,7 +222,7 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 for (var i = 0; i < 100; i++)
                 {
@@ -252,10 +252,10 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Foo");
-                logger.GetDate = () => new DateTime(2010, 10, 2);
+                logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
                 logger.WriteLine("Bar");
                 var files = tempPath.GetFiles();
                 Assert.AreEqual(2, files.Count);
@@ -273,7 +273,7 @@
         [Test]
         public void When_getting_todays_log_file_sequence_number_is_used_in_sorting()
         {
-            var today = new DateTime(2010, 10, 2);
+            var today = new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
             var logFiles = new List<RollingLogger.LogFile>
             {
                 new RollingLogger.LogFile
@@ -294,9 +294,9 @@
         [Test]
         public void When_getting_todays_log_file_only_today_is_respected()
         {
-            var today = new DateTime(2010, 10, 2);
-            var yesterday = new DateTime(2010, 10, 1);
-            var tomorrow = new DateTime(2010, 10, 3);
+            var today = new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
+            var yesterday = new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero);
+            var tomorrow = new DateTimeOffset(2010, 10, 3, 0, 0, 0, TimeSpan.Zero);
             var logFiles = new List<RollingLogger.LogFile>
             {
                 new RollingLogger.LogFile
@@ -336,7 +336,7 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory, numberOfArchiveFilesToKeep: 2, maxFileSize: 5)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Long text0");
                 logger.WriteLine("Long text1");
@@ -367,16 +367,16 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory, numberOfArchiveFilesToKeep: 2)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Foo1");
-                logger.GetDate = () => new DateTime(2010, 10, 2);
+                logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
                 logger.WriteLine("Foo2");
-                logger.GetDate = () => new DateTime(2010, 10, 3);
+                logger.GetDate = () => new DateTimeOffset(2010, 10, 3, 0, 0, 0, TimeSpan.Zero);
                 logger.WriteLine("Foo3");
-                logger.GetDate = () => new DateTime(2010, 10, 4);
+                logger.GetDate = () => new DateTimeOffset(2010, 10, 4, 0, 0, 0, TimeSpan.Zero);
                 logger.WriteLine("Foo4");
-                logger.GetDate = () => new DateTime(2010, 10, 5);
+                logger.GetDate = () => new DateTimeOffset(2010, 10, 5, 0, 0, 0, TimeSpan.Zero);
                 logger.WriteLine("Foo5");
                 var files = tempPath.GetFiles();
                 Assert.AreEqual(3, files.Count, "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
@@ -402,7 +402,7 @@
             {
                 var logger = new RollingLogger(tempPath.TempDirectory)
                 {
-                    GetDate = () => new DateTime(2010, 10, 1)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
                 };
                 logger.WriteLine("Foo");
                 var singleFile = tempPath.GetSingle();

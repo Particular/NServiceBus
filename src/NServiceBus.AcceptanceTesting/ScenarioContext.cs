@@ -50,7 +50,9 @@
 
         public class LogItem
         {
+#pragma warning disable PS0023 // DateTime.UtcNow or DateTimeOffset.UtcNow should be used instead of DateTime.Now and DateTimeOffset.Now, unless the value is being used for displaying the current date-time in a user's local time zone
             public DateTime Timestamp { get; } = DateTime.Now;
+#pragma warning restore PS0023 // DateTime.UtcNow or DateTimeOffset.UtcNow should be used instead of DateTime.Now and DateTimeOffset.Now, unless the value is being used for displaying the current date-time in a user's local time zone
             public string Endpoint { get; set; }
             public string LoggerName { get; set; }
             public string Message { get; set; }
