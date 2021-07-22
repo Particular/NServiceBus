@@ -2,6 +2,7 @@ namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
     using System.Threading;
+    using Transport;
 
     /// <summary>
     /// Context class for <see cref="IMutateIncomingTransportMessages" />.
@@ -11,14 +12,13 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
+        public MutateIncomingTransportMessageContext(MessageBody body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);
             Headers = headers;
 
-            // Intentionally assign to field to not set the MessageBodyChanged flag.
-            this.body = body;
+            Body = body;
 
             CancellationToken = cancellationToken;
         }
@@ -26,16 +26,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public byte[] Body
-        {
-            get => body;
-            set
-            {
-                Guard.AgainstNull(nameof(value), value);
-                MessageBodyChanged = true;
-                body = value;
-            }
-        }
+        public MessageBody Body { get; private set; }
 
         /// <summary>
         /// The current incoming headers.
@@ -47,7 +38,14 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public CancellationToken CancellationToken { get; }
 
-        byte[] body;
+        /// <summary>
+        /// Replace the current message body.
+        /// </summary>
+        public void UpdateMessage(byte[] messageBody)
+        {
+            MessageBodyChanged = true;
+            Body = new MessageBody(messageBody);
+        }
 
         internal bool MessageBodyChanged;
     }

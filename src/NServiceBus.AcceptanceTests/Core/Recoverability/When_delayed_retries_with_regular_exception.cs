@@ -5,9 +5,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using MessageMutator;
     using NUnit.Framework;
+    using Transport;
 
     public class When_delayed_retries_with_regular_exception : NServiceBusAcceptanceTest
     {
@@ -30,7 +30,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
         class Context : ScenarioContext
         {
-            public byte[] OriginalBody { get; set; }
+            public MessageBody OriginalBody { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -52,20 +52,14 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     this.testContext = testContext;
                 }
 
-                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext mutatorContext)
                 {
-                    var originalBody = transportMessage.Body;
-
-                    testContext.OriginalBody = originalBody;
-
-                    var decryptedBody = new byte[originalBody.Length];
-
-                    Buffer.BlockCopy(originalBody, 0, decryptedBody, 0, originalBody.Length);
-
+                    testContext.OriginalBody = mutatorContext.Body;
+                    var decryptedBody = mutatorContext.Body.CreateCopy();
                     //decrypt
                     decryptedBody[0]++;
 
-                    transportMessage.Body = decryptedBody;
+                    mutatorContext.UpdateMessage(decryptedBody);
                     return Task.FromResult(0);
                 }
 
@@ -86,7 +80,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 }
             }
         }
-
 
         public class MessageToBeRetried : IMessage
         {

@@ -15,7 +15,7 @@
         /// </summary>
         public TestableIncomingPhysicalMessageContext()
         {
-            Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[] { });
+            Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new MessageBody(new byte[0]));
         }
 
         /// <summary>
@@ -23,7 +23,7 @@
         /// </summary>
         public virtual void UpdateMessage(byte[] body)
         {
-            Message = new IncomingMessage(Message.MessageId, Message.Headers, body);
+            Message = new IncomingMessage(Message.MessageId, Message.Headers, new MessageBody(body));
         }
 
         /// <summary>

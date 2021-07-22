@@ -1417,8 +1417,8 @@ namespace NServiceBus.Faults
 {
     public class DelayedRetryMessage
     {
-        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
+        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body, System.Exception exception, int retryAttempt) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
@@ -1445,8 +1445,8 @@ namespace NServiceBus.Faults
     }
     public class FailedMessage
     {
-        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, string errorQueue) { }
-        public byte[] Body { get; }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body, System.Exception exception, string errorQueue) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public string ErrorQueue { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -1458,8 +1458,8 @@ namespace NServiceBus.Faults
     }
     public class ImmediateRetryMessage
     {
-        public ImmediateRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
+        public ImmediateRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body, System.Exception exception, int retryAttempt) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
@@ -1733,10 +1733,11 @@ namespace NServiceBus.MessageMutator
     }
     public class MutateIncomingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
-        public byte[] Body { get; set; }
+        public MutateIncomingTransportMessageContext(NServiceBus.Transport.MessageBody body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public void UpdateMessage(byte[] messageBody) { }
     }
     public class MutateOutgoingMessageContext : NServiceBus.ICancellableContext
     {
@@ -2556,8 +2557,8 @@ namespace NServiceBus.Transport
     }
     public class IncomingMessage
     {
-        public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
-        public byte[] Body { get; }
+        public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.MessageBody body) { }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public string NativeMessageId { get; }
@@ -2573,6 +2574,14 @@ namespace NServiceBus.Transport
             " a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
     }
+    public class MessageBody : System.Collections.Generic.IEnumerable<byte>, System.Collections.Generic.IReadOnlyCollection<byte>, System.Collections.IEnumerable
+    {
+        public MessageBody(byte[] body) { }
+        public int Count { get; }
+        public byte[] CreateCopy() { }
+        public System.Collections.Generic.IEnumerator<byte> GetEnumerator() { }
+        public System.IO.Stream GetStream() { }
+    }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
         public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
@@ -2580,7 +2589,7 @@ namespace NServiceBus.Transport
             "ion, ContextBag)` instead. The member currently throws a NotImplementedException" +
             ". Will be removed in version 9.0.0.", true)]
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
-        public byte[] Body { get; }
+        public NServiceBus.Transport.MessageBody Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         [System.Obsolete("Use `NativeMessageId` instead. Will be removed in version 9.0.0.", true)]

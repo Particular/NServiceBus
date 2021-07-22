@@ -26,7 +26,7 @@
                 {
                     {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
                 },
-                new byte[0]));
+                new MessageBody(new byte[0])));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
@@ -48,7 +48,7 @@
             context.Extensions.Set(new IncomingMessage(
                 "id",
                 new Dictionary<string, string>(),
-                new byte[0]));
+                new MessageBody(new byte[0])));
 
             Assert.That(async () => await behavior.Invoke(context, _ => Task.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains(typeof(MyReply).FullName));
         }

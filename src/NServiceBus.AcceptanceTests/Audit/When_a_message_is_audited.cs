@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -26,7 +27,7 @@
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
         }
 
-        public static byte Checksum(byte[] data)
+        public static byte Checksum(IReadOnlyCollection<byte> data)
         {
             var longSum = data.Sum(x => (long)x);
             return unchecked((byte)longSum);
@@ -65,13 +66,10 @@
                     testContext.OriginalBodyChecksum = Checksum(originalBody);
 
                     // modifying the body by adding a line break
-                    var modifiedBody = new byte[originalBody.Length + 1];
-
-                    Buffer.BlockCopy(originalBody, 0, modifiedBody, 0, originalBody.Length);
-
+                    var modifiedBody = originalBody.Concat(new byte[1]).ToArray();
                     modifiedBody[modifiedBody.Length - 1] = 13;
 
-                    context.Body = modifiedBody;
+                    context.UpdateMessage(modifiedBody);
                     return Task.FromResult(0);
                 }
 

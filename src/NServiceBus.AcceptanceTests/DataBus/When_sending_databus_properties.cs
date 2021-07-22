@@ -82,7 +82,7 @@
             {
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    if (context.Body.Length > PayloadSize)
+                    if (context.Body.Count > PayloadSize)
                     {
                         throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
                     }

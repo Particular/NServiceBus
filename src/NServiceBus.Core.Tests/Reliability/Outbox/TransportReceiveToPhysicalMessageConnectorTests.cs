@@ -106,7 +106,7 @@
         {
             var context = new TestableTransportReceiveContext
             {
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new byte[0])
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new MessageBody(new byte[0]))
             };
 
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));

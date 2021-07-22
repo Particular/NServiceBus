@@ -30,7 +30,7 @@
             TransportTransaction = transportTransaction;
             ImmediateProcessingFailures = immediateProcessingFailures;
 
-            Message = new IncomingMessage(nativeMessageId, headers, body);
+            Message = new IncomingMessage(nativeMessageId, headers, new MessageBody(body));
 
             DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
             Extensions = context;

@@ -17,9 +17,7 @@
         {
             await next(context).ConfigureAwait(false);
 
-            context.Message.RevertToOriginalBodyIfNeeded();
-
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
+            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.OriginalMessageBody.CreateCopy());
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
 
