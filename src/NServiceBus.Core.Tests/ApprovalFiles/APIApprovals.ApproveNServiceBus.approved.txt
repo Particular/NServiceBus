@@ -2580,6 +2580,7 @@ namespace NServiceBus.Transport
         public int Count { get; }
         public byte[] CreateCopy() { }
         public System.Collections.Generic.IEnumerator<byte> GetEnumerator() { }
+        public System.IO.Stream GetStream() { }
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {

@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
 
     /// <summary>
     /// A reference to a read-only message body.
@@ -37,5 +38,10 @@
             Buffer.BlockCopy(Bytes, 0, copy, 0, Bytes.Length);
             return copy;
         }
+
+        /// <summary>
+        /// Returns a stream of the message body.
+        /// </summary>
+        public Stream GetStream() => new MemoryStream(Bytes);
     }
 }
