@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Logging;
@@ -28,7 +27,7 @@ namespace NServiceBus
 
             if (context.ShouldSkipSerialization())
             {
-                await stage(this.CreateOutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
+                await stage(this.CreateOutgoingPhysicalMessageContext(ReadOnlyMemory<byte>.Empty, context.RoutingStrategies, context)).ConfigureAwait(false);
                 return;
             }
 
@@ -39,7 +38,7 @@ namespace NServiceBus
             try
             {
                 messageSerializer.Serialize(context.Message.Instance, stream);
-                if(!stream.TryGetBuffer(out var buffer))
+                if (!stream.TryGetBuffer(out var buffer))
                 {
                     throw new InvalidOperationException("Serialization stream buffer could not be acquired.");
                 }
