@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using MessageMutator;
     using NUnit.Framework;
 
@@ -72,7 +71,10 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.OutgoingBody[0]--;
+                    var updatedBody = context.OutgoingBody.ToArray();
+                    updatedBody[0]--;
+
+                    context.OutgoingBody = new ReadOnlyMemory<byte>(updatedBody);
                     return Task.FromResult(0);
                 }
 

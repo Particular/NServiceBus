@@ -63,7 +63,7 @@
             {
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    var body = Encoding.UTF8.GetString(context.Body.Span);
+                    var body = Encoding.UTF8.GetString(context.Body.ToArray());
                     var invalidChar = char.ConvertFromUtf32(0x8);
 
                     context.Body = Encoding.UTF8.GetBytes(body.Replace("Hello World!", $"{invalidChar}Hello {invalidChar}World!{invalidChar}"));
