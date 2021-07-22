@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Persistence;
     using Pipeline;
@@ -205,7 +206,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IOutgoingPhysicalMessageContext" /> based on the current context.
         /// </summary>
-        public static IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext> stageConnector, byte[] messageBody, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingLogicalMessageContext sourceContext)
+        public static IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext> stageConnector, ReadOnlyMemory<byte> messageBody, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingLogicalMessageContext sourceContext)
         {
             Guard.AgainstNull(nameof(messageBody), messageBody);
             Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
