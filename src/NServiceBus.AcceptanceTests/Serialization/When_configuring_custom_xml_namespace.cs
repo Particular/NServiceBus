@@ -66,7 +66,7 @@
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    var document = XDocument.Parse(Encoding.UTF8.GetString(context.Body.Span));
+                    var document = XDocument.Parse(Encoding.UTF8.GetString(context.Body.ToArray()));
                     var defaultNamespace = document.Root?.GetDefaultNamespace();
                     scenarioContext.MessageNamespace = defaultNamespace?.NamespaceName;
                     return Task.FromResult(0);

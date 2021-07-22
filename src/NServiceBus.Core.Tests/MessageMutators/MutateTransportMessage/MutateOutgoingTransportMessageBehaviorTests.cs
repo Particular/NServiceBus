@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateTransportMessage
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
@@ -125,7 +126,7 @@
         {
             public bool UpdateMessageCalled { get; private set; }
 
-            public override void UpdateMessage(byte[] body)
+            public override void UpdateMessage(ReadOnlyMemory<byte> body)
             {
                 base.UpdateMessage(body);
 
