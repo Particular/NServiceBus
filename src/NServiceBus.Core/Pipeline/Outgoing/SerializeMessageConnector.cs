@@ -35,12 +35,17 @@ namespace NServiceBus
             context.Headers[Headers.ContentType] = messageSerializer.ContentType;
             context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
 
-            var streamPool = streamPools.GetOrAdd(context.Message.MessageType, type => new StreamPool());
             var stream = streamPool.Get();
             try
             {
                 messageSerializer.Serialize(context.Message.Instance, stream);
-                await stage(this.CreateOutgoingPhysicalMessageContext(stream.GetBuffer(), context.RoutingStrategies, context)).ConfigureAwait(false);
+                if(!stream.TryGetBuffer(out var buffer))
+                {
+                    throw new InvalidOperationException("Serialization stream buffer could not be acquired.");
+                }
+
+                var body = buffer.AsMemory(0, (int)stream.Position);
+                await stage(this.CreateOutgoingPhysicalMessageContext(body, context.RoutingStrategies, context)).ConfigureAwait(false);
             }
             finally
             {
@@ -69,7 +74,7 @@ namespace NServiceBus
 
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageSerializer messageSerializer;
-        readonly ConcurrentDictionary<Type, StreamPool> streamPools = new ConcurrentDictionary<Type, StreamPool>();
+        readonly StreamPool streamPool = new StreamPool();
 
         static readonly ILog log = LogManager.GetLogger<SerializeMessageConnector>();
     }

@@ -1,12 +1,14 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Concurrent;
     using System.IO;
 
     class StreamPool
     {
+        [ThreadStatic]
         readonly ConcurrentBag<MemoryStream> pool = new ConcurrentBag<MemoryStream>();
-        long startCapacity;
+        long startCapacity = 2048;
         const int MaxSizeLimit = 1024 * 16; //16KB
         public MemoryStream Get()
         {
@@ -26,6 +28,8 @@
                 {
                     startCapacity = position;
                 }
+
+                instance.Position = 0;
                 pool.Add(instance);
             }
             // MemoryStreams do not need to be disposed.
