@@ -1,5 +1,6 @@
 namespace NServiceBus.TransportTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -26,7 +27,7 @@ namespace NServiceBus.TransportTests
 
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
-            Assert.AreEqual(new byte[] { 1, 2, 3 }, messageContext.Body, "Should pass the body");
+            Assert.AreEqual(new byte[] { 1, 2, 3 }, messageContext.Body.ToArray(), "Should pass the body");
         }
     }
 }
