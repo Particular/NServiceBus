@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
@@ -34,21 +35,16 @@ namespace NServiceBus
             context.Headers[Headers.ContentType] = messageSerializer.ContentType;
             context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
 
-            var stream = streamPool.Get();
-            try
-            {
-                messageSerializer.Serialize(context.Message.Instance, stream);
-                if (!stream.TryGetBuffer(out var buffer))
-                {
-                    throw new InvalidOperationException("Serialization stream buffer could not be acquired.");
-                }
+            var array = Serialize(context);
+            await stage(this.CreateOutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
+        }
 
-                var body = buffer.AsMemory(0, (int)stream.Position);
-                await stage(this.CreateOutgoingPhysicalMessageContext(body, context.RoutingStrategies, context)).ConfigureAwait(false);
-            }
-            finally
+        byte[] Serialize(IOutgoingLogicalMessageContext context)
+        {
+            using (var ms = new MemoryStream())
             {
-                streamPool.Return(stream);
+                messageSerializer.Serialize(context.Message.Instance, ms);
+                return ms.ToArray();
             }
         }
 
@@ -73,9 +69,7 @@ namespace NServiceBus
 
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageSerializer messageSerializer;
-        readonly StreamPool streamPool = new StreamPool();
 
         static readonly ILog log = LogManager.GetLogger<SerializeMessageConnector>();
     }
 }
-
