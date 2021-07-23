@@ -120,7 +120,7 @@ namespace NServiceBus
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPublishContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPublishContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingReplyContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingReplyContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingSendContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingSendContext sourceContext) { }
-        public static NServiceBus.Pipeline.IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingLogicalMessageContext, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext> stageConnector, byte[] messageBody, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingLogicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingLogicalMessageContext, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext> stageConnector, System.ReadOnlyMemory<byte> messageBody, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingLogicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IRoutingContext> forkConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, string localAddress, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IAuditContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IAuditContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IForwardingContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IForwardingContext sourceContext) { }
@@ -1421,8 +1421,8 @@ namespace NServiceBus.Faults
 {
     public class DelayedRetryMessage
     {
-        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
+        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, System.Exception exception, int retryAttempt) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
@@ -1449,8 +1449,8 @@ namespace NServiceBus.Faults
     }
     public class FailedMessage
     {
-        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, string errorQueue) { }
-        public byte[] Body { get; }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, System.Exception exception, string errorQueue) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public string ErrorQueue { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -1462,8 +1462,8 @@ namespace NServiceBus.Faults
     }
     public class ImmediateRetryMessage
     {
-        public ImmediateRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
+        public ImmediateRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, System.Exception exception, int retryAttempt) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
@@ -1737,8 +1737,8 @@ namespace NServiceBus.MessageMutator
     }
     public class MutateIncomingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
-        public byte[] Body { get; set; }
+        public MutateIncomingTransportMessageContext(System.ReadOnlyMemory<byte> body, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.ReadOnlyMemory<byte> Body { get; set; }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
     }
@@ -1753,9 +1753,9 @@ namespace NServiceBus.MessageMutator
     }
     public class MutateOutgoingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
+        public MutateOutgoingTransportMessageContext(System.ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
-        public byte[] OutgoingBody { get; set; }
+        public System.ReadOnlyMemory<byte> OutgoingBody { get; set; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
@@ -1848,8 +1848,8 @@ namespace NServiceBus.Outbox
     public interface OutboxTransaction { }
     public class TransportOperation
     {
-        public TransportOperation(string messageId, NServiceBus.Transport.DispatchProperties properties, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
-        public byte[] Body { get; }
+        public TransportOperation(string messageId, NServiceBus.Transport.DispatchProperties properties, System.ReadOnlyMemory<byte> body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public NServiceBus.Transport.DispatchProperties Options { get; }
@@ -1951,7 +1951,7 @@ namespace NServiceBus.Pipeline
     public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         NServiceBus.Transport.IncomingMessage Message { get; }
-        void UpdateMessage(byte[] body);
+        void UpdateMessage(System.ReadOnlyMemory<byte> body);
     }
     public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
@@ -1974,9 +1974,9 @@ namespace NServiceBus.Pipeline
     }
     public interface IOutgoingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
-        byte[] Body { get; }
+        System.ReadOnlyMemory<byte> Body { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
-        void UpdateMessage(byte[] body);
+        void UpdateMessage(System.ReadOnlyMemory<byte> body);
     }
     public interface IOutgoingPublishContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
@@ -2571,8 +2571,8 @@ namespace NServiceBus.Transport
     }
     public class IncomingMessage
     {
-        public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
-        public byte[] Body { get; }
+        public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public string NativeMessageId { get; }
@@ -2590,12 +2590,12 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, byte[], TransportTransact" +
             "ion, ContextBag)` instead. The member currently throws a NotImplementedException" +
             ". Will be removed in version 9.0.0.", true)]
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
-        public byte[] Body { get; }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         [System.Obsolete("Use `NativeMessageId` instead. Will be removed in version 9.0.0.", true)]
@@ -2646,8 +2646,8 @@ namespace NServiceBus.Transport
     }
     public class OutgoingMessage
     {
-        public OutgoingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
-        public byte[] Body { get; }
+        public OutgoingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
     }
