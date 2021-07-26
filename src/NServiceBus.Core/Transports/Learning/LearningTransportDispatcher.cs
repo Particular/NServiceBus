@@ -70,8 +70,7 @@ namespace NServiceBus
 
             var bodyPath = Path.Combine(bodyDir, nativeMessageId) + LearningTransportMessagePump.BodyFileSuffix;
 
-            //TODO: better memory management for the buffer
-            await AsyncFile.WriteBytes(bodyPath, message.Body.ToArray(), cancellationToken)
+            await AsyncFile.WriteBytes(bodyPath, message.Body, cancellationToken)
                 .ConfigureAwait(false);
 
             DateTimeOffset? timeToDeliver = null;

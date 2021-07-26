@@ -11,11 +11,15 @@ namespace NServiceBus
     {
         static readonly ILog log = LogManager.GetLogger(typeof(AsyncFile));
 
-        public static async Task WriteBytes(string filePath, byte[] bytes, CancellationToken cancellationToken = default)
+        public static async Task WriteBytes(string filePath, ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken = default)
         {
             using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
+#if NETSTANDARD2_1
                 await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+#else
+                await stream.WriteAsync(bytes.ToArray(), 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+#endif
             }
         }
 
