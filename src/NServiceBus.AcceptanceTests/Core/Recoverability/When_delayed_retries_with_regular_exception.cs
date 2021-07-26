@@ -59,8 +59,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     var decryptedBody = new byte[originalBody.Length];
 
-                    //TODO: Fix the test
-                    //Buffer.BlockCopy(originalBody, 0, decryptedBody, 0, originalBody.Length);
+                    Buffer.BlockCopy(originalBody.ToArray(), 0, decryptedBody, 0, originalBody.Length);
 
                     //decrypt
                     decryptedBody[0]++;
