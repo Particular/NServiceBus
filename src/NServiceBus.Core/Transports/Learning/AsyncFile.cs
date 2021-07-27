@@ -16,7 +16,7 @@ namespace NServiceBus
             using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
 #if NETSTANDARD2_1
-                await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
 #else
                 await stream.WriteAsync(bytes.ToArray(), 0, bytes.Length, cancellationToken).ConfigureAwait(false);
 #endif
