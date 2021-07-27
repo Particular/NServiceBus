@@ -23,7 +23,7 @@
 </Messages>
 ";
 
-            using (Stream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 var writer = new StreamWriter(stream);
                 writer.Write(xml);
@@ -31,7 +31,7 @@
                 stream.Position = 0;
 
                 var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(FirstMessage), typeof(SecondMessage));
-                var messageDeserialized = serializer.Deserialize(stream);
+                var messageDeserialized = serializer.Deserialize(stream.ToArray());
                 Assert.IsInstanceOf<FirstMessage>(messageDeserialized[0]);
                 Assert.IsInstanceOf<SecondMessage>(messageDeserialized[1]);
                 Assert.IsInstanceOf<SecondMessage>(messageDeserialized[2]);

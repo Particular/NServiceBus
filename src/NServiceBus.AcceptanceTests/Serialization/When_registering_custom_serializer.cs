@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
+    using System.Xml.Serialization;
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
@@ -91,19 +92,21 @@
                 serializer.Serialize(stream, message);
             }
 
-            public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
+            public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
             {
-                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
-
-                stream.Position = 0;
-                var msg = serializer.Deserialize(stream);
-
-                context.DeserializeCalled = true;
-
-                return new[]
+                using (var stream = new MemoryStream(body.ToArray()))
                 {
-                    msg
-                };
+                    var serializer = new XmlSerializer(typeof(MyRequest));
+
+                    var msg = serializer.Deserialize(stream);
+
+                    context.DeserializeCalled = true;
+
+                    return new[]
+                    {
+                        msg
+                    };
+                }
             }
 
             public string ContentType => "MyCustomSerializer";

@@ -2337,7 +2337,7 @@ namespace NServiceBus.Serialization
     public interface IMessageSerializer
     {
         string ContentType { get; }
-        object[] Deserialize(System.IO.Stream stream, System.Collections.Generic.IList<System.Type> messageTypes = null);
+        object[] Deserialize(System.ReadOnlyMemory<byte> body, System.Collections.Generic.IList<System.Type> messageTypes = null);
         void Serialize(object message, System.IO.Stream stream);
     }
     public abstract class SerializationDefinition

@@ -55,7 +55,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             var serializer = SerializerFactory.Create<MessageWithArray>();
 
-            var messages = serializer.Deserialize(new MemoryStream(data));
+            var messages = serializer.Deserialize(data);
 
             Assert.NotNull(messages);
             Assert.That(messages, Has.Length.EqualTo(1));
@@ -149,13 +149,10 @@ namespace NServiceBus.Serializers.XML.Test
 ";
             var data = Encoding.UTF8.GetBytes(xml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
-                var result = (MessageWithNullableArray)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
+            var result = (MessageWithNullableArray)msgArray[0];
 
-                Assert.AreEqual(null, result.SomeInts[0]);
-            }
+            Assert.AreEqual(null, result.SomeInts[0]);
         }
 
         [Test]
@@ -171,13 +168,10 @@ namespace NServiceBus.Serializers.XML.Test
 ";
             var data = Encoding.UTF8.GetBytes(xml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
-                var result = (MessageWithNullableArray)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
+            var result = (MessageWithNullableArray)msgArray[0];
 
-                Assert.AreEqual(null, result.SomeInts[0]);
-            }
+            Assert.AreEqual(null, result.SomeInts[0]);
         }
 
         [Test]
@@ -192,13 +186,10 @@ namespace NServiceBus.Serializers.XML.Test
 ";
             var data = Encoding.UTF8.GetBytes(xml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
-                var result = (MessageWithNullableArray)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
+            var result = (MessageWithNullableArray)msgArray[0];
 
-                Assert.IsFalse(result.SomeInts.Any());
-            }
+            Assert.IsFalse(result.SomeInts.Any());
         }
 
         [Test]
@@ -213,14 +204,11 @@ namespace NServiceBus.Serializers.XML.Test
 ";
             var data = Encoding.UTF8.GetBytes(xml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
-                var result = (MessageWithNullableArray)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
+            var result = (MessageWithNullableArray)msgArray[0];
 
-                Assert.NotNull(result.SomeInts);
-                Assert.AreEqual(0, result.SomeInts.Length);
-            }
+            Assert.NotNull(result.SomeInts);
+            Assert.AreEqual(0, result.SomeInts.Length);
         }
 
         [Test]
@@ -237,13 +225,10 @@ namespace NServiceBus.Serializers.XML.Test
 ";
             var data = Encoding.UTF8.GetBytes(xml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
-                var result = (MessageWithNullableArray)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
+            var result = (MessageWithNullableArray)msgArray[0];
 
-                Assert.AreEqual(null, result.SomeInts[0]);
-            }
+            Assert.AreEqual(null, result.SomeInts[0]);
         }
 
         [Test]

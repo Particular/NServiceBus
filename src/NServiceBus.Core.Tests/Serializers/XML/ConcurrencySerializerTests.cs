@@ -27,7 +27,7 @@ namespace NServiceBus.Serializers.XML.Test
                                               serializer.Serialize(expected, stream);
                                               stream.Position = 0;
 
-                                              var msgArray = serializer.Deserialize(stream);
+                                              var msgArray = serializer.Deserialize(stream.ToArray());
                                               result = (RequestDataMessage)msgArray[0];
                                           }
 

@@ -98,13 +98,10 @@ namespace NServiceBus.Serializers.XML.Test
 
             var data = Encoding.UTF8.GetBytes(messageXml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullable>().Deserialize(stream, new[] { typeof(MessageWithNullable) });
-                var result = (MessageWithNullable)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullable>().Deserialize(data, new[] { typeof(MessageWithNullable) });
+            var result = (MessageWithNullable)msgArray[0];
 
-                Assert.AreEqual(null, result.BirthDate);
-            }
+            Assert.AreEqual(null, result.BirthDate);
         }
 
         [Test]
@@ -121,13 +118,10 @@ namespace NServiceBus.Serializers.XML.Test
 
             var data = Encoding.UTF8.GetBytes(messageXml);
 
-            using (var stream = new MemoryStream(data))
-            {
-                var msgArray = SerializerFactory.Create<MessageWithNullable>().Deserialize(stream, new[] { typeof(MessageWithNullable) });
-                var result = (MessageWithNullable)msgArray[0];
+            var msgArray = SerializerFactory.Create<MessageWithNullable>().Deserialize(data, new[] { typeof(MessageWithNullable) });
+            var result = (MessageWithNullable)msgArray[0];
 
-                Assert.AreEqual(null, result.BirthDate);
-            }
+            Assert.AreEqual(null, result.BirthDate);
         }
     }
 }

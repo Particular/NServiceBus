@@ -115,19 +115,21 @@
                 serializer.Serialize(stream, message);
             }
 
-            public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
+            public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
             {
-                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
-
-                stream.Position = 0;
-                var msg = serializer.Deserialize(stream);
-                context.DeserializeCalled = true;
-                context.ValueFromSettings = valueFromSettings;
-
-                return new[]
+                using (var stream = new MemoryStream(body.ToArray()))
                 {
-                    msg
-                };
+                    var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
+
+                    var msg = serializer.Deserialize(stream);
+                    context.DeserializeCalled = true;
+                    context.ValueFromSettings = valueFromSettings;
+
+                    return new[]
+                    {
+                        msg
+                    };
+                }
             }
 
             public string ContentType => "MyCustomSerializer";
