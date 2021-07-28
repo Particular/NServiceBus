@@ -36,7 +36,7 @@ namespace NServiceBus
         ///     cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, CancellationToken, Task})" />
         /// .
         /// </summary>
-        public virtual void Raise(string errorMessage, Exception exception = null, CancellationToken cancellationToken = default)
+        public virtual void Raise(string errorMessage, Exception exception = default, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNullAndEmpty(nameof(errorMessage), errorMessage);
             var logger = LogManager.GetLogger("NServiceBus");
