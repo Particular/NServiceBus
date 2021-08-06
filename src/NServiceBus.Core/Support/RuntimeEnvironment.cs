@@ -24,7 +24,7 @@
         /// Get the machine name, allows for overrides.
         /// </summary>
         [ObsoleteEx(
-            ReplacementTypeOrMember = "HostInfoSettings.OverrideHostName",
+            ReplacementTypeOrMember = "HostInfoSettings.UsingHostName",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static Func<string> MachineNameAction { get; set; }
