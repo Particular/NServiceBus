@@ -15,7 +15,7 @@
         /// <param name="settings">The configuration settings for the endpoint.</param>
         /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
         /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
-        public static bool TryGetAuditQueueAddress(this ReadOnlySettings settings, out string address)
+        public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, out string address)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -38,7 +38,7 @@
         /// <param name="settings">The configuration settings for the endpoint.</param>
         /// <param name="auditMessageExpiration">When this method returns, contains the audit message expiration time span, if it has been configured, or TimeSpan.Zero if has not.</param>
         /// <returns>True if an audit message expiration time span is configured; otherwise, false.</returns>
-        public static bool TryGetAuditMessageExpiration(this ReadOnlySettings settings, out TimeSpan auditMessageExpiration)
+        public static bool TryGetAuditMessageExpiration(this IReadOnlySettings settings, out TimeSpan auditMessageExpiration)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -54,7 +54,7 @@
             return true;
         }
 
-        internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
+        internal static Result GetConfiguredAuditQueue(IReadOnlySettings settings)
         {
             return settings.TryGet(out Result configResult) ? configResult : null;
         }

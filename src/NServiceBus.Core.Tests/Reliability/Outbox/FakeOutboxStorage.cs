@@ -22,7 +22,7 @@
             return Task.FromResult(default(OutboxMessage));
         }
 
-        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options, CancellationToken cancellationToken = default)
+        public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag options, CancellationToken cancellationToken = default)
         {
             StoredMessage = message;
             return Task.CompletedTask;
@@ -34,7 +34,7 @@
             return Task.CompletedTask;
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
+        public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
         {
             throw new System.NotImplementedException();
         }

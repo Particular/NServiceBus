@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
         public class Context : ScenarioContext
         {
             public bool FinderUsed { get; set; }
-            public ReadOnlyContextBag ContextBag { get; set; }
+            public IReadOnlyContextBag ContextBag { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -53,7 +53,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                     this.testContext = testContext;
                 }
 
-                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     testContext.ContextBag = context;
                     testContext.FinderUsed = true;

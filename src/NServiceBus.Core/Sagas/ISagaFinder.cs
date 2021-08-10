@@ -15,6 +15,6 @@ namespace NServiceBus.Sagas
         /// Finds a saga entity of the type <typeparamref name="TSagaData"/> using a message of type <typeparamref name="TMessage"/>.
         /// </summary>
         /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task&lt;T&gt; or mark the method as <code>async</code>.</exception>
-        Task<TSagaData> FindBy(TMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default);
+        Task<TSagaData> FindBy(TMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default);
     }
 }

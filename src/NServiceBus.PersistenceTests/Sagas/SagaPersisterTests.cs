@@ -39,7 +39,7 @@
             }
         }
 
-        protected async Task SaveSagaWithSession<TSagaData>(TSagaData saga, CompletableSynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
+        protected async Task SaveSagaWithSession<TSagaData>(TSagaData saga, ICompletableSynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
             where TSagaData : class, IContainSagaData, new()
         {
             SetupNewSaga(saga);

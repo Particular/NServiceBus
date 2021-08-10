@@ -36,7 +36,7 @@
         /// Gets the synchronized storage session for processing the current message. NServiceBus makes sure the changes made
         /// via this session will be persisted before the message receive is acknowledged.
         /// </summary>
-        public SynchronizedStorageSession SynchronizedStorageSession { get; set; }
+        public ISynchronizedStorageSession SynchronizedStorageSession { get; set; }
 
         /// <summary>
         /// The current <see cref="T:NServiceBus.IHandleMessages`1" /> being executed.

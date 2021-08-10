@@ -7,9 +7,9 @@ namespace NServiceBus.AcceptanceTesting
 
     class AcceptanceTestingSynchronizedStorage : ISynchronizedStorage
     {
-        public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
         {
-            var session = (CompletableSynchronizedStorageSession)new AcceptanceTestingSynchronizedStorageSession();
+            var session = (ICompletableSynchronizedStorageSession)new AcceptanceTestingSynchronizedStorageSession();
             return Task.FromResult(session);
         }
     }

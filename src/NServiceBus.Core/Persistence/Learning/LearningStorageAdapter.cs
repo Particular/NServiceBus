@@ -9,14 +9,14 @@
 
     class LearningStorageAdapter : ISynchronizedStorageAdapter
     {
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> TryAdapt(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<CompletableSynchronizedStorageSession>(null);
+            return Task.FromResult<ICompletableSynchronizedStorageSession>(null);
         }
 
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<CompletableSynchronizedStorageSession>(null);
+            return Task.FromResult<ICompletableSynchronizedStorageSession>(null);
         }
     }
 }

@@ -21,7 +21,7 @@
         /// <summary>
         /// Stores the outbox message to enable deduplication an re-dispatching of related transport operations.
         /// </summary>
-        Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
+        Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Tells the storage that the message has been dispatched and its now safe to clean up the transport operations.
@@ -29,11 +29,11 @@
         Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Creates the <see cref="OutboxTransaction" />.
+        /// Creates the <see cref="IOutboxTransaction" />.
         /// </summary>
         /// <param name="context">The current pipeline context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>The created outbox transaction.</returns>
-        Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default);
+        Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default);
     }
 }

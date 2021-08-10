@@ -50,7 +50,7 @@
                     this.sagaPersister = sagaPersister;
                 }
 
-                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     testContext.FinderUsed = true;
                     var sagaData = await sagaPersister.Get<TestSaga08.SagaData08>(message.SagaId, storageSession, (ContextBag)context, cancellationToken).ConfigureAwait(false);

@@ -65,9 +65,9 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
             public class MyCommandHandler : IHandleMessages<MyCommand>
             {
                 Context testContext;
-                ReadOnlySettings settings;
+                IReadOnlySettings settings;
 
-                public MyCommandHandler(Context context, ReadOnlySettings settings)
+                public MyCommandHandler(Context context, IReadOnlySettings settings)
                 {
                     this.settings = settings;
                     testContext = context;

@@ -292,7 +292,7 @@
 
             public class Finder : ISagaFinder<SagaData, StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -324,7 +324,7 @@
 
             public class Finder : ISagaFinder<SagaData, StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -357,7 +357,7 @@
 
             public class Finder : ISagaFinder<SagaData, StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -638,7 +638,7 @@
 
             internal class CustomFinder : ISagaFinder<SagaData, SomeMessage>
             {
-                public Task<SagaData> FindBy(SomeMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<SagaData> FindBy(SomeMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -733,7 +733,7 @@
 
             public class Finder : ISagaFinder<SagaData, OtherMessage>
             {
-                public Task<SagaData> FindBy(OtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<SagaData> FindBy(OtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     return Task.FromResult(default(SagaData));
                 }

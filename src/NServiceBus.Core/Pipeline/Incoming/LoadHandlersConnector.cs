@@ -25,7 +25,7 @@
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
-            var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
+            var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
             using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false))
             {
@@ -60,7 +60,7 @@
             }
         }
 
-        async Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag, CancellationToken cancellationToken)
+        async Task<ICompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, IOutboxTransaction outboxTransaction, ContextBag contextBag, CancellationToken cancellationToken)
         {
             return await adapter.TryAdapt(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false)
                    ?? await adapter.TryAdapt(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false)

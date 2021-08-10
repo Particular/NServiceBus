@@ -8,7 +8,7 @@ namespace NServiceBus
     using Persistence;
 
     [SkipWeaving]
-    class LearningSynchronizedStorageSession : CompletableSynchronizedStorageSession
+    class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
         public LearningSynchronizedStorageSession(SagaManifestCollection sagaManifests)
         {

@@ -13,7 +13,7 @@
     public class FeatureConfigurationContext
     {
         internal FeatureConfigurationContext(
-            ReadOnlySettings settings,
+            IReadOnlySettings settings,
             IServiceCollection container,
             PipelineSettings pipelineSettings,
             RoutingComponent.Configuration routing,
@@ -31,7 +31,7 @@
         /// <summary>
         /// A read only copy of the settings.
         /// </summary>
-        public ReadOnlySettings Settings { get; }
+        public IReadOnlySettings Settings { get; }
 
         /// <summary>
         /// Access to the container to allow for registrations.

@@ -34,7 +34,7 @@ namespace NServiceBus
 
             var pipelineSettings = settings.Get<PipelineSettings>();
 
-            hostingConfiguration.Services.AddSingleton(typeof(ReadOnlySettings), settings);
+            hostingConfiguration.Services.AddSingleton(typeof(IReadOnlySettings), settings);
 
             featureComponent = new FeatureComponent(settings);
 

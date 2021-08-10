@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Persistence;
 
-    public class FakeSynchronizedStorageSession : CompletableSynchronizedStorageSession
+    public class FakeSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
         public FakeSynchronizedStorageSession(FakeTransaction transaction)
         {

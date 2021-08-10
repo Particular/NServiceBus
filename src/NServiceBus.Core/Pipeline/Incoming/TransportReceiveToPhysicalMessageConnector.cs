@@ -36,7 +36,7 @@ namespace NServiceBus
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
-                    context.Extensions.Remove<OutboxTransaction>();
+                    context.Extensions.Remove<IOutboxTransaction>();
                     await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
                 }
 

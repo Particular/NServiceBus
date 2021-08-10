@@ -240,7 +240,7 @@
                 //since we have a saga id available we can now shortcut the finders and just load the saga
                 var loaderType = typeof(LoadSagaByIdWrapper<>).MakeGenericType(sagaEntityType);
 
-                var loader = (SagaLoader)Activator.CreateInstance(loaderType);
+                var loader = (ISagaLoader)Activator.CreateInstance(loaderType);
 
                 return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken);
             }

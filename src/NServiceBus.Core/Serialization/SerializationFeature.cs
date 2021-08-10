@@ -72,7 +72,7 @@
             });
         }
 
-        static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, ReadOnlySettings mainSettings)
+        static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, IReadOnlySettings mainSettings)
         {
             var definition = definitionAndSettings.Item1;
             var deserializerSettings = definitionAndSettings.Item2;

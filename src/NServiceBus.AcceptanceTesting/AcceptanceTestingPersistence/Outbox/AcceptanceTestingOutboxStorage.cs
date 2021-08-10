@@ -19,12 +19,12 @@
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
+        public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<OutboxTransaction>(new AcceptanceTestingOutboxTransaction());
+            return Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
         }
 
-        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             var tx = (AcceptanceTestingOutboxTransaction)transaction;
             tx.Enlist(() =>

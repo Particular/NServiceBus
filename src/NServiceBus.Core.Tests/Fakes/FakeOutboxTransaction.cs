@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Outbox;
 
-    public class FakeOutboxTransaction : OutboxTransaction
+    public class FakeOutboxTransaction : IOutboxTransaction
     {
         public FakeOutboxTransaction()
         {

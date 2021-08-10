@@ -7,7 +7,7 @@ namespace NServiceBus.Settings
     /// <summary>
     /// Setting container.
     /// </summary>
-    public partial class SettingsHolder : ReadOnlySettings
+    public partial class SettingsHolder : IReadOnlySettings
     {
         /// <summary>
         /// Gets the given setting by key.
@@ -257,7 +257,7 @@ namespace NServiceBus.Settings
             locked = true;
         }
 
-        internal void Merge(ReadOnlySettings settings)
+        internal void Merge(IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 

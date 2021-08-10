@@ -12,7 +12,7 @@
             return NoOutboxMessageTask;
         }
 
-        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options, CancellationToken cancellationToken = default)
+        public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag options, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }
@@ -22,9 +22,9 @@
             return Task.CompletedTask;
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
+        public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
+            return Task.FromResult<IOutboxTransaction>(new NoOpOutboxTransaction());
         }
 
         static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null);

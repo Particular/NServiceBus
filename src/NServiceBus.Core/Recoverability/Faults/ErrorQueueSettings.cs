@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <param name="settings">The configuration settings of this endpoint.</param>
         /// <returns>The configured error queue of the endpoint.</returns>
         /// <exception cref="Exception">When the configuration for the endpoint is invalid.</exception>
-        public static string ErrorQueueAddress(this ReadOnlySettings settings)
+        public static string ErrorQueueAddress(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -36,7 +36,7 @@ namespace NServiceBus
         /// <param name="errorQueue">The configured error queue.</param>
         /// <returns>True if an error queue has been explicitly configured.</returns>
         /// <exception cref="Exception">When the configuration for the endpoint is invalid.</exception>
-        public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this ReadOnlySettings settings, out string errorQueue)
+        public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this IReadOnlySettings settings, out string errorQueue)
         {
             Guard.AgainstNull(nameof(settings), settings);
             if (settings.HasExplicitValue(SettingsKey))

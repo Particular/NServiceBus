@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Outbox;
 
-    class AcceptanceTestingOutboxTransaction : OutboxTransaction
+    class AcceptanceTestingOutboxTransaction : IOutboxTransaction
     {
         public AcceptanceTestingOutboxTransaction()
         {

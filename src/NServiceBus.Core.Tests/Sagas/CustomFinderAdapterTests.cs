@@ -66,7 +66,7 @@
 
     class ReturnsNullFinder : ISagaFinder<TestSaga.SagaData, StartSagaMessage>
     {
-        public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+        public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
         {
             return null;
         }

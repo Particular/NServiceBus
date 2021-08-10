@@ -40,14 +40,14 @@
                 });
             }
 
-            public class ResponseHandler : IHandleMessages<MyReply>
+            public class ResponseHandler : IHandleMessages<IMyReply>
             {
                 public ResponseHandler(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.SendingEndpointGotResponse = true;
                     return Task.FromResult(0);
@@ -64,14 +64,14 @@
                 EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My")));
             }
 
-            public class ResponseHandler : IHandleMessages<MyReply>
+            public class ResponseHandler : IHandleMessages<IMyReply>
             {
                 public ResponseHandler(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.OtherEndpointGotResponse = true;
                     return Task.FromResult(0);
@@ -86,14 +86,14 @@
             public ReplyingEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My")))
-                    .ExcludeType<MyReply>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+                    .ExcludeType<IMyReply>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
 
             public class MessageHandler : IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    return context.Reply<MyReply>(m => { });
+                    return context.Reply<IMyReply>(m => { });
                 }
             }
         }
@@ -102,9 +102,7 @@
         {
         }
 
-#pragma warning disable IDE1006 // Naming Styles
-        public interface MyReply
-#pragma warning restore IDE1006 // Naming Styles
+        public interface IMyReply
         {
         }
     }

@@ -11,7 +11,7 @@ namespace NServiceBus.ConsistencyGuarantees
         /// <summary>
         /// Returns the transactions required by the transport.
         /// </summary>
-        public static TransportTransactionMode GetRequiredTransactionModeForReceives(this ReadOnlySettings settings)
+        public static TransportTransactionMode GetRequiredTransactionModeForReceives(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 

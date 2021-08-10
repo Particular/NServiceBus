@@ -11,29 +11,29 @@ namespace NServiceBus.AcceptanceTesting
 
     class AcceptanceTestingTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> TryAdapt(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             if (transaction is AcceptanceTestingOutboxTransaction inMemOutboxTransaction)
             {
-                CompletableSynchronizedStorageSession session = new AcceptanceTestingSynchronizedStorageSession(inMemOutboxTransaction.Transaction);
+                ICompletableSynchronizedStorageSession session = new AcceptanceTestingSynchronizedStorageSession(inMemOutboxTransaction.Transaction);
                 return Task.FromResult(session);
             }
             return EmptyTask;
         }
 
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             if (transportTransaction.TryGet(out Transaction ambientTransaction))
             {
                 var transaction = new AcceptanceTestingTransaction();
-                CompletableSynchronizedStorageSession session = new AcceptanceTestingSynchronizedStorageSession(transaction);
+                ICompletableSynchronizedStorageSession session = new AcceptanceTestingSynchronizedStorageSession(transaction);
                 ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
                 return Task.FromResult(session);
             }
             return EmptyTask;
         }
 
-        static readonly Task<CompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<CompletableSynchronizedStorageSession>(null);
+        static readonly Task<ICompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<ICompletableSynchronizedStorageSession>(null);
 
         class EnlistmentNotification : IEnlistmentNotification
         {

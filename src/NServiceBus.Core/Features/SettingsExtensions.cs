@@ -32,7 +32,7 @@
         /// <summary>
         /// Returns if a given feature has been activated in this endpoint.
         /// </summary>
-        public static bool IsFeatureActive(this ReadOnlySettings settings, Type featureType)
+        public static bool IsFeatureActive(this IReadOnlySettings settings, Type featureType)
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(featureType), featureType);
@@ -42,7 +42,7 @@
         /// <summary>
         /// Returns if a given feature has been enabled in this endpoint.
         /// </summary>
-        public static bool IsFeatureEnabled(this ReadOnlySettings settings, Type featureType)
+        public static bool IsFeatureEnabled(this IReadOnlySettings settings, Type featureType)
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(featureType), featureType);

@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTesting
     using System.Threading.Tasks;
     using Persistence;
 
-    class AcceptanceTestingSynchronizedStorageSession : CompletableSynchronizedStorageSession
+    class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
         public AcceptanceTestingSynchronizedStorageSession(AcceptanceTestingTransaction transaction)
         {

@@ -18,7 +18,7 @@
             context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
         }
 
-        static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(ReadOnlySettings settings)
+        static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(IReadOnlySettings settings)
         {
             if (settings.TryGet("CustomConversationIdStrategy", out Func<ConversationIdStrategyContext, ConversationId> idGenerator))
             {
