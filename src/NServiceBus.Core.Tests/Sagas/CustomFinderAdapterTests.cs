@@ -15,7 +15,7 @@
     public class CustomFinderAdapterTests
     {
         [Test]
-        public void Throws_friendly_exception_when_IFindSagas_FindBy_returns_null()
+        public void Throws_friendly_exception_when_ISagaFinder_FindBy_returns_null()
         {
             var availableTypes = new List<Type>
             {
