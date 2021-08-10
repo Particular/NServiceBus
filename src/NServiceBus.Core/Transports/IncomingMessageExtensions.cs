@@ -12,10 +12,10 @@ namespace NServiceBus.Transport
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns>The message intent.</returns>
-        public static MessageIntentEnum GetMessageIntent(this IncomingMessage message)
+        public static MessageIntent GetMessageIntent(this IncomingMessage message)
         {
             Guard.AgainstNull(nameof(message), message);
-            var messageIntent = default(MessageIntentEnum);
+            var messageIntent = default(MessageIntent);
 
             if (message.Headers.TryGetValue(Headers.MessageIntent, out var messageIntentString))
             {

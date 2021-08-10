@@ -46,7 +46,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 });
             }
 
-            class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
+            class CustomFinder : ISagaFinder<TestSaga07.SagaData07, StartSagaMessage>
             {
                 public CustomFinder(Context testContext)
                 {

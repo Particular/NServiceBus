@@ -7,7 +7,7 @@
 
     class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext
     {
-        public SubscriptionBehavior(Action<SubscriptionEventArgs, TContext> action, TContext scenarioContext, MessageIntentEnum intentToHandle)
+        public SubscriptionBehavior(Action<SubscriptionEvent, TContext> action, TContext scenarioContext, MessageIntent intentToHandle)
         {
             this.action = action;
             this.scenarioContext = scenarioContext;
@@ -30,13 +30,13 @@
                     endpointName = string.Empty;
                 }
 
-                var intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.Message.Headers[Headers.MessageIntent], true);
+                var intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.Message.Headers[Headers.MessageIntent], true);
                 if (intent != intentToHandle)
                 {
                     return;
                 }
 
-                action(new SubscriptionEventArgs
+                action(new SubscriptionEvent
                 {
                     MessageType = subscriptionMessageType,
                     SubscriberReturnAddress = returnAddress,
@@ -50,8 +50,8 @@
             return msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out var headerValue) ? headerValue : null;
         }
 
-        Action<SubscriptionEventArgs, TContext> action;
+        Action<SubscriptionEvent, TContext> action;
         TContext scenarioContext;
-        MessageIntentEnum intentToHandle;
+        MessageIntent intentToHandle;
     }
 }

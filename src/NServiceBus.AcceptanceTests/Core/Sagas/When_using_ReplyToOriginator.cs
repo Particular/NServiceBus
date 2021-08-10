@@ -30,13 +30,13 @@
                 .Done(c => c.CorrelationIdOnReply != null)
                 .Run();
 
-            Assert.AreEqual(MessageIntentEnum.Reply, context.Intent);
+            Assert.AreEqual(MessageIntent.Reply, context.Intent);
             Assert.AreEqual(context.OriginalCorrelationId, context.CorrelationIdOnReply, "Correlation id should be preserved so that things like callbacks work properly");
         }
 
         public class Context : ScenarioContext
         {
-            public MessageIntentEnum Intent { get; set; }
+            public MessageIntent Intent { get; set; }
             public string CorrelationIdOnReply { get; set; }
             public string OriginalCorrelationId { get; set; }
         }
@@ -96,7 +96,7 @@
 
                 public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
-                    testContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
+                    testContext.Intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.MessageHeaders[Headers.MessageIntent]);
                     testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
                     return Task.FromResult(0);
                 }

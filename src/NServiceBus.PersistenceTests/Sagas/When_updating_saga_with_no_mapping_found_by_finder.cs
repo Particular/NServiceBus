@@ -53,7 +53,7 @@
             }
         }
 
-        public class CustomFinder : IFindSagas<SagaWithoutCorrelationPropertyData>.Using<SagaWithoutCorrelationPropertyStartingMessage>
+        public class CustomFinder : ISagaFinder<SagaWithoutCorrelationPropertyData, SagaWithoutCorrelationPropertyStartingMessage>
         {
             readonly SagaWithoutCorrelationPropertyData sagaToFind;
 

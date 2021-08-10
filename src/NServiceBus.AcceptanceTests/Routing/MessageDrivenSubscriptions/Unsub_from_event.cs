@@ -8,7 +8,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
+    public class Unsub_from_event : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_no_longer_receive_event()
@@ -93,9 +93,9 @@
                    metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
             }
 
-            public class EventHandler : IHandleMessages<Event>
+            public class Handler : IHandleMessages<Event>
             {
-                public EventHandler(Context testContext)
+                public Handler(Context testContext)
                 {
                     this.testContext = testContext;
                 }
@@ -122,9 +122,9 @@
                     metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
             }
 
-            public class EventHandler : IHandleMessages<Event>
+            public class Handler : IHandleMessages<Event>
             {
-                public EventHandler(Context testContext)
+                public Handler(Context testContext)
                 {
                     this.testContext = testContext;
                 }

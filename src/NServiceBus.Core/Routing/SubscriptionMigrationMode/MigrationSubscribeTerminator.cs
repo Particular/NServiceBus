@@ -64,7 +64,7 @@
                     {
                         Logger.Debug($"Subscribing to {eventType.AssemblyQualifiedName} at publisher queue {publisherAddress}");
 
-                        var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
+                        var subscriptionMessage = ControlMessageFactory.Create(MessageIntent.Subscribe);
 
                         subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                         subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;

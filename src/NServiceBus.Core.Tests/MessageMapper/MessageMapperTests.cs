@@ -184,7 +184,7 @@
         {
             var mapper = new MessageMapper();
 
-            var messageInstance = mapper.CreateInstance<IMessageInterfaceWithNullablePropertyAttribute>();
+            var messageInstance = mapper.CreateInstance<IMessageInterfaceWithNullableProperty>();
 
             Assert.IsNotNull(messageInstance);
         }
@@ -261,12 +261,10 @@
             }
         }
 
-        public interface IMessageInterfaceWithNullablePropertyAttribute
+        public interface IMessageInterfaceWithNullableProperty
         {
             [NullableProperty(0)]
             object Value { get; set; }
         }
-
-
     }
 }

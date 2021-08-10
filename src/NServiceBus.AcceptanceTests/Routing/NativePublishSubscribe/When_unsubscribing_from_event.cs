@@ -78,9 +78,9 @@
                 EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
             }
 
-            public class EventHandler : IHandleMessages<Event>
+            public class Handler : IHandleMessages<Event>
             {
-                public EventHandler(Context testContext)
+                public Handler(Context testContext)
                 {
                     this.testContext = testContext;
                 }
@@ -103,9 +103,9 @@
                 EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
             }
 
-            public class EventHandler : IHandleMessages<Event>
+            public class Handler : IHandleMessages<Event>
             {
-                public EventHandler(Context testContext)
+                public Handler(Context testContext)
                 {
                     this.testContext = testContext;
                 }

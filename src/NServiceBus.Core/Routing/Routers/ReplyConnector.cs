@@ -19,7 +19,7 @@ namespace NServiceBus
                 replyToAddress = GetReplyToAddressFromIncomingMessage(context);
             }
 
-            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
+            context.Headers[Headers.MessageIntent] = MessageIntent.Reply.ToString();
 
             var addressLabels = new[] { new UnicastRoutingStrategy(replyToAddress) };
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context);

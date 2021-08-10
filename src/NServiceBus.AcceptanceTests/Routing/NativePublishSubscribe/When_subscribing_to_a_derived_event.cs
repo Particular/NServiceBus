@@ -60,9 +60,9 @@
                 });
             }
 
-            public class MyEventHandler : IHandleMessages<SpecificEvent>
+            public class MyHandler : IHandleMessages<SpecificEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

@@ -290,7 +290,7 @@
                 public string Property { get; set; }
             }
 
-            public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
+            public class Finder : ISagaFinder<SagaData, StartSagaMessage>
             {
                 public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
@@ -322,7 +322,7 @@
                 public string Property { get; set; }
             }
 
-            public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
+            public class Finder : ISagaFinder<SagaData, StartSagaMessage>
             {
                 public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
@@ -355,7 +355,7 @@
                 public string Property { get; set; }
             }
 
-            public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
+            public class Finder : ISagaFinder<SagaData, StartSagaMessage>
             {
                 public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
@@ -636,7 +636,7 @@
             {
             }
 
-            internal class CustomFinder : IFindSagas<SagaData>.Using<SomeMessage>
+            internal class CustomFinder : ISagaFinder<SagaData, SomeMessage>
             {
                 public Task<SagaData> FindBy(SomeMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
@@ -731,7 +731,7 @@
                 throw new NotImplementedException();
             }
 
-            public class Finder : IFindSagas<SagaData>.Using<OtherMessage>
+            public class Finder : ISagaFinder<SagaData, OtherMessage>
             {
                 public Task<SagaData> FindBy(OtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {

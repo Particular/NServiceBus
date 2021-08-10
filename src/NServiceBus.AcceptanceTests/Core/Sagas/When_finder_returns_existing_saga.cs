@@ -42,7 +42,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class CustomFinder : IFindSagas<TestSaga08.SagaData08>.Using<SomeOtherMessage>
+            public class CustomFinder : ISagaFinder<TestSaga08.SagaData08, SomeOtherMessage>
             {
                 public CustomFinder(Context testContext, ISagaPersister sagaPersister)
                 {

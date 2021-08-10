@@ -6,7 +6,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
+    public class Sub_to_base_event : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Both_base_and_specific_events_should_be_delivered()
@@ -50,9 +50,9 @@
                     metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<IBaseEvent>
+            public class MyHandler : IHandleMessages<IBaseEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

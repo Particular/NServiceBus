@@ -42,7 +42,7 @@
                 });
             }
 
-            class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
+            class CustomFinder : ISagaFinder<TestSaga06.SagaData06, StartSagaMessage>
             {
                 public CustomFinder(Context testContext)
                 {

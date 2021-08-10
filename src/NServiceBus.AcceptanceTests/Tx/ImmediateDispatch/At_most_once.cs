@@ -5,13 +5,13 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_requesting_immediate_dispatch_with_at_least_once : NServiceBusAcceptanceTest
+    public class At_most_once : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_dispatch_immediately()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<AtLeastOnceEndpoint>(b => b
+                .WithEndpoint<NonTransactionalEndpoint>(b => b
                     .When(session => session.SendLocal(new InitiatingMessage()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageDispatched)
@@ -25,13 +25,13 @@
             public bool MessageDispatched { get; set; }
         }
 
-        public class AtLeastOnceEndpoint : EndpointConfigurationBuilder
+        public class NonTransactionalEndpoint : EndpointConfigurationBuilder
         {
-            public AtLeastOnceEndpoint()
+            public NonTransactionalEndpoint()
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
+                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
                 });
             }
 

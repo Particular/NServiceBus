@@ -161,7 +161,7 @@
             // We need this for backwards compatibility because in v4.0.0 we still have this header being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
             if (context.Headers.TryGetValue(Headers.MessageIntent, out var messageIntentString))
             {
-                if (Enum.TryParse(messageIntentString, true, out MessageIntentEnum messageIntent) && messageIntent == MessageIntentEnum.Publish)
+                if (Enum.TryParse(messageIntentString, true, out MessageIntent messageIntent) && messageIntent == MessageIntent.Publish)
                 {
                     context.Headers.Remove(Headers.SagaId);
                     context.Headers.Remove(Headers.SagaType);

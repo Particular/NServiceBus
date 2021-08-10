@@ -67,7 +67,7 @@
 
                 protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    var controlMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
+                    var controlMessage = ControlMessageFactory.Create(MessageIntent.Subscribe);
                     // set necessary subscription control message headers
                     controlMessage.Headers.Add(Headers.SubscriptionMessageType, typeof(object).AssemblyQualifiedName);
                     controlMessage.Headers.Add(Headers.ReplyToAddress, "TestSubscriberAddress");

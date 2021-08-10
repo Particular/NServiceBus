@@ -53,9 +53,9 @@
                 EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
             }
 
-            public class MyEventHandler : IHandleMessages<IBaseEvent>
+            public class MyHandler : IHandleMessages<IBaseEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

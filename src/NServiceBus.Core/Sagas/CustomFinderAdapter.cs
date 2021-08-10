@@ -15,7 +15,7 @@ namespace NServiceBus
         {
             var customFinderType = (Type)finderDefinition.Properties["custom-finder-clr-type"];
 
-            var finder = (IFindSagas<TSagaData>.Using<TMessage>)builder.GetRequiredService(customFinderType);
+            var finder = (ISagaFinder<TSagaData, TMessage>)builder.GetRequiredService(customFinderType);
 
             return await finder
                 .FindBy((TMessage)message, storageSession, context, cancellationToken)

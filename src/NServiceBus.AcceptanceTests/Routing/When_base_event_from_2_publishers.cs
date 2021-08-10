@@ -88,9 +88,9 @@
                     });
             }
 
-            public class BaseEventHandler : IHandleMessages<BaseEvent>
+            public class Handler : IHandleMessages<BaseEvent>
             {
-                public BaseEventHandler(Context context)
+                public Handler(Context context)
                 {
                     testContext = context;
                 }

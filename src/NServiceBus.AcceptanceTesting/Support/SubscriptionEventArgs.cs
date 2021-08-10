@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
-    public class SubscriptionEventArgs
+    public class SubscriptionEvent
     {
         /// <summary>
         /// The name of the subscriber endpoint.

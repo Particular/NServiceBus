@@ -1670,4 +1670,24 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         void Init();
     }
 }
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(MessageIntent))]
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
+    public enum MessageIntentEnum { }
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
+}
+
+namespace NServiceBus.Sagas
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = "ISagaFinder<TSagaData, TMessage>")]
+#pragma warning disable PS0024 // A non-interface type should not be prefixed with I
+    public abstract class IFindSagas<T> { }
+#pragma warning restore PS0024 // A non-interface type should not be prefixed with I
+}
 #pragma warning restore 1591

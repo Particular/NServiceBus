@@ -10,7 +10,7 @@
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
 
-    public class When_extending_event_routing : NServiceBusAcceptanceTest
+    public class Extend_event_routing : NServiceBusAcceptanceTest
     {
         static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
 
@@ -59,9 +59,9 @@
                 });
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

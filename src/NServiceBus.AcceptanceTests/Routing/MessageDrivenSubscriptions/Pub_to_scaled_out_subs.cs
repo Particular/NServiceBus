@@ -6,7 +6,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
+    public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
@@ -70,9 +70,9 @@
                 EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }
@@ -94,9 +94,9 @@
                 EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

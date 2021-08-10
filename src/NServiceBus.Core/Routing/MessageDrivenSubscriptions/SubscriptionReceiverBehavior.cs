@@ -24,7 +24,7 @@
 
             var intent = incomingMessage.GetMessageIntent();
 
-            if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
+            if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntent.Subscribe && intent != MessageIntent.Unsubscribe)
             {
                 await next(context).ConfigureAwait(false);
                 return;
@@ -35,7 +35,7 @@
                 throw new InvalidOperationException("Message intent is Subscribe, but the subscription message type header is missing.");
             }
 
-            if (intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
+            if (intent != MessageIntent.Subscribe && intent != MessageIntent.Unsubscribe)
             {
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }
@@ -76,7 +76,7 @@
             }
             Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
             var subscriber = new Subscriber(subscriberAddress, subscriberEndpoint);
-            if (incomingMessage.GetMessageIntent() == MessageIntentEnum.Subscribe)
+            if (incomingMessage.GetMessageIntent() == MessageIntent.Subscribe)
             {
                 var messageType = new MessageType(messageTypeString);
                 await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions, context.CancellationToken).ConfigureAwait(false);
