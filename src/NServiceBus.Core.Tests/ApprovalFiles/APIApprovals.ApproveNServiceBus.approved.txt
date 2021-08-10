@@ -29,8 +29,8 @@ namespace NServiceBus
     }
     public static class AuditConfigReader
     {
-        public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.ReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
-        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string address) { }
+        public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.IReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
+        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string address) { }
     }
     public static class AutoSubscribeSettingsExtensions
     {
@@ -116,7 +116,7 @@ namespace NServiceBus
         public static NServiceBus.Pipeline.IIncomingLogicalMessageContext CreateIncomingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IIncomingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.LogicalMessage logicalMessage, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext> stageConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
-        public static NServiceBus.Pipeline.IInvokeHandlerContext CreateInvokeHandlerContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Pipeline.IInvokeHandlerContext> stageConnector, NServiceBus.Pipeline.MessageHandler messageHandler, NServiceBus.Persistence.CompletableSynchronizedStorageSession storageSession, NServiceBus.Pipeline.IIncomingLogicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IInvokeHandlerContext CreateInvokeHandlerContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Pipeline.IInvokeHandlerContext> stageConnector, NServiceBus.Pipeline.MessageHandler messageHandler, NServiceBus.Persistence.ICompletableSynchronizedStorageSession storageSession, NServiceBus.Pipeline.IIncomingLogicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPublishContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPublishContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingReplyContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingReplyContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingSendContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingSendContext sourceContext) { }
@@ -270,7 +270,7 @@ namespace NServiceBus
     }
     public static class DiagnosticSettingsExtensions
     {
-        public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.ReadOnlySettings settings, string sectionName, object section) { }
+        public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, object section) { }
         [System.Obsolete("Use the overload that accepts a delegate with a cancellation token. The member cu" +
             "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
@@ -366,8 +366,8 @@ namespace NServiceBus
     public static class ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
-        public static string ErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string errorQueue) { }
+        public static string ErrorQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string errorQueue) { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
@@ -524,7 +524,7 @@ namespace NServiceBus
     }
     public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
-        NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
+        NServiceBus.Persistence.ISynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
     public interface IMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IPipelineContext
@@ -746,7 +746,7 @@ namespace NServiceBus
         public static string GetMessageId(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions options, string messageId) { }
     }
-    public enum MessageIntentEnum
+    public enum MessageIntent
     {
         Send = 1,
         Publish = 2,
@@ -754,6 +754,8 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
+    [System.Obsolete("Use `MessageIntent` instead. Will be removed in version 9.0.0.", true)]
+    public enum MessageIntentEnum { }
     public static class MessageProcessingContextExtensions
     {
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
@@ -1071,11 +1073,11 @@ namespace NServiceBus
     }
     public static class SettingsExtensions
     {
-        public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static string EndpointQueueName(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static string EndpointName(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        public static string EndpointQueueName(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        public static string InstanceSpecificQueue(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        public static string LocalAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
         [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
             " NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
@@ -1252,7 +1254,7 @@ namespace NServiceBus
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public XmlSerializer() { }
-        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
@@ -1279,7 +1281,7 @@ namespace NServiceBus.ConsistencyGuarantees
 {
     public static class TransactionModeSettingsExtensions
     {
-        public static NServiceBus.TransportTransactionMode GetRequiredTransactionModeForReceives(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.TransportTransactionMode GetRequiredTransactionModeForReceives(this NServiceBus.Settings.IReadOnlySettings settings) { }
     }
 }
 namespace NServiceBus.Container
@@ -1378,7 +1380,7 @@ namespace NServiceBus.DeliveryConstraints
 }
 namespace NServiceBus.Extensibility
 {
-    public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
+    public class ContextBag : NServiceBus.Extensibility.IReadOnlyContextBag
     {
         public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
@@ -1405,13 +1407,15 @@ namespace NServiceBus.Extensibility
     {
         NServiceBus.Extensibility.ContextBag Extensions { get; }
     }
-    public interface ReadOnlyContextBag
+    public interface IReadOnlyContextBag
     {
         T Get<T>();
         T Get<T>(string key);
         bool TryGet<T>(out T result);
         bool TryGet<T>(string key, out T result);
     }
+    [System.Obsolete("Use `IReadOnlyContextBag` instead. Will be removed in version 9.0.0.", true)]
+    public interface ReadOnlyContextBag { }
 }
 namespace NServiceBus.Faults
 {
@@ -1509,7 +1513,7 @@ namespace NServiceBus.Features
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
-        public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+        public NServiceBus.Settings.IReadOnlySettings Settings { get; }
         public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
@@ -1565,8 +1569,8 @@ namespace NServiceBus.Features
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault(this NServiceBus.Settings.SettingsHolder settings, System.Type featureType) { }
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
-        public static bool IsFeatureActive(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
-        public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
+        public static bool IsFeatureActive(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
+        public static bool IsFeatureEnabled(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
     }
     [System.Obsolete("The timeout manager has been removed in favor of native delayed delivery support " +
         "provided by transports. See the upgrade guide for more details. Will be removed " +
@@ -1824,10 +1828,14 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.IOutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+    }
+    public interface IOutboxTransaction : System.IDisposable
+    {
+        System.Threading.Tasks.Task Commit(System.Threading.CancellationToken cancellationToken = default);
     }
     public class OutboxMessage
     {
@@ -1836,10 +1844,8 @@ namespace NServiceBus.Outbox
         public NServiceBus.Outbox.TransportOperation[] TransportOperations { get; }
     }
     public class OutboxSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings { }
-    public interface OutboxTransaction : System.IDisposable
-    {
-        System.Threading.Tasks.Task Commit(System.Threading.CancellationToken cancellationToken = default);
-    }
+    [System.Obsolete("Use `IOutboxTransaction` instead. Will be removed in version 9.0.0.", true)]
+    public interface OutboxTransaction { }
     public class TransportOperation
     {
         public TransportOperation(string messageId, NServiceBus.Transport.DispatchProperties properties, byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
@@ -1859,19 +1865,23 @@ namespace NServiceBus.Performance.TimeToBeReceived
 }
 namespace NServiceBus.Persistence
 {
-    public interface CompletableSynchronizedStorageSession : NServiceBus.Persistence.SynchronizedStorageSession, System.IDisposable
+    [System.Obsolete("Use `ICompletableSynchronizedStorageSession` instead. Will be removed in version " +
+        "9.0.0.", true)]
+    public interface CompletableSynchronizedStorageSession { }
+    public interface ICompletableSynchronizedStorageSession : NServiceBus.Persistence.ISynchronizedStorageSession, System.IDisposable
     {
         System.Threading.Tasks.Task CompleteAsync(System.Threading.CancellationToken cancellationToken = default);
     }
     public interface ISynchronizedStorage
     {
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.ICompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface ISynchronizedStorageAdapter
     {
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.ICompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.ICompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface ISynchronizedStorageSession { }
     public abstract class PersistenceDefinition
     {
         protected PersistenceDefinition() { }
@@ -1882,6 +1892,7 @@ namespace NServiceBus.Persistence
         protected void Supports<T>(System.Action<NServiceBus.Settings.SettingsHolder> action)
             where T : NServiceBus.StorageType { }
     }
+    [System.Obsolete("Use `ISynchronizedStorageSession` instead. Will be removed in version 9.0.0.", true)]
     public interface SynchronizedStorageSession { }
 }
 namespace NServiceBus.Pipeline
@@ -2229,19 +2240,21 @@ namespace NServiceBus.Sagas
         public string SagaId { get; }
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
+    [System.Obsolete("Use `ISagaFinder<TSagaData, TMessage>` instead. Will be removed in version 9.0.0." +
+        "", true)]
     public abstract class IFindSagas<T>
-        where T : NServiceBus.IContainSagaData
     {
         protected IFindSagas() { }
-        public interface Using<M> : NServiceBus.Sagas.IFinder
-        {
-            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Persistence.SynchronizedStorageSession storageSession, NServiceBus.Extensibility.ReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        }
     }
     public interface IFinder { }
     public interface IHandleSagaNotFound
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
+    }
+    public interface ISagaFinder<TSagaData, TMessage> : NServiceBus.Sagas.IFinder
+        where TSagaData : NServiceBus.IContainSagaData
+    {
+        System.Threading.Tasks.Task<TSagaData> FindBy(TMessage message, NServiceBus.Persistence.ISynchronizedStorageSession storageSession, NServiceBus.Extensibility.IReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface ISagaIdGenerator
     {
@@ -2249,13 +2262,13 @@ namespace NServiceBus.Sagas
     }
     public interface ISagaPersister
     {
-        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default)
+        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default)
             where TSagaData :  class, NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default)
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default)
             where TSagaData :  class, NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
     public class SagaCorrelationProperty
     {
@@ -2330,7 +2343,7 @@ namespace NServiceBus.Serialization
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
-        public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
+        public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings);
     }
     public class SerializationExtensions<T> : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
@@ -2340,7 +2353,7 @@ namespace NServiceBus.Serialization
 }
 namespace NServiceBus.Settings
 {
-    public interface ReadOnlySettings
+    public interface IReadOnlySettings
     {
         object Get(string key);
         T Get<T>();
@@ -2354,7 +2367,9 @@ namespace NServiceBus.Settings
         bool TryGet<T>(out T val);
         bool TryGet<T>(string key, out T val);
     }
-    public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings
+    [System.Obsolete("Use `IReadOnlySettings` instead. Will be removed in version 9.0.0.", true)]
+    public interface ReadOnlySettings { }
+    public class SettingsHolder : NServiceBus.Settings.IReadOnlySettings
     {
         public SettingsHolder() { }
         public void Clear() { }
@@ -2464,10 +2479,10 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.IReadOnlyContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Extensions { get; }
+        public NServiceBus.Extensibility.IReadOnlyContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
@@ -2482,8 +2497,8 @@ namespace NServiceBus.Transport
         [System.Obsolete("Use the overload that accepts a delegate with a cancellation token. The member cu" +
             "rrently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.ReadOnlySettings coreSettings = null) { }
-        public NServiceBus.Settings.ReadOnlySettings CoreSettings { get; }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings coreSettings = null) { }
+        public NServiceBus.Settings.IReadOnlySettings CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
         public string Name { get; }
@@ -2564,7 +2579,7 @@ namespace NServiceBus.Transport
     }
     public static class IncomingMessageExtensions
     {
-        public static NServiceBus.MessageIntentEnum GetMessageIntent(this NServiceBus.Transport.IncomingMessage message) { }
+        public static NServiceBus.MessageIntent GetMessageIntent(this NServiceBus.Transport.IncomingMessage message) { }
         public static string GetReplyToAddress(this NServiceBus.Transport.IncomingMessage message) { }
     }
     public static class LogicalAddressExtensions
@@ -2857,7 +2872,7 @@ namespace NServiceBus.Unicast.Transport
 {
     public static class ControlMessageFactory
     {
-        public static NServiceBus.Transport.OutgoingMessage Create(NServiceBus.MessageIntentEnum intent) { }
+        public static NServiceBus.Transport.OutgoingMessage Create(NServiceBus.MessageIntent intent) { }
     }
 }
 namespace NServiceBus.UnitOfWork
