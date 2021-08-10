@@ -61,7 +61,7 @@
         {
             public OtherEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My")));
+                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
             }
 
             public class ResponseHandler : IHandleMessages<IMyReply>
@@ -85,7 +85,7 @@
         {
             public ReplyingEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My")))
+                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))))
                     .ExcludeType<IMyReply>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
 
