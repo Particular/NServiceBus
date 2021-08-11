@@ -1670,4 +1670,74 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         void Init();
     }
 }
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(MessageIntent))]
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
+    public enum MessageIntentEnum { }
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
+}
+
+namespace NServiceBus.Sagas
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = "ISagaFinder<TSagaData, TMessage>")]
+#pragma warning disable PS0024 // A non-interface type should not be prefixed with I
+    public abstract class IFindSagas<T> { }
+#pragma warning restore PS0024 // A non-interface type should not be prefixed with I
+}
+
+namespace NServiceBus.Extensibility
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(IReadOnlyContextBag))]
+#pragma warning disable IDE1006 // Naming Styles
+    public interface ReadOnlyContextBag { }
+#pragma warning restore IDE1006 // Naming Styles
+}
+
+namespace NServiceBus.Persistence
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(ISynchronizedStorageSession))]
+#pragma warning disable IDE1006 // Naming Styles
+    public interface SynchronizedStorageSession { }
+#pragma warning restore IDE1006 // Naming Styles
+}
+
+namespace NServiceBus.Persistence
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(ICompletableSynchronizedStorageSession))]
+#pragma warning disable IDE1006 // Naming Styles
+    public interface CompletableSynchronizedStorageSession { }
+#pragma warning restore IDE1006 // Naming Styles
+}
+
+namespace NServiceBus.Outbox
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(IOutboxTransaction))]
+#pragma warning disable IDE1006 // Naming Styles
+    public interface OutboxTransaction { }
+#pragma warning restore IDE1006 // Naming Styles
+}
+
+namespace NServiceBus.Settings
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(IReadOnlySettings))]
+#pragma warning disable IDE1006 // Naming Styles
+    public interface ReadOnlySettings { }
+#pragma warning restore IDE1006 // Naming Styles
+}
 #pragma warning restore 1591

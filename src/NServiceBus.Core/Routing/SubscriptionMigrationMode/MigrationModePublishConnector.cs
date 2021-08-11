@@ -18,7 +18,7 @@
 
         public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
-            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
+            context.Headers[Headers.MessageIntent] = MessageIntent.Publish.ToString();
 
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);

@@ -91,9 +91,9 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.IEndpointInstance.Stop",
             "NServiceBus.UniformSession.IUniformSession.Send",
             "NServiceBus.UniformSession.IUniformSession.Publish",
-            "NServiceBus.UniformSession.IUniformSessionExtensions.Send",
-            "NServiceBus.UniformSession.IUniformSessionExtensions.SendLocal",
-            "NServiceBus.UniformSession.IUniformSessionExtensions.Publish");
+            "NServiceBus.UniformSession.UniformSessionExtensions.Send",
+            "NServiceBus.UniformSession.UniformSessionExtensions.SendLocal",
+            "NServiceBus.UniformSession.UniformSessionExtensions.Publish");
 
         static readonly ImmutableHashSet<string> methodNames = methods.Select(m => m.Split('.').Last()).ToImmutableHashSet();
     }

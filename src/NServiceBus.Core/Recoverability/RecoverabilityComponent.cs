@@ -152,7 +152,7 @@
         public Notification<MessageToBeRetried> MessageRetryNotification;
         public Notification<MessageFaulted> MessageFaultedNotification;
 
-        ReadOnlySettings settings;
+        IReadOnlySettings settings;
         bool transactionsOn;
         RecoverabilityConfig recoverabilityConfig;
         RecoverabilityExecutorFactory recoverabilityExecutorFactory;

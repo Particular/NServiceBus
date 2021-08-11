@@ -50,9 +50,9 @@
                 IMessageCreator messageCreator;
             }
 
-            public class IMyMessageHandler : IHandleMessages<IMyReply>
+            public class MyMessageHandler : IHandleMessages<IMyReply>
             {
-                public IMyMessageHandler(Context testContext)
+                public MyMessageHandler(Context testContext)
                 {
                     this.testContext = testContext;
                 }

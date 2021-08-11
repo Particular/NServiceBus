@@ -12,7 +12,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new instance of <see cref="HostSettings"/>.
         /// </summary>
-        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception, CancellationToken> criticalErrorAction, bool setupInfrastructure, ReadOnlySettings coreSettings = null)
+        public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception, CancellationToken> criticalErrorAction, bool setupInfrastructure, IReadOnlySettings coreSettings = null)
         {
             Name = name;
             HostDisplayName = hostDisplayName;
@@ -26,7 +26,7 @@ namespace NServiceBus.Transport
         /// Settings available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
         /// Transports can use these settings to validate the hosting endpoint settings.
         /// </summary>
-        public ReadOnlySettings CoreSettings { get; }
+        public IReadOnlySettings CoreSettings { get; }
 
         /// <summary>
         /// A name that describes the host (e.g. the endpoint name).

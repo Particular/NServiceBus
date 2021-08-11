@@ -10,7 +10,7 @@
     using NServiceBus.Routing;
     using NUnit.Framework;
 
-    public class When_subscribing_to_scaled_out_publisher : NServiceBusAcceptanceTest
+    public class Sub_to_scaled_out_pubs : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_send_subscription_message_to_each_instance()

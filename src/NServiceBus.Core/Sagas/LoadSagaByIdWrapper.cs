@@ -8,10 +8,10 @@ namespace NServiceBus
     using Sagas;
 
     //this class in only here until we can move to a better saga persister api
-    class LoadSagaByIdWrapper<T> : SagaLoader
+    class LoadSagaByIdWrapper<T> : ISagaLoader
         where T : class, IContainSagaData
     {
-        public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken = default)
+        public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, ISynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken = default)
         {
             return await persister.Get<T>(Guid.Parse(sagaId), storageSession, context, cancellationToken).ConfigureAwait(false);
         }

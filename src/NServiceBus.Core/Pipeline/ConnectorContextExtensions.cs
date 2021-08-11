@@ -102,7 +102,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IInvokeHandlerContext" /> based on the current context.
         /// </summary>
-        public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, CompletableSynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)
+        public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, ICompletableSynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)
         {
             Guard.AgainstNull(nameof(messageHandler), messageHandler);
             Guard.AgainstNull(nameof(storageSession), storageSession);

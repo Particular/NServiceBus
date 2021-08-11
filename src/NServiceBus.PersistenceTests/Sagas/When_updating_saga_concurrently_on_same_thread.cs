@@ -19,7 +19,7 @@
             var generatedSagaId = sagaData.Id;
 
             ContextBag losingContext;
-            CompletableSynchronizedStorageSession losingSaveSession;
+            ICompletableSynchronizedStorageSession losingSaveSession;
             TestSagaData staleRecord;
             var persister = configuration.SagaStorage;
 

@@ -18,7 +18,7 @@
             await SaveSaga(saga);
 
             ContextBag losingContext1;
-            CompletableSynchronizedStorageSession losingSaveSession1;
+            ICompletableSynchronizedStorageSession losingSaveSession1;
             TestSagaData staleRecord1;
             var persister = configuration.SagaStorage;
 
@@ -56,7 +56,7 @@
             }
 
             ContextBag losingContext2;
-            CompletableSynchronizedStorageSession losingSaveSession2;
+            ICompletableSynchronizedStorageSession losingSaveSession2;
             TestSagaData staleRecord2;
 
             var winningContext2 = configuration.GetContextBagForSagaStorage();

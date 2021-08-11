@@ -83,21 +83,21 @@ namespace MessageMapperTests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] { typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor) });
             var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor));
-            var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructor), true);
-            var attr = (CustomAttributeWithNoDefaultConstructor)attributes[0];
+            var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAttribute), true);
+            var attr = (NoDefaultConstructorAttribute)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
 
         public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructor
         {
-            [CustomAttributeWithNoDefaultConstructor("Blah")]
+            [NoDefaultConstructor("Blah")]
             string SomeProperty { get; set; }
         }
 
-        public class CustomAttributeWithNoDefaultConstructor : Attribute
+        public class NoDefaultConstructorAttribute : Attribute
         {
             public string Name { get; set; }
-            public CustomAttributeWithNoDefaultConstructor(string name)
+            public NoDefaultConstructorAttribute(string name)
             {
                 Name = name;
             }
@@ -109,13 +109,13 @@ namespace MessageMapperTests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] { typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters) });
             var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
-            var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters), true);
-            var attr = (CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters)attributes[0];
+            var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAndNoMatchingParametersAttribute), true);
+            var attr = (NoDefaultConstructorAndNoMatchingParametersAttribute)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
         public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters
         {
-            [CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters("Blah", "Second Blah")]
+            [NoDefaultConstructorAndNoMatchingParameters("Blah", "Second Blah")]
             string SomeProperty { get; set; }
         }
 
@@ -123,11 +123,11 @@ namespace MessageMapperTests
         /// <summary>
         /// Break the heuristics of finding the properties from constructor parameter names
         /// </summary>
-        public class CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters : Attribute
+        public class NoDefaultConstructorAndNoMatchingParametersAttribute : Attribute
         {
             public string Name { get; set; }
 
-            public CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters(string someParam, string someOtherParam)
+            public NoDefaultConstructorAndNoMatchingParametersAttribute(string someParam, string someOtherParam)
             {
                 Name = someParam;
             }
@@ -153,8 +153,8 @@ namespace MessageMapperTests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] { typeof(IMyEventWithAttributeWithBoolProperty) });
             var instance = mapper.CreateInstance(typeof(IMyEventWithAttributeWithBoolProperty));
-            var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(CustomAttributeWithValueProperties), true);
-            var attr = attributes[0] as CustomAttributeWithValueProperties;
+            var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(ValuePropertiesAttribute), true);
+            var attr = attributes[0] as ValuePropertiesAttribute;
             Assert.AreEqual(attr != null && attr.FlagIsSet, true);
             if (attr != null)
             {
@@ -164,15 +164,15 @@ namespace MessageMapperTests
 
         public interface IMyEventWithAttributeWithBoolProperty
         {
-            [CustomAttributeWithValueProperties("bla bla", true, 21)]
+            [ValueProperties("bla bla", true, 21)]
             Guid EventId { get; set; }
         }
 
-        public class CustomAttributeWithValueProperties : Attribute
+        public class ValuePropertiesAttribute : Attribute
         {
-            public CustomAttributeWithValueProperties() { }
+            public ValuePropertiesAttribute() { }
 
-            public CustomAttributeWithValueProperties(string name, bool flag, int age)
+            public ValuePropertiesAttribute(string name, bool flag, int age)
             {
                 Name = name;
                 FlagIsSet = flag;

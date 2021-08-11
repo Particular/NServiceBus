@@ -11,7 +11,7 @@ namespace NServiceBus
         /// Gets the synchronized storage session for processing the current message. NServiceBus makes sure the changes made
         /// via this session will be persisted before the message receive is acknowledged.
         /// </summary>
-        SynchronizedStorageSession SynchronizedStorageSession { get; }
+        ISynchronizedStorageSession SynchronizedStorageSession { get; }
 
         /// <summary>
         /// Tells the endpoint to stop dispatching the current message to additional

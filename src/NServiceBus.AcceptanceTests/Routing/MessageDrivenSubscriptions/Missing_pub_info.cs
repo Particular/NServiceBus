@@ -8,7 +8,7 @@
     using Logging;
     using NUnit.Framework;
 
-    public class When_missing_publisher_information : NServiceBusAcceptanceTest
+    public class Missing_pub_info : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_log_events_with_missing_routes()
@@ -35,7 +35,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
                 public Task Handle(MyEvent @event, IMessageHandlerContext context)
                 {

@@ -70,7 +70,7 @@
             {
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    if (context.Headers[Headers.MessageIntent] != MessageIntentEnum.Reply.ToString())
+                    if (context.Headers[Headers.MessageIntent] != MessageIntent.Reply.ToString())
                     {
                         context.Headers.Remove(Headers.CorrelationId);
                     }

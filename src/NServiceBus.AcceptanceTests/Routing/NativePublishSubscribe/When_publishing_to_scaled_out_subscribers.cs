@@ -62,9 +62,9 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }
@@ -86,9 +86,9 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

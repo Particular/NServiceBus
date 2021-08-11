@@ -64,9 +64,9 @@
                 Context testContext;
             }
 
-            public class MessageHandledEventHandler : IHandleMessages<MessageHandledEvent>
+            public class MessageHandledHandler : IHandleMessages<MessageHandledEvent>
             {
-                public MessageHandledEventHandler(Context context)
+                public MessageHandledHandler(Context context)
                 {
                     testContext = context;
                 }

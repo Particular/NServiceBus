@@ -64,7 +64,7 @@
             }
         }
 
-        internal static bool HasSupportFor<T>(ReadOnlySettings settings) where T : StorageType
+        internal static bool HasSupportFor<T>(IReadOnlySettings settings) where T : StorageType
         {
             settings.TryGet("ResultingSupportedStorages", out List<Type> supportedStorages);
 

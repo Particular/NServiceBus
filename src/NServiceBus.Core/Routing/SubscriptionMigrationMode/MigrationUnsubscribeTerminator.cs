@@ -44,7 +44,7 @@
             {
                 Logger.Debug("Unsubscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
-                var unsubscribeMessage = ControlMessageFactory.Create(MessageIntentEnum.Unsubscribe);
+                var unsubscribeMessage = ControlMessageFactory.Create(MessageIntent.Unsubscribe);
 
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;

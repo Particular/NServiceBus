@@ -50,7 +50,7 @@
         public async Task Should_update_retry_headers_when_present()
         {
             var delayedRetryExecutor = CreateExecutor();
-            var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTime(2012, 12, 12, 0, 0, 0, DateTimeKind.Utc));
+            var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTimeOffset(2012, 12, 12, 0, 0, 0, TimeSpan.Zero));
 
             var incomingMessage = CreateMessage(new Dictionary<string, string>
             {
@@ -58,7 +58,7 @@
                 {Headers.DelayedRetriesTimestamp, originalHeadersTimestamp}
             });
 
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
             await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
 
             var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;

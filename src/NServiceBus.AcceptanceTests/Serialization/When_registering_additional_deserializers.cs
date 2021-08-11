@@ -91,7 +91,7 @@
 
         public class MyCustomSerializer : SerializationDefinition
         {
-            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+            public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
             {
                 var context = settings.Get<Context>();
                 return mapper => new MyCustomMessageSerializer(context, settings.Get<string>("MyCustomSerializer.Settings.Value"));

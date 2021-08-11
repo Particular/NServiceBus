@@ -25,7 +25,7 @@
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(1, context.Headers.Count);
-            Assert.AreEqual(MessageIntentEnum.Send.ToString(), context.Headers[Headers.MessageIntent]);
+            Assert.AreEqual(MessageIntent.Send.ToString(), context.Headers[Headers.MessageIntent]);
         }
 
         [Test]

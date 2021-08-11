@@ -97,7 +97,7 @@
 
             public class MyCommandHandler : IHandleMessages<MyCommand>
             {
-                public MyCommandHandler(Context testContext, ReadOnlySettings settings)
+                public MyCommandHandler(Context testContext, IReadOnlySettings settings)
                 {
                     this.testContext = testContext;
                     this.settings = settings;
@@ -120,7 +120,7 @@
                 }
 
                 Context testContext;
-                ReadOnlySettings settings;
+                IReadOnlySettings settings;
             }
         }
 

@@ -33,7 +33,7 @@
             unrecoverableExceptions.Add(exceptionType);
         }
 
-        internal static HashSet<Type> UnrecoverableExceptions(this ReadOnlySettings settings)
+        internal static HashSet<Type> UnrecoverableExceptions(this IReadOnlySettings settings)
         {
             return settings.GetOrDefault<HashSet<Type>>(RecoverabilityComponent.UnrecoverableExceptions) ?? new HashSet<Type>();
         }

@@ -63,9 +63,9 @@
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<EventMessage>
+            public class MyHandler : IHandleMessages<EventMessage>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

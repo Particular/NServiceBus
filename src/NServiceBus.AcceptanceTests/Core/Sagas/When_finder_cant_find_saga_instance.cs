@@ -42,14 +42,14 @@
                 });
             }
 
-            class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
+            class CustomFinder : ISagaFinder<TestSaga06.SagaData06, StartSagaMessage>
             {
                 public CustomFinder(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context, CancellationToken cancellationToken = default)
+                public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
                 {
                     testContext.FinderUsed = true;
                     return Task.FromResult(default(TestSaga06.SagaData06));

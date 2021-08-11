@@ -69,7 +69,7 @@
             }
         }
 
-        public static bool IsMigrationModeEnabled(ReadOnlySettings settings)
+        public static bool IsMigrationModeEnabled(IReadOnlySettings settings)
         {
             // this key can be set by transports once they provide native support for pub/sub.
             return settings.TryGet("NServiceBus.Subscriptions.EnableMigrationMode", out bool enabled) && enabled;

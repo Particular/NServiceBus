@@ -7,9 +7,9 @@
 
     public class FakeSynchronizedStorage : ISynchronizedStorage
     {
-        public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
         {
-            var session = (CompletableSynchronizedStorageSession)new FakeSynchronizedStorageSession();
+            var session = (ICompletableSynchronizedStorageSession)new FakeSynchronizedStorageSession();
             return Task.FromResult(session);
         }
     }

@@ -15,6 +15,6 @@
         /// </summary>
         /// <param name="contextBag">The context information.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default);
+        Task<ICompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default);
     }
 }

@@ -9,16 +9,16 @@
 
     class NoOpSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> TryAdapt(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             return EmptyResult;
         }
 
-        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
+        public Task<ICompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default)
         {
             return EmptyResult;
         }
 
-        internal static readonly Task<CompletableSynchronizedStorageSession> EmptyResult = Task.FromResult<CompletableSynchronizedStorageSession>(new NoOpCompletableSynchronizedStorageSession());
+        internal static readonly Task<ICompletableSynchronizedStorageSession> EmptyResult = Task.FromResult<ICompletableSynchronizedStorageSession>(new NoOpCompletableSynchronizedStorageSession());
     }
 }

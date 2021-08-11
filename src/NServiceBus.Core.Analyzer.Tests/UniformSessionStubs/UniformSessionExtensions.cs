@@ -4,7 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public static class IUniformSessionExtensions
+    public static class UniformSessionExtensions
     {
         public static Task Send(this IUniformSession session, object message, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 

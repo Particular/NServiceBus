@@ -5,11 +5,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using Transport;
 
-    public class When_custom_policy_does_single_delayed_retry_before_move_to_error : NServiceBusAcceptanceTest
+    public class CustomPolicyDoes1DelayedRetryThenSendsToError : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_execute_twice_and_send_to_error_queue()

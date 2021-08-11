@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using Outbox;
 
-    class NoOpOutboxTransaction : OutboxTransaction
+    class NoOpOutboxTransaction : IOutboxTransaction
     {
         public void Dispose()
         {

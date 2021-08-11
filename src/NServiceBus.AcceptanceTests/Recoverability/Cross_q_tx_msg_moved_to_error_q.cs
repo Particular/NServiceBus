@@ -9,7 +9,7 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_cross_q_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_dispatch_outgoing_messages()

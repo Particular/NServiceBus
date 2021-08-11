@@ -5,13 +5,13 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_requesting_immediate_dispatch_with_exactly_once : NServiceBusAcceptanceTest
+    public class At_least_once : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_dispatch_immediately()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<ExactlyOnceEndpoint>(b => b
+                .WithEndpoint<AtLeastOnceEndpoint>(b => b
                     .When(session => session.SendLocal(new InitiatingMessage()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageDispatched)
@@ -25,12 +25,14 @@
             public bool MessageDispatched { get; set; }
         }
 
-        public class ExactlyOnceEndpoint : EndpointConfigurationBuilder
+        public class AtLeastOnceEndpoint : EndpointConfigurationBuilder
         {
-            public ExactlyOnceEndpoint()
+            public AtLeastOnceEndpoint()
             {
-                //note: We don't have a explicit way to request "ExactlyOnce" yet so we have to rely on it being the default
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
+                });
             }
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>

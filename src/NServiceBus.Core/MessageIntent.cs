@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumeration defining different kinds of message intent like Send and Publish.
     /// </summary>
-    public enum MessageIntentEnum
+    public enum MessageIntent
     {
         /// <summary>
         /// Regular point-to-point send.

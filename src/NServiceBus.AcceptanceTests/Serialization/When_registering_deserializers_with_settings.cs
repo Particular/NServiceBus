@@ -82,7 +82,7 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
         public class MyCustomSerializer : SerializationDefinition
         {
-            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+            public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
             {
                 return mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"), settings.Get<Context>());
             }

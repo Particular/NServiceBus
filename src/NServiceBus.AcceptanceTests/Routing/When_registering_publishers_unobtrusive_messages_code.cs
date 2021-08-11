@@ -50,11 +50,11 @@
                     metadata => metadata.RegisterPublisherFor<SomeEvent>(typeof(Publisher)));
             }
 
-            public class EventHandler : IHandleMessages<SomeEvent>
+            public class Handler : IHandleMessages<SomeEvent>
             {
                 Context testContext;
 
-                public EventHandler(Context testContext)
+                public Handler(Context testContext)
                 {
                     this.testContext = testContext;
                 }

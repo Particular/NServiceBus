@@ -20,8 +20,8 @@
         }
 
         /// <summary>
-        /// Sets an authorizer to be used when processing a <see cref="MessageIntentEnum.Subscribe" /> or
-        /// <see cref="MessageIntentEnum.Unsubscribe" /> message.
+        /// Sets an authorizer to be used when processing a <see cref="MessageIntent.Subscribe" /> or
+        /// <see cref="MessageIntent.Unsubscribe" /> message.
         /// </summary>
         /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
         public void SubscriptionAuthorizer(Func<IIncomingPhysicalMessageContext, bool> authorizer)

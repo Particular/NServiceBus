@@ -21,7 +21,7 @@
             var persister = configuration.SagaStorage;
 
             ContextBag losingContext;
-            CompletableSynchronizedStorageSession losingSaveSession;
+            ICompletableSynchronizedStorageSession losingSaveSession;
             TestSagaData staleRecord;
 
             var winningContext = configuration.GetContextBagForSagaStorage();

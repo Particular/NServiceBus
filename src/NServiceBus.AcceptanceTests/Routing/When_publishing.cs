@@ -144,9 +144,9 @@
                     metadata => metadata.RegisterPublisherFor<IFoo>(typeof(Publisher3)));
             }
 
-            public class MyEventHandler : IHandleMessages<IFoo>
+            public class MyHandler : IHandleMessages<IFoo>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }
@@ -169,9 +169,9 @@
                      metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }
@@ -195,9 +195,9 @@
                     metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

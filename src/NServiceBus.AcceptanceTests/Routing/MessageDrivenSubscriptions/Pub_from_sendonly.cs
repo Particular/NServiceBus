@@ -16,7 +16,7 @@
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
-    public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
+    public class Pub_from_sendonly : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_be_delivered_to_all_subscribers()
@@ -57,9 +57,9 @@
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>());
             }
 
-            public class MyEventHandler : IHandleMessages<MyEvent>
+            public class MyHandler : IHandleMessages<MyEvent>
             {
-                public MyEventHandler(Context context)
+                public MyHandler(Context context)
                 {
                     testContext = context;
                 }

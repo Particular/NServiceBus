@@ -20,7 +20,7 @@ namespace NServiceBus
             return deserializers;
         }
 
-        public static List<Tuple<SerializationDefinition, SettingsHolder>> GetAdditionalSerializers(this ReadOnlySettings settings)
+        public static List<Tuple<SerializationDefinition, SettingsHolder>> GetAdditionalSerializers(this IReadOnlySettings settings)
         {
             if (settings.TryGet(AdditionalSerializersSettingsKey, out List<Tuple<SerializationDefinition, SettingsHolder>> deserializers))
             {
@@ -34,7 +34,7 @@ namespace NServiceBus
             settings.Set(MainSerializerSettingsKey, Tuple.Create(definition, serializerSpecificSettings));
         }
 
-        public static Tuple<SerializationDefinition, SettingsHolder> GetMainSerializer(this ReadOnlySettings settings)
+        public static Tuple<SerializationDefinition, SettingsHolder> GetMainSerializer(this IReadOnlySettings settings)
         {
             if (!settings.TryGet(MainSerializerSettingsKey, out Tuple<SerializationDefinition, SettingsHolder> defaultSerializerAndSettings))
             {

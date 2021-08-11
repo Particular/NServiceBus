@@ -8,7 +8,7 @@
     // Do not allow Fody to weave the IDisposable for us so that other threads can still access the instance of this class
     // even after it has been disposed.
     [SkipWeaving]
-    class NoOpCompletableSynchronizedStorageSession : CompletableSynchronizedStorageSession
+    class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
         public Task CompleteAsync(CancellationToken cancellationToken = default)
         {

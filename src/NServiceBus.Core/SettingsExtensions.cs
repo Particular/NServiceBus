@@ -12,7 +12,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the list of types available to this endpoint.
         /// </summary>
-        public static IList<Type> GetAvailableTypes(this ReadOnlySettings settings)
+        public static IList<Type> GetAvailableTypes(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
             return settings.Get<AssemblyScanningComponent.Configuration>().AvailableTypes;
@@ -21,7 +21,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name of this endpoint.
         /// </summary>
-        public static string EndpointName(this ReadOnlySettings settings)
+        public static string EndpointName(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
             return settings.Get<string>("NServiceBus.Routing.EndpointName");
@@ -30,7 +30,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
-        public static string LocalAddress(this ReadOnlySettings settings)
+        public static string LocalAddress(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -45,7 +45,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the shared queue name of this endpoint.
         /// </summary>
-        public static string EndpointQueueName(this ReadOnlySettings settings)
+        public static string EndpointQueueName(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -60,7 +60,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
-        public static string InstanceSpecificQueue(this ReadOnlySettings settings)
+        public static string InstanceSpecificQueue(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
