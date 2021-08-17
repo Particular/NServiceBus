@@ -18,7 +18,7 @@ jobs:
           sudo freshclam
           sudo systemctl start clamav-freshclam
       - name: Get release
-        uses: actions/github-script@v3.1.1
+        uses: actions/github-script@v4.0.2
         with:
           github-token: ${{secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4}}
           script: |
@@ -57,7 +57,7 @@ jobs:
           exit 0;
       - name: Notify Slack on viruses detected
         if: ${{ env.CLAMAV_RETURN_CODE == '1' }}
-        uses: 8398a7/action-slack@v3.9.0
+        uses: 8398a7/action-slack@v3.9.2
         with:
           username: ClamAV Virus Scanning Workflow
           status: failure
@@ -68,7 +68,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.RELEASE_ANTIVIRUS_SLACK_WEBHOOK_URL }}
       - name: Update release notes
-        uses: actions/github-script@v3.1.1
+        uses: actions/github-script@v4.0.2
         with:
           github-token: ${{secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4}}
           script: |
