@@ -1,4 +1,8 @@
 [*.cs]
 
-# Justification: Test project
+# Justification: release branch
+dotnet_diagnostic.CA1710.severity = none
+dotnet_diagnostic.CA1711.severity = none
+
+# Justification: test project
 dotnet_diagnostic.CA2007.severity = none
