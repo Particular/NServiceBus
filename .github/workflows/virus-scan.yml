@@ -57,7 +57,7 @@ jobs:
           exit 0;
       - name: Notify Slack on viruses detected
         if: ${{ env.CLAMAV_RETURN_CODE == '1' }}
-        uses: 8398a7/action-slack@v3.9.0
+        uses: 8398a7/action-slack@v3.9.2
         with:
           username: ClamAV Virus Scanning Workflow
           status: failure
