@@ -60,7 +60,7 @@ namespace NServiceBus
 
             var deserializer = new XmlDeserialization(mapper, cache, SkipWrappingRawXml, SanitizeInput);
 
-            using (var stream = new ReadonlyStream(body))
+            using (var stream = new ReadOnlyStream(body))
             {
                 return deserializer.Deserialize(stream, messageTypesToDeserialize);
             }

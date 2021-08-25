@@ -5,12 +5,12 @@ namespace NServiceBus
     using System;
     using System.IO;
 
-    class ReadonlyStream : Stream
+    class ReadOnlyStream : Stream
     {
         ReadOnlyMemory<byte> memory;
         long position;
 
-        public ReadonlyStream(ReadOnlyMemory<byte> memory)
+        public ReadOnlyStream(ReadOnlyMemory<byte> memory)
         {
             this.memory = memory;
             position = 0;
