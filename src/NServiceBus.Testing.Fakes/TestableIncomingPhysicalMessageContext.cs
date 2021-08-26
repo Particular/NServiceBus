@@ -21,7 +21,7 @@
         /// <summary>
         /// Updates the message with the given body.
         /// </summary>
-        public virtual void UpdateMessage(byte[] body)
+        public virtual void UpdateMessage(ReadOnlyMemory<byte> body)
         {
             Message = new IncomingMessage(Message.MessageId, Message.Headers, body);
         }
@@ -30,5 +30,6 @@
         /// The physical message being processed.
         /// </summary>
         public IncomingMessage Message { get; set; }
+
     }
 }

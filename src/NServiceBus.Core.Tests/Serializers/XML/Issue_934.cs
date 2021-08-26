@@ -18,13 +18,13 @@
             };
 
             object[] messageDeserialized;
-            using (Stream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 serializer.Serialize(message, stream);
 
                 stream.Position = 0;
 
-                messageDeserialized = serializer.Deserialize(stream, new[] { message.GetType() });
+                messageDeserialized = serializer.Deserialize(stream.ToArray(), new[] { message.GetType() });
             }
 
             Assert.AreEqual(message.InvalidCharacter, ((TestMessageWithChar)messageDeserialized[0]).InvalidCharacter);

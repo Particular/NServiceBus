@@ -15,8 +15,14 @@ namespace NServiceBus.TransportTests
         {
             var onMessageInvoked = CreateTaskCompletionSource<MessageContext>();
 
+            byte[] messageBody = null;
+
             await StartPump(
-                (context, _) => onMessageInvoked.SetCompleted(context),
+                (context, _) =>
+                {
+                    messageBody = context.Body.ToArray();
+                    return onMessageInvoked.SetCompleted(context);
+                },
                 (_, __) => Task.FromResult(ErrorHandleResult.Handled),
                 transactionMode);
 
@@ -26,7 +32,7 @@ namespace NServiceBus.TransportTests
 
             Assert.False(string.IsNullOrEmpty(messageContext.NativeMessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
-            Assert.AreEqual(new byte[] { 1, 2, 3 }, messageContext.Body, "Should pass the body");
+            Assert.AreEqual(new byte[] { 1, 2, 3 }, messageBody, "Should pass the body");
         }
     }
 }

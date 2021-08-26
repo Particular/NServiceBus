@@ -62,12 +62,12 @@
                 {
                     var originalBody = context.Body;
 
-                    testContext.OriginalBodyChecksum = Checksum(originalBody);
+                    testContext.OriginalBodyChecksum = Checksum(originalBody.ToArray());
 
                     // modifying the body by adding a line break
                     var modifiedBody = new byte[originalBody.Length + 1];
 
-                    Buffer.BlockCopy(originalBody, 0, modifiedBody, 0, originalBody.Length);
+                    Buffer.BlockCopy(originalBody.ToArray(), 0, modifiedBody, 0, originalBody.Length);
 
                     modifiedBody[modifiedBody.Length - 1] = 13;
 
@@ -103,7 +103,7 @@
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
-                    context.AuditChecksum = Checksum(transportMessage.Body);
+                    context.AuditChecksum = Checksum(transportMessage.Body.ToArray());
                     return Task.FromResult(0);
                 }
 

@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using MessageMutator;
     using NUnit.Framework;
 
@@ -25,12 +24,12 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
             var delayedRetryBody = context.FailedMessages.Single().Value.Single().Body;
 
-            CollectionAssert.AreEqual(context.OriginalBody, delayedRetryBody, "The body of the message sent to Delayed Retry should be the same as the original message coming off the queue");
+            CollectionAssert.AreEqual(context.OriginalBody.ToArray(), delayedRetryBody.ToArray(), "The body of the message sent to Delayed Retry should be the same as the original message coming off the queue");
         }
 
         class Context : ScenarioContext
         {
-            public byte[] OriginalBody { get; set; }
+            public ReadOnlyMemory<byte> OriginalBody { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -60,7 +59,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     var decryptedBody = new byte[originalBody.Length];
 
-                    Buffer.BlockCopy(originalBody, 0, decryptedBody, 0, originalBody.Length);
+                    Buffer.BlockCopy(originalBody.ToArray(), 0, decryptedBody, 0, originalBody.Length);
 
                     //decrypt
                     decryptedBody[0]++;
@@ -71,7 +70,10 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.OutgoingBody[0]--;
+                    var updatedBody = context.OutgoingBody.ToArray();
+                    updatedBody[0]--;
+
+                    context.OutgoingBody = new ReadOnlyMemory<byte>(updatedBody);
                     return Task.FromResult(0);
                 }
 

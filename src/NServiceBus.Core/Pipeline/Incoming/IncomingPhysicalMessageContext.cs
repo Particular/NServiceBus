@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Pipeline;
     using Transport;
 
@@ -13,7 +14,7 @@
 
         public IncomingMessage Message { get; }
 
-        public void UpdateMessage(byte[] body)
+        public void UpdateMessage(ReadOnlyMemory<byte> body)
         {
             Message.UpdateBody(body);
         }

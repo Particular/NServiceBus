@@ -21,7 +21,7 @@
     <q1:FirstMessage></q1:FirstMessage>
 </Messages>
 ";
-            using (Stream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 var writer = new StreamWriter(stream);
                 writer.Write(xml);
@@ -30,7 +30,7 @@
 
                 var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(Namespace1.FirstMessage), typeof(Namespace2.FirstMessage));
 
-                var messageDeserialized = serializer.Deserialize(stream);
+                var messageDeserialized = serializer.Deserialize(stream.ToArray());
                 Assert.IsInstanceOf<Namespace2.FirstMessage>(messageDeserialized[0]);
                 Assert.IsInstanceOf<Namespace1.FirstMessage>(messageDeserialized[1]);
             }

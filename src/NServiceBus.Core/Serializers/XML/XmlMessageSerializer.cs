@@ -45,21 +45,25 @@ namespace NServiceBus
         /// <summary>
         /// Deserializes from the given stream a set of messages.
         /// </summary>
-        /// <param name="stream">Stream that contains messages.</param>
+        /// <param name="body">Byte array that contains messages.</param>
         /// <param name="messageTypesToDeserialize">
         /// The list of message types to deserialize. If null the types must be inferred
         /// from the serialized data.
         /// </param>
         /// <returns>Deserialized messages.</returns>
-        public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
+        public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypesToDeserialize = null)
         {
-            if (stream == null)
+            if (body.Length == 0)
             {
                 return null;
             }
 
             var deserializer = new XmlDeserialization(mapper, cache, SkipWrappingRawXml, SanitizeInput);
-            return deserializer.Deserialize(stream, messageTypesToDeserialize);
+
+            using (var stream = new ReadOnlyStream(body))
+            {
+                return deserializer.Deserialize(stream, messageTypesToDeserialize);
+            }
         }
 
         /// <summary>

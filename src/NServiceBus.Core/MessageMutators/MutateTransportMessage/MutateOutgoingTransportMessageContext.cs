@@ -1,5 +1,6 @@
 namespace NServiceBus.MessageMutator
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
 
@@ -11,7 +12,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
+        public MutateOutgoingTransportMessageContext(ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingBody), outgoingBody);
@@ -35,7 +36,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public byte[] OutgoingBody
+        public ReadOnlyMemory<byte> OutgoingBody
         {
             get => outgoingBody;
             set
@@ -78,6 +79,6 @@ namespace NServiceBus.MessageMutator
         object incomingMessage;
 
         internal bool MessageBodyChanged;
-        byte[] outgoingBody;
+        ReadOnlyMemory<byte> outgoingBody;
     }
 }

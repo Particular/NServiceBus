@@ -25,7 +25,7 @@
 
             var errorBody = context.FailedMessages.Single().Value.Single().Body;
 
-            CollectionAssert.AreEqual(context.OriginalBody, errorBody, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
+            CollectionAssert.AreEqual(context.OriginalBody, errorBody.ToArray(), "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
         }
 
         class Context : ScenarioContext
@@ -55,9 +55,9 @@
                 public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     var originalBody = transportMessage.Body;
-                    testContext.OriginalBody = originalBody;
+                    testContext.OriginalBody = originalBody.ToArray();
                     var newBody = new byte[originalBody.Length];
-                    Buffer.BlockCopy(originalBody, 0, newBody, 0, originalBody.Length);
+                    Buffer.BlockCopy(originalBody.ToArray(), 0, newBody, 0, originalBody.Length);
                     //corrupt
                     newBody[1]++;
                     transportMessage.Body = newBody;

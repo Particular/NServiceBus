@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
+    using System;
     using System.Collections.Generic;
     using Pipeline;
     using Routing;
@@ -12,7 +13,7 @@
         /// <summary>
         /// Updates the message with the given body.
         /// </summary>
-        public virtual void UpdateMessage(byte[] body)
+        public virtual void UpdateMessage(ReadOnlyMemory<byte> body)
         {
             Body = body;
         }
@@ -23,7 +24,7 @@
         /// <summary>
         /// A <see cref="T:System.Byte" /> array containing the serialized contents of the outgoing message.
         /// </summary>
-        public byte[] Body { get; set; } = new byte[0];
+        public ReadOnlyMemory<byte> Body { get; set; } = ReadOnlyMemory<byte>.Empty;
 
         /// <summary>
         /// The routing strategies for this message.

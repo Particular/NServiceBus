@@ -56,7 +56,7 @@ namespace NServiceBus.Serializers.XML.Test
                 SerializerFactory.Create<T>().Serialize(message, stream);
                 stream.Position = 0;
 
-                var msgArray = SerializerFactory.Create<T>().Deserialize(stream, new[]
+                var msgArray = SerializerFactory.Create<T>().Deserialize(stream.ToArray(), new[]
                 {
                     message.GetType()
                 });

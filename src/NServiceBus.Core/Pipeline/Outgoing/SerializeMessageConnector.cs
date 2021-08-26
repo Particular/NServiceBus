@@ -28,23 +28,20 @@ namespace NServiceBus
 
             if (context.ShouldSkipSerialization())
             {
-                await stage(this.CreateOutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
+                await stage(this.CreateOutgoingPhysicalMessageContext(ReadOnlyMemory<byte>.Empty, context.RoutingStrategies, context)).ConfigureAwait(false);
                 return;
             }
 
             context.Headers[Headers.ContentType] = messageSerializer.ContentType;
             context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
 
-            var array = Serialize(context);
-            await stage(this.CreateOutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
-        }
-
-        byte[] Serialize(IOutgoingLogicalMessageContext context)
-        {
             using (var ms = new MemoryStream())
             {
                 messageSerializer.Serialize(context.Message.Instance, ms);
-                return ms.ToArray();
+
+                var body = ms.GetBuffer().AsMemory(0, (int)ms.Position);
+
+                await stage(this.CreateOutgoingPhysicalMessageContext(body, context.RoutingStrategies, context)).ConfigureAwait(false);
             }
         }
 
