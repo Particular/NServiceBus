@@ -16,10 +16,10 @@
                         => session.SendLocal(new SomeMessage())
                     )
                 )
-                .Done(c => c.CatchAllHandlerWaCalled)
+                .Done(c => c.CatchAllHandlerWasCalled)
                 .Run();
 
-            Assert.IsTrue(ctx.CatchAllHandlerWaCalled);
+            Assert.IsTrue(ctx.CatchAllHandlerWasCalled);
         }
 
 
@@ -41,7 +41,7 @@
 
                 public Task Handle(object message, IMessageHandlerContext context)
                 {
-                    scenarioContext.CatchAllHandlerWaCalled = true;
+                    scenarioContext.CatchAllHandlerWasCalled = true;
                     return Task.CompletedTask;
                 }
             }
@@ -51,7 +51,7 @@
 
         class CatchAllHandlerScenarioContext : ScenarioContext
         {
-            public bool CatchAllHandlerWaCalled { get; set; }
+            public bool CatchAllHandlerWasCalled { get; set; }
         }
     }
 }
