@@ -47,7 +47,7 @@
             }
         }
 
-        class SomeMessage : IMessage { }
+        public class SomeMessage : IMessage { }
 
         class CatchAllHandlerScenarioContext : ScenarioContext
         {
