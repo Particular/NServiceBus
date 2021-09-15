@@ -136,19 +136,12 @@
             }
         }
 
-        static ServiceLifetime MapLifeCycle(DependencyLifecycle dependencyLifecycle)
+        static ServiceLifetime MapLifeCycle(DependencyLifecycle dependencyLifecycle) => dependencyLifecycle switch
         {
-            switch (dependencyLifecycle)
-            {
-                case DependencyLifecycle.InstancePerCall:
-                    return ServiceLifetime.Transient;
-                case DependencyLifecycle.SingleInstance:
-                    return ServiceLifetime.Singleton;
-                case DependencyLifecycle.InstancePerUnitOfWork:
-                    return ServiceLifetime.Scoped;
-                default:
-                    throw new NotSupportedException($"{dependencyLifecycle} is not supported.");
-            }
-        }
+            DependencyLifecycle.InstancePerCall => ServiceLifetime.Transient,
+            DependencyLifecycle.SingleInstance => ServiceLifetime.Singleton,
+            DependencyLifecycle.InstancePerUnitOfWork => ServiceLifetime.Scoped,
+            _ => throw new NotSupportedException($"{dependencyLifecycle} is not supported.")
+        };
     }
 }

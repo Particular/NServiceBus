@@ -38,6 +38,6 @@
         }
 
         static EnumAwareStrategy enumAwareStrategy;
-        public static EnumAwareStrategy Instance => enumAwareStrategy ?? (enumAwareStrategy = new EnumAwareStrategy());
+        public static EnumAwareStrategy Instance => enumAwareStrategy ??= new EnumAwareStrategy();
     }
 }
