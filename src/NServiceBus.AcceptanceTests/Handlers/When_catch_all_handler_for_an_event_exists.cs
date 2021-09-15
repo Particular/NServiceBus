@@ -10,15 +10,16 @@
         [Test]
         public async Task It_should_be_invoked()
         {
+            Requires.MessageDrivenPubSub();
+
             var ctx = await Scenario.Define<CatchAllEventHandlerScenarioContext>()
                 .WithEndpoint<EndpointWithCatchAllHandler>(b
-                    => b.When(async session
-                            =>
-                        {
-                            await session.Subscribe<SomeEvent>();
-                            await session.Publish(new SomeEvent());
-                        }
-                    ))
+                    => b.When(session => session.Subscribe<SomeEvent>())
+                        .When(
+                        c => c.EndpointSubscribed,
+                        session => session.Publish(new SomeEvent())
+                    )
+                )
                 .Done(x => x.CatchAllHandlerWasCalled)
                 .Run();
 
@@ -30,7 +31,12 @@
         {
             public EndpointWithCatchAllHandler()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(
+                    config => config.OnEndpointSubscribed<CatchAllEventHandlerScenarioContext>(
+                            (sub, ctx) => ctx.EndpointSubscribed = true
+                        ),
+                    metadata => metadata.RegisterPublisherFor<SomeEvent>(typeof(EndpointWithCatchAllHandler))
+                );
             }
 
             public class CatchAllMessageHandler : IHandleMessages<object>
@@ -54,6 +60,7 @@
 
         class CatchAllEventHandlerScenarioContext : ScenarioContext
         {
+            public bool EndpointSubscribed { get; set; }
             public bool CatchAllHandlerWasCalled { get; set; }
         }
     }
