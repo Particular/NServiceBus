@@ -41,24 +41,15 @@ namespace NServiceBus
             return ResolveRoute(route, context);
         }
 
-        UnicastRoute SelectRoute(State state, IOutgoingSendContext context)
+        UnicastRoute SelectRoute(State state, IOutgoingSendContext context) => state.Option switch
         {
-            switch (state.Option)
-            {
-                case RouteOption.ExplicitDestination:
-                    return UnicastRoute.CreateFromPhysicalAddress(state.ExplicitDestination);
-                case RouteOption.RouteToThisInstance:
-                    return RouteToThisInstance();
-                case RouteOption.RouteToAnyInstanceOfThisEndpoint:
-                    return RouteToAnyInstance();
-                case RouteOption.RouteToSpecificInstance:
-                    return RouteToSpecificInstance(context, state.SpecificInstance);
-                case RouteOption.None:
-                    return RouteUsingTable(context);
-                default:
-                    throw new Exception($"Unsupported route option: {state.Option}");
-            }
-        }
+            RouteOption.ExplicitDestination => UnicastRoute.CreateFromPhysicalAddress(state.ExplicitDestination),
+            RouteOption.RouteToThisInstance => RouteToThisInstance(),
+            RouteOption.RouteToAnyInstanceOfThisEndpoint => RouteToAnyInstance(),
+            RouteOption.RouteToSpecificInstance => RouteToSpecificInstance(context, state.SpecificInstance),
+            RouteOption.None => RouteUsingTable(context),
+            _ => throw new Exception($"Unsupported route option: {state.Option}")
+        };
 
         UnicastRoute RouteToThisInstance()
         {

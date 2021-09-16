@@ -79,20 +79,13 @@ namespace NServiceBus
                     break;
             }
 
-            string GetRemainingDaysString(int? remainingDays)
+            static string GetRemainingDaysString(int? remainingDays) => remainingDays switch
             {
-                switch (remainingDays)
-                {
-                    case null:
-                        return "soon";
-                    case 0:
-                        return "today";
-                    case 1:
-                        return "in 1 day";
-                    default:
-                        return $"in {remainingDays} days";
-                }
-            }
+                null => "soon",
+                0 => "today",
+                1 => "in 1 day",
+                _ => $"in {remainingDays} days"
+            };
         }
 
         static void LogFindResults(ActiveLicenseFindResult result)
