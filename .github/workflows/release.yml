@@ -81,7 +81,7 @@ jobs:
           path: octopus-package/*
           retention-days: 1
       - name: Push package to Octopus Deploy
-        uses: OctopusDeploy/push-package-action@v1.0.0
+        uses: OctopusDeploy/push-package-action@v1.1.1
         with:
           server: https://deploy.particular.net
           api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
