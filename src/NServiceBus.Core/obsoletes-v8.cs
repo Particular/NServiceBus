@@ -59,12 +59,14 @@ namespace NServiceBus
         RemoveInVersion = "9",
         TreatAsErrorFromVersion = "8",
         ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class UseTransportExtensions
     {
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
             ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
         {
             throw new NotImplementedException();
