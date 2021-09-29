@@ -4,12 +4,17 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  labels:
+    - "dependencies"
+    - "NuGet"
   open-pull-requests-limit: 10
   ignore:
     # Particular.Analyzers updates are distributed via RepoStandards
     - dependency-name: "Particular.Analyzers"
-    # Changing this dependency affects the .NET SDK and Visual Studio version supported by 
-    # a Roslyn analyzer, updates should be more intentional than an automated update
+    # Changing these 3 dependencies affects the .NET SDK and Visual Studio versions we support 
+    # These types of updates should be more intentional than an automated update
+    - dependency-name: "Microsoft.Build.Utilities.Core"
+    - dependency-name: "Microsoft.CodeAnalysis.CSharp"
     - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
     # GitVersion updates need to be manually tested and verified before updating to a newer version
     - dependency-name: "GitVersion.MsBuild"
@@ -17,4 +22,7 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  labels:
+    - "dependencies"
+    - "github_actions"
   open-pull-requests-limit: 10
