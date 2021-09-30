@@ -1419,16 +1419,17 @@ namespace NServiceBus
     /// <summary>
     /// Configuration extensions for routing.
     /// </summary>
+    [PreObsolete(Note = "Current obsolete points to TransportExtensions replacement, in the future Replacement member should be EndpointConfiguration.UseTransport")]
     public static class RoutingSettingsExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            ReplacementTypeOrMember = "TransportSettings.Routing",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static RoutingSettings Routing(this TransportExtensions config) => throw new NotImplementedException();
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            ReplacementTypeOrMember = "TransportSettings.Routing",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
