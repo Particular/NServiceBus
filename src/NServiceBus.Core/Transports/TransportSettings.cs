@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using Transport;
 
     /// <summary>
@@ -43,6 +44,30 @@ namespace NServiceBus
         {
             Transport.TransportTransactionMode = transportTransactionMode;
             return this;
+        }
+
+        /// <summary>
+        /// This transport does not support a connection string.
+        /// </summary>
+        [PreObsolete(
+            Message = "This transport does not support a connection string.",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions<T> ConnectionString(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This transport does not support a connection string.
+        /// </summary>
+        [PreObsolete(
+            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public TransportExtensions<T> ConnectionString(Func<string> connectionString)
+        {
+            throw new NotImplementedException();
         }
     }
 }

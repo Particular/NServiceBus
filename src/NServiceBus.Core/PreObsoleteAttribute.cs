@@ -10,6 +10,7 @@
         public string RemoveInVersion { get; set; }
         public string TreatAsErrorFromVersion { get; set; }
         public string ReplacementTypeOrMember { get; set; }
+        public string Message { get; set; }
         public string Note { get; set; }
     }
 }
