@@ -346,6 +346,21 @@ namespace NServiceBus.Settings
 namespace NServiceBus
 {
     using System;
+
+    public abstract partial class TransportSettings<T>
+    {
+        [ObsoleteEx(
+            Message = "Loading named connection strings is no longer supported",
+            ReplacementTypeOrMember = "ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9")]
+        public TransportSettings<T> ConnectionStringName(string name) => throw new NotImplementedException();
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
     using Configuration.AdvancedExtensibility;
     using Settings;
     using Transport;
@@ -368,7 +383,7 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "Loading named connection strings is no longer supported",
-            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
+            ReplacementTypeOrMember = "ConnectionString(connectionString)",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public new TransportExtensions<T> ConnectionStringName(string name)
@@ -422,8 +437,8 @@ namespace NServiceBus
 
         [ObsoleteEx(
             Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
-            ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "7.0",
+            ReplacementTypeOrMember = "ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public TransportExtensions ConnectionStringName(string name)
         {

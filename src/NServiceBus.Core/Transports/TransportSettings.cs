@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Holds transports settings.
     /// </summary>
-    public abstract class TransportSettings<T> where T : TransportDefinition
+    public abstract partial class TransportSettings<T> where T : TransportDefinition
     {
         /// <summary>
         /// Instance of <see cref="TransportDefinition"/>.
