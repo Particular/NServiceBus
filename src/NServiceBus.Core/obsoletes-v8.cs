@@ -1356,7 +1356,6 @@ namespace NServiceBus.Transport
 namespace NServiceBus
 {
     using System;
-    using Transport;
 
     /// <summary>
     /// Configuration extensions for routing.
@@ -1365,17 +1364,10 @@ namespace NServiceBus
     public static class RoutingSettingsExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "TransportSettings.Routing",
+            ReplacementTypeOrMember = "TransportExtensions<T>.Routing()",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static RoutingSettings Routing(this TransportExtensions config) => throw new NotImplementedException();
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "TransportSettings.Routing",
-            TreatAsErrorFromVersion = "8",
-            RemoveInVersion = "9")]
-        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
-            where T : TransportDefinition => throw new NotImplementedException();
     }
 }
 

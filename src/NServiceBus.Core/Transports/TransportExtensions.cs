@@ -12,19 +12,19 @@
         Message = "Configure the transport via the TransportDefinition instance's properties",
         TreatAsErrorFromVersion = "9",
         RemoveInVersion = "10")]
-    public abstract class TransportExtensions<T> where T : TransportDefinition
+    public class TransportExtensions<T> where T : TransportDefinition
     {
         /// <summary>
         /// Instance of <see cref="TransportDefinition"/>.
         /// </summary>
-        protected readonly T Transport;
+        public T Transport { get; }
 
         readonly RoutingSettings<T> routing;
 
         /// <summary>
         /// Creates an instance of <see cref="TransportExtensions{T}"/>.
         /// </summary>
-        protected TransportExtensions(T transport, RoutingSettings<T> routing)
+        public TransportExtensions(T transport, RoutingSettings<T> routing)
         {
             Transport = transport;
             this.routing = routing;
@@ -34,7 +34,7 @@
         /// Initializes a new instance of <see cref="TransportExtensions{T}" />.
         /// </summary>
         [ObsoleteEx(
-            Message = "Configure the transport via the TransportDefinition instance's properties",
+            Message = "TransportExtensions does not use a SettingsHolder. Get an instance from endpointConfiguration.UseTransport<TTransport>(), or configure the transport directly via the TransportDefinition instance's properties.",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public TransportExtensions(SettingsHolder settings)
