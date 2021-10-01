@@ -39,7 +39,7 @@ namespace NServiceBus
         [PreObsolete(
             ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode",
             TreatAsErrorFromVersion = "9",
-            RemoveInVersion = "9.0")]
+            RemoveInVersion = "10")]
         public TransportSettings<T> Transactions(TransportTransactionMode transportTransactionMode)
         {
             Transport.TransportTransactionMode = transportTransactionMode;
