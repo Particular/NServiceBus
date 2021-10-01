@@ -3,7 +3,7 @@
     /// <summary>
     /// Learning transport configuration settings.
     /// </summary>
-    public class LearningTransportSettings : TransportSettings<LearningTransport>
+    public class LearningTransportSettings : TransportExtensions<LearningTransport>
     {
         internal LearningTransportSettings(LearningTransport transport, RoutingSettings<LearningTransport> routing)
             : base(transport, routing)

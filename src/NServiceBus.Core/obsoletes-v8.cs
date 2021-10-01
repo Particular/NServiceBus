@@ -346,92 +346,19 @@ namespace NServiceBus.Settings
 namespace NServiceBus
 {
     using System;
-
-    public abstract partial class TransportSettings<T>
-    {
-        [ObsoleteEx(
-            Message = "Loading named connection strings is no longer supported",
-            ReplacementTypeOrMember = "ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "8",
-            RemoveInVersion = "9")]
-        public TransportSettings<T> ConnectionStringName(string name) => throw new NotImplementedException();
-    }
-}
-
-namespace NServiceBus
-{
-    using System;
-    using Configuration.AdvancedExtensibility;
     using Settings;
-    using Transport;
 
-    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
     [ObsoleteEx(
         Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "9.0",
+        TreatAsErrorFromVersion = "8.0",
         RemoveInVersion = "9.0")]
-    public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
-    {
-        [ObsoleteEx(
-            Message = "Configure the transport via the TransportDefinition instance's properties",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public TransportExtensions(SettingsHolder settings) : base(settings)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Loading named connection strings is no longer supported",
-            ReplacementTypeOrMember = "ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionStringName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionString(string connectionString)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0",
-            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
-        public new TransportExtensions<T> Transactions(TransportTransactionMode transportTransactionMode)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
-    [ObsoleteEx(
-        Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "9.0",
-        RemoveInVersion = "9.0")]
-    public class TransportExtensions : ExposeSettings
+    public class TransportExtensions
     {
         [ObsoleteEx(
             Message = "Configure the transport via the TransportDefinition instance's properties",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public TransportExtensions(SettingsHolder settings)
-            : base(settings)
         {
         }
 
