@@ -65,30 +65,6 @@
         }
 
         /// <summary>
-        /// Configures the transport to use the given func as the connection string.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "This transport does not support a connection string.",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public TransportExtensions<T> ConnectionString(string connectionString)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Configures the transport to use the given func as the connection string.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "This transport does not support a connection string.",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public TransportExtensions<T> ConnectionString(Func<string> connectionString)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Configures the transport to use a specific transaction mode.
         /// </summary>
         [PreObsolete(

@@ -1174,12 +1174,6 @@ namespace NServiceBus
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public TransportExtensions(T transport, NServiceBus.RoutingSettings<T> routing) { }
         public T Transport { get; }
-        [System.Obsolete("This transport does not support a connection string. The member currently throws " +
-            "a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
-        [System.Obsolete("This transport does not support a connection string. The member currently throws " +
-            "a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         [System.Obsolete("Loading named connection strings is no longer supported. Use `ConnectionString(co" +
             "nnectionString)` instead. The member currently throws a NotImplementedException." +
             " Will be removed in version 9.0.0.", true)]
