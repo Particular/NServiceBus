@@ -667,6 +667,12 @@ namespace NServiceBus
     }
     public static class LearningTransportApiExtensions
     {
+        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, System.Func<string> connectionString) { }
+        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string connectionString) { }
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport) { }
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string storageDir) { }
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)

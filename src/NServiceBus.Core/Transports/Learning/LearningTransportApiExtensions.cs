@@ -1,10 +1,36 @@
 ﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Provides support for <see cref="UseTransport{T}"/> transport APIs.
     /// </summary>
     public static class LearningTransportApiExtensions
     {
+        /// <summary>
+        /// Configures the transport to use the given func as the connection string.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "The learning transport does not support a connection string.",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public static TransportExtensions<LearningTransport> ConnectionString(this TransportExtensions<LearningTransport> transport, string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Configures the transport to use the given func as the connection string.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "The learning transport does not support a connection string.",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+        public static TransportExtensions<LearningTransport> ConnectionString(this TransportExtensions<LearningTransport> transport, Func<string> connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>

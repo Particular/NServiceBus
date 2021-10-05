@@ -348,6 +348,8 @@ namespace NServiceBus
     using System;
     using Settings;
 
+    // NOTE: This class no longer is a base class of TransportExtensions<T>, so all these items can be obsolete without affecting anything
+
     [ObsoleteEx(
         Message = "Configure the transport via the TransportDefinition instance's properties",
         TreatAsErrorFromVersion = "8.0",
