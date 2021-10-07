@@ -59,12 +59,14 @@ namespace NServiceBus
         RemoveInVersion = "9",
         TreatAsErrorFromVersion = "8",
         ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class UseTransportExtensions
     {
         [ObsoleteEx(
             RemoveInVersion = "9",
             TreatAsErrorFromVersion = "8",
             ReplacementTypeOrMember = "EndpointConfiguration.UseTransport(TransportDefinition)")]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
         {
             throw new NotImplementedException();
@@ -344,84 +346,28 @@ namespace NServiceBus.Settings
 namespace NServiceBus
 {
     using System;
-    using Configuration.AdvancedExtensibility;
     using Settings;
-    using Transport;
 
-    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
+    // NOTE: This class no longer is a base class of TransportExtensions<T>, so all these items can be obsolete without affecting anything
+
     [ObsoleteEx(
         Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "9.0",
+        TreatAsErrorFromVersion = "8.0",
         RemoveInVersion = "9.0")]
-    public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
-    {
-        [ObsoleteEx(
-            Message = "Configure the transport via the TransportDefinition instance's properties",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public TransportExtensions(SettingsHolder settings) : base(settings)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Loading named connection strings is no longer supported",
-            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionStringName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionString(string connectionString)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Setting connection string at the endpoint level is no longer supported. Transport specific configuration options should be used instead",
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0")]
-        public new TransportExtensions<T> ConnectionString(Func<string> connectionString)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0",
-            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
-        public new TransportExtensions<T> Transactions(TransportTransactionMode transportTransactionMode)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    // The type itself can't be configured with TreatAsErrorFromVersion 8 as downstream extension methods require the type to obsolete their own extension methods.
-    [ObsoleteEx(
-        Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "9.0",
-        RemoveInVersion = "9.0")]
-    public class TransportExtensions : ExposeSettings
+    public class TransportExtensions
     {
         [ObsoleteEx(
             Message = "Configure the transport via the TransportDefinition instance's properties",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public TransportExtensions(SettingsHolder settings)
-            : base(settings)
         {
         }
 
         [ObsoleteEx(
             Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
-            ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
-            TreatAsErrorFromVersion = "7.0",
+            ReplacementTypeOrMember = "ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public TransportExtensions ConnectionStringName(string name)
         {
@@ -1412,25 +1358,18 @@ namespace NServiceBus.Transport
 namespace NServiceBus
 {
     using System;
-    using Transport;
 
     /// <summary>
     /// Configuration extensions for routing.
     /// </summary>
+    [PreObsolete(Note = "Current obsolete points to TransportExtensions replacement, in the future Replacement member should be EndpointConfiguration.UseTransport")]
     public static class RoutingSettingsExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
+            ReplacementTypeOrMember = "TransportExtensions<T>.Routing()",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static RoutingSettings Routing(this TransportExtensions config) => throw new NotImplementedException();
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport",
-            TreatAsErrorFromVersion = "8",
-            RemoveInVersion = "9")]
-        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
-            where T : TransportDefinition => throw new NotImplementedException();
     }
 }
 

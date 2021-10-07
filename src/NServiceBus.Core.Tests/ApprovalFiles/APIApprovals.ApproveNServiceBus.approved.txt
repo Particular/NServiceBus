@@ -665,21 +665,18 @@ namespace NServiceBus
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
-    public static class LearningTransportApiExtensions
+    public static class LearningTransportConfigurationExtensions
     {
-        [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. Will be tr" +
-            "eated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
-        public static NServiceBus.LearningTransportSettings UseTransport<T>(this NServiceBus.EndpointConfiguration config)
+        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, System.Func<string> connectionString) { }
+        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string connectionString) { }
+        public static void NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions) { }
+        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions, string path) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.LearningTransport { }
-    }
-    public class LearningTransportSettings : NServiceBus.TransportSettings<NServiceBus.LearningTransport>
-    {
-        [System.Obsolete("Use `Use LearningTransport.RestrictPayloadSize` instead. Will be treated as an er" +
-            "ror from version 9.0.0. Will be removed in version 10.0.0.", false)]
-        public NServiceBus.LearningTransportSettings NoPayloadSizeRestriction() { }
-        [System.Obsolete("Use `Use LearningTransport.StorageDirectory` instead. Will be treated as an error" +
-            " from version 9.0.0. Will be removed in version 10.0.0.", false)]
-        public NServiceBus.LearningTransportSettings StorageDirectory(string storageDir) { }
     }
     public static class LoadMessageHandlersExtensions
     {
@@ -961,13 +958,9 @@ namespace NServiceBus
     }
     public static class RoutingSettingsExtensions
     {
-        [System.Obsolete("Use `EndpointConfiguration.UseTransport` instead. The member currently throws a N" +
-            "otImplementedException. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `TransportExtensions<T>.Routing()` instead. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
-        [System.Obsolete("Use `EndpointConfiguration.UseTransport` instead. The member currently throws a N" +
-            "otImplementedException. Will be removed in version 9.0.0.", true)]
-        public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
-            where T : NServiceBus.Transport.TransportDefinition { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
         where T : NServiceBus.Transport.TransportDefinition
@@ -1154,8 +1147,8 @@ namespace NServiceBus
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
     [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
-        "e treated as an error from version 9.0.0. Will be removed in version 9.0.0.", false)]
-    public class TransportExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+        "e removed in version 9.0.0.", true)]
+    public class TransportExtensions
     {
         [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
             "e removed in version 9.0.0.", true)]
@@ -1168,49 +1161,25 @@ namespace NServiceBus
             " specific configuration options should be used instead. The member currently thr" +
             "ows a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
-        [System.Obsolete(@"The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString). Use `TransportExtensions.ConnectionString(connectionString)` instead. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete(@"The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString). Use `ConnectionString(connectionString)` instead. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
         [System.Obsolete("Use `TransportDefinition.TransportTransactionMode` instead. The member currently " +
             "throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public NServiceBus.TransportExtensions Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
-    [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
-        "e treated as an error from version 9.0.0. Will be removed in version 9.0.0.", false)]
-    public class TransportExtensions<T> : NServiceBus.TransportExtensions
+    public class TransportExtensions<T>
         where T : NServiceBus.Transport.TransportDefinition
     {
-        [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. The me" +
-            "mber currently throws a NotImplementedException. Will be removed in version 9.0." +
-            "0.", true)]
+        [System.Obsolete(@"TransportExtensions does not use a SettingsHolder. Get an instance from endpointConfiguration.UseTransport<TTransport>(), or configure the transport directly via the TransportDefinition instance's properties. The member currently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        [System.Obsolete("Setting connection string at the endpoint level is no longer supported. Transport" +
-            " specific configuration options should be used instead. The member currently thr" +
-            "ows a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
-        [System.Obsolete("Setting connection string at the endpoint level is no longer supported. Transport" +
-            " specific configuration options should be used instead. The member currently thr" +
-            "ows a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public new NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
-        [System.Obsolete("Loading named connection strings is no longer supported. Use `TransportExtensions" +
-            "<T>.ConnectionString(connectionString)` instead. The member currently throws a N" +
-            "otImplementedException. Will be removed in version 9.0.0.", true)]
-        public new NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
-        [System.Obsolete("Use `TransportDefinition.TransportTransactionMode` instead. The member currently " +
-            "throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public new NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
-    }
-    public abstract class TransportSettings<T>
-        where T : NServiceBus.Transport.TransportDefinition
-    {
-        protected readonly T Transport;
-        protected TransportSettings(T transport, NServiceBus.RoutingSettings<T> routing) { }
-        [System.Obsolete("Use `Use EndpointConfiguration.UseTransport() to access routing settings` instead" +
-            ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
-            "0.0.", false)]
+        public TransportExtensions(T transport, NServiceBus.RoutingSettings<T> routing) { }
+        public T Transport { get; }
+        [System.Obsolete("Loading named connection strings is no longer supported. Use `ConnectionString(co" +
+            "nnectionString)` instead. The member currently throws a NotImplementedException." +
+            " Will be removed in version 9.0.0.", true)]
+        public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
         public NServiceBus.RoutingSettings<T> Routing() { }
-        [System.Obsolete("Use `TransportDefinition.TransportTransactionMode` instead. Will be treated as an" +
-            " error from version 9.0.0. Will be removed in version 9.0.0.", false)]
-        public NServiceBus.TransportSettings<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
+        public NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     public enum TransportTransactionMode
     {
