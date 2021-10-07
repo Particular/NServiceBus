@@ -665,7 +665,7 @@ namespace NServiceBus
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
-    public static class LearningTransportApiExtensions
+    public static class LearningTransportConfigurationExtensions
     {
         [System.Obsolete("The learning transport does not support a connection string. The member currently" +
             " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
@@ -673,8 +673,8 @@ namespace NServiceBus
         [System.Obsolete("The learning transport does not support a connection string. The member currently" +
             " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string connectionString) { }
-        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport) { }
-        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string storageDir) { }
+        public static void NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions) { }
+        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions, string path) { }
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.LearningTransport { }
     }

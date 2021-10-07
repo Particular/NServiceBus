@@ -3,9 +3,9 @@
     using System;
 
     /// <summary>
-    /// Provides support for <see cref="UseTransport{T}"/> transport APIs.
+    /// Configuration options for the learning transport.
     /// </summary>
-    public static class LearningTransportApiExtensions
+    public static class LearningTransportConfigurationExtensions
     {
         /// <summary>
         /// Configures the transport to use the given func as the connection string.
@@ -57,11 +57,9 @@
             RemoveInVersion = "10",
             TreatAsErrorFromVersion = "9",
             ReplacementTypeOrMember = "Use LearningTransport.StorageDirectory")]
-        public static TransportExtensions<LearningTransport> StorageDirectory(this TransportExtensions<LearningTransport> transport, string storageDir)
+        public static void StorageDirectory(this TransportExtensions<LearningTransport> transportExtensions, string path)
         {
-            transport.Transport.StorageDirectory = storageDir;
-
-            return transport;
+            transportExtensions.Transport.StorageDirectory = path;
         }
 
         /// <summary>
@@ -71,11 +69,9 @@
             RemoveInVersion = "10",
             TreatAsErrorFromVersion = "9",
             ReplacementTypeOrMember = "Use LearningTransport.RestrictPayloadSize")]
-        public static TransportExtensions<LearningTransport> NoPayloadSizeRestriction(this TransportExtensions<LearningTransport> transport)
+        public static void NoPayloadSizeRestriction(this TransportExtensions<LearningTransport> transportExtensions)
         {
-            transport.Transport.RestrictPayloadSize = false;
-
-            return transport;
+            transportExtensions.Transport.RestrictPayloadSize = false;
         }
     }
 }
