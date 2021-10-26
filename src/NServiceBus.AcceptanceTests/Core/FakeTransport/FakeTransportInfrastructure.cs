@@ -49,5 +49,10 @@
 
             return Task.CompletedTask;
         }
+
+        public override string ToTransportAddress(QueueAddress address)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

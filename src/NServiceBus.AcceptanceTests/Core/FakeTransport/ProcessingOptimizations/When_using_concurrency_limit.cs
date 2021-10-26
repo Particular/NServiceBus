@@ -112,6 +112,11 @@
             {
                 return Task.CompletedTask;
             }
+
+            public override string ToTransportAddress(QueueAddress address)
+            {
+                return address.ToString();
+            }
         }
     }
 }

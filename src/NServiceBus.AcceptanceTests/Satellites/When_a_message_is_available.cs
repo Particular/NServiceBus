@@ -53,7 +53,11 @@
 
                     var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
 
-                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
+                    context.AddSatelliteReceiver(
+                        "Test satellite",
+                        queueAddress,
+                        satelliteAddress, 
+                        PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, messageContext, cancellationToken) =>
                         {

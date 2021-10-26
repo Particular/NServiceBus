@@ -35,6 +35,7 @@ namespace NServiceBus
             var receiveConfiguration = new Configuration(
                 queueNameBase,
                 localAddress,
+                settings.EndpointInstanceDiscriminator,
                 instanceSpecificQueue,
                 pushRuntimeSettings,
                 purgeOnStartup,
@@ -54,9 +55,9 @@ namespace NServiceBus
 
         public class Configuration
         {
-            public Configuration(
-                string queueNameBase,
+            public Configuration(string queueNameBase,
                 string localAddress,
+                string instanceDiscriminator,
                 string instanceSpecificQueue,
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
@@ -70,6 +71,7 @@ namespace NServiceBus
             {
                 QueueNameBase = queueNameBase;
                 LocalAddress = localAddress;
+                InstanceDiscriminator = instanceDiscriminator;
                 InstanceSpecificQueue = instanceSpecificQueue;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;
@@ -84,6 +86,8 @@ namespace NServiceBus
             }
 
             public string LocalAddress { get; }
+
+            public string InstanceDiscriminator { get; }
 
             public string InstanceSpecificQueue { get; }
 
@@ -103,9 +107,9 @@ namespace NServiceBus
 
             public Conventions Conventions { get; }
 
-            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
+            public void AddSatelliteReceiver(string name, QueueAddress queueAddress, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
             {
-                var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
+                var satelliteDefinition = new SatelliteDefinition(name, queueAddress, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 
                 satelliteDefinitions.Add(satelliteDefinition);
             }

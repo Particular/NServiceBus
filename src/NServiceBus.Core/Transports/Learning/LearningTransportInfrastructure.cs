@@ -73,12 +73,15 @@
 
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
+            var queueAddress = ToTransportAddress(receiveSettings.ReceiverName);
+
             ISubscriptionManager subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe)
             {
-                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
+                
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
             }
-            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
             return pump;
         }
 
@@ -101,6 +104,11 @@
         public override Task Shutdown(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
+        }
+
+        public override string ToTransportAddress(QueueAddress address)
+        {
+            throw new NotImplementedException();
         }
     }
 }

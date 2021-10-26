@@ -8,7 +8,7 @@
         /// <summary>
         /// Creates a new instance of <see cref="ReceiveSettings"/>.
         /// </summary>
-        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue)
+        public ReceiveSettings(string id, QueueAddress receiveName, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue)
         {
             Id = id;
             ReceiveAddress = receiveAddress;
@@ -21,6 +21,11 @@
         /// A unique identifier for the related <see cref="IMessageReceiver"/>.
         /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// The logical name of the receiver. The name will be translated by <see cref="TransportInfrastructure.ToTransportAddress"/>.
+        /// </summary>
+        public QueueAddress ReceiverName { get; set; }
 
         /// <summary>
         /// The queue address the <see cref="IMessageReceiver"/> should receive messages from.

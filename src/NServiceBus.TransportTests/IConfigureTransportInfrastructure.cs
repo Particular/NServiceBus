@@ -18,7 +18,7 @@ namespace NServiceBus.TransportTests
         /// <summary>
         /// Gives the transport a chance to configure before the test starts.
         /// </summary>
-        Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName, CancellationToken cancellationToken = default);
+        Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, QueueAddress inputQueueName, string errorQueueName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gives the transport chance to clean up after the test is complete. Implementations of this class may store

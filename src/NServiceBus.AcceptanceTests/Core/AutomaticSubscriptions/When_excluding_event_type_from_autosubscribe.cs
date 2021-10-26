@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using Features;
     using Logging;
@@ -43,8 +44,8 @@
             public Subscriber()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
+                    {
+                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
                     c.AutoSubscribe().DisableFor<EventToExclude>();
                     c.AutoSubscribe().DisableFor(typeof(EventWithNoPublisher));
                 },

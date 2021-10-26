@@ -71,6 +71,7 @@ namespace NServiceBus
             {
                 new ReceiveSettings(
                     MainReceiverId,
+                    new QueueAddress(configuration.QueueNameBase, null, null, null),
                     configuration.LocalAddress,
                     configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
                     configuration.PurgeOnStartup,
@@ -82,6 +83,7 @@ namespace NServiceBus
             {
                 receiveSettings.Add(new ReceiveSettings(
                     InstanceSpecificReceiverId,
+                    new QueueAddress(configuration.QueueNameBase, configuration.InstanceDiscriminator, null, null),
                     configuration.InstanceSpecificQueue,
                     false,
                     configuration.PurgeOnStartup,
@@ -90,6 +92,7 @@ namespace NServiceBus
 
             receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
                 definition.Name,
+                new QueueAddress(definition.ReceiveAddress, null, null, null),
                 definition.ReceiveAddress,
                 false,
                 configuration.PurgeOnStartup,
