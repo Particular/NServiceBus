@@ -90,7 +90,7 @@ namespace NServiceBus
 
             receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
                 definition.Name,
-                new QueueAddress(definition.ReceiveAddress, null, null, null),
+                definition.ReceiveAddress,
                 false,
                 configuration.PurgeOnStartup,
                 errorQueue)));
@@ -163,9 +163,9 @@ namespace NServiceBus
                 try
                 {
                     var satellitePump = transportInfrastructure.Receivers[satellite.Name];
-
+                    var pipelineAddress = transportInfrastructure.ToTransportAddress(satellite.ReceiveAddress);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
+                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, pipelineAddress);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
                         satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
