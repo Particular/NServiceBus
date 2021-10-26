@@ -25,7 +25,7 @@
             infrastructure.ConfigureSendInfrastructure();
             infrastructure.ConfigureReceiveInfrastructure();
 
-            OnTransportInitialize((receivers.Select(r => r.ReceiveAddress).ToArray(), sendingAddresses, hostSettings.SetupInfrastructure));
+            OnTransportInitialize((receivers.Select(r => r.ReceiverName).ToArray(), sendingAddresses, hostSettings.SetupInfrastructure));
 
             return Task.FromResult<TransportInfrastructure>(infrastructure);
         }
@@ -66,6 +66,6 @@
             ErrorOnTransportDispose = exception;
         }
 
-        public Action<(string[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
+        public Action<(QueueAddress[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
     }
 }
