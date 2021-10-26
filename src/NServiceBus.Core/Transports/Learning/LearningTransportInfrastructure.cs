@@ -106,9 +106,30 @@
             return Task.CompletedTask;
         }
 
-        public override string ToTransportAddress(QueueAddress address)
+        public override string ToTransportAddress(QueueAddress queueAddress)
         {
-            throw new NotImplementedException();
+            var address = queueAddress.BaseAddress;
+            PathChecker.ThrowForBadPath(address, "endpoint name");
+
+            var discriminator = queueAddress.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
+                address += "-" + discriminator;
+            }
+
+            var qualifier = queueAddress.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
+                address += "-" + qualifier;
+            }
+
+            return address;
         }
     }
 }
