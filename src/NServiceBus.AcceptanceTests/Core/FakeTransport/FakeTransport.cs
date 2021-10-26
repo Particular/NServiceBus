@@ -20,7 +20,7 @@
         {
             StartupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
-            var infrastructure = new FakeTransportInfrastructure(StartupSequence, hostSettings, receivers, sendingAddresses, this);
+            var infrastructure = new FakeTransportInfrastructure(StartupSequence, hostSettings, receivers, this);
 
             infrastructure.ConfigureSendInfrastructure();
             infrastructure.ConfigureReceiveInfrastructure();

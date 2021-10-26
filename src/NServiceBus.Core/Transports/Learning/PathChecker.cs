@@ -3,8 +3,15 @@ namespace NServiceBus
     using System;
     using System.IO;
 
-    static class PathChecker
+    
+    /// <summary>
+    /// TODO (should this be moved to a different namespace)
+    /// </summary>
+    public static class PathChecker
     {
+        /// <summary>
+        /// TODO
+        /// </summary>
         public static void ThrowForBadPath(string value, string valueName)
         {
             var invalidPathChars = Path.GetInvalidPathChars();

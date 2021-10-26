@@ -10,16 +10,14 @@
         readonly FakeTransport.StartUpSequence startUpSequence;
         readonly HostSettings hostSettings;
         readonly ReceiveSettings[] receivers;
-        readonly string[] sendingAddresses;
         readonly FakeTransport transportSettings;
 
         public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
-            ReceiveSettings[] receivers, string[] sendingAddresses, FakeTransport transportSettings)
+            ReceiveSettings[] receivers, FakeTransport transportSettings)
         {
             this.startUpSequence = startUpSequence;
             this.hostSettings = hostSettings;
             this.receivers = receivers;
-            this.sendingAddresses = sendingAddresses;
             this.transportSettings = transportSettings;
         }
 
@@ -50,9 +48,30 @@
             return Task.CompletedTask;
         }
 
-        public override string ToTransportAddress(QueueAddress address)
+        public override string ToTransportAddress(QueueAddress queueAddress)
         {
-            throw new System.NotImplementedException();
+            var address = queueAddress.BaseAddress;
+            PathChecker.ThrowForBadPath(address, "endpoint name");
+
+            var discriminator = queueAddress.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
+                address += "-" + discriminator;
+            }
+
+            var qualifier = queueAddress.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
+                address += "-" + qualifier;
+            }
+
+            return address;
         }
     }
 }
