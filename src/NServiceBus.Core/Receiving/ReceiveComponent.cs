@@ -105,10 +105,9 @@ namespace NServiceBus
 
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
             {
-                configuration.LocalAddress,
-                configuration.InstanceSpecificQueue,
-                configuration.PurgeOnStartup,
                 configuration.QueueNameBase,
+                configuration.InstanceDiscriminator,
+                configuration.PurgeOnStartup,
                 TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
                 configuration.PushRuntimeSettings.MaxConcurrency,
                 Satellites = configuration.SatelliteDefinitions.Select(s => new
@@ -141,8 +140,11 @@ namespace NServiceBus
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
+            
+            //TODO: If we would require the IMessageReceiver to have the translated address as a property we can remove all the additional translations in the ReceiveComponent
+            var localAddress = transportInfrastructure.ToTransportAddress(new QueueAddress(configuration.QueueNameBase, null, null, null));
             var recoverability = recoverabilityExecutorFactory
-                .CreateDefault(configuration.LocalAddress);
+                .CreateDefault(localAddress);
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                 recoverability.Invoke, cancellationToken).ConfigureAwait(false);

@@ -3,6 +3,7 @@ namespace NServiceBus.Transport
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
 
+    //TODO should have ToString overload
     /// <summary>
     /// Represents a queue address.
     /// </summary>
