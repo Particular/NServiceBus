@@ -61,7 +61,7 @@
 
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
-            var queueAddress = ToTransportAddress(receiveSettings.ReceiverName);
+            var queueAddress = ToTransportAddress(receiveSettings.ReceiveAddress);
 
             ISubscriptionManager subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe && transportSettings.SupportsPublishSubscribe)
