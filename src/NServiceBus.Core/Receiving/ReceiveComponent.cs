@@ -141,7 +141,7 @@ namespace NServiceBus
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
-            
+
             //TODO: If we would require the IMessageReceiver to have the translated address as a property we can remove all the additional translations in the ReceiveComponent
             var localAddress = transportInfrastructure.ToTransportAddress(configuration.LocalQueueAddress);
             var recoverability = recoverabilityExecutorFactory

@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.IO;
 
-    
+
     /// <summary>
     /// TODO (should this be moved to a different namespace)
     /// </summary>
