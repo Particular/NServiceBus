@@ -70,8 +70,10 @@ namespace NServiceBus
                 Conventions conventions)
             {
                 QueueNameBase = queueNameBase;
+                LocalQueueAddress = new QueueAddress(QueueNameBase, null, null, null);
                 LocalAddress = localAddress;
                 InstanceDiscriminator = instanceDiscriminator;
+                InstanceSpecificQueueAddress = new QueueAddress(QueueNameBase, instanceDiscriminator, null, null);
                 InstanceSpecificQueue = instanceSpecificQueue;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;
@@ -87,7 +89,11 @@ namespace NServiceBus
 
             public string LocalAddress { get; }
 
+            public QueueAddress LocalQueueAddress { get; }
+
             public string InstanceDiscriminator { get; }
+
+            public QueueAddress InstanceSpecificQueueAddress { get; }
 
             public string InstanceSpecificQueue { get; }
 

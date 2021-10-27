@@ -4,8 +4,10 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
+    using Transports;
 
     class TransportSeam
     {
@@ -48,7 +50,11 @@
 
             var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 
-            hostingConfiguration.Services.ConfigureComponent(() => transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Services.ConfigureComponent(() =>
+                transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
+
+            hostingConfiguration.Services.AddSingleton<ITransportAddressResolver>(_ =>
+                new TransportAddressResolver(transportSeam.TransportInfrastructure));
 
             return transportSeam;
         }

@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
+    using Microsoft.Extensions.DependencyInjection;
     using Transport;
     using Pipeline;
+    using Transports;
 
     partial class RoutingComponent
     {
@@ -36,11 +38,14 @@ namespace NServiceBus
             var isSendOnlyEndpoint = receiveConfiguration.IsSendOnlyEndpoint;
             if (!isSendOnlyEndpoint)
             {
-                pipelineSettings.Register(
-                    new ApplyReplyToAddressBehavior(
-                        receiveConfiguration.LocalAddress,
-                        receiveConfiguration.InstanceSpecificQueue,
-                        configuration.PublicReturnAddress),
+                pipelineSettings.Register(sp =>
+                    {
+                        var transportAddressResolver = sp.GetRequiredService<ITransportAddressResolver>();
+                        return new ApplyReplyToAddressBehavior(
+                            transportAddressResolver.ToTransportAddress(receiveConfiguration.LocalQueueAddress),
+                            transportAddressResolver.ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress),
+                            configuration.PublicReturnAddress);
+                    },
                     "Applies the public reply to address to outgoing messages");
             }
 

@@ -3,6 +3,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
+    using Transports;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -47,12 +48,24 @@
                     var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
                     return transportDefinition.ToTransportAddress(queueAddress);
                 });
-                var subscriberAddress = context.Receiving.LocalAddress;
 
                 context.Pipeline.Register(b =>
-                    new MigrationSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(
+                        b.GetRequiredService<ISubscriptionManager>(),
+                        b.GetRequiredService<MessageMetadataRegistry>(),
+                        subscriptionRouter,
+                        b.GetRequiredService<IMessageDispatcher>(),
+                        b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                        context.Settings.EndpointName()),
+                    "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
-                    new MigrationUnsubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>(), subscriptionRouter, b.GetRequiredService<IMessageDispatcher>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(
+                        b.GetRequiredService<ISubscriptionManager>(),
+                        b.GetRequiredService<MessageMetadataRegistry>(),
+                        subscriptionRouter,
+                        b.GetRequiredService<IMessageDispatcher>(),
+                        b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                        context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

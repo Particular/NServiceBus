@@ -3,6 +3,7 @@ namespace NServiceBus.Features
     using System;
     using Microsoft.Extensions.DependencyInjection;
     using Transport;
+    using Transports;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -85,11 +86,22 @@ namespace NServiceBus.Features
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             if (canReceive)
             {
-                var subscriberAddress = context.Receiving.LocalAddress;
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(b =>
+                        new MessageDrivenSubscribeTerminator(
+                            subscriptionRouter,
+                            b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                            context.Settings.EndpointName(),
+                            b.GetRequiredService<IMessageDispatcher>()),
+                    "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(b =>
+                    new MessageDrivenUnsubscribeTerminator(
+                        subscriptionRouter,
+                        b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                        context.Settings.EndpointName(),
+                        b.GetRequiredService<IMessageDispatcher>()),
+                    "Sends requests to unsubscribe when message driven subscriptions is in use");
             }
             else
             {
