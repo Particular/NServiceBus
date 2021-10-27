@@ -71,7 +71,7 @@ namespace NServiceBus
             {
                 new ReceiveSettings(
                     MainReceiverId,
-                    new QueueAddress(configuration.QueueNameBase, null, null, null),
+                    configuration.LocalQueueAddress,
                     configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
                     configuration.PurgeOnStartup,
                     errorQueue)
@@ -82,7 +82,7 @@ namespace NServiceBus
             {
                 receiveSettings.Add(new ReceiveSettings(
                     InstanceSpecificReceiverId,
-                    new QueueAddress(configuration.QueueNameBase, configuration.InstanceDiscriminator, null, null),
+                    configuration.InstanceSpecificQueueAddress,
                     false,
                     configuration.PurgeOnStartup,
                     errorQueue));
@@ -142,7 +142,7 @@ namespace NServiceBus
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
             
             //TODO: If we would require the IMessageReceiver to have the translated address as a property we can remove all the additional translations in the ReceiveComponent
-            var localAddress = transportInfrastructure.ToTransportAddress(new QueueAddress(configuration.QueueNameBase, null, null, null));
+            var localAddress = transportInfrastructure.ToTransportAddress(configuration.LocalQueueAddress);
             var recoverability = recoverabilityExecutorFactory
                 .CreateDefault(localAddress);
 
