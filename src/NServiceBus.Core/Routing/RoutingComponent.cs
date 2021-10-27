@@ -51,8 +51,8 @@ namespace NServiceBus
 
             var sendRouter = new UnicastSendRouter(
                 isSendOnlyEndpoint,
-                receiveConfiguration?.QueueNameBase,
-                receiveConfiguration?.InstanceSpecificQueue,
+                receiveConfiguration.QueueNameBase,
+                receiveConfiguration.InstanceSpecificQueueAddress,
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,

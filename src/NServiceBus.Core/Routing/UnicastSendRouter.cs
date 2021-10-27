@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Linq;
     using Pipeline;
     using Routing;
+    using Transport;
 
     class UnicastSendRouter
     {
@@ -19,7 +20,7 @@ namespace NServiceBus
         public UnicastSendRouter(
             bool isSendOnly,
             string receiveQueueName,
-            string instanceSpecificQueue,
+            QueueAddress instanceSpecificQueue,
             IDistributionPolicy defaultDistributionPolicy,
             UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
@@ -27,7 +28,10 @@ namespace NServiceBus
         {
             this.isSendOnly = isSendOnly;
             this.receiveQueueName = receiveQueueName;
-            this.instanceSpecificQueue = instanceSpecificQueue;
+            if (instanceSpecificQueue != null)
+            {
+                this.instanceSpecificQueue = new EndpointInstance(instanceSpecificQueue.BaseAddress, instanceSpecificQueue.Discriminator, instanceSpecificQueue.Properties);
+            }
             this.defaultDistributionPolicy = defaultDistributionPolicy;
             this.unicastRoutingTable = unicastRoutingTable;
             this.endpointInstances = endpointInstances;
@@ -63,7 +67,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
 
-            return UnicastRoute.CreateFromPhysicalAddress(instanceSpecificQueue);
+            return UnicastRoute.CreateFromEndpointInstance(instanceSpecificQueue);
         }
 
         UnicastRoute RouteToAnyInstance()
@@ -112,8 +116,7 @@ namespace NServiceBus
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }
 
-        string instanceSpecificQueue;
-
+        EndpointInstance instanceSpecificQueue;
         EndpointInstances endpointInstances;
         Func<EndpointInstance, string> transportAddressTranslation;
         UnicastRoutingTable unicastRoutingTable;

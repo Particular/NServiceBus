@@ -78,7 +78,7 @@ namespace NServiceBus
             };
 
 
-            if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
+            if (configuration.InstanceSpecificQueueAddress != null)
             {
                 receiveSettings.Add(new ReceiveSettings(
                     InstanceSpecificReceiverId,
@@ -122,7 +122,8 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task Initialize(IServiceProvider builder,
+        public async Task Initialize(
+            IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
@@ -152,7 +153,8 @@ namespace NServiceBus
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
             {
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
+                //TODO: If we would require the IMessageReceiver to have the translated address as a property we can remove all the additional translations in the ReceiveComponent
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(transportInfrastructure.ToTransportAddress(configuration.InstanceSpecificQueueAddress));
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                     instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
