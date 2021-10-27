@@ -6,6 +6,7 @@ namespace NServiceBus.Core.Tests.Routing
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class UnicastSendRouterTests
@@ -28,7 +29,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_route_to_local_instance_if_requested_so()
         {
-            var router = CreateRouter("MyInstance");
+            var router = CreateRouter(new QueueAddress("MyInstance", null, null, null));
             var options = new SendOptions();
 
             options.RouteToThisInstance();
@@ -397,7 +398,7 @@ namespace NServiceBus.Core.Tests.Routing
             return addressTag.Destination;
         }
 
-        static UnicastSendRouter CreateRouter(string instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
+        static UnicastSendRouter CreateRouter(QueueAddress instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
         {
             var table = routingTable ?? new UnicastRoutingTable();
             var inst = instances ?? new EndpointInstances();
