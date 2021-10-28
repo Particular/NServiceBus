@@ -14,7 +14,7 @@
         {
             var contextBag = new ContextBag();
             contextBag.Set("MyKey", "MyValue");
-            var context = new ErrorContext(new Exception(), new Dictionary<string, string>(), "ID", new byte[0], new TransportTransaction(), 0, contextBag);
+            var context = new ErrorContext(new Exception(), new Dictionary<string, string>(), "ID", new byte[0], new TransportTransaction(), 0, "my-queue", contextBag);
 
             Assert.AreEqual("MyValue", context.Extensions.Get<string>("MyKey"));
         }

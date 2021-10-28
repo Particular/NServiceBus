@@ -806,6 +806,10 @@ namespace NServiceBus
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
     }
+    public static class PathChecker
+    {
+        public static void ThrowForBadPath(string value, string valueName) { }
+    }
     public class PendingTransportOperations
     {
         public PendingTransportOperations() { }
@@ -1483,7 +1487,7 @@ namespace NServiceBus.Features
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.Settings.IReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
+        public void AddSatelliteReceiver(string name, NServiceBus.Transport.QueueAddress transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<System.IServiceProvider, TTask> startupTaskFactory)
@@ -2448,12 +2452,13 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.IReadOnlyContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.IReadOnlyContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
         public NServiceBus.Extensibility.IReadOnlyContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
+        public string ReceiveAddress { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public enum ErrorHandleResult
@@ -2537,6 +2542,10 @@ namespace NServiceBus.Transport
     {
         System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+    }
+    public interface ITransportAddressResolver
+    {
+        string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress);
     }
     public class IncomingMessage
     {
@@ -2654,11 +2663,11 @@ namespace NServiceBus.Transport
     }
     public class ReceiveSettings
     {
-        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue) { }
+        public ReceiveSettings(string id, NServiceBus.Transport.QueueAddress receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue) { }
         public string ErrorQueue { get; }
         public string Id { get; set; }
         public bool PurgeOnStartup { get; set; }
-        public string ReceiveAddress { get; set; }
+        public NServiceBus.Transport.QueueAddress ReceiveAddress { get; }
         public bool UsePublishSubscribe { get; set; }
     }
     [System.Obsolete("Will be removed in version 9.0.0.", true)]
@@ -2694,6 +2703,7 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
         public System.Collections.Generic.IReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task Shutdown(System.Threading.CancellationToken cancellationToken = default);
+        public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
     public class TransportOperation
     {

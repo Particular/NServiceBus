@@ -342,7 +342,7 @@
                 headers = HeaderSerializer.Deserialize(message);
                 headers.Remove(LearningTransportHeaders.TimeToBeReceived);
 
-                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, processingContext);
+                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, receiveAddress, processingContext);
 
                 ErrorHandleResult result;
 
