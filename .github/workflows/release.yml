@@ -47,7 +47,7 @@ jobs:
           path: nugets/*
           retention-days: 1
       - name: Install Octopus CLI
-        uses: OctopusDeploy/install-octopus-cli-action@v1.1.7
+        uses: OctopusDeploy/install-octopus-cli-action@v1.1.8
         with:
           version: latest
       - name: Create Octopus Package
