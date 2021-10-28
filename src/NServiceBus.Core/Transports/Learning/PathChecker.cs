@@ -5,8 +5,8 @@ namespace NServiceBus
 
 
     /// <summary>
-    /// Helper for file path verification.
     /// TODO (should this be moved to a different namespace)
+    /// Helper for file path verification.
     /// </summary>
     public static class PathChecker
     {
