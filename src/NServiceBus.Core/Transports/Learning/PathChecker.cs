@@ -5,12 +5,13 @@ namespace NServiceBus
 
 
     /// <summary>
+    /// Helper for file path verification.
     /// TODO (should this be moved to a different namespace)
     /// </summary>
     public static class PathChecker
     {
         /// <summary>
-        /// TODO
+        /// Checks a string for invalid file path characters.
         /// </summary>
         public static void ThrowForBadPath(string value, string valueName)
         {
