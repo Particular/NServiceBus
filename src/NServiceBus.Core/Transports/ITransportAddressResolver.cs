@@ -1,7 +1,5 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Transport
 {
-    using Transport;
-
     /// <summary>
     /// Enables translation of logical queue address into transport-specific address strings.
     /// </summary>
