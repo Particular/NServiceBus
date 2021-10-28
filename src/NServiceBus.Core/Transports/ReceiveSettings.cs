@@ -25,7 +25,7 @@
         /// <summary>
         /// The logical name of the receiver. The name will be translated by <see cref="TransportInfrastructure.ToTransportAddress"/>.
         /// </summary>
-        public QueueAddress ReceiveAddress { get; set; }
+        public QueueAddress ReceiveAddress { get; }
 
         /// <summary>
         /// A flag indicating whether events will be subscribed to this receiver's queue.
