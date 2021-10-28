@@ -3,7 +3,6 @@ namespace NServiceBus
     using Microsoft.Extensions.DependencyInjection;
     using Transport;
     using Pipeline;
-    using Transports;
 
     partial class RoutingComponent
     {

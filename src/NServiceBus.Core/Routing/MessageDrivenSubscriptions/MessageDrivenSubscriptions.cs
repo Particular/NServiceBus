@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using Microsoft.Extensions.DependencyInjection;
     using Transport;
-    using Transports;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 

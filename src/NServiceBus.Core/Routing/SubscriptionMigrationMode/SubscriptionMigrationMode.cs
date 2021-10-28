@@ -3,7 +3,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
-    using Transports;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
