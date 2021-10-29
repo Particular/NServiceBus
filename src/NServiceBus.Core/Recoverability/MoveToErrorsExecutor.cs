@@ -28,7 +28,6 @@
 
             headers[FaultsHeaderKeys.FailedQ] = errorContext.ReceiveAddress;
 
-
             ExceptionHeaderHelper.SetExceptionHeaders(headers, errorContext.Exception);
 
             foreach (var faultMetadata in staticFaultMetadata)
