@@ -321,7 +321,7 @@
 
             var processingContext = new ContextBag();
 
-            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, receiveAddress, processingContext);
 
             try
             {

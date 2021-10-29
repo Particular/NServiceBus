@@ -16,19 +16,22 @@
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
+        /// <param name="receiveAddress">The receive address.</param>
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, ContextBag context)
+        public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, string receiveAddress, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
+            Guard.AgainstNullAndEmpty(nameof(receiveAddress), receiveAddress);
             Guard.AgainstNull(nameof(context), context);
 
             Headers = headers;
             Body = body;
             NativeMessageId = nativeMessageId;
             Extensions = context;
+            ReceiveAddress = receiveAddress;
             TransportTransaction = transportTransaction;
         }
 
@@ -52,6 +55,10 @@
         /// </summary>
         public TransportTransaction TransportTransaction { get; }
 
+        /// <summary>
+        /// Transport address that received the failed message.
+        /// </summary>
+        public string ReceiveAddress { get; }
         /// <summary>
         /// A <see cref="ContextBag" /> which can be used to extend the current object.
         /// </summary>

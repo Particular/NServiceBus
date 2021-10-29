@@ -2090,7 +2090,7 @@ namespace NServiceBus.Routing
     }
     public class DistributionContext : NServiceBus.Extensibility.IExtendable
     {
-        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
+        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.ITransportAddressResolver addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
@@ -2568,17 +2568,18 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, ReadonlyMemory<byte>, Tra" +
             "nsportTransaction, ContextBag)` instead. The member currently throws a NotImplem" +
             "entedException. Will be removed in version 9.0.0.", true)]
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public System.ReadOnlyMemory<byte> Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         [System.Obsolete("Use `NativeMessageId` instead. Will be removed in version 9.0.0.", true)]
         public string MessageId { get; }
         public string NativeMessageId { get; }
+        public string ReceiveAddress { get; }
         [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
             " 9.0.0.", true)]
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
@@ -2648,6 +2649,7 @@ namespace NServiceBus.Transport
         public string Discriminator { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
         public string Qualifier { get; }
+        public override string ToString() { }
     }
     public class QueueBindings
     {
