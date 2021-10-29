@@ -67,8 +67,7 @@ namespace NServiceBus.Features
                     var transportAddressResolver = b.GetRequiredService<ITransportAddressResolver>();
                     var unicastPublishRouter = new UnicastPublishRouter(
                         b.GetRequiredService<MessageMetadataRegistry>(),
-                        i => transportAddressResolver.ToTransportAddress(
-                            new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)),
+                        transportAddressResolver,
                         b.GetRequiredService<ISubscriptionStorage>());
                     return new UnicastPublishConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");

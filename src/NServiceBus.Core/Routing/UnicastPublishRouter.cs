@@ -9,13 +9,14 @@ namespace NServiceBus
     using Logging;
     using Pipeline;
     using Routing;
+    using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ITransportAddressResolver transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.transportAddressTranslation = transportAddressTranslation;
@@ -97,7 +98,7 @@ namespace NServiceBus
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
-        Func<EndpointInstance, string> transportAddressTranslation;
+        ITransportAddressResolver transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
         static ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
     }

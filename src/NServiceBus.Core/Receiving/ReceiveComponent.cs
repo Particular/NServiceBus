@@ -164,7 +164,6 @@ namespace NServiceBus
                 try
                 {
                     var satellitePump = transportInfrastructure.Receivers[satellite.Name];
-                    var pipelineAddress = transportInfrastructure.ToTransportAddress(satellite.ReceiveAddress);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy);
 

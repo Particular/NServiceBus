@@ -1,27 +1,28 @@
 namespace NServiceBus
 {
+    using System;
     using Microsoft.Extensions.DependencyInjection;
     using Transport;
     using Pipeline;
 
     partial class RoutingComponent
     {
-        RoutingComponent(UnicastSendRouter unicastSendRouter, bool enforceBestPractices)
+        RoutingComponent(bool enforceBestPractices)
         {
             EnforceBestPractices = enforceBestPractices;
-            UnicastSendRouter = unicastSendRouter;
         }
 
         public bool EnforceBestPractices { get; }
 
-        public UnicastSendRouter UnicastSendRouter { get; }
+        public UnicastSendRouter UnicastSendRouterBuilder(IServiceProvider serviceProvider) =>
+            serviceProvider.GetRequiredService<UnicastSendRouter>();
 
         public static RoutingComponent Initialize(
             Configuration configuration,
-            TransportSeam transportSeam,
             ReceiveComponent.Configuration receiveConfiguration,
             Conventions conventions,
-            PipelineSettings pipelineSettings)
+            PipelineSettings pipelineSettings,
+            HostingComponent.Configuration hostingConfiguration)
         {
             var distributionPolicy = configuration.DistributionPolicy;
             var unicastRoutingTable = configuration.UnicastRoutingTable;
@@ -48,23 +49,22 @@ namespace NServiceBus
                     "Applies the public reply to address to outgoing messages");
             }
 
-            var sendRouter = new UnicastSendRouter(
-                isSendOnlyEndpoint,
-                receiveConfiguration.QueueNameBase,
-                receiveConfiguration.InstanceSpecificQueueAddress,
-                distributionPolicy,
-                unicastRoutingTable,
-                endpointInstances,
-                i => transportSeam.TransportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+            hostingConfiguration.Services.AddSingleton(sp =>
+                new UnicastSendRouter(
+                    isSendOnlyEndpoint,
+                    receiveConfiguration.QueueNameBase,
+                    receiveConfiguration.InstanceSpecificQueueAddress,
+                    distributionPolicy,
+                    unicastRoutingTable,
+                    endpointInstances,
+                    sp.GetRequiredService<ITransportAddressResolver>()));
 
             if (configuration.EnforceBestPractices)
             {
                 EnableBestPracticeEnforcement(pipelineSettings, new Validations(conventions));
             }
 
-            return new RoutingComponent(
-                sendRouter,
-                configuration.EnforceBestPractices);
+            return new RoutingComponent(configuration.EnforceBestPractices);
         }
 
         static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)

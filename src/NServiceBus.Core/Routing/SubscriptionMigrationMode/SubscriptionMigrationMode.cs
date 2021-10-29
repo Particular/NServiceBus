@@ -32,11 +32,7 @@
                 var transportAddressResolver = b.GetRequiredService<ITransportAddressResolver>();
                 var unicastPublishRouter = new UnicastPublishRouter(
                     b.GetRequiredService<MessageMetadataRegistry>(),
-                    i =>
-                    {
-                        var queueAddress = new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null);
-                        return transportAddressResolver.ToTransportAddress(queueAddress);
-                    },
+                    transportAddressResolver,
                     b.GetRequiredService<ISubscriptionStorage>());
                 return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");

@@ -404,7 +404,12 @@ namespace NServiceBus.Core.Tests.Routing
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, new FakeAddressResolver());
+        }
+
+        class FakeAddressResolver : ITransportAddressResolver
+        {
+            public string ToTransportAddress(QueueAddress queueAddress) => queueAddress.ToString();
         }
 
         class MyMessage : ICommand

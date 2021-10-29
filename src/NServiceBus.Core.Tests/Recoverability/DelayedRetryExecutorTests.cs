@@ -99,7 +99,6 @@
         ErrorContext CreateErrorContext(Dictionary<string, string> headers = null)
         {
             return new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(), "messageId", new byte[0], new TransportTransaction(), 0, "my-queue", new ContextBag());
-            ;
         }
 
         FakeDispatcher dispatcher;

@@ -24,7 +24,7 @@ namespace NServiceBus
             IDistributionPolicy defaultDistributionPolicy,
             UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
-            Func<EndpointInstance, string> transportAddressTranslation)
+            ITransportAddressResolver transportAddressResolver)
         {
             this.isSendOnly = isSendOnly;
             this.receiveQueueName = receiveQueueName;
@@ -35,7 +35,7 @@ namespace NServiceBus
             this.defaultDistributionPolicy = defaultDistributionPolicy;
             this.unicastRoutingTable = unicastRoutingTable;
             this.endpointInstances = endpointInstances;
-            this.transportAddressTranslation = transportAddressTranslation;
+            this.transportAddressResolver = transportAddressResolver;
         }
 
         public virtual UnicastRoutingStrategy Route(IOutgoingSendContext context)
@@ -108,17 +108,20 @@ namespace NServiceBus
             }
             if (route.Instance != null)
             {
-                return new UnicastRoutingStrategy(transportAddressTranslation(route.Instance));
+                return new UnicastRoutingStrategy(TranslateTransportAddress(route.Instance));
             }
-            var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var distributionContext = new DistributionContext(instances, context.Message, context.MessageId, context.Headers, transportAddressTranslation, context.Extensions);
+            var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => TranslateTransportAddress(e)).ToArray();
+            var distributionContext = new DistributionContext(instances, context.Message, context.MessageId, context.Headers, transportAddressResolver, context.Extensions);
             var selectedInstanceAddress = defaultDistributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectDestination(distributionContext);
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }
 
+        string TranslateTransportAddress(EndpointInstance instance) =>
+            transportAddressResolver.ToTransportAddress(new QueueAddress(instance.Endpoint, instance.Discriminator, instance.Properties, null));
+
         EndpointInstance instanceSpecificQueue;
         EndpointInstances endpointInstances;
-        Func<EndpointInstance, string> transportAddressTranslation;
+        readonly ITransportAddressResolver transportAddressResolver;
         UnicastRoutingTable unicastRoutingTable;
         IDistributionPolicy defaultDistributionPolicy;
         readonly bool isSendOnly;

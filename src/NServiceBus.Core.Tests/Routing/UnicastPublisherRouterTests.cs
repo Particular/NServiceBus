@@ -12,6 +12,7 @@
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
+    using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -130,7 +131,7 @@
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
                 metadataRegistry,
-                i => string.Empty,
+                new FakeAddressResolver(),
                 subscriptionStorage);
 
             logStatements.Clear();
@@ -153,6 +154,11 @@
             {
                 return Task.FromResult<IEnumerable<Subscriber>>(Subscribers);
             }
+        }
+
+        class FakeAddressResolver : ITransportAddressResolver
+        {
+            public string ToTransportAddress(QueueAddress queueAddress) => string.Empty;
         }
 
         class Event : IEvent
