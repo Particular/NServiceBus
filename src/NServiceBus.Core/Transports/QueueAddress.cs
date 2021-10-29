@@ -2,8 +2,8 @@ namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Text;
 
-    //TODO should have ToString overload
     /// <summary>
     /// Represents a queue address.
     /// </summary>
@@ -42,5 +42,41 @@ namespace NServiceBus.Transport
         /// An additional identifier for logical "sub-queues".
         /// </summary>
         public string Qualifier { get; }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the current object.
+        /// </returns>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            if (Qualifier != null)
+            {
+                sb.Append(Qualifier).Append('.');
+            }
+
+            sb.Append(BaseAddress);
+
+            if (Discriminator != null)
+            {
+                sb.Append('-').Append(Discriminator);
+            }
+
+            if (Properties.Count > 0)
+            {
+                sb.Append('(');
+                foreach (var property in Properties)
+                {
+                    sb.Append(property.Key).Append(':').Append(property.Value).Append(';');
+                }
+
+                sb.Length--; // trim last ;
+                sb.Append(')');
+            }
+
+            return sb.ToString();
+        }
     }
 }
