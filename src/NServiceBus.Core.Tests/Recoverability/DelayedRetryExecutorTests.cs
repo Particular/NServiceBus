@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.Transport;
     using NUnit.Framework;
 
@@ -20,28 +21,27 @@
         [Test]
         public async Task Should_float_transport_transaction_to_dispatcher()
         {
-            var transportTransaction = new TransportTransaction();
             var delayedRetryExecutor = CreateExecutor();
-            var incomingMessage = CreateMessage();
+            var errorContext = CreateErrorContext();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction);
+            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero);
 
-            Assert.AreEqual(dispatcher.Transaction, transportTransaction);
+            Assert.AreEqual(dispatcher.Transaction, errorContext.TransportTransaction);
         }
 
         [Test]
         public async Task When_native_delayed_delivery_should_add_delivery_constraint()
         {
             var delayedRetryExecutor = CreateExecutor();
-            var incomingMessage = CreateMessage();
+            var errorContext = CreateErrorContext();
             var delay = TimeSpan.FromSeconds(42);
 
-            await delayedRetryExecutor.Retry(incomingMessage, delay, new TransportTransaction());
+            await delayedRetryExecutor.Retry(errorContext, delay);
 
             var transportOperation = dispatcher.UnicastTransportOperations.Single();
             var deliveryConstraint = transportOperation.Properties.DelayDeliveryWith;
 
-            Assert.AreEqual(transportOperation.Destination, EndpointInputQueue);
+            Assert.AreEqual(transportOperation.Destination, errorContext.ReceiveAddress);
             Assert.IsNotNull(deliveryConstraint);
             Assert.AreEqual(delay, deliveryConstraint.Delay);
         }
@@ -52,14 +52,16 @@
             var delayedRetryExecutor = CreateExecutor();
             var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTimeOffset(2012, 12, 12, 0, 0, 0, TimeSpan.Zero));
 
-            var incomingMessage = CreateMessage(new Dictionary<string, string>
+            var errorContext = CreateErrorContext(new Dictionary<string, string>
             {
                 {Headers.DelayedRetries, "2"},
                 {Headers.DelayedRetriesTimestamp, originalHeadersTimestamp}
             });
 
             var now = DateTimeOffset.UtcNow;
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
+            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero);
+
+            var incomingMessage = errorContext.Message;
 
             var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;
 
@@ -77,30 +79,30 @@
         public async Task Should_add_retry_headers_when_not_present()
         {
             var delayedRetryExecutor = CreateExecutor();
-            var incomingMessage = CreateMessage();
+            var errorContext = CreateErrorContext();
 
-            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new TransportTransaction());
+            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero);
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
 
             Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
-            Assert.IsFalse(incomingMessage.Headers.ContainsKey(Headers.DelayedRetries));
+            Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetries));
             Assert.IsTrue(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp));
-            Assert.IsFalse(incomingMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
-        }
-
-        IncomingMessage CreateMessage(Dictionary<string, string> headers = null)
-        {
-            return new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), new byte[0]);
+            Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
         }
 
         DelayedRetryExecutor CreateExecutor()
         {
-            return new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
+            return new DelayedRetryExecutor(dispatcher);
+        }
+
+        ErrorContext CreateErrorContext(Dictionary<string, string> headers = null)
+        {
+            return new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(), "messageId", new byte[0], new TransportTransaction(), 0, "my-queue", new ContextBag());
+            ;
         }
 
         FakeDispatcher dispatcher;
-        const string EndpointInputQueue = "endpoint input queue";
 
         class FakeDispatcher : IMessageDispatcher
         {

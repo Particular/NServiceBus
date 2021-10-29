@@ -99,7 +99,7 @@
 
             Logger.Error($"Moving message '{message.MessageId}' to the error queue '{errorQueue}' because processing failed due to an exception:", errorContext.Exception);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
+            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, errorContext, cancellationToken).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
@@ -115,7 +115,7 @@
 
             Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
 
-            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
+            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(errorContext, action.Delay, cancellationToken).ConfigureAwait(false);
 
             if (raiseNotifications)
             {

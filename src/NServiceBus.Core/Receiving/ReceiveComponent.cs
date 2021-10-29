@@ -142,10 +142,8 @@ namespace NServiceBus
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
 
-            //TODO: If we would require the IMessageReceiver to have the translated address as a property we can remove all the additional translations in the ReceiveComponent
-            var localAddress = transportInfrastructure.ToTransportAddress(configuration.LocalQueueAddress);
             var recoverability = recoverabilityExecutorFactory
-                .CreateDefault(localAddress);
+                .CreateDefault();
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                 recoverability.Invoke, cancellationToken).ConfigureAwait(false);
@@ -153,8 +151,7 @@ namespace NServiceBus
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
             {
-                //TODO: If we would require the IMessageReceiver to have the translated address as a property we can remove all the additional translations in the ReceiveComponent
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(transportInfrastructure.ToTransportAddress(configuration.InstanceSpecificQueueAddress));
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault();
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                     instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
@@ -169,7 +166,7 @@ namespace NServiceBus
                     var satellitePump = transportInfrastructure.Receivers[satellite.Name];
                     var pipelineAddress = transportInfrastructure.ToTransportAddress(satellite.ReceiveAddress);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, pipelineAddress);
+                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
                         satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);

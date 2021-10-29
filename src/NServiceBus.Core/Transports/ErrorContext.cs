@@ -18,12 +18,14 @@
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
+        /// <param name="receiveAddress">The receive address.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> which can be used to extend the current object.</param>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, IReadOnlyContextBag context)
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, IReadOnlyContextBag context)
         {
             Guard.AgainstNull(nameof(exception), exception);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
             Guard.AgainstNegative(nameof(immediateProcessingFailures), immediateProcessingFailures);
+            Guard.AgainstNullAndEmpty(nameof(receiveAddress), receiveAddress);
             Guard.AgainstNull(nameof(context), context);
 
             Exception = exception;
@@ -31,6 +33,8 @@
             ImmediateProcessingFailures = immediateProcessingFailures;
 
             Message = new IncomingMessage(nativeMessageId, headers, body);
+
+            ReceiveAddress = receiveAddress;
 
             DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
             Extensions = context;
@@ -60,6 +64,11 @@
         /// Failed incoming message.
         /// </summary>
         public IncomingMessage Message { get; }
+
+        /// <summary>
+        /// Transport address that received the failed message.
+        /// </summary>
+        public string ReceiveAddress { get; }
 
         /// <summary>
         /// A collection of additional information provided by the transport.
