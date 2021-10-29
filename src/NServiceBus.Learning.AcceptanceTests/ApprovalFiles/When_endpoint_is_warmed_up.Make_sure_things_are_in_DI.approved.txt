@@ -2,6 +2,7 @@
 NServiceBus.InferredMessageTypeEnricherBehavior - Transient
 NServiceBus.Transport.IMessageDispatcher - Singleton
 NServiceBus.Transport.ISubscriptionManager - Singleton
+NServiceBus.Transport.ITransportAddressResolver - Singleton
 NServiceBus.Unicast.MessageHandlerRegistry - Singleton
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
