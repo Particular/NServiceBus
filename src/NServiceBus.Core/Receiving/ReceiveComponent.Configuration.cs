@@ -73,7 +73,12 @@ namespace NServiceBus
                 LocalQueueAddress = new QueueAddress(QueueNameBase, null, null, null);
                 LocalAddress = localAddress;
                 InstanceDiscriminator = instanceDiscriminator;
-                InstanceSpecificQueueAddress = new QueueAddress(QueueNameBase, instanceDiscriminator, null, null);
+
+                if (instanceDiscriminator != null)
+                {
+                    InstanceSpecificQueueAddress = new QueueAddress(QueueNameBase, instanceDiscriminator, null, null);
+                }
+
                 InstanceSpecificQueue = instanceSpecificQueue;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;

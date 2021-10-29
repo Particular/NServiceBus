@@ -43,7 +43,7 @@ namespace NServiceBus
                         var transportAddressResolver = sp.GetRequiredService<ITransportAddressResolver>();
                         return new ApplyReplyToAddressBehavior(
                             transportAddressResolver.ToTransportAddress(receiveConfiguration.LocalQueueAddress),
-                            transportAddressResolver.ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress),
+                            receiveConfiguration.InstanceSpecificQueueAddress != null ? transportAddressResolver.ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress) : null,
                             configuration.PublicReturnAddress);
                     },
                     "Applies the public reply to address to outgoing messages");
