@@ -39,6 +39,11 @@
         {
             PushRuntimeSettings pushSettings;
 
+            public FakeReceiver(ReceiveSettings settings)
+            {
+                Id = settings.Id;
+            }
+
             public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
             {
                 pushSettings = limitations;
@@ -59,7 +64,7 @@
 
             public ISubscriptionManager Subscriptions { get; }
 
-            public string Id { get; } = "Main";
+            public string Id { get; }
         }
 
         class FakeDispatcher : IMessageDispatcher
@@ -104,7 +109,7 @@
             {
                 Dispatcher = new FakeDispatcher();
                 Receivers = receiveSettings
-                    .Select(settings => new FakeReceiver())
+                    .Select(settings => new FakeReceiver(settings))
                     .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
             }
 
