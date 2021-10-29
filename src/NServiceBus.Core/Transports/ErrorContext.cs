@@ -66,7 +66,7 @@
         public IncomingMessage Message { get; }
 
         /// <summary>
-        /// Failed incoming message.
+        /// Transport address that received the failed message.
         /// </summary>
         public string ReceiveAddress { get; }
 
