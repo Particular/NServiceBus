@@ -57,7 +57,7 @@
                         b.GetRequiredService<MessageMetadataRegistry>(),
                         b.GetRequiredService<SubscriptionRouter>(),
                         b.GetRequiredService<IMessageDispatcher>(),
-                        b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                        b.GetRequiredService<ReceiveAddresses>(),
                         context.Settings.EndpointName()),
                     "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
@@ -66,7 +66,7 @@
                         b.GetRequiredService<MessageMetadataRegistry>(),
                         b.GetRequiredService<SubscriptionRouter>(),
                         b.GetRequiredService<IMessageDispatcher>(),
-                        b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                        b.GetRequiredService<ReceiveAddresses>(),
                         context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();

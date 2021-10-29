@@ -39,13 +39,9 @@ namespace NServiceBus
             if (!isSendOnlyEndpoint)
             {
                 pipelineSettings.Register(sp =>
-                    {
-                        var transportAddressResolver = sp.GetRequiredService<ITransportAddressResolver>();
-                        return new ApplyReplyToAddressBehavior(
-                            transportAddressResolver.ToTransportAddress(receiveConfiguration.LocalQueueAddress),
-                            receiveConfiguration.InstanceSpecificQueueAddress != null ? transportAddressResolver.ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress) : null,
-                            configuration.PublicReturnAddress);
-                    },
+                        new ApplyReplyToAddressBehavior(
+                        sp.GetRequiredService<ReceiveAddresses>(),
+                        configuration.PublicReturnAddress),
                     "Applies the public reply to address to outgoing messages");
             }
 
