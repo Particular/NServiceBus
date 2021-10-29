@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
+    using NServiceBus.Faults;
     using NUnit.Framework;
     using Transport;
 
@@ -90,6 +91,20 @@
             Assert.That(errorContext.Message.Headers.ContainsKey("NServiceBus.ExceptionInfo.ExceptionType"), Is.False);
         }
 
+
+        [Test]
+        public async Task MoveToErrorQueue_should_add_failed_queue_header()
+        {
+            var errorContext = CreateErrorContext();
+
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, errorContext);
+
+            var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
+
+            Assert.That(outgoingMessageHeaders, Contains.Key(FaultsHeaderKeys.FailedQ));
+            Assert.AreEqual(outgoingMessageHeaders[FaultsHeaderKeys.FailedQ], ReceiveAddress);
+        }
+
         [Test]
         public async Task MoveToErrorQueue_should_add_static_fault_info_to_headers()
         {
@@ -123,7 +138,7 @@
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1, Dictionary<string, string> messageHeaders = default)
         {
-            return new ErrorContext(raisedException ?? new Exception(exceptionMessage), messageHeaders ?? new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
+            return new ErrorContext(raisedException ?? new Exception(exceptionMessage), messageHeaders ?? new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, ReceiveAddress, new ContextBag());
         }
 
 
@@ -131,6 +146,7 @@
         FakeDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
         const string ErrorQueueAddress = "errorQ";
+        const string ReceiveAddress = "my-endpoint";
 
         class FakeDispatcher : IMessageDispatcher
         {
