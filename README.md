@@ -1,6 +1,6 @@
 ## Building
 
-To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
+To build NServiceBus just open `NServiceBus.sln` in your favorite IDE.
 
 You'll find the built assemblies in /binaries.
 
