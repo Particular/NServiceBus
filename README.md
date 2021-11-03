@@ -1,6 +1,6 @@
 ## Building
 
-To build NServiceBus just open `NServiceBus.sln` in favorite IDE.
+To build NServiceBus just open `NServiceBus.sln` in Jetbrains Rider.
 
 You'll find the built assemblies in /binaries.
 
