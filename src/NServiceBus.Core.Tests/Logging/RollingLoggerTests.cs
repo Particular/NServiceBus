@@ -112,7 +112,9 @@
         {
             using (var tempPath = new TempPath())
             {
-                var dateTime = new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero);
+                var utcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+
+                var dateTime = new DateTimeOffset(2010, 10, 1, 0, 0, 0, utcOffset);
                 var logger1 = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
                     GetDate = () => dateTime
@@ -196,9 +198,10 @@
         {
             using (var tempPath = new TempPath())
             {
+                var utcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
                 var logger = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
-                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, utcOffset)
                 };
                 logger.WriteLine("Some long text");
                 logger.WriteLine("Bar");
@@ -334,9 +337,10 @@
         {
             using (var tempPath = new TempPath())
             {
+                var utcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
                 var logger = new RollingLogger(tempPath.TempDirectory, numberOfArchiveFilesToKeep: 2, maxFileSize: 5)
                 {
-                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+                    GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, utcOffset)
                 };
                 logger.WriteLine("Long text0");
                 logger.WriteLine("Long text1");
