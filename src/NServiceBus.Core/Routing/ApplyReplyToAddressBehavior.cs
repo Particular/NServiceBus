@@ -14,10 +14,10 @@
             RouteReplyToAnyInstanceOfThisEndpoint
         }
 
-        public ApplyReplyToAddressBehavior(string sharedQueue, string instanceSpecificQueue, string publicReturnAddress)
+        public ApplyReplyToAddressBehavior(ReceiveAddresses receiveAddresses, string publicReturnAddress)
         {
-            this.sharedQueue = sharedQueue;
-            this.instanceSpecificQueue = instanceSpecificQueue;
+            sharedQueue = receiveAddresses.MainReceiveAddress;
+            instanceSpecificQueue = receiveAddresses.InstanceReceiveAddress;
             configuredReturnAddress = publicReturnAddress ?? sharedQueue;
         }
 

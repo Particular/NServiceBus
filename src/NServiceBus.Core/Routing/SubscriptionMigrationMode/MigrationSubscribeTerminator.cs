@@ -17,13 +17,13 @@
     {
         public MigrationSubscribeTerminator(ISubscriptionManager subscriptionManager,
             MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter,
-            IMessageDispatcher dispatcher, string subscriberAddress, string subscriberEndpoint)
+            IMessageDispatcher dispatcher, ReceiveAddresses receiveAddresses, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionRouter = subscriptionRouter;
             this.dispatcher = dispatcher;
-            this.subscriberAddress = subscriberAddress;
+            subscriberAddress = receiveAddresses.MainReceiveAddress;
             this.subscriberEndpoint = subscriberEndpoint;
         }
 

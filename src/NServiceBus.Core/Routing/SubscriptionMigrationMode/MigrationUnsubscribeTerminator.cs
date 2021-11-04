@@ -15,13 +15,13 @@
 
     class MigrationUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MigrationUnsubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter, IMessageDispatcher dispatcher, string replyToAddress, string endpoint)
+        public MigrationUnsubscribeTerminator(ISubscriptionManager subscriptionManager, MessageMetadataRegistry messageMetadataRegistry, SubscriptionRouter subscriptionRouter, IMessageDispatcher dispatcher, ReceiveAddresses receiveAddresses, string endpoint)
         {
             this.subscriptionManager = subscriptionManager;
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionRouter = subscriptionRouter;
             this.dispatcher = dispatcher;
-            this.replyToAddress = replyToAddress;
+            replyToAddress = receiveAddresses.MainReceiveAddress;
             this.endpoint = endpoint;
         }
 

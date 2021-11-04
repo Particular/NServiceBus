@@ -101,14 +101,14 @@ namespace NServiceBus.Features
                 context.Pipeline.Register(b =>
                         new MessageDrivenSubscribeTerminator(
                             b.GetRequiredService<SubscriptionRouter>(),
-                            b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                            b.GetRequiredService<ReceiveAddresses>(),
                             context.Settings.EndpointName(),
                             b.GetRequiredService<IMessageDispatcher>()),
                     "Sends subscription requests when message driven subscriptions is in use");
                 context.Pipeline.Register(b =>
                     new MessageDrivenUnsubscribeTerminator(
                         b.GetRequiredService<SubscriptionRouter>(),
-                        b.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(context.Receiving.LocalQueueAddress),
+                        b.GetRequiredService<ReceiveAddresses>(),
                         context.Settings.EndpointName(),
                         b.GetRequiredService<IMessageDispatcher>()),
                     "Sends requests to unsubscribe when message driven subscriptions is in use");
