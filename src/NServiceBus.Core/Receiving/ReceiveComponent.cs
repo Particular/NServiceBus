@@ -28,6 +28,16 @@ namespace NServiceBus
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
+            hostingConfiguration.Services.AddSingleton(sp =>
+            {
+                var addressResolver = sp.GetRequiredService<ITransportAddressResolver>();
+                return new ReceiveAddresses(
+                    //TODO: should the main address be null on a send-only endpoint?
+                    addressResolver.ToTransportAddress(configuration.LocalQueueAddress),
+                    configuration.InstanceSpecificQueueAddress != null ? addressResolver.ToTransportAddress(configuration.InstanceSpecificQueueAddress) : null,
+                    configuration.SatelliteDefinitions.Select(s => addressResolver.ToTransportAddress(s.ReceiveAddress)).ToArray());
+            });
+
             if (configuration.IsSendOnlyEndpoint)
             {
                 configuration.transportSeam.Configure(new ReceiveSettings[0]);
@@ -116,16 +126,6 @@ namespace NServiceBus
                     s.RuntimeSettings.MaxConcurrency
                 }).ToArray(),
                 MessageHandlers = handlerDiagnostics
-            });
-
-            //TODO what is the desired behavior for send-only endpoints? Should the Main queue be null or the type not be registered?
-            hostingConfiguration.Services.AddSingleton(sp =>
-            {
-                var addressResolver = sp.GetRequiredService<ITransportAddressResolver>();
-                return new ReceiveAddresses(
-                    addressResolver.ToTransportAddress(configuration.LocalQueueAddress),
-                    configuration.InstanceSpecificQueueAddress != null ? addressResolver.ToTransportAddress(configuration.InstanceSpecificQueueAddress) : null,
-                    configuration.SatelliteDefinitions.Select(s => addressResolver.ToTransportAddress(s.ReceiveAddress)).ToArray());
             });
 
             return receiveComponent;
