@@ -859,6 +859,13 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class ReceiveAddresses
+    {
+        public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress = null, string[] satelliteReceiveAddresses = null) { }
+        public string InstanceReceiveAddress { get; }
+        public string MainReceiveAddress { get; }
+        public string[] SatelliteReceiveAddresses { get; }
+    }
     public class ReceivePipelineCompleted
     {
         public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
@@ -2644,7 +2651,7 @@ namespace NServiceBus.Transport
     }
     public class QueueAddress
     {
-        public QueueAddress(string baseAddress, string discriminator, System.Collections.Generic.IReadOnlyDictionary<string, string> properties, string qualifier) { }
+        public QueueAddress(string baseAddress, string discriminator = null, System.Collections.Generic.IReadOnlyDictionary<string, string> properties = null, string qualifier = null) { }
         public string BaseAddress { get; }
         public string Discriminator { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
