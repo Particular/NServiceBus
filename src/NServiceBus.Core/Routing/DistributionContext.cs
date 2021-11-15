@@ -57,7 +57,7 @@ namespace NServiceBus.Routing
         public string ToTransportAddress(EndpointInstance endpointInstance)
         {
             Guard.AgainstNull(nameof(endpointInstance), endpointInstance);
-            return addressResolver.ToTransportAddress(new QueueAddress(endpointInstance.Endpoint, endpointInstance.Discriminator, endpointInstance.Properties, null));
+            return addressResolver.ToTransportAddress(new QueueAddress(endpointInstance.Endpoint, endpointInstance.Discriminator, endpointInstance.Properties));
         }
 
         ITransportAddressResolver addressResolver;

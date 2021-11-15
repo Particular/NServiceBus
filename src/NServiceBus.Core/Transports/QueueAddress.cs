@@ -14,8 +14,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new instance of <see cref="QueueAddress"/>.
         /// </summary>
-        public QueueAddress(string baseAddress, string discriminator, IReadOnlyDictionary<string, string> properties,
-            string qualifier)
+        public QueueAddress(
+            string baseAddress,
+            string discriminator = null,
+            IReadOnlyDictionary<string, string> properties = null,
+            string qualifier = null)
         {
             BaseAddress = baseAddress;
             Discriminator = discriminator;
@@ -46,9 +49,6 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
-        /// <returns>
-        /// A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             var sb = new StringBuilder();

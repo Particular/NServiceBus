@@ -119,7 +119,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     context.AddSatelliteReceiver("MySatellite",
-                        new QueueAddress("MySatelliteAddress", null, null, null),
+                        new QueueAddress("MySatelliteAddress"),
                         PushRuntimeSettings.Default,
                         (_, __) => throw new NotImplementedException(),
                         (_, __, ___) => throw new NotImplementedException());

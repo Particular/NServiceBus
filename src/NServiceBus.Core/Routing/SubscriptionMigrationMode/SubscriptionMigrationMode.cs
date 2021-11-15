@@ -29,10 +29,9 @@
 
             context.Pipeline.Register(b =>
             {
-                var transportAddressResolver = b.GetRequiredService<ITransportAddressResolver>();
                 var unicastPublishRouter = new UnicastPublishRouter(
                     b.GetRequiredService<MessageMetadataRegistry>(),
-                    transportAddressResolver,
+                    b.GetRequiredService<ITransportAddressResolver>(),
                     b.GetRequiredService<ISubscriptionStorage>());
                 return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
@@ -48,7 +47,7 @@
                         publishers,
                         endpointInstances,
                         i => transportAddressResolver.ToTransportAddress(
-                            new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+                            new QueueAddress(i.Endpoint, i.Discriminator, i.Properties)));
                 });
 
                 context.Pipeline.Register(b =>

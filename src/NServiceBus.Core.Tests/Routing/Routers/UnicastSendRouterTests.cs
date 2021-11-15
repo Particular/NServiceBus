@@ -29,7 +29,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_route_to_local_instance_if_requested_so()
         {
-            var router = CreateRouter(new QueueAddress("MyInstance", null, null, null));
+            var router = CreateRouter(new QueueAddress("MyInstance"));
             var options = new SendOptions();
 
             options.RouteToThisInstance();

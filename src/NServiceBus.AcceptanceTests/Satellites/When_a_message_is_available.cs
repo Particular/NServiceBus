@@ -49,9 +49,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var endpointQueueName = context.Settings.EndpointQueueName();
-                    var queueAddress = new QueueAddress(endpointQueueName, null, null, "MySatellite");
-
-                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
+                    var queueAddress = new QueueAddress(endpointQueueName, qualifier: "MySatellite");
 
                     context.AddSatelliteReceiver(
                         "Test satellite",
@@ -66,6 +64,7 @@
                             return Task.FromResult(true);
                         });
 
+                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
                     Address = satelliteAddress;
                 }
 

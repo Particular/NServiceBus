@@ -22,12 +22,12 @@ namespace NServiceBus
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
-            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
+            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase));
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
+                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator));
             }
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
@@ -70,13 +70,13 @@ namespace NServiceBus
                 Conventions conventions)
             {
                 QueueNameBase = queueNameBase;
-                LocalQueueAddress = new QueueAddress(QueueNameBase, null, null, null);
+                LocalQueueAddress = new QueueAddress(QueueNameBase);
                 LocalAddress = localAddress;
                 InstanceDiscriminator = instanceDiscriminator;
 
                 if (instanceDiscriminator != null)
                 {
-                    InstanceSpecificQueueAddress = new QueueAddress(QueueNameBase, instanceDiscriminator, null, null);
+                    InstanceSpecificQueueAddress = new QueueAddress(QueueNameBase, instanceDiscriminator);
                 }
 
                 InstanceSpecificQueue = instanceSpecificQueue;

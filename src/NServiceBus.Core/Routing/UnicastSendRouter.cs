@@ -117,7 +117,7 @@ namespace NServiceBus
         }
 
         string TranslateTransportAddress(EndpointInstance instance) =>
-            transportAddressResolver.ToTransportAddress(new QueueAddress(instance.Endpoint, instance.Discriminator, instance.Properties, null));
+            transportAddressResolver.ToTransportAddress(new QueueAddress(instance.Endpoint, instance.Discriminator, instance.Properties));
 
         EndpointInstance instanceSpecificQueue;
         EndpointInstances endpointInstances;
