@@ -26,7 +26,7 @@
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> { new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1")) });
             router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            terminator = new MessageDrivenUnsubscribeTerminator(router, new ReceiveAddresses("replyToAddress", null, null), "Endpoint", dispatcher);
         }
 
         [Test]
