@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_use_public_return_address_if_specified()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance", null), "PublicAddress");
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance"), "PublicAddress");
             var options = new SendOptions();
             var context = CreateContext(options);
 
@@ -35,7 +35,7 @@
         [Test]
         public async Task Should_default_to_setting_the_reply_to_header_to_this_endpoint()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance", null), null);
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance"), null);
             var options = new SendOptions();
             var context = CreateContext(options);
 
@@ -47,7 +47,7 @@
         [Test]
         public async Task Should_set_the_reply_to_header_to_this_endpoint_when_requested()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance", null), null);
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance"), null);
             var options = new SendOptions();
 
             options.RouteReplyToAnyInstance();
@@ -61,7 +61,7 @@
         [Test]
         public async Task Should_set_the_reply_to_header_to_this_instance_when_requested()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance", null), null);
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance"), null);
             var options = new SendOptions();
 
             options.RouteReplyToThisInstance();
@@ -75,7 +75,7 @@
         [Test]
         public async Task Should_set_the_reply_to_header_a_specified_address_when_requested()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance", null), null);
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance"), null);
             var options = new SendOptions();
 
             options.RouteReplyTo("Destination");
@@ -89,7 +89,7 @@
         [Test]
         public async Task Should_throw_when_trying_to_route_replies_to_this_instance_when_no_instance_id_is_used()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", null, null), null);
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint"), null);
             var options = new SendOptions();
 
             options.RouteReplyToThisInstance();
@@ -110,7 +110,7 @@
         [Test]
         public async Task Should_throw_when_conflicting_settings_are_specified()
         {
-            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance", null), null);
+            var behavior = new ApplyReplyToAddressBehavior(new ReceiveAddresses("MyEndpoint", "MyInstance"), null);
 
             var options = new SendOptions();
             var context = CreateContext(options);

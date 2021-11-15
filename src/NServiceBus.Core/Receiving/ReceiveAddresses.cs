@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Features;
 
     //TODO should this be an interface?
@@ -11,11 +12,11 @@
         /// <summary>
         /// Creates a new instance of <see cref="ReceiveAddresses"/>.
         /// </summary>
-        public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress, string[] satelliteReceiveAddresses)
+        public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress = null, string[] satelliteReceiveAddresses = null)
         {
             MainReceiveAddress = mainReceiveAddress;
             InstanceReceiveAddress = instanceReceiveAddress;
-            SatelliteReceiveAddresses = satelliteReceiveAddresses;
+            SatelliteReceiveAddresses = satelliteReceiveAddresses ?? Array.Empty<string>();
         }
 
         /// <summary>
