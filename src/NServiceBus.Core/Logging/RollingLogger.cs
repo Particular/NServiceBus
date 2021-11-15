@@ -93,7 +93,7 @@ namespace NServiceBus
 
         internal static LogFile GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTimeOffset today)
         {
-            return logFiles.Where(x => x.DatePart == today)
+            return logFiles.Where(x => x.DatePart.Date == today.Date)
                 .OrderByDescending(x => x.SequenceNumber)
                 .FirstOrDefault();
         }
