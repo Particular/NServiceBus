@@ -171,7 +171,10 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             throw new NotImplementedException();
         }
 
+        [Obsolete("Obsolete marker to make the code compile", false)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
         public override string ToTransportAddress(QueueAddress address)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
         {
             throw new NotImplementedException();
         }

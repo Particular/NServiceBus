@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -86,7 +87,10 @@
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
             }
 
+            [Obsolete("Obsolete marker to make the code compile", false)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
             public override string ToTransportAddress(QueueAddress address)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
             {
                 return address.ToString();
             }

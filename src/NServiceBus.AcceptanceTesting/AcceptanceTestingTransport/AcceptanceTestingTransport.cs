@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -25,7 +26,10 @@
             return infrastructure;
         }
 
+        [Obsolete("Obsolete marker to make the code compile", false)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
         public override string ToTransportAddress(QueueAddress address)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
         {
             var baseAddress = address.BaseAddress;
             PathChecker.ThrowForBadPath(baseAddress, "endpoint name");
