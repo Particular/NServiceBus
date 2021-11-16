@@ -30,6 +30,10 @@ namespace NServiceBus
         /// <summary>
         /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
         public static string LocalAddress(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
@@ -60,6 +64,10 @@ namespace NServiceBus
         /// <summary>
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
