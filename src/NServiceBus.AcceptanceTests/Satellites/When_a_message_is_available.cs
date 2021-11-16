@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Satellites
 {
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -14,7 +16,7 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.Address, new MyMessage())))
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.SatelliteReceiveAddress, new MyMessage())))
                 .Done(c => c.MessageReceived)
                 .Run();
 
@@ -41,6 +43,8 @@
 
             public class MySatelliteFeature : Feature
             {
+                public static string SatelliteReceiveAddress;
+
                 public MySatelliteFeature()
                 {
                     EnableByDefault();
@@ -64,11 +68,20 @@
                             return Task.FromResult(true);
                         });
 
-                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
-                    Address = satelliteAddress;
+                    context.RegisterStartupTask(sp => new SatelliteFeatureStartupTask(sp.GetRequiredService<ReceiveAddresses>()));
                 }
 
-                public static string Address;
+                class SatelliteFeatureStartupTask : FeatureStartupTask
+                {
+                    public SatelliteFeatureStartupTask(ReceiveAddresses receiveAddresses)
+                    {
+                        SatelliteReceiveAddress = receiveAddresses.SatelliteReceiveAddresses.Single();
+                    }
+
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                }
             }
         }
 
