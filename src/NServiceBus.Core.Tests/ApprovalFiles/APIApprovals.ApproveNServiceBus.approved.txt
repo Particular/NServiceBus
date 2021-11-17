@@ -1080,7 +1080,15 @@ namespace NServiceBus
         public static string EndpointName(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static string EndpointQueueName(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        [System.Obsolete("Inject the ReceiveAddresses class to access the endpoint\'s receiving transport ad" +
+            "dresses at runtime. See the NServiceBus version 8 upgrade guide for further deta" +
+            "ils. Will be treated as an error from version 9.0.0. Will be removed in version " +
+            "10.0.0.", false)]
         public static string InstanceSpecificQueue(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        [System.Obsolete("Inject the ReceiveAddresses class to access the endpoint\'s receiving transport ad" +
+            "dresses at runtime. See the NServiceBus version 8 upgrade guide for further deta" +
+            "ils. Will be treated as an error from version 9.0.0. Will be removed in version " +
+            "10.0.0.", false)]
         public static string LocalAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
         [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
             " NotImplementedException. Will be removed in version 9.0.0.", true)]
@@ -2704,6 +2712,10 @@ namespace NServiceBus.Transport
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
+        [System.Obsolete("Inject the ITransportAddressResolver type to access the address translation mecha" +
+            "nism at runtime. See the NServiceBus version 8 upgrade guide for further details" +
+            ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
+            "0.0.", false)]
         public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
     public abstract class TransportInfrastructure
