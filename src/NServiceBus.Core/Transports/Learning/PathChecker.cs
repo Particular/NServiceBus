@@ -3,16 +3,8 @@ namespace NServiceBus
     using System;
     using System.IO;
 
-
-    /// <summary>
-    /// TODO (should this be moved to a different namespace)
-    /// Helper for file path verification.
-    /// </summary>
-    public static class PathChecker
+    static class PathChecker
     {
-        /// <summary>
-        /// Checks a string for invalid file path characters.
-        /// </summary>
         public static void ThrowForBadPath(string value, string valueName)
         {
             var invalidPathChars = Path.GetInvalidPathChars();

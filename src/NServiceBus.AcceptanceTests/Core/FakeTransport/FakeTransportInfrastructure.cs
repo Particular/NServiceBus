@@ -51,14 +51,11 @@
         public override string ToTransportAddress(QueueAddress queueAddress)
         {
             var address = queueAddress.BaseAddress;
-            PathChecker.ThrowForBadPath(address, "endpoint name");
 
             var discriminator = queueAddress.Discriminator;
 
             if (!string.IsNullOrEmpty(discriminator))
             {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
                 address += "-" + discriminator;
             }
 
@@ -66,8 +63,6 @@
 
             if (!string.IsNullOrEmpty(qualifier))
             {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
                 address += "-" + qualifier;
             }
 

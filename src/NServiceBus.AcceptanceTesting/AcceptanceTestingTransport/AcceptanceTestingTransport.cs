@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -32,13 +33,13 @@
 #pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
         {
             var baseAddress = address.BaseAddress;
-            PathChecker.ThrowForBadPath(baseAddress, "endpoint name");
+            ThrowForBadPath(baseAddress, "endpoint name");
 
             var discriminator = address.Discriminator;
 
             if (!string.IsNullOrEmpty(discriminator))
             {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+                ThrowForBadPath(discriminator, "endpoint discriminator");
 
                 baseAddress += "-" + discriminator;
             }
@@ -47,7 +48,7 @@
 
             if (!string.IsNullOrEmpty(qualifier))
             {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+                ThrowForBadPath(qualifier, "address qualifier");
 
                 baseAddress += "-" + qualifier;
             }
@@ -75,6 +76,23 @@
                 PathChecker.ThrowForBadPath(value, nameof(StorageLocation));
                 storageLocation = value;
             }
+        }
+
+        static void ThrowForBadPath(string value, string valueName)
+        {
+            var invalidPathChars = Path.GetInvalidPathChars();
+
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            if (value.IndexOfAny(invalidPathChars) < 0)
+            {
+                return;
+            }
+
+            throw new Exception($"The value for '{valueName}' has illegal path characters. Provided value: {value}. Must not contain any of {string.Join(", ", invalidPathChars)}.");
         }
     }
 }

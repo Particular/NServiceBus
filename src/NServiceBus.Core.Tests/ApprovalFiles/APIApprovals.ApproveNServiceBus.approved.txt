@@ -806,10 +806,6 @@ namespace NServiceBus
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
     }
-    public static class PathChecker
-    {
-        public static void ThrowForBadPath(string value, string valueName) { }
-    }
     public class PendingTransportOperations
     {
         public PendingTransportOperations() { }
