@@ -11,14 +11,14 @@ namespace NServiceBus
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
-            if (isSendOnlyEndpoint && settings.CustomLocalAddressProvided)
+            if (isSendOnlyEndpoint && settings.CustomQueueNameBaseProvided)
             {
                 throw new Exception($"Specifying a base name for the input queue using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(baseInputQueueName)` is not supported for send-only endpoints.");
             }
 
             var endpointName = settings.EndpointName;
             var discriminator = settings.EndpointInstanceDiscriminator;
-            var queueNameBase = settings.CustomLocalAddress ?? endpointName;
+            var queueNameBase = settings.CustomQueueNameBase ?? endpointName;
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
