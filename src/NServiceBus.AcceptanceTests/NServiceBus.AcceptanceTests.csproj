@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\TransportSeam\When_transport_is_started.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 
