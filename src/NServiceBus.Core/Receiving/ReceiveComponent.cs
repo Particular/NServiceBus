@@ -37,17 +37,7 @@ namespace NServiceBus
 
             var receiveComponent = new ReceiveComponent(configuration);
 
-            hostingConfiguration.Services.AddSingleton(sp =>
-            {
-                //var addressResolver = sp.GetRequiredService<ITransportAddressResolver>();
-                //return new ReceiveAddresses(
-                //    //TODO: should the main address be null on a send-only endpoint?
-                //    addressResolver.ToTransportAddress(configuration.LocalQueueAddress),
-                //    configuration.InstanceSpecificQueueAddress != null ? addressResolver.ToTransportAddress(configuration.InstanceSpecificQueueAddress) : null,
-                //    configuration.SatelliteDefinitions.Select(s => addressResolver.ToTransportAddress(s.ReceiveAddress)).ToArray());
-
-                return receiveComponent.receiveAddresses;
-            });
+            hostingConfiguration.Services.AddSingleton(sp => receiveComponent.receiveAddresses);
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
