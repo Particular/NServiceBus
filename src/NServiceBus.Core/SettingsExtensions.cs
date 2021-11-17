@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Transport;
     using Settings;
 
     /// <summary>
@@ -43,7 +44,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
             }
 
-            return receiveConfiguration.LocalAddress;
+            return settings.Get<TransportDefinition>().ToTransportAddress(receiveConfiguration.LocalQueueAddress);
         }
 
         /// <summary>
@@ -77,7 +78,13 @@ namespace NServiceBus
                 throw new InvalidOperationException("Instance-specific queue name isn't available since this endpoint is configured to run in send-only mode.");
             }
 
-            return receiveConfiguration.InstanceSpecificQueue;
+            if (receiveConfiguration.InstanceSpecificQueueAddress == null)
+            {
+                return null;
+            }
+
+            return settings.Get<TransportDefinition>().ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress);
+
         }
     }
 }

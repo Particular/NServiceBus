@@ -22,21 +22,19 @@ namespace NServiceBus
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
-            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase));
 
-            string instanceSpecificQueue = null;
+            QueueAddress instanceSpecificQueueAddress = null;
+
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator));
+                instanceSpecificQueueAddress = new QueueAddress(queueNameBase, discriminator);
             }
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
                 queueNameBase,
-                localAddress,
-                settings.EndpointInstanceDiscriminator,
-                instanceSpecificQueue,
+                instanceSpecificQueueAddress,
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
@@ -56,9 +54,7 @@ namespace NServiceBus
         public class Configuration
         {
             public Configuration(string queueNameBase,
-                string localAddress,
-                string instanceDiscriminator,
-                string instanceSpecificQueue,
+                QueueAddress instanceSpecificQueueAddress,
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
@@ -71,15 +67,7 @@ namespace NServiceBus
             {
                 QueueNameBase = queueNameBase;
                 LocalQueueAddress = new QueueAddress(QueueNameBase);
-                LocalAddress = localAddress;
-                InstanceDiscriminator = instanceDiscriminator;
-
-                if (instanceDiscriminator != null)
-                {
-                    InstanceSpecificQueueAddress = new QueueAddress(QueueNameBase, instanceDiscriminator);
-                }
-
-                InstanceSpecificQueue = instanceSpecificQueue;
+                InstanceSpecificQueueAddress = instanceSpecificQueueAddress;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
@@ -92,15 +80,9 @@ namespace NServiceBus
                 this.transportSeam = transportSeam;
             }
 
-            public string LocalAddress { get; }
-
             public QueueAddress LocalQueueAddress { get; }
 
-            public string InstanceDiscriminator { get; }
-
             public QueueAddress InstanceSpecificQueueAddress { get; }
-
-            public string InstanceSpecificQueue { get; }
 
             public PushRuntimeSettings PushRuntimeSettings { get; }
 

@@ -114,8 +114,8 @@ namespace NServiceBus
 
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
             {
-                configuration.QueueNameBase,
-                configuration.InstanceDiscriminator,
+                configuration.LocalQueueAddress,
+                configuration.InstanceSpecificQueueAddress,
                 configuration.PurgeOnStartup,
                 TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
                 configuration.PushRuntimeSettings.MaxConcurrency,
