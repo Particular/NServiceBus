@@ -3,7 +3,6 @@
     using System;
     using Features;
 
-    //TODO should this be an interface?
     /// <summary>
     /// Lists the transport addresses this endpoint is consuming messages from.
     /// </summary>
@@ -25,7 +24,7 @@
         public string MainReceiveAddress { get; }
 
         /// <summary>
-        /// The endpoint's additional, instance-specific input address. This will be <value>null</value> if the endpoint hasn't been configured to be uniquely addressable using <see cref="ReceiveSettingsExtensions.MakeInstanceUniquelyAddressable"/>.
+        /// The endpoint's additional, instance-specific input address. This will be null if the endpoint hasn't been configured to be uniquely addressable using <see cref="ReceiveSettingsExtensions.MakeInstanceUniquelyAddressable"/>.
         /// </summary>
         public string InstanceReceiveAddress { get; }
 
