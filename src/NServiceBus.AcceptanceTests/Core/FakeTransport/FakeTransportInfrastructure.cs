@@ -26,6 +26,7 @@
                 .Select(r =>
                     new FakeReceiver(
                         r.Id,
+                        r.ReceiveAddress.ToString(),
                         transportSettings,
                         startUpSequence,
                         hostSettings.CriticalErrorAction))

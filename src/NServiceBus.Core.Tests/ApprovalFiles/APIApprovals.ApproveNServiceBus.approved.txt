@@ -2528,6 +2528,7 @@ namespace NServiceBus.Transport
     public interface IMessageReceiver
     {
         string Id { get; }
+        string ReceiveAddress { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
         System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);

@@ -32,6 +32,11 @@
         /// The unique identifier of this instance.
         /// </summary>
         string Id { get; }
+
+        /// <summary>
+        /// The transport address this received is receiving messages from.
+        /// </summary>
+        string ReceiveAddress { get; }
     }
 
     /// <summary>

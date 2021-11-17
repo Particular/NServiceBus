@@ -21,6 +21,7 @@ namespace NServiceBus
         }
 
         ISubscriptionManager mainReceiverSubscriptionManager;
+        ReceiveAddresses receiveAddresses;
 
         public static ReceiveComponent Configure(
             Configuration configuration,
@@ -28,16 +29,6 @@ namespace NServiceBus
             HostingComponent.Configuration hostingConfiguration,
             PipelineSettings pipelineSettings)
         {
-            hostingConfiguration.Services.AddSingleton(sp =>
-            {
-                var addressResolver = sp.GetRequiredService<ITransportAddressResolver>();
-                return new ReceiveAddresses(
-                    //TODO: should the main address be null on a send-only endpoint?
-                    addressResolver.ToTransportAddress(configuration.LocalQueueAddress),
-                    configuration.InstanceSpecificQueueAddress != null ? addressResolver.ToTransportAddress(configuration.InstanceSpecificQueueAddress) : null,
-                    configuration.SatelliteDefinitions.Select(s => addressResolver.ToTransportAddress(s.ReceiveAddress)).ToArray());
-            });
-
             if (configuration.IsSendOnlyEndpoint)
             {
                 configuration.transportSeam.Configure(new ReceiveSettings[0]);
@@ -45,6 +36,18 @@ namespace NServiceBus
             }
 
             var receiveComponent = new ReceiveComponent(configuration);
+
+            hostingConfiguration.Services.AddSingleton(sp =>
+            {
+                //var addressResolver = sp.GetRequiredService<ITransportAddressResolver>();
+                //return new ReceiveAddresses(
+                //    //TODO: should the main address be null on a send-only endpoint?
+                //    addressResolver.ToTransportAddress(configuration.LocalQueueAddress),
+                //    configuration.InstanceSpecificQueueAddress != null ? addressResolver.ToTransportAddress(configuration.InstanceSpecificQueueAddress) : null,
+                //    configuration.SatelliteDefinitions.Select(s => addressResolver.ToTransportAddress(s.ReceiveAddress)).ToArray());
+
+                return receiveComponent.receiveAddresses;
+            });
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -107,8 +110,25 @@ namespace NServiceBus
             hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
             // get a reference to the subscription manager as soon as the transport has been created:
             configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
-                receiveComponent.mainReceiverSubscriptionManager =
-                    infrastructure.Receivers[MainReceiverId].Subscriptions;
+            {
+                receiveComponent.mainReceiverSubscriptionManager = infrastructure.Receivers[MainReceiverId].Subscriptions;
+
+                var receiverAddress = infrastructure.Receivers[MainReceiverId].ReceiveAddress;
+
+                string instanceReceiveAddress = null;
+
+                if (infrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
+                {
+                    instanceReceiveAddress = instanceReceiver.ReceiveAddress;
+                }
+
+                var satelliteReceiveAddresses = infrastructure.Receivers.Values
+                    .Where(r => r.Id != MainReceiverId && r.Id != InstanceSpecificReceiverId)
+                    .Select(r => r.ReceiveAddress)
+                    .ToArray();
+
+                receiveComponent.receiveAddresses = new ReceiveAddresses(receiverAddress, instanceReceiveAddress, satelliteReceiveAddresses);
+            };
 
             configuration.transportSeam.Configure(receiveSettings.ToArray());
 

@@ -43,6 +43,7 @@
             public FakeReceiver(ReceiveSettings settings)
             {
                 Id = settings.Id;
+                ReceiveAddress = settings.ReceiveAddress.ToString();
             }
 
             public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
@@ -66,6 +67,8 @@
             public ISubscriptionManager Subscriptions { get; }
 
             public string Id { get; }
+
+            public string ReceiveAddress { get; }
         }
 
         class FakeDispatcher : IMessageDispatcher
