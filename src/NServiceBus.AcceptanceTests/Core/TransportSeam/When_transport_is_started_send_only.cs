@@ -19,7 +19,6 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-
             Assert.AreEqual("SomeAddress", context.ResolvedAddress);
         }
 
