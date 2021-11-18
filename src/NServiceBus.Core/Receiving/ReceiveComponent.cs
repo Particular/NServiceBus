@@ -20,9 +20,6 @@ namespace NServiceBus
             this.configuration = configuration;
         }
 
-        ISubscriptionManager mainReceiverSubscriptionManager;
-        ReceiveAddresses receiveAddresses;
-
         public static ReceiveComponent Configure(
             Configuration configuration,
             string errorQueue,
@@ -37,7 +34,31 @@ namespace NServiceBus
 
             var receiveComponent = new ReceiveComponent(configuration);
 
-            hostingConfiguration.Services.AddSingleton(sp => receiveComponent.receiveAddresses);
+            hostingConfiguration.Services.AddSingleton(sp =>
+            {
+                var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+
+                var mainReceiveAddress = transport.Receivers[MainReceiverId].ReceiveAddress;
+
+                string instanceReceiveAddress = null;
+                if (transport.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
+                {
+                    instanceReceiveAddress = instanceReceiver.ReceiveAddress;
+                }
+
+                var satelliteReceiveAddresses = transport.Receivers.Values
+                    .Where(r => r.Id != MainReceiverId && r.Id != InstanceSpecificReceiverId)
+                    .Select(r => r.ReceiveAddress)
+                    .ToArray();
+
+                return new ReceiveAddresses(mainReceiveAddress, instanceReceiveAddress, satelliteReceiveAddresses);
+            });
+
+            hostingConfiguration.Services.AddSingleton(sp =>
+            {
+                var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+                return transport.Receivers[MainReceiverId].Subscriptions;
+            });
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -97,28 +118,6 @@ namespace NServiceBus
                 configuration.PurgeOnStartup,
                 errorQueue)));
 
-            hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
-            // get a reference to the subscription manager as soon as the transport has been created:
-            configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
-            {
-                receiveComponent.mainReceiverSubscriptionManager = infrastructure.Receivers[MainReceiverId].Subscriptions;
-
-                var mainReceiveAddress = infrastructure.Receivers[MainReceiverId].ReceiveAddress;
-
-                string instanceReceiveAddress = null;
-
-                if (infrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
-                {
-                    instanceReceiveAddress = instanceReceiver.ReceiveAddress;
-                }
-
-                var satelliteReceiveAddresses = infrastructure.Receivers.Values
-                    .Where(r => r.Id != MainReceiverId && r.Id != InstanceSpecificReceiverId)
-                    .Select(r => r.ReceiveAddress)
-                    .ToArray();
-
-                receiveComponent.receiveAddresses = new ReceiveAddresses(mainReceiveAddress, instanceReceiveAddress, satelliteReceiveAddresses);
-            };
 
             configuration.transportSeam.Configure(receiveSettings.ToArray());
 

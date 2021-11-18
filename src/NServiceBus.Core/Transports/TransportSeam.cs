@@ -26,13 +26,15 @@
             this.receivers = receivers;
         }
 
+        // The dependency in IServiceProvider ensures that the TransportInfrastructure can't be resolved too early.
+        public TransportInfrastructure GetTransportInfrastructure(IServiceProvider _) => TransportInfrastructure;
+
+        public ITransportAddressResolver GetTransportAddressResolver(IServiceProvider sp) => sp.GetRequiredService<ITransportAddressResolver>();
+
         public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken = default)
         {
             TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), cancellationToken)
                 .ConfigureAwait(false);
-
-            var eventHandlers = TransportInfrastructureCreated;
-            eventHandlers?.Invoke(this, TransportInfrastructure);
 
             return TransportInfrastructure;
         }
@@ -59,8 +61,6 @@
         }
 
         TransportInfrastructure TransportInfrastructure { get; set; }
-
-        public event EventHandler<TransportInfrastructure> TransportInfrastructureCreated;
 
         public TransportDefinition TransportDefinition { get; }
 

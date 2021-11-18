@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
-    using Transport;
     using Pipeline;
 
     partial class RoutingComponent
@@ -17,12 +16,11 @@ namespace NServiceBus
         public UnicastSendRouter UnicastSendRouterBuilder(IServiceProvider serviceProvider) =>
             serviceProvider.GetRequiredService<UnicastSendRouter>();
 
-        public static RoutingComponent Initialize(
-            Configuration configuration,
+        public static RoutingComponent Initialize(Configuration configuration,
             ReceiveComponent.Configuration receiveConfiguration,
             Conventions conventions,
             PipelineSettings pipelineSettings,
-            HostingComponent.Configuration hostingConfiguration)
+            HostingComponent.Configuration hostingConfiguration, TransportSeam transportSeam)
         {
             var distributionPolicy = configuration.DistributionPolicy;
             var unicastRoutingTable = configuration.UnicastRoutingTable;
@@ -53,7 +51,7 @@ namespace NServiceBus
                     distributionPolicy,
                     unicastRoutingTable,
                     endpointInstances,
-                    sp.GetRequiredService<ITransportAddressResolver>()));
+                    transportSeam.GetTransportAddressResolver(sp)));
 
             if (configuration.EnforceBestPractices)
             {
