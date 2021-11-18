@@ -67,7 +67,8 @@ namespace NServiceBus
                 receiveConfiguration,
                 settings.Get<Conventions>(),
                 pipelineSettings,
-                hostingConfiguration);
+                hostingConfiguration,
+                transportSeam);
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
