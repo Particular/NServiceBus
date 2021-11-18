@@ -103,7 +103,7 @@ namespace NServiceBus
             {
                 receiveComponent.mainReceiverSubscriptionManager = infrastructure.Receivers[MainReceiverId].Subscriptions;
 
-                var receiverAddress = infrastructure.Receivers[MainReceiverId].ReceiveAddress;
+                var receiveAddresses = infrastructure.Receivers[MainReceiverId].ReceiveAddress;
 
                 string instanceReceiveAddress = null;
 
@@ -117,7 +117,7 @@ namespace NServiceBus
                     .Select(r => r.ReceiveAddress)
                     .ToArray();
 
-                receiveComponent.receiveAddresses = new ReceiveAddresses(receiverAddress, instanceReceiveAddress, satelliteReceiveAddresses);
+                receiveComponent.receiveAddresses = new ReceiveAddresses(receiveAddresses, instanceReceiveAddress, satelliteReceiveAddresses);
             };
 
             configuration.transportSeam.Configure(receiveSettings.ToArray());
