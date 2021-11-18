@@ -41,12 +41,17 @@ namespace NServiceBus
 
             if (!settings.TryGet<TransportDefinition>(out var transportDefinition))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since no transport has been configured yet.");
+                throw new InvalidOperationException("LocalAddress isn't available until the transport is configured.");
             }
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
+                throw new InvalidOperationException("LocalAddress isn't available until the endpoint configuration is complete.");
+            }
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("LocalAddress isn't available for send only endpoints.");
             }
 
             return transportDefinition.ToTransportAddress(receiveConfiguration.LocalQueueAddress);
@@ -61,7 +66,12 @@ namespace NServiceBus
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
+                throw new InvalidOperationException("EndpointQueueName isn't available until the endpoint configuration is complete.");
+            }
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("EndpointQueueName isn't available for send only endpoints.");
             }
 
             return receiveConfiguration.QueueNameBase;
@@ -80,12 +90,17 @@ namespace NServiceBus
 
             if (!settings.TryGet<TransportDefinition>(out var transportDefinition))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since no transport has been configured yet.");
+                throw new InvalidOperationException("Instance-specific receive address isn't available until the transport is configured.");
             }
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("Instance-specific queue name isn't available since this endpoint is configured to run in send-only mode.");
+                throw new InvalidOperationException("Instance-specific receive address isn't available until the endpoint configuration is complete.");
+            }
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("Instance-specific receive address isn't available for send only endpoints.");
             }
 
             if (receiveConfiguration.InstanceSpecificQueueAddress == null)
