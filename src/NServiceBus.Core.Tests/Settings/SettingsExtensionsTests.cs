@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.TransportSeam
 {
     using System;
-    using NServiceBus.Configuration.AdvancedExtensibility;
+    using Configuration.AdvancedExtensibility;
     using NUnit.Framework;
 
-    public class When_transport_is_not_configured : NServiceBusAcceptanceTest
+    [TestFixture]
+    public class SettingsExtensionsTests
     {
         [Test]
-        public void Should_throw_if_receive_addresses_are_resolved()
+        public void Should_throw_if_receive_addresses_are_accessed_before_transport_configuration()
         {
             var endpointConfiguration = new EndpointConfiguration("MyEndpoint");
 

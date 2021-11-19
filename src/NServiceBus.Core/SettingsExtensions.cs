@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Transport;
+    using Transport;
     using Settings;
 
     /// <summary>
