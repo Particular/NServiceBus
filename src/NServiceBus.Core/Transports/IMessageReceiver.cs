@@ -34,7 +34,7 @@
         string Id { get; }
 
         /// <summary>
-        /// The transport address this received is receiving messages from.
+        /// The transport address this receiver consumes messages from.
         /// </summary>
         string ReceiveAddress { get; }
     }
