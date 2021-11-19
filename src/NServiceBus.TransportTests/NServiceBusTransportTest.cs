@@ -247,7 +247,7 @@
         TransportInfrastructure transportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure configurer;
-        IMessageReceiver receiver;
+        protected IMessageReceiver receiver;
 
         const string DefaultTransportDescriptorKey = "LearningTransport";
         const string TestIdHeaderName = "TransportTest.TestId";
