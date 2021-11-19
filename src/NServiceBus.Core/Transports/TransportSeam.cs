@@ -29,7 +29,7 @@
         // The dependency in IServiceProvider ensures that the TransportInfrastructure can't be resolved too early.
         public TransportInfrastructure GetTransportInfrastructure(IServiceProvider _) => TransportInfrastructure;
 
-        public ITransportAddressResolver GetTransportAddressResolver(IServiceProvider sp) => sp.GetRequiredService<ITransportAddressResolver>();
+        public ITransportAddressResolver TransportAddressResolverBuilder(IServiceProvider sp) => sp.GetRequiredService<ITransportAddressResolver>();
 
         public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken = default)
         {

@@ -51,7 +51,7 @@ namespace NServiceBus
                     distributionPolicy,
                     unicastRoutingTable,
                     endpointInstances,
-                    transportSeam.GetTransportAddressResolver(sp)));
+                    transportSeam.TransportAddressResolverBuilder(sp)));
 
             if (configuration.EnforceBestPractices)
             {
