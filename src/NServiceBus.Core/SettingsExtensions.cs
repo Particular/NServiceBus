@@ -39,11 +39,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<TransportDefinition>(out var transportDefinition))
-            {
-                throw new InvalidOperationException("LocalAddress isn't available until the transport is configured.");
-            }
-
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
                 throw new InvalidOperationException("LocalAddress isn't available until the endpoint configuration is complete.");
@@ -54,7 +49,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("LocalAddress isn't available for send only endpoints.");
             }
 
-            return transportDefinition.ToTransportAddress(receiveConfiguration.LocalQueueAddress);
+            return settings.Get<TransportDefinition>().ToTransportAddress(receiveConfiguration.LocalQueueAddress);
         }
 
         /// <summary>
@@ -88,11 +83,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<TransportDefinition>(out var transportDefinition))
-            {
-                throw new InvalidOperationException("Instance-specific receive address isn't available until the transport is configured.");
-            }
-
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
                 throw new InvalidOperationException("Instance-specific receive address isn't available until the endpoint configuration is complete.");
@@ -108,7 +98,7 @@ namespace NServiceBus
                 return null;
             }
 
-            return transportDefinition.ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress);
+            return settings.Get<TransportDefinition>().ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress);
 
         }
     }
