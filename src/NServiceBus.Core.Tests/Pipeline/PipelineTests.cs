@@ -94,8 +94,8 @@
             behaviors.CreatePipelineExecutionExpression(expressions);
 
 #if NET5_0_OR_GREATER
-            // System.Threading.Tasks.Task has changed to System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult] in .net5
-            // This ifdef is to make sure the new type is only validated for .net5 or greater.
+            // System.Threading.Tasks.Task has changed to System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult] in .NET 5
+            // This ifdef is to make sure the new type is only validated for .NET 5 or greater.
             var scenario = "net5";
 #else
             var scenario = string.Empty;
