@@ -23,7 +23,6 @@ namespace NServiceBus.Routing
             Extensions = extensions;
         }
 
-        //TODO we should consider making this a QueueAddress instead as this would simplify some of the dependencies drastically
         /// <summary>
         /// The receiver addresses that can be taken into account for distribution.
         /// </summary>
