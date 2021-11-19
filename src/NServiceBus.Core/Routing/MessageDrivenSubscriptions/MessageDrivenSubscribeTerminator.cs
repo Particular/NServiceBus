@@ -14,10 +14,10 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IMessageDispatcher dispatcher)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, ReceiveAddresses receiveAddresses, string subscriberEndpoint, IMessageDispatcher dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
-            this.subscriberAddress = subscriberAddress;
+            subscriberAddress = receiveAddresses.MainReceiveAddress;
             this.subscriberEndpoint = subscriberEndpoint;
             this.dispatcher = dispatcher;
         }

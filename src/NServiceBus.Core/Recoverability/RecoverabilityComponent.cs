@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Faults;
     using Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
@@ -74,11 +73,10 @@
             var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
             var immediateRetriesAvailable = transactionsOn;
 
-            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
+            Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory = () =>
             {
                 var staticFaultMetadata = new Dictionary<string, string>
                 {
-                    {FaultsHeaderKeys.FailedQ, localAddress},
                     {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
                     {Headers.ProcessingEndpoint, settings.EndpointName()},
                     {Headers.HostId, hostInformation.HostId.ToString("N")},
@@ -90,11 +88,11 @@
                 return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
             };
 
-            Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
+            Func<DelayedRetryExecutor> delayedRetryExecutorFactory = () =>
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(localAddress, builder.GetRequiredService<IMessageDispatcher>());
+                    return new DelayedRetryExecutor(builder.GetRequiredService<IMessageDispatcher>());
                 }
 
                 return null;

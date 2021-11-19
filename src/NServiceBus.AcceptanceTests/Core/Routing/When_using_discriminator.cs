@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿// This test can be removed when the InstanceSpecificQueue() extension is being fully obsoleted
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -49,3 +52,5 @@
         }
     }
 }
+#pragma warning restore CS0618
+#pragma warning restore IDE0079 // Remove unnecessary suppression

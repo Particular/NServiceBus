@@ -2,6 +2,7 @@ namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Text;
 
     /// <summary>
     /// Represents a queue address.
@@ -13,8 +14,11 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new instance of <see cref="QueueAddress"/>.
         /// </summary>
-        public QueueAddress(string baseAddress, string discriminator, IReadOnlyDictionary<string, string> properties,
-            string qualifier)
+        public QueueAddress(
+            string baseAddress,
+            string discriminator = null,
+            IReadOnlyDictionary<string, string> properties = null,
+            string qualifier = null)
         {
             BaseAddress = baseAddress;
             Discriminator = discriminator;
@@ -41,5 +45,38 @@ namespace NServiceBus.Transport
         /// An additional identifier for logical "sub-queues".
         /// </summary>
         public string Qualifier { get; }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            if (Qualifier != null)
+            {
+                sb.Append(Qualifier).Append('.');
+            }
+
+            sb.Append(BaseAddress);
+
+            if (Discriminator != null)
+            {
+                sb.Append('-').Append(Discriminator);
+            }
+
+            if (Properties.Count > 0)
+            {
+                sb.Append('(');
+                foreach (var property in Properties)
+                {
+                    sb.Append(property.Key).Append(':').Append(property.Value).Append(';');
+                }
+
+                sb.Length--; // trim last ;
+                sb.Append(')');
+            }
+
+            return sb.ToString();
+        }
     }
 }

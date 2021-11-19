@@ -17,7 +17,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         };
     }
 
-    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, string inputQueueName, string errorQueueName, CancellationToken cancellationToken = default)
+    public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, QueueAddress inputQueueName, string errorQueueName, CancellationToken cancellationToken = default)
     {
         var mainReceiverSettings = new ReceiveSettings(
             "mainReceiver",

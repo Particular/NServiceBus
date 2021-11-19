@@ -6,6 +6,7 @@ namespace NServiceBus.Core.Tests.Routing
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class UnicastSendRouterTests
@@ -28,7 +29,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_route_to_local_instance_if_requested_so()
         {
-            var router = CreateRouter("MyInstance");
+            var router = CreateRouter(new QueueAddress("MyInstance"));
             var options = new SendOptions();
 
             options.RouteToThisInstance();
@@ -397,13 +398,18 @@ namespace NServiceBus.Core.Tests.Routing
             return addressTag.Destination;
         }
 
-        static UnicastSendRouter CreateRouter(string instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
+        static UnicastSendRouter CreateRouter(QueueAddress instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
         {
             var table = routingTable ?? new UnicastRoutingTable();
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, new FakeAddressResolver());
+        }
+
+        class FakeAddressResolver : ITransportAddressResolver
+        {
+            public string ToTransportAddress(QueueAddress queueAddress) => queueAddress.ToString();
         }
 
         class MyMessage : ICommand

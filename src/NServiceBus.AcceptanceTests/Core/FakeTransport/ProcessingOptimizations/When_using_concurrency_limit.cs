@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -39,6 +40,12 @@
         {
             PushRuntimeSettings pushSettings;
 
+            public FakeReceiver(ReceiveSettings settings)
+            {
+                Id = settings.Id;
+                ReceiveAddress = settings.ReceiveAddress.ToString();
+            }
+
             public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
             {
                 pushSettings = limitations;
@@ -59,7 +66,9 @@
 
             public ISubscriptionManager Subscriptions { get; }
 
-            public string Id { get; } = "Main";
+            public string Id { get; }
+
+            public string ReceiveAddress { get; }
         }
 
         class FakeDispatcher : IMessageDispatcher
@@ -81,7 +90,10 @@
                 return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
             }
 
+            [Obsolete("Obsolete marker to make the code compile", false)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
             public override string ToTransportAddress(QueueAddress address)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
             {
                 return address.ToString();
             }
@@ -104,13 +116,18 @@
             {
                 Dispatcher = new FakeDispatcher();
                 Receivers = receiveSettings
-                    .Select(settings => new FakeReceiver())
+                    .Select(settings => new FakeReceiver(settings))
                     .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
             }
 
             public override Task Shutdown(CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
+            }
+
+            public override string ToTransportAddress(QueueAddress address)
+            {
+                return address.ToString();
             }
         }
     }

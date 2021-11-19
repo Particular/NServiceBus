@@ -2,11 +2,15 @@
 NServiceBus.InferredMessageTypeEnricherBehavior - Transient
 NServiceBus.Persistence.ISynchronizedStorage - Singleton
 NServiceBus.Persistence.ISynchronizedStorageAdapter - Singleton
+NServiceBus.ReceiveAddresses - Singleton
 NServiceBus.SubscriptionReceiverBehavior - Transient
+NServiceBus.SubscriptionRouter - Singleton
 NServiceBus.Transport.IMessageDispatcher - Singleton
+NServiceBus.Transport.ITransportAddressResolver - Singleton
 NServiceBus.Unicast.MessageHandlerRegistry - Singleton
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage - Singleton
+NServiceBus.UnicastSendRouter - Singleton
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
 NServiceBus.CriticalError - Singleton
 NServiceBus.Hosting.HostInformation - Singleton

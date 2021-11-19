@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
@@ -67,18 +68,18 @@
 
             var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
 
-            CollectionAssert.AreEquivalent(new List<string>
+            CollectionAssert.AreEquivalent(new List<(string basename, string discriminator)>
             {
-                endpointName, //main input queue
-                $"{endpointName}-{instanceDiscriminator}", // instance-specific queue
-                "MySatelliteAddress"
-            }, context.ReceivingAddresses);
+                (endpointName, null), //main input queue
+                (endpointName, instanceDiscriminator), // instance-specific queue
+                ("MySatelliteAddress", null)
+            }, context.ReceivingAddresses.Select(a => (a.BaseAddress, a.Discriminator)));
         }
 
         class Context : ScenarioContext
         {
             public bool EnableInstallers { get; set; }
-            public string[] ReceivingAddresses { get; set; }
+            public QueueAddress[] ReceivingAddresses { get; set; }
             public string[] SendingAddresses { get; set; }
             public bool SetupInfrastructure { get; set; }
         }
@@ -118,7 +119,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     context.AddSatelliteReceiver("MySatellite",
-                        "MySatelliteAddress",
+                        new QueueAddress("MySatelliteAddress"),
                         PushRuntimeSettings.Default,
                         (_, __) => throw new NotImplementedException(),
                         (_, __, ___) => throw new NotImplementedException());

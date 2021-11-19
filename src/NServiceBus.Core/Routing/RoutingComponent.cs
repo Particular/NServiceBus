@@ -1,26 +1,26 @@
 namespace NServiceBus
 {
-    using Transport;
+    using System;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
     partial class RoutingComponent
     {
-        RoutingComponent(UnicastSendRouter unicastSendRouter, bool enforceBestPractices)
+        RoutingComponent(bool enforceBestPractices)
         {
             EnforceBestPractices = enforceBestPractices;
-            UnicastSendRouter = unicastSendRouter;
         }
 
         public bool EnforceBestPractices { get; }
 
-        public UnicastSendRouter UnicastSendRouter { get; }
+        public UnicastSendRouter UnicastSendRouterBuilder(IServiceProvider serviceProvider) =>
+            serviceProvider.GetRequiredService<UnicastSendRouter>();
 
-        public static RoutingComponent Initialize(
-            Configuration configuration,
-            TransportSeam transportSeam,
+        public static RoutingComponent Initialize(Configuration configuration,
             ReceiveComponent.Configuration receiveConfiguration,
             Conventions conventions,
-            PipelineSettings pipelineSettings)
+            PipelineSettings pipelineSettings,
+            HostingComponent.Configuration hostingConfiguration, TransportSeam transportSeam)
         {
             var distributionPolicy = configuration.DistributionPolicy;
             var unicastRoutingTable = configuration.UnicastRoutingTable;
@@ -36,31 +36,29 @@ namespace NServiceBus
             var isSendOnlyEndpoint = receiveConfiguration.IsSendOnlyEndpoint;
             if (!isSendOnlyEndpoint)
             {
-                pipelineSettings.Register(
-                    new ApplyReplyToAddressBehavior(
-                        receiveConfiguration.LocalAddress,
-                        receiveConfiguration.InstanceSpecificQueue,
+                pipelineSettings.Register(sp =>
+                        new ApplyReplyToAddressBehavior(
+                        sp.GetRequiredService<ReceiveAddresses>(),
                         configuration.PublicReturnAddress),
                     "Applies the public reply to address to outgoing messages");
             }
 
-            var sendRouter = new UnicastSendRouter(
-                isSendOnlyEndpoint,
-                receiveConfiguration?.QueueNameBase,
-                receiveConfiguration?.InstanceSpecificQueue,
-                distributionPolicy,
-                unicastRoutingTable,
-                endpointInstances,
-                i => transportSeam.TransportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+            hostingConfiguration.Services.AddSingleton(sp =>
+                new UnicastSendRouter(
+                    isSendOnlyEndpoint,
+                    receiveConfiguration.QueueNameBase,
+                    receiveConfiguration.InstanceSpecificQueueAddress,
+                    distributionPolicy,
+                    unicastRoutingTable,
+                    endpointInstances,
+                    transportSeam.TransportAddressResolverBuilder(sp)));
 
             if (configuration.EnforceBestPractices)
             {
                 EnableBestPracticeEnforcement(pipelineSettings, new Validations(conventions));
             }
 
-            return new RoutingComponent(
-                sendRouter,
-                configuration.EnforceBestPractices);
+            return new RoutingComponent(configuration.EnforceBestPractices);
         }
 
         static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)

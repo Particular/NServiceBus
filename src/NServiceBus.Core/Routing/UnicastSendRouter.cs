@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Linq;
     using Pipeline;
     using Routing;
+    using Transport;
 
     class UnicastSendRouter
     {
@@ -19,19 +20,22 @@ namespace NServiceBus
         public UnicastSendRouter(
             bool isSendOnly,
             string receiveQueueName,
-            string instanceSpecificQueue,
+            QueueAddress instanceSpecificQueue,
             IDistributionPolicy defaultDistributionPolicy,
             UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
-            Func<EndpointInstance, string> transportAddressTranslation)
+            ITransportAddressResolver transportAddressResolver)
         {
             this.isSendOnly = isSendOnly;
             this.receiveQueueName = receiveQueueName;
-            this.instanceSpecificQueue = instanceSpecificQueue;
+            if (instanceSpecificQueue != null)
+            {
+                this.instanceSpecificQueue = new EndpointInstance(instanceSpecificQueue.BaseAddress, instanceSpecificQueue.Discriminator, instanceSpecificQueue.Properties);
+            }
             this.defaultDistributionPolicy = defaultDistributionPolicy;
             this.unicastRoutingTable = unicastRoutingTable;
             this.endpointInstances = endpointInstances;
-            this.transportAddressTranslation = transportAddressTranslation;
+            this.transportAddressResolver = transportAddressResolver;
         }
 
         public virtual UnicastRoutingStrategy Route(IOutgoingSendContext context)
@@ -63,7 +67,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
 
-            return UnicastRoute.CreateFromPhysicalAddress(instanceSpecificQueue);
+            return UnicastRoute.CreateFromEndpointInstance(instanceSpecificQueue);
         }
 
         UnicastRoute RouteToAnyInstance()
@@ -104,18 +108,20 @@ namespace NServiceBus
             }
             if (route.Instance != null)
             {
-                return new UnicastRoutingStrategy(transportAddressTranslation(route.Instance));
+                return new UnicastRoutingStrategy(TranslateTransportAddress(route.Instance));
             }
-            var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var distributionContext = new DistributionContext(instances, context.Message, context.MessageId, context.Headers, transportAddressTranslation, context.Extensions);
+            var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => TranslateTransportAddress(e)).ToArray();
+            var distributionContext = new DistributionContext(instances, context.Message, context.MessageId, context.Headers, transportAddressResolver, context.Extensions);
             var selectedInstanceAddress = defaultDistributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectDestination(distributionContext);
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }
 
-        string instanceSpecificQueue;
+        string TranslateTransportAddress(EndpointInstance instance) =>
+            transportAddressResolver.ToTransportAddress(new QueueAddress(instance.Endpoint, instance.Discriminator, instance.Properties));
 
+        EndpointInstance instanceSpecificQueue;
         EndpointInstances endpointInstances;
-        Func<EndpointInstance, string> transportAddressTranslation;
+        readonly ITransportAddressResolver transportAddressResolver;
         UnicastRoutingTable unicastRoutingTable;
         IDistributionPolicy defaultDistributionPolicy;
         readonly bool isSendOnly;

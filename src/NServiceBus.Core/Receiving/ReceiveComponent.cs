@@ -20,8 +20,6 @@ namespace NServiceBus
             this.configuration = configuration;
         }
 
-        ISubscriptionManager mainReceiverSubscriptionManager;
-
         public static ReceiveComponent Configure(
             Configuration configuration,
             string errorQueue,
@@ -35,6 +33,32 @@ namespace NServiceBus
             }
 
             var receiveComponent = new ReceiveComponent(configuration);
+
+            hostingConfiguration.Services.AddSingleton(sp =>
+            {
+                var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+
+                var mainReceiveAddress = transport.Receivers[MainReceiverId].ReceiveAddress;
+
+                string instanceReceiveAddress = null;
+                if (transport.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
+                {
+                    instanceReceiveAddress = instanceReceiver.ReceiveAddress;
+                }
+
+                var satelliteReceiveAddresses = transport.Receivers.Values
+                    .Where(r => r.Id != MainReceiverId && r.Id != InstanceSpecificReceiverId)
+                    .Select(r => r.ReceiveAddress)
+                    .ToArray();
+
+                return new ReceiveAddresses(mainReceiveAddress, instanceReceiveAddress, satelliteReceiveAddresses);
+            });
+
+            hostingConfiguration.Services.AddSingleton(sp =>
+            {
+                var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+                return transport.Receivers[MainReceiverId].Subscriptions;
+            });
 
             pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
@@ -71,18 +95,17 @@ namespace NServiceBus
             {
                 new ReceiveSettings(
                     MainReceiverId,
-                    configuration.LocalAddress,
+                    configuration.LocalQueueAddress,
                     configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
                     configuration.PurgeOnStartup,
                     errorQueue)
             };
 
-
-            if (!string.IsNullOrWhiteSpace(configuration.InstanceSpecificQueue))
+            if (configuration.InstanceSpecificQueueAddress != null)
             {
                 receiveSettings.Add(new ReceiveSettings(
                     InstanceSpecificReceiverId,
-                    configuration.InstanceSpecificQueue,
+                    configuration.InstanceSpecificQueueAddress,
                     false,
                     configuration.PurgeOnStartup,
                     errorQueue));
@@ -95,20 +118,14 @@ namespace NServiceBus
                 configuration.PurgeOnStartup,
                 errorQueue)));
 
-            hostingConfiguration.Services.ConfigureComponent(() => receiveComponent.mainReceiverSubscriptionManager, DependencyLifecycle.SingleInstance);
-            // get a reference to the subscription manager as soon as the transport has been created:
-            configuration.transportSeam.TransportInfrastructureCreated += (_, infrastructure) =>
-                receiveComponent.mainReceiverSubscriptionManager =
-                    infrastructure.Receivers[MainReceiverId].Subscriptions;
 
             configuration.transportSeam.Configure(receiveSettings.ToArray());
 
             hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
             {
-                configuration.LocalAddress,
-                configuration.InstanceSpecificQueue,
+                configuration.LocalQueueAddress,
+                configuration.InstanceSpecificQueueAddress,
                 configuration.PurgeOnStartup,
-                configuration.QueueNameBase,
                 TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
                 configuration.PushRuntimeSettings.MaxConcurrency,
                 Satellites = configuration.SatelliteDefinitions.Select(s => new
@@ -123,7 +140,8 @@ namespace NServiceBus
             return receiveComponent;
         }
 
-        public async Task Initialize(IServiceProvider builder,
+        public async Task Initialize(
+            IServiceProvider builder,
             RecoverabilityComponent recoverabilityComponent,
             MessageOperations messageOperations,
             PipelineComponent pipelineComponent,
@@ -141,8 +159,9 @@ namespace NServiceBus
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
+
             var recoverability = recoverabilityExecutorFactory
-                .CreateDefault(configuration.LocalAddress);
+                .CreateDefault();
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                 recoverability.Invoke, cancellationToken).ConfigureAwait(false);
@@ -150,7 +169,7 @@ namespace NServiceBus
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
             {
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.InstanceSpecificQueue);
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault();
 
                 await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                     instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
@@ -163,9 +182,8 @@ namespace NServiceBus
                 try
                 {
                     var satellitePump = transportInfrastructure.Receivers[satellite.Name];
-
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy, satellite.ReceiveAddress);
+                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
                         satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);

@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Satellites
 {
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -14,7 +16,7 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.Address, new MyMessage())))
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.SatelliteReceiveAddress, new MyMessage())))
                 .Done(c => c.MessageReceived)
                 .Run();
 
@@ -41,6 +43,8 @@
 
             public class MySatelliteFeature : Feature
             {
+                public static string SatelliteReceiveAddress;
+
                 public MySatelliteFeature()
                 {
                     EnableByDefault();
@@ -49,11 +53,12 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var endpointQueueName = context.Settings.EndpointQueueName();
-                    var queueAddress = new QueueAddress(endpointQueueName, null, null, "MySatellite");
+                    var queueAddress = new QueueAddress(endpointQueueName, qualifier: "MySatellite");
 
-                    var satelliteAddress = context.Settings.Get<TransportDefinition>().ToTransportAddress(queueAddress);
-
-                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
+                    context.AddSatelliteReceiver(
+                        "Test satellite",
+                        queueAddress,
+                        PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, messageContext, cancellationToken) =>
                         {
@@ -63,10 +68,20 @@
                             return Task.FromResult(true);
                         });
 
-                    Address = satelliteAddress;
+                    context.RegisterStartupTask(sp => new SatelliteFeatureStartupTask(sp.GetRequiredService<ReceiveAddresses>()));
                 }
 
-                public static string Address;
+                class SatelliteFeatureStartupTask : FeatureStartupTask
+                {
+                    public SatelliteFeatureStartupTask(ReceiveAddresses receiveAddresses)
+                    {
+                        SatelliteReceiveAddress = receiveAddresses.SatelliteReceiveAddresses.Single();
+                    }
+
+                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                }
             }
         }
 

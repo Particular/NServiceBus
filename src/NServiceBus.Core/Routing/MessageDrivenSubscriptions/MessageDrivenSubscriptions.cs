@@ -44,7 +44,6 @@ namespace NServiceBus.Features
                 return;
             }
 
-            var transportDefinition = context.Settings.Get<TransportDefinition>();
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Routing.EnforceBestPractices;
 
@@ -65,7 +64,10 @@ namespace NServiceBus.Features
 
                 context.Pipeline.Register("UnicastPublishRouterConnector", b =>
                 {
-                    var unicastPublishRouter = new UnicastPublishRouter(b.GetRequiredService<MessageMetadataRegistry>(), i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)), b.GetRequiredService<ISubscriptionStorage>());
+                    var unicastPublishRouter = new UnicastPublishRouter(
+                        b.GetRequiredService<MessageMetadataRegistry>(),
+                        b.GetRequiredService<ITransportAddressResolver>(),
+                        b.GetRequiredService<ISubscriptionStorage>());
                     return new UnicastPublishConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
 
@@ -85,11 +87,30 @@ namespace NServiceBus.Features
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             if (canReceive)
             {
-                var subscriberAddress = context.Receiving.LocalAddress;
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportDefinition.ToTransportAddress(new QueueAddress(i.Endpoint, i.Discriminator, i.Properties, null)));
+                context.Container.AddSingleton(b =>
+                {
+                    var transportAddressResolver = b.GetRequiredService<ITransportAddressResolver>();
+                    return new SubscriptionRouter(
+                        publishers,
+                        endpointInstances,
+                        i => transportAddressResolver.ToTransportAddress(
+                            new QueueAddress(i.Endpoint, i.Discriminator, i.Properties)));
+                });
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.GetRequiredService<IMessageDispatcher>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(b =>
+                        new MessageDrivenSubscribeTerminator(
+                            b.GetRequiredService<SubscriptionRouter>(),
+                            b.GetRequiredService<ReceiveAddresses>(),
+                            context.Settings.EndpointName(),
+                            b.GetRequiredService<IMessageDispatcher>()),
+                    "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(b =>
+                    new MessageDrivenUnsubscribeTerminator(
+                        b.GetRequiredService<SubscriptionRouter>(),
+                        b.GetRequiredService<ReceiveAddresses>(),
+                        context.Settings.EndpointName(),
+                        b.GetRequiredService<IMessageDispatcher>()),
+                    "Sends requests to unsubscribe when message driven subscriptions is in use");
             }
             else
             {

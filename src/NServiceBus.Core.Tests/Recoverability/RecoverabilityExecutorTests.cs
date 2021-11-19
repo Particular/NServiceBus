@@ -163,7 +163,7 @@
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
         {
-            return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, new ContextBag());
+            return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
         }
 
         RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool immediateRetriesSupported = true, bool raiseNotifications = true)
@@ -190,7 +190,7 @@
                 delayedRetriesSupported,
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
+                delayedRetriesSupported ? new DelayedRetryExecutor(dispatcher) : null,
                 new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }),
                 messageRetryNotification,
                 messageFaultedNotification);
@@ -202,7 +202,6 @@
         List<MessageFaulted> messageFaultedNotifications;
 
         static string ErrorQueueAddress = "error-queue";
-        static string InputQueueAddress = "input-queue";
 
         class RetryPolicy
         {

@@ -170,6 +170,7 @@
                 new byte[0],
                 new TransportTransaction(),
                 numberOfDeliveryAttempts,
+                "my-queue",
                 new ContextBag());
 
         static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, HashSet<Type> unrecoverableExceptions = null)

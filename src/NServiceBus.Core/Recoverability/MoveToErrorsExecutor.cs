@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Faults;
     using Routing;
     using Transport;
 
@@ -16,15 +17,18 @@
             this.headerCustomizations = headerCustomizations;
         }
 
-        public Task MoveToErrorQueue(string errorQueueAddress, IncomingMessage message, Exception exception, TransportTransaction transportTransaction, CancellationToken cancellationToken = default)
+        public Task MoveToErrorQueue(string errorQueueAddress, ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
+            var message = errorContext.Message;
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
             var headers = outgoingMessage.Headers;
             headers.Remove(Headers.DelayedRetries);
             headers.Remove(Headers.ImmediateRetries);
 
-            ExceptionHeaderHelper.SetExceptionHeaders(headers, exception);
+            headers[FaultsHeaderKeys.FailedQ] = errorContext.ReceiveAddress;
+
+            ExceptionHeaderHelper.SetExceptionHeaders(headers, errorContext.Exception);
 
             foreach (var faultMetadata in staticFaultMetadata)
             {
@@ -35,7 +39,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
-            return dispatcher.Dispatch(transportOperations, transportTransaction, cancellationToken);
+            return dispatcher.Dispatch(transportOperations, errorContext.TransportTransaction, cancellationToken);
         }
 
         IMessageDispatcher dispatcher;

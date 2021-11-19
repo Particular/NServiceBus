@@ -13,6 +13,7 @@
     class LearningTransportMessagePump : IMessageReceiver
     {
         public LearningTransportMessagePump(string id,
+            string receiveAddress,
             string basePath,
             Action<string, Exception, CancellationToken> criticalErrorAction,
             ISubscriptionManager subscriptionManager,
@@ -20,6 +21,7 @@
             TransportTransactionMode transactionMode)
         {
             Id = id;
+            ReceiveAddress = receiveAddress;
             this.basePath = basePath;
             this.criticalErrorAction = criticalErrorAction;
             Subscriptions = subscriptionManager;
@@ -29,9 +31,9 @@
 
         public void Init()
         {
-            PathChecker.ThrowForBadPath(receiveSettings.ReceiveAddress, "InputQueue");
+            PathChecker.ThrowForBadPath(ReceiveAddress, "InputQueue");
 
-            messagePumpBasePath = Path.Combine(basePath, receiveSettings.ReceiveAddress);
+            messagePumpBasePath = Path.Combine(basePath, ReceiveAddress);
             bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
             delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
 
@@ -114,6 +116,8 @@
         public ISubscriptionManager Subscriptions { get; }
 
         public string Id { get; }
+
+        public string ReceiveAddress { get; private set; }
 
         void RecoverPendingTransactions()
         {
@@ -319,7 +323,7 @@
 
             var processingContext = new ContextBag();
 
-            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, processingContext);
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, ReceiveAddress, processingContext);
 
             try
             {
@@ -340,7 +344,7 @@
                 headers = HeaderSerializer.Deserialize(message);
                 headers.Remove(LearningTransportHeaders.TimeToBeReceived);
 
-                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, processingContext);
+                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, ReceiveAddress, processingContext);
 
                 ErrorHandleResult result;
 

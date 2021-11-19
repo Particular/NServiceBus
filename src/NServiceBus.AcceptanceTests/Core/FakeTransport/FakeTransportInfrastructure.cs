@@ -10,16 +10,14 @@
         readonly FakeTransport.StartUpSequence startUpSequence;
         readonly HostSettings hostSettings;
         readonly ReceiveSettings[] receivers;
-        readonly string[] sendingAddresses;
         readonly FakeTransport transportSettings;
 
         public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
-            ReceiveSettings[] receivers, string[] sendingAddresses, FakeTransport transportSettings)
+            ReceiveSettings[] receivers, FakeTransport transportSettings)
         {
             this.startUpSequence = startUpSequence;
             this.hostSettings = hostSettings;
             this.receivers = receivers;
-            this.sendingAddresses = sendingAddresses;
             this.transportSettings = transportSettings;
         }
 
@@ -28,6 +26,7 @@
                 .Select(r =>
                     new FakeReceiver(
                         r.Id,
+                        r.ReceiveAddress.ToString(),
                         transportSettings,
                         startUpSequence,
                         hostSettings.CriticalErrorAction))
@@ -48,6 +47,27 @@
             }
 
             return Task.CompletedTask;
+        }
+
+        public override string ToTransportAddress(QueueAddress queueAddress)
+        {
+            var address = queueAddress.BaseAddress;
+
+            var discriminator = queueAddress.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                address += "-" + discriminator;
+            }
+
+            var qualifier = queueAddress.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                address += "-" + qualifier;
+            }
+
+            return address;
         }
     }
 }

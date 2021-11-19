@@ -11,31 +11,30 @@ namespace NServiceBus
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
-            if (isSendOnlyEndpoint && settings.CustomLocalAddressProvided)
+            if (isSendOnlyEndpoint && settings.CustomQueueNameBaseProvided)
             {
                 throw new Exception($"Specifying a base name for the input queue using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(baseInputQueueName)` is not supported for send-only endpoints.");
             }
 
             var endpointName = settings.EndpointName;
             var discriminator = settings.EndpointInstanceDiscriminator;
-            var queueNameBase = settings.CustomLocalAddress ?? endpointName;
+            var queueNameBase = settings.CustomQueueNameBase ?? endpointName;
             var purgeOnStartup = settings.PurgeOnStartup;
 
             var transportDefinition = transportSeam.TransportDefinition;
-            var localAddress = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, null, null, null));
 
-            string instanceSpecificQueue = null;
+            QueueAddress instanceSpecificQueueAddress = null;
+
             if (discriminator != null)
             {
-                instanceSpecificQueue = transportDefinition.ToTransportAddress(new QueueAddress(queueNameBase, discriminator, null, null));
+                instanceSpecificQueueAddress = new QueueAddress(queueNameBase, discriminator);
             }
 
             var pushRuntimeSettings = settings.PushRuntimeSettings;
 
             var receiveConfiguration = new Configuration(
                 queueNameBase,
-                localAddress,
-                instanceSpecificQueue,
+                instanceSpecificQueueAddress,
                 pushRuntimeSettings,
                 purgeOnStartup,
                 settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
@@ -54,10 +53,8 @@ namespace NServiceBus
 
         public class Configuration
         {
-            public Configuration(
-                string queueNameBase,
-                string localAddress,
-                string instanceSpecificQueue,
+            public Configuration(string queueNameBase,
+                QueueAddress instanceSpecificQueueAddress,
                 PushRuntimeSettings pushRuntimeSettings,
                 bool purgeOnStartup,
                 Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
@@ -69,8 +66,8 @@ namespace NServiceBus
                 Conventions conventions)
             {
                 QueueNameBase = queueNameBase;
-                LocalAddress = localAddress;
-                InstanceSpecificQueue = instanceSpecificQueue;
+                LocalQueueAddress = new QueueAddress(QueueNameBase);
+                InstanceSpecificQueueAddress = instanceSpecificQueueAddress;
                 PushRuntimeSettings = pushRuntimeSettings;
                 PurgeOnStartup = purgeOnStartup;
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
@@ -83,9 +80,9 @@ namespace NServiceBus
                 this.transportSeam = transportSeam;
             }
 
-            public string LocalAddress { get; }
+            public QueueAddress LocalQueueAddress { get; }
 
-            public string InstanceSpecificQueue { get; }
+            public QueueAddress InstanceSpecificQueueAddress { get; }
 
             public PushRuntimeSettings PushRuntimeSettings { get; }
 
@@ -103,7 +100,7 @@ namespace NServiceBus
 
             public Conventions Conventions { get; }
 
-            public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
+            public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
             {
                 var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 

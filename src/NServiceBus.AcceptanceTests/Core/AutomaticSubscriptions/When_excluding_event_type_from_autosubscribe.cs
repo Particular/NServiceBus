@@ -43,11 +43,11 @@
             public Subscriber()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
-                    c.AutoSubscribe().DisableFor<EventToExclude>();
-                    c.AutoSubscribe().DisableFor(typeof(EventWithNoPublisher));
-                },
+                    {
+                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
+                        c.AutoSubscribe().DisableFor<EventToExclude>();
+                        c.AutoSubscribe().DisableFor(typeof(EventWithNoPublisher));
+                    },
                     metadata =>
                     {
                         metadata.RegisterPublisherFor<EventToSubscribeTo>(typeof(Subscriber));

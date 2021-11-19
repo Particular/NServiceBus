@@ -20,7 +20,7 @@
         {
             StartupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
 
-            var infrastructure = new FakeTransportInfrastructure(StartupSequence, hostSettings, receivers, sendingAddresses, this);
+            var infrastructure = new FakeTransportInfrastructure(StartupSequence, hostSettings, receivers, this);
 
             infrastructure.ConfigureSendInfrastructure();
             infrastructure.ConfigureReceiveInfrastructure();
@@ -30,7 +30,10 @@
             return Task.FromResult<TransportInfrastructure>(infrastructure);
         }
 
+        [Obsolete("Obsolete marker to make the code compile", false)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
         public override string ToTransportAddress(QueueAddress address)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
         {
             return new LearningTransport().ToTransportAddress(address);
         }
@@ -66,6 +69,6 @@
             ErrorOnTransportDispose = exception;
         }
 
-        public Action<(string[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
+        public Action<(QueueAddress[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
     }
 }

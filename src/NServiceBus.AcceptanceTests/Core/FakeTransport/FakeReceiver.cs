@@ -13,13 +13,14 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         readonly FakeTransport.StartUpSequence startupSequence;
         readonly Action<string, Exception, CancellationToken> criticalErrorAction;
 
-        public FakeReceiver(string id, FakeTransport transportSettings, FakeTransport.StartUpSequence startupSequence,
+        public FakeReceiver(string id, string receiveAddress, FakeTransport transportSettings, FakeTransport.StartUpSequence startupSequence,
             Action<string, Exception, CancellationToken> criticalErrorAction)
         {
             this.transportSettings = transportSettings;
             this.startupSequence = startupSequence;
             this.criticalErrorAction = criticalErrorAction;
             Id = id;
+            ReceiveAddress = receiveAddress;
         }
 
         public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
@@ -55,6 +56,7 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public ISubscriptionManager Subscriptions { get; } = new FakeSubscriptionManager();
         public string Id { get; }
+        public string ReceiveAddress { get; private set; }
 
         class FakeSubscriptionManager : ISubscriptionManager
         {

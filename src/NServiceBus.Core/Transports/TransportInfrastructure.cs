@@ -23,5 +23,10 @@ namespace NServiceBus.Transport
         /// Disposes all transport internal resources.
         /// </summary>
         public abstract Task Shutdown(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
+        /// </summary>
+        public abstract string ToTransportAddress(QueueAddress address);
     }
 }

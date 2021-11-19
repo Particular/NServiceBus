@@ -855,6 +855,13 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class ReceiveAddresses
+    {
+        public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress = null, string[] satelliteReceiveAddresses = null) { }
+        public string InstanceReceiveAddress { get; }
+        public string MainReceiveAddress { get; }
+        public string[] SatelliteReceiveAddresses { get; }
+    }
     public class ReceivePipelineCompleted
     {
         public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTimeOffset startedAt, System.DateTimeOffset completedAt) { }
@@ -1069,7 +1076,15 @@ namespace NServiceBus
         public static string EndpointName(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static string EndpointQueueName(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        [System.Obsolete("Inject the ReceiveAddresses class to access the endpoint\'s receiving transport ad" +
+            "dresses at runtime. See the NServiceBus version 8 upgrade guide for further deta" +
+            "ils. Will be treated as an error from version 9.0.0. Will be removed in version " +
+            "10.0.0.", false)]
         public static string InstanceSpecificQueue(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        [System.Obsolete("Inject the ReceiveAddresses class to access the endpoint\'s receiving transport ad" +
+            "dresses at runtime. See the NServiceBus version 8 upgrade guide for further deta" +
+            "ils. Will be treated as an error from version 9.0.0. Will be removed in version " +
+            "10.0.0.", false)]
         public static string LocalAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
         [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
             " NotImplementedException. Will be removed in version 9.0.0.", true)]
@@ -1483,7 +1498,7 @@ namespace NServiceBus.Features
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.Settings.IReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
+        public void AddSatelliteReceiver(string name, NServiceBus.Transport.QueueAddress transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<System.IServiceProvider, TTask> startupTaskFactory)
@@ -2086,7 +2101,7 @@ namespace NServiceBus.Routing
     }
     public class DistributionContext : NServiceBus.Extensibility.IExtendable
     {
-        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
+        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Transport.ITransportAddressResolver addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
@@ -2448,12 +2463,13 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.IReadOnlyContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.IReadOnlyContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
         public NServiceBus.Extensibility.IReadOnlyContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
+        public string ReceiveAddress { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public enum ErrorHandleResult
@@ -2512,6 +2528,7 @@ namespace NServiceBus.Transport
     public interface IMessageReceiver
     {
         string Id { get; }
+        string ReceiveAddress { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
         System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);
@@ -2538,6 +2555,10 @@ namespace NServiceBus.Transport
         System.Threading.Tasks.Task SubscribeAll(NServiceBus.Unicast.Messages.MessageMetadata[] eventTypes, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Messages.MessageMetadata eventType, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface ITransportAddressResolver
+    {
+        string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress);
+    }
     public class IncomingMessage
     {
         public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body) { }
@@ -2559,17 +2580,18 @@ namespace NServiceBus.Transport
     }
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, ReadonlyMemory<byte>, Tra" +
             "nsportTransaction, ContextBag)` instead. The member currently throws a NotImplem" +
             "entedException. Will be removed in version 9.0.0.", true)]
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public System.ReadOnlyMemory<byte> Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         [System.Obsolete("Use `NativeMessageId` instead. Will be removed in version 9.0.0.", true)]
         public string MessageId { get; }
         public string NativeMessageId { get; }
+        public string ReceiveAddress { get; }
         [System.Obsolete("The member currently throws a NotImplementedException. Will be removed in version" +
             " 9.0.0.", true)]
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
@@ -2634,11 +2656,12 @@ namespace NServiceBus.Transport
     }
     public class QueueAddress
     {
-        public QueueAddress(string baseAddress, string discriminator, System.Collections.Generic.IReadOnlyDictionary<string, string> properties, string qualifier) { }
+        public QueueAddress(string baseAddress, string discriminator = null, System.Collections.Generic.IReadOnlyDictionary<string, string> properties = null, string qualifier = null) { }
         public string BaseAddress { get; }
         public string Discriminator { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
         public string Qualifier { get; }
+        public override string ToString() { }
     }
     public class QueueBindings
     {
@@ -2654,11 +2677,11 @@ namespace NServiceBus.Transport
     }
     public class ReceiveSettings
     {
-        public ReceiveSettings(string id, string receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue) { }
+        public ReceiveSettings(string id, NServiceBus.Transport.QueueAddress receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue) { }
         public string ErrorQueue { get; }
         public string Id { get; set; }
         public bool PurgeOnStartup { get; set; }
-        public string ReceiveAddress { get; set; }
+        public NServiceBus.Transport.QueueAddress ReceiveAddress { get; }
         public bool UsePublishSubscribe { get; set; }
     }
     [System.Obsolete("Will be removed in version 9.0.0.", true)]
@@ -2686,6 +2709,10 @@ namespace NServiceBus.Transport
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
+        [System.Obsolete("Inject the ITransportAddressResolver type to access the address translation mecha" +
+            "nism at runtime. See the NServiceBus version 8 upgrade guide for further details" +
+            ". Will be treated as an error from version 9.0.0. Will be removed in version 10." +
+            "0.0.", false)]
         public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
     public abstract class TransportInfrastructure
@@ -2694,6 +2721,7 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
         public System.Collections.Generic.IReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
         public abstract System.Threading.Tasks.Task Shutdown(System.Threading.CancellationToken cancellationToken = default);
+        public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
     public class TransportOperation
     {

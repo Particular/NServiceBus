@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using Transport;
     using Settings;
 
     /// <summary>
@@ -30,16 +31,25 @@ namespace NServiceBus
         /// <summary>
         /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
         public static string LocalAddress(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
+                throw new InvalidOperationException("LocalAddress isn't available until the endpoint configuration is complete.");
             }
 
-            return receiveConfiguration.LocalAddress;
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("LocalAddress isn't available for send only endpoints.");
+            }
+
+            return settings.Get<TransportDefinition>().ToTransportAddress(receiveConfiguration.LocalQueueAddress);
         }
 
         /// <summary>
@@ -51,7 +61,12 @@ namespace NServiceBus
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
+                throw new InvalidOperationException("EndpointQueueName isn't available until the endpoint configuration is complete.");
+            }
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("EndpointQueueName isn't available for send only endpoints.");
             }
 
             return receiveConfiguration.QueueNameBase;
@@ -60,16 +75,31 @@ namespace NServiceBus
         /// <summary>
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("Instance-specific queue name isn't available since this endpoint is configured to run in send-only mode.");
+                throw new InvalidOperationException("Instance-specific receive address isn't available until the endpoint configuration is complete.");
             }
 
-            return receiveConfiguration.InstanceSpecificQueue;
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("Instance-specific receive address isn't available for send only endpoints.");
+            }
+
+            if (receiveConfiguration.InstanceSpecificQueueAddress == null)
+            {
+                return null;
+            }
+
+            return settings.Get<TransportDefinition>().ToTransportAddress(receiveConfiguration.InstanceSpecificQueueAddress);
+
         }
     }
 }

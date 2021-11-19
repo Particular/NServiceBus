@@ -103,7 +103,7 @@
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
             transport.TransportTransactionMode = transactionMode;
 
-            transportInfrastructure = await configurer.Configure(transport, hostSettings, InputQueueName, ErrorQueueName, cancellationToken);
+            transportInfrastructure = await configurer.Configure(transport, hostSettings, new QueueAddress(InputQueueName), ErrorQueueName, cancellationToken);
 
             receiver = transportInfrastructure.Receivers.Single().Value;
 
@@ -247,7 +247,7 @@
         TransportInfrastructure transportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure configurer;
-        IMessageReceiver receiver;
+        protected IMessageReceiver receiver;
 
         const string DefaultTransportDescriptorKey = "LearningTransport";
         const string TestIdHeaderName = "TransportTest.TestId";

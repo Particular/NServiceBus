@@ -31,9 +31,9 @@ namespace NServiceBus
                 set => settings.Set("Transport.CreateQueues", value);
             }
 
-            public bool CustomLocalAddressProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomLocalAddressKey);
+            public bool CustomQueueNameBaseProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
 
-            public string CustomLocalAddress => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomLocalAddressKey);
+            public string CustomQueueNameBase => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
 
             public Conventions Conventions => settings.Get<Conventions>();
 

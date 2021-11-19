@@ -61,12 +61,14 @@
 
             PathChecker.ThrowForBadPath(settings.Name, "endpoint name");
 
+            var queueAddress = ToTransportAddress(receiveSettings.ReceiveAddress);
+
             ISubscriptionManager subscriptionManager = null;
             if (receiveSettings.UsePublishSubscribe && transportSettings.SupportsPublishSubscribe)
             {
-                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, receiveSettings.ReceiveAddress);
+                subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
             }
-            var pump = new LearningTransportMessagePump(receiveSettings.Id, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
+            var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
             return Task.FromResult<IMessageReceiver>(pump);
         }
 
@@ -78,6 +80,32 @@
         public override Task Shutdown(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
+        }
+
+        public override string ToTransportAddress(QueueAddress address)
+        {
+            var baseAddress = address.BaseAddress;
+            PathChecker.ThrowForBadPath(baseAddress, "endpoint name");
+
+            var discriminator = address.Discriminator;
+
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
+                baseAddress += "-" + discriminator;
+            }
+
+            var qualifier = address.Qualifier;
+
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
+                baseAddress += "-" + qualifier;
+            }
+
+            return baseAddress;
         }
 
         readonly string storagePath;
