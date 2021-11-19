@@ -8,7 +8,7 @@
     public class QueueAddressTests
     {
         [TestCaseSource(nameof(queueAddresses))]
-        public void ToString_WhenOnlyBaseAddress((QueueAddress address, string expectedResult) test)
+        public void ToStringTests((QueueAddress address, string expectedResult) test)
         {
             Assert.AreEqual(test.expectedResult, test.address.ToString());
         }
