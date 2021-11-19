@@ -5,20 +5,20 @@ namespace NServiceBus.TransportTests
     using NUnit.Framework;
     using Transport;
 
-    public class When_receiving_message : NServiceBusTransportTest
+    public class When_setting_context_items : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_expose_receiving_address(TransportTransactionMode transactionMode)
+        public async Task Should_float_to_error_context(TransportTransactionMode transactionMode)
         {
             var onError = CreateTaskCompletionSource<ErrorContext>();
 
             await StartPump(
                 (context, _) =>
                 {
-                    Assert.AreEqual(receiver.ReceiveAddress, context.ReceiveAddress);
+                    context.Extensions.Set("MyKey", "MyValue");
                     throw new Exception("Simulated exception");
                 },
                 (context, _) =>
@@ -31,7 +31,8 @@ namespace NServiceBus.TransportTests
             await SendMessage(InputQueueName);
 
             var errorContext = await onError.Task;
-            Assert.AreEqual(receiver.ReceiveAddress, errorContext.ReceiveAddress);
+
+            Assert.AreEqual("MyValue", errorContext.Extensions.Get<string>("MyKey"));
         }
     }
 }
