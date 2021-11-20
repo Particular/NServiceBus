@@ -47,6 +47,13 @@
     <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="NServiceBus.AcceptanceTesting" Key="$(NServiceBusKey)" />
+    <InternalsVisibleTo Include="NServiceBus.ContainerTests" Key="$(NServiceBusTestsKey)" />
+    <InternalsVisibleTo Include="NServiceBus.Core.Tests" Key="$(NServiceBusTestsKey)" />
+    <InternalsVisibleTo Include="NServiceBus.PersistenceTests" Key="$(NServiceBusTestsKey)" />
+  </ItemGroup>
+
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1469 -->
   <PropertyGroup>
     <DisableLockFileFrameworks>true</DisableLockFileFrameworks>

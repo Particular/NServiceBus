@@ -30,7 +30,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 5.0.x
+          dotnet-version: 6.0.x
       - name: Setup .NET Core 3.1 runtime
         uses: actions/setup-dotnet@v1.8.2
         with:
@@ -44,11 +44,5 @@ jobs:
           name: NuGet packages
           path: nugets/
           retention-days: 7
-      - name: Run Windows tests
-        if: matrix.name == 'Windows'
-        run: dotnet test src --configuration Release --no-build --logger "GitHubActions;report-warnings=false"
-      - name: Run Linux tests
-        if: matrix.name == 'Linux'
-        run: |
-          dotnet test src --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions;report-warnings=false"
-          dotnet test src --configuration Release --no-build --framework net5.0 --logger "GitHubActions;report-warnings=false"
+      - name: Run tests
+        uses: Particular/run-tests-action@v1.0.0
