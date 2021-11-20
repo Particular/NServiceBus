@@ -1,6 +1,10 @@
 # TODO: Uncomment when analyzer line ending problem is fixed
 #root = true
 
+[*.{csproj,xml}]
+indent_style = space
+indent_size = 2
+
 [*.cs]
 
 dotnet_analyzer_diagnostic.severity = default
@@ -8,9 +12,8 @@ dotnet_analyzer_diagnostic.severity = default
 #### Core EditorConfig Options ####
 
 # Indentation and spacing
-indent_size = 4
 indent_style = space
-tab_width = 4
+indent_size = 4
 
 # New line preferences
 # TODO: Uncomment when analyzer line ending problem is fixed
