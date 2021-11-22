@@ -46,3 +46,8 @@ jobs:
           retention-days: 7
       - name: Run tests
         uses: Particular/run-tests-action@v1.0.0
+      - name: InferSharp Static analysis
+        if: matrix.name == 'Linux'
+        uses: microsoft/infersharpaction@v1.2
+        with:
+          binary-path: src/NServiceBus.Core/bin/Release/netcoreapp3.1/NServiceBus.Core.dll
