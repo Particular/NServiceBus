@@ -1444,7 +1444,7 @@ namespace NServiceBus.Transport
     public partial class MessageContext
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "MessageContext(string, Dictionary<string, string>, ReadonlyMemory<byte>, TransportTransaction, ContextBag)",
+            ReplacementTypeOrMember = "MessageContext(string, Dictionary<string, string>, ReadonlyMemory<byte>, TransportTransaction, string, ContextBag)",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context) => throw new NotImplementedException();
