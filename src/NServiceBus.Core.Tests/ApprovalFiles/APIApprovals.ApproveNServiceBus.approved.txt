@@ -2579,8 +2579,8 @@ namespace NServiceBus.Transport
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
         [System.Obsolete("Use `MessageContext(string, Dictionary<string, string>, ReadonlyMemory<byte>, Tra" +
-            "nsportTransaction, ContextBag)` instead. The member currently throws a NotImplem" +
-            "entedException. Will be removed in version 9.0.0.", true)]
+            "nsportTransaction, string, ContextBag)` instead. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 9.0.0.", true)]
         public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
         public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public System.ReadOnlyMemory<byte> Body { get; }
