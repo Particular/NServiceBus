@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using ObjectBuilder;
@@ -17,12 +18,16 @@ namespace NServiceBus
         ReceiveComponent(Configuration configuration,
             CriticalError criticalError,
             string errorQueue,
-            TransportReceiveInfrastructure transportReceiveInfrastructure)
+            TransportReceiveInfrastructure transportReceiveInfrastructure,
+            INotificationSubscriptions<ThrottledModeStarted> throttledModeStartedNotification,
+            INotificationSubscriptions<ThrottledModeEnded> throttledModeEndedNotification)
         {
             this.configuration = configuration;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
             this.transportReceiveInfrastructure = transportReceiveInfrastructure;
+            this.throttledModeStartedNotification = throttledModeStartedNotification;
+            this.throttledModeEndedNotification = throttledModeEndedNotification;
         }
 
         public static ReceiveComponent Initialize(
@@ -47,11 +52,15 @@ namespace NServiceBus
                 }
             }
 
+            var systemOutageConfig = pipelineSettings.Settings.Get<SystemOutageConfiguration>();
+
             var receiveComponent = new ReceiveComponent(
                 configuration,
                 hostingConfiguration.CriticalError,
                 errorQueue,
-                transportReceiveInfrastructure);
+                transportReceiveInfrastructure,
+                systemOutageConfig.ThrottledModeStartedNotification,
+                systemOutageConfig.ThrottledModeEndedNotification);
 
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -150,7 +159,10 @@ namespace NServiceBus
             }
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
+            // TODO: Get the number from a setting
+            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", 1, SwitchToThrottledMode, SwitchBackToNormalMode);
+
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, consecutiveFailuresCircuitBreaker);
 
             if (configuration.PurgeOnStartup)
             {
@@ -200,6 +212,8 @@ namespace NServiceBus
                     throw;
                 }
             }
+
+            throttlingTask = ThrottlingLoop();
         }
 
         public Task Stop()
@@ -210,6 +224,8 @@ namespace NServiceBus
                 await receiver.Stop().ConfigureAwait(false);
                 Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
             });
+
+            // Todo: wait for throttlingTask to finish
 
             return Task.WhenAll(receiverStopTasks);
         }
@@ -242,7 +258,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, throttledModeStartedNotification, throttledModeEndedNotification));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -250,7 +266,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, throttledModeStartedNotification, throttledModeEndedNotification));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -258,8 +274,66 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, throttledModeStartedNotification, throttledModeEndedNotification));
             }
+        }
+
+        async Task ThrottlingLoop()
+        {
+            //We want all the pumps to be running all the time in the desired mode until we call stop
+            //We want to make sure that StopThrottling signal is not lost
+            //The circuit breaker ensures that if StartThrottling has been called that eventually StopThrottling is going to be called unless the endpoint stop
+
+            // Todo: cancellation token
+            while (true)
+            {
+                await transitionBetweenThrottledModes.WaitAsync().ConfigureAwait(false);
+                var startThrottling = endpointShouldBeThrottled;
+
+                while (true)
+                {
+                    try
+                    {
+                        foreach (var receiver in receivers)
+                        {
+                            if (startThrottling)
+                            {
+                                await receiver.StartThrottling().ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await receiver.StopThrottling().ConfigureAwait(false);
+                            }
+                        }
+
+                        break;
+                    }
+                    catch (Exception)
+                    {
+                        //Log error
+                        //Raise critical error
+                    }
+                }
+            }
+        }
+
+        void SwitchToThrottledMode(Exception exception, long stateChangeTime)
+        {
+            if (stateChangeTime >= Interlocked.Read(ref lastStateChangeTime))
+            {
+                endpointShouldBeThrottled = true;
+                transitionBetweenThrottledModes.Set();
+
+                Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
+            }
+        }
+
+        void SwitchBackToNormalMode(long stateChangeTime)
+        {
+            endpointShouldBeThrottled = false;
+            transitionBetweenThrottledModes.Set();
+
+            Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
@@ -295,17 +369,22 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
+        readonly AsyncAutoResetEvent transitionBetweenThrottledModes = new AsyncAutoResetEvent();
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
-
+        readonly INotificationSubscriptions<ThrottledModeStarted> throttledModeStartedNotification;
+        readonly INotificationSubscriptions<ThrottledModeEnded> throttledModeEndedNotification;
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;
+        bool endpointShouldBeThrottled;
+        long lastStateChangeTime = 0;
 
         const string MainReceiverId = "Main";
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+        Task throttlingTask;
     }
 }

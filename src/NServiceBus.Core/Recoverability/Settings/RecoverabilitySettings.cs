@@ -77,5 +77,16 @@ namespace NServiceBus
             Settings.AddUnrecoverableException(exceptionType);
             return this;
         }
+
+        /// <summary>
+        /// Configures the rate limiting for the endpoint when the system is experiencing multiple consecutive failures.
+        /// </summary>
+        /// <param name="customizations"></param>
+        public RecoverabilitySettings SystemOutageRateLimiting(Action<SystemOutageSettings> customizations)
+        {
+            Guard.AgainstNull(nameof(customizations), customizations);
+            customizations(new SystemOutageSettings(Settings));
+            return this;
+        }
     }
 }
