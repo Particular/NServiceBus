@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using Transport;
     using Settings;
+    using Transport;
 
     /// <summary>
     /// Provides extensions to the settings holder.
@@ -29,10 +29,50 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns the local queue address of this endpoint.
+        /// </summary>
+        public static QueueAddress LocalQueueAddress(this IReadOnlySettings settings)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("LocalQueueAddress isn't available until the endpoint configuration is complete.");
+            }
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("LocalQueueAddress isn't available for send only endpoints.");
+            }
+
+            return receiveConfiguration.LocalQueueAddress;
+        }
+
+        /// <summary>
+        /// Returns the instance specific queue address of this endpoint.
+        /// </summary>
+        public static QueueAddress InstanceSpecificQueueAddress(this IReadOnlySettings settings)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("InstanceSpecificQueueAddress isn't available until the endpoint configuration is complete.");
+            }
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("InstanceSpecificQueueAddress isn't available for send only endpoints.");
+            }
+
+            return receiveConfiguration.InstanceSpecificQueueAddress;
+        }
+
+        /// <summary>
         /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
         [ObsoleteEx(
-            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            Message = "Use LocalQueueAddress() to access the endpoint queue address. Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
         public static string LocalAddress(this IReadOnlySettings settings)
@@ -76,7 +116,7 @@ namespace NServiceBus
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
         [ObsoleteEx(
-            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            Message = "Use InstanceSpecificQueueAddress() to access the endpoint instance specific queue address. Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings)
