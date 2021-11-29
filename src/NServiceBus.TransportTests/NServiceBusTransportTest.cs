@@ -32,8 +32,7 @@
             testCancellationTokenSource = null;
             receiver = null;
         }
-
-        static IConfigureTransportInfrastructure CreateConfigurer()
+        protected static IConfigureTransportInfrastructure CreateConfigurer()
         {
             var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport_UseSpecific");
 
@@ -206,7 +205,7 @@
             return source;
         }
 
-        static string GetTestName()
+        protected static string GetTestName()
         {
             var index = 1;
             var frame = new StackFrame(index);
