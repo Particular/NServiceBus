@@ -74,8 +74,8 @@
 #pragma warning restore CS0618
 #pragma warning restore IDE0079
 
-                    testContext.LocalQueueAddress = context.Settings.LocalQueueAddress();
-                    testContext.InstanceSpecificQueueAddress = context.Settings.InstanceSpecificQueueAddress();
+                    testContext.LocalQueueAddress = context.LocalQueueAddress();
+                    testContext.InstanceSpecificQueueAddress = context.InstanceSpecificQueueAddress();
 
                     context.AddSatelliteReceiver("Test satellite",
                             new QueueAddress("MySatellite"), PushRuntimeSettings.Default,
