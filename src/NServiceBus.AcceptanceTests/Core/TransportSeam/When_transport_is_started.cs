@@ -29,6 +29,8 @@
             Assert.AreEqual(endpointName + "-MyInstance", context.ReceiveAddresses.InstanceReceiveAddress);
             Assert.AreEqual(context.InstanceSpecificQueue, context.ReceiveAddresses.InstanceReceiveAddress);
             Assert.AreEqual("MySatellite", context.ReceiveAddresses.SatelliteReceiveAddresses.Single());
+            Assert.AreEqual(endpointName, context.LocalQueueAddress.ToString());
+            Assert.AreEqual(endpointName + "-MyInstance", context.InstanceSpecificQueueAddress.ToString());
         }
 
         class Context : ScenarioContext
@@ -37,6 +39,8 @@
             public ReceiveAddresses ReceiveAddresses { get; set; }
             public string LocalAddress { get; set; }
             public string InstanceSpecificQueue { get; set; }
+            public QueueAddress LocalQueueAddress { get; set; }
+            public QueueAddress InstanceSpecificQueueAddress { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -69,6 +73,9 @@
                     testContext.InstanceSpecificQueue = context.Settings.InstanceSpecificQueue();
 #pragma warning restore CS0618
 #pragma warning restore IDE0079
+
+                    testContext.LocalQueueAddress = context.LocalQueueAddress();
+                    testContext.InstanceSpecificQueueAddress = context.InstanceSpecificQueueAddress();
 
                     context.AddSatelliteReceiver("Test satellite",
                             new QueueAddress("MySatellite"), PushRuntimeSettings.Default,

@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using Transport;
     using Settings;
+    using Transport;
 
     /// <summary>
     /// Provides extensions to the settings holder.
@@ -32,7 +32,7 @@ namespace NServiceBus
         /// Returns the transport specific address of the shared queue name of this endpoint.
         /// </summary>
         [ObsoleteEx(
-            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            Message = "Use FeatureConfigurationContext.LocalQueueAddress() to access the endpoint queue address. Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
         public static string LocalAddress(this IReadOnlySettings settings)
@@ -76,7 +76,7 @@ namespace NServiceBus
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
         [ObsoleteEx(
-            Message = "Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            Message = "Use FeatureConfigurationContext.InstanceSpecificQueueAddress() to access the endpoint instance specific queue address. Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details.",
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings)
