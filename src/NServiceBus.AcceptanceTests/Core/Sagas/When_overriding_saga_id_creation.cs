@@ -55,7 +55,7 @@
                 static Guid ToGuid(string src)
                 {
                     var stringbytes = Encoding.UTF8.GetBytes(src);
-                    using (var provider = new SHA1CryptoServiceProvider())
+                    using (var provider = SHA1.Create())
                     {
                         var hashedBytes = provider.ComputeHash(stringbytes);
                         Array.Resize(ref hashedBytes, 16);

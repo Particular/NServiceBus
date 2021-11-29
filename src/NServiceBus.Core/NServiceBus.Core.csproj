@@ -24,7 +24,7 @@
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.2.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="3.3.2" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="1.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="1.4.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -47,9 +47,9 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="NServiceBus.AcceptanceTesting" Key="$(NServiceBusKey)" />
-    <InternalsVisibleTo Include="NServiceBus.ContainerTests" Key="$(NServiceBusTestsKey)" />
     <InternalsVisibleTo Include="NServiceBus.Core.Tests" Key="$(NServiceBusTestsKey)" />
-    <InternalsVisibleTo Include="NServiceBus.PersistenceTests" Key="$(NServiceBusTestsKey)" />
+    <InternalsVisibleTo Include="NServiceBus.Hosting.Tests" Key="$(NServiceBusKey)" />
+    <InternalsVisibleTo Include="NServiceBus.InMemory.PersistenceTests" Key="$(NServiceBusTestsKey)" />
   </ItemGroup>
 
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1469 -->
