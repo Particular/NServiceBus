@@ -4,7 +4,7 @@ namespace NServiceBus
     using NServiceBus.Transport;
 
     /// <summary>
-    /// Extension methods to configure hostid.
+    /// Extension methods to expose receive component related configuration to features.
     /// </summary>
     public static class ReceiveFeatureConfigurationContextExtensions
     {
