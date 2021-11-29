@@ -51,6 +51,9 @@
 #pragma warning restore CS0618
 #pragma warning restore IDE0079
 
+                    Assert.Throws<InvalidOperationException>(() => context.LocalQueueAddress(), "Should throw since the endpoint is send only");
+                    Assert.Throws<InvalidOperationException>(() => context.InstanceSpecificQueueAddress(), "Should throw since the endpoint is send only");
+
                     context.RegisterStartupTask(s => new StartupTask(testContext,
                         (ITransportAddressResolver)s.GetService(typeof(ITransportAddressResolver))));
                 }

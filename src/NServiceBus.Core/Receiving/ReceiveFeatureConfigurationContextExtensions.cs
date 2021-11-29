@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Features;
     using NServiceBus.Transport;
 
@@ -15,6 +16,11 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
 
+            if (config.Receiving.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("LocalQueueAddress isn't available for send only endpoints.");
+            }
+
             return config.Receiving.LocalQueueAddress;
         }
 
@@ -24,6 +30,11 @@ namespace NServiceBus
         public static QueueAddress InstanceSpecificQueueAddress(this FeatureConfigurationContext config)
         {
             Guard.AgainstNull(nameof(config), config);
+
+            if (config.Receiving.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("InstanceSpecificQueueAddress isn't available for send only endpoints.");
+            }
 
             return config.Receiving.InstanceSpecificQueueAddress;
         }
