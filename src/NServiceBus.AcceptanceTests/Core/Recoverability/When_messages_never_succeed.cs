@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.Recoverability
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -8,6 +9,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
     public class When_messages_never_succeed : NServiceBusAcceptanceTest
     {
+        public static int NumberOfConsecutiveFailuresBeforeThrottling { get; set; } = 1;
+
         [Test]
         public async Task Should_throttle_pipeline_after_configured_number_of_consecutive_failures()
         {
@@ -25,13 +28,14 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.ThrottleModeEntered)
+                .Done(c => Context.ThrottleModeEntered && Context.failuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
                 .Run();
         }
 
         class Context : ScenarioContext
         {
             public static bool ThrottleModeEntered { get; set; }
+            public static int failuresBeforeThrottling;
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -49,7 +53,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     recoverability.SystemOutageRateLimiting(d =>
                     {
-                        d.NumberOfConsecutiveFailuresBeforeThrottling(2);
+                        d.NumberOfConsecutiveFailuresBeforeThrottling(NumberOfConsecutiveFailuresBeforeThrottling);
                         d.ThrottledModeConcurrency(1);
                         d.TimeToWaitBeforeThrottledProcessingAttempts(TimeSpan.FromSeconds(5));
 
@@ -67,6 +71,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
+                    Interlocked.Increment(ref Context.failuresBeforeThrottling);
+
                     throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
                 }
             }

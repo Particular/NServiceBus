@@ -22,7 +22,8 @@ namespace NServiceBus
         {
             Guard.AgainstNegative(nameof(consecutiveFailuresBeforeThrottling), consecutiveFailuresBeforeThrottling);
 
-            // Settings.Set(RecoverabilityComponent.NumberOfImmediateRetries, numberOfRetries);
+            var outageConfiguration = Settings.Get<SystemOutageConfiguration>();
+            outageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling = consecutiveFailuresBeforeThrottling;
         }
 
         /// <summary>

@@ -19,15 +19,13 @@ namespace NServiceBus
             CriticalError criticalError,
             string errorQueue,
             TransportReceiveInfrastructure transportReceiveInfrastructure,
-            INotificationSubscriptions<ThrottledModeStarted> throttledModeStartedNotification,
-            INotificationSubscriptions<ThrottledModeEnded> throttledModeEndedNotification)
+            SystemOutageConfiguration systemOutageConfiguration)
         {
             this.configuration = configuration;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
             this.transportReceiveInfrastructure = transportReceiveInfrastructure;
-            this.throttledModeStartedNotification = throttledModeStartedNotification;
-            this.throttledModeEndedNotification = throttledModeEndedNotification;
+            this.systemOutageConfiguration = systemOutageConfiguration;
         }
 
         public static ReceiveComponent Initialize(
@@ -59,8 +57,7 @@ namespace NServiceBus
                 hostingConfiguration.CriticalError,
                 errorQueue,
                 transportReceiveInfrastructure,
-                systemOutageConfig.ThrottledModeStartedNotification,
-                systemOutageConfig.ThrottledModeEndedNotification);
+                systemOutageConfig);
 
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -159,8 +156,8 @@ namespace NServiceBus
             }
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
-            // TODO: Get the number from a setting
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", 1, SwitchToThrottledMode, SwitchBackToNormalMode);
+
+            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling, SwitchToThrottledMode, SwitchBackToNormalMode);
 
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, consecutiveFailuresCircuitBreaker);
 
@@ -258,7 +255,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, throttledModeStartedNotification, throttledModeEndedNotification));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, systemOutageConfiguration.ThrottledModeStartedNotification, systemOutageConfiguration.ThrottledModeEndedNotification));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -266,7 +263,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, throttledModeStartedNotification, throttledModeEndedNotification));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, systemOutageConfiguration.ThrottledModeStartedNotification, systemOutageConfiguration.ThrottledModeEndedNotification));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -274,7 +271,7 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, throttledModeStartedNotification, throttledModeEndedNotification));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, systemOutageConfiguration.ThrottledModeStartedNotification, systemOutageConfiguration.ThrottledModeEndedNotification));
             }
         }
 
@@ -371,8 +368,8 @@ namespace NServiceBus
 
         readonly AsyncAutoResetEvent transitionBetweenThrottledModes = new AsyncAutoResetEvent();
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
-        readonly INotificationSubscriptions<ThrottledModeStarted> throttledModeStartedNotification;
-        readonly INotificationSubscriptions<ThrottledModeEnded> throttledModeEndedNotification;
+        readonly SystemOutageConfiguration systemOutageConfiguration;
+
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         IPipelineExecutor mainPipelineExecutor;
