@@ -14,6 +14,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         [Test]
         public async Task Should_throttle_pipeline_after_configured_number_of_consecutive_failures()
         {
+            NumberOfConsecutiveFailuresBeforeThrottling = 5;
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFailingHandler>(b => b
                     .DoNotFailOnErrorMessages()
@@ -29,6 +31,29 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     })
                 )
                 .Done(c => Context.ThrottleModeEntered && Context.failuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
+                .Run();
+        }
+
+        [Test]
+        public async Task Should_not_throttle_pipeline_if_number_of_consecutive_failures_is_below_threshold()
+        {
+            NumberOfConsecutiveFailuresBeforeThrottling = 100;
+
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithFailingHandler>(b => b
+                    .DoNotFailOnErrorMessages()
+                    .When(async (session, ctx) =>
+                    {
+                        for (var x = 0; x < 10; x++)
+                        {
+                            await session.SendLocal(new InitiatingMessage
+                            {
+                                Id = ctx.TestRunId
+                            });
+                        }
+                    })
+                )
+                .Done(c => Context.failuresBeforeThrottling == 10 && !Context.ThrottleModeEntered)
                 .Run();
         }
 
