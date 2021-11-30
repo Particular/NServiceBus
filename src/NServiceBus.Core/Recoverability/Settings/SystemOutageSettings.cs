@@ -48,7 +48,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Registers a callback which is invoked when the endpoint enters throttled mode.
+        /// Registers a callback which is invoked when the endpoint starts throttled mode.
         /// </summary>
         public SystemOutageSettings OnThrottledModeStarted(Func<Task> notificationCallback)
         {
@@ -56,6 +56,22 @@ namespace NServiceBus
 
             var outageConfiguration = Settings.Get<SystemOutageConfiguration>();
             outageConfiguration.ThrottledModeStartedNotification.Subscribe(enteredThrottledMode =>
+            {
+                return notificationCallback();
+            });
+
+            return this;
+        }
+
+        /// <summary>
+        /// Registers a callback which is invoked when the endpoint stops throttled mode.
+        /// </summary>
+        public SystemOutageSettings OnThrottledModeEnded(Func<Task> notificationCallback)
+        {
+            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
+
+            var outageConfiguration = Settings.Get<SystemOutageConfiguration>();
+            outageConfiguration.ThrottledModeEndedNotification.Subscribe(endedThrottledMode =>
             {
                 return notificationCallback();
             });

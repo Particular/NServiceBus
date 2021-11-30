@@ -104,10 +104,11 @@ namespace NServiceBus
 
         public async Task<bool> StopThrottling()
         {
-            if (state != TransportReceiverState.StartedRegular)
+            if (state == TransportReceiverState.StartedRegular)
             {
                 return true;
             }
+
             if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50)).ConfigureAwait(false))
             {
                 try
@@ -117,7 +118,7 @@ namespace NServiceBus
                         return true;
                     }
 
-                    await Stop().ConfigureAwait(false);
+                    await StopAndDisposeReceiver().ConfigureAwait(false);
                     await Init().ConfigureAwait(false);
                     await Start().ConfigureAwait(false);
 
@@ -180,6 +181,7 @@ namespace NServiceBus
             await receiver.Stop().ConfigureAwait(false);
             (receiver as IDisposable)?.Dispose();
             receiver = null;
+            state = TransportReceiverState.Stopped;
         }
 
         readonly CriticalError criticalError;
