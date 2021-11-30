@@ -32,7 +32,6 @@
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="PersistenceTestsConfiguration.cs" />
-    <_PackageFiles Remove="Sagas\When_persisting_a_saga_with_record_type.cs" />
   </ItemGroup>
   <!-- End Workaround -->
 
