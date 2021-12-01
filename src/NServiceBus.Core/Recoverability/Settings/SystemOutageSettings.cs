@@ -39,17 +39,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// The number of messages to process concurrently when in throttled mode.
-        /// </summary>
-        /// <param name="throttledConcurrency">The number of messages to process concurrently when in throttled mode.</param>
-        public void ThrottledModeConcurrency(int throttledConcurrency)
-        {
-            Guard.AgainstNegative(nameof(throttledConcurrency), throttledConcurrency);
-
-            // Settings.Set(RecoverabilityComponent.NumberOfImmediateRetries, numberOfRetries);
-        }
-
-        /// <summary>
         /// Registers a callback which is invoked when the endpoint starts throttled mode.
         /// </summary>
         public SystemOutageSettings OnThrottledModeStarted(Func<Task> notificationCallback)

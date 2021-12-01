@@ -106,7 +106,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     recoverability.SystemOutageRateLimiting(d =>
                     {
                         d.NumberOfConsecutiveFailuresBeforeThrottling(NumberOfConsecutiveFailuresBeforeThrottling);
-                        d.ThrottledModeConcurrency(1);
                         d.TimeToWaitBeforeThrottledProcessingAttempts(TimeToWaitBetweenThrottledAttempts);
 
                         d.OnThrottledModeStarted(() =>
