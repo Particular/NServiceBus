@@ -103,12 +103,12 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     recoverability.Immediate(i => i.NumberOfRetries(0));
                     recoverability.Delayed(d => d.NumberOfRetries(0));
 
-                    recoverability.SystemOutageRateLimiting(d =>
+                    recoverability.SystemOutageDetection(d =>
                     {
-                        d.NumberOfConsecutiveFailuresBeforeThrottling(NumberOfConsecutiveFailuresBeforeThrottling);
-                        d.TimeToWaitBeforeThrottledProcessingAttempts(TimeToWaitBetweenThrottledAttempts);
+                        d.NumberOfConsecutiveFailuresBeforeSystemOutage(NumberOfConsecutiveFailuresBeforeThrottling);
+                        d.TimeToWaitBetweenSystemOutageProcessingAttempts(TimeToWaitBetweenThrottledAttempts);
 
-                        d.OnThrottledModeStarted(() =>
+                        d.OnSystemOutageStarted(() =>
                         {
                             Context.ThrottleModeEntered = true;
 
