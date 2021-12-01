@@ -1,51 +1,45 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     // Taken from https://devblogs.microsoft.com/pfxteam/building-async-coordination-primitives-part-2-asyncautoresetevent/
+    // Can't use the package because it is net462 and this currently targets 452
     class AsyncAutoResetEvent
     {
-        public Task WaitAsync()
+        public Task WaitAsync(CancellationToken cancellationToken)
         {
-            lock (m_waits)
+            lock (mutex)
             {
-                if (m_signaled)
+                if (signaled)
                 {
-                    m_signaled = false;
-                    return s_completed;
+                    signaled = false;
+                    return Task.FromResult(true);
                 }
                 else
                 {
-                    var tcs = new TaskCompletionSource<bool>();
-                    m_waits.Enqueue(tcs);
-                    return tcs.Task;
+                    return signalQueue.Enqueue(mutex, cancellationToken);
                 }
             }
         }
 
         public void Set()
         {
-            TaskCompletionSource<bool> toRelease = null;
-            lock (m_waits)
+            lock (mutex)
             {
-                if (m_waits.Count > 0)
+                if (signalQueue.IsEmpty)
                 {
-                    toRelease = m_waits.Dequeue();
+                    signaled = true;
                 }
-                else if (!m_signaled)
+                else
                 {
-                    m_signaled = true;
+                    signalQueue.Dequeue(true);
                 }
-            }
-            if (toRelease != null)
-            {
-                toRelease.SetResult(true);
             }
         }
 
-        static readonly Task s_completed = Task.FromResult(true);
-        readonly Queue<TaskCompletionSource<bool>> m_waits = new Queue<TaskCompletionSource<bool>>();
-        bool m_signaled;
+        readonly AsyncWaitQueue<object> signalQueue = new AsyncWaitQueue<object>();
+        readonly object mutex = new object();
+        bool signaled;
     }
 }

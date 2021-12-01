@@ -210,7 +210,7 @@ namespace NServiceBus
                 }
             }
 
-            throttlingTask = ThrottlingLoop();
+            throttlingTask = ThrottlingLoop(throttleLoopCancellationToken.Token);
         }
 
         public Task Stop()
@@ -222,7 +222,7 @@ namespace NServiceBus
                 Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
             });
 
-            // Todo: wait for throttlingTask to finish
+            throttleLoopCancellationToken.Cancel();
 
             return Task.WhenAll(receiverStopTasks);
         }
@@ -275,16 +275,15 @@ namespace NServiceBus
             }
         }
 
-        async Task ThrottlingLoop()
+        async Task ThrottlingLoop(CancellationToken cancellationToken)
         {
             //We want all the pumps to be running all the time in the desired mode until we call stop
             //We want to make sure that StopThrottling signal is not lost
             //The circuit breaker ensures that if StartThrottling has been called that eventually StopThrottling is going to be called unless the endpoint stop
 
-            // Todo: cancellation token
             while (true)
             {
-                await transitionBetweenThrottledModes.WaitAsync().ConfigureAwait(false);
+                await transitionBetweenThrottledModes.WaitAsync(cancellationToken).ConfigureAwait(false);
                 var startThrottling = endpointShouldBeThrottled;
 
                 while (true)
@@ -369,7 +368,7 @@ namespace NServiceBus
         readonly AsyncAutoResetEvent transitionBetweenThrottledModes = new AsyncAutoResetEvent();
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
         readonly SystemOutageConfiguration systemOutageConfiguration;
-
+        readonly CancellationTokenSource throttleLoopCancellationToken = new CancellationTokenSource();
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         IPipelineExecutor mainPipelineExecutor;
