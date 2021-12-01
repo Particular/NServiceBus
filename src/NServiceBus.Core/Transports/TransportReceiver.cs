@@ -88,10 +88,9 @@ namespace NServiceBus
                     {
                         await throttledModeStartedNotification.Raise(new ThrottledModeStarted()).ConfigureAwait(false);
                     }
-                    catch (Exception)
+                    catch (Exception exception)
                     {
-                        // Log
-                        // Swallow
+                        Logger.WarnFormat("Failed to enter system outage mode: {0}", exception);
                     }
                 }
                 finally
@@ -125,10 +124,9 @@ namespace NServiceBus
                     {
                         await throttledModeEndedNotification.Raise(new ThrottledModeEnded()).ConfigureAwait(false);
                     }
-                    catch (Exception)
+                    catch (Exception exception)
                     {
-                        // Log
-                        // Swallow
+                        Logger.WarnFormat("Failed to stop system outage mode: {0}", exception);
                     }
 
                     return true;
