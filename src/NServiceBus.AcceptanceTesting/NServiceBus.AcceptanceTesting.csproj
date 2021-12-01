@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;net452;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="NUnit" Version="[3.12.0, 4.0.0)" />
-    <PackageReference Include="Particular.Packaging" Version="1.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="1.4.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>

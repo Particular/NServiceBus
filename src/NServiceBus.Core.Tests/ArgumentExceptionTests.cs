@@ -117,7 +117,13 @@
         {
             foreach (var instruction in method.Body.Instructions)
             {
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0078 // Use pattern matching
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(instruction.Operand is MethodReference methodReference))
+#pragma warning restore IDE0083 // Use pattern matching
+#pragma warning restore IDE0078 // Use pattern matching
+#pragma warning restore IDE0079 // Remove unnecessary suppression
                 {
                     continue;
                 }

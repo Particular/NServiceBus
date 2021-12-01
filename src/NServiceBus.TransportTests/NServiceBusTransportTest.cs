@@ -59,7 +59,13 @@
                 throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {nameof(IConfigureTransportInfrastructure)}.");
             }
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0078 // Use pattern matching (may change code meaning)
+#pragma warning disable IDE0083 // Use pattern matching
             if (!(Activator.CreateInstance(configurerType) is IConfigureTransportInfrastructure configurer))
+#pragma warning restore IDE0083 // Use pattern matching
+#pragma warning restore IDE0078 // Use pattern matching (may change code meaning)
+#pragma warning restore IDE0079 // Remove unnecessary suppression
             {
                 throw new InvalidOperationException($"{typeName} does not implement {nameof(IConfigureTransportInfrastructure)}.");
             }
