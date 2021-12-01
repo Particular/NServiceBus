@@ -29,7 +29,6 @@ namespace NServiceBus
             this.throttledModeEndedNotification = throttledModeEndedNotification;
 
             receiverFactory = pushMessagesFactory;
-            // TODO: Get this value from a setting
             throttledPushRuntimeSettings = new PushRuntimeSettings(1);
             throttledPushSettings = new PushSettings(this.pushSettings.InputQueue, this.pushSettings.ErrorQueue, false, this.pushSettings.RequiredTransactionMode);
         }
