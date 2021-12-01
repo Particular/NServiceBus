@@ -15,7 +15,7 @@ namespace NServiceBus
                 if (signaled)
                 {
                     signaled = false;
-                    result = Task.FromResult(true);
+                    result = TaskEx.TrueTask;
                 }
                 else
                 {

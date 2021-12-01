@@ -34,7 +34,8 @@ namespace NServiceBus
         {
             Guard.AgainstNegative(nameof(waitPeriodBetweenAttempts), waitPeriodBetweenAttempts);
 
-            // Settings.Set(RecoverabilityComponent.NumberOfImmediateRetries, numberOfRetries);
+            var outageConfiguration = Settings.Get<SystemOutageConfiguration>();
+            outageConfiguration.WaitPeriodBetweenAttempts = waitPeriodBetweenAttempts;
         }
 
         /// <summary>

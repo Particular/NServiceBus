@@ -58,7 +58,7 @@ namespace NServiceBus
 
             state = TransportReceiverState.StartedRegular;
 
-            return Task.FromResult(0);
+            return TaskEx.CompletedTask;
         }
 
         public async Task StartThrottling()

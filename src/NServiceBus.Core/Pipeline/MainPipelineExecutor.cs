@@ -46,7 +46,7 @@ namespace NServiceBus
                         e.Data["Transport message ID"] = message.NativeMessageId;
                     }
 
-                    var _ = consecutiveFailuresCircuitBreaker.Failure(e);
+                    await consecutiveFailuresCircuitBreaker.Failure(e).ConfigureAwait(false);
 
                     throw;
                 }

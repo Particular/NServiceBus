@@ -87,7 +87,7 @@
                 builder.Dispose();
             }
 
-            return Task.FromResult(0);
+            return TaskEx.CompletedTask;
         }
 
         string GetInstallationUserName()

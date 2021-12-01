@@ -7,12 +7,13 @@ namespace NServiceBus
 
     class ConsecutiveFailuresCircuitBreaker : IDisposable, ICircuitBreaker
     {
-        public ConsecutiveFailuresCircuitBreaker(string name, long consecutiveFailuresBeforeTriggering, Action<Exception, long> triggerAction, Action<long> disarmAction)
+        public ConsecutiveFailuresCircuitBreaker(string name, int consecutiveFailuresBeforeTriggering, Action<Exception, long> triggerAction, Action<long> disarmAction, TimeSpan armedFailureDelayDuration)
         {
             this.name = name;
             this.triggerAction = triggerAction;
             this.consecutiveFailuresBeforeTriggering = consecutiveFailuresBeforeTriggering;
             this.disarmAction = disarmAction;
+            this.armedFailureDelayDuration = armedFailureDelayDuration;
         }
 
         public void Success()
@@ -28,15 +29,24 @@ namespace NServiceBus
 
         public Task Failure(Exception exception)
         {
-            var newValue = Interlocked.Increment(ref failureCount);
-
-            if (newValue >= consecutiveFailuresBeforeTriggering)
+            if (consecutiveFailuresBeforeTriggering != int.MaxValue)
             {
-                Logger.WarnFormat("The circuit breaker for {0} is now in the armed state", name);
-                triggerAction(exception, DateTime.Now.Ticks);
+                var newValue = Interlocked.Increment(ref failureCount);
+
+                if (newValue == consecutiveFailuresBeforeTriggering)
+                {
+                    Logger.WarnFormat("The circuit breaker for {0} is now in the armed state", name);
+                    triggerAction(exception, DateTime.Now.Ticks);
+
+                    return Task.Delay(armedFailureDelayDuration);
+                }
+                else if (newValue > consecutiveFailuresBeforeTriggering)
+                {
+                    return Task.Delay(armedFailureDelayDuration);
+                }
             }
 
-            return Task.FromResult(0);
+            return TaskEx.CompletedTask;
         }
 
         public void Dispose()
@@ -44,11 +54,12 @@ namespace NServiceBus
             //Injected
         }
 
-        long failureCount;
+        int failureCount;
         string name;
-        long consecutiveFailuresBeforeTriggering;
+        int consecutiveFailuresBeforeTriggering;
         Action<Exception, long> triggerAction;
         Action<long> disarmAction;
+        TimeSpan armedFailureDelayDuration;
 
         static ILog Logger = LogManager.GetLogger<ConsecutiveFailuresCircuitBreaker>();
     }

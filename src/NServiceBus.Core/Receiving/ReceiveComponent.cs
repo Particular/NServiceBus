@@ -157,7 +157,7 @@ namespace NServiceBus
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling, SwitchToThrottledMode, SwitchBackToNormalMode);
+            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling, SwitchToThrottledMode, SwitchBackToNormalMode, systemOutageConfiguration.WaitPeriodBetweenAttempts);
 
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, consecutiveFailuresCircuitBreaker);
 

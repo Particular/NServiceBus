@@ -9,7 +9,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
     public class When_messages_never_succeed : NServiceBusAcceptanceTest
     {
-        public static int NumberOfConsecutiveFailuresBeforeThrottling { get; set; } = 1;
+        public static int NumberOfConsecutiveFailuresBeforeThrottling = 1;
+        public static TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
 
         [Test]
         public async Task Should_throttle_pipeline_after_configured_number_of_consecutive_failures()
@@ -31,6 +32,30 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     })
                 )
                 .Done(c => Context.ThrottleModeEntered && Context.failuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
+                .Run();
+        }
+
+        [Test]
+        public async Task Should_wait_the_configured_delay_between_processing_attempts_in_throttled_mode()
+        {
+            NumberOfConsecutiveFailuresBeforeThrottling = 1;
+            TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(2);
+
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithFailingHandler>(b => b
+                    .DoNotFailOnErrorMessages()
+                    .When(async (session, ctx) =>
+                    {
+                        for (var x = 0; x < 5; x++)
+                        {
+                            await session.SendLocal(new InitiatingMessage
+                            {
+                                Id = ctx.TestRunId
+                            });
+                        }
+                    })
+                )
+                .Done(c => Context.ThrottleModeEntered && Context.TimeBetweenProcessingAttempts >= TimeToWaitBetweenThrottledAttempts)
                 .Run();
         }
 
@@ -61,6 +86,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         {
             public static bool ThrottleModeEntered { get; set; }
             public static int failuresBeforeThrottling;
+            public static DateTime LastProcessedTimeStamp { get; set; }
+            public static TimeSpan TimeBetweenProcessingAttempts { get; set; }
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -80,7 +107,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     {
                         d.NumberOfConsecutiveFailuresBeforeThrottling(NumberOfConsecutiveFailuresBeforeThrottling);
                         d.ThrottledModeConcurrency(1);
-                        d.TimeToWaitBeforeThrottledProcessingAttempts(TimeSpan.FromSeconds(5));
+                        d.TimeToWaitBeforeThrottledProcessingAttempts(TimeToWaitBetweenThrottledAttempts);
 
                         d.OnThrottledModeStarted(() =>
                         {
@@ -96,6 +123,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
+                    if (Context.ThrottleModeEntered)
+                    {
+                        Context.TimeBetweenProcessingAttempts = DateTime.Now - Context.LastProcessedTimeStamp;
+                    }
+
+                    Context.LastProcessedTimeStamp = DateTime.Now;
+
                     Interlocked.Increment(ref Context.failuresBeforeThrottling);
 
                     throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
