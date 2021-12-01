@@ -44,7 +44,7 @@
                 {
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
-                    var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext));
+                    var recordTask = persister.Get<TestSagaData>(saga.Id, secondSession, secondContext);
                     secondSessionGetDone.SetResult(true);
 
                     var record = await recordTask.ConfigureAwait(false);
