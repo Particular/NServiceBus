@@ -34,12 +34,14 @@
                 }
             }, useSynchronizationContext: false);
 
-            return (Task<T>)ret.ContinueWith(_ => registration.Dispose(), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            var continuation = ret.ContinueWith(_ => registration.Dispose(), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+
+            return ret;
         }
 
         public void Dequeue(T result)
         {
-            _queue.RemoveFromFront().TrySetResult(result);
+            _queue.RemoveFromFront().SetResult(result);
         }
 
         public bool IsEmpty => _queue.Count == 0;

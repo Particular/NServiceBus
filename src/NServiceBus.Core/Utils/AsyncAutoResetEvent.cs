@@ -9,18 +9,21 @@ namespace NServiceBus
     {
         public Task WaitAsync(CancellationToken cancellationToken)
         {
+            Task result;
             lock (mutex)
             {
                 if (signaled)
                 {
                     signaled = false;
-                    return Task.FromResult(true);
+                    result = Task.FromResult(true);
                 }
                 else
                 {
-                    return signalQueue.Enqueue(mutex, cancellationToken);
+                    result = signalQueue.Enqueue(mutex, cancellationToken);
                 }
             }
+
+            return result;
         }
 
         public void Set()
