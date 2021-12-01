@@ -15,22 +15,22 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the amount of consecutive message failures that should occur before throttling of the endpoint begins.
+        /// Configures the amount of consecutive message failures that should occur before the endpoint switches to system outage mode.
         /// </summary>
-        /// <param name="consecutiveFailuresBeforeThrottling">The number of times to immediately retry a failed message.</param>
-        public void NumberOfConsecutiveFailuresBeforeThrottling(int consecutiveFailuresBeforeThrottling)
+        /// <param name="consecutiveFailuresBeforeSystemOutage">The number of consecutive failures that must occur before triggering system outage mode.</param>
+        public void NumberOfConsecutiveFailuresBeforeSystemOutage(int consecutiveFailuresBeforeSystemOutage)
         {
-            Guard.AgainstNegative(nameof(consecutiveFailuresBeforeThrottling), consecutiveFailuresBeforeThrottling);
+            Guard.AgainstNegative(nameof(consecutiveFailuresBeforeSystemOutage), consecutiveFailuresBeforeSystemOutage);
 
             var outageConfiguration = Settings.Get<SystemOutageConfiguration>();
-            outageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling = consecutiveFailuresBeforeThrottling;
+            outageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling = consecutiveFailuresBeforeSystemOutage;
         }
 
         /// <summary>
-        /// The amount time to wait between attempting to process another message in throttled mode.
+        /// The amount time to wait between attempting to process another message in system outage mode.
         /// </summary>
-        /// <param name="waitPeriodBetweenAttempts">The time to wait before attempting to process another message in throttled mode.</param>
-        public void TimeToWaitBeforeThrottledProcessingAttempts(TimeSpan waitPeriodBetweenAttempts)
+        /// <param name="waitPeriodBetweenAttempts">The time to wait before attempting to process another message in system outage mode.</param>
+        public void TimeToWaitBetweenSystemOutageProcessingAttempts(TimeSpan waitPeriodBetweenAttempts)
         {
             Guard.AgainstNegative(nameof(waitPeriodBetweenAttempts), waitPeriodBetweenAttempts);
 
@@ -39,9 +39,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Registers a callback which is invoked when the endpoint starts throttled mode.
+        /// Registers a callback which is invoked when the endpoint detects system outage mode.
         /// </summary>
-        public SystemOutageSettings OnThrottledModeStarted(Func<Task> notificationCallback)
+        public SystemOutageSettings OnSystemOutageStarted(Func<Task> notificationCallback)
         {
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
@@ -55,9 +55,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Registers a callback which is invoked when the endpoint stops throttled mode.
+        /// Registers a callback which is invoked when the endpoint stops system outage mode.
         /// </summary>
-        public SystemOutageSettings OnThrottledModeEnded(Func<Task> notificationCallback)
+        public SystemOutageSettings OnSystemOutageEnded(Func<Task> notificationCallback)
         {
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
