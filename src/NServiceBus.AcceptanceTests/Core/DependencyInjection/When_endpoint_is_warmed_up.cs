@@ -38,16 +38,33 @@
                 .OrderBy(c => c.Type.FullName)
                 .ToList();
 
-            builder.AppendLine("----------- Used registrations (Find ways to stop accessing them)-----------");
+            var privateComponents = coreComponents.Where(c => !c.Type.IsPublic);
+            var publicComponents = coreComponents.Where(c => c.Type.IsPublic);
 
-            foreach (var component in coreComponents.Where(c => c.WasResolved))
+            builder.AppendLine("----------- Public registrations used by Core -----------");
+
+            foreach (var component in publicComponents.Where(c => c.WasResolved))
             {
                 builder.AppendLine(component.ToString());
             }
 
-            builder.AppendLine("----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------");
+            builder.AppendLine("----------- Public registrations not used by Core -----------");
 
-            foreach (var component in coreComponents.Where(c => !c.WasResolved))
+            foreach (var component in publicComponents.Where(c => !c.WasResolved))
+            {
+                builder.AppendLine(component.ToString());
+            }
+
+            builder.AppendLine("----------- Private registrations used by Core-----------");
+
+            foreach (var component in privateComponents.Where(c => c.WasResolved))
+            {
+                builder.AppendLine(component.ToString());
+            }
+
+            builder.AppendLine("----------- Private registrations not used by Core -----------");
+
+            foreach (var component in privateComponents.Where(c => !c.WasResolved))
             {
                 builder.AppendLine(component.ToString());
             }
