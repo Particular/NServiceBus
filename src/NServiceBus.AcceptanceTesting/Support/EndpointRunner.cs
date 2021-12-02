@@ -54,6 +54,8 @@
                     endpointConfiguration.UniquelyIdentifyRunningInstance().UsingHostName(configuration.CustomMachineName);
                 }
 
+                endpointConfiguration.EnableFeature<FeatureStartupTaskRunner>();
+
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
                 startable = await createCallback(endpointConfiguration).ConfigureAwait(false);
