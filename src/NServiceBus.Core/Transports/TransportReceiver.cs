@@ -16,21 +16,21 @@ namespace NServiceBus
             IPipelineExecutor pipelineExecutor,
             RecoverabilityExecutor recoverabilityExecutor,
             CriticalError criticalError,
-            INotificationSubscriptions<ThrottledModeStarted> throttledModeStartedNotification,
-            INotificationSubscriptions<ThrottledModeEnded> throttledModeEndedNotification)
+            INotificationSubscriptions<RateLimitStarted> rateLimitModeStartedNotification,
+            INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification)
         {
-            this.criticalError = criticalError;
             Id = id;
+            this.criticalError = criticalError;
             this.pushRuntimeSettings = pushRuntimeSettings;
             this.pipelineExecutor = pipelineExecutor;
             this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
-            this.throttledModeStartedNotification = throttledModeStartedNotification;
-            this.throttledModeEndedNotification = throttledModeEndedNotification;
+            this.rateLimitModeStartedNotification = rateLimitModeStartedNotification;
+            this.rateLimitModeEndedNotification = rateLimitModeEndedNotification;
 
             receiverFactory = pushMessagesFactory;
-            throttledPushRuntimeSettings = new PushRuntimeSettings(1);
-            throttledPushSettings = new PushSettings(this.pushSettings.InputQueue, this.pushSettings.ErrorQueue, false, this.pushSettings.RequiredTransactionMode);
+            rateLimitPushRuntimeSettings = new PushRuntimeSettings(1);
+            rateLimitPushSettings = new PushSettings(this.pushSettings.InputQueue, this.pushSettings.ErrorQueue, false, this.pushSettings.RequiredTransactionMode);
         }
 
         public string Id { get; }
@@ -42,7 +42,7 @@ namespace NServiceBus
         }
 
         //Start is called once before any message can be processed
-        //Start throttling is called from a message handler
+        //Start rate limiting is called from a message handler
 
         public Task Start()
         {
@@ -60,9 +60,9 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public async Task StartThrottling()
+        public async Task StartRateLimiting()
         {
-            if (state == TransportReceiverState.StartedInThrottledMode)
+            if (state == TransportReceiverState.StartedInRateLimitMode)
             {
                 return;
             }
@@ -71,7 +71,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    if (state == TransportReceiverState.StartedInThrottledMode)
+                    if (state == TransportReceiverState.StartedInRateLimitMode)
                     {
                         return;
                     }
@@ -79,14 +79,14 @@ namespace NServiceBus
 
                     receiver = receiverFactory();
 
-                    await receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, throttledPushSettings).ConfigureAwait(false);
-                    receiver.Start(throttledPushRuntimeSettings);
+                    await receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, rateLimitPushSettings).ConfigureAwait(false);
+                    receiver.Start(rateLimitPushRuntimeSettings);
 
-                    state = TransportReceiverState.StartedInThrottledMode;
+                    state = TransportReceiverState.StartedInRateLimitMode;
 
                     try
                     {
-                        await throttledModeStartedNotification.Raise(new ThrottledModeStarted()).ConfigureAwait(false);
+                        await rateLimitModeStartedNotification.Raise(new RateLimitStarted()).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -100,7 +100,7 @@ namespace NServiceBus
             }
         }
 
-        public async Task<bool> StopThrottling()
+        public async Task<bool> StopRateLimiting()
         {
             if (state == TransportReceiverState.StartedRegular)
             {
@@ -122,7 +122,7 @@ namespace NServiceBus
 
                     try
                     {
-                        await throttledModeEndedNotification.Raise(new ThrottledModeEnded()).ConfigureAwait(false);
+                        await rateLimitModeEndedNotification.Raise(new RateLimitEnded()).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -191,18 +191,18 @@ namespace NServiceBus
         PushSettings pushSettings;
         Func<IPushMessages> receiverFactory;
         IPushMessages receiver;
-        readonly INotificationSubscriptions<ThrottledModeStarted> throttledModeStartedNotification;
-        readonly INotificationSubscriptions<ThrottledModeEnded> throttledModeEndedNotification;
+        readonly INotificationSubscriptions<RateLimitStarted> rateLimitModeStartedNotification;
+        readonly INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
-        PushRuntimeSettings throttledPushRuntimeSettings;
-        PushSettings throttledPushSettings;
+        PushRuntimeSettings rateLimitPushRuntimeSettings;
+        PushSettings rateLimitPushSettings;
     }
 
     enum TransportReceiverState
     {
         Stopped,
-        StartedInThrottledMode,
+        StartedInRateLimitMode,
         StartedRegular
     }
 }

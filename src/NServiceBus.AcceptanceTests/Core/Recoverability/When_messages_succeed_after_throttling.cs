@@ -49,19 +49,19 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     recoverability.Immediate(i => i.NumberOfRetries(0));
                     recoverability.Delayed(d => d.NumberOfRetries(0));
 
-                    recoverability.SystemOutageDetection(d =>
+                    recoverability.RateLimitOnConsecutiveFailure(d =>
                     {
-                        d.NumberOfConsecutiveFailuresBeforeSystemOutage(2);
-                        d.TimeToWaitBetweenSystemOutageProcessingAttempts(TimeSpan.FromSeconds(5));
+                        d.ConsecutiveFailuresBeforeStartRateLimit(2);
+                        d.TimeToWaitBetweenRateLimitAttempts(TimeSpan.FromSeconds(5));
 
-                        d.OnSystemOutageStarted(() =>
+                        d.RateLimitStarted(() =>
                         {
                             Context.ThrottleModeEntered = true;
 
                             return Task.FromResult(0);
                         });
 
-                        d.OnSystemOutageEnded(() =>
+                        d.RateLimitEnded(() =>
                         {
                             Context.ThrottleModeEnded = true;
 

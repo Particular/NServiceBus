@@ -19,7 +19,7 @@ namespace NServiceBus
             CriticalError criticalError,
             string errorQueue,
             TransportReceiveInfrastructure transportReceiveInfrastructure,
-            SystemOutageConfiguration systemOutageConfiguration)
+            RateLimitConfiguration systemOutageConfiguration)
         {
             this.configuration = configuration;
             this.criticalError = criticalError;
@@ -50,7 +50,7 @@ namespace NServiceBus
                 }
             }
 
-            var systemOutageConfig = pipelineSettings.Settings.Get<SystemOutageConfiguration>();
+            var systemOutageConfig = pipelineSettings.Settings.Get<RateLimitConfiguration>();
 
             var receiveComponent = new ReceiveComponent(
                 configuration,
@@ -157,7 +157,7 @@ namespace NServiceBus
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeThrottling, SwitchToThrottledMode, SwitchBackToNormalMode, systemOutageConfiguration.WaitPeriodBetweenAttempts);
+            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeRateLimit, SwitchToRateLimitMode, SwitchBackToNormalMode, systemOutageConfiguration.WaitPeriodBetweenAttempts);
 
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, consecutiveFailuresCircuitBreaker);
 
@@ -210,7 +210,7 @@ namespace NServiceBus
                 }
             }
 
-            throttlingTask = ThrottlingLoop(throttleLoopCancellationToken.Token);
+            rateLimitTask = RateLimitLoop(rateLimitLoopCancellationToken.Token);
         }
 
         public Task Stop()
@@ -222,7 +222,7 @@ namespace NServiceBus
                 Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
             });
 
-            throttleLoopCancellationToken.Cancel();
+            rateLimitLoopCancellationToken.Cancel();
 
             return Task.WhenAll(receiverStopTasks);
         }
@@ -255,7 +255,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, systemOutageConfiguration.ThrottledModeStartedNotification, systemOutageConfiguration.ThrottledModeEndedNotification));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -263,7 +263,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, systemOutageConfiguration.ThrottledModeStartedNotification, systemOutageConfiguration.ThrottledModeEndedNotification));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -271,20 +271,20 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, systemOutageConfiguration.ThrottledModeStartedNotification, systemOutageConfiguration.ThrottledModeEndedNotification));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification));
             }
         }
 
-        async Task ThrottlingLoop(CancellationToken cancellationToken)
+        async Task RateLimitLoop(CancellationToken cancellationToken)
         {
             //We want all the pumps to be running all the time in the desired mode until we call stop
-            //We want to make sure that StopThrottling signal is not lost
-            //The circuit breaker ensures that if StartThrottling has been called that eventually StopThrottling is going to be called unless the endpoint stop
+            //We want to make sure that StopRateLimit signal is not lost
+            //The circuit breaker ensures that if StartRateLimit has been called that eventually StopRateLimit is going to be called unless the endpoint stop
 
             while (true)
             {
-                await transitionBetweenThrottledModes.WaitAsync(cancellationToken).ConfigureAwait(false);
-                var startThrottling = endpointShouldBeThrottled;
+                await transitionBetweenRateLimitModes.WaitAsync(cancellationToken).ConfigureAwait(false);
+                var startRateLimiting = endpointShouldBeRateLimited;
 
                 while (true)
                 {
@@ -292,33 +292,33 @@ namespace NServiceBus
                     {
                         foreach (var receiver in receivers)
                         {
-                            if (startThrottling)
+                            if (startRateLimiting)
                             {
-                                await receiver.StartThrottling().ConfigureAwait(false);
+                                await receiver.StartRateLimiting().ConfigureAwait(false);
                             }
                             else
                             {
-                                await receiver.StopThrottling().ConfigureAwait(false);
+                                await receiver.StopRateLimiting().ConfigureAwait(false);
                             }
                         }
 
                         break;
                     }
-                    catch (Exception)
+                    catch (Exception exception)
                     {
-                        //Log error
+                        Logger.WarnFormat("Could not switch to {0} mode. '{1}'", startRateLimiting ? "rate limit" : "normal", exception);
                         //Raise critical error
                     }
                 }
             }
         }
 
-        void SwitchToThrottledMode(Exception exception, long stateChangeTime)
+        void SwitchToRateLimitMode(Exception exception, long stateChangeTime)
         {
             if (stateChangeTime >= Interlocked.Read(ref lastStateChangeTime))
             {
-                endpointShouldBeThrottled = true;
-                transitionBetweenThrottledModes.Set();
+                endpointShouldBeRateLimited = true;
+                transitionBetweenRateLimitModes.Set();
 
                 Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
             }
@@ -326,8 +326,8 @@ namespace NServiceBus
 
         void SwitchBackToNormalMode(long stateChangeTime)
         {
-            endpointShouldBeThrottled = false;
-            transitionBetweenThrottledModes.Set();
+            endpointShouldBeRateLimited = false;
+            transitionBetweenRateLimitModes.Set();
 
             Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
         }
@@ -365,22 +365,22 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
-        readonly AsyncAutoResetEvent transitionBetweenThrottledModes = new AsyncAutoResetEvent();
+        readonly AsyncAutoResetEvent transitionBetweenRateLimitModes = new AsyncAutoResetEvent();
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
-        readonly SystemOutageConfiguration systemOutageConfiguration;
-        readonly CancellationTokenSource throttleLoopCancellationToken = new CancellationTokenSource();
+        readonly RateLimitConfiguration systemOutageConfiguration;
+        readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;
-        bool endpointShouldBeThrottled;
+        bool endpointShouldBeRateLimited;
         long lastStateChangeTime = 0;
 
         const string MainReceiverId = "Main";
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
-        Task throttlingTask;
+        Task rateLimitTask;
     }
 }
