@@ -25,14 +25,6 @@
             public bool WasCalled { get; set; }
         }
 
-        class DelayReceiverFromStarting : Feature
-        {
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.RegisterStartupTask(b => new DelayReceiverFromStartingTask());
-            }
-        }
-
         class DelayReceiverFromStartingTask : FeatureStartupTask
         {
             protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
@@ -51,7 +43,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<DelayReceiverFromStarting>());
+                EndpointSetup<DefaultServer>(c => c.RegisterStartupTask(new DelayReceiverFromStartingTask()));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

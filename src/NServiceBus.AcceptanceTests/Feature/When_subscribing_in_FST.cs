@@ -53,6 +53,7 @@
                 EndpointSetup<DefaultServer>(c =>
                     {
                         c.DisableFeature<AutoSubscribe>();
+                        c.RegisterStartupTask(new StartupTask());
                         c.OnEndpointSubscribed<Context>((args, ctx) =>
                         {
                             if (args.MessageType.Contains(typeof(LocalEvent).FullName))
@@ -80,22 +81,14 @@
                 }
             }
 
-            class FeatureWithStartupTask : Feature
+            class StartupTask : FeatureStartupTask
             {
-                public FeatureWithStartupTask() => EnableByDefault();
-
-                protected override void Setup(FeatureConfigurationContext context) =>
-                    context.RegisterStartupTask(new StartupTask());
-
-                class StartupTask : FeatureStartupTask
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                    {
-                        return session.Subscribe<LocalEvent>(cancellationToken);
-                    }
-
-                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                    return session.Subscribe<LocalEvent>(cancellationToken);
                 }
+
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
         }
 
