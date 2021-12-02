@@ -1,12 +1,10 @@
------------ Used registrations (Find ways to stop accessing them)-----------
-NServiceBus.InferredMessageTypeEnricherBehavior - Transient
+----------- Public registrations used by Core -----------
 NServiceBus.ReceiveAddresses - Singleton
 NServiceBus.Transport.IMessageDispatcher - Singleton
 NServiceBus.Transport.ISubscriptionManager - Singleton
 NServiceBus.Unicast.MessageHandlerRegistry - Singleton
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - Singleton
-NServiceBus.UnicastSendRouter - Singleton
------------ Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
+----------- Public registrations not used by Core -----------
 NServiceBus.CriticalError - Singleton
 NServiceBus.Hosting.HostInformation - Singleton
 NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInjection.When_endpoint_is_warmed_up+SomeMessage, NServiceBus.Learning.AcceptanceTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] - Scoped
@@ -18,3 +16,7 @@ NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingLogicalMessageCo
 NServiceBus.Pipeline.LogicalMessageFactory - Singleton
 NServiceBus.Settings.IReadOnlySettings - Singleton
 NServiceBus.Transport.ITransportAddressResolver - Singleton
+----------- Private registrations used by Core-----------
+NServiceBus.InferredMessageTypeEnricherBehavior - Transient
+NServiceBus.UnicastSendRouter - Singleton
+----------- Private registrations not used by Core -----------
