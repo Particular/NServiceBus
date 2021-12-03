@@ -47,9 +47,9 @@
     // Consumers of this source package have to implement the remaining properties via partial class to configure the tests infrastructure.
     public partial class PersistenceTestsConfiguration : IPersistenceTestsConfiguration
     {
-        public PersistenceTestsConfiguration(TestVariant variant, TimeSpan? sessionTimeout = null)
+        public PersistenceTestsConfiguration(TestVariant variant)
         {
-            SessionTimeout = sessionTimeout;
+            SessionTimeout = variant.SessionTimeout;
             Variant = variant;
         }
 
