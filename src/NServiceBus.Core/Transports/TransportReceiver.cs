@@ -17,7 +17,8 @@ namespace NServiceBus
             RecoverabilityExecutor recoverabilityExecutor,
             CriticalError criticalError,
             INotificationSubscriptions<RateLimitStarted> rateLimitModeStartedNotification,
-            INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification)
+            INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification,
+            ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker)
         {
             Id = id;
             this.criticalError = criticalError;
@@ -27,6 +28,7 @@ namespace NServiceBus
             this.pushSettings = pushSettings;
             this.rateLimitModeStartedNotification = rateLimitModeStartedNotification;
             this.rateLimitModeEndedNotification = rateLimitModeEndedNotification;
+            this.consecutiveFailuresCircuitBreaker = consecutiveFailuresCircuitBreaker;
 
             receiverFactory = pushMessagesFactory;
             rateLimitPushRuntimeSettings = new PushRuntimeSettings(1);
@@ -38,11 +40,22 @@ namespace NServiceBus
         public Task Init()
         {
             receiver = receiverFactory();
-            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
+            return receiver.Init(InvokePipeline, c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
         }
 
-        //Start is called once before any message can be processed
-        //Start rate limiting is called from a message handler
+        async Task InvokePipeline(MessageContext c)
+        {
+            try
+            {
+                await pipelineExecutor.Invoke(c).ConfigureAwait(false);
+                consecutiveFailuresCircuitBreaker.Success();
+            }
+            catch (Exception e)
+            {
+                await consecutiveFailuresCircuitBreaker.Failure(e).ConfigureAwait(false);
+                throw;
+            }
+        }
 
         public Task Start()
         {
@@ -79,7 +92,7 @@ namespace NServiceBus
 
                     receiver = receiverFactory();
 
-                    await receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, rateLimitPushSettings).ConfigureAwait(false);
+                    await receiver.Init(InvokePipeline, c => recoverabilityExecutor.Invoke(c), criticalError, rateLimitPushSettings).ConfigureAwait(false);
                     receiver.Start(rateLimitPushRuntimeSettings);
 
                     state = TransportReceiverState.StartedInRateLimitMode;
@@ -193,6 +206,7 @@ namespace NServiceBus
         IPushMessages receiver;
         readonly INotificationSubscriptions<RateLimitStarted> rateLimitModeStartedNotification;
         readonly INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification;
+        readonly ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
         PushRuntimeSettings rateLimitPushRuntimeSettings;

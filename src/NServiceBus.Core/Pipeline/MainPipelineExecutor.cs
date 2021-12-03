@@ -8,14 +8,13 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IBuilder rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline, ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker)
+        public MainPipelineExecutor(IBuilder rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
             this.messageOperations = messageOperations;
             this.receivePipelineNotification = receivePipelineNotification;
             this.receivePipeline = receivePipeline;
-            this.consecutiveFailuresCircuitBreaker = consecutiveFailuresCircuitBreaker;
         }
 
         public async Task Invoke(MessageContext messageContext)
@@ -34,9 +33,6 @@ namespace NServiceBus
                 try
                 {
                     await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
-
-                    // mark success
-                    consecutiveFailuresCircuitBreaker.Success();
                 }
                 catch (Exception e)
                 {
@@ -45,8 +41,6 @@ namespace NServiceBus
                     {
                         e.Data["Transport message ID"] = message.NativeMessageId;
                     }
-
-                    await consecutiveFailuresCircuitBreaker.Failure(e).ConfigureAwait(false);
 
                     throw;
                 }
@@ -60,6 +54,5 @@ namespace NServiceBus
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
         readonly Pipeline<ITransportReceiveContext> receivePipeline;
-        readonly ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
     }
 }

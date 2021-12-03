@@ -159,14 +159,14 @@ namespace NServiceBus
 
             var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeRateLimit, SwitchToRateLimitMode, SwitchBackToNormalMode, systemOutageConfiguration.WaitPeriodBetweenAttempts);
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, consecutiveFailuresCircuitBreaker);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
 
             if (configuration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory);
+            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory, consecutiveFailuresCircuitBreaker);
 
             foreach (var receiver in receivers)
             {
@@ -247,7 +247,7 @@ namespace NServiceBus
             }
         }
 
-        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
+        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory, ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
@@ -255,7 +255,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification, consecutiveFailuresCircuitBreaker));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -263,7 +263,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification, consecutiveFailuresCircuitBreaker));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -271,7 +271,7 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification, consecutiveFailuresCircuitBreaker));
             }
         }
 
@@ -379,8 +379,8 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
 
-        static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+        static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         Task rateLimitTask;
     }
 }
