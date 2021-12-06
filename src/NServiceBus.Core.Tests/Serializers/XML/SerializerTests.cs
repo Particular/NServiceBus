@@ -1227,77 +1227,52 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(message.Value, ((SerializedPair)messageDeserialized[0]).Value);
         }
 
-
-        [Test]
-        public void Should_throw_exception_when_deserializing_payloads_with_types_existing_in_deployed_assemblies_but_not_pre_discovered_as_message_types()
-        {
-            var xmlWithBaseType = @"<?xml version=""1.0"" ?>
-                <Messages
-                    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
-                    xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
-                    xmlns=""http://tempuri.net/NServiceBus.Core.Tests.Serializers.XML""
-                    xmlns:baseType=""NServiceBus.Core.Tests.Serializers.XML.IMyBusMessage"">
-                    <FirstMessage></FirstMessage>
-                    <SecondMessage></SecondMessage>
-                    <SecondMessage></SecondMessage>
-                    <SecondMessage></SecondMessage>
-                </Messages>
-                ";
-
-            using (var stream = new MemoryStream())
-            {
-                var streamWriter = new StreamWriter(stream);
-                streamWriter.Write(xmlWithBaseType);
-                streamWriter.Flush();
-                stream.Position = 0;
-
-                var serializer = SerializerInstanceWithZeroMessageTypes();
-                var exception = Assert.Throws<Exception>(() => serializer.Deserialize(stream.ToArray()));
-
-                Assert.True(exception.Message.StartsWith("Could not determine type for node:"));
-            }
-        }
-
-        static XmlMessageSerializer SerializerInstanceWithZeroMessageTypes() => SerializerFactory.Create();
-
         [Test]
         public void Should_throw_exception_when_deserializing_payloads_with_nsb_types()
         {
-            var xml = @"<?xml version=""1.0""?><ReplyOptions xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus""></ReplyOptions>";
+            //Adding a reference to ReplyOptions just to re-enforce the fact this test relies on it indirectly through the xml being deserialized
+            var nServiceBusPublicTypeName = nameof(ReplyOptions);
 
-            using (var stream = new MemoryStream())
-            {
-                var streamWriter = new StreamWriter(stream);
-                streamWriter.Write(xml);
-                streamWriter.Flush();
-                stream.Position = 0;
+            var xml = $@"<?xml version=""1.0""?>
+                        <{nServiceBusPublicTypeName} xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus"">
+                        </{nServiceBusPublicTypeName}>";
 
-                var serializer = SerializerInstanceWithZeroMessageTypes();
-                Assert.Throws<Exception>(() => serializer.Deserialize(stream.ToArray()));
-            }
+            var serializer = SerializerInstanceWithZeroMessageTypes();
+            Assert.Throws<Exception>(() => serializer.Deserialize(StringToByteArray(xml)));
         }
 
         [Test]
         public void Should_throw_exception_when_deserializing_payloads_with_system_types()
         {
-            var xml = @"<?xml version=""1.0""?><ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/System.Collections""></ArrayList>";
+            var xml = @"<?xml version=""1.0""?>
+                        <ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                        xmlns=""http://tempuri.net/System.Collections"">
+                    </ArrayList>";
 
+            var serializer = SerializerInstanceWithZeroMessageTypes();
+            Assert.Throws<Exception>(() => serializer.Deserialize(StringToByteArray(xml)));
+        }
+
+        static XmlMessageSerializer SerializerInstanceWithZeroMessageTypes() => SerializerFactory.Create();
+
+        static byte[] StringToByteArray(string input)
+        {
             using (var stream = new MemoryStream())
+            using (var streamWriter = new StreamWriter(stream))
             {
-                var streamWriter = new StreamWriter(stream);
-                streamWriter.Write(xml);
+                streamWriter.Write(input);
                 streamWriter.Flush();
                 stream.Position = 0;
-                var serializer = SerializerInstanceWithZeroMessageTypes();
-                Assert.Throws<Exception>(() => serializer.Deserialize(stream.ToArray()));
+
+                return stream.ToArray();
             }
         }
 
         int number = 1;
         int numberOfIterations = 100;
     }
-
-
 
     public class SerializedPair
     {
