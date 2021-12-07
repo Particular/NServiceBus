@@ -99,7 +99,7 @@ namespace NServiceBus
 
                     try
                     {
-                        await consecutiveFailuresArmedNotification.Raise(new ConsecutiveFailuresArmed()).ConfigureAwait(false);
+                        await consecutiveFailuresArmedNotification.Raise(consecutiveFailuresArmed).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -135,7 +135,7 @@ namespace NServiceBus
 
                     try
                     {
-                        await consecutiveFailuresDisarmedNotification.Raise(new ConsecutiveFailuresDisarmed()).ConfigureAwait(false);
+                        await consecutiveFailuresDisarmedNotification.Raise(consecutiveFailuresDisarmed).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -209,6 +209,8 @@ namespace NServiceBus
         readonly ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
+        static ConsecutiveFailuresArmed consecutiveFailuresArmed = new ConsecutiveFailuresArmed();
+        static ConsecutiveFailuresDisarmed consecutiveFailuresDisarmed = new ConsecutiveFailuresDisarmed();
         PushRuntimeSettings rateLimitPushRuntimeSettings;
         PushSettings rateLimitPushSettings;
     }
