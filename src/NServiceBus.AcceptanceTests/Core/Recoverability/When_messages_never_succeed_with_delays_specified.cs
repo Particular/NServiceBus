@@ -7,22 +7,23 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_messages_never_succeed : NServiceBusAcceptanceTest
+    public class When_messages_never_succeed_with_delays_specified : NServiceBusAcceptanceTest
     {
         public static int NumberOfConsecutiveFailuresBeforeThrottling = 1;
         public static TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
 
         [Test]
-        public async Task Should_throttle_pipeline_after_configured_number_of_consecutive_failures()
+        public async Task Should_wait_the_configured_delay_between_processing_attempts_in_throttled_mode()
         {
-            NumberOfConsecutiveFailuresBeforeThrottling = 5;
+            NumberOfConsecutiveFailuresBeforeThrottling = 1;
+            TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(2);
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFailingHandler>(b => b
                     .DoNotFailOnErrorMessages()
                     .When(async (session, ctx) =>
                     {
-                        for (var x = 0; x < 10; x++)
+                        for (var x = 0; x < 5; x++)
                         {
                             await session.SendLocal(new InitiatingMessage
                             {
@@ -31,30 +32,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.ThrottleModeEntered && Context.failuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
-                .Run();
-        }
-
-        [Test]
-        public async Task Should_not_throttle_pipeline_if_number_of_consecutive_failures_is_below_threshold()
-        {
-            NumberOfConsecutiveFailuresBeforeThrottling = 100;
-
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithFailingHandler>(b => b
-                    .DoNotFailOnErrorMessages()
-                    .When(async (session, ctx) =>
-                    {
-                        for (var x = 0; x < 10; x++)
-                        {
-                            await session.SendLocal(new InitiatingMessage
-                            {
-                                Id = ctx.TestRunId
-                            });
-                        }
-                    })
-                )
-                .Done(c => Context.failuresBeforeThrottling == 10 && !Context.ThrottleModeEntered)
+                .Done(c => Context.ThrottleModeEntered && Context.TimeBetweenProcessingAttempts >= TimeToWaitBetweenThrottledAttempts)
                 .Run();
         }
 
