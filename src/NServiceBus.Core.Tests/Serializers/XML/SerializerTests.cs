@@ -1227,6 +1227,49 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(message.Value, ((SerializedPair)messageDeserialized[0]).Value);
         }
 
+        [Test]
+        public void Should_throw_exception_when_deserializing_payloads_with_nsb_types()
+        {
+            //Adding a reference to ReplyOptions just to re-enforce the fact this test relies on it indirectly through the xml being deserialized
+            var nServiceBusPublicTypeName = nameof(ReplyOptions);
+
+            var xml = $@"<?xml version=""1.0""?>
+                        <{nServiceBusPublicTypeName} xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus"">
+                        </{nServiceBusPublicTypeName}>";
+
+            var serializer = SerializerInstanceWithZeroMessageTypes();
+            Assert.Throws<Exception>(() => serializer.Deserialize(StringToByteArray(xml)));
+        }
+
+        [Test]
+        public void Should_throw_exception_when_deserializing_payloads_with_system_types()
+        {
+            var xml = @"<?xml version=""1.0""?>
+                        <ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                        xmlns=""http://tempuri.net/System.Collections"">
+                    </ArrayList>";
+
+            var serializer = SerializerInstanceWithZeroMessageTypes();
+            Assert.Throws<Exception>(() => serializer.Deserialize(StringToByteArray(xml)));
+        }
+
+        static XmlMessageSerializer SerializerInstanceWithZeroMessageTypes() => SerializerFactory.Create();
+
+        static byte[] StringToByteArray(string input)
+        {
+            using (var stream = new MemoryStream())
+            using (var streamWriter = new StreamWriter(stream))
+            {
+                streamWriter.Write(input);
+                streamWriter.Flush();
+                stream.Position = 0;
+
+                return stream.ToArray();
+            }
+        }
+
         int number = 1;
         int numberOfIterations = 100;
     }

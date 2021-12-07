@@ -87,7 +87,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return Type.GetTypeFromHandle(typeHandle);
             }
 
-            return Type.GetType(name);
+            return null;
         }
 
         /// <summary>
