@@ -44,7 +44,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.LimitMessageProcessingConcurrencyTo(3);
+                    config.LimitMessageProcessingConcurrencyTo(1);
 
                     var recoverability = config.Recoverability();
 
