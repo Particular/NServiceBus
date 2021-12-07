@@ -13,7 +13,7 @@
         {
             pump = new Pump();
 
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", int.MaxValue, (e, _) => { }, _ => { }, TimeSpan.FromMilliseconds(1));
+            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", int.MaxValue, () => TaskEx.CompletedTask, () => TaskEx.CompletedTask, TimeSpan.FromMilliseconds(1));
             receiver = new TransportReceiver("FakeReceiver", () => pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null, null, null, null, consecutiveFailuresCircuitBreaker);
             await receiver.Init();
         }

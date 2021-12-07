@@ -796,12 +796,12 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
-    public class RateLimitSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+    public class RateLimitSettings
     {
-        public void ConsecutiveFailuresBeforeStartRateLimit(int consecutiveFailures) { }
-        public NServiceBus.RateLimitSettings RateLimitEnded(System.Func<System.Threading.Tasks.Task> notificationCallback) { }
-        public NServiceBus.RateLimitSettings RateLimitStarted(System.Func<System.Threading.Tasks.Task> notificationCallback) { }
-        public void TimeToWaitBetweenRateLimitAttempts(System.TimeSpan waitPeriod) { }
+        public RateLimitSettings(System.Nullable<System.TimeSpan> timeToWaitBetweenThrottledAttempts = null, System.Func<System.Threading.Tasks.Task> onRateLimitStarted = null, System.Func<System.Threading.Tasks.Task> onRateLimitEnded = null) { }
+        public System.Func<System.Threading.Tasks.Task> OnRateLimitEnded { get; }
+        public System.Func<System.Threading.Tasks.Task> OnRateLimitStarted { get; }
+        public System.TimeSpan TimeToWaitBetweenThrottledAttempts { get; }
     }
     public class ReceivePipelineCompleted
     {
@@ -851,7 +851,7 @@ namespace NServiceBus
         public NServiceBus.RecoverabilitySettings DisableLegacyRetriesSatellite() { }
         public NServiceBus.RecoverabilitySettings Failed(System.Action<NServiceBus.RetryFailedSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
-        public NServiceBus.RecoverabilitySettings RateLimitOnConsecutiveFailure(System.Action<NServiceBus.RateLimitSettings> customizations) { }
+        public NServiceBus.RecoverabilitySettings OnConsecutiveFailures(int numberOfConsecutiveFailures, NServiceBus.RateLimitSettings settings) { }
     }
     public class static RecoverabilitySettingsExtensions
     {

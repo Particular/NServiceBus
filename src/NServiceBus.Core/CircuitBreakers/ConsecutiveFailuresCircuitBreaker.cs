@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class ConsecutiveFailuresCircuitBreaker : IDisposable, ICircuitBreaker
     {
-        public ConsecutiveFailuresCircuitBreaker(string name, int consecutiveFailuresBeforeTriggering, Action<Exception, long> triggerAction, Action<long> disarmAction, TimeSpan armedFailureDelayDuration)
+        public ConsecutiveFailuresCircuitBreaker(string name, int consecutiveFailuresBeforeTriggering, Func<Task> triggerAction, Func<Task> disarmAction, TimeSpan armedFailureDelayDuration)
         {
             this.name = name;
             this.triggerAction = triggerAction;
@@ -23,7 +23,7 @@ namespace NServiceBus
             if (oldValue >= consecutiveFailuresBeforeTriggering)
             {
                 Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
-                disarmAction(DateTime.Now.Ticks);
+                disarmAction();
             }
         }
 
@@ -36,7 +36,7 @@ namespace NServiceBus
                 if (newValue == consecutiveFailuresBeforeTriggering)
                 {
                     Logger.WarnFormat("The circuit breaker for {0} is now in the armed state", name);
-                    triggerAction(exception, DateTime.Now.Ticks);
+                    triggerAction();
 
                     return Task.Delay(armedFailureDelayDuration);
                 }
@@ -57,8 +57,8 @@ namespace NServiceBus
         int failureCount;
         string name;
         int consecutiveFailuresBeforeTriggering;
-        Action<Exception, long> triggerAction;
-        Action<long> disarmAction;
+        Func<Task> triggerAction;
+        Func<Task> disarmAction;
         TimeSpan armedFailureDelayDuration;
 
         static ILog Logger = LogManager.GetLogger<ConsecutiveFailuresCircuitBreaker>();

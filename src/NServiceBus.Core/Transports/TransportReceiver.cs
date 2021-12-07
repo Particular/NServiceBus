@@ -16,8 +16,8 @@ namespace NServiceBus
             IPipelineExecutor pipelineExecutor,
             RecoverabilityExecutor recoverabilityExecutor,
             CriticalError criticalError,
-            INotificationSubscriptions<RateLimitStarted> rateLimitModeStartedNotification,
-            INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification,
+            INotificationSubscriptions<ConsecutiveFailuresArmed> consecutiveFailuresArmedNotification,
+            INotificationSubscriptions<ConsecutiveFailuresDisarmed> consecutiveFailuresDisarmedNotification,
             ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker)
         {
             Id = id;
@@ -26,8 +26,8 @@ namespace NServiceBus
             this.pipelineExecutor = pipelineExecutor;
             this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
-            this.rateLimitModeStartedNotification = rateLimitModeStartedNotification;
-            this.rateLimitModeEndedNotification = rateLimitModeEndedNotification;
+            this.consecutiveFailuresArmedNotification = consecutiveFailuresArmedNotification;
+            this.consecutiveFailuresDisarmedNotification = consecutiveFailuresDisarmedNotification;
             this.consecutiveFailuresCircuitBreaker = consecutiveFailuresCircuitBreaker;
 
             receiverFactory = pushMessagesFactory;
@@ -99,7 +99,7 @@ namespace NServiceBus
 
                     try
                     {
-                        await rateLimitModeStartedNotification.Raise(new RateLimitStarted()).ConfigureAwait(false);
+                        await consecutiveFailuresArmedNotification.Raise(new ConsecutiveFailuresArmed()).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -135,7 +135,7 @@ namespace NServiceBus
 
                     try
                     {
-                        await rateLimitModeEndedNotification.Raise(new RateLimitEnded()).ConfigureAwait(false);
+                        await consecutiveFailuresDisarmedNotification.Raise(new ConsecutiveFailuresDisarmed()).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -204,8 +204,8 @@ namespace NServiceBus
         PushSettings pushSettings;
         Func<IPushMessages> receiverFactory;
         IPushMessages receiver;
-        readonly INotificationSubscriptions<RateLimitStarted> rateLimitModeStartedNotification;
-        readonly INotificationSubscriptions<RateLimitEnded> rateLimitModeEndedNotification;
+        readonly INotificationSubscriptions<ConsecutiveFailuresArmed> consecutiveFailuresArmedNotification;
+        readonly INotificationSubscriptions<ConsecutiveFailuresDisarmed> consecutiveFailuresDisarmedNotification;
         readonly ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();

@@ -49,25 +49,20 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     recoverability.Immediate(i => i.NumberOfRetries(0));
                     recoverability.Delayed(d => d.NumberOfRetries(0));
 
-                    recoverability.RateLimitOnConsecutiveFailure(d =>
+                    var rateLimitingSettings = new RateLimitSettings(TimeSpan.FromSeconds(5), () =>
                     {
-                        d.ConsecutiveFailuresBeforeStartRateLimit(2);
-                        d.TimeToWaitBetweenRateLimitAttempts(TimeSpan.FromSeconds(5));
+                        Context.ThrottleModeEntered = true;
 
-                        d.RateLimitStarted(() =>
-                        {
-                            Context.ThrottleModeEntered = true;
+                        return Task.FromResult(0);
+                    },
+                    () =>
+                    {
+                        Context.ThrottleModeEnded = true;
 
-                            return Task.FromResult(0);
-                        });
-
-                        d.RateLimitEnded(() =>
-                        {
-                            Context.ThrottleModeEnded = true;
-
-                            return Task.FromResult(0);
-                        });
+                        return Task.FromResult(0);
                     });
+
+                    recoverability.OnConsecutiveFailures(2, rateLimitingSettings);
                 });
             }
 

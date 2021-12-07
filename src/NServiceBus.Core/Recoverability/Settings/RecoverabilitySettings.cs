@@ -81,10 +81,15 @@ namespace NServiceBus
         /// <summary>
         /// Configures rate limiting for the endpoint when the system is experiencing multiple consecutive failures.
         /// </summary>
-        public RecoverabilitySettings RateLimitOnConsecutiveFailure(Action<RateLimitSettings> customizations)
+        public RecoverabilitySettings OnConsecutiveFailures(int numberOfConsecutiveFailures, RateLimitSettings settings)
         {
-            Guard.AgainstNull(nameof(customizations), customizations);
-            customizations(new RateLimitSettings(Settings));
+            Guard.AgainstNull(nameof(settings), settings);
+
+            var consecutiveFailuresConfig = Settings.Get<ConsecutiveFailuresConfiguration>();
+
+            consecutiveFailuresConfig.NumberOfConsecutiveFailuresBeforeArming = numberOfConsecutiveFailures;
+            consecutiveFailuresConfig.RateLimitSettings = settings;
+
             return this;
         }
     }

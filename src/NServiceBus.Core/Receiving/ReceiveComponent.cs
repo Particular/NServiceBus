@@ -19,13 +19,13 @@ namespace NServiceBus
             CriticalError criticalError,
             string errorQueue,
             TransportReceiveInfrastructure transportReceiveInfrastructure,
-            RateLimitConfiguration systemOutageConfiguration)
+            ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration)
         {
             this.configuration = configuration;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
             this.transportReceiveInfrastructure = transportReceiveInfrastructure;
-            this.systemOutageConfiguration = systemOutageConfiguration;
+            this.consecutiveFailuresConfiguration = consecutiveFailuresConfiguration;
         }
 
         public static ReceiveComponent Initialize(
@@ -50,14 +50,14 @@ namespace NServiceBus
                 }
             }
 
-            var systemOutageConfig = pipelineSettings.Settings.Get<RateLimitConfiguration>();
+            var consecutiveFailuresConfig = pipelineSettings.Settings.Get<ConsecutiveFailuresConfiguration>();
 
             var receiveComponent = new ReceiveComponent(
                 configuration,
                 hostingConfiguration.CriticalError,
                 errorQueue,
                 transportReceiveInfrastructure,
-                systemOutageConfig);
+                consecutiveFailuresConfig);
 
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -157,7 +157,18 @@ namespace NServiceBus
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", systemOutageConfiguration.NumberOfConsecutiveFailuresBeforeRateLimit, SwitchToRateLimitMode, SwitchBackToNormalMode, systemOutageConfiguration.WaitPeriodBetweenAttempts);
+            var onConsecutiveArmed = noopTask;
+            var onConsecutiveDisarmed = noopTask;
+            var timeToWait = TimeSpan.Zero;
+
+            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
+            {
+                onConsecutiveArmed = consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted;
+                onConsecutiveDisarmed = consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded;
+                timeToWait = consecutiveFailuresConfiguration.RateLimitSettings.TimeToWaitBetweenThrottledAttempts;
+            }
+
+            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", consecutiveFailuresConfiguration.NumberOfConsecutiveFailuresBeforeArming, onConsecutiveArmed, onConsecutiveDisarmed, timeToWait);
 
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
 
@@ -256,7 +267,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification, consecutiveFailuresCircuitBreaker));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification, consecutiveFailuresCircuitBreaker));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -264,7 +275,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification, consecutiveFailuresCircuitBreaker));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification, consecutiveFailuresCircuitBreaker));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -272,7 +283,7 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, systemOutageConfiguration.RateLimitStartedNotification, systemOutageConfiguration.RateLimitEndedNotification, consecutiveFailuresCircuitBreaker));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification, consecutiveFailuresCircuitBreaker));
             }
         }
 
@@ -321,13 +332,13 @@ namespace NServiceBus
             }
         }
 
-        void SwitchToRateLimitMode(Exception exception, long stateChangeTime)
+        void SwitchToRateLimitMode()
         {
             endpointShouldBeRateLimited = true;
             resetEventReplacement.TrySetResult(true);
         }
 
-        void SwitchBackToNormalMode(long stateChangeTime)
+        void SwitchBackToNormalMode()
         {
             endpointShouldBeRateLimited = false;
             resetEventReplacement.TrySetResult(true);
@@ -367,7 +378,7 @@ namespace NServiceBus
         }
 
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
-        readonly RateLimitConfiguration systemOutageConfiguration;
+        readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
         readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
@@ -379,6 +390,7 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
 
+        static Func<Task> noopTask = () => TaskEx.CompletedTask;
         static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
         static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         Task rateLimitTask;
