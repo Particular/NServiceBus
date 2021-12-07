@@ -221,7 +221,10 @@ namespace NServiceBus
                 }
             }
 
-            rateLimitTask = RateLimitLoop(rateLimitLoopCancellationToken.Token);
+            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
+            {
+                rateLimitTask = RateLimitLoop(rateLimitLoopCancellationToken.Token);
+            }
         }
 
         public Task Stop()
