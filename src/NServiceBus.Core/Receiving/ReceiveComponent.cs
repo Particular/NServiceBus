@@ -223,6 +223,7 @@ namespace NServiceBus
             });
 
             rateLimitLoopCancellationToken.Cancel();
+            resetEventReplacement.TrySetResult(true);
 
             return Task.WhenAll(receiverStopTasks);
         }
@@ -281,12 +282,19 @@ namespace NServiceBus
             //We want to make sure that StopRateLimit signal is not lost
             //The circuit breaker ensures that if StartRateLimit has been called that eventually StopRateLimit is going to be called unless the endpoint stop
 
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                await transitionBetweenRateLimitModes.WaitAsync(cancellationToken).ConfigureAwait(false);
                 var startRateLimiting = endpointShouldBeRateLimited;
 
-                while (true)
+                await resetEventReplacement.Task.ConfigureAwait(false);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                resetEventReplacement = TaskCompletionSourceFactory.Create<bool>();
+
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
@@ -315,21 +323,14 @@ namespace NServiceBus
 
         void SwitchToRateLimitMode(Exception exception, long stateChangeTime)
         {
-            if (stateChangeTime >= Interlocked.Read(ref lastStateChangeTime))
-            {
-                endpointShouldBeRateLimited = true;
-                transitionBetweenRateLimitModes.Set();
-
-                Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
-            }
+            endpointShouldBeRateLimited = true;
+            resetEventReplacement.TrySetResult(true);
         }
 
         void SwitchBackToNormalMode(long stateChangeTime)
         {
             endpointShouldBeRateLimited = false;
-            transitionBetweenRateLimitModes.Set();
-
-            Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
+            resetEventReplacement.TrySetResult(true);
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
@@ -365,7 +366,6 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
-        readonly AsyncAutoResetEvent transitionBetweenRateLimitModes = new AsyncAutoResetEvent();
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
         readonly RateLimitConfiguration systemOutageConfiguration;
         readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
@@ -375,7 +375,7 @@ namespace NServiceBus
         CriticalError criticalError;
         string errorQueue;
         bool endpointShouldBeRateLimited;
-        long lastStateChangeTime = 0;
+        volatile TaskCompletionSource<bool> resetEventReplacement = TaskCompletionSourceFactory.Create<bool>();
 
         const string MainReceiverId = "Main";
 
