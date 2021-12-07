@@ -7,7 +7,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using CriticalError = NServiceBus.CriticalError;
 
@@ -71,48 +70,40 @@
             }
         }
 
-        class CriticalErrorStartup : Feature
+        class CriticalErrorStartupFeatureTask : FeatureStartupTask
         {
-            protected override void Setup(FeatureConfigurationContext context)
+            public CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext)
             {
-                context.RegisterStartupTask(b => new CriticalErrorStartupFeatureTask(b.GetService<CriticalError>(), b.GetService<TestContext>()));
+                this.criticalError = criticalError;
+                this.testContext = testContext;
             }
 
-            class CriticalErrorStartupFeatureTask : FeatureStartupTask
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
-                public CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext)
-                {
-                    this.criticalError = criticalError;
-                    this.testContext = testContext;
-                }
+                criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
+                testContext.CriticalErrorsRaised++;
 
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
-                    testContext.CriticalErrorsRaised++;
+                criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
+                testContext.CriticalErrorsRaised++;
 
-                    criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
-                    testContext.CriticalErrorsRaised++;
-
-                    return Task.FromResult(0);
-                }
-
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    return Task.FromResult(0);
-                }
-
-                readonly TestContext testContext;
-
-                CriticalError criticalError;
+                return Task.FromResult(0);
             }
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult(0);
+            }
+
+            readonly TestContext testContext;
+
+            CriticalError criticalError;
         }
 
         public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
         {
             public EndpointWithCriticalErrorStartup()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<CriticalErrorStartup>());
+                EndpointSetup<DefaultServer>(c => c.RegisterStartupTask<CriticalErrorStartupFeatureTask>());
             }
         }
 

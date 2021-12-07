@@ -31,8 +31,11 @@
         {
             public EndpointWithStartupTask()
             {
-                EndpointSetup<DefaultServer>(c => c
-                    .PurgeOnStartup(true));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.RegisterStartupTask<StartupTask>();
+                    c.PurgeOnStartup(true);
+                });
             }
 
             class MessageHandler : IHandleMessages<LocalMessage>
@@ -50,23 +53,14 @@
                     return Task.CompletedTask;
                 }
             }
-
-            class FeatureWithStartupTask : Feature
+            class StartupTask : FeatureStartupTask
             {
-                public FeatureWithStartupTask() => EnableByDefault();
-
-                protected override void Setup(FeatureConfigurationContext context) =>
-                    context.RegisterStartupTask(new StartupTask());
-
-                class StartupTask : FeatureStartupTask
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                    {
-                        return session.SendLocal(new LocalMessage(), cancellationToken);
-                    }
-
-                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                    return session.SendLocal(new LocalMessage(), cancellationToken);
                 }
+
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
         }
 

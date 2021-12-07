@@ -75,7 +75,7 @@
                 EndpointSetup(defaultServer, (endpointConfiguration, descriptor) =>
                 {
                     endpointConfiguration.UsePersistence<FakePersistence>();
-                    endpointConfiguration.EnableFeature<StorageAccessorFeature>();
+                    endpointConfiguration.RegisterStartupTask<StorageAccessor>();
                     endpointConfiguration.OnEndpointSubscribed<Context>((args, ctx) =>
                     {
                         if (args.MessageType.Contains(typeof(AllowedEvent).FullName))
@@ -98,25 +98,16 @@
                     });
                 });
             }
-
-            class StorageAccessorFeature : Feature
+            class StorageAccessor : FeatureStartupTask
             {
-                protected override void Setup(FeatureConfigurationContext context) =>
-                    context.RegisterStartupTask(
-                        sp => new StorageAccessor(sp.GetRequiredService<ISubscriptionStorage>(),
-                            sp.GetRequiredService<Context>()));
-
-                class StorageAccessor : FeatureStartupTask
+                public StorageAccessor(ISubscriptionStorage subscriptionStorage, Context testContext)
                 {
-                    public StorageAccessor(ISubscriptionStorage subscriptionStorage, Context testContext)
-                    {
-                        testContext.SubscriptionStorage = (FakePersistence.FakeSubscriptionStorage)subscriptionStorage;
-                    }
-
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-                    protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                    testContext.SubscriptionStorage = (FakePersistence.FakeSubscriptionStorage)subscriptionStorage;
                 }
+
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
         }
 

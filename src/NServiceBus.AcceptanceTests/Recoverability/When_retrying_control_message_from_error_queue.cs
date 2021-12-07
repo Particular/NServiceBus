@@ -7,7 +7,6 @@
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
-    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -44,17 +43,8 @@
         {
             public ProcessingEndpoint() => EndpointSetup<DefaultServer>(c =>
             {
-                c.EnableFeature<ControlMessageFeature>();
+                c.RegisterStartupTask<ControlMessageSender>();
             });
-
-            class ControlMessageFeature : Feature
-            {
-                protected override void Setup(FeatureConfigurationContext context)
-                {
-                    context.RegisterStartupTask(s =>
-                        new ControlMessageSender(s.GetRequiredService<IMessageDispatcher>()));
-                }
-            }
 
             class ControlMessageSender : FeatureStartupTask
             {

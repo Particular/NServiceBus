@@ -25,14 +25,6 @@
             public bool WasCalled { get; set; }
         }
 
-        class SendMessageAndDelayStart : Feature
-        {
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.RegisterStartupTask(b => new SendMessageAndDelayStartTask());
-            }
-        }
-
         class SendMessageAndDelayStartTask : FeatureStartupTask
         {
             protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
@@ -63,7 +55,7 @@
                         }
                         return TimeSpan.MaxValue;
                     });
-                    c.EnableFeature<SendMessageAndDelayStart>();
+                    c.RegisterStartupTask(new SendMessageAndDelayStartTask());
                 }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
 
