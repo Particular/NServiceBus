@@ -9,15 +9,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
     public class When_messages_never_succeed_with_delays_specified : NServiceBusAcceptanceTest
     {
-        public static int NumberOfConsecutiveFailuresBeforeThrottling = 1;
-        public static TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
-
         [Test]
         public async Task Should_wait_the_configured_delay_between_processing_attempts_in_throttled_mode()
         {
-            NumberOfConsecutiveFailuresBeforeThrottling = 1;
-            TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(2);
-
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFailingHandler>(b => b
                     .DoNotFailOnErrorMessages()
@@ -32,7 +26,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.ThrottleModeEntered && Context.TimeBetweenProcessingAttempts >= TimeToWaitBetweenThrottledAttempts)
+                .Done(c => Context.ThrottleModeEntered && Context.TimeBetweenProcessingAttempts >= TimeSpan.FromSeconds(2))
                 .Run();
         }
 
@@ -57,14 +51,14 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     recoverability.Immediate(i => i.NumberOfRetries(0));
                     recoverability.Delayed(d => d.NumberOfRetries(0));
 
-                    var rateLimitingSettings = new RateLimitSettings(TimeToWaitBetweenThrottledAttempts, () =>
-                        {
-                            Context.ThrottleModeEntered = true;
+                    var rateLimitingSettings = new RateLimitSettings(TimeSpan.FromSeconds(2), () =>
+                    {
+                        Context.ThrottleModeEntered = true;
 
-                            return Task.FromResult(0);
-                        });
+                        return Task.FromResult(0);
+                    });
 
-                    recoverability.OnConsecutiveFailures(NumberOfConsecutiveFailuresBeforeThrottling, rateLimitingSettings);
+                    recoverability.OnConsecutiveFailures(1, rateLimitingSettings);
                 });
             }
 
