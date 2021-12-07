@@ -73,14 +73,14 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public async Task StartRateLimiting()
+        public async Task StartRateLimiting(CancellationToken cancellationToken)
         {
             if (state == TransportReceiverState.StartedInRateLimitMode)
             {
                 return;
             }
 
-            if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50)).ConfigureAwait(false))
+            if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50), cancellationToken).ConfigureAwait(false))
             {
                 try
                 {
@@ -113,14 +113,14 @@ namespace NServiceBus
             }
         }
 
-        public async Task<bool> StopRateLimiting()
+        public async Task<bool> StopRateLimiting(CancellationToken cancellationToken)
         {
             if (state == TransportReceiverState.StartedRegular)
             {
                 return true;
             }
 
-            if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50)).ConfigureAwait(false))
+            if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50), cancellationToken).ConfigureAwait(false))
             {
                 try
                 {

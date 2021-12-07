@@ -313,11 +313,11 @@ namespace NServiceBus
                         {
                             if (startRateLimiting)
                             {
-                                await receiver.StartRateLimiting().ConfigureAwait(false);
+                                await receiver.StartRateLimiting(cancellationToken).ConfigureAwait(false);
                             }
                             else
                             {
-                                await receiver.StopRateLimiting().ConfigureAwait(false);
+                                await receiver.StopRateLimiting(cancellationToken).ConfigureAwait(false);
                             }
                         }
 
