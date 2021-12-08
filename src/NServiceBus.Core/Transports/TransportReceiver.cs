@@ -16,9 +16,7 @@ namespace NServiceBus
             IPipelineExecutor pipelineExecutor,
             RecoverabilityExecutor recoverabilityExecutor,
             CriticalError criticalError,
-            INotificationSubscriptions<ConsecutiveFailuresArmed> consecutiveFailuresArmedNotification,
-            INotificationSubscriptions<ConsecutiveFailuresDisarmed> consecutiveFailuresDisarmedNotification,
-            ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker)
+            ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration)
         {
             Id = id;
             this.criticalError = criticalError;
@@ -26,9 +24,9 @@ namespace NServiceBus
             this.pipelineExecutor = pipelineExecutor;
             this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
-            this.consecutiveFailuresArmedNotification = consecutiveFailuresArmedNotification;
-            this.consecutiveFailuresDisarmedNotification = consecutiveFailuresDisarmedNotification;
-            this.consecutiveFailuresCircuitBreaker = consecutiveFailuresCircuitBreaker;
+            consecutiveFailuresArmedNotification = consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification;
+            consecutiveFailuresDisarmedNotification = consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification;
+            consecutiveFailuresCircuitBreaker = consecutiveFailuresConfiguration.CreateCircuitBreaker();
 
             receiverFactory = pushMessagesFactory;
             rateLimitPushRuntimeSettings = new PushRuntimeSettings(1);

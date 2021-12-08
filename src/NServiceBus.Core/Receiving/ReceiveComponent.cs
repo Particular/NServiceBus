@@ -157,19 +157,6 @@ namespace NServiceBus
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-            var onConsecutiveArmed = noopTask;
-            var onConsecutiveDisarmed = noopTask;
-            var timeToWait = TimeSpan.Zero;
-
-            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
-            {
-                onConsecutiveArmed = consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted;
-                onConsecutiveDisarmed = consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded;
-                timeToWait = consecutiveFailuresConfiguration.RateLimitSettings.TimeToWaitBetweenThrottledAttempts;
-            }
-
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", consecutiveFailuresConfiguration.NumberOfConsecutiveFailuresBeforeArming, onConsecutiveArmed, onConsecutiveDisarmed, timeToWait);
-
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
 
             if (configuration.PurgeOnStartup)
@@ -177,7 +164,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory, consecutiveFailuresCircuitBreaker);
+            AddReceivers(builder, recoverabilityComponent.GetRecoverabilityExecutorFactory(builder), transportReceiveInfrastructure.MessagePumpFactory);
 
             foreach (var receiver in receivers)
             {
@@ -262,7 +249,7 @@ namespace NServiceBus
             }
         }
 
-        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory, ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker)
+        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory, Func<IPushMessages> messagePumpFactory)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
@@ -270,7 +257,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification, consecutiveFailuresCircuitBreaker));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -278,7 +265,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification, consecutiveFailuresCircuitBreaker));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -286,7 +273,7 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification, consecutiveFailuresCircuitBreaker));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification));
             }
         }
 
@@ -393,7 +380,6 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
 
-        static Func<Task> noopTask = () => TaskEx.CompletedTask;
         static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
         static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
         Task rateLimitTask;
