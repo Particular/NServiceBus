@@ -20,13 +20,23 @@ namespace NServiceBus
         {
             Id = id;
             this.criticalError = criticalError;
+            this.consecutiveFailuresConfiguration = consecutiveFailuresConfiguration;
             this.pushRuntimeSettings = pushRuntimeSettings;
             this.pipelineExecutor = pipelineExecutor;
             this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
-            consecutiveFailuresArmedNotification = consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification;
-            consecutiveFailuresDisarmedNotification = consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification;
-            consecutiveFailuresCircuitBreaker = consecutiveFailuresConfiguration.CreateCircuitBreaker();
+
+            consecutiveFailuresCircuitBreaker = consecutiveFailuresConfiguration.CreateCircuitBreaker(
+                () =>
+                {
+                    SwitchToRateLimitMode();
+                    return TaskEx.CompletedTask;
+                },
+                () =>
+                {
+                    SwitchBackToNormalMode();
+                    return TaskEx.CompletedTask;
+                });
 
             receiverFactory = pushMessagesFactory;
             rateLimitPushRuntimeSettings = new PushRuntimeSettings(1);
@@ -55,6 +65,58 @@ namespace NServiceBus
             }
         }
 
+        void SwitchToRateLimitMode()
+        {
+            endpointShouldBeRateLimited = true;
+            resetEventReplacement.TrySetResult(true);
+        }
+
+        void SwitchBackToNormalMode()
+        {
+            endpointShouldBeRateLimited = false;
+            resetEventReplacement.TrySetResult(true);
+        }
+
+        async Task RateLimitLoop(CancellationToken cancellationToken)
+        {
+            //We want all the pumps to be running all the time in the desired mode until we call stop
+            //We want to make sure that StopRateLimit signal is not lost
+            //The circuit breaker ensures that if StartRateLimit has been called that eventually StopRateLimit is going to be called unless the endpoint stop
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await resetEventReplacement.Task.ConfigureAwait(false);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                resetEventReplacement = TaskCompletionSourceFactory.Create<bool>();
+
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var startRateLimiting = endpointShouldBeRateLimited;
+                    try
+                    {
+                        if (startRateLimiting)
+                        {
+                            await StartRateLimiting().ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await StopRateLimiting().ConfigureAwait(false);
+                        }
+
+                        break;
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.WarnFormat("Could not switch to {0} mode. '{1}'", startRateLimiting ? "rate limit" : "normal", exception);
+                        //Raise critical error
+                    }
+                }
+            }
+        }
+
         public Task Start()
         {
             if (state != TransportReceiverState.Stopped)
@@ -68,86 +130,65 @@ namespace NServiceBus
 
             state = TransportReceiverState.StartedRegular;
 
+
+            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
+            {
+                rateLimitTask = RateLimitLoop(rateLimitLoopCancellationToken.Token);
+            }
             return TaskEx.CompletedTask;
         }
 
-        public async Task StartRateLimiting(CancellationToken cancellationToken)
+        async Task StartRateLimiting()
         {
             if (state == TransportReceiverState.StartedInRateLimitMode)
             {
                 return;
             }
 
-            if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50), cancellationToken).ConfigureAwait(false))
+            await StopAndDisposeReceiver().ConfigureAwait(false);
+
+            receiver = receiverFactory();
+
+            await receiver.Init(InvokePipeline, c => recoverabilityExecutor.Invoke(c), criticalError, rateLimitPushSettings).ConfigureAwait(false);
+            receiver.Start(rateLimitPushRuntimeSettings);
+
+            state = TransportReceiverState.StartedInRateLimitMode;
+
+            try
             {
-                try
+                if (consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted != null)
                 {
-                    if (state == TransportReceiverState.StartedInRateLimitMode)
-                    {
-                        return;
-                    }
-                    await StopAndDisposeReceiver().ConfigureAwait(false);
-
-                    receiver = receiverFactory();
-
-                    await receiver.Init(InvokePipeline, c => recoverabilityExecutor.Invoke(c), criticalError, rateLimitPushSettings).ConfigureAwait(false);
-                    receiver.Start(rateLimitPushRuntimeSettings);
-
-                    state = TransportReceiverState.StartedInRateLimitMode;
-
-                    try
-                    {
-                        await consecutiveFailuresArmedNotification.Raise(consecutiveFailuresArmed).ConfigureAwait(false);
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.WarnFormat("Failed to enter system outage mode: {0}", exception);
-                    }
+                    await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted().ConfigureAwait(false);
                 }
-                finally
-                {
-                    semaphoreSlim.Release();
-                }
+            }
+            catch (Exception exception)
+            {
+                Logger.WarnFormat("Failed to enter system outage mode: {0}", exception);
             }
         }
 
-        public async Task<bool> StopRateLimiting(CancellationToken cancellationToken)
+        async Task StopRateLimiting()
         {
             if (state == TransportReceiverState.StartedRegular)
             {
-                return true;
+                return;
             }
 
-            if (await semaphoreSlim.WaitAsync(TimeSpan.FromMilliseconds(50), cancellationToken).ConfigureAwait(false))
+            await StopAndDisposeReceiver().ConfigureAwait(false);
+            await Init().ConfigureAwait(false);
+            await Start().ConfigureAwait(false);
+
+            try
             {
-                try
+                if (consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded != null)
                 {
-                    if (state == TransportReceiverState.StartedRegular)
-                    {
-                        return true;
-                    }
-
-                    await StopAndDisposeReceiver().ConfigureAwait(false);
-                    await Init().ConfigureAwait(false);
-                    await Start().ConfigureAwait(false);
-
-                    try
-                    {
-                        await consecutiveFailuresDisarmedNotification.Raise(consecutiveFailuresDisarmed).ConfigureAwait(false);
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.WarnFormat("Failed to stop system outage mode: {0}", exception);
-                    }
-
-                    return true;
-                }
-                finally
-                {
-                    semaphoreSlim.Release();
+                    await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded().ConfigureAwait(false);
                 }
             }
-            return false;
+            catch (Exception exception)
+            {
+                Logger.WarnFormat("Failed to stop system outage mode: {0}", exception);
+            }
         }
 
         public async Task Stop()
@@ -157,30 +198,30 @@ namespace NServiceBus
                 return;
             }
 
-            await semaphoreSlim.WaitAsync().ConfigureAwait(false);
             try
             {
-                if (state == TransportReceiverState.Stopped)
-                {
-                    return;
-                }
-
+                //Wait for the loop to stop switching modes before stopping the receiver
+                rateLimitLoopCancellationToken.Cancel();
+                resetEventReplacement.TrySetResult(true);
                 try
                 {
-                    await StopAndDisposeReceiver().ConfigureAwait(false);
+                    await rateLimitTask.ConfigureAwait(false);
                 }
-                catch (Exception exception)
+                catch (OperationCanceledException)
                 {
-                    Logger.Warn($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
+                    //Ignore
                 }
-                finally
-                {
-                    state = TransportReceiverState.Stopped;
-                }
+
+                await StopAndDisposeReceiver().ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                Logger.Warn($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
             }
             finally
             {
-                semaphoreSlim.Release();
+                state = TransportReceiverState.Stopped;
+                rateLimitLoopCancellationToken.Dispose();
             }
         }
 
@@ -193,8 +234,8 @@ namespace NServiceBus
         }
 
         readonly CriticalError criticalError;
+        readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
 
-        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         TransportReceiverState state;
         PushRuntimeSettings pushRuntimeSettings;
         IPipelineExecutor pipelineExecutor;
@@ -202,13 +243,13 @@ namespace NServiceBus
         PushSettings pushSettings;
         Func<IPushMessages> receiverFactory;
         IPushMessages receiver;
-        readonly INotificationSubscriptions<ConsecutiveFailuresArmed> consecutiveFailuresArmedNotification;
-        readonly INotificationSubscriptions<ConsecutiveFailuresDisarmed> consecutiveFailuresDisarmedNotification;
+        bool endpointShouldBeRateLimited;
+        TaskCompletionSource<bool> resetEventReplacement = TaskCompletionSourceFactory.Create<bool>();
         readonly ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
+        readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
+        Task rateLimitTask;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
-        static ConsecutiveFailuresArmed consecutiveFailuresArmed = new ConsecutiveFailuresArmed();
-        static ConsecutiveFailuresDisarmed consecutiveFailuresDisarmed = new ConsecutiveFailuresDisarmed();
         PushRuntimeSettings rateLimitPushRuntimeSettings;
         PushSettings rateLimitPushSettings;
     }

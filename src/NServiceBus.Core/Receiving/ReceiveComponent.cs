@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using ObjectBuilder;
@@ -207,11 +206,6 @@ namespace NServiceBus
                     throw;
                 }
             }
-
-            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
-            {
-                rateLimitTask = RateLimitLoop(rateLimitLoopCancellationToken.Token);
-            }
         }
 
         public Task Stop()
@@ -222,9 +216,6 @@ namespace NServiceBus
                 await receiver.Stop().ConfigureAwait(false);
                 Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
             });
-
-            rateLimitLoopCancellationToken.Cancel();
-            resetEventReplacement.TrySetResult(true);
 
             return Task.WhenAll(receiverStopTasks);
         }
@@ -257,7 +248,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, consecutiveFailuresConfiguration));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -265,7 +256,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -273,65 +264,8 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration.ConsecutiveFailuresArmedNotification, consecutiveFailuresConfiguration.ConsecutiveFailuresDisarmedNotification));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration));
             }
-        }
-
-        async Task RateLimitLoop(CancellationToken cancellationToken)
-        {
-            //We want all the pumps to be running all the time in the desired mode until we call stop
-            //We want to make sure that StopRateLimit signal is not lost
-            //The circuit breaker ensures that if StartRateLimit has been called that eventually StopRateLimit is going to be called unless the endpoint stop
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                var startRateLimiting = endpointShouldBeRateLimited;
-
-                await resetEventReplacement.Task.ConfigureAwait(false);
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                resetEventReplacement = TaskCompletionSourceFactory.Create<bool>();
-
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        foreach (var receiver in receivers)
-                        {
-                            if (startRateLimiting)
-                            {
-                                await receiver.StartRateLimiting(cancellationToken).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                await receiver.StopRateLimiting(cancellationToken).ConfigureAwait(false);
-                            }
-                        }
-
-                        break;
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.WarnFormat("Could not switch to {0} mode. '{1}'", startRateLimiting ? "rate limit" : "normal", exception);
-                        //Raise critical error
-                    }
-                }
-            }
-        }
-
-        void SwitchToRateLimitMode()
-        {
-            endpointShouldBeRateLimited = true;
-            resetEventReplacement.TrySetResult(true);
-        }
-
-        void SwitchBackToNormalMode()
-        {
-            endpointShouldBeRateLimited = false;
-            resetEventReplacement.TrySetResult(true);
         }
 
         static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IConfigureComponents container, ICollection<Type> availableTypes)
@@ -369,19 +303,15 @@ namespace NServiceBus
 
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
         readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
-        readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         IPipelineExecutor mainPipelineExecutor;
         CriticalError criticalError;
         string errorQueue;
-        bool endpointShouldBeRateLimited;
-        volatile TaskCompletionSource<bool> resetEventReplacement = TaskCompletionSourceFactory.Create<bool>();
 
         const string MainReceiverId = "Main";
 
         static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
         static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
-        Task rateLimitTask;
     }
 }

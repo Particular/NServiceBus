@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.ThrottleModeEntered && Context.failuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
+                .Done(c => Context.ThrottleModeEntered && Context.FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
                 .Run();
         }
 
@@ -54,7 +54,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.failuresBeforeThrottling == 10 && !Context.ThrottleModeEntered)
+                .Done(c => Context.FailuresBeforeThrottling == 10 && !Context.ThrottleModeEntered)
                 .Run();
         }
 
@@ -64,6 +64,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             public static int failuresBeforeThrottling;
             public static DateTime LastProcessedTimeStamp { get; set; }
             public static TimeSpan TimeBetweenProcessingAttempts { get; set; }
+
+            public static int FailuresBeforeThrottling => failuresBeforeThrottling;
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
