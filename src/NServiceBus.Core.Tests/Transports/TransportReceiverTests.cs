@@ -13,7 +13,7 @@
         {
             pump = new Pump();
 
-            receiver = new TransportReceiver("FakeReceiver", () => pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null, null, null);
+            receiver = new TransportReceiver("FakeReceiver", () => pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null, null, new ConsecutiveFailuresConfiguration());
             await receiver.Init();
         }
 
