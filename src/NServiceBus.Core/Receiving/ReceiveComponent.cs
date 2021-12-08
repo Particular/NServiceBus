@@ -147,6 +147,7 @@ namespace NServiceBus
             PipelineComponent pipelineComponent,
             IPipelineCache pipelineCache,
             TransportInfrastructure transportInfrastructure,
+            ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
             CancellationToken cancellationToken = default)
         {
             if (configuration.IsSendOnlyEndpoint)
@@ -154,6 +155,7 @@ namespace NServiceBus
                 return;
             }
 
+            consecutiveFailuresConfiguration = null;
             var mainPump = transportInfrastructure.Receivers[MainReceiverId];
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);

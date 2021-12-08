@@ -41,7 +41,9 @@ namespace NServiceBus
             var rootContext = new RootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
             var messageSession = new MessageSession(rootContext);
 
-            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, cancellationToken).ConfigureAwait(false);
+            var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
+
+            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
