@@ -9,7 +9,7 @@
 
         public RateLimitSettings RateLimitSettings { get; set; }
 
-        public ConsecutiveFailuresCircuitBreaker CreateCircuitBreaker(Func<Task> onConsecutiveArmed, Func<Task> onConsecutiveDisarmed)
+        public ConsecutiveFailuresCircuitBreaker CreateCircuitBreaker(Func<long, Task> onConsecutiveArmed, Func<long, Task> onConsecutiveDisarmed)
         {
             var timeToWait = TimeSpan.Zero;
 

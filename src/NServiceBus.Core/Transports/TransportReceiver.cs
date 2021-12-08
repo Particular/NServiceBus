@@ -27,14 +27,14 @@ namespace NServiceBus
             this.pushSettings = pushSettings;
 
             consecutiveFailuresCircuitBreaker = consecutiveFailuresConfiguration.CreateCircuitBreaker(
-                () =>
+                ticks =>
                 {
-                    SwitchToRateLimitMode();
+                    SwitchToRateLimitMode(ticks);
                     return TaskEx.CompletedTask;
                 },
-                () =>
+                ticks =>
                 {
-                    SwitchBackToNormalMode();
+                    SwitchBackToNormalMode(ticks);
                     return TaskEx.CompletedTask;
                 });
 
@@ -65,14 +65,25 @@ namespace NServiceBus
             }
         }
 
-        void SwitchToRateLimitMode()
+        void SwitchToRateLimitMode(long stateChangeTime)
         {
-            endpointShouldBeRateLimited = true;
-            resetEventReplacement.TrySetResult(true);
+            // Only change states if the trigger time is greater than the last time the state change was triggered.
+            // This prevents race conditions where switching to rate limited mode is executed after the
+            // system has repaired and should be in normal mode.
+            if (stateChangeTime >= Interlocked.Read(ref lastStateChangeTime))
+            {
+                Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
+
+                endpointShouldBeRateLimited = true;
+                resetEventReplacement.TrySetResult(true);
+            }
         }
 
-        void SwitchBackToNormalMode()
+        void SwitchBackToNormalMode(long stateChangeTime)
         {
+            // Switching to normal mode always takes precedence so we don't check the previous state change time.
+            Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
+
             endpointShouldBeRateLimited = false;
             resetEventReplacement.TrySetResult(true);
         }
@@ -248,6 +259,7 @@ namespace NServiceBus
         readonly ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
         readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
         Task rateLimitTask;
+        long lastStateChangeTime = 0;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
         PushRuntimeSettings rateLimitPushRuntimeSettings;
