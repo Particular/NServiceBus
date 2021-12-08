@@ -216,7 +216,10 @@ namespace NServiceBus
                 resetEventReplacement.TrySetResult(true);
                 try
                 {
-                    await rateLimitTask.ConfigureAwait(false);
+                    if (rateLimitTask != null)
+                    {
+                        await rateLimitTask.ConfigureAwait(false);
+                    }
                 }
                 catch (OperationCanceledException)
                 {
