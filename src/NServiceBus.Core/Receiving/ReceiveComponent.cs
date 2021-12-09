@@ -155,8 +155,7 @@ namespace NServiceBus
                 return;
             }
 
-            consecutiveFailuresConfiguration = null;
-            var mainPump = transportInfrastructure.Receivers[MainReceiverId];
+            var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId]);
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
@@ -171,19 +170,20 @@ namespace NServiceBus
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
             {
+                var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump);
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault();
 
-                await instanceSpecificPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
+                await instancePump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
                     instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
 
-                receivers.Add(instanceSpecificPump);
+                receivers.Add(instancePump);
             }
 
             foreach (var satellite in configuration.SatelliteDefinitions)
             {
                 try
                 {
-                    var satellitePump = transportInfrastructure.Receivers[satellite.Name];
+                    var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
                     var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy);
 
@@ -268,6 +268,15 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
+        IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
+        {
+            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
+            {
+                return new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver);
+            }
+
+            return receiver;
+        }
 
         Configuration configuration;
         List<IMessageReceiver> receivers = new List<IMessageReceiver>();

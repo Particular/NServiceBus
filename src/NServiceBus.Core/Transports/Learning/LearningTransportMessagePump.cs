@@ -113,6 +113,13 @@
             concurrencyLimiter.Dispose();
         }
 
+        public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
+        {
+            await StopReceive(cancellationToken).ConfigureAwait(false);
+            await Initialize(limitations, onMessage, onError, cancellationToken).ConfigureAwait(false);
+            await StartReceive(cancellationToken).ConfigureAwait(false);
+        }
+
         public ISubscriptionManager Subscriptions { get; }
 
         public string Id { get; }

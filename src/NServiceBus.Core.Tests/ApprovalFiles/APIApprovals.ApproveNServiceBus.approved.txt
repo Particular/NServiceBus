@@ -853,6 +853,13 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class RateLimitSettings
+    {
+        public RateLimitSettings(System.TimeSpan? timeToWaitBetweenThrottledAttempts = default, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> onRateLimitStarted = null, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> onRateLimitEnded = null) { }
+        public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> OnRateLimitEnded { get; }
+        public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> OnRateLimitStarted { get; }
+        public System.TimeSpan TimeToWaitBetweenThrottledAttempts { get; }
+    }
     public class ReceiveAddresses
     {
         public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress = null, string[] satelliteReceiveAddresses = null) { }
@@ -912,6 +919,7 @@ namespace NServiceBus
         public NServiceBus.RecoverabilitySettings Delayed(System.Action<NServiceBus.DelayedRetriesSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Failed(System.Action<NServiceBus.RetryFailedSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
+        public NServiceBus.RecoverabilitySettings OnConsecutiveFailures(int numberOfConsecutiveFailures, NServiceBus.RateLimitSettings settings) { }
     }
     public static class RecoverabilitySettingsExtensions
     {
@@ -2527,6 +2535,7 @@ namespace NServiceBus.Transport
         string Id { get; }
         string ReceiveAddress { get; }
         NServiceBus.Transport.ISubscriptionManager Subscriptions { get; }
+        System.Threading.Tasks.Task ChangeConcurrency(NServiceBus.Transport.PushRuntimeSettings limitations, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Initialize(NServiceBus.Transport.PushRuntimeSettings limitations, NServiceBus.Transport.OnMessage onMessage, NServiceBus.Transport.OnError onError, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task StartReceive(System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task StopReceive(System.Threading.CancellationToken cancellationToken = default);
