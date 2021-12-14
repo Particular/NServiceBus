@@ -25,15 +25,15 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.MessageProcessedNormally && Context.ThrottleModeEnded)
+                .Done(c => c.MessageProcessedNormally && c.ThrottleModeEnded)
                 .Run();
         }
 
         class Context : ScenarioContext
         {
-            public static bool ThrottleModeEntered { get; set; }
-            public static bool ThrottleModeEnded { get; set; }
-            public static bool MessageProcessedNormally { get; set; }
+            public bool ThrottleModeEntered { get; set; }
+            public bool ThrottleModeEnded { get; set; }
+            public bool MessageProcessedNormally { get; set; }
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -42,6 +42,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
+                    var scenarioContext = (Context)context.ScenarioContext;
                     config.LimitMessageProcessingConcurrencyTo(3);
 
                     var recoverability = config.Recoverability();
@@ -51,13 +52,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     var rateLimitingSettings = new RateLimitSettings(TimeSpan.FromSeconds(5), () =>
                     {
-                        Context.ThrottleModeEntered = true;
+                        scenarioContext.ThrottleModeEntered = true;
 
                         return Task.FromResult(0);
                     },
                     () =>
                     {
-                        Context.ThrottleModeEnded = true;
+                        scenarioContext.ThrottleModeEnded = true;
 
                         return Task.FromResult(0);
                     });
@@ -68,17 +69,22 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
+                public InitiatingHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (!Context.ThrottleModeEntered)
+                    if (!testContext.ThrottleModeEntered)
                     {
                         throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
                     }
 
-                    Context.MessageProcessedNormally = true;
+                    testContext.MessageProcessedNormally = true;
 
                     return Task.FromResult(0);
                 }
+                Context testContext;
             }
         }
 
