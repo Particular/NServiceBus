@@ -25,15 +25,15 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.MessageProcessedNormally && Context.ThrottleModeEnded)
+                .Done(c => c.MessageProcessedNormally && c.ThrottleModeEnded)
                 .Run();
         }
 
         class Context : ScenarioContext
         {
-            public static bool ThrottleModeEntered { get; set; }
-            public static bool ThrottleModeEnded { get; set; }
-            public static bool MessageProcessedNormally { get; set; }
+            public bool ThrottleModeEntered { get; set; }
+            public bool ThrottleModeEnded { get; set; }
+            public bool MessageProcessedNormally { get; set; }
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -43,7 +43,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.LimitMessageProcessingConcurrencyTo(3);
-
+                    var scenarioContext = (Context)context.ScenarioContext;
                     var recoverability = config.Recoverability();
 
                     recoverability.Immediate(i => i.NumberOfRetries(0));
@@ -51,13 +51,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     var rateLimitingSettings = new RateLimitSettings(TimeSpan.FromSeconds(5), cancellation =>
                     {
-                        Context.ThrottleModeEntered = true;
+                        scenarioContext.ThrottleModeEntered = true;
 
                         return Task.FromResult(0);
                     },
                     cancellation =>
                     {
-                        Context.ThrottleModeEnded = true;
+                        scenarioContext.ThrottleModeEnded = true;
 
                         return Task.FromResult(0);
                     });
@@ -68,17 +68,23 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
+                public InitiatingHandler(Context context)
+                {
+                    testContext = context;
+                }
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (!Context.ThrottleModeEntered)
+                    if (!testContext.ThrottleModeEntered)
                     {
                         throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
                     }
 
-                    Context.MessageProcessedNormally = true;
+                    testContext.MessageProcessedNormally = true;
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

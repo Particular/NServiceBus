@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.ThrottleModeEntered && Context.FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
+                .Done(c => c.ThrottleModeEntered && c.FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
                 .Run();
         }
 
@@ -54,18 +54,18 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => Context.FailuresBeforeThrottling == 10 && !Context.ThrottleModeEntered)
+                .Done(c => c.FailuresBeforeThrottling == 10 && !c.ThrottleModeEntered)
                 .Run();
         }
 
         class Context : ScenarioContext
         {
-            public static bool ThrottleModeEntered { get; set; }
+            public bool ThrottleModeEntered { get; set; }
             public static int failuresBeforeThrottling;
-            public static DateTime LastProcessedTimeStamp { get; set; }
-            public static TimeSpan TimeBetweenProcessingAttempts { get; set; }
+            public DateTime LastProcessedTimeStamp { get; set; }
+            public TimeSpan TimeBetweenProcessingAttempts { get; set; }
 
-            public static int FailuresBeforeThrottling => failuresBeforeThrottling;
+            public int FailuresBeforeThrottling => failuresBeforeThrottling;
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -75,6 +75,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.LimitMessageProcessingConcurrencyTo(3);
+                    var scenarioContext = (Context)context.ScenarioContext;
 
                     var recoverability = config.Recoverability();
 
@@ -83,7 +84,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     var rateLimitingSettings = new RateLimitSettings(TimeToWaitBetweenThrottledAttempts, cancellation =>
                         {
-                            Context.ThrottleModeEntered = true;
+                            scenarioContext.ThrottleModeEntered = true;
 
                             return Task.FromResult(0);
                         });
@@ -94,19 +95,24 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
+                public InitiatingHandler(Context contect)
+                {
+                    testContext = contect;
+                }
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (Context.ThrottleModeEntered)
+                    if (testContext.ThrottleModeEntered)
                     {
-                        Context.TimeBetweenProcessingAttempts = DateTime.UtcNow - Context.LastProcessedTimeStamp;
+                        testContext.TimeBetweenProcessingAttempts = DateTime.UtcNow - testContext.LastProcessedTimeStamp;
                     }
 
-                    Context.LastProcessedTimeStamp = DateTime.UtcNow;
+                    testContext.LastProcessedTimeStamp = DateTime.UtcNow;
 
                     Interlocked.Increment(ref Context.failuresBeforeThrottling);
 
                     throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
                 }
+                Context testContext;
             }
         }
 
