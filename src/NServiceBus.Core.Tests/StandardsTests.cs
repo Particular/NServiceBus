@@ -7,7 +7,6 @@
     using System.Runtime.CompilerServices;
     using NServiceBus.Features;
     using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]

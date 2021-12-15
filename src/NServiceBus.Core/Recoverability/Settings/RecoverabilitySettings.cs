@@ -77,5 +77,20 @@ namespace NServiceBus
             Settings.AddUnrecoverableException(exceptionType);
             return this;
         }
+
+        /// <summary>
+        /// Configures rate limiting for the endpoint when the system is experiencing multiple consecutive failures.
+        /// </summary>
+        public RecoverabilitySettings OnConsecutiveFailures(int numberOfConsecutiveFailures, RateLimitSettings settings)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            var consecutiveFailuresConfig = Settings.Get<ConsecutiveFailuresConfiguration>();
+
+            consecutiveFailuresConfig.NumberOfConsecutiveFailuresBeforeArming = numberOfConsecutiveFailures;
+            consecutiveFailuresConfig.RateLimitSettings = settings;
+
+            return this;
+        }
     }
 }

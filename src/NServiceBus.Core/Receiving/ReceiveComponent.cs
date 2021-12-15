@@ -17,12 +17,14 @@ namespace NServiceBus
         ReceiveComponent(Configuration configuration,
             CriticalError criticalError,
             string errorQueue,
-            TransportReceiveInfrastructure transportReceiveInfrastructure)
+            TransportReceiveInfrastructure transportReceiveInfrastructure,
+            ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration)
         {
             this.configuration = configuration;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
             this.transportReceiveInfrastructure = transportReceiveInfrastructure;
+            this.consecutiveFailuresConfiguration = consecutiveFailuresConfiguration;
         }
 
         public static ReceiveComponent Initialize(
@@ -47,11 +49,14 @@ namespace NServiceBus
                 }
             }
 
+            var consecutiveFailuresConfig = pipelineSettings.Settings.Get<ConsecutiveFailuresConfiguration>();
+
             var receiveComponent = new ReceiveComponent(
                 configuration,
                 hostingConfiguration.CriticalError,
                 errorQueue,
-                transportReceiveInfrastructure);
+                transportReceiveInfrastructure,
+                consecutiveFailuresConfig);
 
             if (configuration.IsSendOnlyEndpoint)
             {
@@ -150,6 +155,7 @@ namespace NServiceBus
             }
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
+
             mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
 
             if (configuration.PurgeOnStartup)
@@ -242,7 +248,7 @@ namespace NServiceBus
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
-            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
+            receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError, consecutiveFailuresConfiguration));
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -250,7 +256,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(MainReceiverId, messagePumpFactory, sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration));
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -258,7 +264,7 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, messagePumpFactory, satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError, consecutiveFailuresConfiguration));
             }
         }
 
@@ -296,7 +302,7 @@ namespace NServiceBus
         }
 
         readonly TransportReceiveInfrastructure transportReceiveInfrastructure;
-
+        readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
         Configuration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         IPipelineExecutor mainPipelineExecutor;
@@ -305,7 +311,7 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
 
-        static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+        static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
     }
 }

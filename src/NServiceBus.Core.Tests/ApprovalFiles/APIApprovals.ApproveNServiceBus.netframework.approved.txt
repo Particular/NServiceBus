@@ -796,6 +796,13 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class RateLimitSettings
+    {
+        public RateLimitSettings(System.Nullable<System.TimeSpan> timeToWaitBetweenThrottledAttempts = null, System.Func<System.Threading.Tasks.Task> onRateLimitStarted = null, System.Func<System.Threading.Tasks.Task> onRateLimitEnded = null) { }
+        public System.Func<System.Threading.Tasks.Task> OnRateLimitEnded { get; }
+        public System.Func<System.Threading.Tasks.Task> OnRateLimitStarted { get; }
+        public System.TimeSpan TimeToWaitBetweenThrottledAttempts { get; }
+    }
     public class ReceivePipelineCompleted
     {
         public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTime startedAt, System.DateTime completedAt) { }
@@ -844,6 +851,7 @@ namespace NServiceBus
         public NServiceBus.RecoverabilitySettings DisableLegacyRetriesSatellite() { }
         public NServiceBus.RecoverabilitySettings Failed(System.Action<NServiceBus.RetryFailedSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
+        public NServiceBus.RecoverabilitySettings OnConsecutiveFailures(int numberOfConsecutiveFailures, NServiceBus.RateLimitSettings settings) { }
     }
     public class static RecoverabilitySettingsExtensions
     {

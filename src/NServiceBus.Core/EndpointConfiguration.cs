@@ -37,6 +37,7 @@ namespace NServiceBus
             Settings.Set(new RoutingComponent.Settings(Settings));
             Settings.Set(new ReceiveComponent.Settings(Settings));
             Settings.Set(new RecoverabilityComponent.Configuration());
+            Settings.Set(new ConsecutiveFailuresConfiguration());
             Settings.Set(Pipeline = new PipelineSettings(Settings));
 
             Notifications = new Notifications();

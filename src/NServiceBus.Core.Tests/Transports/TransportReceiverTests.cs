@@ -9,11 +9,12 @@
     public class TransportReceiverTests
     {
         [SetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
             pump = new Pump();
 
-            receiver = new TransportReceiver("FakeReceiver", pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null, null);
+            receiver = new TransportReceiver("FakeReceiver", () => pump, new PushSettings("queue", "queue", true, TransportTransactionMode.SendsAtomicWithReceive), new PushRuntimeSettings(), null, null, null, new ConsecutiveFailuresConfiguration());
+            await receiver.Init();
         }
 
         [Test]
@@ -76,7 +77,7 @@
 
             public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
             {
-                throw new NotImplementedException();
+                return Task.FromResult(0);
             }
 
             public void Start(PushRuntimeSettings limitations)
