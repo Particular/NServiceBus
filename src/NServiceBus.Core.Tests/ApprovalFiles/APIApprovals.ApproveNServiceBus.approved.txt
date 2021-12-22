@@ -663,19 +663,6 @@ namespace NServiceBus
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
         public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
-    public static class LearningTransportConfigurationExtensions
-    {
-        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
-            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, System.Func<string> connectionString) { }
-        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
-            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
-        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string connectionString) { }
-        public static void NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions) { }
-        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions, string path) { }
-        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.LearningTransport { }
-    }
     public static class LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
@@ -2767,6 +2754,22 @@ namespace NServiceBus.Transport
         public NServiceBus.Transport.OutgoingMessage Message { get; }
         public NServiceBus.Transport.DispatchProperties Properties { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
+    }
+}
+namespace NServiceBus.Transport.Learning
+{
+    public static class LearningTransportConfigurationExtensions
+    {
+        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, System.Func<string> connectionString) { }
+        [System.Obsolete("The learning transport does not support a connection string. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> ConnectionString(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transport, string connectionString) { }
+        public static void NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions) { }
+        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions, string path) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)
+            where T : NServiceBus.LearningTransport { }
     }
 }
 namespace NServiceBus.Unicast
