@@ -36,7 +36,13 @@ jobs:
         with:
           dotnet-version: 3.1.x
       - name: Build
-        run: dotnet build src --configuration Release
+        shell: pwsh
+        run: |
+          dotnet build src --configuration Release
+          echo "Echoing GITHUB_ENV to see what GitVersion does on analyzer vs. core"
+          echo "------"
+          cat $GITHUB_ENV
+          echo "------"
       - name: Upload packages
         if: matrix.name == 'Windows'
         uses: actions/upload-artifact@v2.3.1
