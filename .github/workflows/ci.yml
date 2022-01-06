@@ -41,7 +41,11 @@ jobs:
           dotnet build src --configuration Release
           echo "Echoing GITHUB_ENV to see what GitVersion does on analyzer vs. core"
           echo "------"
-          cat $Env:GITHUB_ENV
+          $cmd = "cat $($Env:GITHUB_ENV)"
+          echo $cmd
+          echo $Env:GITHUB_ENV
+          echo "------"
+          Invoke-Expression $cmd
           echo "------"
       - name: Upload packages
         if: matrix.name == 'Windows'
