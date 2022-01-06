@@ -1,17 +1,15 @@
 ﻿namespace NServiceBus.PersistenceTesting
 {
+    using System;
+
     public class TestVariant
     {
         public object[] Values { get; }
 
-        public TestVariant(params object[] values)
-        {
-            this.Values = values;
-        }
+        public TimeSpan? SessionTimeout { get; set; }
 
-        public override string ToString()
-        {
-            return string.Join(" ", Values);
-        }
+        public TestVariant(params object[] values) => Values = values;
+
+        public override string ToString() => string.Join(" ", Values);
     }
 }
