@@ -32,6 +32,9 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_messages_never_succeed.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_messages_never_succeed_with_delays_specified.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_messages_succeed_after_throttling.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 

@@ -64,6 +64,8 @@
                 return Task.CompletedTask;
             }
 
+            public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
             public ISubscriptionManager Subscriptions { get; }
 
             public string Id { get; }

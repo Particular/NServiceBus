@@ -19,6 +19,11 @@
         Task StartReceive(CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Changes the maximum concurrency settings of the running receiver to match the settings specified in `limitations`.
+        /// </summary>
+        Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Stops receiving messages.
         /// </summary>
         Task StopReceive(CancellationToken cancellationToken = default);

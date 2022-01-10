@@ -54,6 +54,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
             }
         }
 
+        public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
         public ISubscriptionManager Subscriptions { get; } = new FakeSubscriptionManager();
         public string Id { get; }
         public string ReceiveAddress { get; private set; }
