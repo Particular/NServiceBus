@@ -39,6 +39,7 @@
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>The most popular open-source service bus for .NET</Description>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsFileToPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,6 +47,12 @@
     <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\**\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
     <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
+
+  <Target Name="AddPropsFileToPackage">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="NServiceBus.props" PackagePath="build/$(TargetFramework)" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <InternalsVisibleTo Include="NServiceBus.AcceptanceTesting" Key="$(NServiceBusKey)" />
