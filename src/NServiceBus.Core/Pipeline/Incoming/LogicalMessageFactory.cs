@@ -41,11 +41,6 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNull(nameof(messageType), messageType);
             Guard.AgainstNull(nameof(message), message);
 
-            if (messageType == null)
-            {
-                throw new ArgumentNullException(nameof(messageType));
-            }
-
             var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 
             return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message);
