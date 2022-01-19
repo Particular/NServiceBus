@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.AcceptanceTests.Scheduling
+﻿#pragma warning disable 618
+namespace NServiceBus.AcceptanceTests.Scheduling
 {
     using System;
     using System.Threading.Tasks;
@@ -74,3 +75,4 @@
         }
     }
 }
+#pragma warning restore 618

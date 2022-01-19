@@ -957,11 +957,23 @@ namespace NServiceBus
         protected override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
+    [System.ObsoleteAttribute("The built-in scheduler will no longer be supported, see our upgrade guide for det" +
+        "ails on how to migrate to plain .NET Timers. Will be treated as an error from ve" +
+        "rsion 8.0.0. Will be removed in version 9.0.0.", false)]
     public class static ScheduleExtensions
     {
+        [System.ObsoleteAttribute("The built-in scheduler will no longer be supported, see our upgrade guide for det" +
+            "ails on how to migrate to plain .NET Timers. Will be treated as an error from ve" +
+            "rsion 8.0.0. Will be removed in version 9.0.0.", false)]
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
+        [System.ObsoleteAttribute("The built-in scheduler will no longer be supported, see our upgrade guide for det" +
+            "ails on how to migrate to plain .NET Timers. Will be treated as an error from ve" +
+            "rsion 8.0.0. Will be removed in version 9.0.0.", false)]
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
+    [System.ObsoleteAttribute("The built-in scheduler will no longer be supported, see our upgrade guide for det" +
+        "ails on how to migrate to plain .NET Timers. Will be treated as an error from ve" +
+        "rsion 8.0.0. Will be removed in version 9.0.0.", false)]
     public class ScheduledTask : NServiceBus.IMessage
     {
         public ScheduledTask() { }

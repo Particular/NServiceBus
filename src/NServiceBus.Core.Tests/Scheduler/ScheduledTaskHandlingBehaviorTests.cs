@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Scheduling.Tests
+﻿#pragma warning disable 618
+namespace NServiceBus.Scheduling.Tests
 {
     using System;
     using System.Linq;
@@ -70,3 +71,4 @@
         Guid taskId;
     }
 }
+#pragma warning restore 618
