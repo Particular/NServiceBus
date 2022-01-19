@@ -21,6 +21,10 @@ namespace NServiceBus.Pipeline
         /// Removes the specified step from the pipeline.
         /// </summary>
         /// <param name="stepId">The identifier of the step to remove.</param>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9",
+            Message = "Removing behaviors from the pipeline is discouraged, to disable a behavior replace the behavior by an empty one. Documentation: https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors.")]
         public void Remove(string stepId)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After

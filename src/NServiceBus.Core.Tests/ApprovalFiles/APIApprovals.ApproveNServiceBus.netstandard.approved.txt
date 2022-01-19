@@ -2203,6 +2203,7 @@ namespace NServiceBus.Pipeline
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
+        [System.ObsoleteAttribute(@"Removing behaviors from the pipeline is discouraged, to disable a behavior replace the behavior by an empty one. Documentation: https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors. Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0.", false)]
         public void Remove(string stepId) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
