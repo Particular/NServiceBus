@@ -731,8 +731,8 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        [System.Obsolete("Use `RoutingExtensions<T>.SubscriptionAuthorizer` instead. The member currently t" +
-            "hrows a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `SubscriptionAuthorizer` instead. The member currently throws a NotImplemente" +
+            "dException. Will be removed in version 9.0.0.", true)]
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
@@ -1811,6 +1811,20 @@ namespace NServiceBus.ObjectBuilder
         void RegisterSingleton(System.Type lookupType, object instance);
         [System.Obsolete("Use `IServiceCollection.AddSingleton` instead. Will be removed in version 9.0.0.", true)]
         void RegisterSingleton<T>(T instance);
+    }
+    [System.Obsolete("Use methods on IServiceProvider instead. Will be removed in version 9.0.0.", true)]
+    public static class ServiceProviderExtensions
+    {
+        [System.Obsolete("Use `IServiceProvider.GetService` instead. Will be removed in version 9.0.0.", true)]
+        public static object Build(this System.IServiceProvider serviceCollection, System.Type typeToBuild) { }
+        [System.Obsolete("Use `IServiceProvider.GetService` instead. Will be removed in version 9.0.0.", true)]
+        public static T Build<T>(this System.IServiceProvider serviceCollection) { }
+        [System.Obsolete("Use `IServiceProvider.GetServices` instead. Will be removed in version 9.0.0.", true)]
+        public static System.Collections.Generic.IEnumerable<object> BuildAll(this System.IServiceProvider serviceCollection, System.Type typeToBuild) { }
+        [System.Obsolete("Use `IServiceProvider.GetServices` instead. Will be removed in version 9.0.0.", true)]
+        public static System.Collections.Generic.IEnumerable<T> BuildAll<T>(this System.IServiceProvider serviceCollection) { }
+        [System.Obsolete("Use `IServiceProvider.CreateScope` instead. Will be removed in version 9.0.0.", true)]
+        public static Microsoft.Extensions.DependencyInjection.IServiceScope CreateChildBuilder(this System.IServiceProvider serviceCollection) { }
     }
 }
 namespace NServiceBus.Outbox

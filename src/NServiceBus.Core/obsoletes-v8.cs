@@ -1386,14 +1386,13 @@ namespace NServiceBus
     public static partial class MessageDrivenSubscriptionsConfigExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "RoutingExtensions<T>.SubscriptionAuthorizer",
+            ReplacementTypeOrMember = nameof(SubscriptionMigrationModeSettings.SubscriptionAuthorizer),
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions,
             Func<IIncomingPhysicalMessageContext, bool> authorizer)
             where T : TransportDefinition, IMessageDrivenSubscriptionTransport
             => throw new NotImplementedException();
-
         [ObsoleteEx(
             ReplacementTypeOrMember = "RoutingExtensions<T>.DisablePublishing",
             TreatAsErrorFromVersion = "8",
