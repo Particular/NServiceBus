@@ -18,9 +18,9 @@
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="1.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" PrivateAssets="All" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.0" PrivateAssets="All" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="0.3.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="1.4.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="1.3.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -32,9 +32,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
-    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_messages_never_succeed.cs" />
-    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_messages_never_succeed_with_delays_specified.cs" />
-    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_messages_succeed_after_throttling.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\Audit\When_a_message_is_audited.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 

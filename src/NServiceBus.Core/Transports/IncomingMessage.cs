@@ -59,7 +59,7 @@ namespace NServiceBus.Transport
         public ReadOnlyMemory<byte> Body { get; private set; }
 
         /// <summary>
-        /// Use this method to update the body if this message.
+        /// Use this method to update the body of this message.
         /// </summary>
         internal void UpdateBody(ReadOnlyMemory<byte> updatedBody)
         {
