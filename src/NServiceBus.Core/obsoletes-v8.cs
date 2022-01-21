@@ -1386,7 +1386,7 @@ namespace NServiceBus
     public static partial class MessageDrivenSubscriptionsConfigExtensions
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(SubscriptionMigrationModeSettings.SubscriptionAuthorizer),
+            ReplacementTypeOrMember = "RoutingSettings<T>.SubscriptionAuthorizer",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions,
