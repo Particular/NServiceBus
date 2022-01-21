@@ -5,14 +5,14 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Faults;
+    using NServiceBus.Transports;
     using Routing;
     using Transport;
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IMessageDispatcher dispatcher, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        public MoveToErrorsExecutor(Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
         {
-            this.dispatcher = dispatcher;
             this.staticFaultMetadata = staticFaultMetadata;
             this.headerCustomizations = headerCustomizations;
         }
@@ -37,12 +37,14 @@
 
             headerCustomizations(headers);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
+            var transportOperations = new List<TransportOperation>
+            {
+                new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress))
+            };
 
-            return dispatcher.Dispatch(transportOperations, errorContext.TransportTransaction, cancellationToken);
+            return errorContext.Dispatch(transportOperations, cancellationToken);
         }
 
-        IMessageDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
         Action<Dictionary<string, string>> headerCustomizations;
     }

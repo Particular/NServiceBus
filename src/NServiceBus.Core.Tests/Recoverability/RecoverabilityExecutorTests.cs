@@ -191,7 +191,7 @@
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
                 delayedRetriesSupported ? new DelayedRetryExecutor(dispatcher) : null,
-                new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }),
+                new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }),
                 messageRetryNotification,
                 messageFaultedNotification);
         }

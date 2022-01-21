@@ -18,7 +18,7 @@
         {
             dispatcher = new FakeDispatcher();
             staticFaultMetadata = new Dictionary<string, string>();
-            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, staticFaultMetadata, headers => { });
+            moveToErrorsExecutor = new MoveToErrorsExecutor(staticFaultMetadata, headers => { });
         }
 
         [Test]
@@ -127,7 +127,7 @@
             var exception = new InvalidOperationException("test exception");
 
             Dictionary<string, string> passedInHeaders = null;
-            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, staticFaultMetadata, headers => { passedInHeaders = headers; });
+            moveToErrorsExecutor = new MoveToErrorsExecutor(staticFaultMetadata, headers => { passedInHeaders = headers; });
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, CreateErrorContext(raisedException: exception));
 

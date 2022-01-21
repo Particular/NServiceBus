@@ -7,7 +7,7 @@
     /// <summary>
     /// The context for messages that has failed processing.
     /// </summary>
-    public class ErrorContext
+    public class ErrorContext : IExtendable
     {
         /// <summary>
         /// Initializes the error context.
@@ -20,7 +20,7 @@
         /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
         /// <param name="receiveAddress">The receive address.</param>
         /// <param name="context">A <see cref="ReadOnlyContextBag" /> which can be used to extend the current object.</param>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, IReadOnlyContextBag context)
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
         {
             Guard.AgainstNull(nameof(exception), exception);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
@@ -73,6 +73,6 @@
         /// <summary>
         /// A collection of additional information provided by the transport.
         /// </summary>
-        public IReadOnlyContextBag Extensions { get; }
+        public ContextBag Extensions { get; }
     }
 }

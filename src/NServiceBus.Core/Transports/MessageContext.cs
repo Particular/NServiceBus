@@ -59,6 +59,7 @@
         /// Transport address that received the failed message.
         /// </summary>
         public string ReceiveAddress { get; }
+
         /// <summary>
         /// A <see cref="ContextBag" /> which can be used to extend the current object.
         /// </summary>

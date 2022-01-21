@@ -85,7 +85,7 @@
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(builder.GetRequiredService<IMessageDispatcher>(), staticFaultMetadata, headerCustomizations);
+                return new MoveToErrorsExecutor(staticFaultMetadata, headerCustomizations);
             };
 
             Func<DelayedRetryExecutor> delayedRetryExecutorFactory = () =>
