@@ -187,6 +187,7 @@ namespace NServiceBus
             return allEventTypes;
         }
 
+        //TODO take into account:
         static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
         int maxMessageSizeKB;

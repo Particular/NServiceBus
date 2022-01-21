@@ -68,6 +68,15 @@ namespace NServiceBus
             return this;
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public ConventionsBuilder EnableMarkerInterfaceConvention()
+        {
+            Conventions.Add(new MarkerInterfaceConvention()); //TODO override other conventions?
+            return this;
+        }
+
 
         /// <summary>
         /// The defined <see cref="Conventions"/>.
