@@ -731,8 +731,8 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        [System.Obsolete("Use `SubscriptionAuthorizer` instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `RoutingSettings<T>.SubscriptionAuthorizer` instead. The member currently thr" +
+            "ows a NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
@@ -1812,19 +1812,30 @@ namespace NServiceBus.ObjectBuilder
         [System.Obsolete("Use `IServiceCollection.AddSingleton` instead. Will be removed in version 9.0.0.", true)]
         void RegisterSingleton<T>(T instance);
     }
-    [System.Obsolete("Use methods on IServiceProvider instead. Will be removed in version 9.0.0.", true)]
     public static class ServiceProviderExtensions
     {
-        [System.Obsolete("Use `IServiceProvider.GetService` instead. Will be removed in version 9.0.0.", true)]
-        public static object Build(this System.IServiceProvider serviceCollection, System.Type typeToBuild) { }
-        [System.Obsolete("Use `IServiceProvider.GetService` instead. Will be removed in version 9.0.0.", true)]
-        public static T Build<T>(this System.IServiceProvider serviceCollection) { }
-        [System.Obsolete("Use `IServiceProvider.GetServices` instead. Will be removed in version 9.0.0.", true)]
-        public static System.Collections.Generic.IEnumerable<object> BuildAll(this System.IServiceProvider serviceCollection, System.Type typeToBuild) { }
-        [System.Obsolete("Use `IServiceProvider.GetServices` instead. Will be removed in version 9.0.0.", true)]
-        public static System.Collections.Generic.IEnumerable<T> BuildAll<T>(this System.IServiceProvider serviceCollection) { }
-        [System.Obsolete("Use `IServiceProvider.CreateScope` instead. Will be removed in version 9.0.0.", true)]
-        public static Microsoft.Extensions.DependencyInjection.IServiceScope CreateChildBuilder(this System.IServiceProvider serviceCollection) { }
+        [System.Obsolete("Use `IServiceProvider.GetService` instead. Will be treated as an error from versi" +
+            "on 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static object Build(this System.IServiceProvider serviceProvider, System.Type typeToBuild) { }
+        [System.Obsolete("Use `IServiceProvider.GetService` instead. Will be treated as an error from versi" +
+            "on 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static T Build<T>(this System.IServiceProvider serviceProvider) { }
+        [System.Obsolete("Use `IServiceProvider.GetServices` instead. Will be treated as an error from vers" +
+            "ion 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static System.Collections.Generic.IEnumerable<object> BuildAll(this System.IServiceProvider serviceProvider, System.Type typeToBuild) { }
+        [System.Obsolete("Use `IServiceProvider.GetServices` instead. Will be treated as an error from vers" +
+            "ion 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static System.Collections.Generic.IEnumerable<T> BuildAll<T>(this System.IServiceProvider serviceProvider) { }
+        [System.Obsolete("The BuildAndDispatch method is not supported anymore. Use `IServiceProvider.GetSe" +
+            "rvice(typeToBuild)` and call the action on the returned service. The member curr" +
+            "ently throws a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        public static void BuildAndDispatch(this System.IServiceProvider serviceProvider, System.Type typeToBuild, System.Action<object> action) { }
+        [System.Obsolete("Use `IServiceProvider.CreateScope` instead. Will be treated as an error from vers" +
+            "ion 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static Microsoft.Extensions.DependencyInjection.IServiceScope CreateChildBuilder(this System.IServiceProvider serviceProvider) { }
+        [System.Obsolete("The Release method is not supported. The member currently throws a NotImplemented" +
+            "Exception. Will be removed in version 9.0.0.", true)]
+        public static void Release(this System.IServiceProvider serviceProvider, object instance) { }
     }
 }
 namespace NServiceBus.Outbox
