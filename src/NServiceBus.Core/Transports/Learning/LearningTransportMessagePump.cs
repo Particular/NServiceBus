@@ -166,12 +166,12 @@
         [DebuggerNonUserCode]
         async Task PumpMessagesAndSwallowExceptions(CancellationToken messagePumpCancellationToken)
         {
+            log.Debug($"Started polling for new messages in {messagePumpBasePath}");
+
             while (!messagePumpCancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    log.Debug($"Started polling for new messages in {messagePumpBasePath}");
-
                     await PumpMessages(messagePumpCancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ex.IsCausedBy(messagePumpCancellationToken))
