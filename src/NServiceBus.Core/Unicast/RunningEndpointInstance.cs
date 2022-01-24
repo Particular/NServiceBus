@@ -155,5 +155,9 @@ namespace NServiceBus
             Stopping = 2,
             Stopped = 3
         }
+
+#if NETCOREAPP
+        ValueTask IAsyncDisposable.DisposeAsync() => new ValueTask(Stop());
+#endif
     }
 }

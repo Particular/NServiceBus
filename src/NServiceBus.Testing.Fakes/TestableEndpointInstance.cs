@@ -21,5 +21,9 @@
             EndpointStopped = true;
             return Task.FromResult(0);
         }
+
+#pragma warning disable PS0018 // A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext
+        public ValueTask DisposeAsync() => new ValueTask(Stop());
+#pragma warning restore PS0018 // A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext
     }
 }
