@@ -14,13 +14,17 @@ namespace NServiceBus
     /// <remarks>Original Source: https://github.com/nhibernate/nhibernate-core/blob/4.0.4.GA/src/NHibernate/Id/GuidCombGenerator.cs</remarks>
     static class CombGuid
     {
-        public static Guid Generate()
+        public static Guid Generate() =>
+            // Internal use, no need for DateTimeOffset
+            Generate(Guid.NewGuid(), DateTime.UtcNow);
+
+        internal static Guid Generate(Guid inputGuid, DateTime inputNow)
         {
-            var newGuid = Guid.NewGuid();
+            var newGuid = inputGuid;
             Span<byte> guidArray = stackalloc byte[16];
 #if NETCOREAPP
             if (!newGuid.TryWriteBytes(guidArray))
-#elif NETFRAMEWORK
+#else
             if (!MemoryMarshal.TryWrite(guidArray, ref newGuid))
 #endif
             {
@@ -28,19 +32,34 @@ namespace NServiceBus
                 guidArray = newGuid.ToByteArray();
             }
 
-            var now = DateTime.UtcNow; // Internal use, no need for DateTimeOffset
+            var now = inputNow;
 
             // Get the days and milliseconds which will be used to build the byte string
             var days = new TimeSpan(now.Ticks - BaseDateTicks);
             var timeOfDay = now.TimeOfDay;
 
+            // Convert to a byte array
             Span<byte> daysArray = stackalloc byte[sizeof(int)];
             // Reverse the bytes to match SQL Servers ordering
-            BinaryPrimitives.WriteInt32BigEndian(daysArray, days.Days);
+            if (BitConverter.IsLittleEndian)
+            {
+                BinaryPrimitives.WriteInt32BigEndian(daysArray, days.Days);
+            }
+            else
+            {
+                BinaryPrimitives.WriteInt32LittleEndian(daysArray, days.Days);
+            }
             Span<byte> milliSecondsArray = stackalloc byte[sizeof(long)];
             // Reverse the bytes to match SQL Servers ordering
             // Note that SQL Server is accurate to 1/300th of a millisecond so we divide by 3.333333
-            BinaryPrimitives.WriteInt64BigEndian(milliSecondsArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
+            if (BitConverter.IsLittleEndian)
+            {
+                BinaryPrimitives.WriteInt64BigEndian(milliSecondsArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
+            }
+            else
+            {
+                BinaryPrimitives.WriteInt64LittleEndian(milliSecondsArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
+            }
 
             // // Copy the bytes into the guid
             daysArray.Slice(daysArray.Length - 2).CopyTo(guidArray.Slice(10, 2));
@@ -48,7 +67,7 @@ namespace NServiceBus
 
 #if NETCOREAPP
             return new Guid(guidArray);
-#elif NETFRAMEWORK
+#else
             if (!MemoryMarshal.TryRead(guidArray, out Guid readGuid))
             {
                 readGuid = new Guid(guidArray.ToArray());
