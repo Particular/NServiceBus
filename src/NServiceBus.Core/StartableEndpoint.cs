@@ -59,6 +59,14 @@ namespace NServiceBus
             return runningInstance;
         }
 
+#if NETCOREAPP
+        public async Task<IDisposableEndpointInstance> StartDisposable(CancellationToken cancellationToken = default)
+        {
+            var runningInstance = await Start(cancellationToken).ConfigureAwait(false);
+            return new DisposableEndpointInstance(runningInstance);
+        }
+#endif
+
         readonly PipelineComponent pipelineComponent;
         readonly RecoverabilityComponent recoverabilityComponent;
         readonly HostingComponent hostingComponent;
