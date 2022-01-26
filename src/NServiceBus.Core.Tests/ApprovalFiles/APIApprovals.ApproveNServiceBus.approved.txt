@@ -2672,6 +2672,7 @@ namespace NServiceBus.Transport
         public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+        public void UpdateBody(System.ReadOnlyMemory<byte> updatedBody) { }
     }
     public class PushRuntimeSettings
     {
