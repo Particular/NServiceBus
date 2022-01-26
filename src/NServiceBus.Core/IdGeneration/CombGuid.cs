@@ -38,32 +38,33 @@ namespace NServiceBus
             var days = new TimeSpan(now.Ticks - BaseDateTicks);
             var timeOfDay = now.TimeOfDay;
 
-            // Convert to a byte array
-            Span<byte> daysArray = stackalloc byte[sizeof(int)];
+            // Allocate a scratch buffer that is large enough to hold an int and a long so that we can reuse
+            Span<byte> scratchArray = stackalloc byte[sizeof(long)];
             // Reverse the bytes to match SQL Servers ordering
             if (BitConverter.IsLittleEndian)
             {
-                BinaryPrimitives.WriteInt32BigEndian(daysArray, days.Days);
+                BinaryPrimitives.WriteInt32BigEndian(scratchArray, days.Days);
             }
             else
             {
-                BinaryPrimitives.WriteInt32LittleEndian(daysArray, days.Days);
+                BinaryPrimitives.WriteInt32LittleEndian(scratchArray, days.Days);
             }
-            Span<byte> milliSecondsArray = stackalloc byte[sizeof(long)];
+            // Copy the two last bytes into the array slice
+            scratchArray.Slice(2, 2).CopyTo(guidArray.Slice(10, 2));
+            // No need to clear the scratch array because the writing the long will overwrite all bytes in the scratch array
+
             // Reverse the bytes to match SQL Servers ordering
             // Note that SQL Server is accurate to 1/300th of a millisecond so we divide by 3.333333
             if (BitConverter.IsLittleEndian)
             {
-                BinaryPrimitives.WriteInt64BigEndian(milliSecondsArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
+                BinaryPrimitives.WriteInt64BigEndian(scratchArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
             }
             else
             {
-                BinaryPrimitives.WriteInt64LittleEndian(milliSecondsArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
+                BinaryPrimitives.WriteInt64LittleEndian(scratchArray, (long)(timeOfDay.TotalMilliseconds / 3.333333));
             }
-
-            // // Copy the bytes into the guid
-            daysArray.Slice(daysArray.Length - 2).CopyTo(guidArray.Slice(10, 2));
-            milliSecondsArray.Slice(milliSecondsArray.Length - 4).CopyTo(guidArray.Slice(12, 4));
+            // Copy the last four bytes into the array slice
+            scratchArray.Slice(3, 4).CopyTo(guidArray.Slice(12, 4));
 
 #if NETCOREAPP
             return new Guid(guidArray);
