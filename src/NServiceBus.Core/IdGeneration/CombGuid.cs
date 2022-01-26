@@ -77,8 +77,6 @@ namespace NServiceBus
 #endif
         }
 
-        // Represents new DateTime(1900, 1, 1).Ticks, while this would be more readable having a const here instead of
-        // a static field the less readable version slightly improves the throughput
-        const long BaseDateTicks = 599266080000000000; // new DateTime(1900, 1, 1).Ticks
+        static readonly long BaseDateTicks = new DateTime(1900, 1, 1).Ticks;
     }
 }
