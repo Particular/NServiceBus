@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Features;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -101,9 +103,13 @@ namespace NServiceBus
 
         void ConfigureMessageTypes()
         {
+            IList<Type> availableTypes = settings.GetAvailableTypes();
+            //TODO we also could that lazily as part of the resolving strategy
+            conventions.Add(new UnobtrusiveConventions(availableTypes));
+
             var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
 
-            messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(availableTypes);
 
             settings.Set(messageMetadataRegistry);
 
@@ -141,5 +147,39 @@ namespace NServiceBus
         readonly SettingsHolder settings;
         readonly HostingComponent.Configuration hostingConfiguration;
         readonly Conventions conventions;
+    }
+
+    class UnobtrusiveConventions : IMessageConvention
+    {
+        List<Func<Type, bool>> messageConventions;
+        List<Func<Type, bool>> commandConventions;
+        List<Func<Type, bool>> eventConventions;
+
+        public UnobtrusiveConventions(IList<Type> availableTypes)
+        {
+            var conventionTypes = availableTypes.Where(t => t.Name.EndsWith("Convention")).ToList();
+            messageConventions = conventionTypes
+                .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Where(f => f.Name.Equals("IsMessageType") && f.FieldType == typeof(Func<Type, bool>)))
+                .Select(f => f.GetValue(f.DeclaringType) as Func<Type, bool>)
+                .ToList();
+            commandConventions = conventionTypes
+                .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Where(f => f.Name.Equals("IsCommandType") && f.FieldType == typeof(Func<Type, bool>)))
+                .Select(f => f.GetValue(f.DeclaringType) as Func<Type, bool>)
+                .ToList();
+            eventConventions = conventionTypes
+                .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Where(f => f.Name.Equals("IsEventType") && f.FieldType == typeof(Func<Type, bool>)))
+                .Select(f => f.GetValue(f.DeclaringType) as Func<Type, bool>)
+                .ToList();
+        }
+
+        public string Name { get; }
+        public bool IsMessageType(Type type) => messageConventions.Any(c => c(type));
+
+        public bool IsCommandType(Type type) => commandConventions.Any(c => c(type));
+
+        public bool IsEventType(Type type) => eventConventions.Any(c => c(type));
     }
 }
