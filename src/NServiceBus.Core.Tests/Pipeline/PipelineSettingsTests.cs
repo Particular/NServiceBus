@@ -18,7 +18,9 @@ namespace NServiceBus.Core.Tests.Pipeline
             pipelineSettings.PreventChanges();
 
             Assert.Throws<InvalidOperationException>(() => pipelineSettings.Register(typeof(Behavior1), "newStep"));
+#pragma warning disable 618 
             Assert.Throws<InvalidOperationException>(() => pipelineSettings.Remove("newStep"));
+#pragma warning restore 618
             Assert.Throws<InvalidOperationException>(() => pipelineSettings.Replace("newStep", typeof(Behavior1)));
         }
 

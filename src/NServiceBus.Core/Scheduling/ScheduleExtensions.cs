@@ -8,6 +8,10 @@ namespace NServiceBus
     /// <summary>
     /// Extends the context with scheduling capabilities.
     /// </summary>
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8",
+        RemoveInVersion = "9",
+        Message = "The built-in scheduler will no longer be supported, see our upgrade guide for details on how to migrate to plain .NET Timers.")]
     public static class ScheduleExtensions
     {
         /// <summary>
@@ -16,6 +20,10 @@ namespace NServiceBus
         /// <param name="session">The session which allows you to perform message operation.</param>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
         /// <param name="task">The async function to execute.</param>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9",
+            Message = "The built-in scheduler will no longer be supported, see our upgrade guide for details on how to migrate to plain .NET Timers.")]
         public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelineContext, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);
@@ -38,6 +46,10 @@ namespace NServiceBus
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
         /// <param name="task">The async function to execute.</param>
         /// <param name="name">The name to used for logging the task being executed.</param>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "8",
+            RemoveInVersion = "9",
+            Message = "The built-in scheduler will no longer be supported, see our upgrade guide for details on how to migrate to plain .NET Timers.")]
         public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);

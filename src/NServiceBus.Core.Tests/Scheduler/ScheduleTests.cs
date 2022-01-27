@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Scheduling.Tests
+﻿#pragma warning disable 618
+namespace NServiceBus.Scheduling.Tests
 {
     using System;
     using System.Threading.Tasks;
@@ -92,3 +93,4 @@
         }
     }
 }
+#pragma warning restore 618
