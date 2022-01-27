@@ -1,6 +1,7 @@
 namespace NServiceBus.Extensibility
 {
     using System.Collections.Generic;
+    using Pipeline;
 
     /// <summary>
     /// A string object bag of context objects.
@@ -143,8 +144,15 @@ namespace NServiceBus.Extensibility
             }
         }
 
+        internal IBehavior[] Behaviors
+        {
+            get => behaviors ?? parentBag?.Behaviors;
+            set => behaviors = value;
+        }
+
         ContextBag parentBag;
 
         Dictionary<string, object> stash = new Dictionary<string, object>();
+        IBehavior[] behaviors;
     }
 }

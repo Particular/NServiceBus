@@ -42,6 +42,7 @@
 
         public Task Invoke(TContext context)
         {
+            context.Extensions.Behaviors = behaviors;
             return pipeline(context);
         }
 

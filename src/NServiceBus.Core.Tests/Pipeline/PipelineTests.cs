@@ -152,13 +152,11 @@
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-                var physicalMessageContext = new TestableIncomingPhysicalMessageContext();
-                physicalMessageContext.Extensions.Merge(context.Extensions);
+                var physicalMessageContext = new TestableIncomingPhysicalMessageContext { Extensions = new ContextBag(context.Extensions) };
 
                 await next(physicalMessageContext).ConfigureAwait(false);
 
-                var dispatchContext = new TestableBatchDispatchContext();
-                dispatchContext.Extensions.Merge(context.Extensions);
+                var dispatchContext = new TestableBatchDispatchContext { Extensions = new ContextBag(context.Extensions) };
 
                 await this.Fork(dispatchContext).ConfigureAwait(false);
             }
@@ -216,8 +214,7 @@
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-                var logicalMessageContext = new TestableIncomingLogicalMessageContext();
-                logicalMessageContext.Extensions.Merge(context.Extensions);
+                var logicalMessageContext = new TestableIncomingLogicalMessageContext { Extensions = new ContextBag(context.Extensions) };
 
                 return stage(logicalMessageContext);
             }
@@ -270,8 +267,7 @@
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-                var dispatchContext = new TestableDispatchContext();
-                dispatchContext.Extensions.Merge(context.Extensions);
+                var dispatchContext = new TestableDispatchContext { Extensions = new ContextBag(context.Extensions) };
 
                 return stage(dispatchContext);
             }
@@ -316,18 +312,13 @@
         class FakePipelineCache : IPipelineCache
         {
             public IPipeline<TContext> Pipeline<TContext>()
-                where TContext : IBehaviorContext
-            {
-                return (IPipeline<TContext>)new FakeBatchPipeline();
-            }
+                where TContext : IBehaviorContext =>
+                (IPipeline<TContext>)new FakeBatchPipeline();
         }
 
         class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
         {
-            public Task Invoke(IBatchDispatchContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Invoke(IBatchDispatchContext context) => Task.CompletedTask;
         }
     }
 
