@@ -1,0 +1,6 @@
+context0 => Convert(context0.Extensions.Behaviors[0], StageFork).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
+    context1 => Convert(context1.Extensions.Behaviors[1], Behavior1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
+        context2 => Convert(context2.Extensions.Behaviors[2], Stage1).Invoke(context2, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
+            context3 => Convert(context3.Extensions.Behaviors[3], Behavior2).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
+                context4 => Convert(context4.Extensions.Behaviors[4], Stage2).Invoke(context4, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
+                    context5 => Convert(context5.Extensions.Behaviors[5], Terminator).Invoke(context5, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),

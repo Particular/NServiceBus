@@ -23,14 +23,18 @@ namespace NServiceBus.AcceptanceTests.Core.Pipeline
             var pipelineLogs = context.Logs.Where(x => x.LoggerName.StartsWith("NServiceBus.Pipeline"))
                 .Distinct(LoggerNameComparer.Instance).Select(x => x.Message);
 
-#if NET5_0_OR_GREATER
-            // System.Threading.Tasks.Task has changed to System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult] in .NET 5
-            // This ifdef is to make sure the new type is only validated for .NET 5 or greater.
-            var scenario = "net5";
+            // The output varies between TFMs, so a separate approval file is created for each framework.
+            // If a TFM gets added to the test project in the future, it intentionally will create a new
+            // "unknown" approval file, which will fail. The test should be updated to handle the new TFM.
+#if NET472
+            var scenario = "net472";
+#elif NETCOREAPP3_1
+            var scenario = "netcoreapp3.1";
+#elif NET6_0
+            var scenario = "net6.0";
 #else
-            var scenario = string.Empty;
+            var scenario = "unknown";
 #endif
-
             Approver.Verify(string.Join(Environment.NewLine, pipelineLogs), scenario: scenario);
         }
 
