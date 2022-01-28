@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Transport;
@@ -15,18 +13,7 @@
         [SetUp]
         public void Setup()
         {
-            dispatcher = new FakeDispatcher();
-        }
-
-        [Test]
-        public async Task Should_float_transport_transaction_to_dispatcher()
-        {
-            var delayedRetryExecutor = CreateExecutor();
-            var errorContext = CreateErrorContext();
-
-            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero);
-
-            Assert.AreEqual(dispatcher.Transaction, errorContext.TransportTransaction);
+            dispatchCollector = new DispatchCollector();
         }
 
         [Test]
@@ -36,14 +23,10 @@
             var errorContext = CreateErrorContext();
             var delay = TimeSpan.FromSeconds(42);
 
-            await delayedRetryExecutor.Retry(errorContext, delay);
+            await delayedRetryExecutor.Retry(errorContext, delay, dispatchCollector.Collect);
 
-            var transportOperation = dispatcher.UnicastTransportOperations.Single();
-            var deliveryConstraint = transportOperation.Properties.DelayDeliveryWith;
-
-            Assert.AreEqual(transportOperation.Destination, errorContext.ReceiveAddress);
-            Assert.IsNotNull(deliveryConstraint);
-            Assert.AreEqual(delay, deliveryConstraint.Delay);
+            Assert.AreEqual(errorContext.ReceiveAddress, dispatchCollector.Destination);
+            Assert.AreEqual(delay, dispatchCollector.Delay);
         }
 
         [Test]
@@ -59,11 +42,11 @@
             });
 
             var now = DateTimeOffset.UtcNow;
-            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero);
+            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero, dispatchCollector.Collect);
 
             var incomingMessage = errorContext.Message;
 
-            var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;
+            var outgoingMessageHeaders = dispatchCollector.MessageHeaders;
 
             Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
             Assert.AreEqual("2", incomingMessage.Headers[Headers.DelayedRetries]);
@@ -81,9 +64,9 @@
             var delayedRetryExecutor = CreateExecutor();
             var errorContext = CreateErrorContext();
 
-            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero);
+            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero, dispatchCollector.Collect);
 
-            var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
+            var outgoingMessageHeaders = dispatchCollector.MessageHeaders;
 
             Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
             Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetries));
@@ -93,7 +76,7 @@
 
         DelayedRetryExecutor CreateExecutor()
         {
-            return new DelayedRetryExecutor(dispatcher);
+            return new DelayedRetryExecutor();
         }
 
         ErrorContext CreateErrorContext(Dictionary<string, string> headers = null)
@@ -101,22 +84,6 @@
             return new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(), "messageId", new byte[0], new TransportTransaction(), 0, "my-queue", new ContextBag());
         }
 
-        FakeDispatcher dispatcher;
-
-        class FakeDispatcher : IMessageDispatcher
-        {
-            public TransportOperations TransportOperations { get; private set; }
-
-            public List<UnicastTransportOperation> UnicastTransportOperations => TransportOperations.UnicastTransportOperations;
-
-            public TransportTransaction Transaction { get; private set; }
-
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
-            {
-                TransportOperations = outgoingMessages;
-                Transaction = transaction;
-                return Task.FromResult(0);
-            }
-        }
+        DispatchCollector dispatchCollector;
     }
 }

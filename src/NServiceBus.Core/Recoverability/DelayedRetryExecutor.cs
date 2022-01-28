@@ -10,12 +10,11 @@
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(IMessageDispatcher dispatcher)
-        {
-            this.dispatcher = dispatcher;
-        }
-
-        public async Task<int> Retry(ErrorContext errorContext, TimeSpan delay, CancellationToken cancellationToken = default)
+        public async Task<int> Retry(
+            ErrorContext errorContext,
+            TimeSpan delay,
+            Func<TransportOperation, CancellationToken, Task> dispatchAction,
+            CancellationToken cancellationToken = default)
         {
             var message = errorContext.Message;
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
@@ -29,15 +28,12 @@
             {
                 DelayDeliveryWith = new DelayDeliveryWith(delay)
             };
+
             var messageDestination = new UnicastAddressTag(errorContext.ReceiveAddress);
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties));
-
-            await dispatcher.Dispatch(transportOperations, errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
+            await dispatchAction(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties), cancellationToken).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }
-
-        IMessageDispatcher dispatcher;
     }
 }

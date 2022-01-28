@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
@@ -23,11 +24,11 @@
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysDelay(TimeSpan.FromDays(1)),
                 delayedRetriesSupported: false);
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, dispatcher);
 
-            //TODO: Assert.AreEqual("message-id", failure.Message.MessageId);
+            Assert.True(dispatcher.MessageWasSentTo(ErrorQueueAddress));
         }
 
         [Test]
@@ -36,11 +37,11 @@
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysRetry(),
                 immediateRetriesSupported: false);
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, dispatcher);
 
-            //TODO: Assert.AreEqual("message-id", failure.Message.MessageId);
+            Assert.True(dispatcher.MessageWasSentTo(ErrorQueueAddress));
         }
 
         [Test]
@@ -48,11 +49,11 @@
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.Unsupported());
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, dispatcher);
 
-            //TODO: Assert.AreEqual("message-id", failure.Message.MessageId);
+            Assert.True(dispatcher.MessageWasSentTo(ErrorQueueAddress));
         }
 
         [Test]
@@ -60,23 +61,24 @@
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.Discard("not needed anymore"));
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var errorContext = CreateErrorContext();
 
-            var result = await recoverabilityExecutor.Invoke(errorContext);
+            var result = await recoverabilityExecutor.Invoke(errorContext, dispatcher);
 
             Assert.AreEqual(ErrorHandleResult.Handled, result);
+            Assert.False(dispatcher.MessageWasSent());
         }
 
         [Test]
-        public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_be_set_on_notification()
+        public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_send_to_address()
         {
             var customErrorQueueAddress = "custom-error-queue";
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors(customErrorQueueAddress));
             var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(errorContext, dispatcher);
 
-            //TODO: Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
+            Assert.True(dispatcher.MessageWasSentTo(customErrorQueueAddress));
         }
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
@@ -91,7 +93,7 @@
                 delayedRetriesSupported,
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                delayedRetriesSupported ? new DelayedRetryExecutor(dispatcher) : null,
+                delayedRetriesSupported ? new DelayedRetryExecutor() : null,
                 new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }));
         }
 
@@ -165,13 +167,25 @@
 
         class FakeDispatcher : IMessageDispatcher
         {
-            public TransportOperations TransportOperations { get; private set; }
-
             public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {
-                TransportOperations = outgoingMessages;
+                Assert.False(outgoingMessages.MulticastTransportOperations.Any(), "Multicast should never happen");
+                Assert.IsNull(transportOperation, "Only a single dispatch is supported");
+                transportOperation = outgoingMessages.UnicastTransportOperations.Single();
                 return Task.CompletedTask;
             }
+
+            public bool MessageWasSentTo(string address)
+            {
+                return transportOperation.Destination == address;
+            }
+
+            public bool MessageWasSent()
+            {
+                return transportOperation != null;
+            }
+
+            UnicastTransportOperation transportOperation;
         }
     }
 }

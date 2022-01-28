@@ -2004,6 +2004,11 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
+    public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
+    {
+        NServiceBus.Transport.ErrorHandleResult ActionToTake { get; set; }
+        NServiceBus.Transport.ErrorContext ErrorContext { get; }
+    }
     public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.OutgoingMessage Message { get; }
@@ -2121,6 +2126,13 @@ namespace NServiceBus.Pipeline
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out NServiceBus.Transport.IncomingMessage message) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, out NServiceBus.Transport.IncomingMessage message) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingReplyContext context, out NServiceBus.Transport.IncomingMessage message) { }
+    }
+}
+namespace NServiceBus.Recoverability
+{
+    public static class RecoverabilityContextExtensions
+    {
+        public static System.Threading.Tasks.Task Dispatch(this NServiceBus.Pipeline.IRecoverabilityContext context, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations) { }
     }
 }
 namespace NServiceBus.Routing
@@ -2491,12 +2503,12 @@ namespace NServiceBus.Transport
         public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
         public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
     }
-    public class ErrorContext
+    public class ErrorContext : NServiceBus.Extensibility.IExtendable
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.IReadOnlyContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
-        public NServiceBus.Extensibility.IReadOnlyContextBag Extensions { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public string ReceiveAddress { get; }

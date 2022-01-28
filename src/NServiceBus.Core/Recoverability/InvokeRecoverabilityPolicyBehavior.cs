@@ -1,21 +1,18 @@
-﻿namespace NServiceBus.Recoverability
+﻿namespace NServiceBus
 {
-    using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
 
-    class InvokeRecoverabilityPolicyBehavior : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
+    class RecoverabilityPipelineTerminator : PipelineTerminator<IRecoverabilityContext>
     {
-        public InvokeRecoverabilityPolicyBehavior(RecoverabilityExecutor recoverabilityExecutor)
+        public RecoverabilityPipelineTerminator(RecoverabilityExecutor recoverabilityExecutor)
         {
             this.recoverabilityExecutor = recoverabilityExecutor;
         }
 
-        public async Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
+        protected override Task Terminate(IRecoverabilityContext context)
         {
-            context.ActionToTake = await recoverabilityExecutor.Invoke(context.ErrorContext).ConfigureAwait(false);
-
-            await next(context).ConfigureAwait(false);
+            return recoverabilityExecutor.Invoke(context);
         }
 
         readonly RecoverabilityExecutor recoverabilityExecutor;

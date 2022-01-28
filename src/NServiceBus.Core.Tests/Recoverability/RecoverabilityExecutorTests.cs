@@ -6,6 +6,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;
 
@@ -15,16 +17,16 @@
         [SetUp]
         public void SetUp()
         {
-            dispatcher = new FakeDispatcher();
+            dispatchCollector = new DispatchCollector();
         }
 
         [Test]
         public async Task When_failure_is_handled_with_immediate_retries_notification_should_be_raised()
         {
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry());
-            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
             var failure = messageRetriedNotifications.Single();
 
@@ -38,9 +40,9 @@
         public async Task When_failure_is_handled_with_delayed_retries_notification_should_be_raised()
         {
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysDelay(TimeSpan.FromSeconds(10)));
-            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
             var failure = messageRetriedNotifications.Single();
 
@@ -54,9 +56,9 @@
         public async Task When_failure_is_handled_by_moving_to_errors_notification_should_be_raised()
         {
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors());
-            var errorContext = CreateErrorContext(exceptionMessage: "test", messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(exceptionMessage: "test", messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -70,14 +72,11 @@
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysDelay(TimeSpan.FromDays(1)),
                 delayedRetriesSupported: false);
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
-            var failure = messageFaultedNotifications.Single();
-
-            Assert.IsEmpty(messageRetriedNotifications);
-            Assert.AreEqual("message-id", failure.Message.MessageId);
+            Assert.True(dispatchCollector.MessageWasSentTo(ErrorQueueAddress));
         }
 
         [Test]
@@ -86,14 +85,11 @@
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysRetry(),
                 immediateRetriesSupported: false);
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
-            var failure = messageFaultedNotifications.Single();
-
-            Assert.IsEmpty(messageRetriedNotifications);
-            Assert.AreEqual("message-id", failure.Message.MessageId);
+            Assert.True(dispatchCollector.MessageWasSentTo(ErrorQueueAddress));
         }
 
         [Test]
@@ -101,14 +97,11 @@
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.Unsupported());
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(messageId: "message-id");
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
-            var failure = messageFaultedNotifications.Single();
-
-            Assert.IsEmpty(messageRetriedNotifications);
-            Assert.AreEqual("message-id", failure.Message.MessageId);
+            Assert.True(dispatchCollector.MessageWasSentTo(ErrorQueueAddress));
         }
 
         [Test]
@@ -116,13 +109,14 @@
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.Discard("not needed anymore"));
-            var errorContext = CreateErrorContext(messageId: "message-id");
+            var recoverabilityContext = CreateRecoverabilityContext(messageId: "message-id");
 
-            var result = await recoverabilityExecutor.Invoke(errorContext);
+            var result = await recoverabilityExecutor.Invoke(recoverabilityContext);
 
             Assert.AreEqual(ErrorHandleResult.Handled, result);
             Assert.IsEmpty(messageRetriedNotifications);
             Assert.IsEmpty(messageFaultedNotifications);
+            Assert.True(dispatchCollector.NoMessageWasSent());
         }
 
         [Test]
@@ -130,9 +124,9 @@
         {
             var customErrorQueueAddress = "custom-error-queue";
             var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors(customErrorQueueAddress));
-            var errorContext = CreateErrorContext();
+            var recoverabilityContext = CreateRecoverabilityContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
             var failure = messageFaultedNotifications.Single();
 
@@ -140,9 +134,10 @@
             Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
         }
 
-        static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
+        IRecoverabilityContext CreateRecoverabilityContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
         {
-            return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
+            var errorContext = new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
+            return new RecoverabilityContext(errorContext, new FakeRootContext(dispatchCollector));
         }
 
         RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool immediateRetriesSupported = true)
@@ -168,14 +163,13 @@
                 delayedRetriesSupported,
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                delayedRetriesSupported ? new DelayedRetryExecutor(dispatcher) : null,
+                delayedRetriesSupported ? new DelayedRetryExecutor() : null,
                 new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }),
                 messageRetryNotification,
                 messageFaultedNotification);
         }
 
-        FakeDispatcher dispatcher;
-
+        DispatchCollector dispatchCollector;
         List<MessageToBeRetried> messageRetriedNotifications;
         List<MessageFaulted> messageFaultedNotifications;
 
@@ -245,15 +239,80 @@
         {
         }
 
-        class FakeDispatcher : IMessageDispatcher
+        class DispatchCollector
         {
-            public TransportOperations TransportOperations { get; private set; }
+            string targetAddress;
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
+            public IDictionary<string, string> MessageHeaders { get; private set; }
+
+            public void Collect(TransportOperation transportOperation)
             {
-                TransportOperations = outgoingMessages;
+                var unicastAddressTag = transportOperation.AddressTag as UnicastAddressTag;
+
+                Assert.IsNotNull(unicastAddressTag);
+
+                targetAddress = unicastAddressTag.Destination;
+
+                MessageHeaders = transportOperation.Message.Headers;
+            }
+
+            public bool MessageWasSentTo(string address)
+            {
+                return address == targetAddress;
+            }
+
+            public bool NoMessageWasSent()
+            {
+                return targetAddress == null;
+            }
+        }
+
+        class FakeRootContext : IBehaviorContext
+        {
+            public FakeRootContext(DispatchCollector dispatchCollector)
+            {
+                Extensions = new ContextBag();
+
+                Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchCollector));
+            }
+
+            public IServiceProvider Builder => throw new NotImplementedException();
+
+            public CancellationToken CancellationToken => CancellationToken.None;
+
+            public ContextBag Extensions { get; }
+        }
+
+        class FakePipelineCache : IPipelineCache
+        {
+            public FakePipelineCache(DispatchCollector dispatchCollector)
+            {
+                this.dispatchCollector = dispatchCollector;
+            }
+
+            public IPipeline<TContext> Pipeline<TContext>() where TContext : IBehaviorContext
+            {
+                return (IPipeline<TContext>)new FakeDispatchPipeline(dispatchCollector);
+            }
+
+            readonly DispatchCollector dispatchCollector;
+        }
+
+        class FakeDispatchPipeline : IPipeline<IDispatchContext>
+        {
+            public FakeDispatchPipeline(DispatchCollector dispatchCollector)
+            {
+                this.dispatchCollector = dispatchCollector;
+            }
+
+            public Task Invoke(IDispatchContext context)
+            {
+                dispatchCollector.Collect(context.Operations.Single());
+
                 return Task.CompletedTask;
             }
+
+            DispatchCollector dispatchCollector;
         }
     }
 }

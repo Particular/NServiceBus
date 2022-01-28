@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Hosting;
-    using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.Pipeline;
     using Settings;
     using Support;
     using Transport;
@@ -24,17 +24,21 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IServiceProvider builder)
+        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory()
         {
             if (recoverabilityExecutorFactory == null)
             {
-                recoverabilityExecutorFactory = CreateRecoverabilityExecutorFactory(builder);
+                recoverabilityExecutorFactory = CreateRecoverabilityExecutorFactory();
             }
 
             return recoverabilityExecutorFactory;
         }
 
-        public void Initialize(ReceiveComponent.Configuration receiveConfiguration, HostingComponent.Configuration hostingConfiguration, TransportSeam transportSeam)
+        public void Initialize(
+            ReceiveComponent.Configuration receiveConfiguration,
+            HostingComponent.Configuration hostingConfiguration,
+            TransportSeam transportSeam,
+            PipelineSettings pipelineSettings)
         {
             if (receiveConfiguration.IsSendOnlyEndpoint)
             {
@@ -44,7 +48,6 @@
 
             hostInformation = hostingConfiguration.HostInformation;
             this.transportSeam = transportSeam;
-
             transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
 
             var errorQueue = settings.ErrorQueueAddress();
@@ -58,6 +61,15 @@
 
             recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
+            pipelineSettings.Register(serviceProvider =>
+            {
+                var factory = CreateRecoverabilityExecutorFactory();
+
+                var executor = factory.CreateRecoverabilityExecutor();
+
+                return new RecoverabilityPipelineTerminator(executor);
+            }, "Executes the configured retry policy");
+
             hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
             {
                 ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
@@ -68,7 +80,29 @@
             });
         }
 
-        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IServiceProvider builder)
+        public RecoverabilityPipelineExecutor CreateRecoverabilityPipelineExecutor(
+            IServiceProvider serviceProvider,
+            IPipelineCache pipelineCache,
+            PipelineComponent pipeline,
+            MessageOperations messageOperations)
+        {
+            var recoverabilityPipeline = pipeline.CreatePipeline<IRecoverabilityContext>(serviceProvider);
+
+            return new RecoverabilityPipelineExecutor(
+                serviceProvider,
+                pipelineCache,
+                messageOperations,
+                recoverabilityPipeline);
+        }
+
+        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy)
+        {
+            var factory = CreateRecoverabilityExecutorFactory();
+
+            return factory.CreateSatelliteRecoverabilityExecutor(recoverabilityPolicy);
+        }
+
+        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
         {
             var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
             var immediateRetriesAvailable = transactionsOn;
@@ -92,7 +126,7 @@
             {
                 if (delayedRetriesAvailable)
                 {
-                    return new DelayedRetryExecutor(builder.GetRequiredService<IMessageDispatcher>());
+                    return new DelayedRetryExecutor();
                 }
 
                 return null;

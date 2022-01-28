@@ -25,7 +25,7 @@
             this.messageFaultedNotification = messageFaultedNotification;
         }
 
-        public RecoverabilityExecutor CreateDefault()
+        public RecoverabilityExecutor CreateRecoverabilityExecutor()
         {
             var delayedRetryExecutor = delayedRetryExecutorFactory();
             var moveToErrorsExecutor = moveToErrorsExecutorFactory();
