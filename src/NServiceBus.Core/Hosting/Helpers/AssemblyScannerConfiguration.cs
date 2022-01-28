@@ -17,6 +17,11 @@
         public bool ScanAppDomainAssemblies { get; set; } = true;
 
         /// <summary>
+        /// Determines if the scanner should scan assemblies from the application directory.
+        /// </summary>
+        public bool ScanFileSystemAssemblies { get; set; } = true;
+
+        /// <summary>
         /// Defines whether exceptions occurring during assembly scanning should be rethrown or ignored. Default value is <code>true</code>.
         /// </summary>
         public bool ThrowExceptions { get; set; } = true;

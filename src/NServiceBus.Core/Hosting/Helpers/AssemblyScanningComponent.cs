@@ -11,12 +11,12 @@
     {
         public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
         {
-            var shouldScanBinDirectory = configuration.UserProvidedTypes == null;
+            var shouldScanAssemblies = configuration.UserProvidedTypes == null;
 
             List<Type> availableTypes;
             AssemblyScanner assemblyScanner;
 
-            if (shouldScanBinDirectory)
+            if (shouldScanAssemblies)
             {
                 var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
@@ -35,16 +35,19 @@
             assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
             assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
             assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
+            assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
             assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
             assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
 
             var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
+            // Always scan the NServiceBus core because we rely on type discovery for internal features
+            assemblyScanner.AddTypesToResult(Assembly.GetExecutingAssembly(), scannableAssemblies);
 
             availableTypes = availableTypes.Union(scannableAssemblies.Types).ToList();
 
             configuration.SetDefaultAvailableTypes(availableTypes);
 
-            if (shouldScanBinDirectory)
+            if (shouldScanAssemblies)
             {
                 settings.AddStartupDiagnosticsSection("AssemblyScanning", new
                 {

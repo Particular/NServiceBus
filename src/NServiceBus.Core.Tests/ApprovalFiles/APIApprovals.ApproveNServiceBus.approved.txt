@@ -17,6 +17,7 @@ namespace NServiceBus
         public string AdditionalAssemblyScanningPath { get; set; }
         public bool ScanAppDomainAssemblies { get; set; }
         public bool ScanAssembliesInNestedDirectories { get; set; }
+        public bool ScanFileSystemAssemblies { get; set; }
         public bool ThrowExceptions { get; set; }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
@@ -1582,6 +1583,7 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScanner() { }
         public AssemblyScanner(string baseDirectoryToScan) { }
         public bool ScanAppDomainAssemblies { get; set; }
+        public bool ScanFileSystemAssemblies { get; set; }
         public bool ThrowExceptions { get; set; }
         public NServiceBus.Hosting.Helpers.AssemblyScannerResults GetScannableAssemblies() { }
     }
