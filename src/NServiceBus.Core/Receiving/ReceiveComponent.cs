@@ -185,7 +185,7 @@ namespace NServiceBus
                 {
                     var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy);
+                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.CreateSatelliteRecoverabilityExecutor(satellite.RecoverabilityPolicy);
 
                     await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
                         satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);

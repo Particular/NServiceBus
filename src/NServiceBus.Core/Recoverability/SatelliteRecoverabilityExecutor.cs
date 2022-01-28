@@ -6,24 +6,20 @@
     using Logging;
     using Transport;
 
-    class RecoverabilityExecutor
+    class SatelliteRecoverabilityExecutor
     {
-        public RecoverabilityExecutor(
+        public SatelliteRecoverabilityExecutor(
             bool immediateRetriesAvailable,
             bool delayedRetriesAvailable,
             Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy,
             RecoverabilityConfig configuration,
             DelayedRetryExecutor delayedRetryExecutor,
-            MoveToErrorsExecutor moveToErrorsExecutor,
-            INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
-            INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
+            MoveToErrorsExecutor moveToErrorsExecutor)
         {
             this.configuration = configuration;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
-            this.messageRetryNotification = messageRetryNotification;
-            this.messageFaultedNotification = messageFaultedNotification;
             this.immediateRetriesAvailable = immediateRetriesAvailable;
             this.delayedRetriesAvailable = delayedRetriesAvailable;
         }
@@ -71,20 +67,11 @@
             return MoveToError(errorContext, configuration.Failed.ErrorQueue, cancellationToken);
         }
 
-        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
+        Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
         {
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
-            await messageRetryNotification.Raise(
-                    new MessageToBeRetried(
-                        attempt: errorContext.ImmediateProcessingFailures - 1,
-                        delay: TimeSpan.Zero,
-                        immediateRetry: true,
-                        errorContext: errorContext),
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            return ErrorHandleResult.RetryRequired;
+            return Task.FromResult(ErrorHandleResult.RetryRequired);
         }
 
         async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue, CancellationToken cancellationToken)
@@ -95,8 +82,6 @@
 
             await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, errorContext, cancellationToken).ConfigureAwait(false);
 
-            await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue), cancellationToken).ConfigureAwait(false);
-
             return ErrorHandleResult.Handled;
         }
 
@@ -106,22 +91,11 @@
 
             Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
 
-            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(errorContext, action.Delay, cancellationToken).ConfigureAwait(false);
-
-            await messageRetryNotification.Raise(
-                    new MessageToBeRetried(
-                        attempt: currentDelayedRetriesAttempts,
-                        delay: action.Delay,
-                        immediateRetry: false,
-                        errorContext: errorContext),
-                    cancellationToken)
-                .ConfigureAwait(false);
+            await delayedRetryExecutor.Retry(errorContext, action.Delay, cancellationToken).ConfigureAwait(false);
 
             return ErrorHandleResult.Handled;
         }
 
-        readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
-        readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
         Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy;
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;

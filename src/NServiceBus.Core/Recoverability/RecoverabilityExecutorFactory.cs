@@ -27,29 +27,32 @@
 
         public RecoverabilityExecutor CreateDefault()
         {
-            return Create(defaultRecoverabilityPolicy, raiseNotifications: true);
-        }
-
-        public RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy)
-        {
-            return Create(customRecoverabilityPolicy, raiseNotifications: false);
-        }
-
-        RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, bool raiseNotifications)
-        {
             var delayedRetryExecutor = delayedRetryExecutorFactory();
             var moveToErrorsExecutor = moveToErrorsExecutorFactory();
 
             return new RecoverabilityExecutor(
-                raiseNotifications,
                 immediateRetriesAvailable,
                 delayedRetriesAvailable,
-                customRecoverabilityPolicy,
+                defaultRecoverabilityPolicy,
                 configuration,
                 delayedRetryExecutor,
                 moveToErrorsExecutor,
                 messageRetryNotification,
                 messageFaultedNotification);
+        }
+
+        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy)
+        {
+            var delayedRetryExecutor = delayedRetryExecutorFactory();
+            var moveToErrorsExecutor = moveToErrorsExecutorFactory();
+
+            return new SatelliteRecoverabilityExecutor(
+                immediateRetriesAvailable,
+                delayedRetriesAvailable,
+                customRecoverabilityPolicy,
+                configuration,
+                delayedRetryExecutor,
+                moveToErrorsExecutor);
         }
 
         readonly bool immediateRetriesAvailable;
