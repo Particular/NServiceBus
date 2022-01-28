@@ -45,7 +45,6 @@
                     !x.FullName.StartsWith("LightInject") &&
                     !x.FullName.StartsWith("SimpleJson") &&
                     !x.FullName.StartsWith("FastExpressionCompiler") &&
-                    x.Name != "GitVersionInformation" &&
                     x.Namespace != "Particular.Licensing" &&
                     x.Namespace != "NServiceBus.Features" &&
                     x.Name != "NServiceBusCore_ProcessedByFody" &&
@@ -110,20 +109,9 @@
         static IEnumerable<Type> GetAttributeTypes()
         {
             return typeof(Endpoint).Assembly.GetTypes()
-                .Where(type => type.Namespace != null &&
-                               typeof(Attribute).IsAssignableFrom(type) &&
-                               //Ignore log4net attributes
-                               !type.Namespace.Contains("log4net") &&
-                               //Ignore Newtonsoft attributes
-                               !type.Namespace.Contains("Newtonsoft") &&
-                               //Ignore Resharper annotations
-                               !type.Namespace.Contains("JetBrains") &&
-                               //Ignore LightInject attributes
-                               !type.Namespace.Contains("LightInject") &&
-                               !type.Namespace.Contains("SimpleJson") &&
-                               //TODO: remove when gitversion is updated
-                               !type.Name.EndsWith("ReleaseDateAttribute") &&
-                               !type.Name.EndsWith("NugetVersionAttribute"));
+                .Where(type => typeof(Attribute).IsAssignableFrom(type) &&
+                               type.Namespace != null &&
+                               !type.Namespace.Contains("LightInject"));
         }
     }
 }
