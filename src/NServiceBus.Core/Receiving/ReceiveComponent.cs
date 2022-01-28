@@ -161,11 +161,11 @@ namespace NServiceBus
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
             var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
 
-            var recoverability = recoverabilityExecutorFactory
+            var recoverabilityExecutor = recoverabilityExecutorFactory
                 .CreateDefault();
 
             await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke, cancellationToken).ConfigureAwait(false);
+                recoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
             receivers.Add(mainPump);
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
