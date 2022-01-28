@@ -13,17 +13,15 @@
     static class PipelineExecutionExtensions
     {
         public static Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(this IBehavior[] behaviors, List<Expression> expressions = null)
-            where TRootContext : IBehaviorContext
-        {
-            return (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression(expressions);
-        }
+            where TRootContext : IBehaviorContext =>
+            (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression(expressions);
 
         /// <code>
         /// rootContext
-        ///    => behavior1.Invoke(rootContext,
-        ///       context1 => behavior2.Invoke(context1,
+        ///    => ((Behavior1)rootContext.Extensions.Behaviors[0]).Invoke(rootContext,
+        ///       context1 => ((Behavior2)context2.Extensions.Behaviors[1]).Invoke(context1,
         ///        ...
-        ///          context{N} => behavior{N}.Invoke(context{N},
+        ///          context{N} => ((Behavior{N})context{N}.Extensions.Behaviors[{N-1}]).Invoke(context{N},
         ///             context{N+1} => TaskEx.Completed))
         /// </code>
         public static Delegate CreatePipelineExecutionExpression(this IBehavior[] behaviors, List<Expression> expressions = null)
@@ -66,7 +64,7 @@
         }
 
         /// <code>
-        /// context{i} => behavior.Invoke(context{i}, context{i+1} => ((BehaviorType)context{i+1}.Extensions.Behaviors[i]).Invoke(...))
+        /// context{i} => ((BehaviorType)context{i}.Extensions.Behaviors[i]).Invoke(context{i+1} => previous)
         /// </code>>
         static Delegate CreateBehaviorCallDelegate(MethodInfo methodInfo, ParameterExpression outerContextParam, Type behaviorType, Delegate previous, int i, List<Expression> expressions = null)
         {
