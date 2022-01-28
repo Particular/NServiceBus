@@ -33,8 +33,6 @@
 
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
-            //TODO: using (var childScope = rootBuilder.CreateScope())
-
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 
             if (recoveryAction is Discard discard)
