@@ -29,10 +29,6 @@ namespace NServiceBus
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
 
-                //TODO: Should we do it like this?
-                messageContext.Extensions.Set(pipelineCache);
-                messageContext.Extensions.Set(rootBuilder);
-
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 
                 try
