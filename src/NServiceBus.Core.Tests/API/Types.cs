@@ -13,7 +13,7 @@
             var violators = NServiceBusAssembly.Types
                 .Where(type => type.IsStatic())
                 .Where(type => type.Name.Length > 1)
-                .Where(type => type.Name.StartsWith("I", StringComparison.Ordinal))
+                .Where(type => type.Name.StartsWith("I", StringComparison.Ordinal) && !type.Name.StartsWith("FastExpressionCompiler"))
                 .Where(type => char.IsUpper(type.Name.ElementAt(1)))
                 .Prettify()
                 .ToList();
