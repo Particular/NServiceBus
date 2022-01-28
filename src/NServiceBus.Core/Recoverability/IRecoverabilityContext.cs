@@ -8,9 +8,9 @@
     public interface IRecoverabilityContext : IBehaviorContext
     {
         /// <summary>
-        /// The message that failed processing.
+        /// Context for the message that failed processing.
         /// </summary>
-        IncomingMessage FailedMessage { get; }
+        ErrorContext ErrorContext { get; }
 
         /// <summary>
         /// The recoverability action to take for the failed message.

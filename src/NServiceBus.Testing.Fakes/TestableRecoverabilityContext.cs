@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Extensibility;
     using Pipeline;
     using Transport;
 
@@ -13,7 +14,15 @@
         /// <summary>
         /// The message that failed processing.
         /// </summary>
-        public IncomingMessage FailedMessage { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
+        public ErrorContext ErrorContext { get; set; } = new ErrorContext(
+            new Exception(),
+            new Dictionary<string, string>(),
+            Guid.NewGuid().ToString(),
+            ReadOnlyMemory<byte>.Empty,
+            new TransportTransaction(),
+            0,
+            "",
+            new ContextBag());
 
         /// <summary>
         /// The recoverability action to take for the failed message.
