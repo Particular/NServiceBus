@@ -12,7 +12,7 @@
         public async Task Should_add_host_related_headers()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageThatFails())).DoNotFailOnErrorMessages())
+                .WithEndpoint<EndpointWithFailingMessage>(b => b.When((session, c) => session.SendLocal(new MessageThatFails())).DoNotFailOnErrorMessages())
                 .WithEndpoint<EndpointThatHandlesErrorMessages>()
                 .Done(c => c.Done)
                 .Run();
@@ -32,9 +32,9 @@
             public string Machine { get; set; }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        public class EndpointWithFailingMessage : EndpointConfigurationBuilder
         {
-            public EndpointWithAuditOn()
+            public EndpointWithFailingMessage()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
@@ -58,9 +58,9 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageThatFails>
+            public class MessageThatFailsHandler : IHandleMessages<MessageThatFails>
             {
-                public MessageToBeAuditedHandler(Context context)
+                public MessageThatFailsHandler(Context context)
                 {
                     testContext = context;
                 }
