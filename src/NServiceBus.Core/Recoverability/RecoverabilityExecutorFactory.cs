@@ -6,7 +6,6 @@
     class RecoverabilityExecutorFactory
     {
         public RecoverabilityExecutorFactory(
-            Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy,
             RecoverabilityConfig configuration,
             Func<DelayedRetryExecutor> delayedRetryExecutorFactory,
             Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory,
@@ -16,7 +15,6 @@
             INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
         {
             this.configuration = configuration;
-            this.defaultRecoverabilityPolicy = defaultRecoverabilityPolicy;
             this.delayedRetryExecutorFactory = delayedRetryExecutorFactory;
             this.moveToErrorsExecutorFactory = moveToErrorsExecutorFactory;
             this.immediateRetriesAvailable = immediateRetriesAvailable;
@@ -33,7 +31,6 @@
             return new RecoverabilityExecutor(
                 immediateRetriesAvailable,
                 delayedRetriesAvailable,
-                defaultRecoverabilityPolicy,
                 configuration,
                 delayedRetryExecutor,
                 moveToErrorsExecutor,
@@ -60,7 +57,6 @@
         readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
         readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
 
-        Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy;
         Func<DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory;
         RecoverabilityConfig configuration;

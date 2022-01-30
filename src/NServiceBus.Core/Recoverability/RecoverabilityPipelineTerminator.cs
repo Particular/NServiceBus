@@ -10,9 +10,10 @@
             this.recoverabilityExecutor = recoverabilityExecutor;
         }
 
-        protected override Task Terminate(IRecoverabilityContext context)
+        protected override async Task Terminate(IRecoverabilityContext context)
         {
-            return recoverabilityExecutor.Invoke(context);
+            //TODO: figure out a better way
+            ((RecoverabilityContext)context).ActionToTake = await recoverabilityExecutor.Invoke(context).ConfigureAwait(false);
         }
 
         readonly RecoverabilityExecutor recoverabilityExecutor;

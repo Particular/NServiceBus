@@ -88,10 +88,19 @@
         {
             var recoverabilityPipeline = pipeline.CreatePipeline<IRecoverabilityContext>(serviceProvider);
 
+            if (!settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
+            {
+                policy = DefaultRecoverabilityPolicy.Invoke;
+            };
+
             return new RecoverabilityPipelineExecutor(
                 serviceProvider,
                 pipelineCache,
                 messageOperations,
+                (errorContext) =>
+                {
+                    return policy(recoverabilityConfig, errorContext);
+                },
                 recoverabilityPipeline);
         }
 
@@ -132,13 +141,7 @@
                 return null;
             };
 
-            if (!settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
-            {
-                policy = DefaultRecoverabilityPolicy.Invoke;
-            }
-
             return new RecoverabilityExecutorFactory(
-                policy,
                 recoverabilityConfig,
                 delayedRetryExecutorFactory,
                 moveToErrorsExecutorFactory,

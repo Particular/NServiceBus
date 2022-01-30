@@ -25,8 +25,8 @@
             new ContextBag());
 
         /// <summary>
-        /// The recoverability action to take for the failed message.
+        /// The recoverability action to take for this message.
         /// </summary>
-        public ErrorHandleResult ActionToTake { get; set; }
+        public RecoverabilityAction RecoverabilityAction { get; set; }
     }
 }

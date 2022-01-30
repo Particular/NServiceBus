@@ -14,7 +14,6 @@
         public RecoverabilityExecutor(
             bool immediateRetriesAvailable,
             bool delayedRetriesAvailable,
-            Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy,
             RecoverabilityConfig configuration,
             DelayedRetryExecutor delayedRetryExecutor,
             MoveToErrorsExecutor moveToErrorsExecutor,
@@ -22,7 +21,6 @@
             INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
         {
             this.configuration = configuration;
-            this.recoverabilityPolicy = recoverabilityPolicy;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
             this.messageRetryNotification = messageRetryNotification;
@@ -34,7 +32,7 @@
         public Task<ErrorHandleResult> Invoke(IRecoverabilityContext recoverabilityContext)
         {
             var errorContext = recoverabilityContext.ErrorContext;
-            var recoveryAction = recoverabilityPolicy(configuration, errorContext);
+            var recoveryAction = recoverabilityContext.RecoverabilityAction;
 
             if (recoveryAction is Discard discard)
             {
@@ -142,7 +140,6 @@
 
         readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
         readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
-        Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy;
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
         bool immediateRetriesAvailable;

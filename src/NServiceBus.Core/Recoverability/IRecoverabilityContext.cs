@@ -13,8 +13,8 @@
         ErrorContext ErrorContext { get; }
 
         /// <summary>
-        /// The recoverability action to take for the failed message.
+        /// The recoverability action to take for this message.
         /// </summary>
-        ErrorHandleResult ActionToTake { get; set; }
+        RecoverabilityAction RecoverabilityAction { get; set; }
     }
 }
