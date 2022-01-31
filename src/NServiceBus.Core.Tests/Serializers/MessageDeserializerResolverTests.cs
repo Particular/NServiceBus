@@ -61,6 +61,24 @@
             Assert.AreEqual(defaultSerializer, serializer);
         }
 
+        [TestCase(null)]
+        [TestCase("")]
+        public void EmptylContentTypeFallsBackToDefaultSerialization(string headerValue)
+        {
+            var defaultSerializer = new FakeSerializer(ContentTypes.Xml);
+            var resolver = new MessageDeserializerResolver(defaultSerializer, new IMessageSerializer[]
+            {
+                new FakeSerializer(ContentTypes.Json)
+            });
+
+            var serializer = resolver.Resolve(new Dictionary<string, string>()
+            {
+                { Headers.ContentType, headerValue}
+            });
+
+            Assert.AreEqual(defaultSerializer, serializer);
+        }
+
         [Test]
         public void MultipleDeserializersWithSameContentTypeShouldThrowException()
         {
