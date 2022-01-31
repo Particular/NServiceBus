@@ -10,7 +10,7 @@
 
     class DelayedRetryExecutor
     {
-        public async Task<int> Retry(
+        public async Task Retry(
             ErrorContext errorContext,
             TimeSpan delay,
             Func<TransportOperation, CancellationToken, Task> dispatchAction,
@@ -32,8 +32,6 @@
             var messageDestination = new UnicastAddressTag(errorContext.ReceiveAddress);
 
             await dispatchAction(new TransportOperation(outgoingMessage, messageDestination, dispatchProperties), cancellationToken).ConfigureAwait(false);
-
-            return currentDelayedRetriesAttempt;
         }
     }
 }

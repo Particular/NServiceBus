@@ -21,52 +21,6 @@
         }
 
         [Test]
-        public async Task When_failure_is_handled_with_immediate_retries_notification_should_be_raised()
-        {
-            var recoverabilityExecutor = CreateExecutor();
-            var recoverabilityContext = CreateRecoverabilityContext(new ImmediateRetry(), numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
-
-            var failure = messageRetriedNotifications.Single();
-
-            Assert.AreEqual(0, failure.Attempt);
-            Assert.IsTrue(failure.IsImmediateRetry);
-            Assert.AreEqual("test", failure.Exception.Message);
-            Assert.AreEqual("message-id", failure.Message.MessageId);
-        }
-
-        [Test]
-        public async Task When_failure_is_handled_with_delayed_retries_notification_should_be_raised()
-        {
-            var recoverabilityExecutor = CreateExecutor();
-            var recoverabilityContext = CreateRecoverabilityContext(new DelayedRetry(TimeSpan.FromSeconds(10)), numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
-
-            var failure = messageRetriedNotifications.Single();
-
-            Assert.AreEqual(1, failure.Attempt);
-            Assert.IsFalse(failure.IsImmediateRetry);
-            Assert.AreEqual("test", failure.Exception.Message);
-            Assert.AreEqual("message-id", failure.Message.MessageId);
-        }
-
-        [Test]
-        public async Task When_failure_is_handled_by_moving_to_errors_notification_should_be_raised()
-        {
-            var recoverabilityExecutor = CreateExecutor();
-            var recoverabilityContext = CreateRecoverabilityContext(new MoveToError(ErrorQueueAddress), exceptionMessage: "test", messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
-
-            var failure = messageFaultedNotifications.Single();
-
-            Assert.AreEqual("test", failure.Exception.Message);
-            Assert.AreEqual("message-id", failure.Message.MessageId);
-        }
-
-        [Test]
         public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_errors()
         {
             var recoverabilityExecutor = CreateExecutor(delayedRetriesSupported: false);
@@ -108,24 +62,7 @@
 
             await recoverabilityExecutor.Invoke(recoverabilityContext);
 
-            Assert.IsEmpty(messageRetriedNotifications);
-            Assert.IsEmpty(messageFaultedNotifications);
             Assert.True(dispatchCollector.NoMessageWasSent());
-        }
-
-        [Test]
-        public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_be_set_on_notification()
-        {
-            var customErrorQueueAddress = "custom-error-queue";
-            var recoverabilityExecutor = CreateExecutor();
-            var recoverabilityContext = CreateRecoverabilityContext(new MoveToError(customErrorQueueAddress));
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
-
-            var failure = messageFaultedNotifications.Single();
-
-            Assert.IsEmpty(messageRetriedNotifications);
-            Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
         }
 
         IRecoverabilityContext CreateRecoverabilityContext(
@@ -136,40 +73,20 @@
             int numberOfDeliveryAttempts = 1)
         {
             var errorContext = new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
-            return new RecoverabilityContext(errorContext, recoverabilityAction, new FakeRootContext(dispatchCollector));
+            return new RecoverabilityContext(errorContext, null, recoverabilityAction, new FakeRootContext(dispatchCollector));
         }
 
         RecoverabilityExecutor CreateExecutor(bool delayedRetriesSupported = true, bool immediateRetriesSupported = true)
         {
-            messageRetriedNotifications = new List<MessageToBeRetried>();
-            var messageRetryNotification = new Notification<MessageToBeRetried>();
-            messageRetryNotification.Subscribe((e, _) =>
-            {
-                messageRetriedNotifications.Add(e);
-                return Task.FromResult(0);
-            });
-
-            messageFaultedNotifications = new List<MessageFaulted>();
-            var messageFaultedNotification = new Notification<MessageFaulted>();
-            messageFaultedNotification.Subscribe((e, _) =>
-            {
-                messageFaultedNotifications.Add(e);
-                return Task.FromResult(0);
-            });
-
             return new RecoverabilityExecutor(
                 immediateRetriesSupported,
                 delayedRetriesSupported,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
                 delayedRetriesSupported ? new DelayedRetryExecutor() : null,
-                new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }),
-                messageRetryNotification,
-                messageFaultedNotification);
+                new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }));
         }
 
         DispatchCollector dispatchCollector;
-        List<MessageToBeRetried> messageRetriedNotifications;
-        List<MessageFaulted> messageFaultedNotifications;
 
         static string ErrorQueueAddress = "error-queue";
 

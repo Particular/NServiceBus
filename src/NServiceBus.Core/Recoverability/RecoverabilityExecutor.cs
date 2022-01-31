@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
@@ -16,15 +14,11 @@
             bool delayedRetriesAvailable,
             RecoverabilityConfig configuration,
             DelayedRetryExecutor delayedRetryExecutor,
-            MoveToErrorsExecutor moveToErrorsExecutor,
-            INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
-            INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
+            MoveToErrorsExecutor moveToErrorsExecutor)
         {
             this.configuration = configuration;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
-            this.messageRetryNotification = messageRetryNotification;
-            this.messageFaultedNotification = messageFaultedNotification;
             this.immediateRetriesAvailable = immediateRetriesAvailable;
             this.delayedRetriesAvailable = delayedRetriesAvailable;
         }
@@ -49,7 +43,9 @@
 
             if (recoverabilityAction is ImmediateRetry)
             {
-                return RaiseImmediateRetryNotifications(errorContext, recoverabilityContext.CancellationToken);
+                Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
+
+                return Task.CompletedTask;
             }
 
             // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
@@ -73,22 +69,6 @@
             return MoveToError(recoverabilityContext, configuration.Failed.ErrorQueue);
         }
 
-        async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext, CancellationToken cancellationToken)
-        {
-            Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
-
-            await messageRetryNotification.Raise(
-                    new MessageToBeRetried(
-                        attempt: errorContext.ImmediateProcessingFailures - 1,
-                        delay: TimeSpan.Zero,
-                        immediateRetry: true,
-                        errorContext: errorContext),
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            return ErrorHandleResult.RetryRequired;
-        }
-
         async Task MoveToError(IRecoverabilityContext recoverabilityContext, string errorQueue)
         {
             var errorContext = recoverabilityContext.ErrorContext;
@@ -104,8 +84,6 @@
                     return recoverabilityContext.Dispatch(new List<TransportOperation> { transportOperation });
                 },
                 recoverabilityContext.CancellationToken).ConfigureAwait(false);
-
-            await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue), recoverabilityContext.CancellationToken).ConfigureAwait(false);
         }
 
         async Task DeferMessage(DelayedRetry action, IRecoverabilityContext recoverabilityContext)
@@ -115,7 +93,7 @@
 
             Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
 
-            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(
+            await delayedRetryExecutor.Retry(
                 errorContext,
                 action.Delay,
                 (transportOperation, token) =>
@@ -123,19 +101,8 @@
                     return recoverabilityContext.Dispatch(new List<TransportOperation> { transportOperation });
                 },
                 recoverabilityContext.CancellationToken).ConfigureAwait(false);
-
-            await messageRetryNotification.Raise(
-                    new MessageToBeRetried(
-                        attempt: currentDelayedRetriesAttempts,
-                        delay: action.Delay,
-                        immediateRetry: false,
-                        errorContext: errorContext),
-                    recoverabilityContext.CancellationToken)
-                .ConfigureAwait(false);
         }
 
-        readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
-        readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
         bool immediateRetriesAvailable;

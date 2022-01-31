@@ -2015,6 +2015,7 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Transport.ErrorContext ErrorContext { get; }
         NServiceBus.RecoverabilityAction RecoverabilityAction { get; set; }
+        NServiceBus.RecoverabilityConfig RecoverabilityConfiguration { get; }
         void PreventChanges();
     }
     public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext

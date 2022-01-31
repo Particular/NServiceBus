@@ -15,8 +15,8 @@
         {
             this.settings = settings;
             var configuration = settings.Get<Configuration>();
-            MessageRetryNotification = configuration.MessageRetryNotification;
-            MessageFaultedNotification = configuration.MessageFaultedNotification;
+            messageRetryNotification = configuration.MessageRetryNotification;
+            messageFaultedNotification = configuration.MessageFaultedNotification;
             settings.SetDefault(NumberOfDelayedRetries, DefaultNumberOfRetries);
             settings.SetDefault(DelayedRetriesTimeIncrease, DefaultTimeIncrease);
             settings.SetDefault(NumberOfImmediateRetries, 5);
@@ -61,6 +61,7 @@
 
             RecoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
+            pipelineSettings.Register(new RaiseRecoverabilityEventsBehavior(messageRetryNotification, messageFaultedNotification), "Emits the recoverability events.");
             pipelineSettings.Register(serviceProvider =>
             {
                 var factory = CreateRecoverabilityExecutorFactory();
@@ -97,6 +98,7 @@
                 serviceProvider,
                 pipelineCache,
                 messageOperations,
+                RecoverabilityConfig,
                 (errorContext) =>
                 {
                     return policy(RecoverabilityConfig, errorContext);
@@ -146,9 +148,7 @@
                 delayedRetryExecutorFactory,
                 moveToErrorsExecutorFactory,
                 immediateRetriesAvailable,
-                delayedRetriesAvailable,
-                MessageRetryNotification,
-                MessageFaultedNotification);
+                delayedRetriesAvailable);
         }
 
         ImmediateConfig GetImmediateRetryConfig()
@@ -185,8 +185,8 @@
         }
 
         public RecoverabilityConfig RecoverabilityConfig;
-        public Notification<MessageToBeRetried> MessageRetryNotification;
-        public Notification<MessageFaulted> MessageFaultedNotification;
+        Notification<MessageToBeRetried> messageRetryNotification;
+        Notification<MessageFaulted> messageFaultedNotification;
 
         IReadOnlySettings settings;
         bool transactionsOn;

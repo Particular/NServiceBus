@@ -13,6 +13,11 @@
         ErrorContext ErrorContext { get; }
 
         /// <summary>
+        /// The recoverability configuration for the endpoint.
+        /// </summary>
+        public RecoverabilityConfig RecoverabilityConfiguration { get; }
+
+        /// <summary>
         /// The recoverability action to take for this message.
         /// </summary>
         RecoverabilityAction RecoverabilityAction { get; set; }

@@ -9,17 +9,13 @@
             Func<DelayedRetryExecutor> delayedRetryExecutorFactory,
             Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory,
             bool immediateRetriesAvailable,
-            bool delayedRetriesAvailable,
-            INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
-            INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
+            bool delayedRetriesAvailable)
         {
             this.configuration = configuration;
             this.delayedRetryExecutorFactory = delayedRetryExecutorFactory;
             this.moveToErrorsExecutorFactory = moveToErrorsExecutorFactory;
             this.immediateRetriesAvailable = immediateRetriesAvailable;
             this.delayedRetriesAvailable = delayedRetriesAvailable;
-            this.messageRetryNotification = messageRetryNotification;
-            this.messageFaultedNotification = messageFaultedNotification;
         }
 
         public RecoverabilityExecutor CreateRecoverabilityExecutor()
@@ -32,9 +28,7 @@
                 delayedRetriesAvailable,
                 configuration,
                 delayedRetryExecutor,
-                moveToErrorsExecutor,
-                messageRetryNotification,
-                messageFaultedNotification);
+                moveToErrorsExecutor);
         }
 
         public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
@@ -52,8 +46,6 @@
 
         readonly bool immediateRetriesAvailable;
         readonly bool delayedRetriesAvailable;
-        readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
-        readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
 
         Func<DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory;

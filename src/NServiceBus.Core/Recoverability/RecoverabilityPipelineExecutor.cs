@@ -13,12 +13,14 @@
             IServiceProvider serviceProvider,
             IPipelineCache pipelineCache,
             MessageOperations messageOperations,
+            RecoverabilityConfig recoverabilityConfig,
             Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy,
             Pipeline<IRecoverabilityContext> recoverabilityPipeline)
         {
             this.serviceProvider = serviceProvider;
             this.pipelineCache = pipelineCache;
             this.messageOperations = messageOperations;
+            this.recoverabilityConfig = recoverabilityConfig;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.recoverabilityPipeline = recoverabilityPipeline;
         }
@@ -34,6 +36,7 @@
 
                 var recoverabilityContext = new RecoverabilityContext(
                     errorContext,
+                    recoverabilityConfig,
                     recoverabilityAction,
                     rootContext);
 
@@ -46,6 +49,7 @@
         readonly IServiceProvider serviceProvider;
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
+        readonly RecoverabilityConfig recoverabilityConfig;
         readonly Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy;
         readonly Pipeline<IRecoverabilityContext> recoverabilityPipeline;
     }

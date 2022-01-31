@@ -25,6 +25,14 @@
             new ContextBag());
 
         /// <summary>
+        /// The recoverability configuration for the endpoint.
+        /// </summary>
+        public RecoverabilityConfig RecoverabilityConfiguration { get; set; } = new RecoverabilityConfig(
+            new ImmediateConfig(0),
+            new DelayedConfig(0, TimeSpan.Zero),
+            new FailedConfig("error", new HashSet<Type>()));
+
+        /// <summary>
         /// The recoverability action to take for this message.
         /// </summary>
         public RecoverabilityAction RecoverabilityAction { get; set; }

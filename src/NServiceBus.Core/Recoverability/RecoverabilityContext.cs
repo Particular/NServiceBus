@@ -6,15 +6,20 @@
 
     class RecoverabilityContext : BehaviorContext, IRecoverabilityContext
     {
-        public RecoverabilityContext(ErrorContext errorContext, RecoverabilityAction recoverabilityAction, IBehaviorContext parent) : base(parent)
+        public RecoverabilityContext(
+            ErrorContext errorContext,
+            RecoverabilityConfig recoverabilityConfig,
+            RecoverabilityAction recoverabilityAction,
+            IBehaviorContext parent) : base(parent)
         {
-            Guard.AgainstNull(nameof(errorContext), errorContext);
             ErrorContext = errorContext;
-
+            RecoverabilityConfiguration = recoverabilityConfig;
             RecoverabilityAction = recoverabilityAction;
         }
 
         public ErrorContext ErrorContext { get; }
+
+        public RecoverabilityConfig RecoverabilityConfiguration { get; }
 
         public RecoverabilityAction RecoverabilityAction
         {
