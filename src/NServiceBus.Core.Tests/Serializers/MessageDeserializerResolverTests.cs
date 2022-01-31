@@ -63,7 +63,7 @@
 
         [TestCase(null)]
         [TestCase("")]
-        public void EmptylContentTypeFallsBackToDefaultSerialization(string headerValue)
+        public void EmptyContentTypeFallsBackToDefaultSerialization(string headerValue)
         {
             var defaultSerializer = new FakeSerializer(ContentTypes.Xml);
             var resolver = new MessageDeserializerResolver(defaultSerializer, new IMessageSerializer[]

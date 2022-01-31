@@ -13,10 +13,23 @@
     public class When_defining_serializer_with_no_content_type : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_fail_endpoint_startup()
+        public void Should_fail_endpoint_startup_for_default_serializer()
         {
             var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
-                .WithEndpoint<EndpointWithInvalidSerializer>()
+                .WithEndpoint<EndpointWithInvalidSerializer>(e => e
+                    .CustomConfig(c => c.UseSerialization<InvalidSerializer>()))
+                .Done(c => c.EndpointsStarted)
+                .Run());
+
+            StringAssert.Contains($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value.", exception.Message);
+        }
+
+        [Test]
+        public void Should_fail_endpoint_startup_for_additional_deserializer()
+        {
+            var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
+                .WithEndpoint<EndpointWithInvalidSerializer>(e => e
+                    .CustomConfig(c => c.AddDeserializer<InvalidSerializer>()))
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
@@ -25,10 +38,7 @@
 
         class EndpointWithInvalidSerializer : EndpointConfigurationBuilder
         {
-            public EndpointWithInvalidSerializer()
-            {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization<InvalidSerializer>());
-            }
+            public EndpointWithInvalidSerializer() => EndpointSetup<DefaultServer>();
         }
 
         class InvalidSerializer : SerializationDefinition, IMessageSerializer

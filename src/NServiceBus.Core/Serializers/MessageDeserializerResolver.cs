@@ -25,7 +25,7 @@
         {
             if (headers.TryGetValue(Headers.ContentType, out var contentType))
             {
-                if (serializersMap.TryGetValue(contentType ?? string.Empty, out var serializer))
+                if (contentType != null && serializersMap.TryGetValue(contentType, out var serializer))
                 {
                     return serializer;
                 }
