@@ -279,6 +279,10 @@ namespace NServiceBus
     {
         public string Reason { get; }
     }
+    public static class DisposableEndpointExtensions
+    {
+        public static System.Threading.Tasks.Task<NServiceBus.IDisposableEndpointInstance> AsDisposable(this System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> startTask) { }
+    }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }
@@ -489,6 +493,7 @@ namespace NServiceBus
         object GetValue();
         void SetValue(object value);
     }
+    public interface IDisposableEndpointInstance : NServiceBus.IEndpointInstance, NServiceBus.IMessageSession, System.IAsyncDisposable { }
     public interface IDistributionPolicy
     {
         NServiceBus.Routing.DistributionStrategy GetDistributionStrategy(string endpointName, NServiceBus.DistributionStrategyScope scope);
