@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Transport;
 
     class RecoverabilityExecutorFactory
     {
@@ -38,7 +37,7 @@
                 messageFaultedNotification);
         }
 
-        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy)
+        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
         {
             var delayedRetryExecutor = delayedRetryExecutorFactory();
             var moveToErrorsExecutor = moveToErrorsExecutorFactory();
@@ -46,7 +45,6 @@
             return new SatelliteRecoverabilityExecutor(
                 immediateRetriesAvailable,
                 delayedRetriesAvailable,
-                customRecoverabilityPolicy,
                 configuration,
                 delayedRetryExecutor,
                 moveToErrorsExecutor);

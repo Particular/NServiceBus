@@ -259,6 +259,7 @@ namespace NServiceBus
     public sealed class DelayedRetry : NServiceBus.RecoverabilityAction
     {
         public System.TimeSpan Delay { get; }
+        public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
     }
     public enum DependencyLifecycle
     {
@@ -277,6 +278,7 @@ namespace NServiceBus
     }
     public sealed class Discard : NServiceBus.RecoverabilityAction
     {
+        public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string Reason { get; }
     }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
@@ -590,7 +592,10 @@ namespace NServiceBus
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
     }
-    public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
+    public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction
+    {
+        public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
+    }
     [System.Obsolete("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
     public static class InMemoryGatewayPersistenceConfigurationExtensions
@@ -778,6 +783,7 @@ namespace NServiceBus
     }
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
+        public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
     }
     public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
@@ -894,6 +900,7 @@ namespace NServiceBus
     public abstract class RecoverabilityAction
     {
         protected RecoverabilityAction() { }
+        public abstract NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
@@ -2006,8 +2013,9 @@ namespace NServiceBus.Pipeline
     }
     public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
-        NServiceBus.Transport.ErrorHandleResult ActionToTake { get; set; }
         NServiceBus.Transport.ErrorContext ErrorContext { get; }
+        NServiceBus.RecoverabilityAction RecoverabilityAction { get; set; }
+        void PreventChanges();
     }
     public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Transport;
 
     /// <summary>
     /// Abstraction representing any recoverability action.
@@ -56,6 +57,11 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(reason), reason);
             return new Discard(reason);
         }
+
+        /// <summary>
+        /// The ErrorHandleResult that should be passed to the transport.
+        /// </summary>
+        public abstract ErrorHandleResult ErrorHandleResult { get; }
 
         static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
     }

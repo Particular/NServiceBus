@@ -106,9 +106,8 @@
             var recoverabilityContext = CreateRecoverabilityContext(new Discard("not needed anymore"), messageId: "message-id");
             ;
 
-            var result = await recoverabilityExecutor.Invoke(recoverabilityContext);
+            await recoverabilityExecutor.Invoke(recoverabilityContext);
 
-            Assert.AreEqual(ErrorHandleResult.Handled, result);
             Assert.IsEmpty(messageRetriedNotifications);
             Assert.IsEmpty(messageFaultedNotifications);
             Assert.True(dispatchCollector.NoMessageWasSent());
@@ -176,6 +175,7 @@
 
         class UnsupportedAction : RecoverabilityAction
         {
+            public override ErrorHandleResult ErrorHandleResult => throw new NotImplementedException();
         }
 
         class DispatchCollector

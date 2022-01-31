@@ -14,7 +14,7 @@
             IPipelineCache pipelineCache,
             MessageOperations messageOperations,
             Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy,
-        Pipeline<IRecoverabilityContext> recoverabilityPipeline)
+            Pipeline<IRecoverabilityContext> recoverabilityPipeline)
         {
             this.serviceProvider = serviceProvider;
             this.pipelineCache = pipelineCache;
@@ -39,7 +39,7 @@
 
                 await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
 
-                return recoverabilityContext.ActionToTake;
+                return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
             }
         }
 

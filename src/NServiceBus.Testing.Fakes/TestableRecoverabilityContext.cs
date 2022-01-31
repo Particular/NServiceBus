@@ -28,5 +28,18 @@
         /// The recoverability action to take for this message.
         /// </summary>
         public RecoverabilityAction RecoverabilityAction { get; set; }
+
+        /// <summary>
+        /// Locks the recoverability action for further changes.
+        /// </summary>
+        public void PreventChanges()
+        {
+            IsLocked = true;
+        }
+
+        /// <summary>
+        /// True if the recoverability action was locked.
+        /// </summary>
+        public bool IsLocked { get; set; } = false;
     }
 }

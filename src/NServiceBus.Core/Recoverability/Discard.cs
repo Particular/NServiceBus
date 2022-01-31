@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using NServiceBus.Transport;
+
     /// <summary>
     /// Indicates recoverability is required to discard/ignore the current message.
     /// </summary>
@@ -14,5 +16,10 @@ namespace NServiceBus
         /// The reason why a message was discarded.
         /// </summary>
         public string Reason { get; }
+
+        /// <summary>
+        /// How to handle the message from a transport perspective.
+        /// </summary>
+        public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
     }
 }

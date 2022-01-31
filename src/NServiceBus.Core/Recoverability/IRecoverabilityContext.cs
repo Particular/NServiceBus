@@ -16,5 +16,10 @@
         /// The recoverability action to take for this message.
         /// </summary>
         RecoverabilityAction RecoverabilityAction { get; set; }
+
+        /// <summary>
+        /// Locks the recoverability action for further changes.
+        /// </summary>
+        void PreventChanges();
     }
 }

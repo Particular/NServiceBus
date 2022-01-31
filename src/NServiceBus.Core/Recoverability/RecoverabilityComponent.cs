@@ -59,7 +59,7 @@
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
-            recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+            RecoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
             pipelineSettings.Register(serviceProvider =>
             {
@@ -72,11 +72,11 @@
 
             hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
             {
-                ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
-                DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
-                DelayedRetriesTimeIncrease = recoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
-                recoverabilityConfig.Failed.ErrorQueue,
-                UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
+                ImmediateRetries = RecoverabilityConfig.Immediate.MaxNumberOfRetries,
+                DelayedRetries = RecoverabilityConfig.Delayed.MaxNumberOfRetries,
+                DelayedRetriesTimeIncrease = RecoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
+                RecoverabilityConfig.Failed.ErrorQueue,
+                UnrecoverableExceptions = RecoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
             });
         }
 
@@ -99,16 +99,16 @@
                 messageOperations,
                 (errorContext) =>
                 {
-                    return policy(recoverabilityConfig, errorContext);
+                    return policy(RecoverabilityConfig, errorContext);
                 },
                 recoverabilityPipeline);
         }
 
-        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy)
+        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
         {
             var factory = CreateRecoverabilityExecutorFactory();
 
-            return factory.CreateSatelliteRecoverabilityExecutor(recoverabilityPolicy);
+            return factory.CreateSatelliteRecoverabilityExecutor();
         }
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
@@ -142,7 +142,7 @@
             };
 
             return new RecoverabilityExecutorFactory(
-                recoverabilityConfig,
+                RecoverabilityConfig,
                 delayedRetryExecutorFactory,
                 moveToErrorsExecutorFactory,
                 immediateRetriesAvailable,
@@ -184,12 +184,12 @@
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }
 
+        public RecoverabilityConfig RecoverabilityConfig;
         public Notification<MessageToBeRetried> MessageRetryNotification;
         public Notification<MessageFaulted> MessageFaultedNotification;
 
         IReadOnlySettings settings;
         bool transactionsOn;
-        RecoverabilityConfig recoverabilityConfig;
         RecoverabilityExecutorFactory recoverabilityExecutorFactory;
         HostInformation hostInformation;
 

@@ -1,13 +1,13 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
-    using Transport;
     using Recoverability;
-    using System.Collections.Generic;
+    using Transport;
 
     class RecoverabilityExecutor
     {
@@ -29,42 +29,42 @@
             this.delayedRetriesAvailable = delayedRetriesAvailable;
         }
 
-        public Task<ErrorHandleResult> Invoke(IRecoverabilityContext recoverabilityContext)
+        public Task Invoke(IRecoverabilityContext recoverabilityContext)
         {
             var errorContext = recoverabilityContext.ErrorContext;
-            var recoveryAction = recoverabilityContext.RecoverabilityAction;
+            var recoverabilityAction = recoverabilityContext.RecoverabilityAction;
 
-            if (recoveryAction is Discard discard)
+            if (recoverabilityAction is Discard discard)
             {
                 Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {discard.Reason}", errorContext.Exception);
-                return HandledTask;
+                return Task.CompletedTask;
             }
 
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
-            if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
+            if (recoverabilityAction is ImmediateRetry && !immediateRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
                 return MoveToError(recoverabilityContext, configuration.Failed.ErrorQueue);
             }
 
-            if (recoveryAction is ImmediateRetry)
+            if (recoverabilityAction is ImmediateRetry)
             {
                 return RaiseImmediateRetryNotifications(errorContext, recoverabilityContext.CancellationToken);
             }
 
             // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
-            if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
+            if (recoverabilityAction is DelayedRetry && !delayedRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
                 return MoveToError(recoverabilityContext, configuration.Failed.ErrorQueue);
             }
 
-            if (recoveryAction is DelayedRetry delayedRetryAction)
+            if (recoverabilityAction is DelayedRetry delayedRetryAction)
             {
                 return DeferMessage(delayedRetryAction, recoverabilityContext);
             }
 
-            if (recoveryAction is MoveToError moveToError)
+            if (recoverabilityAction is MoveToError moveToError)
             {
                 return MoveToError(recoverabilityContext, moveToError.ErrorQueue);
             }
@@ -89,7 +89,7 @@
             return ErrorHandleResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(IRecoverabilityContext recoverabilityContext, string errorQueue)
+        async Task MoveToError(IRecoverabilityContext recoverabilityContext, string errorQueue)
         {
             var errorContext = recoverabilityContext.ErrorContext;
             var message = errorContext.Message;
@@ -106,11 +106,9 @@
                 recoverabilityContext.CancellationToken).ConfigureAwait(false);
 
             await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue), recoverabilityContext.CancellationToken).ConfigureAwait(false);
-
-            return ErrorHandleResult.Handled;
         }
 
-        async Task<ErrorHandleResult> DeferMessage(DelayedRetry action, IRecoverabilityContext recoverabilityContext)
+        async Task DeferMessage(DelayedRetry action, IRecoverabilityContext recoverabilityContext)
         {
             var errorContext = recoverabilityContext.ErrorContext;
             var message = errorContext.Message;
@@ -134,8 +132,6 @@
                         errorContext: errorContext),
                     recoverabilityContext.CancellationToken)
                 .ConfigureAwait(false);
-
-            return ErrorHandleResult.Handled;
         }
 
         readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
@@ -146,7 +142,6 @@
         bool delayedRetriesAvailable;
         RecoverabilityConfig configuration;
 
-        static Task<ErrorHandleResult> HandledTask = Task.FromResult(ErrorHandleResult.Handled);
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
     }
 }
