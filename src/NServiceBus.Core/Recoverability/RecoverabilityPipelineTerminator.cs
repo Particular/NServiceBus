@@ -1,7 +1,10 @@
 ﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability;
+    using NServiceBus.Transport;
 
     class RecoverabilityPipelineTerminator : PipelineTerminator<IRecoverabilityContext>
     {
@@ -14,7 +17,14 @@
         {
             context.PreventChanges();
 
-            return recoverabilityExecutor.Invoke(context);
+            return recoverabilityExecutor.Invoke(
+                context.ErrorContext,
+                context.RecoverabilityAction,
+                 (transportOperation, token) =>
+                 {
+                     return context.Dispatch(new List<TransportOperation> { transportOperation });
+                 },
+                context.CancellationToken);
         }
 
         readonly RecoverabilityExecutor recoverabilityExecutor;

@@ -20,16 +20,6 @@
             return new RecoverabilityExecutor(delayedRetryExecutor, moveToErrorsExecutor);
         }
 
-        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
-        {
-            var delayedRetryExecutor = delayedRetryExecutorFactory();
-            var moveToErrorsExecutor = moveToErrorsExecutorFactory();
-
-            return new SatelliteRecoverabilityExecutor(
-                delayedRetryExecutor,
-                moveToErrorsExecutor);
-        }
-
         Func<DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory;
     }

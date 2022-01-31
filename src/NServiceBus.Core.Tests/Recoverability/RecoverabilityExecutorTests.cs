@@ -2,11 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;
@@ -23,10 +21,7 @@
         [Test]
         public async Task When_unsupported_action_returned_should_move_to_errors()
         {
-            var recoverabilityExecutor = CreateExecutor();
-            var recoverabilityContext = CreateRecoverabilityContext(new UnsupportedAction(), messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
+            await InvokeExecutor(new UnsupportedAction());
 
             Assert.True(dispatchCollector.MessageWasSentTo(ErrorQueueAddress));
         }
@@ -34,30 +29,43 @@
         [Test]
         public async Task When_discard_action_returned_should_discard_message()
         {
-            var recoverabilityExecutor = CreateExecutor();
-            var recoverabilityContext = CreateRecoverabilityContext(new Discard("not needed anymore"), messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
+            await InvokeExecutor(new Discard("not needed anymore"));
 
             Assert.True(dispatchCollector.NoMessageWasSent());
         }
 
-        IRecoverabilityContext CreateRecoverabilityContext(
-            RecoverabilityAction recoverabilityAction,
+        [Test]
+        public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_send_to_address()
+        {
+            var customErrorQueueAddress = "custom-error";
+
+            await InvokeExecutor(RecoverabilityAction.MoveToError(customErrorQueueAddress));
+
+            Assert.True(dispatchCollector.MessageWasSentTo(customErrorQueueAddress));
+        }
+
+        Task InvokeExecutor(RecoverabilityAction recoverabilityAction,
             Exception raisedException = null,
             string exceptionMessage = "default-message",
             string messageId = "default-id",
-            int numberOfDeliveryAttempts = 1)
+            int numberOfDeliveryAttempts = 1,
+            CancellationToken cancellationToken = default)
         {
             var errorContext = new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
-            return new RecoverabilityContext(errorContext, null, recoverabilityAction, new FakeRootContext(dispatchCollector));
-        }
 
-        RecoverabilityExecutor CreateExecutor()
-        {
-            return new RecoverabilityExecutor(
+            var executor = new RecoverabilityExecutor(
                 new DelayedRetryExecutor(),
                 new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }));
+
+            return executor.Invoke(
+                errorContext,
+                recoverabilityAction,
+                 (transportOperation, _) =>
+                 {
+                     dispatchCollector.Collect(transportOperation);
+                     return Task.CompletedTask;
+                 }
+                 , cancellationToken);
         }
 
         DispatchCollector dispatchCollector;
@@ -95,54 +103,6 @@
             {
                 return targetAddress == null;
             }
-        }
-
-        class FakeRootContext : IBehaviorContext
-        {
-            public FakeRootContext(DispatchCollector dispatchCollector)
-            {
-                Extensions = new ContextBag();
-
-                Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchCollector));
-            }
-
-            public IServiceProvider Builder => throw new NotImplementedException();
-
-            public CancellationToken CancellationToken => CancellationToken.None;
-
-            public ContextBag Extensions { get; }
-        }
-
-        class FakePipelineCache : IPipelineCache
-        {
-            public FakePipelineCache(DispatchCollector dispatchCollector)
-            {
-                this.dispatchCollector = dispatchCollector;
-            }
-
-            public IPipeline<TContext> Pipeline<TContext>() where TContext : IBehaviorContext
-            {
-                return (IPipeline<TContext>)new FakeDispatchPipeline(dispatchCollector);
-            }
-
-            readonly DispatchCollector dispatchCollector;
-        }
-
-        class FakeDispatchPipeline : IPipeline<IDispatchContext>
-        {
-            public FakeDispatchPipeline(DispatchCollector dispatchCollector)
-            {
-                this.dispatchCollector = dispatchCollector;
-            }
-
-            public Task Invoke(IDispatchContext context)
-            {
-                dispatchCollector.Collect(context.Operations.Single());
-
-                return Task.CompletedTask;
-            }
-
-            DispatchCollector dispatchCollector;
         }
     }
 }

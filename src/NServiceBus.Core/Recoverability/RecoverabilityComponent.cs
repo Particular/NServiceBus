@@ -109,11 +109,11 @@
                 recoverabilityPipeline);
         }
 
-        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
+        public RecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
         {
             var factory = CreateRecoverabilityExecutorFactory();
 
-            return factory.CreateSatelliteRecoverabilityExecutor();
+            return factory.CreateRecoverabilityExecutor();
         }
 
         public RecoverabilityAction AdjustForTransportCapabilities(
