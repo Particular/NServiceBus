@@ -53,5 +53,13 @@
 
             config.Settings.DisableFeature(featureType);
         }
+
+        /// <summary>
+        /// Disables inference of message type based on the content type if the message type can't be determined by the NServiceBus.EnclosedMessageTypes header.
+        /// </summary>
+        public static void DisableMessageTypeInference(this EndpointConfiguration config)
+        {
+            config.Settings.Set(SerializationFeature.DisableMessageTypeInferenceKey, true);
+        }
     }
 }
