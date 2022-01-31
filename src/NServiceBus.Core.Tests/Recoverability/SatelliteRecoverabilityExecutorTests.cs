@@ -19,28 +19,6 @@
         }
 
         [Test]
-        public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_errors()
-        {
-            var recoverabilityExecutor = CreateExecutor(delayedRetriesSupported: false);
-            var errorContext = CreateErrorContext();
-
-            await recoverabilityExecutor.Invoke(errorContext, dispatcher, RecoverabilityAction.DelayedRetry(TimeSpan.FromDays(1)));
-
-            Assert.True(dispatcher.MessageWasSentTo(ErrorQueueAddress));
-        }
-
-        [Test]
-        public async Task When_immediate_retries_not_supported_but_policy_demands_it_should_move_to_errors()
-        {
-            var recoverabilityExecutor = CreateExecutor(immediateRetriesSupported: false);
-            var errorContext = CreateErrorContext();
-
-            await recoverabilityExecutor.Invoke(errorContext, dispatcher, RecoverabilityAction.ImmediateRetry());
-
-            Assert.True(dispatcher.MessageWasSentTo(ErrorQueueAddress));
-        }
-
-        [Test]
         public async Task When_unsupported_action_returned_should_move_to_errors()
         {
             var recoverabilityExecutor = CreateExecutor();
@@ -79,13 +57,10 @@
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
         }
 
-        SatelliteRecoverabilityExecutor CreateExecutor(bool delayedRetriesSupported = true, bool immediateRetriesSupported = true)
+        SatelliteRecoverabilityExecutor CreateExecutor()
         {
             return new SatelliteRecoverabilityExecutor(
-                immediateRetriesSupported,
-                delayedRetriesSupported,
-                new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                delayedRetriesSupported ? new DelayedRetryExecutor() : null,
+                new DelayedRetryExecutor(),
                 new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }));
         }
 

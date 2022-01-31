@@ -21,28 +21,6 @@
         }
 
         [Test]
-        public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_errors()
-        {
-            var recoverabilityExecutor = CreateExecutor(delayedRetriesSupported: false);
-            var recoverabilityContext = CreateRecoverabilityContext(new DelayedRetry(TimeSpan.FromSeconds(10)), messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
-
-            Assert.True(dispatchCollector.MessageWasSentTo(ErrorQueueAddress));
-        }
-
-        [Test]
-        public async Task When_immediate_retries_not_supported_but_policy_demands_it_should_move_to_errors()
-        {
-            var recoverabilityExecutor = CreateExecutor(immediateRetriesSupported: false);
-            var recoverabilityContext = CreateRecoverabilityContext(new ImmediateRetry(), messageId: "message-id");
-
-            await recoverabilityExecutor.Invoke(recoverabilityContext);
-
-            Assert.True(dispatchCollector.MessageWasSentTo(ErrorQueueAddress));
-        }
-
-        [Test]
         public async Task When_unsupported_action_returned_should_move_to_errors()
         {
             var recoverabilityExecutor = CreateExecutor();
@@ -58,7 +36,6 @@
         {
             var recoverabilityExecutor = CreateExecutor();
             var recoverabilityContext = CreateRecoverabilityContext(new Discard("not needed anymore"), messageId: "message-id");
-            ;
 
             await recoverabilityExecutor.Invoke(recoverabilityContext);
 
@@ -76,13 +53,10 @@
             return new RecoverabilityContext(errorContext, null, recoverabilityAction, new FakeRootContext(dispatchCollector));
         }
 
-        RecoverabilityExecutor CreateExecutor(bool delayedRetriesSupported = true, bool immediateRetriesSupported = true)
+        RecoverabilityExecutor CreateExecutor()
         {
             return new RecoverabilityExecutor(
-                immediateRetriesSupported,
-                delayedRetriesSupported,
-                new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                delayedRetriesSupported ? new DelayedRetryExecutor() : null,
+                new DelayedRetryExecutor(),
                 new MoveToErrorsExecutor(new Dictionary<string, string>(), headers => { }));
         }
 

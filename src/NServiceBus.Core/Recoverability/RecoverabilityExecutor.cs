@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Logging;
@@ -10,17 +11,11 @@
     class RecoverabilityExecutor
     {
         public RecoverabilityExecutor(
-            bool immediateRetriesAvailable,
-            bool delayedRetriesAvailable,
-            RecoverabilityConfig configuration,
             DelayedRetryExecutor delayedRetryExecutor,
             MoveToErrorsExecutor moveToErrorsExecutor)
         {
-            this.configuration = configuration;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
-            this.immediateRetriesAvailable = immediateRetriesAvailable;
-            this.delayedRetriesAvailable = delayedRetriesAvailable;
         }
 
         public Task Invoke(IRecoverabilityContext recoverabilityContext)
@@ -34,25 +29,11 @@
                 return Task.CompletedTask;
             }
 
-            // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
-            if (recoverabilityAction is ImmediateRetry && !immediateRetriesAvailable)
-            {
-                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(recoverabilityContext, configuration.Failed.ErrorQueue);
-            }
-
             if (recoverabilityAction is ImmediateRetry)
             {
                 Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
                 return Task.CompletedTask;
-            }
-
-            // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
-            if (recoverabilityAction is DelayedRetry && !delayedRetriesAvailable)
-            {
-                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(recoverabilityContext, configuration.Failed.ErrorQueue);
             }
 
             if (recoverabilityAction is DelayedRetry delayedRetryAction)
@@ -65,8 +46,7 @@
                 return MoveToError(recoverabilityContext, moveToError.ErrorQueue);
             }
 
-            Logger.Warn("Recoverability policy returned an unsupported recoverability action. Moving message to error queue instead.");
-            return MoveToError(recoverabilityContext, configuration.Failed.ErrorQueue);
+            throw new Exception("Cant't reach this");
         }
 
         async Task MoveToError(IRecoverabilityContext recoverabilityContext, string errorQueue)
@@ -105,9 +85,6 @@
 
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
-        bool immediateRetriesAvailable;
-        bool delayedRetriesAvailable;
-        RecoverabilityConfig configuration;
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
     }

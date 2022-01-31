@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Hosting;
+    using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using Settings;
     using Support;
@@ -49,6 +50,8 @@
             hostInformation = hostingConfiguration.HostInformation;
             this.transportSeam = transportSeam;
             transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
+            delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
+            immediateRetriesAvailable = transactionsOn;
 
             var errorQueue = settings.ErrorQueueAddress();
             transportSeam.QueueBindings.BindSending(errorQueue);
@@ -101,7 +104,7 @@
                 RecoverabilityConfig,
                 (errorContext) =>
                 {
-                    return policy(RecoverabilityConfig, errorContext);
+                    return AdjustForTransportCapabilities(policy(RecoverabilityConfig, errorContext));
                 },
                 recoverabilityPipeline);
         }
@@ -113,10 +116,39 @@
             return factory.CreateSatelliteRecoverabilityExecutor();
         }
 
+        public RecoverabilityAction AdjustForTransportCapabilities(
+            RecoverabilityAction selectedAction)
+        {
+            return AdjustForTransportCapabilities(
+                RecoverabilityConfig.Failed.ErrorQueue,
+                immediateRetriesAvailable,
+                delayedRetriesAvailable,
+                selectedAction);
+        }
+
+        public static RecoverabilityAction AdjustForTransportCapabilities(
+            string errorQueue,
+            bool immediateRetriesAvailable,
+            bool delayedRetriesAvailable,
+            RecoverabilityAction selectedAction)
+        {
+            if (selectedAction is ImmediateRetry && !immediateRetriesAvailable)
+            {
+                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
+                return RecoverabilityAction.MoveToError(errorQueue);
+            }
+
+            if (selectedAction is DelayedRetry && !delayedRetriesAvailable)
+            {
+                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
+                return RecoverabilityAction.MoveToError(errorQueue);
+            }
+
+            return selectedAction;
+        }
+
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
         {
-            var delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
-            var immediateRetriesAvailable = transactionsOn;
 
             Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory = () =>
             {
@@ -144,11 +176,8 @@
             };
 
             return new RecoverabilityExecutorFactory(
-                RecoverabilityConfig,
                 delayedRetryExecutorFactory,
-                moveToErrorsExecutorFactory,
-                immediateRetriesAvailable,
-                delayedRetriesAvailable);
+                moveToErrorsExecutorFactory);
         }
 
         ImmediateConfig GetImmediateRetryConfig()
@@ -190,6 +219,8 @@
 
         IReadOnlySettings settings;
         bool transactionsOn;
+        bool delayedRetriesAvailable;
+        bool immediateRetriesAvailable;
         RecoverabilityExecutorFactory recoverabilityExecutorFactory;
         HostInformation hostInformation;
 
@@ -202,6 +233,7 @@
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
+        static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
         TransportSeam transportSeam;
 
         public class Configuration

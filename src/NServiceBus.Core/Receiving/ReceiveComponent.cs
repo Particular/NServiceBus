@@ -204,8 +204,9 @@ namespace NServiceBus
                         async (errorContext, token) =>
                         {
                             var recoverabilityAction = satellite.RecoverabilityPolicy(recoverabilityConfig, errorContext);
+                            var adjustedRecoverabilityAction = recoverabilityComponent.AdjustForTransportCapabilities(recoverabilityAction);
 
-                            await satelliteRecoverabilityExecutor.Invoke(errorContext, builder.GetRequiredService<IMessageDispatcher>(), recoverabilityAction, token).ConfigureAwait(false);
+                            await satelliteRecoverabilityExecutor.Invoke(errorContext, builder.GetRequiredService<IMessageDispatcher>(), adjustedRecoverabilityAction, token).ConfigureAwait(false);
 
                             return recoverabilityAction.ErrorHandleResult;
                         }
