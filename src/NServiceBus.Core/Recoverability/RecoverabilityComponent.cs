@@ -138,8 +138,6 @@
                 selectedAction);
         }
 
-
-
         FaultMetadataExtractor CreateFaultMetadataExtractor()
         {
             var staticFaultMetadata = new Dictionary<string, string>

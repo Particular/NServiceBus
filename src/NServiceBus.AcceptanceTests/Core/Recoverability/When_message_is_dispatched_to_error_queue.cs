@@ -58,7 +58,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                             continue;
                         }
 
-                        operation.Message.UpdateBody(null); //TODO: Would ReadOnlyMemory<byte>.Empty be better?
+                        operation.Message.UpdateBody(ReadOnlyMemory<byte>.Empty);
                     }
                     return next();
                 }
