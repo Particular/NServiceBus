@@ -181,7 +181,7 @@ namespace NServiceBus
                 await instancePump.Initialize(
                     configuration.PushRuntimeSettings,
                     mainPipelineExecutor.Invoke,
-                    recoverabilityPipelineExecutor.Invoke, //TODO: does this need to be a separate one?
+                    recoverabilityPipelineExecutor.Invoke,
                     cancellationToken).ConfigureAwait(false);
 
                 receivers.Add(instancePump);
@@ -189,31 +189,16 @@ namespace NServiceBus
 
             foreach (var satellite in configuration.SatelliteDefinitions)
             {
-#pragma warning disable PS0021 // Highlight when a try block passes multiple cancellation tokens
                 try
-#pragma warning restore PS0021 // Highlight when a try block passes multiple cancellation tokens
                 {
                     var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var recoverabilityConfig = recoverabilityComponent.RecoverabilityConfig;
+                    var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
 
                     await satellitePump.Initialize(
                         satellite.RuntimeSettings,
                         satellitePipeline.Invoke,
-                        async (errorContext, token) =>
-                        {
-                            var recoverabilityAction = satellite.RecoverabilityPolicy(recoverabilityConfig, errorContext);
-                            var adjustedRecoverabilityAction = recoverabilityComponent.AdjustForTransportCapabilities(recoverabilityAction);
-
-                            var transportOperations = adjustedRecoverabilityAction.Execute(errorContext, new Dictionary<string, string>());
-
-                            var dispatcher = builder.GetRequiredService<IMessageDispatcher>();
-
-                            await dispatcher.Dispatch(new TransportOperations(transportOperations.ToArray()), errorContext.TransportTransaction, token).ConfigureAwait(false);
-
-                            return recoverabilityAction.ErrorHandleResult;
-                        }
-                        ,
+                        satelliteRecoverabilityExecutor.Invoke,
                         cancellationToken)
                         .ConfigureAwait(false);
 

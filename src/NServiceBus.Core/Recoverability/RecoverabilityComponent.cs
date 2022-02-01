@@ -50,18 +50,18 @@
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
-            RecoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+            recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
             pipelineSettings.Register(new RaiseRecoverabilityEventsBehavior(messageRetryNotification, messageFaultedNotification), "Emits the recoverability events.");
             pipelineSettings.Register(new RecoverabilityPipelineTerminator(), "Executes the configured retry policy");
 
             hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
             {
-                ImmediateRetries = RecoverabilityConfig.Immediate.MaxNumberOfRetries,
-                DelayedRetries = RecoverabilityConfig.Delayed.MaxNumberOfRetries,
-                DelayedRetriesTimeIncrease = RecoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
-                RecoverabilityConfig.Failed.ErrorQueue,
-                UnrecoverableExceptions = RecoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
+                ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
+                DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
+                DelayedRetriesTimeIncrease = recoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
+                recoverabilityConfig.Failed.ErrorQueue,
+                UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
             });
         }
 
@@ -82,22 +82,23 @@
                 serviceProvider,
                 pipelineCache,
                 messageOperations,
-                RecoverabilityConfig,
+                recoverabilityConfig,
                 (errorContext) =>
                 {
-                    return AdjustForTransportCapabilities(policy(RecoverabilityConfig, errorContext));
+                    return AdjustForTransportCapabilities(policy(recoverabilityConfig, errorContext));
                 },
                 recoverabilityPipeline);
         }
 
-        public RecoverabilityAction AdjustForTransportCapabilities(
-            RecoverabilityAction selectedAction)
+        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(
+            IServiceProvider serviceProvider,
+            Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy)
         {
-            return AdjustForTransportCapabilities(
-                RecoverabilityConfig.Failed.ErrorQueue,
-                immediateRetriesAvailable,
-                delayedRetriesAvailable,
-                selectedAction);
+            return new SatelliteRecoverabilityExecutor(serviceProvider,
+                errorContext =>
+                {
+                    return AdjustForTransportCapabilities(recoverabilityPolicy(recoverabilityConfig, errorContext));
+                });
         }
 
         public static RecoverabilityAction AdjustForTransportCapabilities(
@@ -120,6 +121,18 @@
 
             return selectedAction;
         }
+
+        RecoverabilityAction AdjustForTransportCapabilities(
+            RecoverabilityAction selectedAction)
+        {
+            return AdjustForTransportCapabilities(
+                recoverabilityConfig.Failed.ErrorQueue,
+                immediateRetriesAvailable,
+                delayedRetriesAvailable,
+                selectedAction);
+        }
+
+
 
         //RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
         //{
@@ -177,9 +190,9 @@
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }
 
-        public RecoverabilityConfig RecoverabilityConfig;
         Notification<MessageToBeRetried> messageRetryNotification;
         Notification<MessageFaulted> messageFaultedNotification;
+        RecoverabilityConfig recoverabilityConfig;
 
         IReadOnlySettings settings;
         bool transactionsOn;
