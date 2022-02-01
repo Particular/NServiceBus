@@ -55,7 +55,6 @@
             yield return new TransportOperation(outgoingMessage, messageDestination, dispatchProperties);
         }
 
-
         static ILog Logger = LogManager.GetLogger<DelayedRetry>();
     }
 }

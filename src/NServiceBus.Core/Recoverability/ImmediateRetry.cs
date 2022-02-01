@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
+    using NServiceBus.Logging;
     using NServiceBus.Transport;
 
     /// <summary>
@@ -22,7 +23,10 @@
             ErrorContext errorContext,
             IDictionary<string, string> metadata)
         {
+            Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
             yield break;
         }
+
+        static ILog Logger = LogManager.GetLogger<ImmediateRetry>();
     }
 }

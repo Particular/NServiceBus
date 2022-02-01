@@ -12,7 +12,7 @@
     public class DelayedRetryRecoverabilityActionTests
     {
         [Test]
-        public void When_native_delayed_delivery_should_add_delivery_constraint()
+        public void When_delay_message_retry()
         {
             var errorContext = CreateErrorContext();
             var delay = TimeSpan.FromSeconds(42);
@@ -25,6 +25,7 @@
 
             Assert.AreEqual(errorContext.ReceiveAddress, addressTag.Destination);
             Assert.AreEqual(delay, transportOperation.Properties.DelayDeliveryWith.Delay);
+            Assert.AreEqual(ErrorHandleResult.Handled, delayedRetryAction.ErrorHandleResult);
         }
 
         [Test]

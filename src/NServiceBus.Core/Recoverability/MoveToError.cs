@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using NServiceBus.Faults;
+    using NServiceBus.Logging;
     using NServiceBus.Routing;
     using NServiceBus.Transport;
 
@@ -33,6 +34,9 @@ namespace NServiceBus
             IDictionary<string, string> metadata)
         {
             var message = errorContext.Message;
+
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", errorContext.Exception);
+
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
             var headers = outgoingMessage.Headers;
@@ -52,5 +56,7 @@ namespace NServiceBus
 
             yield return new TransportOperation(outgoingMessage, new UnicastAddressTag(ErrorQueue));
         }
+
+        static ILog Logger = LogManager.GetLogger<MoveToError>();
     }
 }
