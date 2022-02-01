@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +15,8 @@
             MessageOperations messageOperations,
             RecoverabilityConfig recoverabilityConfig,
             Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy,
-            Pipeline<IRecoverabilityContext> recoverabilityPipeline)
+            Pipeline<IRecoverabilityContext> recoverabilityPipeline,
+            FaultMetadataExtractor faultMetadataExtractor)
         {
             this.serviceProvider = serviceProvider;
             this.pipelineCache = pipelineCache;
@@ -24,6 +24,7 @@
             this.recoverabilityConfig = recoverabilityConfig;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.recoverabilityPipeline = recoverabilityPipeline;
+            this.faultMetadataExtractor = faultMetadataExtractor;
         }
 
         public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
@@ -35,10 +36,12 @@
 
                 var recoverabilityAction = recoverabilityPolicy(errorContext);
 
+                var metadata = faultMetadataExtractor.Extract(errorContext);
+
                 var recoverabilityContext = new RecoverabilityContext(
                     errorContext,
                     recoverabilityConfig,
-                    new Dictionary<string, string>(),
+                    metadata,
                     recoverabilityAction,
                     rootContext);
 
@@ -54,5 +57,6 @@
         readonly RecoverabilityConfig recoverabilityConfig;
         readonly Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy;
         readonly Pipeline<IRecoverabilityContext> recoverabilityPipeline;
+        readonly FaultMetadataExtractor faultMetadataExtractor;
     }
 }

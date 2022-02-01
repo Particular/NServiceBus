@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.Faults;
     using NServiceBus.Logging;
     using NServiceBus.Routing;
     using NServiceBus.Transport;
@@ -43,16 +42,10 @@ namespace NServiceBus
             headers.Remove(Headers.DelayedRetries);
             headers.Remove(Headers.ImmediateRetries);
 
-            headers[FaultsHeaderKeys.FailedQ] = errorContext.ReceiveAddress;
-
-            ExceptionHeaderHelper.SetExceptionHeaders(headers, errorContext.Exception);
-
-            //foreach (var faultMetadata in staticFaultMetadata)
-            //{
-            //    headers[faultMetadata.Key] = faultMetadata.Value;
-            //}
-
-            //headerCustomizations(headers);
+            foreach (var faultMetadata in metadata)
+            {
+                headers[faultMetadata.Key] = faultMetadata.Value;
+            }
 
             yield return new TransportOperation(outgoingMessage, new UnicastAddressTag(ErrorQueue));
         }

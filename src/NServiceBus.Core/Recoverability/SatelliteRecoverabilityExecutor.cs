@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -12,9 +11,11 @@
     {
         public SatelliteRecoverabilityExecutor(
             IServiceProvider serviceProvider,
+            FaultMetadataExtractor faultMetadataExtractor,
             Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy)
         {
             this.serviceProvider = serviceProvider;
+            this.faultMetadataExtractor = faultMetadataExtractor;
             this.recoverabilityPolicy = recoverabilityPolicy;
         }
 
@@ -23,8 +24,9 @@
             CancellationToken cancellationToken = default)
         {
             var recoverabilityAction = recoverabilityPolicy(errorContext);
+            var metadata = faultMetadataExtractor.Extract(errorContext);
 
-            var transportOperations = recoverabilityAction.Execute(errorContext, new Dictionary<string, string>());
+            var transportOperations = recoverabilityAction.Execute(errorContext, metadata);
 
             var dispatcher = serviceProvider.GetRequiredService<IMessageDispatcher>();
 
@@ -34,6 +36,7 @@
         }
 
         readonly IServiceProvider serviceProvider;
+        readonly FaultMetadataExtractor faultMetadataExtractor;
         readonly Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy;
     }
 }

@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Hosting;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
+    using NServiceBus.Support;
     using Settings;
     using Transport;
 
@@ -35,7 +37,7 @@
                 return;
             }
 
-            //hostInformation = hostingConfiguration.HostInformation;
+            hostInformation = hostingConfiguration.HostInformation;
             this.transportSeam = transportSeam;
             transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
             delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
@@ -51,6 +53,8 @@
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
             recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+
+            faultMetadataExtractor = CreateFaultMetadataExtractor();
 
             pipelineSettings.Register(new RaiseRecoverabilityEventsBehavior(messageRetryNotification, messageFaultedNotification), "Emits the recoverability events.");
             pipelineSettings.Register(new RecoverabilityPipelineTerminator(), "Executes the configured retry policy");
@@ -87,14 +91,17 @@
                 {
                     return AdjustForTransportCapabilities(policy(recoverabilityConfig, errorContext));
                 },
-                recoverabilityPipeline);
+                recoverabilityPipeline,
+                faultMetadataExtractor);
         }
 
         public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(
             IServiceProvider serviceProvider,
             Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy)
         {
-            return new SatelliteRecoverabilityExecutor(serviceProvider,
+            return new SatelliteRecoverabilityExecutor(
+                serviceProvider,
+                faultMetadataExtractor,
                 errorContext =>
                 {
                     return AdjustForTransportCapabilities(recoverabilityPolicy(recoverabilityConfig, errorContext));
@@ -134,28 +141,20 @@
 
 
 
-        //RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
-        //{
+        FaultMetadataExtractor CreateFaultMetadataExtractor()
+        {
+            var staticFaultMetadata = new Dictionary<string, string>
+                {
+                    {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
+                    {Headers.ProcessingEndpoint, settings.EndpointName()},
+                    {Headers.HostId, hostInformation.HostId.ToString("N")},
+                    {Headers.HostDisplayName, hostInformation.DisplayName}
+                };
 
-        //    Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory = () =>
-        //    {
-        //        var staticFaultMetadata = new Dictionary<string, string>
-        //        {
-        //            {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
-        //            {Headers.ProcessingEndpoint, settings.EndpointName()},
-        //            {Headers.HostId, hostInformation.HostId.ToString("N")},
-        //            {Headers.HostDisplayName, hostInformation.DisplayName}
-        //        };
+            var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-        //        var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
-
-        //        return new MoveToErrorsExecutor(staticFaultMetadata, headerCustomizations);
-        //    };
-
-        //    return new RecoverabilityExecutorFactory(
-        //        delayedRetryExecutorFactory,
-        //        moveToErrorsExecutorFactory);
-        //}
+            return new FaultMetadataExtractor(staticFaultMetadata, headerCustomizations);
+        }
 
         ImmediateConfig GetImmediateRetryConfig()
         {
@@ -193,7 +192,8 @@
         Notification<MessageToBeRetried> messageRetryNotification;
         Notification<MessageFaulted> messageFaultedNotification;
         RecoverabilityConfig recoverabilityConfig;
-
+        FaultMetadataExtractor faultMetadataExtractor;
+        HostInformation hostInformation;
         IReadOnlySettings settings;
         bool transactionsOn;
         bool delayedRetriesAvailable;
