@@ -56,8 +56,7 @@
 
             faultMetadataExtractor = CreateFaultMetadataExtractor();
 
-            pipelineSettings.Register(new RaiseRecoverabilityEventsBehavior(messageRetryNotification, messageFaultedNotification), "Emits the recoverability events.");
-            pipelineSettings.Register(new RecoverabilityPipelineTerminator(), "Executes the configured retry policy");
+            pipelineSettings.Register(new RecoverabilityPipelineTerminator(messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
 
             hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
             {

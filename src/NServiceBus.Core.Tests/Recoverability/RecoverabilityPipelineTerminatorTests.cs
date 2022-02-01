@@ -11,12 +11,23 @@
     using Transport;
 
     [TestFixture]
-    public class RaiseRecoverabilityEventsBehaviorTests
+    public class RecoverabilityPipelineTerminatorTests
     {
+        [Test]
+        public async Task Should_lock_context()
+        {
+            var behavior = CreateTerminator();
+            var recoverabilityContext = CreateRecoverabilityContext(new ImmediateRetry(), numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
+
+            await behavior.Invoke(recoverabilityContext, _ => Task.CompletedTask);
+
+            Assert.Throws<InvalidOperationException>(() => recoverabilityContext.RecoverabilityAction = new Discard(""));
+        }
+
         [Test]
         public async Task When_failure_is_handled_with_immediate_retries_notification_should_be_raised()
         {
-            var behavior = CreateBehavior();
+            var behavior = CreateTerminator();
             var recoverabilityContext = CreateRecoverabilityContext(new ImmediateRetry(), numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
             await behavior.Invoke(recoverabilityContext, _ => Task.CompletedTask);
@@ -32,7 +43,7 @@
         [Test]
         public async Task When_failure_is_handled_with_delayed_retries_notification_should_be_raised()
         {
-            var behavior = CreateBehavior();
+            var behavior = CreateTerminator();
             var recoverabilityContext = CreateRecoverabilityContext(new DelayedRetry(TimeSpan.FromSeconds(10)), numberOfDeliveryAttempts: 1, exceptionMessage: "test", messageId: "message-id");
 
             await behavior.Invoke(recoverabilityContext, _ => Task.CompletedTask);
@@ -48,7 +59,7 @@
         [Test]
         public async Task When_failure_is_handled_by_moving_to_errors_notification_should_be_raised()
         {
-            var behavior = CreateBehavior();
+            var behavior = CreateTerminator();
             var recoverabilityContext = CreateRecoverabilityContext(new MoveToError(ErrorQueueAddress), exceptionMessage: "test", messageId: "message-id");
 
             await behavior.Invoke(recoverabilityContext, _ => Task.CompletedTask);
@@ -63,7 +74,7 @@
         public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_be_set_on_notification()
         {
             var customErrorQueueAddress = "custom-error-queue";
-            var behavior = CreateBehavior();
+            var behavior = CreateTerminator();
             var recoverabilityContext = CreateRecoverabilityContext(new MoveToError(customErrorQueueAddress));
 
             await behavior.Invoke(recoverabilityContext, _ => Task.CompletedTask);
@@ -85,7 +96,7 @@
             return new RecoverabilityContext(errorContext, null, new Dictionary<string, string>(), recoverabilityAction, new FakeRootContext());
         }
 
-        RaiseRecoverabilityEventsBehavior CreateBehavior()
+        RecoverabilityPipelineTerminator CreateTerminator()
         {
             messageRetriedNotifications = new List<MessageToBeRetried>();
             var messageRetryNotification = new Notification<MessageToBeRetried>();
@@ -103,7 +114,7 @@
                 return Task.FromResult(0);
             });
 
-            return new RaiseRecoverabilityEventsBehavior(
+            return new RecoverabilityPipelineTerminator(
                 messageRetryNotification,
                 messageFaultedNotification);
         }
@@ -119,6 +130,7 @@
             public FakeRootContext()
             {
                 Extensions = new ContextBag();
+                Extensions.Set<IPipelineCache>(new FakePipelineCache());
             }
 
             public IServiceProvider Builder => throw new NotImplementedException();
@@ -126,6 +138,26 @@
             public CancellationToken CancellationToken => CancellationToken.None;
 
             public ContextBag Extensions { get; }
+        }
+
+        class FakePipelineCache : IPipelineCache
+        {
+            public FakePipelineCache()
+            {
+            }
+
+            public IPipeline<TContext> Pipeline<TContext>() where TContext : IBehaviorContext
+            {
+                return new FakePipeline<TContext>();
+            }
+
+            public class FakePipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
+            {
+                public Task Invoke(TContext context)
+                {
+                    return Task.CompletedTask;
+                }
+            }
         }
 
     }
