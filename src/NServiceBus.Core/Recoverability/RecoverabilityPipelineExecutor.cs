@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@
                 var recoverabilityContext = new RecoverabilityContext(
                     errorContext,
                     recoverabilityConfig,
+                    new Dictionary<string, string>(),
                     recoverabilityAction,
                     rootContext);
 

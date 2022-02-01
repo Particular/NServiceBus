@@ -3,11 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Hosting;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using Settings;
-    using Support;
     using Transport;
 
     class RecoverabilityComponent
@@ -25,16 +23,6 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory()
-        {
-            if (recoverabilityExecutorFactory == null)
-            {
-                recoverabilityExecutorFactory = CreateRecoverabilityExecutorFactory();
-            }
-
-            return recoverabilityExecutorFactory;
-        }
-
         public void Initialize(
             ReceiveComponent.Configuration receiveConfiguration,
             HostingComponent.Configuration hostingConfiguration,
@@ -47,7 +35,7 @@
                 return;
             }
 
-            hostInformation = hostingConfiguration.HostInformation;
+            //hostInformation = hostingConfiguration.HostInformation;
             this.transportSeam = transportSeam;
             transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
             delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
@@ -65,14 +53,7 @@
             RecoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
             pipelineSettings.Register(new RaiseRecoverabilityEventsBehavior(messageRetryNotification, messageFaultedNotification), "Emits the recoverability events.");
-            pipelineSettings.Register(serviceProvider =>
-            {
-                var factory = CreateRecoverabilityExecutorFactory();
-
-                var executor = factory.CreateRecoverabilityExecutor();
-
-                return new RecoverabilityPipelineTerminator(executor);
-            }, "Executes the configured retry policy");
+            pipelineSettings.Register(new RecoverabilityPipelineTerminator(), "Executes the configured retry policy");
 
             hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
             {
@@ -109,13 +90,6 @@
                 recoverabilityPipeline);
         }
 
-        public RecoverabilityExecutor CreateSatelliteRecoverabilityExecutor()
-        {
-            var factory = CreateRecoverabilityExecutorFactory();
-
-            return factory.CreateRecoverabilityExecutor();
-        }
-
         public RecoverabilityAction AdjustForTransportCapabilities(
             RecoverabilityAction selectedAction)
         {
@@ -147,38 +121,28 @@
             return selectedAction;
         }
 
-        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
-        {
+        //RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory()
+        //{
 
-            Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory = () =>
-            {
-                var staticFaultMetadata = new Dictionary<string, string>
-                {
-                    {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
-                    {Headers.ProcessingEndpoint, settings.EndpointName()},
-                    {Headers.HostId, hostInformation.HostId.ToString("N")},
-                    {Headers.HostDisplayName, hostInformation.DisplayName}
-                };
+        //    Func<MoveToErrorsExecutor> moveToErrorsExecutorFactory = () =>
+        //    {
+        //        var staticFaultMetadata = new Dictionary<string, string>
+        //        {
+        //            {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
+        //            {Headers.ProcessingEndpoint, settings.EndpointName()},
+        //            {Headers.HostId, hostInformation.HostId.ToString("N")},
+        //            {Headers.HostDisplayName, hostInformation.DisplayName}
+        //        };
 
-                var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
+        //        var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                return new MoveToErrorsExecutor(staticFaultMetadata, headerCustomizations);
-            };
+        //        return new MoveToErrorsExecutor(staticFaultMetadata, headerCustomizations);
+        //    };
 
-            Func<DelayedRetryExecutor> delayedRetryExecutorFactory = () =>
-            {
-                if (delayedRetriesAvailable)
-                {
-                    return new DelayedRetryExecutor();
-                }
-
-                return null;
-            };
-
-            return new RecoverabilityExecutorFactory(
-                delayedRetryExecutorFactory,
-                moveToErrorsExecutorFactory);
-        }
+        //    return new RecoverabilityExecutorFactory(
+        //        delayedRetryExecutorFactory,
+        //        moveToErrorsExecutorFactory);
+        //}
 
         ImmediateConfig GetImmediateRetryConfig()
         {
@@ -221,8 +185,6 @@
         bool transactionsOn;
         bool delayedRetriesAvailable;
         bool immediateRetriesAvailable;
-        RecoverabilityExecutorFactory recoverabilityExecutorFactory;
-        HostInformation hostInformation;
 
         public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
         public const string DelayedRetriesTimeIncrease = "Recoverability.Delayed.DefaultPolicy.Timespan";

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Transport;
 
     /// <summary>
@@ -23,6 +24,13 @@ namespace NServiceBus
         {
             return CachedImmediateRetry;
         }
+
+        /// <summary>
+        /// Executes the recoverability action.
+        /// </summary>
+        public abstract IEnumerable<TransportOperation> Execute(
+            ErrorContext errorContext,
+            IDictionary<string, string> metadata);
 
         /// <summary>
         /// Creates a new delayed retry recoverability action.

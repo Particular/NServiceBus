@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Pipeline;
     using Transport;
 
@@ -9,17 +10,21 @@
         public RecoverabilityContext(
             ErrorContext errorContext,
             RecoverabilityConfig recoverabilityConfig,
+            IDictionary<string, string> metadata,
             RecoverabilityAction recoverabilityAction,
             IBehaviorContext parent) : base(parent)
         {
             ErrorContext = errorContext;
             RecoverabilityConfiguration = recoverabilityConfig;
+            Metadata = metadata;
             RecoverabilityAction = recoverabilityAction;
         }
 
         public ErrorContext ErrorContext { get; }
 
         public RecoverabilityConfig RecoverabilityConfiguration { get; }
+
+        public IDictionary<string, string> Metadata { get; }
 
         public RecoverabilityAction RecoverabilityAction
         {

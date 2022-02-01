@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System.Collections.Generic;
     using Transport;
 
     /// <summary>
@@ -21,6 +22,11 @@
         /// The recoverability action to take for this message.
         /// </summary>
         RecoverabilityAction RecoverabilityAction { get; set; }
+
+        /// <summary>
+        /// Metadata for this message.
+        /// </summary>
+        IDictionary<string, string> Metadata { get; }
 
         /// <summary>
         /// Locks the recoverability action for further changes.

@@ -260,6 +260,7 @@ namespace NServiceBus
     {
         public System.TimeSpan Delay { get; }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     public enum DependencyLifecycle
     {
@@ -280,6 +281,7 @@ namespace NServiceBus
     {
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string Reason { get; }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
@@ -595,6 +597,7 @@ namespace NServiceBus
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction
     {
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     [System.Obsolete("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
@@ -785,6 +788,7 @@ namespace NServiceBus
     {
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
     {
@@ -901,6 +905,7 @@ namespace NServiceBus
     {
         protected RecoverabilityAction() { }
         public abstract NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata);
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
@@ -2014,6 +2019,7 @@ namespace NServiceBus.Pipeline
     public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.ErrorContext ErrorContext { get; }
+        System.Collections.Generic.IDictionary<string, string> Metadata { get; }
         NServiceBus.RecoverabilityAction RecoverabilityAction { get; set; }
         NServiceBus.RecoverabilityConfig RecoverabilityConfiguration { get; }
         void PreventChanges();

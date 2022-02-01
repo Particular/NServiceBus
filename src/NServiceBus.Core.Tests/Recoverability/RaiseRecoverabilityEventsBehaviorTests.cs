@@ -82,7 +82,7 @@
             int numberOfDeliveryAttempts = 1)
         {
             var errorContext = new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, "my-endpoint", new ContextBag());
-            return new RecoverabilityContext(errorContext, null, recoverabilityAction, new FakeRootContext());
+            return new RecoverabilityContext(errorContext, null, new Dictionary<string, string>(), recoverabilityAction, new FakeRootContext());
         }
 
         RaiseRecoverabilityEventsBehavior CreateBehavior()

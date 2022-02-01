@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Collections.Generic;
     using NServiceBus.Transport;
 
     /// <summary>
@@ -21,5 +22,15 @@ namespace NServiceBus
         /// How to handle the message from a transport perspective.
         /// </summary>
         public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
+
+        /// <summary>
+        /// Executes the recoverability action.
+        /// </summary>
+        public override IEnumerable<TransportOperation> Execute(
+            ErrorContext errorContext,
+            IDictionary<string, string> metadata)
+        {
+            yield break;
+        }
     }
 }

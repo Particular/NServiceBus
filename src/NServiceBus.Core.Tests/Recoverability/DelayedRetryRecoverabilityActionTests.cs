@@ -2,37 +2,35 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using System.Linq;
     using NServiceBus.Extensibility;
+    using NServiceBus.Routing;
     using NServiceBus.Transport;
     using NUnit.Framework;
 
     [TestFixture]
-    public class DelayedRetryExecutorTests
+    public class DelayedRetryRecoverabilityActionTests
     {
-        [SetUp]
-        public void Setup()
-        {
-            dispatchCollector = new DispatchCollector();
-        }
-
         [Test]
-        public async Task When_native_delayed_delivery_should_add_delivery_constraint()
+        public void When_native_delayed_delivery_should_add_delivery_constraint()
         {
-            var delayedRetryExecutor = CreateExecutor();
             var errorContext = CreateErrorContext();
             var delay = TimeSpan.FromSeconds(42);
+            var delayedRetryAction = new DelayedRetry(delay);
 
-            await delayedRetryExecutor.Retry(errorContext, delay, dispatchCollector.Collect);
+            var transportOperation = delayedRetryAction.Execute(errorContext, new Dictionary<string, string>())
+                .Single();
 
-            Assert.AreEqual(errorContext.ReceiveAddress, dispatchCollector.Destination);
-            Assert.AreEqual(delay, dispatchCollector.Delay);
+            var addressTag = transportOperation.AddressTag as UnicastAddressTag;
+
+            Assert.AreEqual(errorContext.ReceiveAddress, addressTag.Destination);
+            Assert.AreEqual(delay, transportOperation.Properties.DelayDeliveryWith.Delay);
         }
 
         [Test]
-        public async Task Should_update_retry_headers_when_present()
+        public void Should_update_retry_headers_when_present()
         {
-            var delayedRetryExecutor = CreateExecutor();
+            var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
             var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTimeOffset(2012, 12, 12, 0, 0, 0, TimeSpan.Zero));
 
             var errorContext = CreateErrorContext(new Dictionary<string, string>
@@ -42,11 +40,11 @@
             });
 
             var now = DateTimeOffset.UtcNow;
-            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero, dispatchCollector.Collect);
+            var transportOperations = delayedRetryAction.Execute(errorContext, new Dictionary<string, string>());
 
             var incomingMessage = errorContext.Message;
 
-            var outgoingMessageHeaders = dispatchCollector.MessageHeaders;
+            var outgoingMessageHeaders = transportOperations.Single().Message.Headers;
 
             Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
             Assert.AreEqual("2", incomingMessage.Headers[Headers.DelayedRetries]);
@@ -59,14 +57,14 @@
         }
 
         [Test]
-        public async Task Should_add_retry_headers_when_not_present()
+        public void Should_add_retry_headers_when_not_present()
         {
-            var delayedRetryExecutor = CreateExecutor();
+            var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
             var errorContext = CreateErrorContext();
 
-            await delayedRetryExecutor.Retry(errorContext, TimeSpan.Zero, dispatchCollector.Collect);
+            var transportOperations = delayedRetryAction.Execute(errorContext, new Dictionary<string, string>());
 
-            var outgoingMessageHeaders = dispatchCollector.MessageHeaders;
+            var outgoingMessageHeaders = transportOperations.Single().Message.Headers;
 
             Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
             Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetries));
@@ -74,16 +72,9 @@
             Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
         }
 
-        DelayedRetryExecutor CreateExecutor()
-        {
-            return new DelayedRetryExecutor();
-        }
-
         ErrorContext CreateErrorContext(Dictionary<string, string> headers = null)
         {
             return new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(), "messageId", new byte[0], new TransportTransaction(), 0, "my-queue", new ContextBag());
         }
-
-        DispatchCollector dispatchCollector;
     }
 }

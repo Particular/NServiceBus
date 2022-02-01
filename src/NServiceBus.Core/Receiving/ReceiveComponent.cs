@@ -195,7 +195,6 @@ namespace NServiceBus
                 {
                     var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor();
                     var recoverabilityConfig = recoverabilityComponent.RecoverabilityConfig;
 
                     await satellitePump.Initialize(
@@ -206,16 +205,11 @@ namespace NServiceBus
                             var recoverabilityAction = satellite.RecoverabilityPolicy(recoverabilityConfig, errorContext);
                             var adjustedRecoverabilityAction = recoverabilityComponent.AdjustForTransportCapabilities(recoverabilityAction);
 
-                            await satelliteRecoverabilityExecutor.Invoke(
-                                errorContext,
-                                adjustedRecoverabilityAction,
-                                (transportOperation, t) =>
-                                {
-                                    var dispatcher = builder.GetRequiredService<IMessageDispatcher>();
+                            var transportOperations = adjustedRecoverabilityAction.Execute(errorContext, new Dictionary<string, string>());
 
-                                    return dispatcher.Dispatch(new TransportOperations(transportOperation), errorContext.TransportTransaction, t);
-                                },
-                                token).ConfigureAwait(false);
+                            var dispatcher = builder.GetRequiredService<IMessageDispatcher>();
+
+                            await dispatcher.Dispatch(new TransportOperations(transportOperations.ToArray()), errorContext.TransportTransaction, token).ConfigureAwait(false);
 
                             return recoverabilityAction.ErrorHandleResult;
                         }

@@ -38,6 +38,11 @@
         public RecoverabilityAction RecoverabilityAction { get; set; }
 
         /// <summary>
+        /// Metadata for this message.
+        /// </summary>
+        public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+
+        /// <summary>
         /// Locks the recoverability action for further changes.
         /// </summary>
         public void PreventChanges()
