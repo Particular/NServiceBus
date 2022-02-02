@@ -44,9 +44,6 @@
             return TaskEx.CompletedTask;
         }
 
-        class TestMessage : IMessage
-        { }
-
         class HandleSagaNotFoundReturnsNull1 : IHandleSagaNotFound
         {
             public Task Handle(object message, IMessageProcessingContext context)
