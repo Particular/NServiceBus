@@ -64,6 +64,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 {
                     if (context.RecoverabilityAction is MoveToError)
                     {
+                        //Here we could store the body, headers and error metadata elsewhere
+
                         context.RecoverabilityAction = new CustomOnErrorAction(context.RecoverabilityConfiguration.Failed.ErrorQueue);
                     }
 
@@ -76,16 +78,14 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     {
                     }
 
-                    public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
-
                     public override IEnumerable<TransportOperation> Execute(ErrorContext errorContext, IDictionary<string, string> metadata)
                     {
                         var message = errorContext.Message;
 
-                        //Here we could store the body, headers and error metadata elsewhere
-
-                        //show how we just send an empty message with the message id to the error queue
-                        var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), ReadOnlyMemory<byte>.Empty);
+                        // show how we just send an empty message with the message id to the error queue
+                        var outgoingMessage = new OutgoingMessage(message.MessageId,
+                            new Dictionary<string, string>(message.Headers),   // This code is passing headers just since the acceptance testing frameworks needs it.
+                            ReadOnlyMemory<byte>.Empty);
 
                         yield return new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress));
                     }
