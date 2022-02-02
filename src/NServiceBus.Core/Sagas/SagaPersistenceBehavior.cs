@@ -105,7 +105,7 @@
                     }
                     else
                     {
-                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
+                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound(currentSagaMetadata);
                     }
                 }
             }
