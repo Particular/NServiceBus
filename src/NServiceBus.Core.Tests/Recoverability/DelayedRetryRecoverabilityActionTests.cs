@@ -18,7 +18,7 @@
             var delay = TimeSpan.FromSeconds(42);
             var delayedRetryAction = new DelayedRetry(delay);
 
-            var transportOperation = delayedRetryAction.Execute(errorContext, new Dictionary<string, string>())
+            var transportOperation = delayedRetryAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
                 .Single();
 
             var addressTag = transportOperation.AddressTag as UnicastAddressTag;
@@ -41,7 +41,7 @@
             });
 
             var now = DateTimeOffset.UtcNow;
-            var transportOperations = delayedRetryAction.Execute(errorContext, new Dictionary<string, string>());
+            var transportOperations = delayedRetryAction.GetTransportOperations(errorContext, new Dictionary<string, string>());
 
             var incomingMessage = errorContext.Message;
 
@@ -63,7 +63,7 @@
             var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
             var errorContext = CreateErrorContext();
 
-            var transportOperations = delayedRetryAction.Execute(errorContext, new Dictionary<string, string>());
+            var transportOperations = delayedRetryAction.GetTransportOperations(errorContext, new Dictionary<string, string>());
 
             var outgoingMessageHeaders = transportOperations.Single().Message.Headers;
 

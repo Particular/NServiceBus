@@ -17,7 +17,7 @@
         /// <summary>
         /// Executes the recoverability action.
         /// </summary>
-        public override IEnumerable<TransportOperation> Execute(
+        public override IEnumerable<TransportOperation> GetTransportOperations(
             ErrorContext errorContext,
             IDictionary<string, string> metadata)
         {

@@ -26,9 +26,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Executes the recoverability action.
+        /// Return the transport operations that this action should result in.
         /// </summary>
-        public abstract IEnumerable<TransportOperation> Execute(
+        public abstract IEnumerable<TransportOperation> GetTransportOperations(
             ErrorContext errorContext,
             IDictionary<string, string> metadata);
 

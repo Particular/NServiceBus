@@ -18,7 +18,7 @@
 
             var errorContext = CreateErrorContext();
             var moveToErrorAction = new MoveToError(customErrorQueue);
-            var transportOperation = moveToErrorAction.Execute(errorContext, new Dictionary<string, string>())
+            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
                 .Single();
 
             var addressTag = transportOperation.AddressTag as UnicastAddressTag;
@@ -39,7 +39,7 @@
             var errorContext = CreateErrorContext(messageHeaders: incomingMessageHeaders);
 
             var moveToErrorAction = new MoveToError(ErrorQueueAddress);
-            var transportOperation = moveToErrorAction.Execute(errorContext, new Dictionary<string, string>())
+            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
                 .Single();
 
             var outgoingMessageHeaders = transportOperation.Message.Headers;
@@ -59,7 +59,7 @@
             var errorContext = CreateErrorContext(messageHeaders: retryHeaders);
 
             var moveToErrorAction = new MoveToError(ErrorQueueAddress);
-            var transportOperation = moveToErrorAction.Execute(errorContext, new Dictionary<string, string>())
+            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
                 .Single();
             var outgoingMessageHeaders = transportOperation.Message.Headers;
 
@@ -73,7 +73,7 @@
             var errorContext = CreateErrorContext();
 
             var moveToErrorAction = new MoveToError(ErrorQueueAddress);
-            var transportOperation = moveToErrorAction.Execute(errorContext, new Dictionary<string, string> { { "staticFaultMetadataKey", "staticFaultMetadataValue" } })
+            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string> { { "staticFaultMetadataKey", "staticFaultMetadataValue" } })
                 .Single();
             var outgoingMessageHeaders = transportOperation.Message.Headers;
 

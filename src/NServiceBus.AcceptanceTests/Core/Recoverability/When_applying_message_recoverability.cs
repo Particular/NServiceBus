@@ -78,7 +78,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     {
                     }
 
-                    public override IEnumerable<TransportOperation> Execute(ErrorContext errorContext, IDictionary<string, string> metadata)
+                    public override IEnumerable<TransportOperation> GetTransportOperations(ErrorContext errorContext, IDictionary<string, string> metadata)
                     {
                         var message = errorContext.Message;
 

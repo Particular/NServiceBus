@@ -26,7 +26,7 @@
             var recoverabilityAction = recoverabilityPolicy(errorContext);
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
-            var transportOperations = recoverabilityAction.Execute(errorContext, metadata);
+            var transportOperations = recoverabilityAction.GetTransportOperations(errorContext, metadata);
 
             var dispatcher = serviceProvider.GetRequiredService<IMessageDispatcher>();
 

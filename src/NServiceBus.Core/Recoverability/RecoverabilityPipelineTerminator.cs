@@ -21,7 +21,7 @@
 
             context.PreventChanges();
 
-            var transportOperations = context.RecoverabilityAction.Execute(
+            var transportOperations = context.RecoverabilityAction.GetTransportOperations(
                 errorContext,
                 context.Metadata);
 
