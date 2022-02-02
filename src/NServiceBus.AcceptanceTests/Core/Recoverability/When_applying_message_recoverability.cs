@@ -62,7 +62,10 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 public override Task Invoke(IRecoverabilityContext context, Func<Task> next)
                 {
-                    context.RecoverabilityAction = new CustomOnErrorAction(context.RecoverabilityConfiguration.Failed.ErrorQueue);
+                    if (context.RecoverabilityAction is MoveToError)
+                    {
+                        context.RecoverabilityAction = new CustomOnErrorAction(context.RecoverabilityConfiguration.Failed.ErrorQueue);
+                    }
 
                     return next();
                 }
