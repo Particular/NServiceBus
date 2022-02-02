@@ -1,28 +1,50 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
 
     class CompositeNotification
     {
-        public void Register<TEvent>(INotificationSubscriptions<TEvent> notification) => notifications.Add(typeof(TEvent), notification);
+        public void Register<TEvent>(INotificationSubscriptions<TEvent> notification) =>
+            notifications.Add(new Notifier<TEvent>(notification));
 
-        public Task Raise<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+        // Currently we only have class notifications and no structs or records so object is fine.
+        public Task Raise(object @event, CancellationToken cancellationToken = default)
         {
             if (@event is null)
             {
                 return Task.CompletedTask;
             }
 
-            if (notifications.TryGetValue(typeof(TEvent), out var notification) && notification is INotificationSubscriptions<TEvent> notifier)
+            for (int i = 0; i < notifications.Count; i++)
             {
-                return notifier.Raise(@event, cancellationToken);
+                if (notifications[i].Handle(@event))
+                {
+                    return notifications[i].Raise(@event, cancellationToken);
+                }
             }
             return Task.CompletedTask;
         }
 
-        Dictionary<Type, object> notifications = new Dictionary<Type, object>();
+        List<INotifier> notifications = new List<INotifier>();
+
+        interface INotifier
+        {
+            bool Handle(object @event);
+            Task Raise(object @event, CancellationToken cancellationToken = default);
+        }
+
+        class Notifier<TEvent> : INotifier
+        {
+            public Notifier(INotificationSubscriptions<TEvent> notifier) => this.notifier = notifier;
+
+            public bool Handle(object @event) => @event is TEvent;
+
+            public Task Raise(object @event, CancellationToken cancellationToken = default) =>
+                notifier.Raise((TEvent)@event, cancellationToken);
+
+            readonly INotificationSubscriptions<TEvent> notifier;
+        }
     }
 }

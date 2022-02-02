@@ -103,7 +103,7 @@
             messageRetryNotification.Subscribe((e, _) =>
             {
                 messageRetriedNotifications.Add(e);
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             });
 
             messageFaultedNotifications = new List<MessageFaulted>();
@@ -111,7 +111,7 @@
             messageFaultedNotification.Subscribe((e, _) =>
             {
                 messageFaultedNotifications.Add(e);
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             });
 
             return new RecoverabilityPipelineTerminator(
@@ -123,7 +123,6 @@
         List<MessageFaulted> messageFaultedNotifications;
 
         static string ErrorQueueAddress = "error-queue";
-
 
         class FakeRootContext : IBehaviorContext
         {
@@ -142,21 +141,11 @@
 
         class FakePipelineCache : IPipelineCache
         {
-            public FakePipelineCache()
-            {
-            }
-
-            public IPipeline<TContext> Pipeline<TContext>() where TContext : IBehaviorContext
-            {
-                return new FakePipeline<TContext>();
-            }
+            public IPipeline<TContext> Pipeline<TContext>() where TContext : IBehaviorContext => new FakePipeline<TContext>();
 
             public class FakePipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
             {
-                public Task Invoke(TContext context)
-                {
-                    return Task.CompletedTask;
-                }
+                public Task Invoke(TContext context) => Task.CompletedTask;
             }
         }
 
