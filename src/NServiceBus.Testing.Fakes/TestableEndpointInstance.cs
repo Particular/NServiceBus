@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -21,5 +22,13 @@
             EndpointStopped = true;
             return Task.FromResult(0);
         }
+
+#pragma warning disable PS0018
+        public virtual ValueTask DisposeAsync()
+        {
+            GC.SuppressFinalize(this);
+            return new ValueTask(Stop(CancellationToken.None));
+        }
+#pragma warning restore PS0018
     }
 }

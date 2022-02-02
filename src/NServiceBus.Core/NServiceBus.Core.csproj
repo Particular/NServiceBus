@@ -17,6 +17,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Security" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

@@ -7,7 +7,7 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    class RunningEndpointInstance : IEndpointInstance
+    sealed class RunningEndpointInstance : IEndpointInstance
     {
         public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource)
         {
@@ -127,6 +127,13 @@ namespace NServiceBus
             GuardAgainstUseWhenNotStarted();
             return messageSession.Unsubscribe(eventType, unsubscribeOptions, cancellationToken);
         }
+#pragma warning disable PS0018
+        public ValueTask DisposeAsync()
+        {
+            GC.SuppressFinalize(this);
+            return new ValueTask(Stop(CancellationToken.None));
+        }
+#pragma warning restore PS0018
 
         void GuardAgainstUseWhenNotStarted()
         {

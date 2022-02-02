@@ -493,7 +493,7 @@ namespace NServiceBus
     {
         NServiceBus.Routing.DistributionStrategy GetDistributionStrategy(string endpointName, NServiceBus.DistributionStrategyScope scope);
     }
-    public interface IEndpointInstance : NServiceBus.IMessageSession
+    public interface IEndpointInstance : NServiceBus.IMessageSession, System.IAsyncDisposable
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
