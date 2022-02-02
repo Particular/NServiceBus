@@ -4,4 +4,8 @@
     <AnalyzerTargetFramework>netstandard2.0</AnalyzerTargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <MinVerMinimumMajorMinor>8.0</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+
 </Project>
