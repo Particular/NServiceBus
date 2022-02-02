@@ -14,6 +14,7 @@ namespace NServiceBus.Extensibility
         public ContextBag(ContextBag parentBag = null)
         {
             this.parentBag = parentBag;
+            Behaviors = parentBag?.Behaviors;
         }
 
         /// <summary>
@@ -147,18 +148,11 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// This internal property is here for performance optimizations. It allows the pipeline to set all
         /// behaviors of a given stage which then can be extracted as part of the next delegate invocation from the context
-        /// to avoid closure capturing. The behaviors set on the current bag take precedence. In case they are not set
-        /// it walks up the parent hierarchy to find the appropriate parent behaviors (for stages that have no pipeline).
+        /// to avoid closure capturing.
         /// </summary>
-        internal IBehavior[] Behaviors
-        {
-            get => behaviors ?? parentBag?.Behaviors;
-            set => behaviors = value;
-        }
+        internal IBehavior[] Behaviors { get; set; }
 
         ContextBag parentBag;
-        IBehavior[] behaviors;
-
         Dictionary<string, object> stash = new Dictionary<string, object>();
     }
 }
