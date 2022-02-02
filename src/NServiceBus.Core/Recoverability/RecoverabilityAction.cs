@@ -20,10 +20,7 @@ namespace NServiceBus
         /// Creates an immediate retry recoverability action.
         /// </summary>
         /// <returns>Immediate retry action.</returns>
-        public static ImmediateRetry ImmediateRetry()
-        {
-            return CachedImmediateRetry;
-        }
+        public static ImmediateRetry ImmediateRetry() => CachedImmediateRetry;
 
         /// <summary>
         /// Return the transport operations that this action should result in.

@@ -258,7 +258,7 @@ namespace NServiceBus
     }
     public class DelayedRetry : NServiceBus.RecoverabilityAction
     {
-        public DelayedRetry(System.TimeSpan delay) { }
+        protected DelayedRetry(System.TimeSpan delay) { }
         public System.TimeSpan Delay { get; }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
@@ -598,7 +598,7 @@ namespace NServiceBus
     }
     public class ImmediateRetry : NServiceBus.RecoverabilityAction
     {
-        public ImmediateRetry() { }
+        protected ImmediateRetry() { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
@@ -789,7 +789,7 @@ namespace NServiceBus
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {
-        public MoveToError(string errorQueue) { }
+        protected MoveToError(string errorQueue) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }

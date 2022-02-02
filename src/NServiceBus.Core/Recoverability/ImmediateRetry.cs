@@ -11,6 +11,13 @@
     public class ImmediateRetry : RecoverabilityAction
     {
         /// <summary>
+        /// Creates an immediate retry action.
+        /// </summary>
+        protected internal ImmediateRetry()
+        {
+        }
+
+        /// <summary>
         /// The ErrorHandleResult that should be passed to the transport.
         /// </summary>
         public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.RetryRequired;

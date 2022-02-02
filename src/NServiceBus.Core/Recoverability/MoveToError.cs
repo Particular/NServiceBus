@@ -13,10 +13,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates the action with the target error queue.
         /// </summary>
-        public MoveToError(string errorQueue)
-        {
-            ErrorQueue = errorQueue;
-        }
+        protected internal MoveToError(string errorQueue) => ErrorQueue = errorQueue;
 
         /// <summary>
         /// Defines the error queue where the message should be move to.

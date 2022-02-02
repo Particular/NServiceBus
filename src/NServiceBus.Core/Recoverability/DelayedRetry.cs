@@ -15,10 +15,7 @@
         /// <summary>
         /// Creates the action with the requested delay.
         /// </summary>
-        public DelayedRetry(TimeSpan delay)
-        {
-            Delay = delay;
-        }
+        protected internal DelayedRetry(TimeSpan delay) => Delay = delay;
 
         /// <summary>
         /// The retry delay.
