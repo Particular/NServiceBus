@@ -261,7 +261,7 @@ namespace NServiceBus
         public DelayedRetry(System.TimeSpan delay) { }
         public System.TimeSpan Delay { get; }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     public enum DependencyLifecycle
     {
@@ -283,7 +283,7 @@ namespace NServiceBus
         public Discard(string reason) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string Reason { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
@@ -600,7 +600,7 @@ namespace NServiceBus
     {
         public ImmediateRetry() { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     [System.Obsolete("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
@@ -792,7 +792,7 @@ namespace NServiceBus
         public MoveToError(string errorQueue) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
     public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
     {
@@ -909,7 +909,7 @@ namespace NServiceBus
     {
         protected RecoverabilityAction() { }
         public abstract NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata);
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata);
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
