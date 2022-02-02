@@ -14,11 +14,21 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     public class When_applying_message_recoverability : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_for_alternate_recoverability_actions()
+        public async Task Should_allow_for_alternate_move_to_error_action()
         {
+            var onMessageSentToErrorQueueTriggered = false;
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFailingHandler>(b => b
                     .DoNotFailOnErrorMessages()
+                    .CustomConfig(config =>
+                    {
+                        config.Recoverability()
+                        .Failed(f => f.OnMessageSentToErrorQueue((_, __) =>
+                        {
+                            onMessageSentToErrorQueueTriggered = true;
+                            return Task.CompletedTask;
+                        }));
+                    })
                     .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
                 )
                 .WithEndpoint<ErrorSpy>()
@@ -26,12 +36,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 .Run();
 
             Assert.True(context.MessageBodyWasEmpty);
+            Assert.True(onMessageSentToErrorQueueTriggered);
         }
 
         class Context : ScenarioContext
         {
             public bool MessageMovedToErrorQueue { get; set; }
-            public bool MessageBodyWasEmpty { get; internal set; }
+            public bool MessageBodyWasEmpty { get; set; }
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -51,13 +62,17 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 public override Task Invoke(IRecoverabilityContext context, Func<Task> next)
                 {
-                    context.RecoverabilityAction = new CustomRecoverabilityAction();
+                    context.RecoverabilityAction = new CustomOnErrorAction(context.RecoverabilityConfiguration.Failed.ErrorQueue);
 
                     return next();
                 }
 
-                class CustomRecoverabilityAction : RecoverabilityAction
+                class CustomOnErrorAction : MoveToError
                 {
+                    public CustomOnErrorAction(string errorQueue) : base(errorQueue)
+                    {
+                    }
+
                     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
                     public override IEnumerable<TransportOperation> Execute(ErrorContext errorContext, IDictionary<string, string> metadata)

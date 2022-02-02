@@ -7,10 +7,8 @@
     /// <summary>
     /// Indicates recoverability is required to immediately retry the current message.
     /// </summary>
-    public sealed class ImmediateRetry : RecoverabilityAction
+    public class ImmediateRetry : RecoverabilityAction
     {
-        internal ImmediateRetry() { }
-
         /// <summary>
         /// The ErrorHandleResult that should be passed to the transport.
         /// </summary>

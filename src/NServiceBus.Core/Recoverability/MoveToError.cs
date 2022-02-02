@@ -8,9 +8,12 @@ namespace NServiceBus
     /// <summary>
     /// Indicates that recoverability is required to move the current message to the error queue.
     /// </summary>
-    public sealed class MoveToError : RecoverabilityAction
+    public class MoveToError : RecoverabilityAction
     {
-        internal MoveToError(string errorQueue)
+        /// <summary>
+        /// Creates the action with the target error queue.
+        /// </summary>
+        public MoveToError(string errorQueue)
         {
             ErrorQueue = errorQueue;
         }

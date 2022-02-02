@@ -39,9 +39,8 @@
                     .ConfigureAwait(false);
             }
 
-            if (context.RecoverabilityAction is DelayedRetry)
+            if (context.RecoverabilityAction is DelayedRetry delayAction)
             {
-                var delayAction = context.RecoverabilityAction as DelayedRetry;
                 var currentDelayedRetriesAttempts = context.ErrorContext.Message.GetDelayedDeliveriesPerformed() + 1;
 
                 var messageToBeRetriedEvent = new MessageToBeRetried(
@@ -54,9 +53,8 @@
                     .ConfigureAwait(false);
             }
 
-            if (context.RecoverabilityAction is MoveToError)
+            if (context.RecoverabilityAction is MoveToError errorAction)
             {
-                var errorAction = context.RecoverabilityAction as MoveToError;
                 var messageFaultedEvent = new MessageFaulted(errorContext, errorAction.ErrorQueue);
 
                 await messageFaultedNotification.Raise(messageFaultedEvent, context.CancellationToken)

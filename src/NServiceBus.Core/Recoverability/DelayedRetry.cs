@@ -10,9 +10,12 @@
     /// <summary>
     /// Indicates recoverability is required to delay retry the current message.
     /// </summary>
-    public sealed class DelayedRetry : RecoverabilityAction
+    public class DelayedRetry : RecoverabilityAction
     {
-        internal DelayedRetry(TimeSpan delay)
+        /// <summary>
+        /// Creates the action with the requested delay.
+        /// </summary>
+        public DelayedRetry(TimeSpan delay)
         {
             Delay = delay;
         }

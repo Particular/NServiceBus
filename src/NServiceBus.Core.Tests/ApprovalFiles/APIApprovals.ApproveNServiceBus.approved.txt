@@ -256,8 +256,9 @@ namespace NServiceBus
         public NServiceBus.DelayedRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.DelayedRetryMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
-    public sealed class DelayedRetry : NServiceBus.RecoverabilityAction
+    public class DelayedRetry : NServiceBus.RecoverabilityAction
     {
+        public DelayedRetry(System.TimeSpan delay) { }
         public System.TimeSpan Delay { get; }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
@@ -277,8 +278,9 @@ namespace NServiceBus
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
-    public sealed class Discard : NServiceBus.RecoverabilityAction
+    public class Discard : NServiceBus.RecoverabilityAction
     {
+        public Discard(string reason) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string Reason { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
@@ -594,8 +596,9 @@ namespace NServiceBus
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
     }
-    public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction
+    public class ImmediateRetry : NServiceBus.RecoverabilityAction
     {
+        public ImmediateRetry() { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
     }
@@ -784,8 +787,9 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
     }
-    public sealed class MoveToError : NServiceBus.RecoverabilityAction
+    public class MoveToError : NServiceBus.RecoverabilityAction
     {
+        public MoveToError(string errorQueue) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
         public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Execute(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }

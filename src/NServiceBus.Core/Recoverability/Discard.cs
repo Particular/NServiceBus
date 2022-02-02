@@ -7,9 +7,12 @@ namespace NServiceBus
     /// <summary>
     /// Indicates recoverability is required to discard/ignore the current message.
     /// </summary>
-    public sealed class Discard : RecoverabilityAction
+    public class Discard : RecoverabilityAction
     {
-        internal Discard(string reason)
+        /// <summary>
+        /// Creates the action with the stated reason.
+        /// </summary>
+        public Discard(string reason)
         {
             Reason = reason;
         }
