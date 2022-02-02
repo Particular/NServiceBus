@@ -63,16 +63,16 @@ jobs:
           
           # Octopus Deploy scripts need an executable file to recreate this metadata
           @"
-          `$Branch = "${{env.GitVersion_BranchName}}"
-          `$Version = "${{env.GitVersion_LegacySemVer}}"
+          `$Branch = "${{github.ref_name}}"
+          `$Version = "${{env.MinVerVersion}}"
           `$Product = "${{env.PARTICULAR_REPO_NAME}}"
-          `$Major = "${{env.GitVersion_Major}}"
-          `$Minor = "${{env.GitVersion_Minor}}"
-          `$Commit = "${{env.GitVersion_Sha}}"
+          `$Major = "${{env.MinVerMajor}}"
+          `$Minor = "${{env.MinVerMinor}}"
+          `$Commit = "${{github.sha}}"
           "@ > packaging/Metadata.ps1
           
           # Create the Octopus package
-          octo pack --id="${{env.PARTICULAR_REPO_NAME}}.Deploy" --version="${{env.GitVersion_SemVer}}" --format="nupkg" --basePath="packaging" --outFolder="octopus-package"
+          octo pack --id="${{env.PARTICULAR_REPO_NAME}}.Deploy" --version="${{env.MinVerVersion}}" --format="nupkg" --basePath="packaging" --outFolder="octopus-package"
         shell: pwsh
       - name: Publish Octopus Package Artifacts
         uses: actions/upload-artifact@v3
@@ -85,14 +85,14 @@ jobs:
         with:
           server: https://deploy.particular.net
           api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
-          packages: octopus-package/${{env.PARTICULAR_REPO_NAME}}.Deploy.${{env.GitVersion_SemVer}}.nupkg
+          packages: octopus-package/${{env.PARTICULAR_REPO_NAME}}.Deploy.${{env.MinVerVersion}}.nupkg
       - name: Create Octopus Deploy release
         uses: OctopusDeploy/create-release-action@v1.1.2
         with:
           server: https://deploy.particular.net
           api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
           project: ${{env.PARTICULAR_REPO_NAME}}
-          release_number: ${{env.GitVersion_SemVer}}
-          package_version: ${{env.GitVersion_SemVer}}
+          release_number: ${{env.MinVerVersion}}
+          package_version: ${{env.MinVerVersion}}
           package: "GitReleaseManager:0.11.0"
           
