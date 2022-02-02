@@ -105,7 +105,8 @@
                     }
                     else
                     {
-                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound(currentSagaMetadata);
+                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
+                        logger.InfoFormat("Could not find a started saga of '{0}' for message type '{1}'.", currentSagaMetadata.SagaType.FullName, context.MessageBeingHandled.GetType().FullName);
                     }
                 }
             }

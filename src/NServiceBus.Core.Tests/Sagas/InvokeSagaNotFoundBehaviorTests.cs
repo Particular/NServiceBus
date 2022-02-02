@@ -41,8 +41,8 @@
 
         static Task SetSagaNotFound(IIncomingLogicalMessageContext context)
         {
-            context.Extensions.Get<SagaInvocationResult>().SagaNotFound(SagaMetadata.Create(typeof(DummySagaToProvideMetadata)));
-            return Task.CompletedTask;
+            context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
+            return TaskEx.CompletedTask;
         }
 
         public class DummySagaToProvideMetadata : Saga<DummySagaToProvideMetadata.SagaData>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
