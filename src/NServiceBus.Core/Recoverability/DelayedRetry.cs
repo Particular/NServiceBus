@@ -58,6 +58,17 @@
             yield return new TransportOperation(outgoingMessage, messageDestination, dispatchProperties);
         }
 
+        internal override object GetNotification(ErrorContext errorContext, IDictionary<string, string> metadata)
+        {
+            var currentDelayedRetriesAttempts = errorContext.Message.GetDelayedDeliveriesPerformed() + 1;
+
+            return new MessageToBeRetried(
+                attempt: currentDelayedRetriesAttempts,
+                delay: Delay,
+                immediateRetry: false,
+                errorContext: errorContext);
+        }
+
         static ILog Logger = LogManager.GetLogger<DelayedRetry>();
     }
 }

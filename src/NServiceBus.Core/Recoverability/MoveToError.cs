@@ -53,6 +53,9 @@ namespace NServiceBus
             yield return new TransportOperation(outgoingMessage, new UnicastAddressTag(ErrorQueue));
         }
 
+        internal override object GetNotification(ErrorContext errorContext, IDictionary<string, string> metadata) =>
+            new MessageFaulted(errorContext, ErrorQueue);
+
         static ILog Logger = LogManager.GetLogger<MoveToError>();
     }
 }

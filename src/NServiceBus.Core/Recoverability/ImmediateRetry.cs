@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using NServiceBus.Logging;
     using NServiceBus.Transport;
@@ -24,6 +25,14 @@
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
             yield break;
         }
+
+        internal override object GetNotification(ErrorContext errorContext,
+            IDictionary<string, string> metadata) =>
+            new MessageToBeRetried(
+                attempt: errorContext.ImmediateProcessingFailures - 1,
+                delay: TimeSpan.Zero,
+                immediateRetry: true,
+                errorContext: errorContext);
 
         static ILog Logger = LogManager.GetLogger<ImmediateRetry>();
     }

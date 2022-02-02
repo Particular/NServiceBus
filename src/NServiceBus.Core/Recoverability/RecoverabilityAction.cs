@@ -32,6 +32,10 @@ namespace NServiceBus
             ErrorContext errorContext,
             IDictionary<string, string> metadata);
 
+        // This method is deliberately internal. We have a hunch with the introduction of the recoverability pipeline
+        // many of the cases that today require notifications can be obsoleted over time.
+        internal virtual object GetNotification(ErrorContext errorContext, IDictionary<string, string> metadata) => null;
+
         /// <summary>
         /// Creates a new delayed retry recoverability action.
         /// </summary>

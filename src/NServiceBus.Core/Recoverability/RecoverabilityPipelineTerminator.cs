@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
@@ -12,8 +11,9 @@
             INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
             INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
         {
-            this.messageRetryNotification = messageRetryNotification;
-            this.messageFaultedNotification = messageFaultedNotification;
+            notifications = new CompositeNotification();
+            notifications.Register(messageRetryNotification);
+            notifications.Register(messageFaultedNotification);
         }
         protected override async Task Terminate(IRecoverabilityContext context)
         {
@@ -21,48 +21,17 @@
 
             context.PreventChanges();
 
-            var transportOperations = context.RecoverabilityAction.GetTransportOperations(
+            RecoverabilityAction recoverabilityAction = context.RecoverabilityAction;
+            var transportOperations = recoverabilityAction.GetTransportOperations(
                 errorContext,
                 context.Metadata);
 
             await context.Dispatch(transportOperations.ToList()).ConfigureAwait(false);
 
-            if (context.RecoverabilityAction is ImmediateRetry)
-            {
-                var messageToBeRetriedEvent = new MessageToBeRetried(
-                                attempt: errorContext.ImmediateProcessingFailures - 1,
-                                delay: TimeSpan.Zero,
-                                immediateRetry: true,
-                                errorContext: errorContext);
-
-                await messageRetryNotification.Raise(messageToBeRetriedEvent, context.CancellationToken)
-                    .ConfigureAwait(false);
-            }
-
-            if (context.RecoverabilityAction is DelayedRetry delayAction)
-            {
-                var currentDelayedRetriesAttempts = context.ErrorContext.Message.GetDelayedDeliveriesPerformed() + 1;
-
-                var messageToBeRetriedEvent = new MessageToBeRetried(
-                            attempt: currentDelayedRetriesAttempts,
-                            delay: delayAction.Delay,
-                            immediateRetry: false,
-                            errorContext: errorContext);
-
-                await messageRetryNotification.Raise(messageToBeRetriedEvent, context.CancellationToken)
-                    .ConfigureAwait(false);
-            }
-
-            if (context.RecoverabilityAction is MoveToError errorAction)
-            {
-                var messageFaultedEvent = new MessageFaulted(errorContext, errorAction.ErrorQueue);
-
-                await messageFaultedNotification.Raise(messageFaultedEvent, context.CancellationToken)
-                    .ConfigureAwait(false);
-            }
+            var notification = recoverabilityAction.GetNotification(errorContext, context.Metadata);
+            await notifications.Raise(notification, context.CancellationToken).ConfigureAwait(false);
         }
 
-        readonly INotificationSubscriptions<MessageToBeRetried> messageRetryNotification;
-        readonly INotificationSubscriptions<MessageFaulted> messageFaultedNotification;
+        readonly CompositeNotification notifications;
     }
 }
