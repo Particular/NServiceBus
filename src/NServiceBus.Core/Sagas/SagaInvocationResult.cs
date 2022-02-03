@@ -11,7 +11,6 @@ namespace NServiceBus
 
         public void SagaNotFound()
         {
-
             if (state == State.Unknown)
             {
                 state = State.SagaNotFound;
