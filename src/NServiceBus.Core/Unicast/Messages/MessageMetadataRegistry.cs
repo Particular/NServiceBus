@@ -11,9 +11,10 @@
     /// </summary>
     public class MessageMetadataRegistry
     {
-        internal MessageMetadataRegistry(Func<Type, bool> isMessageType)
+        internal MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
         {
             this.isMessageType = isMessageType;
+            this.allowDynamicTypeLoading = allowDynamicTypeLoading;
         }
 
         /// <summary>
@@ -98,7 +99,7 @@
 
         Type GetType(string messageTypeIdentifier)
         {
-            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out var type))
+            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out var type) && allowDynamicTypeLoading)
             {
                 try
                 {
@@ -208,6 +209,7 @@
         }
 
         Func<Type, bool> isMessageType;
+        readonly bool allowDynamicTypeLoading;
         ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
         ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 

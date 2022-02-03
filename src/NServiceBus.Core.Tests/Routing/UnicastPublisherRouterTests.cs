@@ -126,7 +126,7 @@
         [SetUp]
         public void Setup()
         {
-            metadataRegistry = new MessageMetadataRegistry(_ => true);
+            metadataRegistry = new MessageMetadataRegistry(_ => true, true);
             endpointInstances = new EndpointInstances();
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(

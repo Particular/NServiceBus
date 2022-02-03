@@ -105,7 +105,7 @@ namespace NServiceBus
 
         void ConfigureMessageTypes()
         {
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, true);
 
             messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
 

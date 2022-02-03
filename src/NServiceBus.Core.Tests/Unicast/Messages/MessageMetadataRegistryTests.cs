@@ -12,14 +12,14 @@
         [Test]
         public void Should_throw_an_exception_for_a_unmapped_type()
         {
-            var defaultMessageRegistry = new MessageMetadataRegistry(_ => false);
+            var defaultMessageRegistry = new MessageMetadataRegistry(_ => false, true);
             Assert.Throws<Exception>(() => defaultMessageRegistry.GetMessageMetadata(typeof(int)));
         }
 
         [Test]
         public void Should_return_null_when_resolving_unknown_type_from_type_identifier()
         {
-            var registry = new MessageMetadataRegistry(t => true);
+            var registry = new MessageMetadataRegistry(t => true, true);
 
             var metadata = registry.GetMessageMetadata("SomeNamespace.SomeType, SomeAssemblyName, Version=81.0.0.0, Culture=neutral, PublicKeyToken=null");
 
@@ -29,7 +29,7 @@
         [Test]
         public void Should_return_metadata_for_a_mapped_type()
         {
-            var defaultMessageRegistry = new MessageMetadataRegistry(type => type == typeof(int));
+            var defaultMessageRegistry = new MessageMetadataRegistry(type => type == typeof(int), true);
             defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(int) });
 
             var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
@@ -42,7 +42,7 @@
         [Test]
         public void Should_return_the_correct_parent_hierarchy()
         {
-            var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
+            var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
 
             defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
             var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));
@@ -62,7 +62,7 @@
         [TestCase("NServiceBus.Unicast.Tests.MessageMetadataRegistryTests+MyEvent")]
         public void Should_match_types_from_a_different_assembly(string typeName)
         {
-            var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
+            var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
             defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
 
             var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeName);
@@ -73,7 +73,7 @@
         [Test]
         public void Should_not_match_same_type_names_with_different_namespace()
         {
-            var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
+            var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
             defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
 
             string typeIdentifier = typeof(MyEvent).AssemblyQualifiedName.Replace(typeof(MyEvent).FullName, $"SomeNamespace.{nameof(MyEvent)}");
@@ -85,11 +85,21 @@
         [Test]
         public void Should_resolve_uninitialized_types_from_loaded_assemblies()
         {
-            var registry = new MessageMetadataRegistry(t => true);
+            var registry = new MessageMetadataRegistry(t => true, true);
 
             var metadata = registry.GetMessageMetadata(typeof(EndpointConfiguration).AssemblyQualifiedName);
 
             Assert.AreEqual(typeof(EndpointConfiguration), metadata.MessageType);
+        }
+
+        [Test]
+        public void Should_not_resolve_uninitialized_types_from_assembly_when_prohibiting_dynamic_typeloading()
+        {
+            var registry = new MessageMetadataRegistry(t => true, false);
+
+            var metadata = registry.GetMessageMetadata(typeof(EndpointConfiguration).AssemblyQualifiedName);
+
+            Assert.IsNull(metadata);
         }
 
         class MyEvent : ConcreteParent1, IInterfaceParent1
