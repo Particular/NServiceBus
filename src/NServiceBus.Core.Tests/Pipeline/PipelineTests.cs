@@ -93,14 +93,18 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-#if NET5_0_OR_GREATER
-            // System.Threading.Tasks.Task has changed to System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult] in .NET 5
-            // This ifdef is to make sure the new type is only validated for .NET 5 or greater.
-            var scenario = "net5";
+            // The output varies between TFMs, so a separate approval file is created for each framework.
+            // If a TFM gets added to the test project in the future, it intentionally will create a new
+            // "unknown" approval file, which will fail. The test should be updated to handle the new TFM.
+#if NET472
+            var scenario = "net472";
+#elif NETCOREAPP3_1
+            var scenario = "netcoreapp3.1";
+#elif NET6_0
+            var scenario = "net6.0";
 #else
-            var scenario = string.Empty;
+            var scenario = "unknown";
 #endif
-
             Approver.Verify(expressions.PrettyPrint(), scenario: scenario);
         }
 
@@ -152,13 +156,11 @@
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-                var physicalMessageContext = new TestableIncomingPhysicalMessageContext();
-                physicalMessageContext.Extensions.Merge(context.Extensions);
+                var physicalMessageContext = new TestableIncomingPhysicalMessageContext { Extensions = new ContextBag(context.Extensions) };
 
                 await next(physicalMessageContext).ConfigureAwait(false);
 
-                var dispatchContext = new TestableBatchDispatchContext();
-                dispatchContext.Extensions.Merge(context.Extensions);
+                var dispatchContext = new TestableBatchDispatchContext { Extensions = new ContextBag(context.Extensions) };
 
                 await this.Fork(dispatchContext).ConfigureAwait(false);
             }
@@ -216,8 +218,7 @@
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-                var logicalMessageContext = new TestableIncomingLogicalMessageContext();
-                logicalMessageContext.Extensions.Merge(context.Extensions);
+                var logicalMessageContext = new TestableIncomingLogicalMessageContext { Extensions = new ContextBag(context.Extensions) };
 
                 return stage(logicalMessageContext);
             }
@@ -270,8 +271,7 @@
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-                var dispatchContext = new TestableDispatchContext();
-                dispatchContext.Extensions.Merge(context.Extensions);
+                var dispatchContext = new TestableDispatchContext { Extensions = new ContextBag(context.Extensions) };
 
                 return stage(dispatchContext);
             }
@@ -316,18 +316,13 @@
         class FakePipelineCache : IPipelineCache
         {
             public IPipeline<TContext> Pipeline<TContext>()
-                where TContext : IBehaviorContext
-            {
-                return (IPipeline<TContext>)new FakeBatchPipeline();
-            }
+                where TContext : IBehaviorContext =>
+                (IPipeline<TContext>)new FakeBatchPipeline();
         }
 
         class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
         {
-            public Task Invoke(IBatchDispatchContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Invoke(IBatchDispatchContext context) => Task.CompletedTask;
         }
     }
 

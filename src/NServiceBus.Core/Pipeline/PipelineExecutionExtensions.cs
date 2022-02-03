@@ -6,23 +6,22 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Threading.Tasks;
+    using Extensibility;
     using FastExpressionCompiler;
     using Pipeline;
 
     static class PipelineExecutionExtensions
     {
         public static Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(this IBehavior[] behaviors, List<Expression> expressions = null)
-            where TRootContext : IBehaviorContext
-        {
-            return (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression(expressions);
-        }
+            where TRootContext : IBehaviorContext =>
+            (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression(expressions);
 
         /// <code>
         /// rootContext
-        ///    => behavior1.Invoke(rootContext,
-        ///       context1 => behavior2.Invoke(context1,
+        ///    => ((Behavior1)rootContext.Extensions.Behaviors[0]).Invoke(rootContext,
+        ///       context1 => ((Behavior2)context2.Extensions.Behaviors[1]).Invoke(context1,
         ///        ...
-        ///          context{N} => behavior{N}.Invoke(context{N},
+        ///          context{N} => ((Behavior{N})context{N}.Extensions.Behaviors[{N-1}]).Invoke(context{N},
         ///             context{N+1} => TaskEx.Completed))
         /// </code>
         public static Delegate CreatePipelineExecutionExpression(this IBehavior[] behaviors, List<Expression> expressions = null)
@@ -47,29 +46,35 @@
 
                 var genericArguments = behaviorInterfaceType.GetGenericArguments();
                 var inContextType = genericArguments[0];
+                var outContextType = genericArguments[1];
 
                 var inContextParameter = Expression.Parameter(inContextType, $"context{i}");
 
                 if (i == behaviorCount)
                 {
-                    var outContextType = genericArguments[1];
                     var doneDelegate = CreateDoneDelegate(outContextType, i);
-                    lambdaExpression = CreateBehaviorCallDelegate(currentBehavior, methodInfo, inContextParameter, doneDelegate, expressions);
+                    lambdaExpression = CreateBehaviorCallDelegate(methodInfo, inContextParameter, currentBehavior.GetType(), doneDelegate, i, expressions);
                     continue;
                 }
 
-                lambdaExpression = CreateBehaviorCallDelegate(currentBehavior, methodInfo, inContextParameter, lambdaExpression, expressions);
+                lambdaExpression = CreateBehaviorCallDelegate(methodInfo, inContextParameter, currentBehavior.GetType(), lambdaExpression, i, expressions);
             }
 
             return lambdaExpression;
         }
 
         /// <code>
-        /// context{i} => behavior.Invoke(context{i}, context{i+1} => previous)
+        /// context{i} => ((BehaviorType)context{i}.Extensions.Behaviors[i]).Invoke(context{i+1} => previous)
         /// </code>>
-        static Delegate CreateBehaviorCallDelegate(IBehavior currentBehavior, MethodInfo methodInfo, ParameterExpression outerContextParam, Delegate previous, List<Expression> expressions = null)
+        static Delegate CreateBehaviorCallDelegate(MethodInfo methodInfo, ParameterExpression outerContextParam, Type behaviorType, Delegate previous, int i, List<Expression> expressions = null)
         {
-            var body = Expression.Call(Expression.Constant(currentBehavior), methodInfo, outerContextParam, Expression.Constant(previous));
+            PropertyInfo extensionProperty = typeof(IExtendable).GetProperty("Extensions");
+            Expression extensionPropertyExpression = Expression.Property(outerContextParam, extensionProperty);
+            PropertyInfo behaviorsProperty = typeof(ContextBag).GetProperty("Behaviors", BindingFlags.Instance | BindingFlags.NonPublic);
+            Expression behaviorsPropertyExpression = Expression.Property(extensionPropertyExpression, behaviorsProperty);
+            Expression indexerPropertyExpression = Expression.ArrayIndex(behaviorsPropertyExpression, Expression.Constant(i));
+            Expression castToBehavior = Expression.Convert(indexerPropertyExpression, behaviorType);
+            Expression body = Expression.Call(castToBehavior, methodInfo, outerContextParam, Expression.Constant(previous));
             var lambdaExpression = Expression.Lambda(body, outerContextParam);
             expressions?.Add(lambdaExpression);
             return lambdaExpression.CompileFast();

@@ -42,6 +42,10 @@
 
         public Task Invoke(TContext context)
         {
+            // The pipeline sets the behaviors to the context bag for the current stage so that the next delegates
+            // can extract the pipeline behaviors. This avoids costly closure allocations. This is safe because
+            // the behavior order is fixed once the pipeline is baked.
+            context.Extensions.Behaviors = behaviors;
             return pipeline(context);
         }
 

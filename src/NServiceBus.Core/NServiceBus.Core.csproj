@@ -34,6 +34,7 @@
     <PackageReference Include="Particular.Licensing.Sources" Version="3.7.0-alpha.3" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="1.4.0" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
+    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="3.2.1" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
