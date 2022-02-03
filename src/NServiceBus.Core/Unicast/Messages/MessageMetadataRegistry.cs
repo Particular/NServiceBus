@@ -167,6 +167,7 @@
                 }.Concat(parentMessages).ToArray());
 
             messages[messageType.TypeHandle] = metadata;
+            cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
 
             return metadata;
         }
