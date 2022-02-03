@@ -17,6 +17,16 @@
         }
 
         [Test]
+        public void Should_return_null_when_resolving_unknown_type_from_type_identifier()
+        {
+            var registry = new MessageMetadataRegistry(t => true);
+
+            var metadata = registry.GetMessageMetadata("SomeNamespace.SomeType, SomeAssemblyName, Version=81.0.0.0, Culture=neutral, PublicKeyToken=null");
+
+            Assert.IsNull(metadata);
+        }
+
+        [Test]
         public void Should_return_metadata_for_a_mapped_type()
         {
             var defaultMessageRegistry = new MessageMetadataRegistry(type => type == typeof(int));
@@ -70,6 +80,16 @@
             var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeIdentifier);
 
             Assert.IsNull(messageMetadata);
+        }
+
+        [Test]
+        public void Should_resolve_uninitialized_types_from_loaded_assemblies()
+        {
+            var registry = new MessageMetadataRegistry(t => true);
+
+            var metadata = registry.GetMessageMetadata(typeof(EndpointConfiguration).AssemblyQualifiedName);
+
+            Assert.AreEqual(typeof(EndpointConfiguration), metadata.MessageType);
         }
 
         class MyEvent : ConcreteParent1, IInterfaceParent1
