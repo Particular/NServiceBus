@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -19,7 +20,7 @@
                 .WithEndpoint<ReceiverWithSaga>()
                 .Done(c => c.ReplyReceived)
                 .Run();
-
+            Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NotFoundHandlerSaga1Data' for message type 'MessageToSaga'. Going to invoke SagaNotFoundHandlers.")));
             Assert.IsTrue(context.ReplyReceived);
         }
 
