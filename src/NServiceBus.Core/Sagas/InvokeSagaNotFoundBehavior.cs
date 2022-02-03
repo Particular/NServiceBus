@@ -21,6 +21,8 @@ namespace NServiceBus
                 return;
             }
 
+            logger.InfoFormat("Could not find any started sagas for message type '{0}'. Going to invoke SagaNotFoundHandlers.", context.Message.MessageType.FullName);
+
             foreach (var handler in context.Builder.GetServices<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);

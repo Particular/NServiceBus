@@ -20,7 +20,10 @@
                 .WithEndpoint<ReceiverWithSaga>()
                 .Done(c => c.ReplyReceived)
                 .Run();
-            Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NotFoundHandlerSaga1Data' for message type 'MessageToSaga'. Going to invoke SagaNotFoundHandlers.")));
+
+            Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+ReceiverWithSaga+NotFoundHandlerSaga1' for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'.")));
+            Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+ReceiverWithSaga+NotFoundHandlerSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'.")));
+            Assert.IsTrue(context.Logs.Count(m => m.Message.Equals("Could not find any started sagas for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'. Going to invoke SagaNotFoundHandlers.")) == 1);
             Assert.IsTrue(context.ReplyReceived);
         }
 
@@ -91,6 +94,33 @@
                 }
             }
 
+            public class NotFoundHandlerSaga2 : Saga<NotFoundHandlerSaga2.NotFoundHandlerSaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<MessageToSaga>
+            {
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
+                {
+                    Data.ContextId = message.ContextId;
+                    return Task.FromResult(0);
+                }
+
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
+                {
+                    return Task.FromResult(0);
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga2Data> mapper)
+                {
+                    mapper.ConfigureMapping<StartSaga2>(m => m.ContextId)
+                        .ToSaga(s => s.ContextId);
+                    mapper.ConfigureMapping<MessageToSaga>(m => m.ContextId)
+                        .ToSaga(s => s.ContextId);
+                }
+
+                public class NotFoundHandlerSaga2Data : ContainSagaData
+                {
+                    public virtual Guid ContextId { get; set; }
+                }
+            }
+
             public class SagaNotFound : IHandleSagaNotFound
             {
                 public Task Handle(object message, IMessageProcessingContext context)
@@ -101,6 +131,11 @@
         }
 
         public class StartSaga1 : ICommand
+        {
+            public Guid ContextId { get; set; }
+        }
+
+        public class StartSaga2 : ICommand
         {
             public Guid ContextId { get; set; }
         }
