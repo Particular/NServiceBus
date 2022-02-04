@@ -6,7 +6,7 @@
 
         public TestVariant(params object[] values)
         {
-            this.Values = values;
+            Values = values;
         }
 
         public override string ToString()

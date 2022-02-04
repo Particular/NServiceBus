@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -34,6 +35,10 @@
                 })))
                 .Done(c => c.Done)
                 .Run();
+
+            Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga1' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")));
+            Assert.IsFalse(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")));
+            Assert.IsFalse(context.Logs.Any(m => m.Message.Contains("Going to invoke SagaNotFoundHandlers.")));
 
             Assert.AreEqual(0, context.TimesFired);
         }
