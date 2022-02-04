@@ -81,6 +81,12 @@
 
             var serializerFactory = definition.Configure(deserializerSettings);
             var serializer = serializerFactory(mapper);
+
+            if (string.IsNullOrWhiteSpace(serializer.ContentType))
+            {
+                throw new ArgumentException($"Serializer '{definition.GetType().Name}' defines no content type. Ensure the '{nameof(serializer.ContentType)}' property of the serializer has a value.");
+            }
+
             return serializer;
         }
 
