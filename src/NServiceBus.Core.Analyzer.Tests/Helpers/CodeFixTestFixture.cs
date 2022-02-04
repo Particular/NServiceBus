@@ -13,62 +13,78 @@
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TCodeFix : CodeFixProvider, new()
     {
-        protected new virtual async Task Assert(string original, string expected, CancellationToken cancellationToken = default)
+        protected virtual async Task Assert(string original, string expected, bool fixMustCompile = true, CancellationToken cancellationToken = default)
         {
-            var actual = await Fix(original, cancellationToken);
+            var originalCodeFiles = SplitMarkupCodeIntoFiles(original);
+            var expectedCodeFiles = SplitMarkupCodeIntoFiles(expected);
+
+            var actual = await Fix(originalCodeFiles, fixMustCompile, cancellationToken);
 
             // normalize line endings, just in case
-            actual = actual.Replace("\r\n", "\n");
-            expected = expected.Replace("\r\n", "\n");
+            for (int i = 0; i < originalCodeFiles.Length; i++)
+            {
+                actual[i] = actual[i].Replace("\r\n", "\n");
+                expectedCodeFiles[i] = expectedCodeFiles[i].Replace("\r\n", "\n");
+            }
 
-            NUnit.Framework.Assert.AreEqual(expected, actual);
+            NUnit.Framework.Assert.AreEqual(expectedCodeFiles, actual);
         }
 
-        static async Task<string> Fix(string code, CancellationToken cancellationToken, IEnumerable<Diagnostic> originalCompilerDiagnostics = null)
+        static async Task<string[]> Fix(string[] codeFiles, bool fixMustCompile, CancellationToken cancellationToken, IEnumerable<Diagnostic> originalCompilerDiagnostics = null)
         {
-            WriteCode(code);
+            var project = CreateProject(codeFiles);
+            await WriteCode(project);
 
-            var document = CreateDocument(code);
-
-            var compilerDiagnostics = await document.GetCompilerDiagnostics(cancellationToken);
+            var compilerDiagnostics = (await Task.WhenAll(project.Documents
+                .Select(doc => doc.GetCompilerDiagnostics(cancellationToken))))
+                .SelectMany(diagnostics => diagnostics);
             WriteCompilerDiagnostics(compilerDiagnostics);
 
             if (originalCompilerDiagnostics == null)
             {
                 originalCompilerDiagnostics = compilerDiagnostics;
             }
-            else
+            else if (fixMustCompile)
             {
                 NUnit.Framework.CollectionAssert.AreEqual(originalCompilerDiagnostics, compilerDiagnostics, "Fix introduced new compiler diagnostics.");
             }
 
-            var compilation = await document.Project.GetCompilationAsync(cancellationToken);
-            compilation.Compile();
+            var compilation = await project.GetCompilationAsync(cancellationToken);
+
+            compilation.Compile(fixMustCompile);
 
             var analyzerDiagnostics = (await compilation.GetAnalyzerDiagnostics(new TAnalyzer(), cancellationToken)).ToList();
             WriteAnalyzerDiagnostics(analyzerDiagnostics);
 
             if (!analyzerDiagnostics.Any())
             {
-                return code;
+                return codeFiles;
             }
 
-            var actions = await document.GetCodeActions(new TCodeFix(), analyzerDiagnostics.First(), cancellationToken);
+            var actions = await project.GetCodeActions(new TCodeFix(), analyzerDiagnostics.First(), cancellationToken);
 
             if (!actions.Any())
             {
-                return code;
+                return codeFiles;
             }
 
             Console.WriteLine("Applying code fix actions...");
-            foreach (var action in actions)
+
+            var projectDocuments = project.Documents.ToArray();
+
+            for (var i = 0; i < projectDocuments.Length; i++)
             {
-                document = await document.ApplyChanges(action, cancellationToken);
+                var document = projectDocuments[i];
+
+                foreach (var action in actions.Where(action => action.Document.Name == document.Name))
+                {
+                    document = await document.ApplyChanges(action.Action, cancellationToken);
+                }
+
+                codeFiles[i] = await document.GetCode(cancellationToken);
             }
 
-            code = await document.GetCode(cancellationToken);
-
-            return await Fix(code, cancellationToken, originalCompilerDiagnostics);
+            return await Fix(codeFiles, fixMustCompile, cancellationToken, originalCompilerDiagnostics);
         }
     }
 }
