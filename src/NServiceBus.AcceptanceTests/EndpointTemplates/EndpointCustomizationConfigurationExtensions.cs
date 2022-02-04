@@ -15,7 +15,6 @@
             {
                 ScanFileSystemAssemblies = false
             };
-            assemblyScanner.ScanFileSystemAssemblies = false;
 
             var assemblies = assemblyScanner.GetScannableAssemblies();
 
