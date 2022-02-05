@@ -2,11 +2,9 @@ namespace NServiceBus
 {
     using Transport;
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Performance.TimeToBeReceived;
     using Pipeline;
-    using Routing;
 
     class AuditToRoutingConnector : StageConnector<IAuditContext, IRoutingContext>
     {
@@ -15,19 +13,8 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
+        public override async Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
         {
-            var message = context.Message;
-
-            if (context.Extensions.TryGet(out State state))
-            {
-                //transfer audit values to the headers of the message to audit
-                foreach (var kvp in state.AuditValues)
-                {
-                    message.Headers[kvp.Key] = kvp.Value;
-                }
-            }
-
             var dispatchProperties = new DispatchProperties();
 
             if (timeToBeReceived.HasValue)
@@ -35,18 +22,18 @@ namespace NServiceBus
                 dispatchProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
             }
 
-            var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
+            var auditAction = context.AuditAction;
 
-            dispatchContext.Extensions.Set(dispatchProperties);
+            foreach (var routingData in auditAction.GetRoutingData(context))
+            {
+                var routingContext = new RoutingContext(routingData.Item1, routingData.Item2, context);
 
-            return stage(dispatchContext);
+                routingContext.Extensions.Set(dispatchProperties);
+
+                await stage(routingContext).ConfigureAwait(false);
+            }
         }
 
         TimeSpan? timeToBeReceived;
-
-        public class State
-        {
-            public Dictionary<string, string> AuditValues = new Dictionary<string, string>();
-        }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Audit;
     using Pipeline;
     using Transport;
 
@@ -11,9 +12,10 @@
     public partial class TestableAuditContext : TestableBehaviorContext, IAuditContext
     {
         /// <summary>
-        /// Contains the information added by <see cref="AddedAuditData" />.
+        /// Contains the information added by <see cref="AddAuditData" />.
         /// </summary>
-        public IDictionary<string, string> AddedAuditData { get; } = new Dictionary<string, string>();
+        //TODO: obsolete with WARN
+        public IDictionary<string, string> AddedAuditData => AuditMetadata;
 
         /// <summary>
         /// Address of the audit queue.
@@ -26,13 +28,23 @@
         public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
 
         /// <summary>
+        /// Metadata of the audited message.
+        /// </summary>
+        public IDictionary<string, string> AuditMetadata { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Gets the message and routing strategies this audit operaation should result in.
+        /// </summary>
+        public AuditAction AuditAction { get; set; } = new SendToAudit();
+
+        /// <summary>
         /// Adds information about the current message that should be audited.
         /// </summary>
         /// <param name="key">The audit key.</param>
         /// <param name="value">The value.</param>
         public void AddAuditData(string key, string value)
         {
-            AddedAuditData.Add(key, value);
+            AuditMetadata.Add(key, value);
         }
     }
 }

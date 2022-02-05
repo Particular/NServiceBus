@@ -26,7 +26,6 @@ namespace NServiceBus.Transport
         /// </summary>
         public ReadOnlyMemory<byte> Body { get; private set; }
 
-
         /// <summary>
         /// The id of the message.
         /// </summary>
@@ -36,13 +35,5 @@ namespace NServiceBus.Transport
         /// The headers for the message.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
-
-        /// <summary>
-        /// Use this method to update the body of this message.
-        /// </summary>
-        public void UpdateBody(ReadOnlyMemory<byte> updatedBody)
-        {
-            Body = updatedBody;
-        }
     }
 }

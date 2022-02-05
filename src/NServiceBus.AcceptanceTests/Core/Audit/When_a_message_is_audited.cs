@@ -1,19 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
+    using NServiceBus.Audit;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
+    using NServiceBus.Transport;
     using NUnit.Framework;
 
     public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_body_to_be_sent_separately()
+        public async Task Should_allow_audit_action_to_be_replaced()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithSeparateBodyStorage>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
@@ -41,22 +44,24 @@
                  });
             }
 
-            public class AuditBodyStorageBehavior : Behavior<IDispatchContext>
+            public class AuditBodyStorageBehavior : Behavior<IAuditContext>
             {
-                public override Task Invoke(IDispatchContext context, Func<Task> next)
+                public override Task Invoke(IAuditContext context, Func<Task> next)
                 {
-                    foreach (var operation in context.Operations)
-                    {
-                        var unicastAddress = operation.AddressTag as UnicastAddressTag;
-
-                        if (unicastAddress?.Destination != Conventions.EndpointNamingConvention(typeof(AuditSpyEndpoint)))
-                        {
-                            continue;
-                        }
-
-                        operation.Message.UpdateBody(ReadOnlyMemory<byte>.Empty);
-                    }
+                    context.AuditAction = new StoreAuditBodySeparately();
                     return next();
+                }
+
+                class StoreAuditBodySeparately : AuditAction
+                {
+                    public override IEnumerable<(OutgoingMessage, RoutingStrategy)> GetRoutingData(IAuditContext context)
+                    {
+                        var message = context.Message;
+
+                        //Store body and or metadata in a separate store
+
+                        yield return (new OutgoingMessage(message.MessageId, message.Headers, ReadOnlyMemory<byte>.Empty), new UnicastRoutingStrategy(context.AuditAddress));
+                    }
                 }
             }
 

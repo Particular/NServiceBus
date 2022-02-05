@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System.Collections.Generic;
+    using NServiceBus.Audit;
     using Transport;
 
     /// <summary>
@@ -22,6 +24,17 @@
         /// </summary>
         /// <param name="key">The audit key.</param>
         /// <param name="value">The value.</param>
+        //TODO: obsolete with WARN
         void AddAuditData(string key, string value);
+
+        /// <summary>
+        /// Metadata for the audited message.
+        /// </summary>
+        IDictionary<string, string> AuditMetadata { get; }
+
+        /// <summary>
+        /// The action to take for this audit message.
+        /// </summary>
+        AuditAction AuditAction { get; set; }
     }
 }

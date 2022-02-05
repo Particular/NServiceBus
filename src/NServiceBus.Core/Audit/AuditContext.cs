@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using NServiceBus.Audit;
     using Pipeline;
     using Transport;
 
@@ -12,27 +14,24 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(auditAddress), auditAddress);
             Message = message;
             AuditAddress = auditAddress;
+            AuditMetadata = new Dictionary<string, string>();
         }
 
         public OutgoingMessage Message { get; }
 
         public string AuditAddress { get; }
 
-        /// <summary>
-        /// Adds information about the current message that should be audited.
-        /// </summary>
-        /// <param name="key">The audit key.</param>
-        /// <param name="value">The value.</param>
+        public IDictionary<string, string> AuditMetadata { get; }
+
+        public AuditAction AuditAction { get; set; } = new SendToAudit();
+
         public void AddAuditData(string key, string value)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
             Guard.AgainstNullAndEmpty(nameof(value), value);
-            if (!Extensions.TryGet(out AuditToRoutingConnector.State state))
-            {
-                state = new AuditToRoutingConnector.State();
-                Extensions.Set(state);
-            }
-            state.AuditValues[key] = value;
+
+            AuditMetadata[key] = value;
         }
+
     }
 }
