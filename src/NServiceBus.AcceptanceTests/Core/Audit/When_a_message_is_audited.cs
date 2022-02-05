@@ -48,6 +48,8 @@
             {
                 public override Task Invoke(IAuditContext context, Func<Task> next)
                 {
+                    //body, headers and metadata can be stored separately
+
                     context.AuditAction = new StoreAuditBodySeparately();
                     return next();
                 }
@@ -58,8 +60,7 @@
                     {
                         var message = context.Message;
 
-                        //Store body and or metadata in a separate store
-
+                        //simulate the body being stored in eg. blobstorage already
                         yield return (new OutgoingMessage(message.MessageId, message.Headers, ReadOnlyMemory<byte>.Empty), new UnicastRoutingStrategy(context.AuditAddress));
                     }
                 }
