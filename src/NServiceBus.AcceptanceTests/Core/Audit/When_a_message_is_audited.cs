@@ -50,11 +50,11 @@
                 {
                     //body, headers and metadata can be stored separately
 
-                    context.AuditAction = new StoreAuditBodySeparately();
+                    context.AuditAction = new ExcludeBodyFromAuditeMessage();
                     return next();
                 }
 
-                class StoreAuditBodySeparately : AuditAction
+                class ExcludeBodyFromAuditeMessage : AuditAction
                 {
                     public override IEnumerable<(OutgoingMessage, RoutingStrategy)> GetRoutingData(IAuditContext context)
                     {
