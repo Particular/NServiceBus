@@ -21,7 +21,7 @@ namespace NServiceBus
 
         public string AuditAddress { get; }
 
-        public IDictionary<string, string> AuditMetadata { get; }
+        public Dictionary<string, string> AuditMetadata { get; }
 
         public AuditAction AuditAction { get; set; } = new SendToAudit();
 

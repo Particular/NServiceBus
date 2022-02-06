@@ -33,7 +33,7 @@
         /// <summary>
         /// Metadata of the audited message.
         /// </summary>
-        public IDictionary<string, string> AuditMetadata { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> AuditMetadata { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.

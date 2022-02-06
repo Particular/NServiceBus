@@ -1964,7 +1964,7 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Audit.AuditAction AuditAction { get; set; }
         string AuditAddress { get; }
-        System.Collections.Generic.IDictionary<string, string> AuditMetadata { get; }
+        System.Collections.Generic.Dictionary<string, string> AuditMetadata { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
         [System.Obsolete("Use `AuditMetadata` instead. Will be treated as an error from version 9.0.0. Will" +
             " be removed in version 10.0.0.", false)]

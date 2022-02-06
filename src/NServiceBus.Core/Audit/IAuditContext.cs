@@ -33,7 +33,7 @@
         /// <summary>
         /// Metadata for the audited message.
         /// </summary>
-        IDictionary<string, string> AuditMetadata { get; }
+        Dictionary<string, string> AuditMetadata { get; }
 
         /// <summary>
         /// The action to take for this audit message.
