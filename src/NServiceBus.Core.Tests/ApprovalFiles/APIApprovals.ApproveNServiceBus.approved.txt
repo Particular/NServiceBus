@@ -1262,6 +1262,19 @@ namespace NServiceBus
         public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings) { }
     }
 }
+namespace NServiceBus.Audit
+{
+    public abstract class AuditAction
+    {
+        protected AuditAction() { }
+        public abstract System.Collections.Generic.IEnumerable<System.ValueTuple<NServiceBus.Transport.OutgoingMessage, NServiceBus.Routing.RoutingStrategy>> GetRoutingData(NServiceBus.Pipeline.IAuditContext context);
+    }
+    public class SendToAudit : NServiceBus.Audit.AuditAction
+    {
+        public SendToAudit() { }
+        public override System.Collections.Generic.IEnumerable<System.ValueTuple<NServiceBus.Transport.OutgoingMessage, NServiceBus.Routing.RoutingStrategy>> GetRoutingData(NServiceBus.Pipeline.IAuditContext context) { }
+    }
+}
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
     public class AutoSubscribeSettings
@@ -1944,8 +1957,12 @@ namespace NServiceBus.Pipeline
     }
     public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
+        NServiceBus.Audit.AuditAction AuditAction { get; set; }
         string AuditAddress { get; }
+        System.Collections.Generic.IDictionary<string, string> AuditMetadata { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
+        [System.Obsolete("Use `AuditMetadata` instead. Will be treated as an error from version 9.0.0. Will" +
+            " be removed in version 10.0.0.", false)]
         void AddAuditData(string key, string value);
     }
     public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
@@ -2708,7 +2725,6 @@ namespace NServiceBus.Transport
         public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-        public void UpdateBody(System.ReadOnlyMemory<byte> updatedBody) { }
     }
     public class PushRuntimeSettings
     {

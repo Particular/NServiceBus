@@ -24,7 +24,10 @@
         /// </summary>
         /// <param name="key">The audit key.</param>
         /// <param name="value">The value.</param>
-        //TODO: obsolete with WARN
+        [ObsoleteEx(
+            ReplacementTypeOrMember = nameof(AuditMetadata),
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         void AddAuditData(string key, string value);
 
         /// <summary>

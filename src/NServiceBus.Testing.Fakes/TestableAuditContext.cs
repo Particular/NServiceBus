@@ -33,7 +33,7 @@
         public IDictionary<string, string> AuditMetadata { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
-        /// Gets the message and routing strategies this audit operaation should result in.
+        /// Gets the message and routing strategies this audit operation should result in.
         /// </summary>
         public AuditAction AuditAction { get; set; } = new SendToAudit();
 
@@ -42,6 +42,10 @@
         /// </summary>
         /// <param name="key">The audit key.</param>
         /// <param name="value">The value.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = nameof(AuditMetadata),
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public void AddAuditData(string key, string value)
         {
             AuditMetadata.Add(key, value);

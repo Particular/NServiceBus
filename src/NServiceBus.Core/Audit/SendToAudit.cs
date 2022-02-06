@@ -11,7 +11,7 @@
     public class SendToAudit : AuditAction
     {
         /// <summary>
-        /// Gets the message and routing strategies this audit operaation should result in.
+        /// Gets the message and routing strategies this audit operation should result in.
         /// </summary>
         public override IEnumerable<(OutgoingMessage, RoutingStrategy)> GetRoutingData(IAuditContext context)
         {
