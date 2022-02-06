@@ -49,11 +49,11 @@
                 {
                     //body, headers and metadata can be stored separately
 
-                    context.AuditAction = new ExcludeBodyFromAuditeMessage();
+                    context.AuditAction = new ExcludeBodyFromAuditedMessage();
                     return next();
                 }
 
-                class ExcludeBodyFromAuditeMessage : AuditAction
+                class ExcludeBodyFromAuditedMessage : AuditAction
                 {
                     public override IEnumerable<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
                     {
