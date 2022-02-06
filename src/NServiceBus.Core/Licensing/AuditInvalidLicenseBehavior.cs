@@ -10,7 +10,7 @@
     {
         public async Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
-            context.AddAuditData(Headers.HasLicenseExpired, "true");
+            context.AuditMetadata[Headers.HasLicenseExpired] = "true";
 
             await next(context).ConfigureAwait(false);
 

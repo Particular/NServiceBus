@@ -14,7 +14,10 @@
         /// <summary>
         /// Contains the information added by <see cref="AddAuditData" />.
         /// </summary>
-        //TODO: obsolete with WARN
+        [ObsoleteEx(
+            ReplacementTypeOrMember = nameof(AuditMetadata),
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
         public IDictionary<string, string> AddedAuditData => AuditMetadata;
 
         /// <summary>

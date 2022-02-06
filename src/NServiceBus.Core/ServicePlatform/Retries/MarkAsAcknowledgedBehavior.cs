@@ -11,7 +11,7 @@ namespace NServiceBus
         {
             if (context.Extensions.TryGet<State>(out _))
             {
-                context.AddAuditData("ServiceControl.Retry.AcknowledgementSent", "true");
+                context.AuditMetadata["ServiceControl.Retry.AcknowledgementSent"] = "true";
             }
 
             return next(context);
