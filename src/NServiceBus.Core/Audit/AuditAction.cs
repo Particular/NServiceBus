@@ -11,7 +11,7 @@
     public abstract class AuditAction
     {
         /// <summary>
-        /// Gets the message and routing strategies this audit operation should result in.
+        /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
         public abstract IEnumerable<(OutgoingMessage, RoutingStrategy)> GetRoutingData(IAuditContext context);
     }
