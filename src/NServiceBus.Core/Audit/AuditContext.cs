@@ -32,6 +32,5 @@ namespace NServiceBus
 
             AuditMetadata[key] = value;
         }
-
     }
 }
