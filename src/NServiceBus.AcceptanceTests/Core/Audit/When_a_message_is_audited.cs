@@ -47,7 +47,7 @@
             {
                 public override Task Invoke(IAuditContext context, Func<Task> next)
                 {
-                    //body, headers and metadata can be stored separately
+                    //body, headers and metadata can be stored separately here
 
                     context.AuditAction = new ExcludeBodyFromAuditedMessage();
                     return next();
@@ -71,7 +71,7 @@
             {
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -94,7 +94,7 @@
                 {
                     context.BodyWasEmpty = transportMessage.Body.Length == 0;
                     context.AuditMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context context;
