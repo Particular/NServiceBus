@@ -30,6 +30,11 @@ namespace NServiceBus
         public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.IReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
         public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string address) { }
     }
+    public static class AuditContextExtensions
+    {
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IAuditContext context, NServiceBus.Transport.OutgoingMessage auditMessage) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IAuditContext context, NServiceBus.Transport.OutgoingMessage auditMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
+    }
     public static class AutoSubscribeSettingsExtensions
     {
         public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.EndpointConfiguration config) { }
@@ -1267,12 +1272,12 @@ namespace NServiceBus.Audit
     public abstract class AuditAction
     {
         protected AuditAction() { }
-        public abstract System.Collections.Generic.IEnumerable<System.ValueTuple<NServiceBus.Transport.OutgoingMessage, NServiceBus.Routing.RoutingStrategy>> GetRoutingData(NServiceBus.Pipeline.IAuditContext context);
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditContext context, System.TimeSpan? timeToBeReceived);
     }
     public class SendToAudit : NServiceBus.Audit.AuditAction
     {
         public SendToAudit() { }
-        public override System.Collections.Generic.IEnumerable<System.ValueTuple<NServiceBus.Transport.OutgoingMessage, NServiceBus.Routing.RoutingStrategy>> GetRoutingData(NServiceBus.Pipeline.IAuditContext context) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditContext context, System.TimeSpan? timeToBeReceived) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config

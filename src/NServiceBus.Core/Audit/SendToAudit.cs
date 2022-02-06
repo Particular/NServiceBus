@@ -3,7 +3,8 @@
     using Transport;
     using System.Collections.Generic;
     using Pipeline;
-    using Routing;
+    using System;
+    using NServiceBus.Performance.TimeToBeReceived;
 
     /// <summary>
     /// Default audit action that sends the audit message to the configured audit queue.
@@ -13,7 +14,7 @@
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
-        public override IEnumerable<(OutgoingMessage, RoutingStrategy)> GetRoutingData(IAuditContext context)
+        public override IEnumerable<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
         {
             var message = context.Message;
 
@@ -23,7 +24,18 @@
                 message.Headers[kvp.Key] = kvp.Value;
             }
 
-            yield return (context.Message, new UnicastRoutingStrategy(context.AuditAddress));
+            var routingContext = context.CreateRoutingContext(message);
+
+            var dispatchProperties = new DispatchProperties();
+
+            if (timeToBeReceived.HasValue)
+            {
+                dispatchProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
+            }
+
+            routingContext.Extensions.Set(dispatchProperties);
+
+            yield return routingContext;
         }
     }
 }

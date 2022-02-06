@@ -9,7 +9,6 @@
     using MessageMutator;
     using NServiceBus.Audit;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
     using NServiceBus.Transport;
     using NUnit.Framework;
 
@@ -56,12 +55,14 @@
 
                 class ExcludeBodyFromAuditeMessage : AuditAction
                 {
-                    public override IEnumerable<(OutgoingMessage, RoutingStrategy)> GetRoutingData(IAuditContext context)
+                    public override IEnumerable<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
                     {
-                        var message = context.Message;
+                        var processedMessage = context.Message;
 
                         //simulate the body being stored in eg. blobstorage already
-                        yield return (new OutgoingMessage(message.MessageId, message.Headers, ReadOnlyMemory<byte>.Empty), new UnicastRoutingStrategy(context.AuditAddress));
+                        var auditMessage = new OutgoingMessage(processedMessage.MessageId, processedMessage.Headers, ReadOnlyMemory<byte>.Empty);
+
+                        yield return context.CreateRoutingContext(auditMessage);
                     }
                 }
             }

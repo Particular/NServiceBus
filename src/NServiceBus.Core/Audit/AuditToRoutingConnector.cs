@@ -1,9 +1,7 @@
 namespace NServiceBus
 {
-    using Transport;
     using System;
     using System.Threading.Tasks;
-    using Performance.TimeToBeReceived;
     using Pipeline;
 
     class AuditToRoutingConnector : StageConnector<IAuditContext, IRoutingContext>
@@ -15,21 +13,10 @@ namespace NServiceBus
 
         public override async Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
         {
-            var dispatchProperties = new DispatchProperties();
-
-            if (timeToBeReceived.HasValue)
-            {
-                dispatchProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
-            }
-
             var auditAction = context.AuditAction;
 
-            foreach (var routingData in auditAction.GetRoutingData(context))
+            foreach (var routingContext in auditAction.GetRoutingContexts(context, timeToBeReceived))
             {
-                var routingContext = new RoutingContext(routingData.Item1, routingData.Item2, context);
-
-                routingContext.Extensions.Set(dispatchProperties);
-
                 await stage(routingContext).ConfigureAwait(false);
             }
         }
