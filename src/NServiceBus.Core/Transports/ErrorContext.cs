@@ -7,7 +7,7 @@
     /// <summary>
     /// The context for messages that has failed processing.
     /// </summary>
-    public class ErrorContext : IExtendable
+    public class ErrorContext
     {
         /// <summary>
         /// Initializes the error context.

@@ -2157,7 +2157,6 @@ namespace NServiceBus.Recoverability
     public static class RecoverabilityContextExtensions
     {
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IRecoverabilityActionContext context, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
-        public static System.Threading.Tasks.Task Dispatch(this NServiceBus.Pipeline.IRecoverabilityContext context, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations) { }
     }
 }
 namespace NServiceBus.Routing
@@ -2528,7 +2527,7 @@ namespace NServiceBus.Transport
         public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
         public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
     }
-    public class ErrorContext : NServiceBus.Extensibility.IExtendable
+    public class ErrorContext
     {
         public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
