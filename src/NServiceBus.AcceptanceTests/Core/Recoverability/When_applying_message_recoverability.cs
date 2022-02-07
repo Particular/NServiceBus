@@ -81,6 +81,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         var routingContexts = base.GetRoutingContexts(context);
 
                         // show how we just send an empty message with the message id to the error queue
+                        // headers are preserved to make sure the necessary acceptance test infrastructure is still present
                         foreach (var routingContext in routingContexts)
                         {
                             routingContext.Message.UpdateBody(ReadOnlyMemory<byte>.Empty);
