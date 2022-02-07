@@ -14,10 +14,12 @@
             IPipelineCache pipelineCache,
             MessageOperations messageOperations,
             RecoverabilityConfig recoverabilityConfig,
-            Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy,
+            Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy,
             Pipeline<IRecoverabilityContext> recoverabilityPipeline,
-            FaultMetadataExtractor faultMetadataExtractor)
+            FaultMetadataExtractor faultMetadataExtractor,
+            object state)
         {
+            this.state = state;
             this.serviceProvider = serviceProvider;
             this.pipelineCache = pipelineCache;
             this.messageOperations = messageOperations;
@@ -34,7 +36,7 @@
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(errorContext.Extensions);
 
-                var recoverabilityAction = recoverabilityPolicy(errorContext);
+                var recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
                 var metadata = faultMetadataExtractor.Extract(errorContext);
 
@@ -55,8 +57,9 @@
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly RecoverabilityConfig recoverabilityConfig;
-        readonly Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy;
+        readonly Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy;
         readonly Pipeline<IRecoverabilityContext> recoverabilityPipeline;
         readonly FaultMetadataExtractor faultMetadataExtractor;
+        readonly object state;
     }
 }

@@ -14,8 +14,10 @@
         public SatelliteRecoverabilityExecutor(
             IServiceProvider serviceProvider,
             FaultMetadataExtractor faultMetadataExtractor,
-            Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy)
+            Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy,
+            object state)
         {
+            this.state = state;
             this.serviceProvider = serviceProvider;
             this.faultMetadataExtractor = faultMetadataExtractor;
             this.recoverabilityPolicy = recoverabilityPolicy;
@@ -25,7 +27,7 @@
             ErrorContext errorContext,
             CancellationToken cancellationToken = default)
         {
-            var recoverabilityAction = recoverabilityPolicy(errorContext);
+            var recoverabilityAction = recoverabilityPolicy(errorContext, state);
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
             var actionContext = new BehaviorActionContext(errorContext, metadata, serviceProvider, cancellationToken);
@@ -77,6 +79,7 @@
 
         readonly IServiceProvider serviceProvider;
         readonly FaultMetadataExtractor faultMetadataExtractor;
-        readonly Func<ErrorContext, RecoverabilityAction> recoverabilityPolicy;
+        readonly Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy;
+        readonly object state;
     }
 }
