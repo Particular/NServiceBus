@@ -240,6 +240,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [RunInApplicationDomain]
         public void Ignore_assembly_loading_errors_when_disabling_ThrowExceptions()
         {
+            // can't setup a test scenario that causes assembly loading to fail
+
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
             {
                 ScanAppDomainAssemblies = true,
