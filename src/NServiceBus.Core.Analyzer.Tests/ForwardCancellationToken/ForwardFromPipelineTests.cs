@@ -31,7 +31,7 @@
                 .Where(t => t.IsPublic && !t.IsSealed && !t.GetCustomAttributes(true).OfType<ObsoleteAttribute>().Any())
                 .Where(t => t.IsInterface || t.IsAbstract)
                 .Where(t => !ignoredTypes.Contains(t))
-                .Where(HasMethodWithContextParameter)
+                .Where(HasTaskReturningMethodWithContextParameter)
                 .OrderBy(t => t.FullName)
                 .ToArray();
 
@@ -112,7 +112,7 @@ public class TestTimeout {}";
             return Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, code);
         }
 
-        static bool HasMethodWithContextParameter(Type type)
+        static bool HasTaskReturningMethodWithContextParameter(Type type)
         {
             var typeList = type.GetInterfaces().ToList();
             typeList.Add(type);
@@ -121,6 +121,13 @@ public class TestTimeout {}";
             {
                 foreach (var method in typeOrInterface.GetMethods())
                 {
+                    var isAwaitable = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) != null;
+
+                    if (!isAwaitable)
+                    {
+                        continue;
+                    }
+
                     foreach (var param in method.GetParameters())
                     {
                         if (typeof(ICancellableContext).IsAssignableFrom(param.ParameterType))

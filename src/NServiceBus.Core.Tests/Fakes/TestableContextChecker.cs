@@ -21,7 +21,8 @@
                 .Where(x => !x.GetCustomAttributes().Any(att => att.GetType() == typeof(ObsoleteAttribute)))
                 .Except(new[]
                 {
-                    typeof(PipelineTerminator<>.ITerminatingContext)
+                    typeof(PipelineTerminator<>.ITerminatingContext),
+                    typeof(IRecoverabilityActionContext)
                 });
 
             foreach (var behaviorContextInterface in behaviorContextInterfaces)

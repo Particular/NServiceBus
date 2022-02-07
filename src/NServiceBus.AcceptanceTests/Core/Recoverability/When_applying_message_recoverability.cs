@@ -7,9 +7,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NServiceBus.Pipeline;
-    using NServiceBus.Recoverability;
-    using NServiceBus.Routing;
-    using NServiceBus.Transport;
     using NUnit.Framework;
 
     public class When_applying_message_recoverability : NServiceBusAcceptanceTest
@@ -48,13 +45,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
         {
-            static string errorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+            static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
             public EndpointWithFailingHandler()
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.SendFailedMessagesTo(errorQueueAddress);
+                    config.SendFailedMessagesTo(ErrorQueueAddress);
                     config.Pipeline.Register(typeof(CustomRecoverabilityActionBehavior), "Applies a custom recoverability actions");
                 });
             }
@@ -81,18 +78,15 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
                     {
-                        var errorContext = context.ErrorContext;
-                        var message = errorContext.Message;
+                        var routingContexts = base.GetRoutingContexts(context);
 
                         // show how we just send an empty message with the message id to the error queue
-                        var outgoingMessage = new OutgoingMessage(message.MessageId,
-                            new Dictionary<string, string>(message.Headers),   // This code is passing headers just since the acceptance testing frameworks needs it.
-                            ReadOnlyMemory<byte>.Empty);
-
-                        return new[]
+                        foreach (var routingContext in routingContexts)
                         {
-                            context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
-                        };
+                            routingContext.Message.UpdateBody(ReadOnlyMemory<byte>.Empty);
+                        }
+
+                        return routingContexts;
                     }
                 }
             }
