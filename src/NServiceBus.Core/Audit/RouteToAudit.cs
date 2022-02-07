@@ -1,20 +1,20 @@
 ﻿namespace NServiceBus.Audit
 {
-    using Transport;
-    using System.Collections.Generic;
-    using Pipeline;
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Performance.TimeToBeReceived;
+    using Pipeline;
+    using Transport;
 
     /// <summary>
-    /// Default audit action that sends the audit message to the configured audit queue.
+    /// Default action that routes the audit message to the configured audit queue.
     /// </summary>
-    public class SendToAudit : AuditAction
+    public class RouteToAudit : AuditAction
     {
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
-        public override IEnumerable<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
         {
             var message = context.Message;
 
@@ -35,7 +35,9 @@
 
             routingContext.Extensions.Set(dispatchProperties);
 
-            yield return routingContext;
+            return new[] { routingContext };
         }
+
+        internal static RouteToAudit Instance { get; } = new RouteToAudit();
     }
 }

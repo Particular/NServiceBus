@@ -12,15 +12,6 @@
     public partial class TestableAuditContext : TestableBehaviorContext, IAuditContext
     {
         /// <summary>
-        /// Contains the information added by <see cref="AddAuditData" />.
-        /// </summary>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(AuditMetadata),
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        public IDictionary<string, string> AddedAuditData => AuditMetadata;
-
-        /// <summary>
         /// Address of the audit queue.
         /// </summary>
         public string AuditAddress { get; set; } = "audit queue address";
@@ -38,17 +29,13 @@
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
-        public AuditAction AuditAction { get; set; } = new SendToAudit();
+        public AuditAction AuditAction { get; set; }
 
         /// <summary>
         /// Adds information about the current message that should be audited.
         /// </summary>
         /// <param name="key">The audit key.</param>
         /// <param name="value">The value.</param>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(AuditMetadata),
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
         public void AddAuditData(string key, string value)
         {
             AuditMetadata.Add(key, value);

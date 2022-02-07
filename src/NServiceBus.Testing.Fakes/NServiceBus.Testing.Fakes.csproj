@@ -9,8 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
-    <PackageReference Include="Fody" Version="6.6.0" PrivateAssets="All" />
-    <PackageReference Include="Obsolete.Fody" Version="5.2.1" PrivateAssets="All" />
   </ItemGroup>
 
 

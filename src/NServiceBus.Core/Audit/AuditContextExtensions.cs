@@ -29,7 +29,7 @@
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(routingStrategy), routingStrategy);
 
-            return new RoutingContext(auditMessage, new UnicastRoutingStrategy(context.AuditAddress), context);
+            return new RoutingContext(auditMessage, routingStrategy, context);
         }
     }
 }

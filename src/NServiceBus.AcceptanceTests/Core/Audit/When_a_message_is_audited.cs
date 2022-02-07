@@ -55,14 +55,14 @@
 
                 class ExcludeBodyFromAuditedMessage : AuditAction
                 {
-                    public override IEnumerable<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
+                    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
                     {
                         var processedMessage = context.Message;
 
                         //simulate the body being stored in eg. blobstorage already
                         var auditMessage = new OutgoingMessage(processedMessage.MessageId, processedMessage.Headers, ReadOnlyMemory<byte>.Empty);
 
-                        yield return context.CreateRoutingContext(auditMessage);
+                        return new[] { context.CreateRoutingContext(auditMessage) };
                     }
                 }
             }

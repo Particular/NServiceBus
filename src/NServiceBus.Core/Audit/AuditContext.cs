@@ -23,7 +23,7 @@ namespace NServiceBus
 
         public Dictionary<string, string> AuditMetadata { get; }
 
-        public AuditAction AuditAction { get; set; } = new SendToAudit();
+        public AuditAction AuditAction { get; set; } = RouteToAudit.Instance;
 
         public void AddAuditData(string key, string value)
         {
