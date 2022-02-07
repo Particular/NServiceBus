@@ -14,7 +14,7 @@
             this.headerCustomizations = headerCustomizations;
         }
 
-        public IDictionary<string, string> Extract(ErrorContext errorContext)
+        public Dictionary<string, string> Extract(ErrorContext errorContext)
         {
             var metadata = new Dictionary<string, string>(staticFaultMetadata)
             {

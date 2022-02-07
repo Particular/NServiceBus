@@ -7,6 +7,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability;
     using NServiceBus.Routing;
     using NServiceBus.Transport;
     using NUnit.Framework;
@@ -78,8 +79,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     {
                     }
 
-                    public override IEnumerable<TransportOperation> GetTransportOperations(ErrorContext errorContext, IDictionary<string, string> metadata)
+                    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
                     {
+                        var errorContext = context.ErrorContext;
                         var message = errorContext.Message;
 
                         // show how we just send an empty message with the message id to the error queue
@@ -87,7 +89,10 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                             new Dictionary<string, string>(message.Headers),   // This code is passing headers just since the acceptance testing frameworks needs it.
                             ReadOnlyMemory<byte>.Empty);
 
-                        yield return new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress));
+                        return new[]
+                        {
+                            context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
+                        };
                     }
                 }
             }

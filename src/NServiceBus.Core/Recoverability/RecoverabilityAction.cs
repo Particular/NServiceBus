@@ -2,7 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Transport;
+    using Transport;
+    using Pipeline;
 
     /// <summary>
     /// Abstraction representing any recoverability action.
@@ -23,15 +24,9 @@ namespace NServiceBus
         public static ImmediateRetry ImmediateRetry() => CachedImmediateRetry;
 
         /// <summary>
-        /// Return the transport operations that this action should result in.
+        /// Returns the routing contexts derived from the provided recoverability context.
         /// </summary>
-        public abstract IEnumerable<TransportOperation> GetTransportOperations(
-            ErrorContext errorContext,
-            IDictionary<string, string> metadata);
-
-        // This method is deliberately internal. We have a hunch with the introduction of the recoverability pipeline
-        // many of the cases that today require notifications can be obsoleted over time.
-        internal virtual object GetNotification(ErrorContext errorContext, IDictionary<string, string> metadata) => null;
+        public abstract IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context);
 
         /// <summary>
         /// Creates a new delayed retry recoverability action.
@@ -72,6 +67,6 @@ namespace NServiceBus
         /// </summary>
         public abstract ErrorHandleResult ErrorHandleResult { get; }
 
-        static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
+        static readonly ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
     }
 }

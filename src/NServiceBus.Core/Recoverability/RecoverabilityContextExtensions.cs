@@ -2,7 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
+    using Routing;
     using Transport;
 
     /// <summary>
@@ -19,5 +20,11 @@
             var pipeline = cache.Pipeline<IDispatchContext>();
             return pipeline.Invoke(new DispatchContext(transportOperations, context));
         }
+
+        /// <summary>
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
+        /// </summary>
+        public static IRoutingContext CreateRoutingContext(this IRecoverabilityActionContext context, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy) =>
+            new RoutingContext(outgoingMessage, routingStrategy, context);
     }
 }

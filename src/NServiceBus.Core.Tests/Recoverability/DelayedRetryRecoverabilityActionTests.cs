@@ -7,6 +7,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Transport;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class DelayedRetryRecoverabilityActionTests
@@ -14,17 +15,17 @@
         [Test]
         public void When_delay_message_retry()
         {
-            var errorContext = CreateErrorContext();
+            var recoverabilityContext = CreateRecoverabilityContext();
             var delay = TimeSpan.FromSeconds(42);
             var delayedRetryAction = new DelayedRetry(delay);
 
-            var transportOperation = delayedRetryAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
+            var routingContext = delayedRetryAction.GetRoutingContexts(recoverabilityContext)
                 .Single();
 
-            var addressTag = transportOperation.AddressTag as UnicastAddressTag;
+            var routingStrategy = routingContext.RoutingStrategies.Single() as UnicastRoutingStrategy;
 
-            Assert.AreEqual(errorContext.ReceiveAddress, addressTag.Destination);
-            Assert.AreEqual(delay, transportOperation.Properties.DelayDeliveryWith.Delay);
+            Assert.AreEqual(recoverabilityContext.ErrorContext.ReceiveAddress, (routingStrategy.Apply(new Dictionary<string, string>()) as UnicastAddressTag).Destination);
+            Assert.AreEqual(delay, routingContext.Extensions.Get<DispatchProperties>().DelayDeliveryWith.Delay);
             Assert.AreEqual(ErrorHandleResult.Handled, delayedRetryAction.ErrorHandleResult);
         }
 
@@ -34,18 +35,18 @@
             var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
             var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTimeOffset(2012, 12, 12, 0, 0, 0, TimeSpan.Zero));
 
-            var errorContext = CreateErrorContext(new Dictionary<string, string>
+            var recoverabilityContext = CreateRecoverabilityContext(new Dictionary<string, string>
             {
                 {Headers.DelayedRetries, "2"},
                 {Headers.DelayedRetriesTimestamp, originalHeadersTimestamp}
             });
 
             var now = DateTimeOffset.UtcNow;
-            var transportOperations = delayedRetryAction.GetTransportOperations(errorContext, new Dictionary<string, string>());
+            var routingContexts = delayedRetryAction.GetRoutingContexts(recoverabilityContext);
 
-            var incomingMessage = errorContext.Message;
+            var incomingMessage = recoverabilityContext.ErrorContext.Message;
 
-            var outgoingMessageHeaders = transportOperations.Single().Message.Headers;
+            var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
             Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
             Assert.AreEqual("2", incomingMessage.Headers[Headers.DelayedRetries]);
@@ -61,21 +62,23 @@
         public void Should_add_retry_headers_when_not_present()
         {
             var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
-            var errorContext = CreateErrorContext();
+            var recoverabilityContext = CreateRecoverabilityContext();
 
-            var transportOperations = delayedRetryAction.GetTransportOperations(errorContext, new Dictionary<string, string>());
+            var routingContexts = delayedRetryAction.GetRoutingContexts(recoverabilityContext);
 
-            var outgoingMessageHeaders = transportOperations.Single().Message.Headers;
+            var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
             Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
-            Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetries));
+            Assert.IsFalse(recoverabilityContext.ErrorContext.Message.Headers.ContainsKey(Headers.DelayedRetries));
             Assert.IsTrue(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp));
-            Assert.IsFalse(errorContext.Message.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
+            Assert.IsFalse(recoverabilityContext.ErrorContext.Message.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
         }
 
-        ErrorContext CreateErrorContext(Dictionary<string, string> headers = null)
+        static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null)
         {
-            return new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(), "messageId", new byte[0], new TransportTransaction(), 0, "my-queue", new ContextBag());
+            var errorContext = new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(),
+                "messageId", Array.Empty<byte>(), new TransportTransaction(), 0, "my-queue", new ContextBag());
+            return new TestableRecoverabilityContext { ErrorContext = errorContext };
         }
     }
 }

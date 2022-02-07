@@ -261,7 +261,7 @@ namespace NServiceBus
         protected DelayedRetry(System.TimeSpan delay) { }
         public System.TimeSpan Delay { get; }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
     }
     public enum DependencyLifecycle
     {
@@ -283,7 +283,7 @@ namespace NServiceBus
         public Discard(string reason) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string Reason { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
     }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
@@ -600,7 +600,7 @@ namespace NServiceBus
     {
         protected ImmediateRetry() { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
     }
     [System.Obsolete("Gateway persistence has been moved to the NServiceBus.Gateway dedicated package. " +
         "Will be removed in version 9.0.0.", true)]
@@ -792,7 +792,7 @@ namespace NServiceBus
         protected MoveToError(string errorQueue) { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata) { }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
     }
     public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
     {
@@ -909,7 +909,7 @@ namespace NServiceBus
     {
         protected RecoverabilityAction() { }
         public abstract NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> GetTransportOperations(NServiceBus.Transport.ErrorContext errorContext, System.Collections.Generic.IDictionary<string, string> metadata);
+        public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context);
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
@@ -2020,13 +2020,18 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
+    public interface IRecoverabilityActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
+    {
+        NServiceBus.Transport.ErrorContext ErrorContext { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, string> Metadata { get; }
+    }
     public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.ErrorContext ErrorContext { get; }
-        System.Collections.Generic.IDictionary<string, string> Metadata { get; }
+        System.Collections.Generic.Dictionary<string, string> Metadata { get; }
         NServiceBus.RecoverabilityAction RecoverabilityAction { get; set; }
         NServiceBus.RecoverabilityConfig RecoverabilityConfiguration { get; }
-        void PreventChanges();
+        NServiceBus.Pipeline.IRecoverabilityActionContext PreventChanges();
     }
     public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2151,6 +2156,7 @@ namespace NServiceBus.Recoverability
 {
     public static class RecoverabilityContextExtensions
     {
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IRecoverabilityActionContext context, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
         public static System.Threading.Tasks.Task Dispatch(this NServiceBus.Pipeline.IRecoverabilityContext context, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations) { }
     }
 }

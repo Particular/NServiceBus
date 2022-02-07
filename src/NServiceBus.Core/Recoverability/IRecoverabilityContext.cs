@@ -26,11 +26,11 @@
         /// <summary>
         /// Metadata for this message.
         /// </summary>
-        IDictionary<string, string> Metadata { get; }
+        Dictionary<string, string> Metadata { get; }
 
         /// <summary>
         /// Locks the recoverability action for further changes.
         /// </summary>
-        void PreventChanges();
+        IRecoverabilityActionContext PreventChanges();
     }
 }

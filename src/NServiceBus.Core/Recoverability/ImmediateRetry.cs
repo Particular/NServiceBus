@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using NServiceBus.Logging;
     using NServiceBus.Transport;
+    using Pipeline;
 
     /// <summary>
     /// Indicates recoverability is required to immediately retry the current message.
@@ -22,25 +23,23 @@
         /// </summary>
         public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.RetryRequired;
 
-        /// <summary>
-        /// Executes the recoverability action.
-        /// </summary>
-        public override IEnumerable<TransportOperation> GetTransportOperations(
-            ErrorContext errorContext,
-            IDictionary<string, string> metadata)
+        /// <inheritdoc />
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
+            var errorContext = context.ErrorContext;
+
             Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
-            yield break;
+            if (context is IRecoverabilityActionContextNotifications notifications)
+            {
+                notifications.Add(new MessageToBeRetried(
+                    attempt: errorContext.ImmediateProcessingFailures - 1,
+                    delay: TimeSpan.Zero,
+                    immediateRetry: true,
+                    errorContext: errorContext));
+            }
+            return Array.Empty<IRoutingContext>();
         }
 
-        internal override object GetNotification(ErrorContext errorContext,
-            IDictionary<string, string> metadata) =>
-            new MessageToBeRetried(
-                attempt: errorContext.ImmediateProcessingFailures - 1,
-                delay: TimeSpan.Zero,
-                immediateRetry: true,
-                errorContext: errorContext);
-
-        static ILog Logger = LogManager.GetLogger<ImmediateRetry>();
+        static readonly ILog Logger = LogManager.GetLogger<ImmediateRetry>();
     }
 }

@@ -6,22 +6,24 @@
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Testing;
     using Transport;
 
     [TestFixture]
     public class MoveToErrorsExecutorTests
     {
         [Test]
-        public void MoveToErrorQueue_should_dispatch_message_to_error_queue()
+        public void MoveToErrorQueue_should_route_message_to_error_queue()
         {
             var customErrorQueue = "random_error_queue";
 
-            var errorContext = CreateErrorContext();
+            var recoverabilityContext = CreateRecoverabilityContext();
             var moveToErrorAction = new MoveToError(customErrorQueue);
-            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
+            var routingContext = moveToErrorAction.GetRoutingContexts(recoverabilityContext)
                 .Single();
 
-            var addressTag = transportOperation.AddressTag as UnicastAddressTag;
+            var addressTag = (UnicastAddressTag)((UnicastRoutingStrategy)routingContext.RoutingStrategies.Single())
+                .Apply(new Dictionary<string, string>());
 
             Assert.AreEqual(customErrorQueue, addressTag.Destination);
             Assert.AreEqual(ErrorHandleResult.Handled, moveToErrorAction.ErrorHandleResult);
@@ -36,15 +38,15 @@
                 {"key2", "value2"}
             };
 
-            var errorContext = CreateErrorContext(messageHeaders: incomingMessageHeaders);
+            var recoverabilityContext = CreateRecoverabilityContext(messageHeaders: incomingMessageHeaders);
 
             var moveToErrorAction = new MoveToError(ErrorQueueAddress);
-            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
+            var routingContext = moveToErrorAction.GetRoutingContexts(recoverabilityContext)
                 .Single();
 
-            var outgoingMessageHeaders = transportOperation.Message.Headers;
+            var outgoingMessageHeaders = routingContext.Message.Headers;
 
-            Assert.That(errorContext.Message.Headers, Is.SubsetOf(outgoingMessageHeaders));
+            Assert.That(recoverabilityContext.ErrorContext.Message.Headers, Is.SubsetOf(outgoingMessageHeaders));
         }
 
         [Test]
@@ -56,10 +58,10 @@
                 {Headers.DelayedRetries, "21"}
             };
 
-            var errorContext = CreateErrorContext(messageHeaders: retryHeaders);
+            var recoverabilityContext = CreateRecoverabilityContext(messageHeaders: retryHeaders);
 
             var moveToErrorAction = new MoveToError(ErrorQueueAddress);
-            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string>())
+            var transportOperation = moveToErrorAction.GetRoutingContexts(recoverabilityContext)
                 .Single();
             var outgoingMessageHeaders = transportOperation.Message.Headers;
 
@@ -70,21 +72,32 @@
         [Test]
         public void MoveToErrorQueue_should_add_metadata_to_headers()
         {
-            var errorContext = CreateErrorContext();
+            var recoverabilityContext = CreateRecoverabilityContext(metadata: new Dictionary<string, string> { { "staticFaultMetadataKey", "staticFaultMetadataValue" } });
 
             var moveToErrorAction = new MoveToError(ErrorQueueAddress);
-            var transportOperation = moveToErrorAction.GetTransportOperations(errorContext, new Dictionary<string, string> { { "staticFaultMetadataKey", "staticFaultMetadataValue" } })
+            var transportOperation = moveToErrorAction.GetRoutingContexts(recoverabilityContext)
                 .Single();
             var outgoingMessageHeaders = transportOperation.Message.Headers;
 
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
             // check for leaking headers
-            Assert.That(errorContext.Message.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
+            Assert.That(recoverabilityContext.ErrorContext.Message.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
         }
 
-        static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1, Dictionary<string, string> messageHeaders = default)
+        static TestableRecoverabilityContext CreateRecoverabilityContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1, Dictionary<string, string> messageHeaders = default, Dictionary<string, string> metadata = default)
         {
-            return new ErrorContext(raisedException ?? new Exception(exceptionMessage), messageHeaders ?? new Dictionary<string, string>(), messageId, new byte[0], new TransportTransaction(), numberOfDeliveryAttempts, ReceiveAddress, new ContextBag());
+            var errorContext = new ErrorContext(raisedException ?? new Exception(exceptionMessage),
+                messageHeaders ?? new Dictionary<string, string>(), messageId, Array.Empty<byte>(),
+                new TransportTransaction(), numberOfDeliveryAttempts, ReceiveAddress, new ContextBag());
+            var recoverabilityContext = new TestableRecoverabilityContext
+            {
+                ErrorContext = errorContext,
+            };
+            if (metadata != default)
+            {
+                recoverabilityContext.Metadata = metadata;
+            }
+            return recoverabilityContext;
         }
 
         const string ErrorQueueAddress = "errorQ";

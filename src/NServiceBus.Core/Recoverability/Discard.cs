@@ -1,8 +1,10 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
-    using NServiceBus.Logging;
-    using NServiceBus.Transport;
+    using Logging;
+    using Transport;
+    using Pipeline;
 
     /// <summary>
     /// Indicates recoverability is required to discard/ignore the current message.
@@ -27,17 +29,14 @@ namespace NServiceBus
         /// </summary>
         public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
-        /// <summary>
-        /// Executes the recoverability action.
-        /// </summary>
-        public override IEnumerable<TransportOperation> GetTransportOperations(
-            ErrorContext errorContext,
-            IDictionary<string, string> metadata)
+        /// <inheritdoc />
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
+            var errorContext = context.ErrorContext;
             Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {Reason}", errorContext.Exception);
-            yield break;
+            return Array.Empty<IRoutingContext>();
         }
 
-        static ILog Logger = LogManager.GetLogger<Discard>();
+        static readonly ILog Logger = LogManager.GetLogger<Discard>();
     }
 }

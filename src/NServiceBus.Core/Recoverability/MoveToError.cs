@@ -1,9 +1,11 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.Logging;
-    using NServiceBus.Routing;
-    using NServiceBus.Transport;
+    using Logging;
+    using Pipeline;
+    using Recoverability;
+    using Routing;
+    using Transport;
 
     /// <summary>
     /// Indicates that recoverability is required to move the current message to the error queue.
@@ -25,16 +27,19 @@ namespace NServiceBus
         /// </summary>
         public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
-        /// <summary>
-        /// Executes the recoverability action.
-        /// </summary>
-        public override IEnumerable<TransportOperation> GetTransportOperations(
-            ErrorContext errorContext,
-            IDictionary<string, string> metadata)
+        /// <inheritdoc />
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
+            var errorContext = context.ErrorContext;
+            var metadata = context.Metadata;
             var message = errorContext.Message;
 
             Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", errorContext.Exception);
+
+            if (context is IRecoverabilityActionContextNotifications notifications)
+            {
+                notifications.Add(new MessageFaulted(errorContext, ErrorQueue));
+            }
 
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
@@ -46,13 +51,12 @@ namespace NServiceBus
             {
                 headers[faultMetadata.Key] = faultMetadata.Value;
             }
-
-            yield return new TransportOperation(outgoingMessage, new UnicastAddressTag(ErrorQueue));
+            return new[]
+            {
+                context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
+            };
         }
 
-        internal override object GetNotification(ErrorContext errorContext, IDictionary<string, string> metadata) =>
-            new MessageFaulted(errorContext, ErrorQueue);
-
-        static ILog Logger = LogManager.GetLogger<MoveToError>();
+        static readonly ILog Logger = LogManager.GetLogger<MoveToError>();
     }
 }

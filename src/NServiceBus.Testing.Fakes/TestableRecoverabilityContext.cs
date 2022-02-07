@@ -2,14 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using Pipeline;
     using Transport;
 
     /// <summary>
     /// A testable implementation of <see cref="IRecoverabilityContext" />.
     /// </summary>
-    public partial class TestableRecoverabilityContext : TestableBehaviorContext, IRecoverabilityContext
+    public partial class TestableRecoverabilityContext : TestableBehaviorContext, IRecoverabilityContext, IRecoverabilityActionContext
     {
         /// <summary>
         /// The message that failed processing.
@@ -21,8 +21,13 @@
             ReadOnlyMemory<byte>.Empty,
             new TransportTransaction(),
             0,
-            "",
+            "receive-address",
             new ContextBag());
+
+        /// <summary>
+        /// Metadata for this message.
+        /// </summary>
+        IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;
 
         /// <summary>
         /// The recoverability configuration for the endpoint.
@@ -40,14 +45,15 @@
         /// <summary>
         /// Metadata for this message.
         /// </summary>
-        public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Locks the recoverability action for further changes.
         /// </summary>
-        public void PreventChanges()
+        public IRecoverabilityActionContext PreventChanges()
         {
             IsLocked = true;
+            return this;
         }
 
         /// <summary>

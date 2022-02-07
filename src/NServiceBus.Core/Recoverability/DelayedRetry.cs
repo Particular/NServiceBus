@@ -2,10 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.Logging;
-    using NServiceBus.Routing;
-    using NServiceBus.Transport;
+    using DelayedDelivery;
+    using Logging;
+    using Pipeline;
+    using Recoverability;
+    using Routing;
+    using Transport;
 
     /// <summary>
     /// Indicates recoverability is required to delay retry the current message.
@@ -27,13 +29,10 @@
         /// </summary>
         public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
-        /// <summary>
-        /// Executes the recoverability action.
-        /// </summary>
-        public override IEnumerable<TransportOperation> GetTransportOperations(
-            ErrorContext errorContext,
-            IDictionary<string, string> metadata)
+        /// <inheritdoc />
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
+            var errorContext = context.ErrorContext;
             var message = errorContext.Message;
 
             Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {Delay} because of an exception:", errorContext.Exception);
@@ -42,30 +41,26 @@
 
             var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
 
+            if (context is IRecoverabilityActionContextNotifications notifications)
+            {
+                notifications.Add(new MessageToBeRetried(
+                    attempt: currentDelayedRetriesAttempt,
+                    delay: Delay,
+                    immediateRetry: false,
+                    errorContext: errorContext));
+            }
+
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var dispatchProperties = new DispatchProperties
+            var routingContext = context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(errorContext.ReceiveAddress));
+            routingContext.Extensions.Set(new DispatchProperties
             {
                 DelayDeliveryWith = new DelayDeliveryWith(Delay)
-            };
-
-            var messageDestination = new UnicastAddressTag(errorContext.ReceiveAddress);
-
-            yield return new TransportOperation(outgoingMessage, messageDestination, dispatchProperties);
+            });
+            return new[] { routingContext };
         }
 
-        internal override object GetNotification(ErrorContext errorContext, IDictionary<string, string> metadata)
-        {
-            var currentDelayedRetriesAttempts = errorContext.Message.GetDelayedDeliveriesPerformed() + 1;
-
-            return new MessageToBeRetried(
-                attempt: currentDelayedRetriesAttempts,
-                delay: Delay,
-                immediateRetry: false,
-                errorContext: errorContext);
-        }
-
-        static ILog Logger = LogManager.GetLogger<DelayedRetry>();
+        static readonly ILog Logger = LogManager.GetLogger<DelayedRetry>();
     }
 }
