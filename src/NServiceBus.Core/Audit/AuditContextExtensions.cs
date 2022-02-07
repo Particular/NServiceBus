@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using NServiceBus.Audit;
     using Pipeline;
     using Routing;
     using Transport;
@@ -12,7 +13,7 @@
         /// <summary>
         /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
-        public static IRoutingContext CreateRoutingContext(this IAuditContext context, OutgoingMessage auditMessage)
+        public static IRoutingContext CreateRoutingContext(this IAuditActionContext context, OutgoingMessage auditMessage)
         {
             Guard.AgainstNull(nameof(auditMessage), auditMessage);
             Guard.AgainstNull(nameof(context), context);
@@ -23,7 +24,7 @@
         /// <summary>
         /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
-        public static IRoutingContext CreateRoutingContext(this IAuditContext context, OutgoingMessage auditMessage, RoutingStrategy routingStrategy)
+        public static IRoutingContext CreateRoutingContext(this IAuditActionContext context, OutgoingMessage auditMessage, RoutingStrategy routingStrategy)
         {
             Guard.AgainstNull(nameof(auditMessage), auditMessage);
             Guard.AgainstNull(nameof(context), context);

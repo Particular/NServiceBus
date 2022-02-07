@@ -32,8 +32,8 @@ namespace NServiceBus
     }
     public static class AuditContextExtensions
     {
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IAuditContext context, NServiceBus.Transport.OutgoingMessage auditMessage) { }
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IAuditContext context, NServiceBus.Transport.OutgoingMessage auditMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Audit.IAuditActionContext context, NServiceBus.Transport.OutgoingMessage auditMessage) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Audit.IAuditActionContext context, NServiceBus.Transport.OutgoingMessage auditMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
     }
     public static class AutoSubscribeSettingsExtensions
     {
@@ -1272,12 +1272,18 @@ namespace NServiceBus.Audit
     public abstract class AuditAction
     {
         protected AuditAction() { }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditContext context, System.TimeSpan? timeToBeReceived);
+        public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Audit.IAuditActionContext context, System.TimeSpan? timeToBeReceived);
     }
-    public class SendToAudit : NServiceBus.Audit.AuditAction
+    public interface IAuditActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
-        public SendToAudit() { }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditContext context, System.TimeSpan? timeToBeReceived) { }
+        string AuditAddress { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, string> AuditMetadata { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
+    }
+    public class RouteToAudit : NServiceBus.Audit.AuditAction
+    {
+        public RouteToAudit() { }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Audit.IAuditActionContext context, System.TimeSpan? timeToBeReceived) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
@@ -1969,6 +1975,7 @@ namespace NServiceBus.Pipeline
         [System.Obsolete("Use `AuditMetadata` instead. Will be treated as an error from version 9.0.0. Will" +
             " be removed in version 10.0.0.", false)]
         void AddAuditData(string key, string value);
+        NServiceBus.Audit.IAuditActionContext PreventChanges();
     }
     public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2730,6 +2737,7 @@ namespace NServiceBus.Transport
         public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+        public void UpdateBody(System.ReadOnlyMemory<byte> updatedBody) { }
     }
     public class PushRuntimeSettings
     {

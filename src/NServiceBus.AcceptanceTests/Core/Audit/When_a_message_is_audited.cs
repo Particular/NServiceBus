@@ -55,7 +55,7 @@
 
                 class ExcludeBodyFromAuditedMessage : AuditAction
                 {
-                    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
+                    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context, TimeSpan? timeToBeReceived)
                     {
                         var processedMessage = context.Message;
 

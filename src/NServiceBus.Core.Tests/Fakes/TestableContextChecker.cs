@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.Testing.Tests.Fakes
 {
+    using System;
     using System.Linq;
     using System.Reflection;
-    using Pipeline;
+    using NServiceBus.Audit;
     using NUnit.Framework;
-    using System;
+    using Pipeline;
 
     [TestFixture]
     public class TestableContextChecker
@@ -22,7 +23,8 @@
                 .Except(new[]
                 {
                     typeof(PipelineTerminator<>.ITerminatingContext),
-                    typeof(IRecoverabilityActionContext)
+                    typeof(IRecoverabilityActionContext),
+                    typeof(IAuditActionContext)
                 });
 
             foreach (var behaviorContextInterface in behaviorContextInterfaces)

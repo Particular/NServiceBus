@@ -39,5 +39,10 @@
         /// The action to take for this audit message.
         /// </summary>
         AuditAction AuditAction { get; set; }
+
+        /// <summary>
+        /// Locks the context for further changes.
+        /// </summary>
+        IAuditActionContext PreventChanges();
     }
 }

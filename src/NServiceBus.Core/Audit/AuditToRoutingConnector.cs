@@ -14,8 +14,9 @@ namespace NServiceBus
         public override async Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
         {
             var auditAction = context.AuditAction;
+            var auditActionContext = context.PreventChanges();
 
-            foreach (var routingContext in auditAction.GetRoutingContexts(context, timeToBeReceived))
+            foreach (var routingContext in auditAction.GetRoutingContexts(auditActionContext, timeToBeReceived))
             {
                 await stage(routingContext).ConfigureAwait(false);
             }

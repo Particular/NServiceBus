@@ -9,7 +9,7 @@
     /// <summary>
     /// A testable implementation of <see cref="IAuditContext" />.
     /// </summary>
-    public partial class TestableAuditContext : TestableBehaviorContext, IAuditContext
+    public partial class TestableAuditContext : TestableBehaviorContext, IAuditContext, IAuditActionContext
     {
         /// <summary>
         /// Address of the audit queue.
@@ -31,6 +31,8 @@
         /// </summary>
         public AuditAction AuditAction { get; set; }
 
+        IReadOnlyDictionary<string, string> IAuditActionContext.AuditMetadata => AuditMetadata;
+
         /// <summary>
         /// Adds information about the current message that should be audited.
         /// </summary>
@@ -39,6 +41,11 @@
         public void AddAuditData(string key, string value)
         {
             AuditMetadata.Add(key, value);
+        }
+
+        public IAuditActionContext PreventChanges()
+        {
+            return this;
         }
     }
 }

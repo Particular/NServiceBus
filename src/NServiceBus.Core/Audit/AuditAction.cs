@@ -12,6 +12,6 @@
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
-        public abstract IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived);
+        public abstract IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context, TimeSpan? timeToBeReceived);
     }
 }

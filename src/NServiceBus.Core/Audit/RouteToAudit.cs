@@ -14,7 +14,7 @@
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
-        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditContext context, TimeSpan? timeToBeReceived)
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context, TimeSpan? timeToBeReceived)
         {
             var message = context.Message;
 
