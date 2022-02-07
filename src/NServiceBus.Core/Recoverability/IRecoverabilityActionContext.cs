@@ -4,7 +4,7 @@
     using Transport;
 
     /// <summary>
-    /// Provide context to behaviors on the recoverability action pipeline.
+    /// Provide context to recoverability actions.
     /// </summary>
     public interface IRecoverabilityActionContext : IBehaviorContext
     {
