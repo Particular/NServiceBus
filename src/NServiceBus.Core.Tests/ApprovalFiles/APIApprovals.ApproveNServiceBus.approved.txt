@@ -32,8 +32,7 @@ namespace NServiceBus
     }
     public static class AuditContextExtensions
     {
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Audit.IAuditActionContext context, NServiceBus.Transport.OutgoingMessage auditMessage) { }
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Audit.IAuditActionContext context, NServiceBus.Transport.OutgoingMessage auditMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.IAuditActionContext context, NServiceBus.Transport.OutgoingMessage auditMessage, NServiceBus.Routing.RoutingStrategy routingStrategy) { }
     }
     public static class AutoSubscribeSettingsExtensions
     {
@@ -108,7 +107,7 @@ namespace NServiceBus
     }
     public static class ConnectorContextExtensions
     {
-        public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, System.TimeSpan? timeToBeReceived, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IRoutingContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IRoutingContext sourceContext) { }
@@ -1272,18 +1271,12 @@ namespace NServiceBus.Audit
     public abstract class AuditAction
     {
         protected AuditAction() { }
-        public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Audit.IAuditActionContext context, System.TimeSpan? timeToBeReceived);
-    }
-    public interface IAuditActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
-    {
-        string AuditAddress { get; }
-        System.Collections.Generic.IReadOnlyDictionary<string, string> AuditMetadata { get; }
-        NServiceBus.Transport.OutgoingMessage Message { get; }
+        public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditActionContext context);
     }
     public class RouteToAudit : NServiceBus.Audit.AuditAction
     {
         public RouteToAudit() { }
-        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Audit.IAuditActionContext context, System.TimeSpan? timeToBeReceived) { }
+        public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditActionContext context) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
@@ -1966,16 +1959,24 @@ namespace NServiceBus.Pipeline
         public override sealed System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next) { }
         public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
     }
+    public interface IAuditActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
+    {
+        string AuditAddress { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, string> AuditMetadata { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
+        System.TimeSpan? TimeToBeReceived { get; }
+    }
     public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Audit.AuditAction AuditAction { get; set; }
         string AuditAddress { get; }
         System.Collections.Generic.Dictionary<string, string> AuditMetadata { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
+        System.TimeSpan? TimeToBeReceived { get; }
         [System.Obsolete("Use `AuditMetadata` instead. Will be treated as an error from version 9.0.0. Will" +
             " be removed in version 10.0.0.", false)]
         void AddAuditData(string key, string value);
-        NServiceBus.Audit.IAuditActionContext PreventChanges();
+        NServiceBus.Pipeline.IAuditActionContext PreventChanges();
     }
     public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {

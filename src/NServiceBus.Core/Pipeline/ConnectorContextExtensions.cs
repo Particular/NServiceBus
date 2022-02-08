@@ -218,19 +218,19 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IAuditContext" /> based on the current context.
         /// </summary>
-        public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
+        public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)
         {
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
             var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;
-            return connector.CreateAuditContext(message, auditAddress, sourceContext);
+            return connector.CreateAuditContext(message, auditAddress, timeToBeReceived, sourceContext);
         }
 
-        internal static IAuditContext CreateAuditContext(this IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
+        internal static IAuditContext CreateAuditContext(this IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)
         {
             _ = forkConnector;
 
-            return new AuditContext(message, auditAddress, sourceContext);
+            return new AuditContext(message, auditAddress, timeToBeReceived, sourceContext);
         }
     }
 }

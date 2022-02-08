@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Audit
+﻿namespace NServiceBus.Pipeline
 {
+    using System;
     using System.Collections.Generic;
     using NServiceBus.Transport;
-    using Pipeline;
 
     /// <summary>
     /// Provides context to audit actions.
@@ -15,13 +15,18 @@
         OutgoingMessage Message { get; }
 
         /// <summary>
+        /// Metadata for this message.
+        /// </summary>
+        IReadOnlyDictionary<string, string> AuditMetadata { get; }
+
+        /// <summary>
         /// Address of the audit queue.
         /// </summary>
         string AuditAddress { get; }
 
         /// <summary>
-        /// Metadata for this message.
+        /// The configured time to be received for audit messages.
         /// </summary>
-        IReadOnlyDictionary<string, string> AuditMetadata { get; }
+        TimeSpan? TimeToBeReceived { get; }
     }
 }

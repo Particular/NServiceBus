@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Audit
 {
-    using System;
     using System.Collections.Generic;
     using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Routing;
     using Pipeline;
     using Transport;
 
@@ -14,7 +14,7 @@
         /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
-        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context, TimeSpan? timeToBeReceived)
+        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context)
         {
             var message = context.Message;
 
@@ -24,9 +24,10 @@
                 message.Headers[kvp.Key] = kvp.Value;
             }
 
-            var routingContext = context.CreateRoutingContext(message);
+            var routingContext = context.CreateRoutingContext(message, new UnicastRoutingStrategy(context.AuditAddress));
 
             var dispatchProperties = new DispatchProperties();
+            var timeToBeReceived = context.TimeToBeReceived;
 
             if (timeToBeReceived.HasValue)
             {

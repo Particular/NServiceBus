@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System;
     using System.Collections.Generic;
     using NServiceBus.Audit;
     using Transport;
@@ -18,6 +19,11 @@
         /// Address of the audit queue.
         /// </summary>
         string AuditAddress { get; }
+
+        /// <summary>
+        /// The configured time to be received for audit messages.
+        /// </summary>
+        TimeSpan? TimeToBeReceived { get; }
 
         /// <summary>
         /// Adds information about the current message that should be audited.

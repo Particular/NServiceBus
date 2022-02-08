@@ -17,6 +17,11 @@
         public string AuditAddress { get; set; } = "audit queue address";
 
         /// <summary>
+        /// The configured time to be received for audit messages.
+        /// </summary>
+        public TimeSpan? TimeToBeReceived { get; } = null;
+
+        /// <summary>
         /// The message to be audited.
         /// </summary>
         public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);

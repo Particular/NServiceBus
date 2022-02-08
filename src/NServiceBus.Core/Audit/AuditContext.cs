@@ -8,13 +8,14 @@ namespace NServiceBus
 
     class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
     {
-        public AuditContext(OutgoingMessage message, string auditAddress, IBehaviorContext parent)
+        public AuditContext(OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IBehaviorContext parent)
             : base(parent)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNullAndEmpty(nameof(auditAddress), auditAddress);
             Message = message;
             AuditAddress = auditAddress;
+            TimeToBeReceived = timeToBeReceived;
             AuditMetadata = new Dictionary<string, string>();
             AuditAction = RouteToAudit.Instance;
         }
@@ -22,6 +23,8 @@ namespace NServiceBus
         public OutgoingMessage Message { get; }
 
         public string AuditAddress { get; }
+
+        public TimeSpan? TimeToBeReceived { get; }
 
         public Dictionary<string, string> AuditMetadata { get; }
 
