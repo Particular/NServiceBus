@@ -1,6 +1,9 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using Transport;
+    using Pipeline;
 
     /// <summary>
     /// Abstraction representing any recoverability action.
@@ -18,10 +21,12 @@ namespace NServiceBus
         /// Creates an immediate retry recoverability action.
         /// </summary>
         /// <returns>Immediate retry action.</returns>
-        public static ImmediateRetry ImmediateRetry()
-        {
-            return CachedImmediateRetry;
-        }
+        public static ImmediateRetry ImmediateRetry() => CachedImmediateRetry;
+
+        /// <summary>
+        /// Returns the routing contexts derived from the provided recoverability context.
+        /// </summary>
+        public abstract IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context);
 
         /// <summary>
         /// Creates a new delayed retry recoverability action.
@@ -57,6 +62,11 @@ namespace NServiceBus
             return new Discard(reason);
         }
 
-        static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
+        /// <summary>
+        /// The ErrorHandleResult that should be passed to the transport.
+        /// </summary>
+        public abstract ErrorHandleResult ErrorHandleResult { get; }
+
+        static readonly ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
     }
 }

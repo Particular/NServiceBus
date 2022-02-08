@@ -61,3 +61,8 @@ context0 => Convert(context0.Extensions.Behaviors[0]).Invoke(context0, value(Sys
                                 context8 => Convert(context8.Extensions.Behaviors[8]).Invoke(context8, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
                                     context9 => Convert(context9.Extensions.Behaviors[9]).Invoke(context9, value(System.Func`2[NServiceBus.Pipeline.IInvokeHandlerContext,System.Threading.Tasks.Task])),
                                         context10 => Convert(context10.Extensions.Behaviors[10]).Invoke(context10, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IInvokeHandlerContext],System.Threading.Tasks.Task])),
+
+context0 => Convert(context0.Extensions.Behaviors[0]).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
+    context1 => Convert(context1.Extensions.Behaviors[1]).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
+        context2 => Convert(context2.Extensions.Behaviors[2]).Invoke(context2, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
+            context3 => Convert(context3.Extensions.Behaviors[3]).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),

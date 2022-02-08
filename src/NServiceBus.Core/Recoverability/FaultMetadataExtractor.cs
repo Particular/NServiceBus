@@ -3,10 +3,32 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using NServiceBus.Faults;
+    using NServiceBus.Transport;
 
-    static class ExceptionHeaderHelper
+    class FaultMetadataExtractor
     {
-        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e)
+        public FaultMetadataExtractor(Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
+        {
+            this.staticFaultMetadata = staticFaultMetadata;
+            this.headerCustomizations = headerCustomizations;
+        }
+
+        public Dictionary<string, string> Extract(ErrorContext errorContext)
+        {
+            var metadata = new Dictionary<string, string>(staticFaultMetadata)
+            {
+                [FaultsHeaderKeys.FailedQ] = errorContext.ReceiveAddress
+            };
+
+            SetExceptionMetadata(metadata, errorContext.Exception);
+
+            headerCustomizations(metadata);
+
+            return metadata;
+        }
+
+        static void SetExceptionMetadata(Dictionary<string, string> headers, Exception e)
         {
             headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
@@ -16,7 +38,7 @@
             }
 
             headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
+            headers["NServiceBus.ExceptionInfo.Message"] = Truncate(e.GetMessage(), 16384);
             headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
@@ -25,9 +47,7 @@
             {
                 return;
             }
-#pragma warning disable DE0006
             foreach (DictionaryEntry entry in e.Data)
-#pragma warning restore DE0006
             {
                 if (entry.Value == null)
                 {
@@ -37,11 +57,15 @@
             }
         }
 
-        static string Truncate(this string value, int maxLength) =>
+        static string Truncate(string value, int maxLength) =>
             string.IsNullOrEmpty(value)
                 ? value
                 : (value.Length <= maxLength
                     ? value
                     : value.Substring(0, maxLength));
+
+
+        readonly Dictionary<string, string> staticFaultMetadata;
+        readonly Action<Dictionary<string, string>> headerCustomizations;
     }
 }

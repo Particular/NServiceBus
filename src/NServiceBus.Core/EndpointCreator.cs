@@ -60,7 +60,11 @@ namespace NServiceBus
 
             featureComponent.Initalize(featureConfigurationContext);
 
-            recoverabilityComponent.Initialize(receiveConfiguration, hostingConfiguration, transportSeam);
+            recoverabilityComponent.Initialize(
+                receiveConfiguration,
+                hostingConfiguration,
+                transportSeam,
+                pipelineSettings);
 
             var routingComponent = RoutingComponent.Initialize(
                 routingConfiguration,

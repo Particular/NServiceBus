@@ -159,22 +159,30 @@ namespace NServiceBus
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
-            var recoverabilityExecutorFactory = recoverabilityComponent.GetRecoverabilityExecutorFactory(builder);
 
-            var recoverability = recoverabilityExecutorFactory
-                .CreateDefault();
+            var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
+                builder,
+                pipelineCache,
+                pipelineComponent,
+                messageOperations);
 
-            await mainPump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                recoverability.Invoke, cancellationToken).ConfigureAwait(false);
+            await mainPump.Initialize(
+                configuration.PushRuntimeSettings,
+                mainPipelineExecutor.Invoke,
+                recoverabilityPipelineExecutor.Invoke,
+                cancellationToken).ConfigureAwait(false);
+
             receivers.Add(mainPump);
 
             if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
             {
                 var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump);
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault();
 
-                await instancePump.Initialize(configuration.PushRuntimeSettings, mainPipelineExecutor.Invoke,
-                    instanceSpecificRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
+                await instancePump.Initialize(
+                    configuration.PushRuntimeSettings,
+                    mainPipelineExecutor.Invoke,
+                    recoverabilityPipelineExecutor.Invoke,
+                    cancellationToken).ConfigureAwait(false);
 
                 receivers.Add(instancePump);
             }
@@ -185,10 +193,15 @@ namespace NServiceBus
                 {
                     var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
                     var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellite.RecoverabilityPolicy);
+                    var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
 
-                    await satellitePump.Initialize(satellite.RuntimeSettings, satellitePipeline.Invoke,
-                        satelliteRecoverabilityExecutor.Invoke, cancellationToken).ConfigureAwait(false);
+                    await satellitePump.Initialize(
+                        satellite.RuntimeSettings,
+                        satellitePipeline.Invoke,
+                        satelliteRecoverabilityExecutor.Invoke,
+                        cancellationToken)
+                        .ConfigureAwait(false);
+
                     receivers.Add(satellitePump);
                 }
                 catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
