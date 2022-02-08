@@ -7,17 +7,17 @@
     using NServiceBus.Pipeline;
     using Transport;
 
-    class RecoverabilityPipelineExecutor
+    class RecoverabilityPipelineExecutor<TState> : IRecoverabilityPipelineExecutor
     {
         public RecoverabilityPipelineExecutor(
             IServiceProvider serviceProvider,
             IPipelineCache pipelineCache,
             MessageOperations messageOperations,
             RecoverabilityConfig recoverabilityConfig,
-            Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy,
+            Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
             Pipeline<IRecoverabilityContext> recoverabilityPipeline,
             FaultMetadataExtractor faultMetadataExtractor,
-            object state)
+            TState state)
         {
             this.state = state;
             this.serviceProvider = serviceProvider;
@@ -57,9 +57,9 @@
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly RecoverabilityConfig recoverabilityConfig;
-        readonly Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy;
+        readonly Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy;
         readonly Pipeline<IRecoverabilityContext> recoverabilityPipeline;
         readonly FaultMetadataExtractor faultMetadataExtractor;
-        readonly object state;
+        readonly TState state;
     }
 }

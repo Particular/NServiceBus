@@ -68,7 +68,7 @@
             });
         }
 
-        public RecoverabilityPipelineExecutor CreateRecoverabilityPipelineExecutor(
+        public IRecoverabilityPipelineExecutor CreateRecoverabilityPipelineExecutor(
             IServiceProvider serviceProvider,
             IPipelineCache pipelineCache,
             PipelineComponent pipeline,
@@ -81,14 +81,15 @@
                 policy = (config, context) => DefaultRecoverabilityPolicy.Invoke(config, context);
             };
 
-            return new RecoverabilityPipelineExecutor(
+            return new RecoverabilityPipelineExecutor<(RecoverabilityComponent,
+                Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
                 serviceProvider,
                 pipelineCache,
                 messageOperations,
                 recoverabilityConfig,
                 (errorContext, state) =>
                 {
-                    var (@this, localPolicy) = (Tuple<RecoverabilityComponent, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>>)state;
+                    var (@this, localPolicy) = state;
                     return AdjustForTransportCapabilities(
                         @this.recoverabilityConfig.Failed.ErrorQueue,
                         @this.immediateRetriesAvailable,
@@ -97,24 +98,24 @@
                 },
                 recoverabilityPipeline,
                 faultMetadataExtractor,
-                Tuple.Create(this, policy));
+                (this, policy));
         }
 
-        public SatelliteRecoverabilityExecutor CreateSatelliteRecoverabilityExecutor(
+        public IRecoverabilityPipelineExecutor CreateSatelliteRecoverabilityExecutor(
             IServiceProvider serviceProvider,
             Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy) =>
-            new SatelliteRecoverabilityExecutor(
+            new SatelliteRecoverabilityExecutor<(RecoverabilityComponent, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
                 serviceProvider,
                 faultMetadataExtractor,
                 (errorContext, state) =>
                 {
-                    var (@this, policy) = (Tuple<RecoverabilityComponent, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>>)state;
+                    var (@this, policy) = state;
                     return AdjustForTransportCapabilities(
                         @this.recoverabilityConfig.Failed.ErrorQueue,
                         @this.immediateRetriesAvailable,
                         @this.delayedRetriesAvailable,
                         policy(@this.recoverabilityConfig, errorContext));
-                }, Tuple.Create(this, recoverabilityPolicy));
+                }, (this, recoverabilityPolicy));
 
         public static RecoverabilityAction AdjustForTransportCapabilities(
             string errorQueue,

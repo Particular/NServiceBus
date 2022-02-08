@@ -9,13 +9,13 @@
     using Transport;
     using Pipeline;
 
-    class SatelliteRecoverabilityExecutor
+    class SatelliteRecoverabilityExecutor<TState> : IRecoverabilityPipelineExecutor
     {
         public SatelliteRecoverabilityExecutor(
             IServiceProvider serviceProvider,
             FaultMetadataExtractor faultMetadataExtractor,
-            Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy,
-            object state)
+            Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
+            TState state)
         {
             this.state = state;
             this.serviceProvider = serviceProvider;
@@ -79,7 +79,7 @@
 
         readonly IServiceProvider serviceProvider;
         readonly FaultMetadataExtractor faultMetadataExtractor;
-        readonly Func<ErrorContext, object, RecoverabilityAction> recoverabilityPolicy;
-        readonly object state;
+        readonly Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy;
+        readonly TState state;
     }
 }
