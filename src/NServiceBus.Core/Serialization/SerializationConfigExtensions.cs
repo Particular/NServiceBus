@@ -70,6 +70,16 @@
             return CreateSerializationExtension<T>(settings);
         }
 
+        /// <summary>
+        /// Disables inference of message type based on the content type if the message type can't be determined by the NServiceBus.EnclosedMessageTypes header.
+        /// </summary>
+        public static void DisableMessageTypeInference(this EndpointConfiguration config)
+        {
+            Guard.AgainstNull(nameof(config), config);
+
+            config.Settings.Set(SerializationFeature.DisableMessageTypeInferenceKey, true);
+        }
+
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings) where T : SerializationDefinition
         {
             var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
