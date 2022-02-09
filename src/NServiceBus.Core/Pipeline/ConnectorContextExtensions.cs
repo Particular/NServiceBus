@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Persistence;
     using Pipeline;
     using Routing;
@@ -218,11 +219,28 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IAuditContext" /> based on the current context.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Use the overload that accepts the timeToBeReceived parameter.",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
+        {
+            return forkConnector.CreateAuditContext(message, auditAddress, null, sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IAuditContext" /> based on the current context.
+        /// </summary>
         public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)
         {
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.AgainstNull(nameof(message), message);
+            Guard.AgainstNullAndEmpty(nameof(auditAddress), auditAddress);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
             var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;
+
             return connector.CreateAuditContext(message, auditAddress, timeToBeReceived, sourceContext);
         }
 

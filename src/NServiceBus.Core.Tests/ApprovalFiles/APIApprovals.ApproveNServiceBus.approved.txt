@@ -107,6 +107,9 @@ namespace NServiceBus
     }
     public static class ConnectorContextExtensions
     {
+        [System.Obsolete("Use the overload that accepts the timeToBeReceived parameter. Will be treated as " +
+            "an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, System.TimeSpan? timeToBeReceived, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
@@ -1275,7 +1278,7 @@ namespace NServiceBus.Audit
     }
     public class RouteToAudit : NServiceBus.Audit.AuditAction
     {
-        public RouteToAudit() { }
+        protected RouteToAudit() { }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IAuditActionContext context) { }
     }
 }

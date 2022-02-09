@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using NServiceBus.Audit;
     using Transport;
 
@@ -34,6 +35,7 @@
             ReplacementTypeOrMember = nameof(AuditMetadata),
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         void AddAuditData(string key, string value);
 
         /// <summary>

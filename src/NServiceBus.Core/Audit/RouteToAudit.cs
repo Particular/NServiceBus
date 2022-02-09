@@ -12,6 +12,14 @@
     public class RouteToAudit : AuditAction
     {
         /// <summary>
+        /// Protected to make sure its subclassed when extended.
+        /// </summary>
+        protected internal RouteToAudit()
+        {
+
+        }
+
+        /// <summary>
         /// Gets the messages, if any, this audit operation should result in.
         /// </summary>
         public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context)

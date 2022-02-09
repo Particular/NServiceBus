@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.Audit;
     using NUnit.Framework;
     using Pipeline;
 
