@@ -1062,6 +1062,7 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> AddDeserializer<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
+        public static void DisableMessageTypeInference(this NServiceBus.EndpointConfiguration config) { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
