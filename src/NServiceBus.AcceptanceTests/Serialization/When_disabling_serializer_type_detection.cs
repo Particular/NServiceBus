@@ -13,7 +13,6 @@
     using NUnit.Framework;
     using Settings;
 
-    //TODO test empty header value
     class When_disabling_serializer_type_detection : NServiceBusAcceptanceTest
     {
         [Test]
@@ -30,6 +29,22 @@
             Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
             Assert.IsInstanceOf<MessageDeserializationException>(context.FailedMessages.Single().Value.Single().Exception);
         }
+
+        [Test]
+        public async Task Should_not_pass_messages_with_empty_types_header()
+        {
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<ReceivingEndpoint>(e => e
+                    .DoNotFailOnErrorMessages()
+                    .When(s => s.SendLocal(new MessageWithEmptyTypeHeader())))
+                .Done(c => c.IncomingMessageReceived)
+                .Run(TimeSpan.FromSeconds(20));
+
+            Assert.IsFalse(context.HandlerInvoked);
+            Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
+            Assert.IsInstanceOf<MessageDeserializationException>(context.FailedMessages.Single().Value.Single().Exception);
+        }
+
 
         class Context : ScenarioContext
         {
@@ -49,7 +64,7 @@
                 });
             }
 
-            public class MessageHandler : IHandleMessages<MessageWithoutTypeHeader>
+            public class MessageHandler : IHandleMessages<MessageWithoutTypeHeader>, IHandleMessages<MessageWithEmptyTypeHeader>
             {
                 Context testContext;
 
@@ -59,6 +74,12 @@
                 }
 
                 public Task Handle(MessageWithoutTypeHeader message, IMessageHandlerContext context)
+                {
+                    testContext.HandlerInvoked = true;
+                    return Task.CompletedTask;
+                }
+
+                public Task Handle(MessageWithEmptyTypeHeader message, IMessageHandlerContext context)
                 {
                     testContext.HandlerInvoked = true;
                     return Task.CompletedTask;
@@ -77,13 +98,26 @@
                 public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
                 {
                     testContext.IncomingMessageReceived = true;
-                    context.Message.Headers.Remove(Headers.EnclosedMessageTypes);
+
+                    if (context.MessageHeaders[Headers.EnclosedMessageTypes].Contains(typeof(MessageWithEmptyTypeHeader).FullName))
+                    {
+                        context.Message.Headers[Headers.EnclosedMessageTypes] = "   ";
+                    }
+                    else
+                    {
+                        context.Message.Headers.Remove(Headers.EnclosedMessageTypes);
+                    }
+
                     return next();
                 }
             }
         }
 
         public class MessageWithoutTypeHeader : IMessage
+        {
+        }
+
+        public class MessageWithEmptyTypeHeader : IMessage
         {
         }
 
