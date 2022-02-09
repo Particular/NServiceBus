@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using Persistence;
     using Pipeline;
     using Routing;
@@ -220,10 +219,9 @@ namespace NServiceBus
         /// Creates a <see cref="IAuditContext" /> based on the current context.
         /// </summary>
         [ObsoleteEx(
-            Message = "Use the overload that accepts the timeToBeReceived parameter.",
             TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+            RemoveInVersion = "10.0",
+            ReplacementTypeOrMember = "CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)")]
         public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
         {
             return forkConnector.CreateAuditContext(message, auditAddress, null, sourceContext);
