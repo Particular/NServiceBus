@@ -16,11 +16,11 @@
 
         public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
-            context.AddAuditData(Headers.HostId, hostInfo.HostId.ToString("N"));
-            context.AddAuditData(Headers.HostDisplayName, hostInfo.DisplayName);
+            context.AuditMetadata[Headers.HostId] = hostInfo.HostId.ToString("N");
+            context.AuditMetadata[Headers.HostDisplayName] = hostInfo.DisplayName;
 
-            context.AddAuditData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
-            context.AddAuditData(Headers.ProcessingEndpoint, endpoint);
+            context.AuditMetadata[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+            context.AuditMetadata[Headers.ProcessingEndpoint] = endpoint;
 
             return next(context);
         }

@@ -1,52 +1,20 @@
 namespace NServiceBus
 {
-    using Transport;
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Performance.TimeToBeReceived;
     using Pipeline;
-    using Routing;
 
     class AuditToRoutingConnector : StageConnector<IAuditContext, IRoutingContext>
     {
-        public AuditToRoutingConnector(TimeSpan? timeToBeReceived)
+        public override async Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
         {
-            this.timeToBeReceived = timeToBeReceived;
-        }
+            var auditAction = context.AuditAction;
+            var auditActionContext = context.PreventChanges();
 
-        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
-        {
-            var message = context.Message;
-
-            if (context.Extensions.TryGet(out State state))
+            foreach (var routingContext in auditAction.GetRoutingContexts(auditActionContext))
             {
-                //transfer audit values to the headers of the message to audit
-                foreach (var kvp in state.AuditValues)
-                {
-                    message.Headers[kvp.Key] = kvp.Value;
-                }
+                await stage(routingContext).ConfigureAwait(false);
             }
-
-            var dispatchProperties = new DispatchProperties();
-
-            if (timeToBeReceived.HasValue)
-            {
-                dispatchProperties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(timeToBeReceived.Value);
-            }
-
-            var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
-
-            dispatchContext.Extensions.Set(dispatchProperties);
-
-            return stage(dispatchContext);
-        }
-
-        TimeSpan? timeToBeReceived;
-
-        public class State
-        {
-            public Dictionary<string, string> AuditValues = new Dictionary<string, string>();
         }
     }
 }

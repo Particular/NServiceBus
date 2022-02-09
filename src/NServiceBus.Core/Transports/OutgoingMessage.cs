@@ -26,7 +26,6 @@ namespace NServiceBus.Transport
         /// </summary>
         public ReadOnlyMemory<byte> Body { get; private set; }
 
-
         /// <summary>
         /// The id of the message.
         /// </summary>

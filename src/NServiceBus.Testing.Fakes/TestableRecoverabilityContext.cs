@@ -59,6 +59,6 @@
         /// <summary>
         /// True if the recoverability action was locked.
         /// </summary>
-        public bool IsLocked { get; set; } = false;
+        public bool IsLocked { get; private set; } = false;
     }
 }
