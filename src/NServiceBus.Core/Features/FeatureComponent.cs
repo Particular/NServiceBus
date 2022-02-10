@@ -18,7 +18,13 @@
         {
             featureActivator = new FeatureActivator(settings);
 
-            foreach (var type in hostingConfiguration.AvailableTypes.Where(t => IsFeature(t)))
+            // also register features that haven't been scanned via assembly scanning but have been explicitly configured via code first APIs.
+            var registeredFeatureTypes = settings.GetExplicitlyEnabledFeatures();
+
+            foreach (var type in hostingConfiguration.AvailableTypes
+                         .Union(registeredFeatureTypes)
+                         .Where(t => IsFeature(t))
+                         .Distinct())
             {
                 featureActivator.Add(type.Construct<Feature>());
             }
@@ -41,10 +47,7 @@
             return featureActivator.StopFeatures(cancellationToken);
         }
 
-        static bool IsFeature(Type type)
-        {
-            return typeof(Feature).IsAssignableFrom(type);
-        }
+        static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
         SettingsHolder settings;
         FeatureActivator featureActivator;

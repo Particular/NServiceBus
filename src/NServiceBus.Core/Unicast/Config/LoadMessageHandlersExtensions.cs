@@ -9,6 +9,20 @@ namespace NServiceBus
     public static class LoadMessageHandlersExtensions
     {
         /// <summary>
+        /// Registers the provided types as message handlers. The handlers will automatically be registered with the DI container. Handlers registered via this API are executed before message handlers that are detected via assembly scanning. This setting cannot be combined with <see cref="ExecuteTheseHandlersFirst(EndpointConfiguration,IEnumerable{Type})"/>. 
+        /// </summary>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        /// <param name="handlerTypes">The handler type to register. The provided type must implement <see cref="IHandleMessages{T}"/>.</param>
+        public static void RegisterMessageHandlers(this EndpointConfiguration config, params Type[] handlerTypes) => ExecuteTheseHandlersFirst(config, (IEnumerable<Type>)handlerTypes);
+
+        /// <summary>
+        /// Registers the provided types as message handlers. The handlers will automatically be registered with the DI container. Handlers registered via this API are executed before message handlers that are detected via assembly scanning. This setting cannot be combined with <see cref="ExecuteTheseHandlersFirst(EndpointConfiguration,IEnumerable{Type})"/>. 
+        /// </summary>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        /// <param name="handlerTypes">The handler type to register. The provided type must implement <see cref="IHandleMessages{T}"/>.</param>
+        public static void RegisterMessageHandlers(this EndpointConfiguration config, IEnumerable<Type> handlerTypes) => ExecuteTheseHandlersFirst(config, handlerTypes);
+
+        /// <summary>
         /// Loads all message handler assemblies in the runtime directory
         /// and specifies that the handlers in the given 'order' are to
         /// run before all others and in the order specified.

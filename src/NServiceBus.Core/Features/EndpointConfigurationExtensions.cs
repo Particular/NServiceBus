@@ -1,7 +1,10 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Features;
+    using Settings;
 
     /// <summary>
     /// Extension methods declarations.
@@ -28,6 +31,8 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(featureType), featureType);
 
+            var features = config.Settings.GetOrCreate<HashSet<Type>>(RegisteredFeaturesKey);
+            features.Add(featureType);
             config.Settings.EnableFeature(featureType);
         }
 
@@ -53,5 +58,17 @@
 
             config.Settings.DisableFeature(featureType);
         }
+
+        internal static IEnumerable<Type> GetExplicitlyEnabledFeatures(this SettingsHolder settings)
+        {
+            if (settings.TryGet(RegisteredFeaturesKey, out HashSet<Type> features))
+            {
+                return features;
+            }
+
+            return Enumerable.Empty<Type>();
+        }
+
+        const string RegisteredFeaturesKey = "RegisteredFeatures";
     }
 }

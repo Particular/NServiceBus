@@ -173,12 +173,16 @@ namespace NServiceBus.Settings
         /// Gets the requested value, a new one will be created and added if needed.
         /// </summary>
         public T GetOrCreate<T>()
+            where T : class, new() =>
+            GetOrCreate<T>(typeof(T).FullName);
+
+        internal T GetOrCreate<T>(string key)
             where T : class, new()
         {
-            if (!TryGet(out T value))
+            if (!TryGet(key, out T value))
             {
                 value = new T();
-                Set(value);
+                Set(key, value);
             }
             return value;
         }
