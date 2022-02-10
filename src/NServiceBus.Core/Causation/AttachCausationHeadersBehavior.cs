@@ -30,6 +30,7 @@ namespace NServiceBus
             }
 
             context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
+            context.Headers[Headers.RelatedTo2] = context.Extensions.Get<string>(Headers.ProcessingId);
         }
 
         void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)

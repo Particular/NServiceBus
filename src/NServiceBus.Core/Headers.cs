@@ -218,5 +218,15 @@
         /// of the message can be known.
         /// </summary>
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+
+        /// <summary>
+        /// Identifies one specific processing attempt of a received message.
+        /// </summary>
+        public const string ProcessingId = "NServiceBus.ProcessingId";
+
+        /// <summary>
+        /// Processing Id of the message processing attempt that caused this message to be sent.
+        /// </summary>
+        public const string RelatedTo2 = "NServiceBus.RelatesTo";
     }
 }

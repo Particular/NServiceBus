@@ -28,6 +28,7 @@ namespace NServiceBus
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
+                rootContext.Set(Headers.ProcessingId, Guid.NewGuid().ToString("N"));
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 

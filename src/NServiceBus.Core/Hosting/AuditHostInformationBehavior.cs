@@ -21,6 +21,7 @@
 
             context.AuditMetadata[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
             context.AuditMetadata[Headers.ProcessingEndpoint] = endpoint;
+            context.AuditMetadata[Headers.ProcessingId] = context.Extensions.Get<string>(Headers.ProcessingId);
 
             return next(context);
         }
