@@ -49,7 +49,7 @@ namespace NServiceBus.Hosting.Helpers
         public bool ScanAppDomainAssemblies { get; set; } = true;
 
         /// <summary>
-        /// Determines if the scanner should scan assemblies from the application directory.
+        /// Determines if the scanner should scan assemblies from the file system.
         /// </summary>
         public bool ScanFileSystemAssemblies { get; set; } = true;
 
@@ -66,10 +66,8 @@ namespace NServiceBus.Hosting.Helpers
             var results = new AssemblyScannerResults();
             var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
-
             if (assemblyToScan != null)
             {
-
                 if (ScanAssembly(assemblyToScan, processed))
                 {
                     AddTypesToResult(assemblyToScan, results);

@@ -17,7 +17,7 @@
         public bool ScanAppDomainAssemblies { get; set; } = true;
 
         /// <summary>
-        /// Determines if the scanner should scan assemblies from the application directory.
+        /// Determines if the scanner should scan assemblies from the file system. By default, NServiceBus scans the application's base directory. Additional directories can be included via the <see cref="ScanAssembliesInNestedDirectories"/> and <see cref="AdditionalAssemblyScanningPath"/> settings.
         /// </summary>
         public bool ScanFileSystemAssemblies { get; set; } = true;
 
