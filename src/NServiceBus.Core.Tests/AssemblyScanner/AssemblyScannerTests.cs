@@ -61,7 +61,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var result = scanner.GetScannableAssemblies();
 
             Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
-            Assert.AreEqual(1, result.Assemblies.Count);
+            Assert.AreEqual(2, result.Assemblies.Count);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
             Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
             Assert.IsFalse(result.Assemblies.Contains(assemblyWithoutReference));
-            Assert.AreEqual(1, result.Assemblies.Count);
+            Assert.AreEqual(2, result.Assemblies.Count);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
             Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV1));
             Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV2));
-            Assert.AreEqual(2, result.Assemblies.Count);
+            Assert.AreEqual(3, result.Assemblies.Count);
         }
 
         [Test]
@@ -151,29 +151,26 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.IsTrue(result.Assemblies.Contains(assemblyB));
             Assert.IsTrue(result.Assemblies.Contains(assemblyC));
             Assert.IsTrue(result.Assemblies.Contains(assemblyD));
-            Assert.IsFalse(result.Assemblies.Contains(busAssembly));
-            Assert.AreEqual(4, result.Assemblies.Count);
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+            Assert.AreEqual(5, result.Assemblies.Count);
         }
 
         [Test]
         [RunInApplicationDomain]
-        public void Should_not_include_core_assembly_types()
+        public void Should_always_include_core_assembly_types()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
-            Assembly.LoadFrom(busAssembly.FilePath);
 
             var scanner = new AssemblyScanner
             {
-                CoreAssemblyName = busAssembly.DynamicName,
-                ScanAppDomainAssemblies = true,
-                ScanFileSystemAssemblies = true
+                CoreAssemblyName = "NServiceBus.Core",
+                ScanAppDomainAssemblies = false,
+                ScanFileSystemAssemblies = false
             }; // don't scan the dynamic assembly folder
 
             var result = scanner.GetScannableAssemblies();
 
-            Assert.IsFalse(result.Assemblies.Contains(busAssembly));
-            Assert.IsFalse(result.Assemblies.Any(a => a.GetName().Name.Contains("NServiceBus.Core")));
-            Assert.IsFalse(result.Types.Any(t => t == typeof(Endpoint)));
+            Assert.IsTrue(result.Assemblies.Any(a => a.FullName == typeof(Endpoint).Assembly.FullName));
         }
 
         [Test]
