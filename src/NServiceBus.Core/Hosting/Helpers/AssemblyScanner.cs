@@ -66,14 +66,23 @@ namespace NServiceBus.Hosting.Helpers
             var results = new AssemblyScannerResults();
             var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
+
             if (assemblyToScan != null)
             {
+
                 if (ScanAssembly(assemblyToScan, processed))
                 {
                     AddTypesToResult(assemblyToScan, results);
                 }
 
                 return results;
+            }
+
+            // Always scan Core assembly
+            var coreAssembly = typeof(AssemblyScanner).Assembly;
+            if (ScanAssembly(coreAssembly, processed))
+            {
+                AddTypesToResult(coreAssembly, results);
             }
 
             if (ScanAppDomainAssemblies)
@@ -204,7 +213,7 @@ namespace NServiceBus.Hosting.Helpers
 
             if (assembly.GetName().Name == CoreAssemblyName)
             {
-                return processed[assembly.FullName] = false;
+                return processed[assembly.FullName] = true;
             }
 
             if (ShouldScanDependencies(assembly))
@@ -212,12 +221,8 @@ namespace NServiceBus.Hosting.Helpers
                 foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
                 {
                     var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
-                    if (referencedAssembly == null)
-                    {
-                        continue;
-                    }
-
-                    if (referencedAssembly.GetName().Name == CoreAssemblyName || ScanAssembly(referencedAssembly, processed))
+                    var referencesCore = ScanAssembly(referencedAssembly, processed);
+                    if (referencesCore)
                     {
                         processed[assembly.FullName] = true;
                         break;
@@ -384,7 +389,7 @@ namespace NServiceBus.Hosting.Helpers
             return lowerAssemblyName;
         }
 
-        internal void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
+        void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
         {
             try
             {

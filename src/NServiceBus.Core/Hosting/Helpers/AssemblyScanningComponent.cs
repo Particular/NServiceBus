@@ -40,10 +40,7 @@
             assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
 
             var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
-            // Always scan the NServiceBus core because we rely on type discovery for internal features
-            assemblyScanner.AddTypesToResult(Assembly.GetExecutingAssembly(), scannableAssemblies);
-
-            availableTypes = availableTypes.Union(scannableAssemblies.Types).ToList();
+            availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
 
             configuration.SetDefaultAvailableTypes(availableTypes);
 
