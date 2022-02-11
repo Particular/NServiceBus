@@ -10,6 +10,8 @@
     /// </summary>
     public static class SerializationConfigExtensions
     {
+        internal const string DisableDynamicTypeLoadingKey = "DisableDynamicTypeLoading";
+
         /// <summary>
         /// Configures the given serializer to be used.
         /// </summary>
@@ -68,6 +70,15 @@
             var settings = new SettingsHolder();
             additionalSerializers.Add(Tuple.Create<SerializationDefinition, SettingsHolder>(serializationDefinition, settings));
             return CreateSerializationExtension<T>(settings, config.Settings);
+        }
+
+        /// <summary>
+        /// Disables dynamic type loading via `Type.GetType` to prevent loading of assemblies for types passed in message header `NServiceBus.EnclosedMessageTypes` to only allow message types during deserialization that were explicitly loaded.  
+        /// </summary>
+        public static void DisableDynamicTypeLoading(this EndpointConfiguration config)
+        {
+            Guard.AgainstNull(nameof(config), config);
+            config.GetSettings().Set(DisableDynamicTypeLoadingKey, true);
         }
 
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition => new SerializationExtensions<T>(serializerSettings, endpointConfigurationSettings);

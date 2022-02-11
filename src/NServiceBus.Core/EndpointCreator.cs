@@ -103,9 +103,12 @@ namespace NServiceBus
             );
         }
 
+
         void ConfigureMessageTypes()
         {
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, true);
+            settings.TryGet<bool>(SerializationConfigExtensions.DisableDynamicTypeLoadingKey, out var disableDynamicTypeLoadingKey);
+
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, !disableDynamicTypeLoadingKey);
 
             messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
 
