@@ -6,6 +6,7 @@
     using Settings;
     using Hosting.Helpers;
     using System.Reflection;
+    using NServiceBus.Logging;
 
     class AssemblyScanningComponent
     {
@@ -38,6 +39,11 @@
             assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
             assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
             assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
+
+            if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
+            {
+                Logger.Info($"Assembly scanning have been disabled. Message handlers, features and installers might not be loaded. Enable {assemblyScannerSettings.ScanAppDomainAssemblies} and/or {assemblyScannerSettings.ScanFileSystemAssemblies} to automatically load handlers, features and installers.");
+            }
 
             var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
             availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
@@ -91,5 +97,7 @@
 
             static string TypesToScanSettingsKey = "TypesToScan";
         }
+
+        static ILog Logger = LogManager.GetLogger<AssemblyScanningComponent>();
     }
 }
