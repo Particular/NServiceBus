@@ -42,7 +42,7 @@
 
             if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
             {
-                Logger.Info($"Assembly scanning have been disabled. Message handlers, features and installers might not be loaded. Enable {assemblyScannerSettings.ScanAppDomainAssemblies} and/or {assemblyScannerSettings.ScanFileSystemAssemblies} to automatically load handlers, features and installers.");
+                Logger.Warn($"Assembly scanning have been disabled. Message handlers, features and installers might not be loaded. Enable {assemblyScannerSettings.ScanAppDomainAssemblies} and/or {assemblyScannerSettings.ScanFileSystemAssemblies} to automatically load handlers, features and installers.");
             }
 
             var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
