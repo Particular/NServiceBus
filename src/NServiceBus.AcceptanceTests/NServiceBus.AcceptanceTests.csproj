@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
-    <RemoveSourceFileFromPackage Remove="Core\Recoverability\When_applying_message_recoverability.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 
