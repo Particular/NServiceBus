@@ -36,7 +36,7 @@
 
             var settings = new SettingsHolder();
             config.Settings.SetMainSerializer(serializationDefinition, settings);
-            return CreateSerializationExtension<T>(settings);
+            return CreateSerializationExtension<T>(settings, config.Settings);
         }
 
         /// <summary>
@@ -67,23 +67,23 @@
 
             var settings = new SettingsHolder();
             additionalSerializers.Add(Tuple.Create<SerializationDefinition, SettingsHolder>(serializationDefinition, settings));
-            return CreateSerializationExtension<T>(settings);
+            return CreateSerializationExtension<T>(settings, config.Settings);
         }
 
         /// <summary>
-        /// Disables inference of message type based on the content type if the message type can't be determined by the NServiceBus.EnclosedMessageTypes header.
+        /// Disables inference of message type based on the content type if the message type can't be determined by the 'NServiceBus.EnclosedMessageTypes' header.
         /// </summary>
-        public static void DisableMessageTypeInference(this EndpointConfiguration config)
+        public static void DisableMessageTypeInference<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
             Guard.AgainstNull(nameof(config), config);
 
-            config.Settings.Set(SerializationFeature.DisableMessageTypeInferenceKey, true);
+            config.EndpointConfigurationSettings.Set(SerializationFeature.DisableMessageTypeInferenceKey, true);
         }
 
-        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings) where T : SerializationDefinition
+        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition
         {
             var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
-            var extension = (SerializationExtensions<T>)Activator.CreateInstance(type, settings);
+            var extension = (SerializationExtensions<T>)Activator.CreateInstance(type, serializerSettings, endpointConfigurationSettings);
             return extension;
         }
     }
