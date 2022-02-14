@@ -63,6 +63,7 @@
                 {
                     testContext.IncomingMessageReceived = true;
 
+                    // add some whitespace instead of removing the header completely
                     context.Message.Headers[Headers.EnclosedMessageTypes] = "   ";
 
                     return next();
