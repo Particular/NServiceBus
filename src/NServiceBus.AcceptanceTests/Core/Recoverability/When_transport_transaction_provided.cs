@@ -13,7 +13,7 @@
     public class When_transport_transaction_provided : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_available_during_dispatch()
+        public async Task Should_be_available_in_pipeline()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ContextExtendingEndpoint>(e => e
