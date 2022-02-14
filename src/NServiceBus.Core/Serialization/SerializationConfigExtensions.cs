@@ -77,7 +77,12 @@
         {
             Guard.AgainstNull(nameof(config), config);
 
-            config.EndpointConfigurationSettings.Set(SerializationFeature.DisableMessageTypeInferenceKey, true);
+            config.EndpointConfigurationSettings.Set(DisableMessageTypeInferenceKey, true);
+        }
+
+        internal static bool IsMessageTypeInferenceDisabled(this IReadOnlySettings endpointConfigurationSettings)
+        {
+            return endpointConfigurationSettings.GetOrDefault<bool>(DisableMessageTypeInferenceKey);
         }
 
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition
@@ -86,5 +91,7 @@
             var extension = (SerializationExtensions<T>)Activator.CreateInstance(type, serializerSettings, endpointConfigurationSettings);
             return extension;
         }
+
+        const string DisableMessageTypeInferenceKey = "NServiceBus.Serialization.DisableMessageTypeInference";
     }
 }

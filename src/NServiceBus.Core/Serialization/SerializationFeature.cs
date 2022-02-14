@@ -48,7 +48,7 @@
                 });
             }
 
-            var allowMessageTypeInference = !settings.GetOrDefault<bool>(DisableMessageTypeInferenceKey);
+            var allowMessageTypeInference = !settings.IsMessageTypeInferenceDisabled();
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
             var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
             context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
@@ -68,7 +68,8 @@
                     Version = FileVersionRetriever.GetFileVersion(defaultSerializerAndDefinition.Item1.GetType()),
                     defaultSerializer.ContentType
                 },
-                AdditionalDeserializers = additionalDeserializerDiagnostics
+                AdditionalDeserializers = additionalDeserializerDiagnostics,
+                MessageTypeInferenceEnabled = allowMessageTypeInference
             });
         }
 
@@ -105,7 +106,5 @@
         }
 
         static ILog Logger = LogManager.GetLogger<SerializationFeature>();
-
-        public const string DisableMessageTypeInferenceKey = "NServiceBus.Serialization.DisableMessageTypeInference";
     }
 }
