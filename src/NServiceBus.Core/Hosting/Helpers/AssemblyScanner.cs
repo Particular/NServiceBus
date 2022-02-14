@@ -48,6 +48,11 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public bool ScanAppDomainAssemblies { get; set; } = true;
 
+        /// <summary>
+        /// Determines if the scanner should scan assemblies from the file system.
+        /// </summary>
+        public bool ScanFileSystemAssemblies { get; set; } = true;
+
         internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
 
         internal string AdditionalAssemblyScanningPath { get; set; }
@@ -71,6 +76,13 @@ namespace NServiceBus.Hosting.Helpers
                 return results;
             }
 
+            // Always scan Core assembly
+            var coreAssembly = typeof(AssemblyScanner).Assembly;
+            if (ScanAssembly(coreAssembly, processed))
+            {
+                AddTypesToResult(coreAssembly, results);
+            }
+
             if (ScanAppDomainAssemblies)
             {
                 var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -84,40 +96,42 @@ namespace NServiceBus.Hosting.Helpers
                 }
             }
 
-            var assemblies = new List<Assembly>();
-
-            ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
-
-            if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
+            if (ScanFileSystemAssemblies)
             {
-                ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results);
-            }
+                var assemblies = new List<Assembly>();
 
-            var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
+                ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
 
-            if (!string.IsNullOrEmpty(platformAssembliesString))
-            {
-                var platformAssemblies = platformAssembliesString.Split(Path.PathSeparator);
-
-                foreach (var platformAssembly in platformAssemblies)
+                if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
                 {
-                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
+                    ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results);
+                }
+
+                var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
+
+                if (!string.IsNullOrEmpty(platformAssembliesString))
+                {
+                    var platformAssemblies = platformAssembliesString.Split(Path.PathSeparator);
+
+                    foreach (var platformAssembly in platformAssemblies)
                     {
-                        assemblies.Add(assembly);
+                        if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
+                        {
+                            assemblies.Add(assembly);
+                        }
+                    }
+                }
+
+                foreach (var assembly in assemblies)
+                {
+                    if (ScanAssembly(assembly, processed))
+                    {
+                        AddTypesToResult(assembly, results);
                     }
                 }
             }
 
-            foreach (var assembly in assemblies)
-            {
-                if (ScanAssembly(assembly, processed))
-                {
-                    AddTypesToResult(assembly, results);
-                }
-            }
-
             results.RemoveDuplicates();
-
             return results;
         }
 
@@ -197,7 +211,7 @@ namespace NServiceBus.Hosting.Helpers
 
             if (assembly.GetName().Name == CoreAssemblyName)
             {
-                processed[assembly.FullName] = true;
+                return processed[assembly.FullName] = true;
             }
 
             if (ShouldScanDependencies(assembly))
@@ -206,7 +220,6 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
                     var referencesCore = ScanAssembly(referencedAssembly, processed);
-
                     if (referencesCore)
                     {
                         processed[assembly.FullName] = true;
