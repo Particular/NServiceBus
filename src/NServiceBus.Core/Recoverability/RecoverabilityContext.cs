@@ -20,6 +20,7 @@
             RecoverabilityConfiguration = recoverabilityConfig;
             Metadata = metadata;
             RecoverabilityAction = recoverabilityAction;
+            Extensions.Set(errorContext.TransportTransaction);
         }
 
         public ErrorContext ErrorContext { get; }
