@@ -29,7 +29,7 @@
             Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
             Exception exception = context.FailedMessages.Single().Value.Single().Exception;
             Assert.IsInstanceOf<MessageDeserializationException>(exception);
-            StringAssert.Contains($"Could not determine message type from the '{Headers.EnclosedMessageTypes}' header.", exception.InnerException.Message);
+            StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
         }
 
         class Context : ScenarioContext

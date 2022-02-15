@@ -96,7 +96,7 @@
             }
             else if (!allowContentTypeInference)
             {
-                throw new Exception($"Could not determine message type from the '{Headers.EnclosedMessageTypes}' header. Ensure the header is set or enable message type inference from the message body using the 'EndpointConfiguration.UseSerialization<T>().{nameof(SerializationExtensionsExtensions.DisableMessageTypeInference)}' configuration option.");
+                throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
             }
 
             var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
