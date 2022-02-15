@@ -48,7 +48,7 @@
                 });
             }
 
-            var allowMessageTypeInference = !settings.IsMessageTypeInferenceDisabled();
+            var allowMessageTypeInference = settings.IsMessageTypeInferenceEnabled();
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
             var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
             context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");

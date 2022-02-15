@@ -80,10 +80,8 @@
             config.EndpointConfigurationSettings.Set(DisableMessageTypeInferenceKey, true);
         }
 
-        internal static bool IsMessageTypeInferenceDisabled(this IReadOnlySettings endpointConfigurationSettings)
-        {
-            return endpointConfigurationSettings.GetOrDefault<bool>(DisableMessageTypeInferenceKey);
-        }
+        internal static bool IsMessageTypeInferenceEnabled(this IReadOnlySettings endpointConfigurationSettings) =>
+            !endpointConfigurationSettings.GetOrDefault<bool>(DisableMessageTypeInferenceKey);
 
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition
         {
