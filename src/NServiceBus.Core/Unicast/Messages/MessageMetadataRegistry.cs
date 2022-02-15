@@ -113,6 +113,10 @@
                 // we cache null values as well to prevent trying to load the type multiple times
                 cachedTypes[messageTypeIdentifier] = type;
             }
+            else if (!allowDynamicTypeLoading)
+            {
+                Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enabled dynamic type loading.");
+            }
 
             return type;
         }
@@ -179,6 +183,7 @@
             {
                 return type.GetInterfaces().Length;
             }
+
             var result = 0;
 
             while (type.BaseType != null)
