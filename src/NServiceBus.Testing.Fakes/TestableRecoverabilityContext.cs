@@ -28,7 +28,7 @@
         /// <summary>
         /// The number of times the message have been retried immediately but failed.
         /// </summary>
-        public int ImmediateProcessingFailures { get; set; } = 0;
+        public int ImmediateProcessingFailures { get; set; }
 
         /// <summary>
         /// Metadata for this message.
