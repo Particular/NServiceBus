@@ -60,11 +60,11 @@
             }
         }
 
-        class Message : IMessage
+        public class Message : IMessage
         {
         }
 
-        class PatchMessage
+        public class PatchMessage
         {
         }
     }
