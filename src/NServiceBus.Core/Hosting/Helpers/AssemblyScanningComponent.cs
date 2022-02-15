@@ -6,17 +6,18 @@
     using Settings;
     using Hosting.Helpers;
     using System.Reflection;
+    using NServiceBus.Logging;
 
     class AssemblyScanningComponent
     {
         public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
         {
-            var shouldScanBinDirectory = configuration.UserProvidedTypes == null;
+            var shouldScanAssemblies = configuration.UserProvidedTypes == null;
 
             List<Type> availableTypes;
             AssemblyScanner assemblyScanner;
 
-            if (shouldScanBinDirectory)
+            if (shouldScanAssemblies)
             {
                 var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
@@ -35,16 +36,21 @@
             assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
             assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
             assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
+            assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
             assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
             assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
 
-            var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
+            if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
+            {
+                Logger.Warn($"Assembly scanning have been disabled. Message handlers, features and installers might not be loaded. Enable {assemblyScannerSettings.ScanAppDomainAssemblies} and/or {assemblyScannerSettings.ScanFileSystemAssemblies} to automatically load handlers, features and installers.");
+            }
 
-            availableTypes = availableTypes.Union(scannableAssemblies.Types).ToList();
+            var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
+            availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
 
             configuration.SetDefaultAvailableTypes(availableTypes);
 
-            if (shouldScanBinDirectory)
+            if (shouldScanAssemblies)
             {
                 settings.AddStartupDiagnosticsSection("AssemblyScanning", new
                 {
@@ -91,5 +97,7 @@
 
             static string TypesToScanSettingsKey = "TypesToScan";
         }
+
+        static ILog Logger = LogManager.GetLogger<AssemblyScanningComponent>();
     }
 }
