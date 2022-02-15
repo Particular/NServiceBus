@@ -30,6 +30,11 @@
         public int ImmediateProcessingFailures { get; }
 
         /// <summary>
+        /// Number of delayed deliveries performed so far.
+        /// </summary>
+        public int DelayedDeliveriesPerformed { get; }
+
+        /// <summary>
         /// The recoverability configuration for the endpoint.
         /// </summary>
         public RecoverabilityConfig RecoverabilityConfiguration { get; }

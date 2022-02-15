@@ -30,6 +30,11 @@
         public int ImmediateProcessingFailures { get; }
 
         /// <summary>
+        /// Number of delayed deliveries performed so far.
+        /// </summary>
+        public int DelayedDeliveriesPerformed { get; }
+
+        /// <summary>
         /// Metadata for this message.
         /// </summary>
         IReadOnlyDictionary<string, string> Metadata { get; }

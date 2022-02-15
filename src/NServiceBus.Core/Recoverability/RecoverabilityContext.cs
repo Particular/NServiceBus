@@ -20,7 +20,7 @@
             Exception = errorContext.Exception;
             ReceiveAddress = errorContext.ReceiveAddress;
             ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
-
+            DelayedDeliveriesPerformed = errorContext.DelayedDeliveriesPerformed;
             RecoverabilityConfiguration = recoverabilityConfig;
             Metadata = metadata;
             RecoverabilityAction = recoverabilityAction;
@@ -35,6 +35,8 @@
         public string ReceiveAddress { get; }
 
         public int ImmediateProcessingFailures { get; }
+
+        public int DelayedDeliveriesPerformed { get; }
 
         IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;
 

@@ -39,7 +39,7 @@
 
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
-            var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
+            var currentDelayedRetriesAttempt = context.DelayedDeliveriesPerformed + 1;
 
             if (context is IRecoverabilityActionContextNotifications notifications)
             {

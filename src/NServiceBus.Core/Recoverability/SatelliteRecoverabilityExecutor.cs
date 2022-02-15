@@ -74,6 +74,7 @@
                 Exception = errorContext.Exception;
                 ReceiveAddress = errorContext.ReceiveAddress;
                 ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
+                DelayedDeliveriesPerformed = errorContext.DelayedDeliveriesPerformed;
 
                 Metadata = metadata;
                 CancellationToken = cancellationToken;
@@ -87,6 +88,8 @@
             public string ReceiveAddress { get; }
 
             public int ImmediateProcessingFailures { get; }
+
+            public int DelayedDeliveriesPerformed { get; }
 
             public CancellationToken CancellationToken { get; }
 

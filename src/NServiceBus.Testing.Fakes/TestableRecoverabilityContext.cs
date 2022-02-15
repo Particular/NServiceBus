@@ -31,6 +31,11 @@
         public int ImmediateProcessingFailures { get; set; }
 
         /// <summary>
+        /// Number of delayed deliveries performed so far.
+        /// </summary>
+        public int DelayedDeliveriesPerformed { get; set; }
+
+        /// <summary>
         /// Metadata for this message.
         /// </summary>
         IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;

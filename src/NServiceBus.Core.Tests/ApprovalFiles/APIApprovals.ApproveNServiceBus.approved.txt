@@ -2056,6 +2056,7 @@ namespace NServiceBus.Pipeline
     }
     public interface IRecoverabilityActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
+        int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
         int ImmediateProcessingFailures { get; }
@@ -2064,6 +2065,7 @@ namespace NServiceBus.Pipeline
     }
     public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
+        int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
         int ImmediateProcessingFailures { get; }
