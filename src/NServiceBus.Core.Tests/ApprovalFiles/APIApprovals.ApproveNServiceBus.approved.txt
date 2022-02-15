@@ -1062,8 +1062,6 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> AddDeserializer<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
-        public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
-            where T : NServiceBus.Serialization.SerializationDefinition { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
@@ -2429,6 +2427,11 @@ namespace NServiceBus.Serialization
     {
         protected SerializationDefinition() { }
         public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings);
+    }
+    public static class SerializationExtensionsExtensions
+    {
+        public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
+            where T : NServiceBus.Serialization.SerializationDefinition { }
     }
     public class SerializationExtensions<T> : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
