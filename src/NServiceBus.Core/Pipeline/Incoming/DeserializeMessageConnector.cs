@@ -12,12 +12,13 @@
 
     class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper)
+        public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper, bool allowContentTypeInference)
         {
             this.deserializerResolver = deserializerResolver;
             this.logicalMessageFactory = logicalMessageFactory;
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.mapper = mapper;
+            this.allowContentTypeInference = allowContentTypeInference;
         }
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
@@ -93,6 +94,10 @@
                     log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
             }
+            else if (!allowContentTypeInference)
+            {
+                throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
+            }
 
             var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
             var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
@@ -123,6 +128,7 @@
         readonly LogicalMessageFactory logicalMessageFactory;
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageMapper mapper;
+        readonly bool allowContentTypeInference;
 
         static readonly LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
 
