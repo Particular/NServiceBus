@@ -1,5 +1,6 @@
-﻿namespace NServiceBus.Serialization
+﻿namespace NServiceBus
 {
+    using Serialization;
     using Settings;
 
     /// <summary>

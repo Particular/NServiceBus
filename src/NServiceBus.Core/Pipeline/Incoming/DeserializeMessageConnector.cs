@@ -7,7 +7,6 @@
     using Logging;
     using MessageInterfaces;
     using Pipeline;
-    using Serialization;
     using Transport;
     using Unicast.Messages;
 
