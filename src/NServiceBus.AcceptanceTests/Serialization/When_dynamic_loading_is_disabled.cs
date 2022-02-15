@@ -39,7 +39,7 @@
                 EndpointSetup<DefaultServer, Context>((cfg, context) =>
                  {
                      cfg.Pipeline.Register(typeof(PatchEnclosedMessageTypeHeader), "Patches the EnclosedMessageTypeHeader to contain a type that requires Type.GetType to be invoked.");
-                     cfg.DisableDynamicTypeLoading();
+                     cfg.UseSerialization<XmlSerializer>().DisableDynamicTypeLoading();
                  });
             }
 
