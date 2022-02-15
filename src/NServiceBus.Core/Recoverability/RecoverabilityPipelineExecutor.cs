@@ -41,11 +41,7 @@
                 var metadata = faultMetadataExtractor.Extract(errorContext);
 
                 var recoverabilityContext = new RecoverabilityContext(
-                    errorContext.Message,
-                    errorContext.Exception,
-                    errorContext.ReceiveAddress,
-                    errorContext.ImmediateProcessingFailures,
-                    errorContext.TransportTransaction,
+                    errorContext,
                     recoverabilityConfig,
                     metadata,
                     recoverabilityAction,

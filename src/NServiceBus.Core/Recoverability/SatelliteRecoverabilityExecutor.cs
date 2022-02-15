@@ -31,10 +31,7 @@
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
             var actionContext = new BehaviorActionContext(
-                errorContext.Message,
-                errorContext.Exception,
-                errorContext.ReceiveAddress,
-                errorContext.ImmediateProcessingFailures,
+                errorContext,
                 metadata,
                 serviceProvider,
                 cancellationToken);
@@ -68,18 +65,15 @@
         class BehaviorActionContext : IRecoverabilityActionContext
         {
             public BehaviorActionContext(
-                IncomingMessage failedMessage,
-                Exception exception,
-                string receiveAddress,
-                int immediateProcessingFailures,
+                ErrorContext errorContext,
                 IReadOnlyDictionary<string, string> metadata,
                 IServiceProvider serviceProvider,
                 CancellationToken cancellationToken)
             {
-                FailedMessage = failedMessage;
-                Exception = exception;
-                ReceiveAddress = receiveAddress;
-                ImmediateProcessingFailures = immediateProcessingFailures;
+                FailedMessage = errorContext.Message;
+                Exception = errorContext.Exception;
+                ReceiveAddress = errorContext.ReceiveAddress;
+                ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
 
                 Metadata = metadata;
                 CancellationToken = cancellationToken;

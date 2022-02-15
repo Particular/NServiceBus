@@ -10,26 +10,22 @@
     class RecoverabilityContext : BehaviorContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
     {
         public RecoverabilityContext(
-            IncomingMessage failedMessage,
-            Exception exception,
-            string receiveAddress,
-            int immediateProcessingFailures,
-            TransportTransaction transportTransaction,
+            ErrorContext errorContext,
             RecoverabilityConfig recoverabilityConfig,
             Dictionary<string, string> metadata,
             RecoverabilityAction recoverabilityAction,
             IBehaviorContext parent) : base(parent)
         {
-            FailedMessage = failedMessage;
-            Exception = exception;
-            ReceiveAddress = receiveAddress;
-            ImmediateProcessingFailures = immediateProcessingFailures;
+            FailedMessage = errorContext.Message;
+            Exception = errorContext.Exception;
+            ReceiveAddress = errorContext.ReceiveAddress;
+            ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
 
             RecoverabilityConfiguration = recoverabilityConfig;
             Metadata = metadata;
             RecoverabilityAction = recoverabilityAction;
 
-            Extensions.Set(transportTransaction);
+            Extensions.Set(errorContext.TransportTransaction);
         }
 
         public IncomingMessage FailedMessage { get; }
