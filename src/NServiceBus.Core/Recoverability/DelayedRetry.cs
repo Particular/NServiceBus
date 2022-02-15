@@ -32,14 +32,14 @@
         /// <inheritdoc />
         public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
-            var errorContext = context.ErrorContext;
-            var message = errorContext.Message;
+            var message = context.FailedMessage;
+            var exception = context.Exception;
 
-            Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {Delay} because of an exception:", errorContext.Exception);
+            Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {Delay} because of an exception:", exception);
 
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
-            var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
+            var currentDelayedRetriesAttempt = context.DelayedDeliveriesPerformed + 1;
 
             if (context is IRecoverabilityActionContextNotifications notifications)
             {
@@ -47,13 +47,14 @@
                     attempt: currentDelayedRetriesAttempt,
                     delay: Delay,
                     immediateRetry: false,
-                    errorContext: errorContext));
+                    message,
+                    exception));
             }
 
             outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
             outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
-            var routingContext = context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(errorContext.ReceiveAddress));
+            var routingContext = context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(context.ReceiveAddress));
             routingContext.Extensions.Set(new DispatchProperties
             {
                 DelayDeliveryWith = new DelayDeliveryWith(Delay)

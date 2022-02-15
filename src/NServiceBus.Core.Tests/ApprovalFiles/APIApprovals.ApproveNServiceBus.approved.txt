@@ -2056,13 +2056,21 @@ namespace NServiceBus.Pipeline
     }
     public interface IRecoverabilityActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
-        NServiceBus.Transport.ErrorContext ErrorContext { get; }
+        int DelayedDeliveriesPerformed { get; }
+        System.Exception Exception { get; }
+        NServiceBus.Transport.IncomingMessage FailedMessage { get; }
+        int ImmediateProcessingFailures { get; }
         System.Collections.Generic.IReadOnlyDictionary<string, string> Metadata { get; }
+        string ReceiveAddress { get; }
     }
     public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
-        NServiceBus.Transport.ErrorContext ErrorContext { get; }
+        int DelayedDeliveriesPerformed { get; }
+        System.Exception Exception { get; }
+        NServiceBus.Transport.IncomingMessage FailedMessage { get; }
+        int ImmediateProcessingFailures { get; }
         System.Collections.Generic.Dictionary<string, string> Metadata { get; }
+        string ReceiveAddress { get; }
         NServiceBus.RecoverabilityAction RecoverabilityAction { get; set; }
         NServiceBus.RecoverabilityConfig RecoverabilityConfiguration { get; }
         NServiceBus.Pipeline.IRecoverabilityActionContext PreventChanges();

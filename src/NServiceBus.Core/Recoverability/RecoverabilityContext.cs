@@ -4,8 +4,8 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Transport;
     using Pipeline;
-    using Transport;
 
     class RecoverabilityContext : BehaviorContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
     {
@@ -16,14 +16,27 @@
             RecoverabilityAction recoverabilityAction,
             IBehaviorContext parent) : base(parent)
         {
-            ErrorContext = errorContext;
+            FailedMessage = errorContext.Message;
+            Exception = errorContext.Exception;
+            ReceiveAddress = errorContext.ReceiveAddress;
+            ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
+            DelayedDeliveriesPerformed = errorContext.DelayedDeliveriesPerformed;
             RecoverabilityConfiguration = recoverabilityConfig;
             Metadata = metadata;
             RecoverabilityAction = recoverabilityAction;
+
             Extensions.Set(errorContext.TransportTransaction);
         }
 
-        public ErrorContext ErrorContext { get; }
+        public IncomingMessage FailedMessage { get; }
+
+        public Exception Exception { get; }
+
+        public string ReceiveAddress { get; }
+
+        public int ImmediateProcessingFailures { get; }
+
+        public int DelayedDeliveriesPerformed { get; }
 
         IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;
 

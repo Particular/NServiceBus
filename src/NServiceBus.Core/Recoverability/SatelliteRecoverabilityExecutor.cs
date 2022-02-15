@@ -6,8 +6,8 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
-    using Transport;
     using Pipeline;
+    using Transport;
 
     class SatelliteRecoverabilityExecutor<TState> : IRecoverabilityPipelineExecutor
     {
@@ -30,7 +30,11 @@
             var recoverabilityAction = recoverabilityPolicy(errorContext, state);
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
-            var actionContext = new BehaviorActionContext(errorContext, metadata, serviceProvider, cancellationToken);
+            var actionContext = new BehaviorActionContext(
+                errorContext,
+                metadata,
+                serviceProvider,
+                cancellationToken);
 
             List<TransportOperation> transportOperations = null;
             var routingContexts = recoverabilityAction.GetRoutingContexts(actionContext);
@@ -60,18 +64,37 @@
 
         class BehaviorActionContext : IRecoverabilityActionContext
         {
-            public BehaviorActionContext(ErrorContext errorContext, IReadOnlyDictionary<string, string> metadata, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+            public BehaviorActionContext(
+                ErrorContext errorContext,
+                IReadOnlyDictionary<string, string> metadata,
+                IServiceProvider serviceProvider,
+                CancellationToken cancellationToken)
             {
-                ErrorContext = errorContext;
+                FailedMessage = errorContext.Message;
+                Exception = errorContext.Exception;
+                ReceiveAddress = errorContext.ReceiveAddress;
+                ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
+                DelayedDeliveriesPerformed = errorContext.DelayedDeliveriesPerformed;
+
                 Metadata = metadata;
                 CancellationToken = cancellationToken;
                 Builder = serviceProvider;
             }
+
+            public IncomingMessage FailedMessage { get; }
+
+            public Exception Exception { get; }
+
+            public string ReceiveAddress { get; }
+
+            public int ImmediateProcessingFailures { get; }
+
+            public int DelayedDeliveriesPerformed { get; }
+
             public CancellationToken CancellationToken { get; }
 
             public ContextBag Extensions => contextBag ??= new ContextBag();
             public IServiceProvider Builder { get; }
-            public ErrorContext ErrorContext { get; }
             public IReadOnlyDictionary<string, string> Metadata { get; }
 
             ContextBag contextBag;

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Extensibility;
     using Pipeline;
     using Transport;
 
@@ -14,15 +13,27 @@
         /// <summary>
         /// The message that failed processing.
         /// </summary>
-        public ErrorContext ErrorContext { get; set; } = new ErrorContext(
-            new Exception(),
-            new Dictionary<string, string>(),
-            Guid.NewGuid().ToString(),
-            ReadOnlyMemory<byte>.Empty,
-            new TransportTransaction(),
-            0,
-            "receive-address",
-            new ContextBag());
+        public IncomingMessage FailedMessage { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty);
+
+        /// <summary>
+        /// The exception that caused processing to fail.
+        /// </summary>
+        public Exception Exception { get; set; } = new Exception();
+
+        /// <summary>
+        /// The receive address where this message failed.
+        /// </summary>
+        public string ReceiveAddress { get; set; } = "receive-queue";
+
+        /// <summary>
+        /// The number of times the message have been retried immediately but failed.
+        /// </summary>
+        public int ImmediateProcessingFailures { get; set; }
+
+        /// <summary>
+        /// Number of delayed deliveries performed so far.
+        /// </summary>
+        public int DelayedDeliveriesPerformed { get; set; }
 
         /// <summary>
         /// Metadata for this message.
