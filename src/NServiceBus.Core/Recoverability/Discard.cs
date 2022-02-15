@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using Logging;
-    using Transport;
     using Pipeline;
+    using Transport;
 
     /// <summary>
     /// Indicates recoverability is required to discard/ignore the current message.
@@ -32,8 +32,7 @@ namespace NServiceBus
         /// <inheritdoc />
         public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
-            var errorContext = context.ErrorContext;
-            Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {Reason}", errorContext.Exception);
+            Logger.Info($"Discarding message with id '{context.FailedMessage.MessageId}'. Reason: {Reason}", context.Exception);
             return Array.Empty<IRoutingContext>();
         }
 

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
@@ -46,7 +45,7 @@
 
             var outgoingMessageHeaders = routingContext.Message.Headers;
 
-            Assert.That(recoverabilityContext.ErrorContext.Message.Headers, Is.SubsetOf(outgoingMessageHeaders));
+            Assert.That(recoverabilityContext.FailedMessage.Headers, Is.SubsetOf(outgoingMessageHeaders));
         }
 
         [Test]
@@ -81,18 +80,17 @@
 
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
             // check for leaking headers
-            Assert.That(recoverabilityContext.ErrorContext.Message.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
+            Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
         }
 
-        static TestableRecoverabilityContext CreateRecoverabilityContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1, Dictionary<string, string> messageHeaders = default, Dictionary<string, string> metadata = default)
+        static TestableRecoverabilityContext CreateRecoverabilityContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", Dictionary<string, string> messageHeaders = default, Dictionary<string, string> metadata = default)
         {
-            var errorContext = new ErrorContext(raisedException ?? new Exception(exceptionMessage),
-                messageHeaders ?? new Dictionary<string, string>(), messageId, Array.Empty<byte>(),
-                new TransportTransaction(), numberOfDeliveryAttempts, ReceiveAddress, new ContextBag());
             var recoverabilityContext = new TestableRecoverabilityContext
             {
-                ErrorContext = errorContext,
+                FailedMessage = new IncomingMessage(messageId, messageHeaders ?? new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
+                Exception = raisedException ?? new Exception(exceptionMessage)
             };
+
             if (metadata != default)
             {
                 recoverabilityContext.Metadata = metadata;
@@ -101,6 +99,5 @@
         }
 
         const string ErrorQueueAddress = "errorQ";
-        const string ReceiveAddress = "my-endpoint";
     }
 }

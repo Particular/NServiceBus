@@ -26,16 +26,18 @@
         /// <inheritdoc />
         public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
-            var errorContext = context.ErrorContext;
+            var message = context.FailedMessage;
+            var exception = context.Exception;
 
-            Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
+            Logger.Info($"Immediate Retry is going to retry message '{message.MessageId}' because of an exception:", exception);
             if (context is IRecoverabilityActionContextNotifications notifications)
             {
                 notifications.Add(new MessageToBeRetried(
-                    attempt: errorContext.ImmediateProcessingFailures - 1,
+                    attempt: context.ImmediateProcessingFailures - 1,
                     delay: TimeSpan.Zero,
                     immediateRetry: true,
-                    errorContext: errorContext));
+                    message,
+                    exception));
             }
             return Array.Empty<IRoutingContext>();
         }

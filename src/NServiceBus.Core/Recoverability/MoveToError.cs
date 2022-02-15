@@ -30,15 +30,15 @@ namespace NServiceBus
         /// <inheritdoc />
         public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
         {
-            var errorContext = context.ErrorContext;
             var metadata = context.Metadata;
-            var message = errorContext.Message;
+            var message = context.FailedMessage;
+            var exception = context.Exception;
 
-            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", errorContext.Exception);
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", exception);
 
             if (context is IRecoverabilityActionContextNotifications notifications)
             {
-                notifications.Add(new MessageFaulted(errorContext, ErrorQueue));
+                notifications.Add(new MessageFaulted(ErrorQueue, message, exception));
             }
 
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);

@@ -4,26 +4,41 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Transport;
     using Pipeline;
-    using Transport;
 
     class RecoverabilityContext : BehaviorContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
     {
         public RecoverabilityContext(
-            ErrorContext errorContext,
+            IncomingMessage failedMessage,
+            Exception exception,
+            string receiveAddress,
+            int immediateProcessingFailures,
+            TransportTransaction transportTransaction,
             RecoverabilityConfig recoverabilityConfig,
             Dictionary<string, string> metadata,
             RecoverabilityAction recoverabilityAction,
             IBehaviorContext parent) : base(parent)
         {
-            ErrorContext = errorContext;
+            FailedMessage = failedMessage;
+            Exception = exception;
+            ReceiveAddress = receiveAddress;
+            ImmediateProcessingFailures = immediateProcessingFailures;
+
             RecoverabilityConfiguration = recoverabilityConfig;
             Metadata = metadata;
             RecoverabilityAction = recoverabilityAction;
-            Extensions.Set(errorContext.TransportTransaction);
+
+            Extensions.Set(transportTransaction);
         }
 
-        public ErrorContext ErrorContext { get; }
+        public IncomingMessage FailedMessage { get; }
+
+        public Exception Exception { get; }
+
+        public string ReceiveAddress { get; }
+
+        public int ImmediateProcessingFailures { get; }
 
         IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;
 
