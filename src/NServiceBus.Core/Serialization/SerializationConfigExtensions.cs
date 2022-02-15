@@ -10,7 +10,7 @@
     /// </summary>
     public static class SerializationConfigExtensions
     {
-        internal const string DisableDynamicTypeLoadingKey = "DisableDynamicTypeLoading";
+        const string DisableDynamicTypeLoadingKey = "DisableDynamicTypeLoading";
 
         /// <summary>
         /// Configures the given serializer to be used.
@@ -79,6 +79,11 @@
         {
             Guard.AgainstNull(nameof(config), config);
             config.GetSettings().Set(DisableDynamicTypeLoadingKey, true);
+        }
+
+        internal static bool IsDynamicTypeLoadingEnabled(this IReadOnlySettings endpointConfigurationSettings)
+        {
+            return !endpointConfigurationSettings.GetOrDefault<bool>(DisableDynamicTypeLoadingKey);
         }
 
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition => new SerializationExtensions<T>(serializerSettings, endpointConfigurationSettings);
