@@ -69,7 +69,7 @@
                     defaultSerializer.ContentType
                 },
                 AdditionalDeserializers = additionalDeserializerDiagnostics,
-                MessageTypeInferenceEnabled = allowMessageTypeInference
+                AllowMessageTypeInference = allowMessageTypeInference
             });
         }
 
