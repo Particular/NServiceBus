@@ -70,11 +70,6 @@
             return CreateSerializationExtension<T>(settings, config.Settings);
         }
 
-        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition
-        {
-            var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
-            var extension = (SerializationExtensions<T>)Activator.CreateInstance(type, serializerSettings, endpointConfigurationSettings);
-            return extension;
-        }
+        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition => new SerializationExtensions<T>(serializerSettings, endpointConfigurationSettings);
     }
 }
