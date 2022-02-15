@@ -33,12 +33,12 @@
         {
             var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
             var originalHeadersTimestamp = DateTimeOffsetHelper.ToWireFormattedString(new DateTimeOffset(2012, 12, 12, 0, 0, 0, TimeSpan.Zero));
-
+            var delayedDeliveriesPerformed = 2;
             var recoverabilityContext = CreateRecoverabilityContext(new Dictionary<string, string>
             {
-                {Headers.DelayedRetries, "2"},
-                {Headers.DelayedRetriesTimestamp, originalHeadersTimestamp}
-            });
+                {Headers.DelayedRetriesTimestamp, originalHeadersTimestamp},
+                {Headers.DelayedRetries, delayedDeliveriesPerformed.ToString()}
+            }, delayedDeliveriesPerformed: delayedDeliveriesPerformed);
 
             var now = DateTimeOffset.UtcNow;
             var routingContexts = delayedRetryAction.GetRoutingContexts(recoverabilityContext);
@@ -48,7 +48,7 @@
             var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
             Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
-            Assert.AreEqual("2", incomingMessage.Headers[Headers.DelayedRetries]);
+            Assert.AreEqual(delayedDeliveriesPerformed.ToString(), incomingMessage.Headers[Headers.DelayedRetries]);
 
             var utcDateTime = DateTimeOffsetHelper.ToDateTimeOffset(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
             // the serialization removes precision which may lead to now being greater than the deserialized header value
@@ -73,11 +73,12 @@
             Assert.IsFalse(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
         }
 
-        static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null)
+        static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null, int delayedDeliveriesPerformed = 0)
         {
             return new TestableRecoverabilityContext
             {
-                FailedMessage = new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty)
+                FailedMessage = new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
+                DelayedDeliveriesPerformed = delayedDeliveriesPerformed
             };
         }
     }
