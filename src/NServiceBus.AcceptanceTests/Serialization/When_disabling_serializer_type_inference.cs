@@ -13,7 +13,7 @@
     using NUnit.Framework;
     using Settings;
 
-    class When_disabling_serializer_type_detection : NServiceBusAcceptanceTest
+    class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_pass_messages_without_types_header()
