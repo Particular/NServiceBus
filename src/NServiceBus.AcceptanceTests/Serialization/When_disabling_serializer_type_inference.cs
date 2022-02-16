@@ -126,7 +126,7 @@
                     throw new InvalidOperationException("Did not expect message types to be detected in this test");
                 }
 
-                throw new InvalidOperationException("should not invoke deserializer without type information");
+                throw new InvalidOperationException("Should not invoke deserializer without type information");
             }
 
 
