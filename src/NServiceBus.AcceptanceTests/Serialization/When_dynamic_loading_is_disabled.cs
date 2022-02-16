@@ -24,7 +24,7 @@
             Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
             Exception exception = context.FailedMessages.Single().Value.Single().Exception;
             Assert.IsInstanceOf<MessageDeserializationException>(exception);
-            Assert.AreEqual("Could not determine type for node: 'Message'.", exception.InnerException.Message);
+            Assert.AreEqual($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
         }
 
         class Context : ScenarioContext
@@ -39,8 +39,10 @@
                 EndpointSetup<DefaultServer>(cfg =>
                  {
                      cfg.Pipeline.Register(typeof(PatchEnclosedMessageTypeHeader), "Patches the EnclosedMessageTypeHeader to contain a type that requires Type.GetType to be invoked.");
-                     cfg.UseSerialization<XmlSerializer>().DisableDynamicTypeLoading();
-                 });
+                     var serializerSettings = cfg.UseSerialization<XmlSerializer>();
+                     serializerSettings.DisableDynamicTypeLoading();
+                     serializerSettings.DisableMessageTypeInference(); // just throw when we can't find the message type
+                 }).ExcludeType<PatchMessage>();
             }
 
             class PatchEnclosedMessageTypeHeader : Behavior<IIncomingPhysicalMessageContext>
@@ -53,7 +55,7 @@
                 {
                     testContext.MessageReceived = true;
 
-                    context.Message.Headers[Headers.EnclosedMessageTypes] = typeof(PatchMessage).FullName;
+                    context.Message.Headers[Headers.EnclosedMessageTypes] = typeof(PatchMessage).AssemblyQualifiedName;
 
                     return next();
                 }
@@ -64,7 +66,7 @@
         {
         }
 
-        public class PatchMessage
+        public class PatchMessage : IMessage
         {
         }
     }
