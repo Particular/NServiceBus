@@ -10,7 +10,7 @@
     /// </summary>
     public static class SerializationConfigExtensions
     {
-        const string DisableDynamicTypeLoadingKey = "DisableDynamicTypeLoading";
+        const string DisableDynamicTypeLoadingKey = "NServiceBus.Serialization.DisableDynamicTypeLoading";
 
         /// <summary>
         /// Configures the given serializer to be used.

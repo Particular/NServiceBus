@@ -115,7 +115,7 @@
             }
             else if (!allowDynamicTypeLoading)
             {
-                Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enabled dynamic type loading.");
+                Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enable dynamic type loading.");
             }
 
             return type;
