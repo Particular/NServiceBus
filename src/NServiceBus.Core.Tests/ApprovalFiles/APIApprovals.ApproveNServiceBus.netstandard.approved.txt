@@ -396,6 +396,7 @@ namespace NServiceBus
         public const string CorrelationId = "NServiceBus.CorrelationId";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
+        public const string DeliverAt = "NServiceBus.DeliverAt";
         public const string DestinationSites = "NServiceBus.DestinationSites";
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
         public const string HasLicenseExpired = "$.diagnostics.license.expired";
