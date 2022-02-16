@@ -6,7 +6,6 @@
     using Settings;
     using Hosting.Helpers;
     using System.Reflection;
-    using NServiceBus.Logging;
 
     class AssemblyScanningComponent
     {
@@ -42,7 +41,7 @@
 
             if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
             {
-                throw new Exception($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality to not load correctly. Enable either {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} and/or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)}");
+                throw new Exception($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality to not load correctly. Enable either {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} and/or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)}.");
             }
 
             var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
@@ -97,7 +96,5 @@
 
             static string TypesToScanSettingsKey = "TypesToScan";
         }
-
-        static ILog Logger = LogManager.GetLogger<AssemblyScanningComponent>();
     }
 }
