@@ -78,7 +78,7 @@
         public static void DisableDynamicTypeLoading<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.Set(DisableDynamicTypeLoadingKey, true);
+            config.EndpointConfigurationSettings.Set(DisableDynamicTypeLoadingKey, true);
         }
 
         internal static bool IsDynamicTypeLoadingEnabled(this IReadOnlySettings endpointConfigurationSettings)
