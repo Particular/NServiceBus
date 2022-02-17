@@ -1062,8 +1062,6 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> AddDeserializer<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
-        public static void DisableDynamicTypeLoading<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
-            where T : NServiceBus.Serialization.SerializationDefinition { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
@@ -1076,6 +1074,8 @@ namespace NServiceBus
     }
     public static class SerializationExtensionsExtensions
     {
+        public static void DisableDynamicTypeLoading<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
+            where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
     }
