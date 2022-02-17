@@ -5,7 +5,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_disabling_assembly_scanning
+    public class When_disabling_assembly_scanning : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_start_endpoint()
