@@ -1002,6 +1002,11 @@ namespace NServiceBus
         public static bool ShouldSkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
         public static void SkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
     }
+    public class static SerializationExtensionsExtensions
+    {
+        public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
+            where T : NServiceBus.Serialization.SerializationDefinition { }
+    }
     public class static SettingsExtensions
     {
         public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
@@ -2499,7 +2504,7 @@ namespace NServiceBus.Serialization
     public class SerializationExtensions<T> : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
     {
-        public SerializationExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public SerializationExtensions(NServiceBus.Settings.SettingsHolder serializerSettings, NServiceBus.Settings.SettingsHolder endpointConfigurationSettings) { }
     }
 }
 namespace NServiceBus.Settings
