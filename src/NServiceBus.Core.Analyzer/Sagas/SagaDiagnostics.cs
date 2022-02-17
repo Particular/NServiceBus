@@ -28,7 +28,7 @@
             title: "Non-mapping expression used in ConfigureHowToFindSaga method",
             messageFormat: "The ConfigureHowToFindSaga method should only contain mapping expressions (i.e. 'mapper.MapSaga().ToMessage<T>()') and not contain any other logic.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
         internal static readonly DiagnosticDescriptor SagaMappingExpressionCanBeSimplified = new DiagnosticDescriptor(
@@ -53,7 +53,7 @@
             title: "Message that starts the saga does not have a message mapping",
             messageFormat: "Saga {0} implements IAmStartedByMessages<{1}> but does not provide a mapping for that message type. In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.CorrelationPropertyName), add .ToMessage<{1}>(msg => msg.PropertyName) to map a message property to the saga correlation ID, or .ToMessageHeader<{1}>(\"HeaderName\") to map a header value that will contain the correlation ID.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
         internal static readonly DiagnosticDescriptor SagaDataPropertyNotWriteable = new DiagnosticDescriptor(
@@ -61,7 +61,7 @@
             title: "Saga data property is not writeable",
             messageFormat: "Saga data property {0}.{1} does not have a public setter. This could interfere with loading saga data. Add a public setter.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
         internal static readonly DiagnosticDescriptor MessageMappingNotNeededForTimeout = new DiagnosticDescriptor(
@@ -77,7 +77,7 @@
             title: "A saga cannot use the Id property for a Correlation ID",
             messageFormat: "A saga cannot map to the saga data's Id property, regardless of casing. Select a different property (such as OrderId, CustomerId) that relates all of the messages handled by this saga.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
         internal static readonly DiagnosticDescriptor DoNotUseMessageTypeAsSagaDataProperty = new DiagnosticDescriptor(
@@ -127,7 +127,7 @@
             title: "Saga should not implement IHandleSagaNotFound",
             messageFormat: "A saga should not implement IHandleSagaNotFound, as this catch-all handler will handle messages where *any* saga is not found. Implement IHandleSagaNotFound on a separate class instead.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
         internal static readonly DiagnosticDescriptor CorrelationPropertyTypeMustMatchMessageMappingExpressions = new DiagnosticDescriptor(
