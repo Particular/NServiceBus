@@ -49,26 +49,41 @@
         {
             Guard.AgainstNullAndEmpty(nameof(messageTypeIdentifier), messageTypeIdentifier);
 
-            var messageType = GetType(messageTypeIdentifier);
+            var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
+
+            if (!cacheHit)
+            {
+                messageType = GetType(messageTypeIdentifier);
+
+                if (messageType != null)
+                {
+                    cachedTypes[messageTypeIdentifier] = messageType;
+                }
+                else
+                {
+                    Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
+
+                    foreach (var item in messages.Values)
+                    {
+                        var messageTypeFullName = GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
+
+                        if (item.MessageType.FullName == messageTypeIdentifier ||
+                            item.MessageType.FullName == messageTypeFullName)
+                        {
+                            Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
+
+                            cachedTypes[messageTypeIdentifier] = item.MessageType;
+                            return item;
+                        }
+                    }
+
+                    cachedTypes[messageTypeIdentifier] = null;
+                    return null;
+                }
+            }
 
             if (messageType == null)
             {
-                Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
-
-                foreach (var item in messages.Values)
-                {
-                    var messageTypeFullName = GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
-
-                    if (item.MessageType.FullName == messageTypeIdentifier ||
-                        item.MessageType.FullName == messageTypeFullName)
-                    {
-                        Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
-
-                        cachedTypes[messageTypeIdentifier] = item.MessageType;
-                        return item;
-                    }
-                }
-
                 return null;
             }
 
@@ -99,26 +114,23 @@
 
         Type GetType(string messageTypeIdentifier)
         {
-            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out var type) && allowDynamicTypeLoading)
+            if (allowDynamicTypeLoading)
             {
                 try
                 {
-                    type = Type.GetType(messageTypeIdentifier);
+                    return Type.GetType(messageTypeIdentifier);
                 }
                 catch (Exception ex)
                 {
                     Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded", ex);
                 }
-
-                // we cache null values as well to prevent trying to load the type multiple times
-                cachedTypes[messageTypeIdentifier] = type;
             }
-            else if (!allowDynamicTypeLoading)
+            else
             {
                 Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enable dynamic type loading.");
             }
 
-            return type;
+            return null;
         }
 
         internal IEnumerable<MessageMetadata> GetAllMessages()
