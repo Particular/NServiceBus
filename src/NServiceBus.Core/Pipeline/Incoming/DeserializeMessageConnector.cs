@@ -14,12 +14,13 @@ namespace NServiceBus
 
     class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper)
+        public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper, bool allowContentTypeInference)
         {
             this.deserializerResolver = deserializerResolver;
             this.logicalMessageFactory = logicalMessageFactory;
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.mapper = mapper;
+            this.allowContentTypeInference = allowContentTypeInference;
         }
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
@@ -99,10 +100,15 @@ namespace NServiceBus
                     messageMetadata.Add(metadata);
                 }
 
-                if (messageMetadata.Count == 0 && physicalMessage.GetMessageIntent() != MessageIntentEnum.Publish)
+                if (messageMetadata.Count == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntentEnum.Publish)
                 {
                     log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
+            }
+
+            if (messageMetadata.Count == 0 && !allowContentTypeInference)
+            {
+                throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
             }
 
             var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
@@ -141,6 +147,7 @@ namespace NServiceBus
         readonly LogicalMessageFactory logicalMessageFactory;
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageMapper mapper;
+        readonly bool allowContentTypeInference;
 
         static readonly LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
 
