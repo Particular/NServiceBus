@@ -11,7 +11,7 @@
     public class When_dynamic_loading_is_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_deserialize_message_with_unknown_type()
+        public async Task Should_not_load_type_dynamically()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ReceivingEndpoint>(e => e
