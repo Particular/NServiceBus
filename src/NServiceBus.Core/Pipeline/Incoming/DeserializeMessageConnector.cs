@@ -105,7 +105,8 @@ namespace NServiceBus
                     log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
             }
-            else if (!allowContentTypeInference)
+
+            if (messageMetadata.Count == 0 && !allowContentTypeInference)
             {
                 throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
             }

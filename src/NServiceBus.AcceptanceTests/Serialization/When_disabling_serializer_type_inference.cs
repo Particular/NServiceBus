@@ -13,15 +13,32 @@
     using NUnit.Framework;
     using Settings;
 
-    class When_disabling_serializer_type_detection : NServiceBusAcceptanceTest
+    class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_pass_messages_without_types_header()
+        public async Task Should_not_deserialize_messages_without_types_header()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ReceivingEndpoint>(e => e
                     .DoNotFailOnErrorMessages()
                     .When(s => s.SendLocal(new MessageWithoutTypeHeader())))
+                .Done(c => c.IncomingMessageReceived)
+                .Run(TimeSpan.FromSeconds(20));
+
+            Assert.IsFalse(context.HandlerInvoked);
+            Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
+            Exception exception = context.FailedMessages.Single().Value.Single().Exception;
+            Assert.IsInstanceOf<MessageDeserializationException>(exception);
+            StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
+        }
+
+        [Test]
+        public async Task Should_not_deserialize_messages_with_unknown_type_header()
+        {
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<ReceivingEndpoint>(e => e
+                    .DoNotFailOnErrorMessages()
+                    .When(s => s.SendLocal(new UnknownMessage())))
                 .Done(c => c.IncomingMessageReceived)
                 .Run(TimeSpan.FromSeconds(20));
 
@@ -43,7 +60,7 @@
             public ReceivingEndpoint() =>
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Pipeline.Register(typeof(TypeHeaderRemovingBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
+                    c.Pipeline.Register(typeof(TypeHeaderManipulationBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
                     var serializerSettings = c.UseSerialization<CustomSerializer>();
                     serializerSettings.DisableMessageTypeInference();
                 });
@@ -61,17 +78,24 @@
                 }
             }
 
-            class TypeHeaderRemovingBehavior : Behavior<IIncomingPhysicalMessageContext>
+            class TypeHeaderManipulationBehavior : Behavior<IIncomingPhysicalMessageContext>
             {
                 Context testContext;
 
-                public TypeHeaderRemovingBehavior(Context testContext) => this.testContext = testContext;
+                public TypeHeaderManipulationBehavior(Context testContext) => this.testContext = testContext;
 
                 public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
                 {
                     testContext.IncomingMessageReceived = true;
 
-                    context.Message.Headers.Remove(Headers.EnclosedMessageTypes);
+                    if (context.MessageHeaders[Headers.EnclosedMessageTypes].Contains(typeof(MessageWithoutTypeHeader).FullName))
+                    {
+                        context.Message.Headers.Remove(Headers.EnclosedMessageTypes);
+                    }
+                    else if (context.MessageHeaders[Headers.EnclosedMessageTypes].Contains(typeof(UnknownMessage).FullName))
+                    {
+                        context.Message.Headers[Headers.EnclosedMessageTypes] = "SomeNamespace.SomeMessageType";
+                    }
 
                     return next();
                 }
@@ -79,6 +103,10 @@
         }
 
         public class MessageWithoutTypeHeader : IMessage
+        {
+        }
+
+        public class UnknownMessage : IMessage
         {
         }
 
@@ -93,14 +121,15 @@
 
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
             {
-                // simulating type detection behavior implemented by the serializer
-                return new object[]
+                if (messageTypes?.Count > 0)
                 {
-                    new MessageWithoutTypeHeader()
-                };
+                    throw new InvalidOperationException("Did not expect message types to be detected in this test");
+                }
+
+                throw new InvalidOperationException("Should not invoke deserializer without type information");
             }
 
-            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings) => mapper => this;
+            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings) => _ => this;
         }
     }
 }
