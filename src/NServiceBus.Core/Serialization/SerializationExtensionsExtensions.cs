@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Disables dynamic type loading via `Type.GetType` to prevent loading of assemblies for types passed in message header `NServiceBus.EnclosedMessageTypes` to only allow message types during deserialization that were explicitly loaded.  
+        /// Disables dynamic type loading via <see cref="System.Type.GetType(string)"/> to prevent loading of assemblies for types passed in message header `NServiceBus.EnclosedMessageTypes` to only allow message types during deserialization that were explicitly loaded.  
         /// </summary>
         public static void DisableDynamicTypeLoading<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
