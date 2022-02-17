@@ -55,11 +55,7 @@
             {
                 messageType = GetType(messageTypeIdentifier);
 
-                if (messageType != null)
-                {
-                    cachedTypes[messageTypeIdentifier] = messageType;
-                }
-                else
+                if (messageType == null)
                 {
                     Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
 
@@ -76,10 +72,9 @@
                             return item;
                         }
                     }
-
-                    cachedTypes[messageTypeIdentifier] = null;
-                    return null;
                 }
+
+                cachedTypes[messageTypeIdentifier] = messageType;
             }
 
             if (messageType == null)
