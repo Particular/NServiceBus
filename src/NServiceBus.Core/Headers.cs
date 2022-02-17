@@ -121,6 +121,11 @@
         public const string TimeSent = "NServiceBus.TimeSent";
 
         /// <summary>
+        /// The time this message should be delivered to the endpoint to start processing.
+        /// </summary>
+        public const string DeliverAt = "NServiceBus.DeliverAt";
+
+        /// <summary>
         /// Id of the message that caused this message to be sent.
         /// </summary>
         public const string RelatedTo = "NServiceBus.RelatedTo";
