@@ -24,7 +24,7 @@
             Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
             Exception exception = context.FailedMessages.Single().Value.Single().Exception;
             Assert.IsInstanceOf<MessageDeserializationException>(exception);
-            Assert.AreEqual($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
+            Assert.AreEqual($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.", exception.InnerException.Message);
         }
 
         class Context : ScenarioContext
