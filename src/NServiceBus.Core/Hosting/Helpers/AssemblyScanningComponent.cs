@@ -11,12 +11,12 @@
     {
         public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
         {
-            var shouldScanBinDirectory = configuration.UserProvidedTypes == null;
+            var shouldScanAssemblies = configuration.UserProvidedTypes == null;
 
             List<Type> availableTypes;
             AssemblyScanner assemblyScanner;
 
-            if (shouldScanBinDirectory)
+            if (shouldScanAssemblies)
             {
                 var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
@@ -35,16 +35,21 @@
             assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
             assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
             assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
+            assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
             assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
             assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
 
-            var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
+            if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
+            {
+                throw new Exception($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality to not load correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to resolve this error.");
+            }
 
-            availableTypes = availableTypes.Union(scannableAssemblies.Types).ToList();
+            var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
+            availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
 
             configuration.SetDefaultAvailableTypes(availableTypes);
 
-            if (shouldScanBinDirectory)
+            if (shouldScanAssemblies)
             {
                 settings.AddStartupDiagnosticsSection("AssemblyScanning", new
                 {
