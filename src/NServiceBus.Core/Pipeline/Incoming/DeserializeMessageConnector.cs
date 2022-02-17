@@ -100,7 +100,7 @@ namespace NServiceBus
                     messageMetadata.Add(metadata);
                 }
 
-                if (messageMetadata.Count == 0 && physicalMessage.GetMessageIntent() != MessageIntentEnum.Publish)
+                if (messageMetadata.Count == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntentEnum.Publish)
                 {
                     log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
