@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer.Tests.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -19,12 +20,15 @@
                 .OrderBy(diagnostic => diagnostic.Location.SourceSpan)
                 .ThenBy(diagnostic => diagnostic.Id);
 
-        public static async Task<List<CodeAction>> GetCodeActions(this Document document, CodeFixProvider codeFix, Diagnostic diagnostic, CancellationToken cancellationToken = default)
+        public static async Task<Tuple<Document, CodeAction>[]> GetCodeActions(this Project project, CodeFixProvider codeFix, Diagnostic diagnostic, CancellationToken cancellationToken = default)
         {
-            var actions = new List<CodeAction>();
-            var context = new CodeFixContext(document, diagnostic, (action, _) => actions.Add(action), cancellationToken);
-            await codeFix.RegisterCodeFixesAsync(context);
-            return actions;
+            var actions = new List<Tuple<Document, CodeAction>>();
+            foreach (var document in project.Documents)
+            {
+                var context = new CodeFixContext(document, diagnostic, (action, _) => actions.Add(new Tuple<Document, CodeAction>(document, action)), cancellationToken);
+                await codeFix.RegisterCodeFixesAsync(context);
+            }
+            return actions.ToArray();
         }
 
         public static async Task<Document> ApplyChanges(this Document document, CodeAction codeAction, CancellationToken cancellationToken = default)

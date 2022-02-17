@@ -98,8 +98,7 @@
             }
         }
 
-        public static bool IsSystemObjectType(this ITypeSymbol type) =>
-            type.ContainingNamespace?.Name == "System" && type.Name == "Object";
+        public static bool IsSystemObjectType(this ITypeSymbol type) => type.SpecialType == SpecialType.System_Object;
 
         // TODO: cater for generics, including in/out - test what CA2016 does in .NET 6
         // after upgrading to Microsoft.CodeAnalysis.CSharp.Workspaces 3.x or later, we can convert this method to this single expression

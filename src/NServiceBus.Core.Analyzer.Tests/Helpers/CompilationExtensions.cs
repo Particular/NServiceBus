@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -12,7 +13,7 @@
 
     static class CompilationExtensions
     {
-        public static void Compile(this Compilation compilation)
+        public static void Compile(this Compilation compilation, bool throwOnFailure = true)
         {
             using (var peStream = new MemoryStream())
             {
@@ -20,7 +21,14 @@
 
                 if (!emitResult.Success)
                 {
-                    throw new Exception("Compilation failed.");
+                    if (throwOnFailure)
+                    {
+                        throw new Exception("Compilation failed.");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Compilation failed.");
+                    }
                 }
             }
         }
