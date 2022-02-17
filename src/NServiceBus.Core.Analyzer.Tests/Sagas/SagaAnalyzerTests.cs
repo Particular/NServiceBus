@@ -20,7 +20,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
     {
         mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -49,8 +49,8 @@ public class MySaga : Saga<MyData>, [|IAmStartedByMessages<Msg1>|], NServiceBus.
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg2>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -83,8 +83,8 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, [|NServiceBus.IA
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -151,9 +151,9 @@ public class MySaga : Saga<MyData>, IHandleTimeouts<Timeout1>, IHandleTimeouts<T
             .ToMessage<[|Timeout2|]>(msg => msg.UnnecessaryCorrId)
             .ToMessage<[|Timeout3|]>(msg => msg.UnnecessaryCorrId);
     }
-    public Task Timeout(Timeout1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Timeout(Timeout2 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Timeout(Timeout3 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Timeout(Timeout1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Timeout(Timeout2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Timeout(Timeout3 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -197,8 +197,8 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, NServiceBus.IAmS
             .ToMessage<Msg1>(msg => msg.CorrId)
             .ToMessage<Msg2>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -234,8 +234,8 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, NServiceBus.IAmS
         mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga([|saga => saga." + propertyName + @"|]);
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga([|saga => saga." + propertyName + @"|]);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -276,7 +276,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -320,7 +320,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -348,7 +348,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public partial class MyData : [|IContainSagaData|]
 {
@@ -391,14 +391,14 @@ public partial class MySaga : [|IAmStartedByMessages<Msg1>|]
 }
 public partial class MySaga
 {
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public partial class MySaga : [|IAmStartedByMessages<Msg2>|]
 {
 }
 public partial class MySaga
 {
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -472,8 +472,8 @@ public class MySaga : [|IntermediateAbstractSaga<MyData>|], IAmStartedByMessages
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public abstract class IntermediateAbstractSaga<TSagaData> : Saga<TSagaData> where TSagaData : class, IContainSagaData, new()
 {
@@ -505,7 +505,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : [|IntermediateAbstractSaga|], IAmStartedByMessages<Msg1>
 {
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public abstract class IntermediateAbstractSaga : Saga<MyData>
 {
@@ -544,7 +544,7 @@ using NServiceBus.Sagas;
 public partial class MySaga : Saga<MyData>, [|IHandleSagaNotFound|]
 {
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper) { }
-    public Task Handle(object message, IMessageProcessingContext context) => throw new NotImplementedException();
+    public Task Handle(object message, IMessageProcessingContext context) { throw new NotImplementedException(); }
 }
 public partial class MySaga : [|IHandleSagaNotFound|] { }
 public class MyData : ContainSagaData
@@ -570,8 +570,8 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMess
             .ToMessage<Msg1>(msg => msg.CorrId)
             .ToMessage<Msg2>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -604,9 +604,9 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMess
         mapper.ConfigureMapping<Msg2>([|msg => msg.CorrId|]).ToSaga(saga => saga.CorrId);
         mapper.ConfigureHeaderMapping<Msg3>(""CorrId"").ToSaga(saga => saga.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg3 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg3 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -643,9 +643,9 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMess
             .ToMessage<Msg2>([|msg => msg.CorrId|])
             .ToMessageHeader<Msg3>(""CorrId"");
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg3 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg3 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {
@@ -675,8 +675,8 @@ public class MessageWithSagaIdSaga : Saga<MessageWithSagaIdSaga.MessageWithSagaI
     IAmStartedByMessages<MessageWithSagaId>,
     IHandleTimeouts<MessageWithSagaId>
 {
-    public Task Handle(MessageWithSagaId message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(MessageWithSagaId message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context) { throw new NotImplementedException(); }
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
     {
         mapper.MapSaga(s => s.DataId)
@@ -706,7 +706,7 @@ using NServiceBus;
 public abstract class AbstractSaga<TSagaData> : Saga
     where TSagaData : IContainSagaData, new()
 {
-    protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage mapper) => throw new NotImplementedException();
+    protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage mapper) { throw new NotImplementedException(); }
 }";
             // Similar to SQL Persistence SqlSaga<T>
             return Assert(source);
@@ -736,7 +736,7 @@ namespace NServiceBus.Persistence.Sql
     public abstract class SqlSaga<TSagaData> : Saga
         where TSagaData : IContainSagaData, new()
     {
-        protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage mapper) => throw new NotImplementedException();
+        protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage mapper) { throw new NotImplementedException(); }
     }
 }";
 
@@ -757,7 +757,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
     {
         mapper.MapSaga(saga => saga.CorrId).ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 -----
 using NServiceBus;
@@ -790,8 +790,8 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, [|IAmStartedByMe
     {
         mapper.MapSaga(saga => saga.CorrId).ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 -----
 using NServiceBus;
@@ -836,7 +836,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
     {
         mapper.MapSaga(saga => saga.CorrId).ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 -----
 using NServiceBus;
@@ -867,7 +867,7 @@ public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
     {
         mapper.MapSaga(saga => saga.CorrId).ToMessage<Msg1>(msg => msg.CorrId);
     }
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 -----
 using NServiceBus;

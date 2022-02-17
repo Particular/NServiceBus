@@ -22,18 +22,6 @@
         }
 
         [Test]
-        public Task NewMappingInArrowFunction()
-        {
-            var code = @"
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper) =>
-        mapper.MapSaga(saga => saga.CorrId)
-            .ToMessage<Msg1>(msg => msg.CorrId)
-            .ToMessage<Msg2>(msg => msg.CorrId);";
-
-            return RunTest(code, null);
-        }
-
-        [Test]
         public Task OldMapping()
         {
             var code = @"
@@ -87,8 +75,8 @@ using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
 {
 " + configureHowToFindSagaMethod + @"
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg1 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
+    public Task Handle(Msg2 message, IMessageHandlerContext context) { throw new NotImplementedException(); }
 }
 public class MyData : ContainSagaData
 {

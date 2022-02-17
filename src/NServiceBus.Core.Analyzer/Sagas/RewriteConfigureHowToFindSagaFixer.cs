@@ -102,7 +102,7 @@
                 baseIndentText = triviaDirectlyBefore.ToString();
             }
 
-            var indentText = await GetIndentString(document, cancellationToken).ConfigureAwait(false);
+            var indentText = GetIndentString(document);
 
             SyntaxTrivia Indent(int levels = 0)
             {
@@ -194,11 +194,12 @@
                                 IdentifierName(correlationId))))));
         }
 
-        static async Task<string> GetIndentString(Document document, CancellationToken cancellationToken)
+        static string GetIndentString(Document document)
         {
-            var options = await document.GetOptionsAsync(cancellationToken).ConfigureAwait(false);
-            var useTabs = options.GetOption(FormattingOptions.UseTabs);
-            var indentSize = options.GetOption(FormattingOptions.IndentationSize);
+            var options = document.Project.Solution.Workspace.Options;
+
+            var useTabs = options.GetOption(FormattingOptions.UseTabs, "csharp");
+            var indentSize = options.GetOption(FormattingOptions.IndentationSize, "csharp");
 
             if (useTabs && indentSize == 1)
             {
