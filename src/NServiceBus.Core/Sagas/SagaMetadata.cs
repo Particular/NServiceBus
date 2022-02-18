@@ -327,6 +327,8 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         CorrelationPropertyMetadata correlationProperty;
         Dictionary<string, SagaFinderDefinition> sagaFinders;
 
+        // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
+        // but also needs to be enforced at runtime in case the user silences the diagnostic
         static Type[] AllowedCorrelationPropertyTypes =
         {
             typeof(Guid),
