@@ -18,9 +18,22 @@
             config.EndpointConfigurationSettings.Set(DisableMessageTypeInferenceKey, true);
         }
 
+        /// <summary>
+        /// Disables dynamic type loading via <see cref="System.Type.GetType(string)"/> to prevent loading of assemblies for types passed in message header `NServiceBus.EnclosedMessageTypes` to only allow message types during deserialization that were explicitly loaded.  
+        /// </summary>
+        public static void DisableDynamicTypeLoading<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
+        {
+            Guard.AgainstNull(nameof(config), config);
+            config.EndpointConfigurationSettings.Set(DisableDynamicTypeLoadingKey, true);
+        }
+
+        internal static bool IsDynamicTypeLoadingEnabled(this IReadOnlySettings endpointConfigurationSettings) =>
+            !endpointConfigurationSettings.GetOrDefault<bool>(DisableDynamicTypeLoadingKey);
+
         internal static bool IsMessageTypeInferenceEnabled(this IReadOnlySettings endpointConfigurationSettings) =>
             !endpointConfigurationSettings.GetOrDefault<bool>(DisableMessageTypeInferenceKey);
 
         const string DisableMessageTypeInferenceKey = "NServiceBus.Serialization.DisableMessageTypeInference";
+        const string DisableDynamicTypeLoadingKey = "NServiceBus.Serialization.DisableDynamicTypeLoading";
     }
 }

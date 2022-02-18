@@ -18,7 +18,7 @@
             var innerException = new Exception("expected exception");
             var fakeSubscriptionManager = new FakeSubscriptionManager(new AggregateException(innerException));
             var terminator =
-                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true));
+                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
 
             var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
@@ -31,7 +31,7 @@
             var expectedException = new Exception("expected exception");
             var fakeSubscriptionManager = new FakeSubscriptionManager(expectedException);
             var terminator =
-                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true));
+                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
 
             var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
@@ -44,7 +44,7 @@
             var aggregateException = new AggregateException(new Exception("expected exception"));
             var fakeSubscriptionManager = new FakeSubscriptionManager(aggregateException);
             var terminator =
-                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true));
+                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
             var testableSubscribeContext = new TestableSubscribeContext();
             testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
@@ -59,7 +59,7 @@
             var expectedException = new Exception("expected exception");
             var fakeSubscriptionManager = new FakeSubscriptionManager(expectedException);
             var terminator =
-                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true));
+                new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
             var testableSubscribeContext = new TestableSubscribeContext();
             testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 

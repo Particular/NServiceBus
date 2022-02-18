@@ -1075,6 +1075,8 @@ namespace NServiceBus
     }
     public static class SerializationExtensionsExtensions
     {
+        public static void DisableDynamicTypeLoading<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
+            where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
     }

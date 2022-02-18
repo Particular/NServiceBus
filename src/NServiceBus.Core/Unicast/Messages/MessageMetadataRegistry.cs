@@ -5,15 +5,16 @@
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
-
+    using NServiceBus;
     /// <summary>
     /// Cache of message metadata.
     /// </summary>
     public class MessageMetadataRegistry
     {
-        internal MessageMetadataRegistry(Func<Type, bool> isMessageType)
+        internal MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
         {
             this.isMessageType = isMessageType;
+            this.allowDynamicTypeLoading = allowDynamicTypeLoading;
         }
 
         /// <summary>
@@ -48,26 +49,35 @@
         {
             Guard.AgainstNullAndEmpty(nameof(messageTypeIdentifier), messageTypeIdentifier);
 
-            var messageType = GetType(messageTypeIdentifier);
+            var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
+
+            if (!cacheHit)
+            {
+                messageType = GetType(messageTypeIdentifier);
+
+                if (messageType == null)
+                {
+                    foreach (var item in messages.Values)
+                    {
+                        var messageTypeFullName = GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
+
+                        if (item.MessageType.FullName == messageTypeIdentifier ||
+                            item.MessageType.FullName == messageTypeFullName)
+                        {
+                            Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
+
+                            cachedTypes[messageTypeIdentifier] = item.MessageType;
+                            return item;
+                        }
+                    }
+                    Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifier);
+                }
+
+                cachedTypes[messageTypeIdentifier] = messageType;
+            }
 
             if (messageType == null)
             {
-                Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
-
-                foreach (var item in messages.Values)
-                {
-                    var messageTypeFullName = GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
-
-                    if (item.MessageType.FullName == messageTypeIdentifier ||
-                        item.MessageType.FullName == messageTypeFullName)
-                    {
-                        Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
-
-                        cachedTypes[messageTypeIdentifier] = item.MessageType;
-                        return item;
-                    }
-                }
-
                 return null;
             }
 
@@ -98,22 +108,23 @@
 
         Type GetType(string messageTypeIdentifier)
         {
-            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out var type))
+            if (allowDynamicTypeLoading)
             {
                 try
                 {
-                    type = Type.GetType(messageTypeIdentifier);
+                    return Type.GetType(messageTypeIdentifier);
                 }
                 catch (Exception ex)
                 {
                     Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded", ex);
                 }
-
-                // we cache null values as well to prevent trying to load the type multiple times
-                cachedTypes[messageTypeIdentifier] = type;
+            }
+            else
+            {
+                Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enable dynamic type loading.");
             }
 
-            return type;
+            return null;
         }
 
         internal IEnumerable<MessageMetadata> GetAllMessages()
@@ -167,6 +178,7 @@
                 }.Concat(parentMessages).ToArray());
 
             messages[messageType.TypeHandle] = metadata;
+            cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
 
             return metadata;
         }
@@ -177,6 +189,7 @@
             {
                 return type.GetInterfaces().Length;
             }
+
             var result = 0;
 
             while (type.BaseType != null)
@@ -207,6 +220,7 @@
         }
 
         Func<Type, bool> isMessageType;
+        readonly bool allowDynamicTypeLoading;
         ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
         ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 
