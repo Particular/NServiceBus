@@ -6,5 +6,8 @@ dotnet_diagnostic.CA2007.severity = none
 # Justification: Tests don't support cancellation and don't need to forward IMessageHandlerContext.CancellationToken
 dotnet_diagnostic.NSB0002.severity = suggestion
 
+# Justification: Tests don't support cancellation
+dotnet_diagnostic.PS0018.severity = suggestion
+
 # bug in analyzer when multi-targetting
 dotnet_diagnostic.IDE0063.severity = none  # Use simple 'using' statement
