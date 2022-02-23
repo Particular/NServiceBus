@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
         [Test]
         [RunInApplicationDomain]
-        public void Assemblies_with_direct_reference_are_included()
+        public void Assemblies_with_direct_core_reference_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core.dll");
             var assemblyWithReference = new DynamicAssembly("AssemblyWithReference.dll", new[]
@@ -66,7 +66,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
         [Test]
         [RunInApplicationDomain]
-        public void Assemblies_with_no_reference_are_excluded()
+        public void Assemblies_with_no_core_reference_are_excluded()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
             var assemblyWithReference = new DynamicAssembly("AssemblyWithReference", new[]
@@ -90,7 +90,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
         [Test]
         [RunInApplicationDomain]
-        public void Assemblies_which_reference_older_nsb_version_are_included()
+        public void Assemblies_which_reference_older_core_version_are_included()
         {
             var busAssemblyV2 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(2, 0, 0), fakeIdentity: true);
             var assemblyReferencesV2 = new DynamicAssembly("AssemblyWithReference2", new[]
@@ -119,7 +119,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
         [Test]
         [RunInApplicationDomain]
-        public void Assemblies_with_transitive_references_are_included()
+        public void Assemblies_with_transitive_core_references_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
             var assemblyC = new DynamicAssembly("C", new[]
@@ -153,6 +153,37 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.IsTrue(result.Assemblies.Contains(assemblyD));
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
             Assert.AreEqual(5, result.Assemblies.Count);
+        }
+
+        [Test]
+        [RunInApplicationDomain]
+        public void Transitive_references_are_excluded()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var assemblyC = new DynamicAssembly("C");
+            var assemblyB = new DynamicAssembly("B", new[]
+            {
+                busAssembly
+            });
+            var assemblyA = new DynamicAssembly("A", new[]
+            {
+                assemblyB,
+                assemblyC
+            });
+
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                ScanAppDomainAssemblies = false,
+                CoreAssemblyName = busAssembly.DynamicName
+            };
+
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyA));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyB));
+            Assert.IsFalse(result.Assemblies.Contains(assemblyC));
+            Assert.AreEqual(3, result.Assemblies.Count);
         }
 
         [Test]
@@ -312,59 +343,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.That(result.Assemblies.Contains(includedAssembly.Assembly));
         }
 
-        [Test]
-        [RunInApplicationDomain]
-        public void Should_not_include_child_type_if_only_handler_for_base_exists()
-        {
-            var messages =
-@"
-public interface IBaseEvent
-{
-}
-
-public interface IInheritedEvent : IBaseEvent
-{
-}
-";
-
-            var handler =
-@"
-using NServiceBus;
-using System.Threading.Tasks;
-
-class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
-{
-    public Task Handle(IBaseEvent message, IMessageHandlerContext context)
-    {
-        return Task.FromResult(0);
-    }
-}
-";
-
-            var messagesAsm = new DynamicAssembly("Fake.Messages", content: messages);
-            Assembly.LoadFrom(messagesAsm.FilePath);
-
-            var handlerAsm = new DynamicAssembly("Fake.Handler", new[]
-            {
-                messagesAsm
-            }, content: handler, referenceTheCore: true);
-            Assembly.LoadFrom(handlerAsm.FilePath);
-
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                ScanAppDomainAssemblies = false
-            };
-
-            var result = scanner.GetScannableAssemblies();
-
-            //Note this this is not the expected behavior. The assert will be changed to Assert.True and the test renamed as part of https://github.com/Particular/NServiceBus/issues/4634
-            Assert.False(result.Types.Any(t => t.Name == "IInheritedEvent"));
-        }
-
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
         class DynamicAssembly
         {
-            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false, string content = null, bool referenceTheCore = false, bool executable = false)
+            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false, string content = null, bool executable = false)
             {
                 if (version == null)
                 {
@@ -404,14 +386,6 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
                 {
                     builder.AppendLine($"using {reference.Namespace};");
                     param.ReferencedAssemblies.Add(reference.FilePath);
-                }
-
-                if (referenceTheCore)
-                {
-                    var targetCorePath = Path.Combine(TestAssemblyDirectory, "NServiceBus.Core.dll");
-                    File.Copy(Path.Combine(TestDirectory, "NServiceBus.Core.dll"), Path.Combine(TestAssemblyDirectory, "NServiceBus.Core.dll"));
-
-                    param.ReferencedAssemblies.Add(targetCorePath);
                 }
 
                 if (executable)
