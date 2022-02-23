@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
