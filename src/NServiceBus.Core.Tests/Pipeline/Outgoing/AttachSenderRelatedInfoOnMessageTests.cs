@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using DeliveryConstraints;
     using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -103,7 +104,7 @@
 
             if (options != null)
             {
-                stash.Set(options);
+                stash.AddDeliveryConstraint(options.DelayedDeliveryConstraint);
             }
 
             await new AttachSenderRelatedInfoOnMessageBehavior()

@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using DelayedDelivery;
+    using NServiceBus.DeliveryConstraints;
     using Pipeline;
 
     class AttachSenderRelatedInfoOnMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
@@ -27,14 +28,14 @@ namespace NServiceBus
 
             if (!message.Headers.ContainsKey(Headers.DeliverAt))
             {
-                if (context.Extensions.TryGet<SendOptions>(out var options))
+                if (context.Extensions.TryGetDeliveryConstraint<DelayedDeliveryConstraint>(out var delayedDeliveryConstraint))
                 {
-                    if (options.DelayedDeliveryConstraint is DelayDeliveryWith delayDeliveryWith)
+                    if (delayedDeliveryConstraint is DelayDeliveryWith delayDeliveryWith)
                     {
                         var timeDelay = delayDeliveryWith.Delay;
                         message.Headers[Headers.DeliverAt] = DateTimeExtensions.ToWireFormattedString(utcNow.Add(timeDelay));
                     }
-                    else if (options.DelayedDeliveryConstraint is DoNotDeliverBefore doNotDeliverBefore)
+                    else if (delayedDeliveryConstraint is DoNotDeliverBefore doNotDeliverBefore)
                     {
                         var deliverAt = doNotDeliverBefore.At;
                         message.Headers[Headers.DeliverAt] = DateTimeExtensions.ToWireFormattedString(deliverAt);
