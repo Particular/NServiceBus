@@ -36,7 +36,7 @@ namespace NServiceBus
 
         public DisposableEndpointInstance(IEndpointInstance endpointInstance) => this.endpointInstance = endpointInstance;
 
-        ValueTask IAsyncDisposable.DisposeAsync() => new ValueTask(endpointInstance.Stop(new CancellationToken(true)));
+        ValueTask IAsyncDisposable.DisposeAsync() => new ValueTask(endpointInstance.Stop(CancellationToken.None));
 
         public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default) => endpointInstance.Send(message, sendOptions, cancellationToken);
 
