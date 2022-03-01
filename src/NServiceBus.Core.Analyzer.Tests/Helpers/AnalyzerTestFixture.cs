@@ -94,6 +94,7 @@
             var project = workspace.AddProject("TestProject", LanguageNames.CSharp)
                 .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithSpecificDiagnosticOptions(DiagnosticOptions))
+                .WithParseOptions(new CSharpParseOptions(LanguageVersion.CSharp8))
                 .AddMetadataReferences(references);
 
             for (int i = 0; i < code.Length; i++)

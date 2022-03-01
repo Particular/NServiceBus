@@ -15,8 +15,12 @@
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnosticDescriptor);
 
-        public override void Initialize(AnalysisContext context) =>
-            context.WithDefaultSettings().RegisterCompilationStartAction(Analyze);
+        public override void Initialize(AnalysisContext context)
+        {
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.RegisterCompilationStartAction(Analyze);
+        }
 
         static void Analyze(CompilationStartAnalysisContext startContext)
         {
@@ -186,7 +190,7 @@
         static bool IsCancellationToken(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellationTokenType)
         {
             var expressionSymbol = context.SemanticModel.GetSymbolInfo(expressionSyntax, context.CancellationToken).Symbol;
-            return expressionSymbol.GetTypeSymbolOrDefault()?.Equals(cancellationTokenType) ?? false;
+            return expressionSymbol.GetTypeSymbolOrDefault()?.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability) ?? false;
         }
 
         static IMethodSymbol GetRecommendedMethod(
@@ -200,7 +204,7 @@
         {
             requiredArgName = null;
 
-            var extraParam = calledMethod.Parameters.FirstOrDefault(param => param.Type.Equals(cancellationTokenType));
+            var extraParam = calledMethod.Parameters.FirstOrDefault(param => param.Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability));
 
             if (extraParam != null)
             {
@@ -222,8 +226,8 @@
 
             var overloadsWithASingleCancellationTokenLast = overloads
                 .Where(overload =>
-                    overload.Parameters.Count(param => param.Type.Equals(cancellationTokenType)) == 1 &&
-                    overload.Parameters.Last().Type.Equals(cancellationTokenType))
+                    overload.Parameters.Count(param => param.Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability)) == 1 &&
+                    overload.Parameters.Last().Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability))
                 .Select(overload => (Overload: overload, CancellationTokenParam: overload.Parameters.Last()));
 
             var candidates = overloadsWithASingleCancellationTokenLast
@@ -243,7 +247,7 @@
 
         // if adding a cancellation token to the args will not put it in the right place
         static string GetRequiredArgName(IMethodSymbol recommendedMethod, IParameterSymbol extraParam, SeparatedSyntaxList<ArgumentSyntax> args) =>
-            recommendedMethod.Parameters[args.Count] != extraParam ? extraParam.Name : null;
+            !recommendedMethod.Parameters[args.Count].Equals(extraParam, SymbolEqualityComparer.IncludeNullability) ? extraParam.Name : null;
 
         static INamedTypeSymbol GetCalledType(InvocationExpressionSyntax call, IMethodSymbol calledMethod, SyntaxNodeAnalysisContext context)
         {
@@ -281,7 +285,7 @@
             IMethodSymbol methodToCompare)
         {
             // Avoid comparing to itself, or when there are no parameters, or when the last parameter is not a ct
-            if (originalMethod.Equals(methodToCompare))
+            if (originalMethod.Equals(methodToCompare, SymbolEqualityComparer.IncludeNullability))
             {
                 return false;
             }
@@ -301,7 +305,7 @@
             {
                 IParameterSymbol originalParameter = originalMethodWithAllParameters.Parameters[i];
                 IParameterSymbol comparedParameter = methodToCompareWithAllParameters.Parameters[i];
-                if (!originalParameter.Type.Equals(comparedParameter.Type))
+                if (!originalParameter.Type.Equals(comparedParameter.Type, SymbolEqualityComparer.IncludeNullability))
                 {
                     return false;
                 }
@@ -330,13 +334,13 @@
             bool IsTaskLikeType(ITypeSymbol typeSymbol)
             {
                 if (genericTask != null &&
-                    typeSymbol.OriginalDefinition.Equals(genericTask))
+                    typeSymbol.OriginalDefinition.Equals(genericTask, SymbolEqualityComparer.IncludeNullability))
                 {
                     return true;
                 }
 
                 if (genericValueTask != null &&
-                    typeSymbol.OriginalDefinition.Equals(genericValueTask))
+                    typeSymbol.OriginalDefinition.Equals(genericValueTask, SymbolEqualityComparer.IncludeNullability))
                 {
                     return true;
                 }

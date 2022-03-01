@@ -6,13 +6,6 @@
 
     static class AnalysisContextExtensions
     {
-        public static AnalysisContext WithDefaultSettings(this AnalysisContext context)
-        {
-            context.EnableConcurrentExecution();
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            return context;
-        }
-
         public static bool ContainsSyntax(this SyntaxNodeAnalysisContext context, SyntaxNode node)
         {
             return node.AncestorsAndSelf().Any(ancestor => ancestor == context.Node);

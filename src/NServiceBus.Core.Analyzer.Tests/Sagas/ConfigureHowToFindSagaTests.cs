@@ -78,7 +78,7 @@
             return RunTest(code, SagaDiagnostics.NonMappingExpressionUsedInConfigureHowToFindSagaId);
         }
 
-        Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
+        async Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
         {
             var source =
 @"using System;
@@ -104,7 +104,36 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(diagnosticId, source);
+            await Assert(diagnosticId, source);
+
+            var nullableTypesSource =
+@"
+#nullable enable
+using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{
+" + configureHowToFindSagaMethod + @"
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string? CorrId { get; set; }
+    public string? OtherId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string? CorrId { get; set; }
+}
+public class Msg2 : ICommand
+{
+    public string? CorrId { get; set; }
+}
+#nullable restore";
+
+            await Assert(diagnosticId, nullableTypesSource);
         }
     }
 }

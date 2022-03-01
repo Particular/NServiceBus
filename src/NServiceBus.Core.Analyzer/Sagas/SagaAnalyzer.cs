@@ -31,8 +31,12 @@
             SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions,
             SagaDiagnostics.SagaMappingExpressionCanBeRewritten);
 
-        public override void Initialize(AnalysisContext context) =>
-            context.WithDefaultSettings().RegisterCompilationStartAction(Analyze);
+        public override void Initialize(AnalysisContext context)
+        {
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.RegisterCompilationStartAction(Analyze);
+        }
 
         static void Analyze(CompilationStartAnalysisContext startContext)
         {
@@ -59,7 +63,7 @@
             {
                 AnalyzeSagaDataClass(context, classDeclaration, classType, knownTypes);
             }
-            else if (classType.BaseTypesAndSelf().Contains(knownTypes.BaseSaga))
+            else if (classType.BaseTypesAndSelf().Contains(knownTypes.BaseSaga, SymbolEqualityComparer.IncludeNullability))
             {
                 AnalyzeSagaClass(context, classDeclaration, classType, knownTypes);
             }
@@ -81,7 +85,7 @@
 
             // Checking for the saga to not have an intermediate base class. Remembering partial classes => separate class declarations, want to find
             // the declaration that has the base type in its inheritance list
-            if (classDeclaration.BaseList != null && sagaType.BaseType.ConstructedFrom != knownTypes.GenericSaga)
+            if (classDeclaration.BaseList != null && !sagaType.BaseType.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability))
             {
                 foreach (var baseTypeSyntax in classDeclaration.BaseList.Types)
                 {
@@ -89,7 +93,7 @@
 
                     if (baseType?.IsAssignableTo(knownTypes.BaseSaga) ?? false)
                     {
-                        if (baseType?.ConstructedFrom != knownTypes.GenericSaga)
+                        if (!baseType.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability))
                         {
                             var diagnostic = Diagnostic.Create(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClass, baseTypeSyntax.GetLocation());
                             context.ReportDiagnostic(diagnostic);
@@ -111,7 +115,7 @@
                 {
                     var badSyntaxes = classDeclaration.BaseList.Types
                         .Where(baseType => baseType.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(idName => idName.Identifier.ValueText == "IHandleSagaNotFound"))
-                        .Where(baseType => context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type == knownTypes.IHandleSagaNotFound);
+                        .Where(baseType => context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type.Equals(knownTypes.IHandleSagaNotFound, SymbolEqualityComparer.IncludeNullability));
 
                     foreach (var badSyntax in badSyntaxes)
                     {
@@ -171,10 +175,10 @@
                 foreach (var mapping in saga.MessageMappings)
                 {
                     // Warn on any mappings that are trying to map a timeout, which is unnecessary
-                    if (saga.Timeouts.Any(timeoutDeclaration => timeoutDeclaration.MessageType == mapping.MessageType))
+                    if (saga.Timeouts.Any(timeoutDeclaration => timeoutDeclaration.MessageType.Equals(mapping.MessageType, SymbolEqualityComparer.IncludeNullability)))
                     {
                         // Unless a timeout type is also a handler mapping for some reason
-                        if (!saga.StartedBy.Any(dec => dec.MessageType == mapping.MessageType) && !saga.Handles.Any(dec => dec.MessageType == mapping.MessageType))
+                        if (!saga.StartedBy.Any(dec => dec.MessageType.Equals(mapping.MessageType, SymbolEqualityComparer.IncludeNullability)) && !saga.Handles.Any(dec => dec.MessageType.Equals(mapping.MessageType, SymbolEqualityComparer.IncludeNullability)))
                         {
                             var diagnostic = Diagnostic.Create(SagaDiagnostics.MessageMappingNotNeededForTimeout, mapping.MessageTypeSyntax.GetLocation(),
                                 mapping.MessageTypeSyntax.ToFullString());
@@ -209,11 +213,12 @@
                                 var toMessageSymbol = context.SemanticModel.GetSymbolInfo(toMessageLambdaSyntax.Body, context.CancellationToken).Symbol;
                                 if (toMessageSymbol is IPropertySymbol toMessagePropertySymbol)
                                 {
-                                    if (toMessagePropertySymbol.GetMethod.ReturnType != toSagaPropertySymbol.GetMethod.ReturnType)
+                                    // Want to accept (for now) saga data being string? and message being in a different assembly without nullable reference types
+                                    if (!toSagaPropertySymbol.Type.TypeCanAcceptWithNullability(toMessagePropertySymbol.Type))
                                     {
                                         var diagnostic = Diagnostic.Create(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions, mapping.MessageMappingExpression.GetLocation(),
-                                            toMessagePropertySymbol.ContainingType.Name, toMessagePropertySymbol.Name, toMessagePropertySymbol.GetMethod.ReturnType.Name,
-                                            toSagaPropertySymbol.ContainingType.Name, toSagaPropertySymbol.Name, toSagaPropertySymbol.GetMethod.ReturnType.Name);
+                                        toMessagePropertySymbol.ContainingType.Name, toMessagePropertySymbol.Name, toMessagePropertySymbol.Type.ToString(),
+                                        toSagaPropertySymbol.ContainingType.Name, toSagaPropertySymbol.Name, toSagaPropertySymbol.Type.ToString());
                                         context.ReportDiagnostic(diagnostic);
                                     }
                                 }
@@ -231,7 +236,7 @@
             // Figure out which message types have a ConfigureHowToFindSaga mapping...
             var mappedMessageTypes = saga.MessageMappings
                 .Select(m => context.SemanticModel.GetTypeInfo(m.MessageTypeSyntax).Type)
-                .ToImmutableHashSet();
+                .ToImmutableHashSet(SymbolEqualityComparer.Default); // Message types shouldn't need nullability annotations
 
             // ...then find the IAmStartedBy message types that don't already have a mapping defined
             foreach (var declaration in saga.StartedBy.Where(declaration => context.ContainsSyntax(declaration.Syntax)))
@@ -393,9 +398,9 @@
 
             if (type is INamedTypeSymbol asNamedType)
             {
-                var enumerableType = asNamedType.ConstructedFrom == knownTypes.IEnumerableT
+                var enumerableType = asNamedType.ConstructedFrom.Equals(knownTypes.IEnumerableT, SymbolEqualityComparer.IncludeNullability)
                 ? asNamedType
-                : asNamedType.AllInterfaces.FirstOrDefault(i => i.IsGenericType && i.ConstructedFrom == knownTypes.IEnumerableT);
+                : asNamedType.AllInterfaces.FirstOrDefault(i => i.IsGenericType && i.ConstructedFrom.Equals(knownTypes.IEnumerableT, SymbolEqualityComparer.IncludeNullability));
 
                 if (enumerableType != null)
                 {
@@ -510,6 +515,9 @@
                 return false;
             }
 
+            // Manages access to semantic models for other files, since those are expensive to create
+            var semanticModels = new SemanticModelCache(context.Compilation, context.Node.SyntaxTree, context.SemanticModel);
+
             // From all the base lists on all partials, find the methods that are one of our IAmStarted/IHandle methods, then get
             // the TypeSymbol so we have both the syntax and type available
             var handlerDeclarations = classDeclarations
@@ -518,8 +526,7 @@
                 .Where(s => s.DescendantNodes().OfType<SimpleNameSyntax>().Any(n => IsHandlerInterfaceName(n.Identifier.ValueText)))
                 .Select(syntax =>
                 {
-                    var correctSemanticModel = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                    var typeSymbol = correctSemanticModel.GetTypeInfo(syntax.Type, context.CancellationToken).Type as INamedTypeSymbol;
+                    var typeSymbol = semanticModels.GetFor(syntax).GetTypeInfo(syntax.Type, context.CancellationToken).Type as INamedTypeSymbol;
                     return new SagaHandlerDeclaration(syntax, typeSymbol);
                 })
                 .ToImmutableArray();
@@ -527,29 +534,29 @@
             // Divide the handler declarations into each type: StartedBy, Handle, or Timeout
 
             var handles = handlerDeclarations
-                .Where(d => d.InterfaceType.IsGenericType && d.InterfaceType.ConstructedFrom == knownTypes.IHandleMessages)
+                .Where(d => d.InterfaceType.IsGenericType && d.InterfaceType.ConstructedFrom.Equals(knownTypes.IHandleMessages, SymbolEqualityComparer.IncludeNullability))
                 .Where(d => d.MessageType != null)
                 .ToImmutableArray();
 
             var startedBy = handlerDeclarations
-                .Where(d => d.InterfaceType.IsGenericType && d.InterfaceType.ConstructedFrom == knownTypes.IAmStartedByMessages)
+                .Where(d => d.InterfaceType.IsGenericType && d.InterfaceType.ConstructedFrom.Equals(knownTypes.IAmStartedByMessages, SymbolEqualityComparer.IncludeNullability))
                 .Where(d => d.MessageType != null)
                 .ToImmutableArray();
 
             var timeouts = handlerDeclarations
-                .Where(d => d.InterfaceType.IsGenericType && d.InterfaceType.ConstructedFrom == knownTypes.IHandleTimeouts)
+                .Where(d => d.InterfaceType.IsGenericType && d.InterfaceType.ConstructedFrom.Equals(knownTypes.IHandleTimeouts, SymbolEqualityComparer.IncludeNullability))
                 .Where(d => d.MessageType != null)
                 .ToImmutableArray();
 
             saga = new SagaDetails(sagaType, sagaDataType, configureHowToFindMethod, handles, startedBy, timeouts);
 
             // Delve into the ConfigureHowToFindSaga details to try to get mapping details out
-            TryFillSagaMappings(context, knownTypes, saga);
+            TryFillSagaMappings(context, knownTypes, semanticModels, saga);
 
             return true;
         }
 
-        static void TryFillSagaMappings(SyntaxNodeAnalysisContext context, KnownTypes knownTypes, SagaDetails saga)
+        static void TryFillSagaMappings(SyntaxNodeAnalysisContext context, KnownTypes knownTypes, SemanticModelCache semanticModels, SagaDetails saga)
         {
             // Want to know what the "mapper" is if the user has renamed it
             saga.MapperParameterSyntax = saga.ConfigureHowToFindMethod.ParameterList.Parameters.SingleOrDefault();
@@ -559,14 +566,21 @@
             }
 
             // Get the semantic model for wherever the ConfigureHowToFindSaga method lives
-            var correctSemanticModel = context.Compilation.GetSemanticModel(saga.ConfigureHowToFindMethod.SyntaxTree);
+            var correctSemanticModel = semanticModels.GetFor(saga.ConfigureHowToFindMethod);
 
-            // Make sure the param of ConfigureHowToFindSaga is a SagaPropertyMapper<T> where T matches the saga data type
-            // Otherwise the user is trying to troll us with another very similar method
-            if (!(correctSemanticModel.GetTypeInfo(saga.MapperParameterSyntax.Type, context.CancellationToken).Type is INamedTypeSymbol mapperType) || !mapperType.IsGenericType || mapperType.ConstructedFrom != knownTypes.SagaPropertyMapper || mapperType.TypeArguments.SingleOrDefault() != saga.DataType)
+            // Get the type for the mapper parameter of the ConfigureHowToFindSaga method
+            if (!(correctSemanticModel.GetTypeInfo(saga.MapperParameterSyntax.Type, context.CancellationToken).Type is INamedTypeSymbol mapperType))
             {
                 return;
             }
+
+            // Make sure the param of ConfigureHowToFindSaga is a SagaPropertyMapper<T> where T matches the saga data type
+            // Otherwise the user is trying to troll us with another very similar method
+            if (!mapperType.IsGenericType || !mapperType.ConstructedFrom.Equals(knownTypes.SagaPropertyMapper, SymbolEqualityComparer.IncludeNullability) || !mapperType.TypeArguments.SingleOrDefault().Equals(saga.DataType, SymbolEqualityComparer.IncludeNullability))
+            {
+                return;
+            }
+
 
             // This is maybe a code smell, but we raise diagnostics from non-mapping expressions as we go through them rather than in the Analyze methods
             // above. But if we're parsing through this data while analyzing a SagaData class, we don't want to double-raise diagnostics that we
@@ -755,7 +769,7 @@
         {
             var genericSagaBaseType = sagaType.BaseTypesAndSelf()
                 .OfType<INamedTypeSymbol>()
-                .FirstOrDefault(t => t.ConstructedFrom == knownTypes.GenericSaga);
+                .FirstOrDefault(t => t.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability));
 
             return genericSagaBaseType?.TypeArguments.FirstOrDefault() as INamedTypeSymbol;
         }
