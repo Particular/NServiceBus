@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using Helpers;
+    using Microsoft.CodeAnalysis.CSharp;
     using NUnit.Framework;
 
     [TestFixture]
@@ -47,7 +48,7 @@
         }
 
         [Test]
-        public Task OldMappingWiothMultipleCorrelationIds()
+        public Task OldMappingWithMultipleCorrelationIds()
         {
             var code = @"
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
@@ -78,7 +79,7 @@
             return RunTest(code, SagaDiagnostics.NonMappingExpressionUsedInConfigureHowToFindSagaId);
         }
 
-        async Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
+        protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
         {
             var source =
 @"using System;
@@ -104,8 +105,16 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            await Assert(diagnosticId, source);
+            return Assert(diagnosticId, source);
+        }
+    }
 
+    public class ConfigureHowToFindSagaTestsCSharp8 : ConfigureHowToFindSagaTests
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+
+        protected override Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
+        {
             var nullableTypesSource =
 @"
 #nullable enable
@@ -133,7 +142,7 @@ public class Msg2 : ICommand
 }
 #nullable restore";
 
-            await Assert(diagnosticId, nullableTypesSource);
+            return Assert(diagnosticId, nullableTypesSource);
         }
     }
 }

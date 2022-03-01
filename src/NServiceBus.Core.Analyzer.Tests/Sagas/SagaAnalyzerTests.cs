@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using Helpers;
+    using Microsoft.CodeAnalysis.CSharp;
     using NUnit.Framework;
 
     [TestFixture]
@@ -881,6 +882,11 @@ public class MyData : ContainSagaData
 
             return Assert(source);
         }
+    }
+
+    public class SagaAnalyzerTestsCSharp8 : SagaAnalyzerTests
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
 
         [Test]
         public Task NullableReferenceTypes()
@@ -1022,5 +1028,10 @@ public class MySaga : Saga<Data>,
                 return Assert(source);
             }
         }
+    }
+
+    public class SagaAnalyzerTestsCSharp9 : SagaAnalyzerTestsCSharp8
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
     }
 }
