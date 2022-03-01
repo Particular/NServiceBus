@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using Helpers;
+    using Microsoft.CodeAnalysis.CSharp;
     using NUnit.Framework;
 
     [TestFixture]
@@ -227,4 +228,21 @@ public class Foo
             return Assert(original, expected);
         }
     }
+
+    public class ForwardCancellationTokenFixerTestsCSharp8 : ForwardCancellationTokenFixerTests
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+    }
+
+    public class ForwardCancellationTokenFixerTestsCSharp9 : ForwardCancellationTokenFixerTestsCSharp8
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+    }
+
+#if ROSLYN4
+    public class ForwardCancellationTokenFixerTestsCSharp10 : ForwardCancellationTokenFixerTestsCSharp9
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
+    }
+#endif
 }

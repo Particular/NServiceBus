@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Analyzer.Tests
 {
     using System.Threading.Tasks;
     using Helpers;
+    using Microsoft.CodeAnalysis.CSharp;
     using NUnit.Framework;
 
     [TestFixture]
@@ -241,4 +242,21 @@ class Foo
             Description = "because the send operation task is accessed.")]
         public Task NoDiagnosticIsReported(string source) => Assert(source);
     }
+
+    public class AwaitOrCaptureTasksAnalyzerTestsCSharp8 : AwaitOrCaptureTasksAnalyzerTests
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+    }
+
+    public class AwaitOrCaptureTasksAnalyzerTestsCSharp9 : AwaitOrCaptureTasksAnalyzerTestsCSharp8
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+    }
+
+#if ROSLYN4
+    public class AwaitOrCaptureTasksAnalyzerTestsCSharp10 : AwaitOrCaptureTasksAnalyzerTestsCSharp9
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
+    }
+#endif
 }
