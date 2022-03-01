@@ -475,12 +475,14 @@ namespace NServiceBus
     public interface IConfigureHowToFindSagaWithMessage
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
-            where TSagaEntity : NServiceBus.IContainSagaData;
+            where TSagaEntity : NServiceBus.IContainSagaData
+        ;
     }
     public interface IConfigureHowToFindSagaWithMessageHeaders
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
-            where TSagaEntity : NServiceBus.IContainSagaData;
+            where TSagaEntity : NServiceBus.IContainSagaData
+        ;
     }
     public interface IContainSagaData
     {
