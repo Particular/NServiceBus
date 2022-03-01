@@ -18,6 +18,7 @@
     public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer, new()
     {
         static readonly string[] EmptyStringArray = new string[0];
+        protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp7;
 
         protected Task Assert(string markupCode, CancellationToken cancellationToken = default) =>
             Assert(EmptyStringArray, markupCode, EmptyStringArray, cancellationToken);
@@ -80,25 +81,14 @@
         }
         .ToImmutableDictionary();
 
-        protected static Project CreateProject(string[] code)
+        protected Project CreateProject(string[] code)
         {
-            var references = ImmutableList.Create(
-                MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
-#if NETCOREAPP
-                MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
-                MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location),
-#endif
-                MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location));
-
             var workspace = new AdhocWorkspace();
             var project = workspace.AddProject("TestProject", LanguageNames.CSharp)
                 .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithSpecificDiagnosticOptions(DiagnosticOptions))
-                .WithParseOptions(new CSharpParseOptions(LanguageVersion.CSharp8))
-                .AddMetadataReferences(references);
+                .WithParseOptions(new CSharpParseOptions(AnalyzerLanguageVersion))
+                .AddMetadataReferences(ProjectReferences);
 
             for (int i = 0; i < code.Length; i++)
             {
@@ -107,6 +97,21 @@
 
             return project;
         }
+
+        static AnalyzerTestFixture()
+        {
+            ProjectReferences = ImmutableList.Create(
+                MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
+#if NETCOREAPP
+                MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+#endif
+                MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location));
+        }
+
+        static readonly ImmutableList<PortableExecutableReference> ProjectReferences;
 
         static readonly Regex DocumentSplittingRegex = new Regex("^-{5,}.*", RegexOptions.Compiled | RegexOptions.Multiline);
 
