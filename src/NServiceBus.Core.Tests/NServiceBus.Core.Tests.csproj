@@ -26,7 +26,7 @@
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="Particular.Approvals" Version="0.3.0" />
-    <PackageReference Include="PublicApiGenerator" Version="10.2.0" />
+    <PackageReference Include="PublicApiGenerator" Version="10.3.0" />
   </ItemGroup>
 
   <ItemGroup>
