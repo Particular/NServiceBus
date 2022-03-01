@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas
 {
+    using System;
     using System.Threading.Tasks;
     using Helpers;
     using NUnit.Framework;
@@ -879,6 +880,147 @@ public class MyData : ContainSagaData
 ";
 
             return Assert(source);
+        }
+
+        [Test]
+        public Task NullableReferenceTypes()
+        {
+            var source =
+@"#nullable enable
+using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<Data>,
+    IAmStartedByMessages<StartSaga>,
+    IHandleTimeouts<Timeout>,
+    IHandleMessages<Continue>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Data> mapper)
+    {
+        mapper.MapSaga(saga => saga.Corr)
+            .ToMessage<StartSaga>(msg => msg.Corr);
+    }
+    public Task Handle(StartSaga message, IMessageHandlerContext context)
+    {
+        throw new NotImplementedException();
+    }
+    public Task Handle(Continue message, IMessageHandlerContext context)
+    {
+        throw new NotImplementedException();
+    }
+    public Task Timeout(Timeout state, IMessageHandlerContext context)
+    {
+        throw new NotImplementedException();
+    }
+}
+public class Data : ContainSagaData
+{
+    public string? Corr { get; set; }
+}
+public class StartSaga : ICommand
+{
+    public string? Corr { get; set; }
+}
+public class Continue : ICommand
+{
+    public string? Corr { get; set; }
+}
+
+public class Timeout { }
+#nullable restore";
+
+            return Assert(source);
+        }
+
+        // 3 bits = 8 cases with expected result but some are invalid
+
+        // With saga data prop not null, these are the interesting cases
+        [TestCase(false, false, false, true)] // Even though both props are `string`, message's `string` is outside #nullability and so is understood as `string?`
+        [TestCase(false, false, true, false)] // Both props are `string` within #nullability - OK
+        //[TestCase(false, true, false, X)] // Invalid to have a nullable string? not under a #nullable region.
+        [TestCase(false, true, true, true)] // Saga prop is `string` and message is `string?` which won't work
+
+        // When saga property is nullable, anything goes, all cases from here down do not raise diagnostic
+        [TestCase(true, false, false, false)]
+        [TestCase(true, false, true, false)]
+        //[TestCase(true, true, false, X)] -- Invalid to have a nullable string? not under a #nullable region.
+        [TestCase(true, true, true, false)]
+        public Task NullablePropertyCombinations(bool sagaPropNullable, bool messagePropNullable, bool messagesUnderNullability, bool raiseDiagnostic)
+        {
+            if (messagePropNullable && !messagesUnderNullability)
+            {
+                NUnit.Framework.Assert.Ignore("Invalid to have a nullable string? not under a #nullabel region.");
+            }
+
+            var toMessageExpression = raiseDiagnostic ? "[|msg => msg.Corr|]" : "msg => msg.Corr";
+            var middleNullableRestore = messagesUnderNullability ? "" : "#nullable restore";
+
+            string dataClass;
+            string messageClass;
+
+            if (sagaPropNullable)
+            {
+                dataClass = @"
+public class Data : ContainSagaData
+{
+    public string? Corr { get; set; }
+}";
+            }
+            else
+            {
+                dataClass = @"
+public class Data : ContainSagaData
+{
+    public Data() { Corr = string.Empty; }
+    public string Corr { get; set; }
+}";
+            }
+
+            if (messagePropNullable)
+            {
+                messageClass = @"
+public class StartSaga : ICommand
+{
+    public string? Corr { get; set; }
+}";
+            }
+            else
+            {
+                messageClass = @"
+public class StartSaga : ICommand
+{
+    public StartSaga() { Corr = string.Empty; }
+    public string Corr { get; set; }
+}";
+            }
+
+            var source =
+@"#nullable enable
+using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<Data>,
+    IAmStartedByMessages<StartSaga>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Data> mapper)
+    {
+        mapper.MapSaga(saga => saga.Corr)
+            .ToMessage<StartSaga>(" + toMessageExpression + @");
+    }
+    public Task Handle(StartSaga message, IMessageHandlerContext context)
+    {
+        throw new NotImplementedException();
+    }
+}" + dataClass + Environment.NewLine + middleNullableRestore + messageClass;
+
+            if (raiseDiagnostic)
+            {
+                return Assert(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId, source);
+            }
+            else
+            {
+                return Assert(source);
+            }
         }
     }
 }
