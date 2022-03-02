@@ -54,7 +54,7 @@
         {
             public ExternallyManagedContainerEndpoint()
             {
-                EndpointSetup<ExternallyManagedContainerServer>();
+                EndpointSetup<DefaultServer>();
             }
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>

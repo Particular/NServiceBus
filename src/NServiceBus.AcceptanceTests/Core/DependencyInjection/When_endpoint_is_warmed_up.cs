@@ -81,7 +81,7 @@
         {
             public StartedEndpoint()
             {
-                EndpointSetup<ExternallyManagedContainerServer>();
+                EndpointSetup<DefaultServer>();
             }
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
