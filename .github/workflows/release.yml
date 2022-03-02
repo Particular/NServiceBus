@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-2019 # Code signing requirement https://github.com/NuGet/Home/issues/7939
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Parse repo name
