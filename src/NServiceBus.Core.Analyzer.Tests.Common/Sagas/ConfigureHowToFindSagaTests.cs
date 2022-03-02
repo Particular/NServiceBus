@@ -133,4 +133,16 @@ public class Msg2 : ICommand
             return Assert(diagnosticId, nullableTypesSource);
         }
     }
+
+    public class ConfigureHowToFindSagaTestsCSharp9 : ConfigureHowToFindSagaTestsCSharp8
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+    }
+
+#if ROSLYN4
+    public class ConfigureHowToFindSagaTestsCSharp10 : ConfigureHowToFindSagaTestsCSharp9
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
+    }
+#endif
 }

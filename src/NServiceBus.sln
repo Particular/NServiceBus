@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28721.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2904B75F-8F07-4C07-BABC-BC42533B3E75}"
 EndProject
@@ -33,13 +33,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Persistence.InM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer", "NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj", "{A5C32904-ECEC-492B-8217-8BFB5CC1443C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer.Tests", "NServiceBus.Core.Analyzer.Tests\NServiceBus.Core.Analyzer.Tests.csproj", "{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer.Tests.Roslyn3", "NServiceBus.Core.Analyzer.Tests.Roslyn3\NServiceBus.Core.Analyzer.Tests.Roslyn3.csproj", "{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzer", "Analyzer", "{6CF85707-290E-4FA1-8444-25D29B6A6BA8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.PersistenceTesting", "NServiceBus.PersistenceTesting\NServiceBus.PersistenceTesting.csproj", "{157D1894-BAE7-45B2-9906-0445B38F3A97}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.InMemory.PersistenceTests", "NServiceBus.InMemory.PersistenceTests\NServiceBus.InMemory.PersistenceTests.csproj", "{4954B6B7-B881-4C8F-B153-93E17E53B37F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.Analyzer.Tests.Roslyn4", "NServiceBus.Core.Analyzer.Tests.Roslyn4\NServiceBus.Core.Analyzer.Tests.Roslyn4.csproj", "{62AAE244-9342-445F-82F9-7AE54A98F09A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +97,10 @@ Global
 		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4954B6B7-B881-4C8F-B153-93E17E53B37F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62AAE244-9342-445F-82F9-7AE54A98F09A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62AAE244-9342-445F-82F9-7AE54A98F09A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62AAE244-9342-445F-82F9-7AE54A98F09A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62AAE244-9342-445F-82F9-7AE54A98F09A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{940AD1FA-E3D7-41FB-A832-2A84EF06C4DD} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{157D1894-BAE7-45B2-9906-0445B38F3A97} = {F2D3D789-78D6-42B1-AB4B-DE241C298943}
 		{4954B6B7-B881-4C8F-B153-93E17E53B37F} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{62AAE244-9342-445F-82F9-7AE54A98F09A} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A32A19A8-C700-4AC8-8A34-1D56DA9CDF95}
