@@ -16,7 +16,7 @@
             : this(isMessageType, true)
         {
         }
-        
+
         internal MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
         {
             this.isMessageType = isMessageType;
