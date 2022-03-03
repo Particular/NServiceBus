@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.CodeAnalysis;
@@ -31,7 +32,7 @@
         public static bool Implements(this ITypeSymbol type, INamedTypeSymbol nonGenericInterface) =>
             type != null &&
             nonGenericInterface != null &&
-            (type.Equals(nonGenericInterface) || type.AllInterfaces.Any(candidate => candidate.Equals(nonGenericInterface)));
+            (type.Equals(nonGenericInterface, SymbolEqualityComparer.IncludeNullability) || type.AllInterfaces.Any(candidate => candidate.Equals(nonGenericInterface, SymbolEqualityComparer.IncludeNullability)));
 
         public static bool Extends(this IMethodSymbol method, INamedTypeSymbol nonGenericType)
         {
@@ -55,7 +56,7 @@
                 return false;
             }
 
-            return thisParam.Type.Equals(nonGenericType);
+            return thisParam.Type.Equals(nonGenericType, SymbolEqualityComparer.IncludeNullability);
         }
 
         public static ITypeSymbol GetTypeSymbolOrDefault(this ISymbol symbol)
@@ -107,6 +108,29 @@
         public static bool IsAssignableTo(
             this ITypeSymbol fromSymbol,
             ITypeSymbol toSymbol)
-            => fromSymbol != null && toSymbol != null && fromSymbol.AllInterfaces.Concat(fromSymbol.BaseTypesAndSelf()).Any(candidate => candidate.Equals(toSymbol));
+            => fromSymbol != null && toSymbol != null && fromSymbol.AllInterfaces.Concat(fromSymbol.BaseTypesAndSelf()).Any(candidate => candidate.Equals(toSymbol, SymbolEqualityComparer.IncludeNullability));
+
+        public static bool TypeCanAcceptWithNullability(this ITypeSymbol type, ITypeSymbol possiblyNullableTypeToAcceptValueFrom)
+        {
+            if (!type.Equals(possiblyNullableTypeToAcceptValueFrom, SymbolEqualityComparer.Default))
+            {
+                return false;
+            }
+
+            switch (type.NullableAnnotation)
+            {
+                // Type is a non-nullable and can therefore not accept a nullable
+                case NullableAnnotation.NotAnnotated:
+                    return possiblyNullableTypeToAcceptValueFrom.NullableAnnotation == NullableAnnotation.NotAnnotated;
+
+                // Target is a nullable (or not from code that knows about nullable types, so it's nullable) it can accept either nullable or non-nullable
+                case NullableAnnotation.Annotated:
+                case NullableAnnotation.None:
+                    return true;
+
+                default:
+                    throw new ArgumentException("Not expecting a non-annotated type expression.");
+            }
+        }
     }
 }

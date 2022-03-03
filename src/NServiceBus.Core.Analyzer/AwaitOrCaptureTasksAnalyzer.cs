@@ -15,8 +15,12 @@ namespace NServiceBus.Core.Analyzer
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
-        public override void Initialize(AnalysisContext context) =>
-            context.WithDefaultSettings().RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
+        public override void Initialize(AnalysisContext context)
+        {
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
+        }
 
         static void Analyze(SyntaxNodeAnalysisContext context)
         {

@@ -30,7 +30,7 @@
             NUnit.Framework.Assert.AreEqual(expectedCodeFiles, actual);
         }
 
-        static async Task<string[]> Fix(string[] codeFiles, bool fixMustCompile, CancellationToken cancellationToken, IEnumerable<Diagnostic> originalCompilerDiagnostics = null)
+        async Task<string[]> Fix(string[] codeFiles, bool fixMustCompile, CancellationToken cancellationToken, IEnumerable<Diagnostic> originalCompilerDiagnostics = null)
         {
             var project = CreateProject(codeFiles);
             await WriteCode(project);

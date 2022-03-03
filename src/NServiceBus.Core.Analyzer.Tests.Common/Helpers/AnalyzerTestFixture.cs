@@ -18,6 +18,7 @@
     public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer, new()
     {
         static readonly string[] EmptyStringArray = new string[0];
+        protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp7;
 
         protected Task Assert(string markupCode, CancellationToken cancellationToken = default) =>
             Assert(EmptyStringArray, markupCode, EmptyStringArray, cancellationToken);
@@ -80,9 +81,26 @@
         }
         .ToImmutableDictionary();
 
-        protected static Project CreateProject(string[] code)
+        protected Project CreateProject(string[] code)
         {
-            var references = ImmutableList.Create(
+            var workspace = new AdhocWorkspace();
+            var project = workspace.AddProject("TestProject", LanguageNames.CSharp)
+                .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                    .WithSpecificDiagnosticOptions(DiagnosticOptions))
+                .WithParseOptions(new CSharpParseOptions(AnalyzerLanguageVersion))
+                .AddMetadataReferences(ProjectReferences);
+
+            for (int i = 0; i < code.Length; i++)
+            {
+                project = project.AddDocument($"TestDocument{i}", code[i]).Project;
+            }
+
+            return project;
+        }
+
+        static AnalyzerTestFixture()
+        {
+            ProjectReferences = ImmutableList.Create(
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
@@ -92,20 +110,9 @@
 #endif
                 MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location));
-
-            var workspace = new AdhocWorkspace();
-            var project = workspace.AddProject("TestProject", LanguageNames.CSharp)
-                .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                    .WithSpecificDiagnosticOptions(DiagnosticOptions))
-                .AddMetadataReferences(references);
-
-            for (int i = 0; i < code.Length; i++)
-            {
-                project = project.AddDocument($"TestDocument{i}", code[i]).Project;
-            }
-
-            return project;
         }
+
+        static readonly ImmutableList<PortableExecutableReference> ProjectReferences;
 
         static readonly Regex DocumentSplittingRegex = new Regex("^-{5,}.*", RegexOptions.Compiled | RegexOptions.Multiline);
 

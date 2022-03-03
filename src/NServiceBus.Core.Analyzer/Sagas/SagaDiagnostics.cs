@@ -45,8 +45,7 @@
             messageFormat: "The saga can only map the correlation ID to one property on the saga data class.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true,
-            description: "MultipleCorrelationIdValues");
+            isEnabledByDefault: true);
 
         internal static readonly DiagnosticDescriptor MessageStartsSagaButNoMapping = new DiagnosticDescriptor(
             id: MessageStartsSagaButNoMappingId,
