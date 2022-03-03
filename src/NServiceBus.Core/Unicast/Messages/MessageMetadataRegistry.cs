@@ -11,6 +11,12 @@
     /// </summary>
     public class MessageMetadataRegistry
     {
+        // This constructor signature is used by reflection in NServiceBus.Raw and elsewhere
+        internal MessageMetadataRegistry(Func<Type, bool> isMessageType)
+            : this(isMessageType, true)
+        {
+        }
+        
         internal MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
         {
             this.isMessageType = isMessageType;
