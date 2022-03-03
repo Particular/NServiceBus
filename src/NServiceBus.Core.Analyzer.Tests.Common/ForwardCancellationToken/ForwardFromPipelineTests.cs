@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Helpers;
     using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
@@ -141,4 +142,21 @@ public class TestTimeout {}";
             return false;
         }
     }
+
+    public class ForwardFromPipelineTestsCSharp8 : ForwardFromPipelineTests
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+    }
+
+    public class ForwardFromPipelineTestsCSharp9 : ForwardFromPipelineTestsCSharp8
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+    }
+
+#if ROSLYN4
+    public class ForwardFromPipelineTestsCSharp10 : ForwardFromPipelineTestsCSharp9
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
+    }
+#endif
 }

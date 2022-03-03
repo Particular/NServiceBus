@@ -43,9 +43,9 @@
 
             for (var baseType = symbol.BaseType; baseType != null; baseType = baseType.BaseType)
             {
-                if (baseType.IsAbstract && baseType.IsGenericType && baseType.ConstructedFrom == genericBaseSaga)
+                if (baseType.IsAbstract && baseType.IsGenericType && baseType.ConstructedFrom.Equals(genericBaseSaga, SymbolEqualityComparer.IncludeNullability))
                 {
-                    if (baseType.TypeArguments.Length == 1 && baseType.TypeArguments[0] == sagaDataType)
+                    if (baseType.TypeArguments.Length == 1 && baseType.TypeArguments[0].Equals(sagaDataType, SymbolEqualityComparer.IncludeNullability))
                     {
                         FoundSaga = symbol;
                         done = true;

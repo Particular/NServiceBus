@@ -29,8 +29,8 @@
 
             MessageTypesHandled = StartedBy.Concat(Handles).Concat(Timeouts)
                 .Select(declaration => declaration.MessageType as ITypeSymbol)
-                .Distinct() // Could have IHandleMessages and IHandleTimeouts on same type!
-                .ToImmutableHashSet();
+                .Distinct<ITypeSymbol>(SymbolEqualityComparer.IncludeNullability) // Could have IHandleMessages and IHandleTimeouts on same type!
+                .ToImmutableHashSet<ITypeSymbol>(SymbolEqualityComparer.IncludeNullability);
         }
 
         public ParameterSyntax MapperParameterSyntax { get; set; }

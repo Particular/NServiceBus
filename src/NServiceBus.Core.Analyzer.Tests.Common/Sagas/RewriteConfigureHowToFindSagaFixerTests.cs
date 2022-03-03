@@ -3,6 +3,7 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Helpers;
+    using Microsoft.CodeAnalysis.CSharp;
     using NUnit.Framework;
 
     [TestFixture]
@@ -544,4 +545,21 @@ public class Msg1 : ICommand
             return Assert(original, expected);
         }
     }
+
+    public class RewriteConfigureHowToFindSagaFixerTestsCSharp8 : RewriteConfigureHowToFindSagaFixerTests
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+    }
+
+    public class RewriteConfigureHowToFindSagaFixerTestsCSharp9 : RewriteConfigureHowToFindSagaFixerTestsCSharp8
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+    }
+
+#if ROSLYN4
+    public class RewriteConfigureHowToFindSagaFixerTestsCSharp10 : RewriteConfigureHowToFindSagaFixerTestsCSharp9
+    {
+        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
+    }
+#endif
 }
