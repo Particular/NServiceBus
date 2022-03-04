@@ -41,7 +41,7 @@ jobs:
           --azure-key-vault-certificate ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
         shell: pwsh
       - name: Publish artifacts
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: nugets
           path: nugets/*
@@ -75,7 +75,7 @@ jobs:
           octo pack --id="${{env.PARTICULAR_REPO_NAME}}.Deploy" --version="${{env.GitVersion_SemVer}}" --format="nupkg" --basePath="packaging" --outFolder="octopus-package"
         shell: pwsh
       - name: Publish Octopus Package Artifacts
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: octopus-package
           path: octopus-package/*
