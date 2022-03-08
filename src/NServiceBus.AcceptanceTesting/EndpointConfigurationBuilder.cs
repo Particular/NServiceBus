@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
     using Features;
     using Support;
@@ -66,6 +67,7 @@
                 var endpointConfiguration = await endpointTemplate.GetConfiguration(runDescriptor, configuration, bc =>
                 {
                     configurationBuilderCustomization(bc, runDescriptor);
+                    return Task.CompletedTask;
                 }).ConfigureAwait(false);
 
                 if (configuration.DisableStartupDiagnostics)
@@ -96,6 +98,7 @@
                 var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
                 {
                     configurationBuilderCustomization(bc, (TContext)runDescriptor.ScenarioContext);
+                    return Task.CompletedTask;
                 }).ConfigureAwait(false);
 
                 if (configuration.DisableStartupDiagnostics)

@@ -15,13 +15,9 @@
             this.useNativePubSub = useNativePubSub;
         }
 
-        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
+        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
         {
-            var types = endpointConfiguration.GetTypesScopedByTestClass();
-
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
-
-            configuration.TypesToIncludeInScan(types);
             configuration.EnableInstallers();
 
             var recoverability = configuration.Recoverability();
@@ -39,7 +35,10 @@
             await persistenceConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
 
-            configurationBuilderCustomization(configuration);
+            await configurationBuilderCustomization(configuration);
+
+            // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
+            configuration.TypesToIncludeInScan(endpointConfiguration.GetTypesScopedByTestClass());
 
             return configuration;
         }

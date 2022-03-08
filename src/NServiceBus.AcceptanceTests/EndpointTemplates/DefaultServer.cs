@@ -4,14 +4,16 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
 
-    public class DefaultServer : ExternallyManagedContainerServer
+    public class DefaultServer : ServerWithNoDefaultPersistenceDefinitions
     {
-        public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
-        {
-            return base.GetConfiguration(runDescriptor, endpointCustomizationConfiguration, endpointConfiguration =>
+        public IConfigureEndpointTestExecution PersistenceConfiguration { get; set; } = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
+
+        public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
+            base.GetConfiguration(runDescriptor, endpointConfiguration, async configuration =>
             {
-                configurationBuilderCustomization(endpointConfiguration);
+                await configuration.DefinePersistence(PersistenceConfiguration, runDescriptor, endpointConfiguration);
+
+                await configurationBuilderCustomization(configuration);
             });
-        }
     }
 }

@@ -1,32 +1,17 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Features;
 
     public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {
-        public ServerWithNoDefaultPersistenceDefinitions()
+        public IConfigureEndpointTestExecution TransportConfiguration { get; set; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
+
+        public virtual async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
         {
-            typesToInclude = new List<Type>();
-        }
-
-        public ServerWithNoDefaultPersistenceDefinitions(List<Type> typesToInclude)
-        {
-            this.typesToInclude = typesToInclude;
-        }
-
-        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
-        {
-            var types = endpointConfiguration.GetTypesScopedByTestClass();
-
-            typesToInclude.AddRange(types);
-
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
-            builder.TypesToIncludeInScan(typesToInclude);
             builder.EnableInstallers();
 
             builder.Recoverability()
@@ -34,15 +19,16 @@
                 .Immediate(immediate => immediate.NumberOfRetries(0));
             builder.SendFailedMessagesTo("error");
 
-            await builder.DefineTransport(TestSuiteConstraints.Current.CreateTransportConfiguration(), runDescriptor, endpointConfiguration).ConfigureAwait(false);
+            await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
-            configurationBuilderCustomization(builder);
+            await configurationBuilderCustomization(builder).ConfigureAwait(false);
+
+            // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
+            builder.TypesToIncludeInScan(endpointConfiguration.GetTypesScopedByTestClass());
 
             return builder;
         }
-
-        List<Type> typesToInclude;
     }
 }
