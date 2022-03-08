@@ -47,16 +47,9 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Assemblies_with_direct_core_reference_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core.dll");
-            var assemblyWithReference = new DynamicAssembly("AssemblyWithReference.dll", new[]
-            {
-                busAssembly
-            });
+            var assemblyWithReference = new DynamicAssembly("AssemblyWithReference.dll", new[] { busAssembly });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                ScanAppDomainAssemblies = false,
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
 
             var result = scanner.GetScannableAssemblies();
 
@@ -75,11 +68,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             });
             var assemblyWithoutReference = new DynamicAssembly("AssemblyWithoutReference");
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                ScanAppDomainAssemblies = false,
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
 
             var result = scanner.GetScannableAssemblies();
 
@@ -139,11 +128,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 assemblyB
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                ScanAppDomainAssemblies = false,
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
 
             var result = scanner.GetScannableAssemblies();
 
@@ -171,11 +156,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 assemblyC
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                ScanAppDomainAssemblies = false,
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
 
             var result = scanner.GetScannableAssemblies();
 
@@ -212,11 +193,9 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var appDomainAssembly = new DynamicAssembly("AppDomainAssembly", references: new[] { busAssembly });
             Assembly.LoadFrom(appDomainAssembly.FilePath);
 
-            var scanner = new AssemblyScanner
-            {
-                CoreAssemblyName = busAssembly.DynamicName,
-                ScanAppDomainAssemblies = true
-            }; // don't scan the dynamic assembly folder
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
+            scanner.ScanAppDomainAssemblies = true;
+            scanner.ScanFileSystemAssemblies = false;
 
             var result = scanner.GetScannableAssemblies();
 
@@ -229,12 +208,9 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                CoreAssemblyName = busAssembly.DynamicName,
-                ScanAppDomainAssemblies = false,
-                ScanFileSystemAssemblies = false
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
+            scanner.ScanAppDomainAssemblies = false;
+            scanner.ScanFileSystemAssemblies = false;
 
             var result = scanner.GetScannableAssemblies();
 
@@ -253,11 +229,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             // create a duplicate of the scanned assembly in a subfolder:
             File.Copy(duplicateAssembly.FilePath, destFileName);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                ScanNestedDirectories = true,
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
+            scanner.ScanNestedDirectories = true;
 
             var result = scanner.GetScannableAssemblies(); // should not throw
             Assert.IsTrue(result.Assemblies.Contains(duplicateAssembly));
@@ -299,10 +272,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 busAssembly
             });
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
             scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
             scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
 
@@ -330,10 +300,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                 busAssembly
             }, executable: true);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
-            {
-                CoreAssemblyName = busAssembly.DynamicName
-            };
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
             scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
             scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
 
@@ -342,6 +309,15 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly2.FilePath));
             Assert.That(result.Assemblies.Contains(includedAssembly.Assembly));
         }
+
+        static AssemblyScanner CreateDefaultAssemblyScanner(DynamicAssembly coreAssembly = null) =>
+            new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                CoreAssemblyName = coreAssembly.DynamicName,
+                ScanAppDomainAssemblies = true,
+                ScanFileSystemAssemblies = true,
+                ThrowExceptions = true
+            };
 
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
         class DynamicAssembly
