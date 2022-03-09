@@ -14,17 +14,9 @@ namespace NServiceBus
         [SuppressMessage("Code", "PS0014:Methods should not have both CancellationToken parameters and parameters implementing ICancellableContext", Justification = "The cancellation tokens are linked together if required.")]
         public BehaviorContext(IBehaviorContext parentContext, CancellationToken cancellationToken = default) : base(parentContext?.Extensions)
         {
-            if (parentContext != null)
+            if (parentContext != null && (cancellationToken == default || cancellationToken == parentContext.CancellationToken))
             {
-                if (cancellationToken == default || cancellationToken == parentContext.CancellationToken)
-                {
-                    CancellationToken = parentContext.CancellationToken;
-                }
-                else
-                {
-                    var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(parentContext.CancellationToken, cancellationToken);
-                    CancellationToken = linkedSource.Token;
-                }
+                CancellationToken = parentContext.CancellationToken;
             }
             else
             {
