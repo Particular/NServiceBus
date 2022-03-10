@@ -12,53 +12,60 @@ namespace NServiceBus
             messageOperations = context.Get<MessageOperations>();
         }
 
-        public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+        public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
-            return messageOperations.Send(new BehaviorContext(context, cancellationToken), message, sendOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Send(new BehaviorContext(context, linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
+        public async Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
-            return messageOperations.Send(new BehaviorContext(context, cancellationToken), messageConstructor, sendOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Send(new BehaviorContext(context, linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
         }
 
-        public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+        public async Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(publishOptions), publishOptions);
-            return messageOperations.Publish(new BehaviorContext(context, cancellationToken), message, publishOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Publish(new BehaviorContext(context, linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
         }
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+        public async Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
             Guard.AgainstNull(nameof(publishOptions), publishOptions);
-            return messageOperations.Publish(new BehaviorContext(context, cancellationToken), messageConstructor, publishOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Publish(new BehaviorContext(context, linkedTokenSource.Token), messageConstructor, publishOptions).ConfigureAwait(false);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
+        public async Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(subscribeOptions), subscribeOptions);
-            return messageOperations.Subscribe(new BehaviorContext(context, cancellationToken), eventType, subscribeOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Subscribe(new BehaviorContext(context, linkedTokenSource.Token), eventType, subscribeOptions).ConfigureAwait(false);
         }
 
-        public Task SubscribeAll(Type[] eventTypes, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
+        public async Task SubscribeAll(Type[] eventTypes, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
         {
             // set a flag on the context so that subscribe implementations know which send API was used.
             subscribeOptions.Context.Set(SubscribeAllFlagKey, true);
-            return messageOperations.Subscribe(new BehaviorContext(context, cancellationToken), eventTypes, subscribeOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Subscribe(new BehaviorContext(context, linkedTokenSource.Token), eventTypes, subscribeOptions).ConfigureAwait(false);
         }
 
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
+        public async Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(unsubscribeOptions), unsubscribeOptions);
-            return messageOperations.Unsubscribe(new BehaviorContext(context, cancellationToken), eventType, unsubscribeOptions);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+            await messageOperations.Unsubscribe(new BehaviorContext(context, linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
         }
 
         RootContext context;
