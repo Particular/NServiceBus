@@ -6,14 +6,26 @@
 
     public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : SagaPersisterTests
     {
+        bool resetSessionTimeout;
+
         public override async Task OneTimeSetUp()
         {
             if (!param.SessionTimeout.HasValue)
             {
+                resetSessionTimeout = true;
                 param.SessionTimeout = TimeSpan.FromMilliseconds(500);
             }
             configuration = new PersistenceTestsConfiguration(param);
             await configuration.Configure();
+        }
+
+        public override async Task OneTimeTearDown()
+        {
+            if (resetSessionTimeout)
+            {
+                param.SessionTimeout = null;
+            }
+            await base.OneTimeTearDown();
         }
 
         [Test]
