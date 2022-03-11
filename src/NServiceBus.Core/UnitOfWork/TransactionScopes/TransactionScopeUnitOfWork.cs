@@ -25,12 +25,9 @@
                 var isolationLevel = IsolationLevel.ReadCommitted;
                 if (requestedTimeout.HasValue)
                 {
-                    var maxTimeout = GetMaxTimeout();
-
-                    if (requestedTimeout.Value > maxTimeout)
+                    if (requestedTimeout.Value > TransactionManager.MaximumTimeout)
                     {
-                        throw new Exception(
-                            "Timeout requested is longer than the maximum value for this machine. Override using the maxTimeout setting of the system.transactions section in machine.config");
+                        throw new Exception("Timeout requested is longer than the maximum value for this machine. Override using the maxTimeout setting of the system.transactions section in machine.config");
                     }
 
                     timeout = requestedTimeout.Value;
@@ -49,23 +46,6 @@
             }
 
             public TransactionOptions TransactionOptions { get; }
-
-            static TimeSpan GetMaxTimeout()
-            {
-                //default is always 10 minutes
-                var maxTimeout = TimeSpan.FromMinutes(10);
-#if NETFRAMEWORK
-                var systemTransactionsGroup = System.Configuration.ConfigurationManager.OpenMachineConfiguration()
-                    .GetSectionGroup("system.transactions");
-
-                if (systemTransactionsGroup?.Sections.Get("machineSettings") is System.Transactions.Configuration.MachineSettingsSection machineSettings)
-                {
-                    maxTimeout = machineSettings.MaxTimeout;
-                }
-#endif
-
-                return maxTimeout;
-            }
         }
     }
 }
