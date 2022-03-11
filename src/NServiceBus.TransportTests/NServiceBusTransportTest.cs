@@ -69,11 +69,11 @@
         }
 
         [TearDown]
-        public void TearDown()
+        public async Task TearDown()
         {
-            StopPump().GetAwaiter().GetResult();
-            transportInfrastructure?.Shutdown().GetAwaiter().GetResult();
-            configurer?.Cleanup().GetAwaiter().GetResult();
+            await StopPump();
+            await (transportInfrastructure != null ? transportInfrastructure.Shutdown() : Task.CompletedTask);
+            await (configurer != null ? configurer.Cleanup() : Task.CompletedTask);
             testCancellationTokenSource?.Dispose();
         }
 
