@@ -75,9 +75,9 @@
             await StopPump();
             await (transportInfrastructure != null ? transportInfrastructure.Shutdown() : Task.CompletedTask);
             await (configurer != null ? configurer.Cleanup() : Task.CompletedTask);
-            foreach (var disposable in registrations)
+            foreach (var registration in registrations)
             {
-                disposable.Dispose();
+                registration.Dispose();
             }
             testCancellationTokenSource.Dispose();
         }
