@@ -140,16 +140,6 @@
             receiver = null;
         }
 
-        string GetUserName()
-        {
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                return $"{Environment.UserDomainName}\\{Environment.UserName}";
-            }
-
-            return Environment.UserName;
-        }
-
         void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
         {
             if (!transportDefinition.GetSupportedTransactionModes().Contains(requestedTransactionMode))
