@@ -29,8 +29,9 @@
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
             transportInfrastructure = null;
             configurer = null;
-            testCancellationTokenSource = null;
+            testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
             receiver = null;
+            registrations = new List<CancellationTokenRegistration>();
         }
         protected static IConfigureTransportInfrastructure CreateConfigurer()
         {
@@ -74,7 +75,11 @@
             await StopPump();
             await (transportInfrastructure != null ? transportInfrastructure.Shutdown() : Task.CompletedTask);
             await (configurer != null ? configurer.Cleanup() : Task.CompletedTask);
-            testCancellationTokenSource?.Dispose();
+            foreach (var disposable in registrations)
+            {
+                disposable.Dispose();
+            }
+            testCancellationTokenSource.Dispose();
         }
 
         protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, CancellationToken cancellationToken = default)
@@ -181,31 +186,31 @@
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)
-        {
-            testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
+            => registrations.Add(testCancellationTokenSource.Token.Register(onTimeoutAction));
 
-            testCancellationTokenSource.Token.Register(onTimeoutAction);
-        }
-
-        protected static TaskCompletionSource<TResult> CreateTaskCompletionSource<TResult>()
+        protected TaskCompletionSource<TResult> CreateTaskCompletionSource<TResult>()
         {
             var source = new TaskCompletionSource<TResult>();
 
             if (!Debugger.IsAttached)
             {
-                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetException(new Exception("The test timed out.")));
+                var tokenRegistration = testCancellationTokenSource.Token
+                    .Register(state => ((TaskCompletionSource<TResult>)state).TrySetException(new Exception("The test timed out.")), source);
+                registrations.Add(tokenRegistration);
             }
 
             return source;
         }
 
-        protected static TaskCompletionSource CreateTaskCompletionSource()
+        protected TaskCompletionSource CreateTaskCompletionSource()
         {
             var source = new TaskCompletionSource();
 
             if (!Debugger.IsAttached)
             {
-                _ = new CancellationTokenSource(TestTimeout).Token.Register(() => _ = source.TrySetException(new Exception("The test timed out.")));
+                var tokenRegistration = testCancellationTokenSource.Token
+                    .Register(state => ((TaskCompletionSource)state).TrySetException(new Exception("The test timed out.")), source);
+                registrations.Add(tokenRegistration);
             }
 
             return source;
@@ -252,6 +257,7 @@
         TransportInfrastructure transportInfrastructure;
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure configurer;
+        List<CancellationTokenRegistration> registrations;
         protected IMessageReceiver receiver;
 
         const string DefaultTransportDescriptorKey = "LearningTransport";
