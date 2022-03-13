@@ -10,7 +10,7 @@
     {
         public OutboxStorageTests(TestVariant param)
         {
-            this.param = ObjectExtensions.DeepCopy(param);
+            this.param = param.DeepCopy();
         }
 
         [OneTimeSetUp]
