@@ -27,7 +27,7 @@ namespace NServiceBus
                 return;
             }
 
-            cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
+            var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
 
             stoppingTokenSource.Cancel();
 
@@ -71,6 +71,7 @@ namespace NServiceBus
             finally
             {
                 stopSemaphore.Release();
+                tokenRegistration.Dispose();
             }
         }
 
