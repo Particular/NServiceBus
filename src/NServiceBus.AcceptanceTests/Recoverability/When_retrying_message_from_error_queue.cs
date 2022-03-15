@@ -14,16 +14,14 @@
         [Test]
         public async Task Should_confirm_successful_processing()
         {
-            var retryId = Guid.NewGuid().ToString("D");
-
-            var context = await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>(c => c.RetryId = Guid.NewGuid().ToString("D"))
                 .WithEndpoint<ProcessingEndpoint>(e => e
-                    .When(s =>
+                    .When((s, ctx) =>
                     {
                         var sendOptions = new SendOptions();
                         sendOptions.RouteToThisEndpoint();
                         // set SC retry header information
-                        sendOptions.SetHeader("ServiceControl.Retry.UniqueMessageId", retryId);
+                        sendOptions.SetHeader("ServiceControl.Retry.UniqueMessageId", ctx.RetryId);
                         sendOptions.SetHeader("ServiceControl.Retry.AcknowledgementQueue", Conventions.EndpointNamingConvention(typeof(RetryAckSpy)));
                         return s.Send(new FailedMessage(), sendOptions);
                     }))
@@ -33,7 +31,7 @@
                 .Run();
 
             Assert.IsTrue(context.MessageProcessed);
-            Assert.AreEqual(retryId, context.ConfirmedRetryId);
+            Assert.AreEqual(context.RetryId, context.ConfirmedRetryId);
             var processingTime = DateTimeOffsetHelper.ToDateTimeOffset(context.RetryProcessingTimestamp);
             Assert.That(processingTime, Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromMinutes(1)));
             Assert.IsTrue(context.AuditHeaders.ContainsKey("ServiceControl.Retry.AcknowledgementSent"));
@@ -41,6 +39,7 @@
 
         class Context : ScenarioContext
         {
+            public string RetryId { get; set; }
             public string ConfirmedRetryId { get; set; }
             public string RetryProcessingTimestamp { get; set; }
             public bool MessageProcessed { get; set; }
@@ -116,24 +115,6 @@
                 {
                     testContext.AuditHeaders = context.MessageHeaders;
                     return Task.CompletedTask;
-                }
-            }
-
-            class ControlMessageBehavior : Behavior<IIncomingPhysicalMessageContext>
-            {
-                Context testContext;
-
-                public ControlMessageBehavior(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
-                {
-                    await next();
-
-                    testContext.ConfirmedRetryId = context.MessageHeaders["ServiceControl.Retry.UniqueMessageId"];
-                    testContext.RetryProcessingTimestamp = context.MessageHeaders["ServiceControl.Retry.Successful"];
                 }
             }
         }
