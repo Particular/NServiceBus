@@ -30,6 +30,14 @@
                 throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
             }
 
+            // ForceBatchDispatchToBeIsolatedBehavior set the dispatch consistency to isolated which instructs
+            // the transport to not enlist the outgoing operation in the incoming message transaction. Unfortunately
+            // this is not enough. We cannot allow the transport to operate in SendsWithAtomicReceive because a transport
+            // might then only release the outgoing operations when the incoming transport transaction is committed meaning
+            // the actual sends would happen after we have set the outbox record as dispatched and not as part of
+            // TransportReceiveToPhysicalMessageConnector fork into the batched dispatched phase. Should acknowledging
+            // the incoming operation fail and the message be retried we would already have cleared the outbox record's
+            // transport operations => message loss.
             if (context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.ReceiveOnly)
             {
                 throw new Exception(
