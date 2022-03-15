@@ -11,6 +11,9 @@ namespace NServiceBus
         {
             foreach (var operation in context.Operations)
             {
+                // Changing the dispatch consistency to be isolated to make sure the transport doesn't
+                // enlist the operations in the receive transaction. The transport might still want to batch
+                // operations for efficiency reasons but should never enlist in the incoming transport transaction.
                 operation.RequiredDispatchConsistency = DispatchConsistency.Isolated;
             }
             return next(context);
