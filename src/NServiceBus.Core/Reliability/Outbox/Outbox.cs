@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
     using ConsistencyGuarantees;
+    using System;
     using Transport;
 
     /// <summary>
@@ -30,11 +30,18 @@
                 throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
             }
 
-            var transactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-            if (transactionMode != TransportTransactionMode.ReceiveOnly && transactionMode != TransportTransactionMode.SendsAtomicWithReceive)
+            // ForceBatchDispatchToBeIsolatedBehavior set the dispatch consistency to isolated which instructs
+            // the transport to not enlist the outgoing operation in the incoming message transaction. Unfortunately
+            // this is not enough. We cannot allow the transport to operate in SendsWithAtomicReceive because a transport
+            // might then only release the outgoing operations when the incoming transport transaction is committed meaning
+            // the actual sends would happen after we have set the outbox record as dispatched and not as part of
+            // TransportReceiveToPhysicalMessageConnector fork into the batched dispatched phase. Should acknowledging
+            // the incoming operation fail and the message be retried we would already have cleared the outbox record's
+            // transport operations leading to outgoing message loss.
+            if (context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.ReceiveOnly)
             {
                 throw new Exception(
-                    $"Outbox requires the transport to be running in '{nameof(TransportTransactionMode.ReceiveOnly)}' or '{nameof(TransportTransactionMode.SendsAtomicWithReceive)}' mode. Use the '{nameof(TransportDefinition.TransportTransactionMode)}' property on the transport definition to specify the transaction mode.");
+                    $"Outbox requires transport to be running in ${nameof(TransportTransactionMode.ReceiveOnly)} mode. Use ${nameof(TransportDefinition.TransportTransactionMode)} property on the transport definition to specify the transaction mode.");
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
