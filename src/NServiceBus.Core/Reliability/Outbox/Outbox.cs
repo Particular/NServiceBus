@@ -37,7 +37,7 @@
             // the actual sends would happen after we have set the outbox record as dispatched and not as part of
             // TransportReceiveToPhysicalMessageConnector fork into the batched dispatched phase. Should acknowledging
             // the incoming operation fail and the message be retried we would already have cleared the outbox record's
-            // transport operations => message loss.
+            // transport operations leading to outgoing message loss.
             if (context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.ReceiveOnly)
             {
                 throw new Exception(
