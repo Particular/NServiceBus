@@ -13,7 +13,7 @@
     {
         public SagaPersisterTests(TestVariant param)
         {
-            this.param = param;
+            this.param = param.DeepCopy();
         }
 
         [OneTimeSetUp]
