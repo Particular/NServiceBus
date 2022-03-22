@@ -59,8 +59,8 @@ namespace NServiceBus.Core.Analyzer
 
         static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
             DiagnosticId,
-            "Await or assign Task",
-            "A Task returned by an NServiceBus method is not awaited or assigned to a variable.",
+            "Await Task",
+            "A Task returned by an async NServiceBus method is not awaited.",
             "NServiceBus.Code",
             DiagnosticSeverity.Error,
             true,
