@@ -1,0 +1,7 @@
+<Project>
+
+  <PropertyGroup>
+    <AnalyzerTargetFramework>netstandard2.0</AnalyzerTargetFramework>
+  </PropertyGroup>
+
+</Project>
