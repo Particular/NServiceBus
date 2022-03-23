@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using MessageInterfaces;
@@ -66,41 +66,47 @@
                 return Array.Empty<LogicalMessage>();
             }
 
-            var messageMetadata = new List<MessageMetadata>();
-
+            Type[] messageTypes = Array.Empty<Type>();
             if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypeIdentifier))
             {
-                foreach (var messageTypeString in messageTypeIdentifier.Split(EnclosedMessageTypeSeparator))
-                {
-                    var typeString = messageTypeString;
-
-                    if (DoesTypeHaveImplAddedByVersion3(typeString))
+                messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(messageTypeIdentifier,
+                    (key, registry) =>
                     {
-                        continue;
-                    }
+                        string[] messageTypeStrings = key.Split(EnclosedMessageTypeSeparator);
+                        var types = new List<Type>(messageTypeStrings.Length);
+                        for (var index = 0; index < messageTypeStrings.Length; index++)
+                        {
+                            string messageTypeString = messageTypeStrings[index];
+                            if (DoesTypeHaveImplAddedByVersion3(messageTypeString))
+                            {
+                                continue;
+                            }
 
-                    var metadata = messageMetadataRegistry.GetMessageMetadata(typeString);
+                            var metadata = registry.GetMessageMetadata(messageTypeString);
 
-                    if (metadata == null)
-                    {
-                        continue;
-                    }
+                            if (metadata == null)
+                            {
+                                continue;
+                            }
 
-                    messageMetadata.Add(metadata);
-                }
+                            types.Add(metadata.MessageType);
+                        }
 
-                if (messageMetadata.Count == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
+                        // using an array in order to be able to assign array empty as the default value
+                        return types.ToArray();
+                    }, messageMetadataRegistry);
+
+                if (messageTypes.Length == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
                 {
                     log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
             }
 
-            if (messageMetadata.Count == 0 && !allowContentTypeInference)
+            if (messageTypes.Length == 0 && !allowContentTypeInference)
             {
                 throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
             }
 
-            var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
             var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
 
             mapper.Initialize(messageTypes);
@@ -127,6 +133,9 @@
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageMapper mapper;
         readonly bool allowContentTypeInference;
+
+        readonly ConcurrentDictionary<string, Type[]> enclosedMessageTypesStringToMessageTypes =
+            new ConcurrentDictionary<string, Type[]>();
 
         static readonly char[] EnclosedMessageTypeSeparator =
         {
