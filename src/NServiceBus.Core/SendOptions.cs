@@ -11,6 +11,12 @@ namespace NServiceBus
     /// </remarks>
     public class SendOptions : ExtendableOptions
     {
+        /// <inheritdoc />
+        //public SendOptions()
+        //{
+        //    Context.GetOrCreate<UnicastSendRouter.State>();
+        //}
+
         internal DelayedDeliveryConstraint DelayedDeliveryConstraint { get; set; }
     }
 }
