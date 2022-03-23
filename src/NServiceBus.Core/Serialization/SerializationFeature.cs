@@ -59,7 +59,7 @@
             context.Container.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
 
-            LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
+            LogFoundMessages(messageMetadataRegistry.GetAllMessages());
 
             context.Settings.AddStartupDiagnosticsSection("Serialization", new
             {

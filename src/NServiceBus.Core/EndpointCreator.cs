@@ -112,13 +112,13 @@ namespace NServiceBus
 
             settings.Set(messageMetadataRegistry);
 
-            var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
+            var foundMessages = messageMetadataRegistry.GetAllMessages();
 
             settings.AddStartupDiagnosticsSection("Messages", new
             {
                 CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
                 MessageConventions = conventions.RegisteredConventions,
-                NumberOfMessagesFoundAtStartup = foundMessages.Count,
+                NumberOfMessagesFoundAtStartup = foundMessages.Length,
                 Messages = foundMessages.Select(m => m.MessageType.FullName)
             });
         }
