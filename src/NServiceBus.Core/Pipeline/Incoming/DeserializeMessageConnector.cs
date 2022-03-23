@@ -120,10 +120,7 @@
             return logicalMessages;
         }
 
-        static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
-        {
-            return existingTypeString.Contains("__impl");
-        }
+        static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString) => existingTypeString.AsSpan().IndexOf("__impl".AsSpan()) != -1;
 
         readonly MessageDeserializerResolver deserializerResolver;
         readonly LogicalMessageFactory logicalMessageFactory;
