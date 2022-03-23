@@ -57,13 +57,13 @@
             if (IsControlMessage(physicalMessage))
             {
                 log.Debug("Received a control message. Skipping deserialization as control message data is contained in the header.");
-                return NoMessagesFound;
+                return Array.Empty<LogicalMessage>();
             }
 
             if (physicalMessage.Body.Length == 0)
             {
                 log.Debug("Received a message without body. Skipping deserialization.");
-                return NoMessagesFound;
+                return Array.Empty<LogicalMessage>();
             }
 
             var messageMetadata = new List<MessageMetadata>();
@@ -127,8 +127,6 @@
         readonly MessageMetadataRegistry messageMetadataRegistry;
         readonly IMessageMapper mapper;
         readonly bool allowContentTypeInference;
-
-        static readonly LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
 
         static readonly char[] EnclosedMessageTypeSeparator =
         {
