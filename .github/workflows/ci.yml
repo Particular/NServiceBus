@@ -45,4 +45,4 @@ jobs:
           path: nugets/
           retention-days: 7
       - name: Run tests
-        uses: Particular/run-tests-action@v1.2.0
+        uses: Particular/run-tests-action@v1.3.0
