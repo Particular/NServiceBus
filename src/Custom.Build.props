@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <ParticularAnalyzersVersion>0.9.0</ParticularAnalyzersVersion>
+    <AnalyzerTargetFramework>netstandard1.1</AnalyzerTargetFramework>
   </PropertyGroup>
 
 </Project>
