@@ -102,17 +102,16 @@
                 }
             }
         }
-    }
+        class MessageToEndpointB : IMessage
+        {
+        }
 
-    class MessageToEndpointB : IMessage
-    {
-    }
+        class MessageToEndpointC : IMessage
+        {
+        }
 
-    class MessageToEndpointC : IMessage
-    {
-    }
-
-    class TriggerMessage : IMessage
-    {
+        class TriggerMessage : IMessage
+        {
+        }
     }
 }
