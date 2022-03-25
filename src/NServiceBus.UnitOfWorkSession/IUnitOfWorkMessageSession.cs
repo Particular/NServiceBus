@@ -23,8 +23,6 @@ namespace NServiceBus
 
         string SessionId { get; }
 
-        bool ShouldOnlyBeCommitted { get; }
-
         // Name super temporary
         Task Commit(CancellationToken cancellationToken = default);
     }
@@ -41,9 +39,16 @@ namespace NServiceBus
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage synchronizedStorage;
         readonly TransportTransaction transportTransaction;
+        readonly string queueAddress;
+        bool isOutboxEnabled;
 
-        public UnitOfWorkMessageSession(IMessageSession decoratedMessageSession, IMessageDispatcher dispatcher, IOutboxStorage outboxStorage, ISynchronizedStorageAdapter adapter, ISynchronizedStorage synchronizedStorage, string sessionId)
+        public UnitOfWorkMessageSession(string queueAddress, bool isOutboxEnabled,
+            IMessageSession decoratedMessageSession,
+            IMessageDispatcher dispatcher, IOutboxStorage outboxStorage, ISynchronizedStorageAdapter adapter,
+            ISynchronizedStorage synchronizedStorage, string sessionId)
         {
+            this.isOutboxEnabled = isOutboxEnabled;
+            this.queueAddress = queueAddress;
             this.synchronizedStorage = synchronizedStorage;
             this.adapter = adapter;
             this.dispatcher = dispatcher;
@@ -56,7 +61,7 @@ namespace NServiceBus
         }
 
         public string SessionId { get; }
-        public bool ShouldOnlyBeCommitted { get; private set; }
+        public bool RequiresOutboxTransaction { get; private set; }
 
         public ISynchronizedStorageSession SynchronizedStorageSession => synchronizedStorageSession ?? throw new InvalidOperationException("Not initialized");
 
@@ -116,17 +121,23 @@ namespace NServiceBus
                     .ConfigureAwait(false);
                 contextBag.Set(outboxStorage);
                 synchronizedStorageSession = await AdaptOrOpenNewSynchronizedStorageSession(cancellationToken).ConfigureAwait(false);
+                RequiresOutboxTransaction = true;
             }
             else
             {
-                ShouldOnlyBeCommitted = true;
+                ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
             return this;
         }
 
         public async Task Commit(CancellationToken cancellationToken = default)
         {
-            if (!ShouldOnlyBeCommitted)
+            var operation = new Transport.TransportOperation(
+                new OutgoingMessage(SessionId, new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
+                new UnicastAddressTag(queueAddress), requiredDispatchConsistency: DispatchConsistency.Isolated);
+            await dispatcher.Dispatch(new TransportOperations(operation), transportTransaction, cancellationToken).ConfigureAwait(false);
+
+            if (RequiresOutboxTransaction)
             {
                 var outboxMessage = new OutboxMessage(SessionId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                 await outboxStorage.Store(outboxMessage, outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false);
@@ -139,14 +150,57 @@ namespace NServiceBus
                 outboxTransaction = null;
             }
 
-            if (pendingTransportOperations.HasOperations)
+            try
             {
-                // we just send it again. The inbox will do the rest
-                var operation = new Transport.TransportOperation(
-                    new OutgoingMessage(SessionId, new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
-                    new UnicastAddressTag("self"), requiredDispatchConsistency: DispatchConsistency.Isolated);
-                await dispatcher.Dispatch(new TransportOperations(operation), transportTransaction, cancellationToken).ConfigureAwait(false);
+                if (pendingTransportOperations.HasOperations)
+                {
+                    await dispatcher.Dispatch(new TransportOperations(pendingTransportOperations.Operations),
+                        transportTransaction, cancellationToken).ConfigureAwait(false);
+                }
+
+                await outboxStorage.SetAsDispatched(SessionId, contextBag, cancellationToken).ConfigureAwait(false);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // ignored
+            }
+            catch (Exception) when (isOutboxEnabled)
+            {
+                // ignored
+            }
+        }
+
+        static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
+        {
+            foreach (var operation in deduplicationEntry.TransportOperations)
+            {
+                var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
+
+                pendingTransportOperations.Add(
+                    new Transport.TransportOperation(
+                        message,
+                        DeserializeRoutingStrategy(operation.Options),
+                        operation.Options,
+                        DispatchConsistency.Isolated
+                    ));
+            }
+        }
+
+        static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
+        {
+            if (options.TryGetValue("Destination", out var destination))
+            {
+                options.Remove("Destination");
+                return new UnicastAddressTag(destination);
+            }
+
+            if (options.TryGetValue("EventType", out var eventType))
+            {
+                options.Remove("EventType");
+                return new MulticastAddressTag(Type.GetType(eventType, true));
+            }
+
+            throw new Exception("Could not find routing strategy to deserialize");
         }
 
         static TransportOperation[] ConvertToOutboxOperations(Transport.TransportOperation[] operations)
