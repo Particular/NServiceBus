@@ -31,23 +31,21 @@ namespace NServiceBus
     {
         readonly IMessageSession decoratedMessageSession;
         readonly PendingTransportOperations pendingTransportOperations;
-        readonly IOutboxStorage outboxStorage;
+        readonly IOutboxStorage? outboxStorage;
         readonly IMessageDispatcher dispatcher;
         IOutboxTransaction? outboxTransaction;
         readonly ContextBag contextBag;
         ICompletableSynchronizedStorageSession? synchronizedStorageSession;
-        readonly ISynchronizedStorageAdapter adapter;
-        readonly ISynchronizedStorage synchronizedStorage;
+        readonly ISynchronizedStorageAdapter? adapter;
+        readonly ISynchronizedStorage? synchronizedStorage;
         readonly TransportTransaction transportTransaction;
         readonly string queueAddress;
-        bool isOutboxEnabled;
 
-        public UnitOfWorkMessageSession(string queueAddress, bool isOutboxEnabled,
+        public UnitOfWorkMessageSession(string queueAddress,
             IMessageSession decoratedMessageSession,
-            IMessageDispatcher dispatcher, IOutboxStorage outboxStorage, ISynchronizedStorageAdapter adapter,
-            ISynchronizedStorage synchronizedStorage, string sessionId)
+            IMessageDispatcher dispatcher, IOutboxStorage? outboxStorage, ISynchronizedStorageAdapter? adapter,
+            ISynchronizedStorage? synchronizedStorage, string sessionId)
         {
-            this.isOutboxEnabled = isOutboxEnabled;
             this.queueAddress = queueAddress;
             this.synchronizedStorage = synchronizedStorage;
             this.adapter = adapter;
@@ -66,9 +64,9 @@ namespace NServiceBus
         public ISynchronizedStorageSession SynchronizedStorageSession => synchronizedStorageSession ?? throw new InvalidOperationException("Not initialized");
 
         async Task<ICompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(CancellationToken cancellationToken) =>
-            await adapter.TryAdapt(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false)
-            ?? await adapter.TryAdapt(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false)
-            ?? await synchronizedStorage.OpenSession(contextBag, cancellationToken).ConfigureAwait(false);
+            await adapter!.TryAdapt(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false)
+            ?? await adapter!.TryAdapt(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false)
+            ?? await synchronizedStorage!.OpenSession(contextBag, cancellationToken).ConfigureAwait(false);
 
         public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
@@ -114,30 +112,42 @@ namespace NServiceBus
 
         public async Task<IUnitOfWorkMessageSession> Initialize(CancellationToken cancellationToken = default)
         {
-            var deduplicationEntry = await outboxStorage.Get(SessionId, contextBag, cancellationToken).ConfigureAwait(false);
-            if (deduplicationEntry == null)
+            if (outboxStorage != null)
             {
-                outboxTransaction = await outboxStorage.BeginTransaction(contextBag, cancellationToken)
-                    .ConfigureAwait(false);
-                contextBag.Set(outboxStorage);
-                synchronizedStorageSession = await AdaptOrOpenNewSynchronizedStorageSession(cancellationToken).ConfigureAwait(false);
-                RequiresOutboxTransaction = true;
-            }
-            else
-            {
-                ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
+                var deduplicationEntry = await outboxStorage.Get(SessionId, contextBag, cancellationToken).ConfigureAwait(false);
+                if (deduplicationEntry == null)
+                {
+                    outboxTransaction = await outboxStorage.BeginTransaction(contextBag, cancellationToken)
+                        .ConfigureAwait(false);
+                    contextBag.Set(outboxStorage);
+                    synchronizedStorageSession = await AdaptOrOpenNewSynchronizedStorageSession(cancellationToken).ConfigureAwait(false);
+                    RequiresOutboxTransaction = true;
+                }
+                else
+                {
+                    ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
+                }
             }
             return this;
         }
 
         public async Task Commit(CancellationToken cancellationToken = default)
         {
-            var operation = new Transport.TransportOperation(
-                new OutgoingMessage(SessionId, new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
-                new UnicastAddressTag(queueAddress), requiredDispatchConsistency: DispatchConsistency.Isolated);
-            await dispatcher.Dispatch(new TransportOperations(operation), transportTransaction, cancellationToken).ConfigureAwait(false);
+            if (outboxStorage != null)
+            {
+                var operation = new Transport.TransportOperation(
+                    new OutgoingMessage(SessionId, new Dictionary<string, string>
+                    {
+                        { Headers.MessageId, SessionId },
+                        { Headers.ControlMessageHeader, bool.TrueString },
+                        { Headers.MessageIntent, MessageIntent.Send.ToString() },
+                    }, ReadOnlyMemory<byte>.Empty),
+                    new UnicastAddressTag(queueAddress), requiredDispatchConsistency: DispatchConsistency.Isolated);
 
-            if (RequiresOutboxTransaction)
+                await dispatcher.Dispatch(new TransportOperations(operation), transportTransaction, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (RequiresOutboxTransaction && outboxStorage != null)
             {
                 var outboxMessage = new OutboxMessage(SessionId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                 await outboxStorage.Store(outboxMessage, outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false);
@@ -154,17 +164,22 @@ namespace NServiceBus
             {
                 if (pendingTransportOperations.HasOperations)
                 {
-                    await dispatcher.Dispatch(new TransportOperations(pendingTransportOperations.Operations),
-                        transportTransaction, cancellationToken).ConfigureAwait(false);
+                    // To see if it works
+                    throw new InvalidOperationException();
+                    // await dispatcher.Dispatch(new TransportOperations(pendingTransportOperations.Operations),
+                    //     transportTransaction, cancellationToken).ConfigureAwait(false);
                 }
 
-                await outboxStorage.SetAsDispatched(SessionId, contextBag, cancellationToken).ConfigureAwait(false);
+                if (outboxStorage != null)
+                {
+                    await outboxStorage.SetAsDispatched(SessionId, contextBag, cancellationToken).ConfigureAwait(false);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 // ignored
             }
-            catch (Exception) when (isOutboxEnabled)
+            catch (Exception) when (outboxStorage != null)
             {
                 // ignored
             }

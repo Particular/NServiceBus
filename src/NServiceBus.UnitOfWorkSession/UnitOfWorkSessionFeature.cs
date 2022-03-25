@@ -17,18 +17,17 @@ namespace NServiceBus
 
             factory = new UnitOfWorkMessageSessionFactory();
 
-            var isOutboxEnabled = context.Settings.IsFeatureActive(typeof(Features.Outbox));
+            context.Services.AddSingleton<IUnitOfWorkMessageSessionFactory>(factory);
 
             var localQueueAddress = context.LocalQueueAddress();
 
             context.RegisterStartupTask(serviceProvider => new RegisterSessionStartupTask(factory,
                 localQueueAddress,
-                isOutboxEnabled,
                 serviceProvider.GetRequiredService<ITransportAddressResolver>(),
                 serviceProvider.GetRequiredService<IMessageDispatcher>(),
-                serviceProvider.GetRequiredService<IOutboxStorage>(),
-                serviceProvider.GetRequiredService<ISynchronizedStorageAdapter>(),
-                serviceProvider.GetRequiredService<ISynchronizedStorage>()));
+                serviceProvider.GetService<IOutboxStorage>(),
+                serviceProvider.GetService<ISynchronizedStorageAdapter>(),
+                serviceProvider.GetService<ISynchronizedStorage>()));
         }
 
         UnitOfWorkMessageSessionFactory? factory;
@@ -37,19 +36,16 @@ namespace NServiceBus
         {
             readonly UnitOfWorkMessageSessionFactory factory;
             readonly IMessageDispatcher messageDispatcher;
-            readonly IOutboxStorage outboxStorage;
-            readonly ISynchronizedStorageAdapter synchronizedStorageAdapter;
-            readonly ISynchronizedStorage synchronizedStorage;
+            readonly IOutboxStorage? outboxStorage;
+            readonly ISynchronizedStorageAdapter? synchronizedStorageAdapter;
+            readonly ISynchronizedStorage? synchronizedStorage;
             readonly ITransportAddressResolver transportAddressResolver;
             readonly QueueAddress localQueueAddress;
-            readonly bool isOutboxEnabled;
 
-            public RegisterSessionStartupTask(UnitOfWorkMessageSessionFactory factory, QueueAddress localQueueAddress,
-                bool isOutboxEnabled, ITransportAddressResolver transportAddressResolver,
-                IMessageDispatcher messageDispatcher, IOutboxStorage outboxStorage,
-                ISynchronizedStorageAdapter synchronizedStorageAdapter, ISynchronizedStorage synchronizedStorage)
+            public RegisterSessionStartupTask(UnitOfWorkMessageSessionFactory factory, QueueAddress localQueueAddress, ITransportAddressResolver transportAddressResolver,
+                IMessageDispatcher messageDispatcher, IOutboxStorage? outboxStorage,
+                ISynchronizedStorageAdapter? synchronizedStorageAdapter, ISynchronizedStorage? synchronizedStorage)
             {
-                this.isOutboxEnabled = isOutboxEnabled;
                 this.localQueueAddress = localQueueAddress;
                 this.transportAddressResolver = transportAddressResolver;
                 this.outboxStorage = outboxStorage;
@@ -62,7 +58,7 @@ namespace NServiceBus
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 var queueAddress = transportAddressResolver.ToTransportAddress(localQueueAddress);
-                factory.Initialize(queueAddress, isOutboxEnabled, session, messageDispatcher, outboxStorage, synchronizedStorageAdapter, synchronizedStorage);
+                factory.Initialize(queueAddress, session, messageDispatcher, outboxStorage, synchronizedStorageAdapter, synchronizedStorage);
                 return Task.CompletedTask;
             }
 
