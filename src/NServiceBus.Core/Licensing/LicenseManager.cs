@@ -172,7 +172,7 @@ namespace NServiceBus
 
         string CreateDeveloperLicenseUrl()
         {
-            var version = GitVersionInformation.MajorMinorPatch;
+            var version = VersionInformation.MajorMinorPatch;
             var isRenewal = result.License.IsExtendedTrial ? "1" : "0";
             var platform = GetPlatformCode();
             return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}";
