@@ -67,9 +67,9 @@
             }
 
             Type[] messageTypes = Array.Empty<Type>();
-            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypeIdentifier))
+            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
             {
-                messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(messageTypeIdentifier,
+                messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
                     (key, registry) =>
                     {
                         string[] messageTypeStrings = key.Split(EnclosedMessageTypeSeparator);
@@ -98,7 +98,7 @@
 
                 if (messageTypes.Length == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
                 {
-                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
+                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", enclosedMessageTypesValue, physicalMessage.MessageId);
                 }
             }
 
