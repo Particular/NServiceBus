@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.ComponentModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using DelayedDelivery;
     using Extensibility;
     using Outbox;
     using Persistence;
@@ -142,7 +143,10 @@ namespace NServiceBus
                         { Headers.ControlMessageHeader, bool.TrueString },
                         { Headers.MessageIntent, MessageIntent.Send.ToString() },
                     }, ReadOnlyMemory<byte>.Empty),
-                    new UnicastAddressTag(queueAddress), requiredDispatchConsistency: DispatchConsistency.Isolated);
+                    new UnicastAddressTag(queueAddress), new DispatchProperties
+                    {
+                        DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromSeconds(5))
+                    }, requiredDispatchConsistency: DispatchConsistency.Isolated);
 
                 await dispatcher.Dispatch(new TransportOperations(operation), transportTransaction, cancellationToken).ConfigureAwait(false);
             }
@@ -165,9 +169,9 @@ namespace NServiceBus
                 if (pendingTransportOperations.HasOperations)
                 {
                     // To see if it works
-                    throw new InvalidOperationException();
-                    // await dispatcher.Dispatch(new TransportOperations(pendingTransportOperations.Operations),
-                    //     transportTransaction, cancellationToken).ConfigureAwait(false);
+                    // throw new InvalidOperationException();
+                    await dispatcher.Dispatch(new TransportOperations(pendingTransportOperations.Operations),
+                    transportTransaction, cancellationToken).ConfigureAwait(false);
                 }
 
                 if (outboxStorage != null)
