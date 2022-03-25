@@ -98,7 +98,7 @@ namespace NServiceBus
                 {
                     Name = settings.EndpointName(),
                     SendOnly = settings.Get<bool>("Endpoint.SendOnly"),
-                    NServiceBusVersion = GitVersionInformation.MajorMinorPatch
+                    NServiceBusVersion = VersionInformation.MajorMinorPatch
                 }
             );
         }
