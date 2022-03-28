@@ -61,6 +61,11 @@
 
         protected static async Task WriteCode(Project project)
         {
+            if (!VerboseLogging)
+            {
+                return;
+            }
+
             foreach (var document in project.Documents)
             {
                 Console.WriteLine(document.Name);
@@ -116,6 +121,11 @@
 
         protected static void WriteCompilerDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
+            if (VerboseLogging)
+            {
+                return;
+            }
+
             Console.WriteLine("Compiler diagnostics:");
 
             foreach (var diagnostic in diagnostics)
@@ -126,6 +136,11 @@
 
         protected static void WriteAnalyzerDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
+            if (VerboseLogging)
+            {
+                return;
+            }
+
             Console.WriteLine("Analyzer diagnostics:");
 
             foreach (var diagnostic in diagnostics)
@@ -191,5 +206,8 @@
 
             return (documents, markupSpans);
         }
+
+        protected static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
+            || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
     }
 }
