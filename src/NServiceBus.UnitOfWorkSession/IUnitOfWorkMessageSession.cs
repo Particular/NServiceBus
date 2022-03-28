@@ -164,6 +164,12 @@ namespace NServiceBus
                 outboxTransaction = null;
             }
 
+            // Fire & Forget this stuff to do a best effort
+            _ = BestEffortDispatch(cancellationToken);
+        }
+
+        async Task BestEffortDispatch(CancellationToken cancellationToken)
+        {
             try
             {
                 if (pendingTransportOperations.HasOperations)
@@ -171,7 +177,7 @@ namespace NServiceBus
                     // To see if it works
                     // throw new InvalidOperationException();
                     await dispatcher.Dispatch(new TransportOperations(pendingTransportOperations.Operations),
-                    transportTransaction, cancellationToken).ConfigureAwait(false);
+                        transportTransaction, cancellationToken).ConfigureAwait(false);
                 }
 
                 if (outboxStorage != null)
