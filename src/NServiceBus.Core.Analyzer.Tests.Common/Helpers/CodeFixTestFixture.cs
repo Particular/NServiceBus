@@ -68,7 +68,7 @@
                 return codeFiles;
             }
 
-            if (VerboseLogging)
+            if (!VerboseLogging)
             {
                 Console.WriteLine("Applying code fix actions...");
             }

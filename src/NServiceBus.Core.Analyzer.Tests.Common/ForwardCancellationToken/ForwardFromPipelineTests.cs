@@ -107,9 +107,6 @@ public class TestTimeout {}";
                 code = code.Replace("public Task", "public override Task");
             }
 
-            TestContext.WriteLine($"Source Code for test case: {type.FullName}:");
-            TestContext.WriteLine(code);
-
             return Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, code);
         }
 

@@ -121,7 +121,7 @@
 
         protected static void WriteCompilerDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
-            if (VerboseLogging)
+            if (!VerboseLogging)
             {
                 return;
             }
@@ -136,7 +136,7 @@
 
         protected static void WriteAnalyzerDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
-            if (VerboseLogging)
+            if (!VerboseLogging)
             {
                 return;
             }
