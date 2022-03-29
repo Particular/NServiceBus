@@ -26,8 +26,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E3BC3CE8-9EA6-41BE-89AD-23876257B740}"
 	ProjectSection(SolutionItems) = preProject
 		Custom.Build.props = Custom.Build.props
-		Directory.Build.props = Directory.Build.props
-		..\GitVersion.yml = ..\GitVersion.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Persistence.InMemory.AcceptanceTests", "NServiceBus.Persistence.InMemory.AcceptanceTests\NServiceBus.Persistence.InMemory.AcceptanceTests.csproj", "{F853BBB7-27D0-4750-95B5-67542DC482BF}"
@@ -42,7 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.PersistenceTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.InMemory.PersistenceTests", "NServiceBus.InMemory.PersistenceTests\NServiceBus.InMemory.PersistenceTests.csproj", "{4954B6B7-B881-4C8F-B153-93E17E53B37F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.Analyzer.Tests.Roslyn4", "NServiceBus.Core.Analyzer.Tests.Roslyn4\NServiceBus.Core.Analyzer.Tests.Roslyn4.csproj", "{62AAE244-9342-445F-82F9-7AE54A98F09A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer.Tests.Roslyn4", "NServiceBus.Core.Analyzer.Tests.Roslyn4\NServiceBus.Core.Analyzer.Tests.Roslyn4.csproj", "{62AAE244-9342-445F-82F9-7AE54A98F09A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
