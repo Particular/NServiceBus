@@ -88,11 +88,11 @@
             }
         }
 
-        class OuterMessage : IMessage
+        public class OuterMessage : IMessage
         {
         }
 
-        class InnerMessage : IMessage
+        public class InnerMessage : IMessage
         {
         }
     }

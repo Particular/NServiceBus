@@ -8,7 +8,7 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_replying_from_outgoing_pipeline
+    public class When_replying_from_outgoing_pipeline : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_route_correctly()
@@ -105,15 +105,15 @@
             }
         }
 
-        class TriggerMessage : IMessage
+        public class TriggerMessage : IMessage
         {
         }
 
-        class ReplyMessage : IMessage
+        public class ReplyMessage : IMessage
         {
         }
 
-        class BehaviorMessage : IMessage
+        public class BehaviorMessage : IMessage
         {
         }
     }

@@ -102,15 +102,15 @@
                 }
             }
         }
-        class MessageToEndpointB : IMessage
+        public class MessageToEndpointB : IMessage
         {
         }
 
-        class MessageToEndpointC : IMessage
+        public class MessageToEndpointC : IMessage
         {
         }
 
-        class TriggerMessage : IMessage
+        public class TriggerMessage : IMessage
         {
         }
     }
