@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
@@ -20,7 +21,7 @@
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out var sagaId);
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out var sagaType);
 
-                if (context.Extensions.TryGet(out State state))
+                if (context.GetMessageOperationExtensions().TryGet(out State state))
                 {
                     sagaId = state.SagaIdToUse;
                     sagaType = state.SagaTypeToUse;

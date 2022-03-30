@@ -72,7 +72,7 @@ namespace NServiceBus
             var options = new SendOptions();
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToThisEndpoint();
-            options.Context.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
+            options.MessageOperationContext.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
 
             var scheduledTask = new ScheduledTask
             {
