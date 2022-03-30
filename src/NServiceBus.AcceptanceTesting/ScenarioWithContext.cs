@@ -46,8 +46,8 @@ namespace NServiceBus.AcceptanceTesting
 
             await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
 
-            var statusLabel = runSummary.Result.Failed ? "Failed" : "Passed";
-            TestContext.WriteLine("Test {0}: {1} in: {2:0.0}s", TestContext.CurrentContext.Test.FullName, statusLabel, sw.Elapsed.TotalSeconds);
+            TestContext.WriteLine("Test {0}: Scenario completed in {2:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
+
             if (runSummary.Result.Failed || ScenarioRunner.VerboseLogging)
             {
                 DisplayRunResult(runSummary);
