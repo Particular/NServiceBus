@@ -8,11 +8,21 @@ namespace NServiceBus.Extensibility
     public class ContextBag : ReadOnlyContextBag
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public static int Invocations = 0;
+        /// <summary>
+        /// 
+        /// </summary>
+        public static int Invocations2 = 0;
+
+        /// <summary>
         /// Initialized a new instance of <see cref="ContextBag" />.
         /// </summary>
-        public ContextBag(ContextBag parentBag = null)
+        public ContextBag(ContextBag parentBag = null, bool isExtendableOptionContextBag = false)
         {
             this.parentBag = parentBag;
+            this.isExtendableOptionContextBag = isExtendableOptionContextBag;
         }
 
         /// <summary>
@@ -54,6 +64,19 @@ namespace NServiceBus.Extensibility
 
             if (parentBag != null)
             {
+                Invocations2 += 1;
+                if (parentBag.TryGet("MergeValueKey", out List<string> previouslyMergedKeys))
+                {
+                    if (stash.TryGetValue("MergeValueKey", out _))
+                    {
+                        Invocations += 1;
+                        if (previouslyMergedKeys.Contains(key))
+                        {
+                            result = default;
+                            return false;
+                        }
+                    }
+                }
                 return parentBag.TryGet(key, out result);
             }
 
@@ -137,13 +160,28 @@ namespace NServiceBus.Extensibility
         /// <param name="context">The source context.</param>
         internal void Merge(ContextBag context)
         {
-            foreach (var kvp in context.stash)
+            if (context.isExtendableOptionContextBag)
             {
-                stash[kvp.Key] = kvp.Value;
+                var mergedValues = new List<string>(context.stash.Count);
+                foreach (var kvp in context.stash)
+                {
+                    stash[kvp.Key] = kvp.Value;
+                    mergedValues.Add(kvp.Key);
+                }
+
+                stash["MergeValueKey"] = mergedValues;
+            }
+            else
+            {
+                foreach (var kvp in context.stash)
+                {
+                    stash[kvp.Key] = kvp.Value;
+                }
             }
         }
 
         ContextBag parentBag;
+        readonly bool isExtendableOptionContextBag;
 
         Dictionary<string, object> stash = new Dictionary<string, object>();
     }

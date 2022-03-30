@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -24,6 +25,9 @@
 
             Assert.IsTrue(context.MessageBReceived);
             Assert.IsFalse(context.MessageCReceived);
+
+            var i = ContextBag.Invocations;
+            var i2 = ContextBag.Invocations2;
         }
 
         class Context : ScenarioContext

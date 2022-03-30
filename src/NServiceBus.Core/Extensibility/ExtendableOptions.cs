@@ -15,7 +15,7 @@ namespace NServiceBus.Extensibility
         /// </summary>
         protected ExtendableOptions()
         {
-            Context = new ContextBag();
+            Context = new ContextBag(isExtendableOptionContextBag: true);
             OutgoingHeaders = new Dictionary<string, string>();
         }
 
