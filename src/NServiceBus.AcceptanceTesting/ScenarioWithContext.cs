@@ -46,8 +46,12 @@ namespace NServiceBus.AcceptanceTesting
 
             await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
 
-            DisplayRunResult(runSummary);
-            TestContext.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+            TestContext.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
+
+            if (runSummary.Result.Failed || ScenarioRunner.VerboseLogging)
+            {
+                DisplayRunResult(runSummary);
+            }
 
             if (runSummary.Result.Failed)
             {

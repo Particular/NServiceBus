@@ -16,12 +16,18 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
         public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
-            TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
-            TestContext.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            if (VerboseLogging)
+            {
+                TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
+                TestContext.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            }
 
             var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
 
-            TestContext.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            if (VerboseLogging)
+            {
+                TestContext.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            }
 
             return new RunSummary
             {
@@ -167,13 +173,19 @@
             return endpoints.Select(async endpoint =>
             {
                 await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
-                TestContext.WriteLine("Stopping endpoint: {0}", endpoint.Name);
+                if (VerboseLogging)
+                {
+                    TestContext.WriteLine("Stopping endpoint: {0}", endpoint.Name);
+                }
                 var stopwatch = Stopwatch.StartNew();
                 try
                 {
                     await endpoint.Stop().ConfigureAwait(false);
                     stopwatch.Stop();
-                    TestContext.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name, stopwatch.Elapsed);
+                    if (VerboseLogging)
+                    {
+                        TestContext.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name, stopwatch.Elapsed);
+                    }
                 }
                 catch (Exception)
                 {
@@ -197,6 +209,9 @@
                 throw;
             }
         }
+
+        internal static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
+            || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
     }
 
     public class RunResult

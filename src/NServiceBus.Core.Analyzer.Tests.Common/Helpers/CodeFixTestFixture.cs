@@ -68,7 +68,10 @@
                 return codeFiles;
             }
 
-            Console.WriteLine("Applying code fix actions...");
+            if (VerboseLogging)
+            {
+                Console.WriteLine("Applying code fix actions...");
+            }
 
             var projectDocuments = project.Documents.ToArray();
 
