@@ -27,7 +27,10 @@ namespace NServiceBus.Extensibility
             return options.MessageOperationContext;
         }
 
-        internal static ContextBag GetMessageOperationExtensions(this IBehaviorContext behaviorContext)
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public static ContextBag GetMessageOperationExtensions(this IBehaviorContext behaviorContext)
         {
             if (!behaviorContext.Extensions.TryGet("MessageOperationContext", out ContextBag context))
             {
