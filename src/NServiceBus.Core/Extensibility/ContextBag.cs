@@ -67,7 +67,7 @@ namespace NServiceBus.Extensibility
                 Invocations2 += 1;
                 if (parentBag.TryGet("MergeValueKey", out List<string> previouslyMergedKeys))
                 {
-                    if (stash.TryGetValue("MergeValueKey", out _))
+                    if (stash.TryGetValue("MergeValueKey", out _)) // TODO: check if there is a mergedvalues field set
                     {
                         Invocations += 1;
                         if (previouslyMergedKeys.Contains(key))
@@ -162,7 +162,7 @@ namespace NServiceBus.Extensibility
         {
             if (context.isExtendableOptionContextBag)
             {
-                var mergedValues = new List<string>(context.stash.Count);
+                var mergedValues = new List<string>(context.stash.Count); //TODO store this as a field locally, then we can check the existence of the field in the TryGet logic
                 foreach (var kvp in context.stash)
                 {
                     stash[kvp.Key] = kvp.Value;
