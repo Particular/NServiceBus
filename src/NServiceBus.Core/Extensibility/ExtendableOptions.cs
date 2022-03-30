@@ -15,11 +15,15 @@ namespace NServiceBus.Extensibility
         /// </summary>
         protected ExtendableOptions()
         {
+            MessageOperationContext = new ContextBag();
             Context = new ContextBag();
+            Context.Set("MessageOperationContext", MessageOperationContext);
             OutgoingHeaders = new Dictionary<string, string>();
         }
 
         internal ContextBag Context { get; }
+
+        internal ContextBag MessageOperationContext { get; }
 
         internal string UserDefinedMessageId { get; set; }
 
