@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using MessageInterfaces;
@@ -57,50 +57,56 @@
             if (IsControlMessage(physicalMessage))
             {
                 log.Debug("Received a control message. Skipping deserialization as control message data is contained in the header.");
-                return NoMessagesFound;
+                return Array.Empty<LogicalMessage>();
             }
 
             if (physicalMessage.Body.Length == 0)
             {
                 log.Debug("Received a message without body. Skipping deserialization.");
-                return NoMessagesFound;
+                return Array.Empty<LogicalMessage>();
             }
 
-            var messageMetadata = new List<MessageMetadata>();
-
-            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypeIdentifier))
+            Type[] messageTypes = Array.Empty<Type>();
+            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
             {
-                foreach (var messageTypeString in messageTypeIdentifier.Split(EnclosedMessageTypeSeparator))
-                {
-                    var typeString = messageTypeString;
-
-                    if (DoesTypeHaveImplAddedByVersion3(typeString))
+                messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
+                    (key, registry) =>
                     {
-                        continue;
-                    }
+                        string[] messageTypeStrings = key.Split(EnclosedMessageTypeSeparator);
+                        var types = new List<Type>(messageTypeStrings.Length);
+                        for (var index = 0; index < messageTypeStrings.Length; index++)
+                        {
+                            string messageTypeString = messageTypeStrings[index];
+                            if (DoesTypeHaveImplAddedByVersion3(messageTypeString))
+                            {
+                                continue;
+                            }
 
-                    var metadata = messageMetadataRegistry.GetMessageMetadata(typeString);
+                            var metadata = registry.GetMessageMetadata(messageTypeString);
 
-                    if (metadata == null)
-                    {
-                        continue;
-                    }
+                            if (metadata == null)
+                            {
+                                continue;
+                            }
 
-                    messageMetadata.Add(metadata);
-                }
+                            types.Add(metadata.MessageType);
+                        }
 
-                if (messageMetadata.Count == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
+                        // using an array in order to be able to assign array empty as the default value
+                        return types.ToArray();
+                    }, messageMetadataRegistry);
+
+                if (messageTypes.Length == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
                 {
-                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
+                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", enclosedMessageTypesValue, physicalMessage.MessageId);
                 }
             }
 
-            if (messageMetadata.Count == 0 && !allowContentTypeInference)
+            if (messageTypes.Length == 0 && !allowContentTypeInference)
             {
                 throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
             }
 
-            var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
             var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
 
             mapper.Initialize(messageTypes);
@@ -120,10 +126,7 @@
             return logicalMessages;
         }
 
-        static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
-        {
-            return existingTypeString.Contains("__impl");
-        }
+        static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString) => existingTypeString.AsSpan().IndexOf("__impl".AsSpan()) != -1;
 
         readonly MessageDeserializerResolver deserializerResolver;
         readonly LogicalMessageFactory logicalMessageFactory;
@@ -131,7 +134,8 @@
         readonly IMessageMapper mapper;
         readonly bool allowContentTypeInference;
 
-        static readonly LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
+        readonly ConcurrentDictionary<string, Type[]> enclosedMessageTypesStringToMessageTypes =
+            new ConcurrentDictionary<string, Type[]>();
 
         static readonly char[] EnclosedMessageTypeSeparator =
         {

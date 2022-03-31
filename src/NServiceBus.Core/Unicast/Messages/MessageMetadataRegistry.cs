@@ -127,10 +127,7 @@
             return null;
         }
 
-        internal IEnumerable<MessageMetadata> GetAllMessages()
-        {
-            return new List<MessageMetadata>(messages.Values);
-        }
+        internal MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
 
         internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes)
         {
