@@ -17,6 +17,7 @@ namespace NServiceBus
             Context.GetOrCreate<UnicastSendRouter.State>();
             Context.GetOrCreate<RoutingToDispatchConnector.State>(); // this needs to be done for all message options!
             Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+            Context.GetOrCreate<AttachCorrelationIdBehavior.State>();
         }
 
         internal DelayedDeliveryConstraint DelayedDeliveryConstraint { get; set; }
