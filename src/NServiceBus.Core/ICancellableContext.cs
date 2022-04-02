@@ -3,7 +3,7 @@
     using System.Threading;
 
     /// <summary>
-    /// Provides a <cref see="CancellationToken" /> for the message processing pipeline context hierarchy.
+    /// Provides a <see cref="CancellationToken" /> for the message processing pipeline context hierarchy.
     /// </summary>
     public interface ICancellableContext
     {
