@@ -47,7 +47,10 @@
         public class SenderReusingSendOptions : EndpointConfigurationBuilder
         {
             public SenderReusingSendOptions() => EndpointSetup<DefaultServer>((c, r) =>
-                c.Pipeline.Register(new OperationContextModifyingBehavior((Context)r.ScenarioContext), "modifies message operations context values"));
+            {
+                c.Pipeline.Register(new OperationContextModifyingBehavior((Context)r.ScenarioContext), "modifies message operations context values");
+                c.LimitMessageProcessingConcurrencyTo(1);
+            });
 
             public class SimeMessageHandler : IHandleMessages<SimpleMessage>
             {
