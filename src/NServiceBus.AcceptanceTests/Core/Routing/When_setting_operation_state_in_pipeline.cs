@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -37,7 +38,7 @@
 
         public class Context : ScenarioContext
         {
-            public int MessagesReceived { get; set; }
+            public volatile int MessagesReceived;
 
             public List<bool> ExistingSettingValues { get; } = new List<bool>();
 
@@ -47,10 +48,7 @@
         public class SenderReusingSendOptions : EndpointConfigurationBuilder
         {
             public SenderReusingSendOptions() => EndpointSetup<DefaultServer>((c, r) =>
-            {
-                c.Pipeline.Register(new OperationContextModifyingBehavior((Context)r.ScenarioContext), "modifies message operations context values");
-                c.LimitMessageProcessingConcurrencyTo(1);
-            });
+                c.Pipeline.Register(new OperationContextModifyingBehavior((Context)r.ScenarioContext), "modifies message operations context values"));
 
             public class SimeMessageHandler : IHandleMessages<SimpleMessage>
             {
@@ -60,7 +58,7 @@
 
                 public Task Handle(SimpleMessage message, IMessageHandlerContext context)
                 {
-                    testContext.MessagesReceived++;
+                    Interlocked.Increment(ref testContext.MessagesReceived);
                     return Task.FromResult(0);
                 }
             }
