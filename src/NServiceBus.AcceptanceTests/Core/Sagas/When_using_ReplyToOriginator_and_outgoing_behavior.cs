@@ -13,6 +13,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
         [Test]
         public async Task Should_not_leak_correlation_context()
         {
+            Requires.NativePubSubSupport();
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<EndPointA>(b =>
                 {
