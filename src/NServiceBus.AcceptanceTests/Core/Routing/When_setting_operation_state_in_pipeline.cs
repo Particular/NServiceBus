@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Routing
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -33,16 +34,16 @@
 
             Assert.AreEqual(2, context.ExistingSettingValues.Count);
             Assert.IsTrue(context.ExistingSettingValues.All(x => x));
-            Assert.IsTrue(context.NewSettingValues.Any(x => x.HasValue));
+            Assert.IsFalse(context.NewSettingValues.Any(x => x.HasValue));
         }
 
         public class Context : ScenarioContext
         {
             public volatile int MessagesReceived;
 
-            public List<bool> ExistingSettingValues { get; } = new List<bool>();
+            public ConcurrentBag<bool> ExistingSettingValues { get; } = new ConcurrentBag<bool>();
 
-            public List<bool?> NewSettingValues { get; } = new List<bool?>();
+            public ConcurrentBag<bool?> NewSettingValues { get; } = new ConcurrentBag<bool?>();
         }
 
         public class SenderReusingSendOptions : EndpointConfigurationBuilder
