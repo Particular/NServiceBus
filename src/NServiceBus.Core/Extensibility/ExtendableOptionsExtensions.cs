@@ -9,9 +9,7 @@ namespace NServiceBus.Extensibility
     {
         /// <summary>
         /// Gets access to a "bucket", this allows the developer to pass information from extension methods down to behaviors.
-        /// </summary>
-        /// <param name="options">Extendable options instance.</param>
-        /// <returns>A big bucket.</returns>
+        /// </summary>        
         public static ContextBag GetExtensions(this ExtendableOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -19,8 +17,8 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// TODO
-        /// </summary>
+        /// Get access to a dedicated "bucket" for the outgoing message to pass information down to the outgoing pipeline. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
+        /// </summary>        
         public static ContextBag GetMessageOperationExtensions(this ExtendableOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -28,10 +26,11 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// TODO
+        /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
         /// </summary>
         public static ContextBag GetMessageOperationExtensions(this IBehaviorContext behaviorContext)
         {
+            Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
             if (!behaviorContext.Extensions.TryGet("MessageOperationContext", out ContextBag context))
             {
                 context = new ContextBag();

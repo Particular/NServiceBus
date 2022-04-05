@@ -1551,6 +1551,8 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static NServiceBus.Extensibility.ContextBag GetMessageOperationExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static NServiceBus.Extensibility.ContextBag GetMessageOperationExtensions(this NServiceBus.Pipeline.IBehaviorContext behaviorContext) { }
     }
     public interface IExtendable
     {

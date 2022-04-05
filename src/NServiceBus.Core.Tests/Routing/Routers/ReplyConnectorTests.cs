@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing.Routers
 {
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
     using Testing;
 
@@ -12,7 +13,7 @@
         {
             var router = new ReplyConnector();
             var context = new TestableOutgoingReplyContext();
-            context.Extensions.Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
+            context.GetMessageOperationExtensions().Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
 

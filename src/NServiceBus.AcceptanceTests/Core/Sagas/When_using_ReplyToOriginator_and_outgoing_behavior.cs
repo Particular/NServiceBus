@@ -30,10 +30,9 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 .Done(c => c.SagaContinued && c.ReplyToOriginatorReceived && c.BehaviorMessageReceived && c.BehaviorEventReceived)
                 .Run();
 
-            Assert.That(context.ReplyToOriginatorReceivedCorrId, Is.EqualTo(context.StartingSagaCorrId), "While sending a message using ReplyToOriginator, the correlationId should be the same of the message that originally started the saga");
-            Assert.That(context.ContinueSagaMessageCorrId, Is.Not.EqualTo(context.ReplyToOriginatorReceivedCorrId), "While sending a message using ReplyToOriginator, the correlationId of the message that continued the saga should be different than the one used for replying to the originator");
-            Assert.That(context.ContinueSagaMessageCorrId, Is.EqualTo(context.HandlingBehaviorMessageCorrId), "When ReplyToOriginator is used, it shouldn't leak the CorrId to new messages sent from a behavior");
-            Assert.That(context.ContinueSagaMessageCorrId, Is.EqualTo(context.HandlingBehaviorEventCorrId), "When ReplyToOriginator is used, it shouldn't leak the CorrId to new events published from a behavior");
+            Assert.AreEqual(context.StartingSagaCorrId, context.ReplyToOriginatorReceivedCorrId, "While sending a message using ReplyToOriginator, the correlationId should be the same of the message that originally started the saga");
+            Assert.AreEqual(context.ContinueSagaMessageCorrId, context.HandlingBehaviorMessageCorrId, "When ReplyToOriginator is used, it shouldn't leak the CorrId to new messages sent from a behavior");
+            Assert.AreEqual(context.ContinueSagaMessageCorrId, context.HandlingBehaviorEventCorrId, "When ReplyToOriginator is used, it shouldn't leak the CorrId to new events published from a behavior");
         }
 
         public class Context : ScenarioContext
@@ -101,7 +100,6 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 {
                     testContext.ContinueSagaMessageCorrId = context.MessageHeaders[Headers.CorrelationId];
                     testContext.SagaContinued = true;
-                    MarkAsComplete();
                     return ReplyToOriginator(context, new ReplyToOriginatorMessage());
                 }
 
