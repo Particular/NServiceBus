@@ -4,6 +4,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using DeliveryConstraints;
+    using Extensibility;
     using Logging;
     using Pipeline;
     using Routing;
@@ -13,7 +14,7 @@
     {
         public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
-            var state = context.Extensions.GetOrCreate<State>();
+            var state = context.GetMessageOperationExtensions().GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
 
             var operations = new TransportOperation[context.RoutingStrategies.Count];

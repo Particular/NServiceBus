@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Transport;
 
@@ -38,7 +39,7 @@ namespace NServiceBus
             var hasIncomingMessageConversationId = incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext);
             var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
-            if (context.Extensions.TryGet<string>(NewConversationId, out var newConversationId))
+            if (context.GetMessageOperationExtensions().TryGet<string>(NewConversationId, out var newConversationId))
             {
                 if (hasUserDefinedConversationId)
                 {

@@ -10,10 +10,5 @@ namespace NServiceBus
     /// </remarks>
     public class PublishOptions : ExtendableOptions
     {
-        /// <inheritdoc />
-        public PublishOptions()
-        {
-            Context.GetOrCreate<AttachCorrelationIdBehavior.State>();
-        }
     }
 }

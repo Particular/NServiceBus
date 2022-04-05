@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
 
     class EnforceReplyBestPracticesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
@@ -13,7 +14,7 @@ namespace NServiceBus
 
         public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
         {
-            if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
+            if (!context.GetMessageOperationExtensions().TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForReply(context.Message.MessageType);
             }

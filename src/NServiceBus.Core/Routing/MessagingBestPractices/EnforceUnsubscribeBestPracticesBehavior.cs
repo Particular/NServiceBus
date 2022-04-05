@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
 
     class EnforceUnsubscribeBestPracticesBehavior : IBehavior<IUnsubscribeContext, IUnsubscribeContext>
@@ -13,7 +14,7 @@ namespace NServiceBus
 
         public Task Invoke(IUnsubscribeContext context, Func<IUnsubscribeContext, Task> next)
         {
-            if (!context.Extensions.TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
+            if (!context.GetMessageOperationExtensions().TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.EventType);
             }

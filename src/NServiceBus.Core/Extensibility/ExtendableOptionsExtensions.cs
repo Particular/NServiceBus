@@ -1,5 +1,7 @@
 namespace NServiceBus.Extensibility
 {
+    using Pipeline;
+
     /// <summary>
     /// Provides hidden access to the extension context.
     /// </summary>
@@ -14,6 +16,29 @@ namespace NServiceBus.Extensibility
         {
             Guard.AgainstNull(nameof(options), options);
             return options.Context;
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public static ContextBag GetMessageOperationExtensions(this ExtendableOptions options)
+        {
+            Guard.AgainstNull(nameof(options), options);
+            return options.MessageOperationContext;
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public static ContextBag GetMessageOperationExtensions(this IBehaviorContext behaviorContext)
+        {
+            if (!behaviorContext.Extensions.TryGet("MessageOperationContext", out ContextBag context))
+            {
+                context = new ContextBag();
+                behaviorContext.Extensions.Set("MessageOperationContext", context);
+            }
+
+            return context;
         }
     }
 }
