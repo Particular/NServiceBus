@@ -15,7 +15,7 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
-            var state = options.MessageOperationContext.GetOrCreate<UnicastSendRouter.State>();
+            var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
             state.Option = UnicastSendRouter.RouteOption.ExplicitDestination;
             state.ExplicitDestination = destination;
         }
@@ -31,7 +31,7 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
-            options.MessageOperationContext.GetOrCreate<ReplyConnector.State>()
+            options.Context.GetOrCreate<ReplyConnector.State>()
                 .ExplicitDestination = destination;
         }
 
@@ -44,7 +44,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.TryGet(out ReplyConnector.State state);
+            options.Context.TryGet(out ReplyConnector.State state);
             return state?.ExplicitDestination;
         }
 
@@ -57,7 +57,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.TryGet(out UnicastSendRouter.State state);
+            options.Context.TryGet(out UnicastSendRouter.State state);
             return state?.ExplicitDestination;
         }
 
@@ -69,7 +69,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.GetOrCreate<UnicastSendRouter.State>()
+            options.Context.GetOrCreate<UnicastSendRouter.State>()
                 .Option = UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
         }
 
@@ -82,7 +82,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out UnicastSendRouter.State state))
+            if (options.Context.TryGet(out UnicastSendRouter.State state))
             {
                 return state.Option == UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
             }
@@ -98,7 +98,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.GetOrCreate<UnicastSendRouter.State>()
+            options.Context.GetOrCreate<UnicastSendRouter.State>()
                 .Option = UnicastSendRouter.RouteOption.RouteToThisInstance;
         }
 
@@ -111,7 +111,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out UnicastSendRouter.State state))
+            if (options.Context.TryGet(out UnicastSendRouter.State state))
             {
                 return state.Option == UnicastSendRouter.RouteOption.RouteToThisInstance;
             }
@@ -129,7 +129,7 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNull(nameof(instanceId), instanceId);
 
-            var state = options.MessageOperationContext.GetOrCreate<UnicastSendRouter.State>();
+            var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
             state.Option = UnicastSendRouter.RouteOption.RouteToSpecificInstance;
             state.SpecificInstance = instanceId;
         }
@@ -143,7 +143,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
+            if (options.Context.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
             {
                 return state.SpecificInstance;
             }
@@ -159,7 +159,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
         }
 
@@ -171,7 +171,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out ApplyReplyToAddressBehavior.State state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
             }
@@ -187,7 +187,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
         }
 
@@ -199,7 +199,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out ApplyReplyToAddressBehavior.State state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
             }
@@ -215,7 +215,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
         }
 
@@ -227,7 +227,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out ApplyReplyToAddressBehavior.State state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
             }
@@ -243,7 +243,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.MessageOperationContext.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
         }
 
@@ -255,7 +255,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out ApplyReplyToAddressBehavior.State state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
             }
@@ -273,7 +273,7 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNull(nameof(address), address);
 
-            var state = options.MessageOperationContext.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+            var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
             state.ExplicitDestination = address;
         }
@@ -287,7 +287,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
             {
                 return state.ExplicitDestination;
             }
@@ -305,7 +305,7 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNull(nameof(address), address);
 
-            var state = options.MessageOperationContext.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+            var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
             state.ExplicitDestination = address;
         }
@@ -319,7 +319,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.MessageOperationContext.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
             {
                 return state.ExplicitDestination;
             }

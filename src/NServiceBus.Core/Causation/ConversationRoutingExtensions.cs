@@ -13,7 +13,7 @@
         public static void StartNewConversation(this SendOptions sendOptions, string conversationId = null)
         {
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
-            sendOptions.MessageOperationContext.Set(AttachCausationHeadersBehavior.NewConversationId, conversationId);
+            sendOptions.Context.Set(AttachCausationHeadersBehavior.NewConversationId, conversationId);
         }
     }
 }

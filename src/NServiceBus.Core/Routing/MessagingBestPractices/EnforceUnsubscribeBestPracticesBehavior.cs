@@ -14,7 +14,7 @@ namespace NServiceBus
 
         public Task Invoke(IUnsubscribeContext context, Func<IUnsubscribeContext, Task> next)
         {
-            if (!context.GetMessageOperationExtensions().TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
+            if (!context.GetOperationProperties().TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.EventType);
             }

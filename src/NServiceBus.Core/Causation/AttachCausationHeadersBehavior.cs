@@ -39,7 +39,7 @@ namespace NServiceBus
             var hasIncomingMessageConversationId = incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext);
             var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
-            if (context.GetMessageOperationExtensions().TryGet<string>(NewConversationId, out var newConversationId))
+            if (context.GetOperationProperties().TryGet<string>(NewConversationId, out var newConversationId))
             {
                 if (hasUserDefinedConversationId)
                 {

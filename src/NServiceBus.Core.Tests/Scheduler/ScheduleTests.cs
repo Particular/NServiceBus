@@ -3,7 +3,6 @@ namespace NServiceBus.Scheduling.Tests
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NUnit.Framework;
     using Testing;
 
@@ -60,7 +59,7 @@ namespace NServiceBus.Scheduling.Tests
 
             public Task Send(object message, SendOptions options)
             {
-                ScheduledDefinition = options.GetMessageOperationExtensions().Get<ScheduleBehavior.State>().TaskDefinition;
+                ScheduledDefinition = options.Context.Get<ScheduleBehavior.State>().TaskDefinition;
                 defaultScheduler.Schedule(ScheduledDefinition);
                 return defaultScheduler.Start(ScheduledDefinition.Id, new TestablePipelineContext());
             }

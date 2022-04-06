@@ -14,7 +14,7 @@
 
         public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next)
         {
-            if (!context.GetMessageOperationExtensions().TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
+            if (!context.GetOperationProperties().TryGet(out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.Message.MessageType);
             }

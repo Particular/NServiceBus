@@ -13,7 +13,7 @@
         {
             var router = new ReplyConnector();
             var context = new TestableOutgoingReplyContext();
-            context.GetMessageOperationExtensions().Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
+            context.GetOperationProperties().Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
 

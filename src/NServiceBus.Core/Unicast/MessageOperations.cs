@@ -10,6 +10,8 @@ namespace NServiceBus
 
     class MessageOperations
     {
+        public const string OperationPropertiesKey = "NServiceBus.OperationProperties";
+
         IMessageMapper messageMapper;
         readonly IPipeline<IOutgoingPublishContext> publishPipeline;
         readonly IPipeline<IOutgoingSendContext> sendPipeline;
@@ -60,7 +62,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            publishContext.Set("MessageOperationContext", new ContextBag(options.MessageOperationContext));
+            publishContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
 
             return publishPipeline.Invoke(publishContext);
         }
@@ -72,7 +74,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            subscribeContext.Set("MessageOperationContext", new ContextBag(options.MessageOperationContext));
+            subscribeContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
 
             return subscribePipeline.Invoke(subscribeContext);
         }
@@ -84,7 +86,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            unsubscribeContext.Set("MessageOperationContext", new ContextBag(options.MessageOperationContext));
+            unsubscribeContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -116,7 +118,9 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            outgoingContext.Set("MessageOperationContext", new ContextBag(options.MessageOperationContext));
+
+
+            outgoingContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
 
             if (options.DelayedDeliveryConstraint != null)
             {
@@ -154,6 +158,8 @@ namespace NServiceBus
                 headers,
                 options.Context,
                 context);
+
+            outgoingContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
 
             return replyPipeline.Invoke(outgoingContext);
         }

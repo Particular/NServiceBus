@@ -16,6 +16,7 @@
             Message = message;
 
             Merge(extensions);
+
         }
 
         public OutgoingLogicalMessage Message { get; }

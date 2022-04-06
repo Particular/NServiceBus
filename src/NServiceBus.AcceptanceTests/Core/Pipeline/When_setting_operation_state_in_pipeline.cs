@@ -24,7 +24,7 @@
                 {
                     var sendOptions = new SendOptions();
                     sendOptions.RouteToThisEndpoint();
-                    sendOptions.GetMessageOperationExtensions().Set(ExistingSettingKey, true);
+                    sendOptions.GetExtensions().Set(ExistingSettingKey, true);
                     await s.Send(new SimpleMessage(), sendOptions);
                     await s.Send(new SimpleMessage(), sendOptions);
                 }))
@@ -71,7 +71,7 @@
 
                 public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
                 {
-                    ContextBag messageOperationContext = context.GetMessageOperationExtensions();
+                    ContextBag messageOperationContext = context.GetOperationProperties();
 
                     testContext.ExistingSettingValues.Add(messageOperationContext.Get<bool>(ExistingSettingKey)); // should exist and set to true
                     messageOperationContext.Set(ExistingSettingKey, false);
