@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -63,6 +64,7 @@
 
             var context = CreateContext(new OutgoingLogicalMessage(typeof(MyReply), new MyReply()));
             context.Extensions = options.Context;
+            context.Extensions.Set("NServiceBus.OperationProperties", new ContextBag(options.Context));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>

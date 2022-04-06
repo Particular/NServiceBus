@@ -29,6 +29,8 @@
                 Extensions = options.Context
             };
 
+            context.Extensions.Set("NServiceBus.OperationProperties", new ContextBag(options.Context));
+
             return context;
         }
 

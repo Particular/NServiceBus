@@ -3,6 +3,7 @@ namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
+    using Extensibility;
     using ObjectBuilder;
     using Pipeline;
 
@@ -33,9 +34,6 @@ namespace NServiceBus.Testing
         /// Selects the builder returned by <see cref="IBehaviorContext.Builder" />. Override this method to provide your custom
         /// <see cref="IBuilder" /> implementation.
         /// </summary>
-        protected virtual IBuilder GetBuilder()
-        {
-            return Builder;
-        }
+        protected virtual IBuilder GetBuilder() => Builder;
     }
 }
