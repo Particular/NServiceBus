@@ -8,10 +8,6 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    //TODO add test for behavior when sending from outgoingsend context stage!
-    //publish/send-publish mixes?
-
-    //TODO: Outersend is just Send (no sendlocal)
     public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
     {
         [Test]
@@ -34,26 +30,6 @@
         }
 
         [Test]
-        public async Task Should_use_default_routing_when_empty_send_options2()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointA>(e => e
-                    .CustomConfig(c =>
-                    {
-                        c.Pipeline.Register(new SendingBehaviorUsingDefaultRouting(), "outgoing pipeline behavior sending messages");
-                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(BehaviorMessage), typeof(EndpointB));
-                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(LocalMessage), typeof(EndpointA));
-                    })
-                    .When(s => s.Send(new LocalMessage())))
-                .WithEndpoint<EndpointB>()
-                .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
-                .Run(TimeSpan.FromSeconds(15));
-
-            Assert.True(context.LocalMessageReceived);
-            Assert.True(context.BehaviorMessageReceived);
-        }
-
-        [Test]
         public async Task Should_apply_send_options_routing()
         {
             var context = await Scenario.Define<Context>()
@@ -63,25 +39,6 @@
                         c.Pipeline.Register(new SendingBehaviorUsingRoutingOverride(), "outgoing pipeline behavior sending messages");
                     })
                     .When(s => s.SendLocal(new LocalMessage())))
-                .WithEndpoint<EndpointB>()
-                .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
-                .Run(TimeSpan.FromSeconds(15));
-
-            Assert.True(context.LocalMessageReceived);
-            Assert.True(context.BehaviorMessageReceived);
-        }
-
-        [Test]
-        public async Task Should_apply_send_options_routing2()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointA>(e => e
-                    .CustomConfig(c =>
-                    {
-                        c.Pipeline.Register(new SendingBehaviorUsingRoutingOverride(), "outgoing pipeline behavior sending messages");
-                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(LocalMessage), typeof(EndpointA));
-                    })
-                    .When(s => s.Send(new LocalMessage())))
                 .WithEndpoint<EndpointB>()
                 .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
                 .Run(TimeSpan.FromSeconds(15));

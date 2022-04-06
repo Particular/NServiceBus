@@ -9,7 +9,7 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_nested_send_with_outer_reply_routing : NServiceBusAcceptanceTest
+    public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_apply_default_reply_in_inner_send()

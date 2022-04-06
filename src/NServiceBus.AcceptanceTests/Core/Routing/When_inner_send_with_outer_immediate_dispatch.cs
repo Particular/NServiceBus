@@ -15,8 +15,8 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointA>(c => c
-                    .DoNotFailOnErrorMessages().When(s => s
-                        .SendLocal(new TriggerMessage())))
+                    .DoNotFailOnErrorMessages()
+                    .When(s => s.SendLocal(new TriggerMessage())))
                 .WithEndpoint<EndpointB>()
                 .WithEndpoint<EndpointC>()
                 .Done(c => c.MessageBReceived)
@@ -44,6 +44,17 @@
                 });
             }
 
+            class TriggerMessageHandler : IHandleMessages<TriggerMessage>
+            {
+                public Task Handle(TriggerMessage message, IMessageHandlerContext context)
+                {
+                    // "outer send"
+                    var sendOptions = new SendOptions();
+                    sendOptions.RequireImmediateDispatch();
+                    return context.Send(new MessageToEndpointB(), sendOptions);
+                }
+            }
+
             class OutgoingBehaviorWithSend : Behavior<IOutgoingLogicalMessageContext>
             {
                 public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
@@ -51,29 +62,17 @@
                     await next();
                     if (context.Message.MessageType == typeof(MessageToEndpointB))
                     {
+                        // "inner send"
                         await context.Send(new MessageToEndpointC()); // no immediate dispatch
-                        throw new Exception(); // batching should prevent message C from being disbatched.
+                        throw new Exception(); // batching should prevent message C from being dispatched.
                     }
-                }
-            }
-
-            class TriggerMessageHandler : IHandleMessages<TriggerMessage>
-            {
-                public Task Handle(TriggerMessage message, IMessageHandlerContext context)
-                {
-                    var sendOptions = new SendOptions();
-                    sendOptions.RequireImmediateDispatch();
-                    return context.Send(new MessageToEndpointB(), sendOptions);
                 }
             }
         }
 
         class EndpointB : EndpointConfigurationBuilder
         {
-            public EndpointB()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public EndpointB() => EndpointSetup<DefaultServer>();
 
             public class EndpointBHandler : IHandleMessages<MessageToEndpointB>
             {
@@ -91,10 +90,7 @@
 
         class EndpointC : EndpointConfigurationBuilder
         {
-            public EndpointC()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public EndpointC() => EndpointSetup<DefaultServer>();
 
             public class EndpointCHandler : IHandleMessages<MessageToEndpointC>
             {
@@ -121,6 +117,5 @@
         public class TriggerMessage : IMessage
         {
         }
-
     }
 }

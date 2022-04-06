@@ -26,11 +26,11 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                         SomeId = c.Id
                     }));
                 })
-                .WithEndpoint<EndpointC>()
+                .WithEndpoint<EndpointB>()
                 .Done(c => c.SagaContinued && c.ReplyToOriginatorReceived && c.BehaviorMessageReceived && c.BehaviorEventReceived)
                 .Run();
 
-            Assert.AreEqual(context.StartingSagaCorrId, context.ReplyToOriginatorReceivedCorrId, "While sending a message using ReplyToOriginator, the correlationId should be the same of the message that originally started the saga");
+            Assert.AreEqual(context.StartingSagaCorrId, context.ReplyToOriginatorReceivedCorrId, "When using ReplyToOriginator, the correlationId should be the same of the message that originally started the saga");
             Assert.AreEqual(context.ContinueSagaMessageCorrId, context.HandlingBehaviorMessageCorrId, "When ReplyToOriginator is used, it shouldn't leak the CorrId to new messages sent from a behavior");
             Assert.AreEqual(context.ContinueSagaMessageCorrId, context.HandlingBehaviorEventCorrId, "When ReplyToOriginator is used, it shouldn't leak the CorrId to new events published from a behavior");
         }
@@ -52,24 +52,18 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
 
         public class EndPointA : EndpointConfigurationBuilder
         {
-            public EndPointA()
+            public EndPointA() => EndpointSetup<DefaultServer>(c =>
             {
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.ExecuteTheseHandlersFirst(typeof(TestSaga));
-                    b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
-                    b.Pipeline.Register(new OutgoingPipelineBehaviorSendingMessages(), "test behavior");
-                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(BehaviorMessage), Conventions.EndpointNamingConvention(typeof(EndpointC)));
-                });
-            }
+                c.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
+                c.Pipeline.Register(new OutgoingPipelineBehaviorSendingMessages(), "behavior sending messages from the outgoing pipeline");
+                c.ConfigureTransport().Routing().RouteToEndpoint(typeof(BehaviorMessage), Conventions.EndpointNamingConvention(typeof(EndpointB)));
+            });
+
             class MessageHandler : IHandleMessages<ReplyToOriginatorMessage>
             {
                 Context testContext;
 
-                public MessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                public MessageHandler(Context testContext) => this.testContext = testContext;
 
                 public Task Handle(ReplyToOriginatorMessage message, IMessageHandlerContext context)
                 {
@@ -83,10 +77,9 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<ContinueSagaMessage>
             {
-                public TestSaga(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                Context testContext;
+
+                public TestSaga(Context testContext) => this.testContext = testContext;
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
@@ -110,8 +103,6 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                     mapper.ConfigureMapping<ContinueSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
-
-                Context testContext;
             }
 
             public class TestSagaData : ContainSagaData
@@ -132,27 +123,15 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
             }
         }
 
-        public class StartSagaMessage : ICommand
+        class EndpointB : EndpointConfigurationBuilder
         {
-            public Guid SomeId { get; set; }
-        }
-
-        public class ContinueSagaMessage : ICommand
-        {
-            public Guid SomeId { get; set; }
-        }
-        class EndpointC : EndpointConfigurationBuilder
-        {
-            public EndpointC() => EndpointSetup<DefaultServer>();
+            public EndpointB() => EndpointSetup<DefaultServer>();
 
             public class BehaviorMessageHandler : IHandleMessages<BehaviorMessage>, IHandleMessages<BehaviorEvent>
             {
                 Context testContext;
 
-                public BehaviorMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                public BehaviorMessageHandler(Context testContext) => this.testContext = testContext;
 
                 public Task Handle(BehaviorMessage message, IMessageHandlerContext context)
                 {
@@ -169,6 +148,17 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 }
             }
         }
+
+        public class StartSagaMessage : ICommand
+        {
+            public Guid SomeId { get; set; }
+        }
+
+        public class ContinueSagaMessage : ICommand
+        {
+            public Guid SomeId { get; set; }
+        }
+
         public class BehaviorMessage : IMessage
         {
         }
