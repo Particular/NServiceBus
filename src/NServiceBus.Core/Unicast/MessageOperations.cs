@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DeliveryConstraints;
-    using Extensibility;
     using MessageInterfaces;
     using Pipeline;
 
@@ -62,7 +61,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            publishContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
+            publishContext.Set(OperationPropertiesKey, options.Context);
 
             return publishPipeline.Invoke(publishContext);
         }
@@ -74,7 +73,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            subscribeContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
+            subscribeContext.Set(OperationPropertiesKey, options.Context);
 
             return subscribePipeline.Invoke(subscribeContext);
         }
@@ -86,7 +85,7 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            unsubscribeContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
+            unsubscribeContext.Set(OperationPropertiesKey, options.Context);
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -120,7 +119,7 @@ namespace NServiceBus
 
 
 
-            outgoingContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
+            outgoingContext.Set(OperationPropertiesKey, options.Context);
 
             if (options.DelayedDeliveryConstraint != null)
             {
@@ -159,7 +158,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            outgoingContext.Set(OperationPropertiesKey, new ContextBag(options.Context));
+            outgoingContext.Set(OperationPropertiesKey, options.Context);
 
             return replyPipeline.Invoke(outgoingContext);
         }
