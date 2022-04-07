@@ -27,7 +27,7 @@
         {
             var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
-            var sessionProvider = context.Builder.GetService<SynchronizedStorageSessionProvider>();
+            using (var sessionProvider = context.Builder.GetService<SynchronizedStorageSessionProvider>())
             using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false))
             {
                 if (sessionProvider != null)
@@ -63,12 +63,6 @@
                 }
                 context.MessageHandled = true;
                 await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
-
-                // finally?
-                if (sessionProvider != null)
-                {
-                    sessionProvider.SynchronizedStorageSession = null;
-                }
             }
         }
 
