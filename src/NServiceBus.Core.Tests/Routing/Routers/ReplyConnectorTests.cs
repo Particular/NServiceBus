@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing.Routers
 {
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NUnit.Framework;
     using Testing;
 
@@ -12,8 +11,12 @@
         public async Task Should_set_messageintent_to_reply()
         {
             var router = new ReplyConnector();
+            var replyOptions = new ReplyOptions();
+            replyOptions.RouteReplyTo("Fake");
+
+
             var context = new TestableOutgoingReplyContext();
-            context.GetOperationProperties().Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
+            context.Extensions.Merge(replyOptions.Context);
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
 
