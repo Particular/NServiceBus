@@ -64,7 +64,6 @@
 
             var context = CreateContext(new OutgoingLogicalMessage(typeof(MyReply), new MyReply()));
             context.Extensions = options.Context;
-            context.Extensions.Set("NServiceBus.OperationProperties", new ContextBag(options.Context));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>

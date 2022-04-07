@@ -3,7 +3,6 @@ namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
-    using Extensibility;
     using ObjectBuilder;
     using Pipeline;
 

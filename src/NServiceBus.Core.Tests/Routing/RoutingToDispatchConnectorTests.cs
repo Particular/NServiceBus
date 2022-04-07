@@ -38,10 +38,8 @@
             var behavior = new RoutingToDispatchConnector();
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
-            var context = CreateContext(options, true);
-            context.Extensions.Set("NServiceBus.OperationProperties", new ContextBag(options.Context));
             await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), context), c =>
+                new UnicastRoutingStrategy("Destination"), CreateContext(options, true)), c =>
                 {
                     dispatched = true;
                     return TaskEx.CompletedTask;

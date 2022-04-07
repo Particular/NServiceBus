@@ -41,8 +41,9 @@ namespace NServiceBus.Extensibility
             Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
             if (!behaviorContext.Extensions.TryGet(MessageOperations.OperationPropertiesKey, out ContextBag context))
             {
-                context = new ContextBag();
-                behaviorContext.Extensions.Set(MessageOperations.OperationPropertiesKey, context);
+                //context = new ContextBag();
+                //behaviorContext.Extensions.Set(MessageOperations.OperationPropertiesKey, context);
+                return behaviorContext.Extensions; // fallback behavior
             }
 
             return context;

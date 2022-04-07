@@ -2,7 +2,6 @@ namespace NServiceBus.Core.Tests.Routing
 {
     using System;
     using System.Collections.Generic;
-    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -423,7 +422,6 @@ namespace NServiceBus.Core.Tests.Routing
                 Message = new OutgoingLogicalMessage(message.GetType(), message),
                 Extensions = options.Context
             };
-            context.Extensions.Set("NServiceBus.OperationProperties", new ContextBag(options.Context));
             return context;
         }
     }
