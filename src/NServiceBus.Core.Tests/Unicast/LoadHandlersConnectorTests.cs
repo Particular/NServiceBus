@@ -48,5 +48,19 @@
                 : Task.CompletedTask));
             Assert.IsNull(synchronizedStorageSessionProvider.SynchronizedStorageSession);
         }
+
+        [Test]
+        public void Should_work_without_synchronized_storage_session_provider()
+        {
+            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new FakeSynchronizedStorage(),
+                new FakeTransactionalSynchronizedStorageAdapter());
+
+            var context = new TestableIncomingLogicalMessageContext();
+            context.Extensions.Set<IOutboxTransaction>(new FakeOutboxTransaction());
+            context.Extensions.Set(new TransportTransaction());
+            context.MessageHandled = true;
+
+            Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c => Task.CompletedTask));
+        }
     }
 }
