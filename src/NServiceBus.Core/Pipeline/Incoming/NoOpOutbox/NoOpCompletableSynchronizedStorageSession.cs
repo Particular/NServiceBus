@@ -2,21 +2,34 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using Janitor;
+    using Outbox;
     using Persistence;
+    using Transport;
 
     // Do not allow Fody to weave the IDisposable for us so that other threads can still access the instance of this class
     // even after it has been disposed.
     [SkipWeaving]
-    class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronizedStorageSession
+    sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
-        public Task CompleteAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        public ValueTask<bool> OpenSession(IOutboxTransaction transaction, ContextBag context,
+            CancellationToken cancellationToken = default) =>
+            new ValueTask<bool>(true);
+
+        public ValueTask<bool> OpenSession(TransportTransaction transportTransaction, ContextBag context,
+            CancellationToken cancellationToken = default) =>
+            new ValueTask<bool>(false);
+
+        public ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default) =>
+            new ValueTask<bool>(false);
+
+        public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public void Dispose()
         {
         }
+
+        public static ICompletableSynchronizedStorageSession Instance = new NoOpCompletableSynchronizedStorageSession();
     }
 }

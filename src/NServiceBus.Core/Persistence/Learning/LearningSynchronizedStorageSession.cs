@@ -4,8 +4,11 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using Janitor;
+    using Outbox;
     using Persistence;
+    using Transport;
 
     [SkipWeaving]
     class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
@@ -24,6 +27,15 @@ namespace NServiceBus
 
             sagaFiles.Clear();
         }
+
+        public ValueTask<bool> OpenSession(IOutboxTransaction transaction, ContextBag context,
+            CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
+
+        public ValueTask<bool> OpenSession(TransportTransaction transportTransaction, ContextBag context,
+            CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
+
+        public ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+            => new ValueTask<bool>(true);
 
         public async Task CompleteAsync(CancellationToken cancellationToken = default)
         {
