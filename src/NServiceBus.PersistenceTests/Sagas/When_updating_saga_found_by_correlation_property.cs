@@ -22,8 +22,10 @@
             var context = configuration.GetContextBagForSagaStorage();
             var correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
             var persister = configuration.SagaStorage;
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.OpenSession(context);
+
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 
                 sagaData.SomeProperty = updatedValue;

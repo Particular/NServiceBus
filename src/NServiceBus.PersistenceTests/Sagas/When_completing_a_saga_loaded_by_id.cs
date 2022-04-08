@@ -13,8 +13,10 @@
             await SaveSaga(saga);
 
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.OpenSession(context);
+
                 var sagaData = await configuration.SagaStorage.Get<TestSagaData>(saga.Id, completeSession, context);
 
                 await configuration.SagaStorage.Complete(sagaData, completeSession, context);

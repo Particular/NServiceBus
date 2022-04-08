@@ -25,8 +25,10 @@
             async Task FirstSession()
             {
                 var firstContent = configuration.GetContextBagForSagaStorage();
-                using (var firstSaveSession = await configuration.SynchronizedStorage.OpenSession(firstContent))
+                using (var firstSaveSession = configuration.CreateStorageSession())
                 {
+                    await firstSaveSession.OpenSession(firstContent);
+
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
                     firstSessionGetDone.SetResult(true);
 
@@ -40,8 +42,10 @@
             async Task SecondSession()
             {
                 var secondContext = configuration.GetContextBagForSagaStorage();
-                using (var secondSession = await configuration.SynchronizedStorage.OpenSession(secondContext))
+                using (var secondSession = configuration.CreateStorageSession())
                 {
+                    await secondSession.OpenSession(secondContext);
+
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
                     var recordTask = Task.Run(() => persister.Get<TestSagaData>(saga.Id, secondSession, secondContext));

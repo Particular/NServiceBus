@@ -23,8 +23,10 @@
             var firstTask = Task.Run(async () =>
             {
                 var winningContext = configuration.GetContextBagForSagaStorage();
-                using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
+                using (var winningSaveSession = configuration.CreateStorageSession())
                 {
+                    await winningSaveSession.OpenSession(winningContext);
+
                     var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
 
                     startSecondTaskSync.SetResult(true);
@@ -41,8 +43,10 @@
                 await startSecondTaskSync.Task;
 
                 var losingSaveContext = configuration.GetContextBagForSagaStorage();
-                using (var losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingSaveContext))
+                using (var losingSaveSession = configuration.CreateStorageSession())
                 {
+                    await losingSaveSession.OpenSession(losingSaveContext);
+
                     var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext);
 
                     firstTaskCanCompleteSync.SetResult(true);

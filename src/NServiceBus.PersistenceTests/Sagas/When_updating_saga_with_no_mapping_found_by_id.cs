@@ -24,8 +24,10 @@
 
             var updateValue = Guid.NewGuid().ToString();
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.OpenSession(context);
+
                 sagaData = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(sagaData.Id, completeSession, context);
                 sagaData.SomeSagaProperty = updateValue;
 

@@ -27,16 +27,20 @@
             };
 
             var savingContextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
+            using (var session = configuration.CreateStorageSession())
             {
+                await session.OpenSession(savingContextBag);
+
                 await SaveSagaWithSession(saga1, session, savingContextBag);
                 await SaveSagaWithSession(saga2, session, savingContextBag);
                 await session.CompleteAsync();
             }
 
             var readContextBag = configuration.GetContextBagForSagaStorage();
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
+            using (var readSession = configuration.CreateStorageSession())
             {
+                await readSession.OpenSession(readContextBag);
+
                 var saga1Result = await configuration.SagaStorage.Get<SagaWithoutCorrelationPropertyData>(saga1.Id, readSession, readContextBag);
 
                 var saga2Result = await configuration.SagaStorage.Get<AnotherSagaWithoutCorrelationPropertyData>(saga2.Id, readSession, readContextBag);

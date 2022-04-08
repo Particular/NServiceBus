@@ -1,6 +1,5 @@
 ----------- Public registrations used by Core -----------
-NServiceBus.Persistence.ISynchronizedStorage - Singleton
-NServiceBus.Persistence.ISynchronizedStorageAdapter - Singleton
+NServiceBus.Persistence.ICompletableSynchronizedStorageSession - Scoped
 NServiceBus.ReceiveAddresses - Singleton
 NServiceBus.Transport.IMessageDispatcher - Singleton
 NServiceBus.Transport.ITransportAddressResolver - Singleton

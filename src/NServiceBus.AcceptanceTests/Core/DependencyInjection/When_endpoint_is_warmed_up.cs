@@ -17,7 +17,7 @@
         public async Task Make_sure_things_are_in_DI()
         {
             var serviceCollection = new ServiceCollection();
-            SpyConainer spyContainer = null;
+            SpyContainer spyContainer = null;
             await Scenario.Define<Context>()
                 .WithEndpoint<StartedEndpoint>(b =>
                 {
@@ -25,7 +25,7 @@
                         endpointConfiguration => Task.FromResult(EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection)),
                         startableEndpoint =>
                         {
-                            spyContainer = new SpyConainer(serviceCollection);
+                            spyContainer = new SpyContainer(serviceCollection);
                             return startableEndpoint.Start(spyContainer);
                         });
                     b.When(e => e.SendLocal(new SomeMessage()));
@@ -34,7 +34,7 @@
                 .Run();
 
             var builder = new StringBuilder();
-            var coreComponents = spyContainer.RegisteredComponents.Values
+            var coreComponents = spyContainer.RegisteredServices.Values
                 .OrderBy(c => c.Type.FullName)
                 .ToList();
 
@@ -106,18 +106,18 @@
         {
         }
 
-        class SpyConainer : IServiceProvider
+        class SpyContainer : IServiceProvider, IServiceScopeFactory
         {
-            public Dictionary<Type, RegisteredService> RegisteredComponents { get; } = new Dictionary<Type, RegisteredService>();
+            public Dictionary<Type, RegisteredService> RegisteredServices { get; } = new Dictionary<Type, RegisteredService>();
 
             IServiceProvider ServiceProvider { get; }
 
-            public SpyConainer(IServiceCollection serviceCollection)
+            public SpyContainer(IServiceCollection serviceCollection)
             {
                 foreach (var serviceDescriptor in serviceCollection
                     .Where(sd => sd.ServiceType.Assembly == typeof(IMessage).Assembly))
                 {
-                    RegisteredComponents[serviceDescriptor.ServiceType] = new RegisteredService
+                    RegisteredServices[serviceDescriptor.ServiceType] = new RegisteredService
                     {
                         Type = serviceDescriptor.ServiceType,
                         Lifecycle = serviceDescriptor.Lifetime
@@ -129,12 +129,43 @@
 
             public object GetService(Type serviceType)
             {
-                if (RegisteredComponents.TryGetValue(serviceType, out var registeredService))
+                if (RegisteredServices.TryGetValue(serviceType, out var registeredService))
                 {
                     registeredService.WasResolved = true;
                 }
 
-                return ServiceProvider.GetService(serviceType);
+                return serviceType == typeof(IServiceScopeFactory) ? this : ServiceProvider.GetService(serviceType);
+            }
+
+            public IServiceScope CreateScope()
+            {
+                var scope = ServiceProvider.CreateScope();
+                return new SpyScope(scope, RegisteredServices);
+            }
+
+            class SpyScope : IServiceScope, IServiceProvider
+            {
+                readonly IServiceScope decorated;
+                readonly Dictionary<Type, RegisteredService> registeredServices;
+
+                public SpyScope(IServiceScope decorated, Dictionary<Type, RegisteredService> registeredServices)
+                {
+                    this.registeredServices = registeredServices;
+                    this.decorated = decorated;
+                }
+
+                public IServiceProvider ServiceProvider => this;
+                public object GetService(Type serviceType)
+                {
+                    if (registeredServices.TryGetValue(serviceType, out var registeredService))
+                    {
+                        registeredService.WasResolved = true;
+                    }
+
+                    return decorated.ServiceProvider.GetService(serviceType);
+                }
+
+                public void Dispose() => decorated.Dispose();
             }
 
             public class RegisteredService
@@ -143,10 +174,7 @@
                 public ServiceLifetime Lifecycle { get; set; }
                 public bool WasResolved { get; set; }
 
-                public override string ToString()
-                {
-                    return $"{Type.FullName} - {Lifecycle}";
-                }
+                public override string ToString() => $"{Type.FullName} - {Lifecycle}";
             }
         }
     }

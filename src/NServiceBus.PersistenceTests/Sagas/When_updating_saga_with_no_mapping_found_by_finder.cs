@@ -23,8 +23,10 @@
 
             var updateValue = Guid.NewGuid().ToString();
             var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.OpenSession(context);
+
                 // the saga won't be loaded via a persister.Get operation in this case
                 var customFinder = new CustomFinder(saga);
                 var sagaData = await customFinder.FindBy(new SagaWithoutCorrelationPropertyStartingMessage(), completeSession, context);

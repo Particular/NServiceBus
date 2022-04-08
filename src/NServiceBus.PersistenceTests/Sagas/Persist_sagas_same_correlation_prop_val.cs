@@ -22,8 +22,10 @@
 
             var persister = configuration.SagaStorage;
             var savingContextBag = configuration.GetContextBagForSagaStorage();
-            using (var session = await configuration.SynchronizedStorage.OpenSession(savingContextBag))
+            using (var session = configuration.CreateStorageSession())
             {
+                await session.OpenSession(savingContextBag);
+
                 await SaveSagaWithSession(saga1, session, savingContextBag);
                 await SaveSagaWithSession(saga2, session, savingContextBag);
 
@@ -31,8 +33,10 @@
             }
 
             var readContextBag = configuration.GetContextBagForSagaStorage();
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
+            using (var readSession = configuration.CreateStorageSession())
             {
+                await readSession.OpenSession(readContextBag);
+
                 var saga1Result = await persister.Get<SagaWithCorrelationPropertyData>(nameof(SagaWithCorrelationPropertyData.CorrelatedProperty), saga1.CorrelatedProperty, readSession, readContextBag);
 
                 var saga2Result = await persister.Get<AnotherSagaWithCorrelatedPropertyData>(nameof(AnotherSagaWithCorrelatedPropertyData.CorrelatedProperty), saga2.CorrelatedProperty, readSession, readContextBag);
