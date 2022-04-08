@@ -39,7 +39,7 @@ namespace NServiceBus.Extensibility
         static ReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
         {
             Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
-            if (!behaviorContext.Extensions.TryGet(MessageOperations.OperationPropertiesKey, out ContextBag context))
+            if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))
             {
                 //context = new ContextBag();
                 //behaviorContext.Extensions.Set(MessageOperations.OperationPropertiesKey, context);

@@ -9,8 +9,6 @@ namespace NServiceBus
 
     class MessageOperations
     {
-        public const string OperationPropertiesKey = "NServiceBus.OperationProperties";
-
         IMessageMapper messageMapper;
         readonly IPipeline<IOutgoingPublishContext> publishPipeline;
         readonly IPipeline<IOutgoingSendContext> sendPipeline;
@@ -61,8 +59,6 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            publishContext.Set(OperationPropertiesKey, options.Context);
-
             return publishPipeline.Invoke(publishContext);
         }
 
@@ -73,8 +69,6 @@ namespace NServiceBus
                 eventType,
                 options.Context);
 
-            subscribeContext.Set(OperationPropertiesKey, options.Context);
-
             return subscribePipeline.Invoke(subscribeContext);
         }
 
@@ -84,8 +78,6 @@ namespace NServiceBus
                 context,
                 eventType,
                 options.Context);
-
-            unsubscribeContext.Set(OperationPropertiesKey, options.Context);
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -116,10 +108,6 @@ namespace NServiceBus
                 headers,
                 options.Context,
                 context);
-
-
-
-            outgoingContext.Set(OperationPropertiesKey, options.Context);
 
             if (options.DelayedDeliveryConstraint != null)
             {
@@ -157,8 +145,6 @@ namespace NServiceBus
                 headers,
                 options.Context,
                 context);
-
-            outgoingContext.Set(OperationPropertiesKey, options.Context);
 
             return replyPipeline.Invoke(outgoingContext);
         }

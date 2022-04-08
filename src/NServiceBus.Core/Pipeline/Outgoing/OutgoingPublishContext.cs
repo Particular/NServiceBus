@@ -16,6 +16,7 @@
             Message = message;
 
             Merge(extensions);
+            Set(ExtendableOptions.OperationPropertiesKey, extensions);
 
         }
 
