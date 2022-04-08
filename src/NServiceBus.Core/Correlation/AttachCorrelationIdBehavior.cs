@@ -10,7 +10,7 @@
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             string correlationId = null;
-            if (context.GetOperationProperties().TryGet(out State state))
+            if (context.TryGetOperationProperty(out State state))
             {
                 correlationId = state.CustomCorrelationId;
             }

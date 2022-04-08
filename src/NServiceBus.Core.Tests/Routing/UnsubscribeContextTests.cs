@@ -9,15 +9,15 @@
         [Test]
         public void ShouldShallowCloneContext()
         {
-            var context = new ContextBag();
-            context.Set("someKey", "someValue");
+            var context = new UnsubscribeOptions();
+            context.GetExtensions().Set("someKey", "someValue");
 
             var testee = new UnsubscribeContext(new FakeRootContext(), typeof(object), context);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
-            context.TryGet("someKey", out string value);
+            context.GetExtensions().TryGet("someKey", out string value);
             Assert.AreEqual("someValue", value);
-            Assert.IsFalse(context.TryGet("anotherKey", out string _));
+            Assert.IsFalse(context.GetExtensions().TryGet("anotherKey", out string _));
             testee.Extensions.TryGet("someKey", out string updatedValue);
             testee.Extensions.TryGet("anotherKey", out string anotherValue2);
             Assert.AreEqual("updatedValue", updatedValue);
@@ -27,8 +27,8 @@
         [Test]
         public void ShouldNotMergeOptionsToParentContext()
         {
-            var context = new ContextBag();
-            context.Set("someKey", "someValue");
+            var context = new UnsubscribeOptions();
+            context.GetExtensions().Set("someKey", "someValue");
 
             var parentContext = new FakeRootContext();
 

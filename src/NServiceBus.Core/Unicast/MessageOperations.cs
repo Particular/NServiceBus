@@ -56,7 +56,7 @@ namespace NServiceBus
                 new OutgoingLogicalMessage(messageType, message),
                 messageId,
                 headers,
-                options.Context,
+                options,
                 context);
 
             return publishPipeline.Invoke(publishContext);
@@ -67,7 +67,7 @@ namespace NServiceBus
             var subscribeContext = new SubscribeContext(
                 context,
                 eventType,
-                options.Context);
+                options);
 
             return subscribePipeline.Invoke(subscribeContext);
         }
@@ -77,7 +77,7 @@ namespace NServiceBus
             var unsubscribeContext = new UnsubscribeContext(
                 context,
                 eventType,
-                options.Context);
+                options);
 
             return unsubscribePipeline.Invoke(unsubscribeContext);
         }
@@ -106,7 +106,7 @@ namespace NServiceBus
                 new OutgoingLogicalMessage(messageType, message),
                 messageId,
                 headers,
-                options.Context,
+                options,
                 context);
 
             if (options.DelayedDeliveryConstraint != null)
@@ -143,7 +143,7 @@ namespace NServiceBus
                 new OutgoingLogicalMessage(messageType, message),
                 messageId,
                 headers,
-                options.Context,
+                options,
                 context);
 
             return replyPipeline.Invoke(outgoingContext);

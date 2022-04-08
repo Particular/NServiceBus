@@ -15,7 +15,7 @@
         public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
             var dispatchConsistency = DispatchConsistency.Default;
-            if (context.GetOperationProperties().TryGet(out State state) && state.ImmediateDispatch)
+            if (context.TryGetOperationProperty(out State state) && state.ImmediateDispatch)
             {
                 dispatchConsistency = DispatchConsistency.Isolated;
             }

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using Transport;
@@ -85,7 +84,7 @@
         static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
         {
             var message = new MyMessage();
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options.Context, new FakeRootContext());
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options, new FakeRootContext());
             if (fromHandler)
             {
                 context.Extensions.Set(new PendingTransportOperations());

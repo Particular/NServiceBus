@@ -1,20 +1,18 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Extensibility;
     using Pipeline;
 
     class UnsubscribeContext : BehaviorContext, IUnsubscribeContext
     {
-        public UnsubscribeContext(IBehaviorContext parentContext, Type eventType, ContextBag extensions)
+        public UnsubscribeContext(IBehaviorContext parentContext, Type eventType, UnsubscribeOptions options)
             : base(parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);
             Guard.AgainstNull(nameof(eventType), eventType);
-            Guard.AgainstNull(nameof(extensions), extensions);
+            Guard.AgainstNull(nameof(options), options);
 
-            Merge(extensions);
-            Set(ExtendableOptions.OperationPropertiesKey, extensions);
+            Merge(options);
 
             EventType = eventType;
         }

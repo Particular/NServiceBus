@@ -17,36 +17,33 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
+        /// TODO.
         /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this IOutgoingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
-
-        /// <summary>
-        /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
-        /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this IUnsubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
-
-        /// <summary>
-        /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
-        /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this ISubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
-
-        /// <summary>
-        /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
-        /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this IRoutingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
-
-        static ReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
+        public static bool TryGetOperationProperty<T>(this IBehaviorContext behaviorContext, out T value)
         {
             Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
-            if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))
+
+            if (behaviorContext.Extensions.TryGet("NServiceBus.ExtendableOptionsKey", out int prefix))
             {
-                //context = new ContextBag();
-                //behaviorContext.Extensions.Set(MessageOperations.OperationPropertiesKey, context);
-                return behaviorContext.Extensions; // fallback behavior
+                return behaviorContext.Extensions.TryGet($"{prefix}:{typeof(T).FullName}", out value);
             }
 
-            return context;
+            return behaviorContext.Extensions.TryGet(out value);
+        }
+
+        /// <summary>
+        /// TODO.
+        /// </summary>
+        public static bool TryGetOperationProperty<T>(this IBehaviorContext behaviorContext, string key, out T value)
+        {
+            Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
+
+            if (behaviorContext.Extensions.TryGet("NServiceBus.ExtendableOptionsKey", out int prefix))
+            {
+                return behaviorContext.Extensions.TryGet($"{prefix}:{key}", out value);
+            }
+
+            return behaviorContext.Extensions.TryGet(key, out value);
         }
     }
 }

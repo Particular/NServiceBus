@@ -10,8 +10,6 @@ namespace NServiceBus.Extensibility
     /// </remarks>
     public abstract class ExtendableOptions
     {
-        internal const string OperationPropertiesKey = "NServiceBus.OperationProperties";
-
         /// <summary>
         /// Creates an instance of an extendable option.
         /// </summary>

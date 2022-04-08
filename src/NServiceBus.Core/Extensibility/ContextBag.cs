@@ -143,6 +143,17 @@ namespace NServiceBus.Extensibility
             }
         }
 
+        internal void Merge(ExtendableOptions extendableOptions)
+        {
+            Merge(extendableOptions.Context);
+            var prefix = extendableOptions.Context.GetHashCode();
+            Set("NServiceBus.ExtendableOptionsKey", prefix);
+            foreach (var kvp in extendableOptions.Context.stash)
+            {
+                stash[$"{prefix}:{kvp.Key}"] = kvp.Value;
+            }
+        }
+
         ContextBag parentBag;
 
         Dictionary<string, object> stash = new Dictionary<string, object>();

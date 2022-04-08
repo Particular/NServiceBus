@@ -21,7 +21,7 @@
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out var sagaId);
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out var sagaType);
 
-                if (context.GetOperationProperties().TryGet(out State state))
+                if (context.TryGetOperationProperty(out State state))
                 {
                     sagaId = state.SagaIdToUse;
                     sagaType = state.SagaTypeToUse;

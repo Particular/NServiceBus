@@ -12,7 +12,7 @@ namespace NServiceBus
         public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
             string replyToAddress = null;
-            if (context.GetOperationProperties().TryGet(out State state))
+            if (context.TryGetOperationProperty(out State state))
             {
                 replyToAddress = state.ExplicitDestination;
             }
