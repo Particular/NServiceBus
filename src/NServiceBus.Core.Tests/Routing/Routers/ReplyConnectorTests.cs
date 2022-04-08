@@ -12,11 +12,9 @@
         {
             var router = new ReplyConnector();
             var replyOptions = new ReplyOptions();
-            replyOptions.RouteReplyTo("Fake");
-
+            replyOptions.SetDestination("Fake");
 
             var context = new TestableOutgoingReplyContext();
-            context.Extensions.Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
             context.Extensions.Merge(replyOptions.Context);
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
