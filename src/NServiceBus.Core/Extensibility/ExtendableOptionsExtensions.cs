@@ -19,27 +19,27 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
         /// </summary>
-        public static ContextBag GetOperationProperties(this IOutgoingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static ReadOnlyContextBag GetOperationProperties(this IOutgoingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
         /// <summary>
         /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
         /// </summary>
-        public static ContextBag GetOperationProperties(this IUnsubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static ReadOnlyContextBag GetOperationProperties(this IUnsubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
         /// <summary>
         /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
         /// </summary>
-        public static ContextBag GetOperationProperties(this ISubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static ReadOnlyContextBag GetOperationProperties(this ISubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
         /// <summary>
         /// Get access to the dedicated "bucket" for the outgoing message. In comparison with GetExtension method, settings set in this <see cref="ContextBag"/> are isolated for the given operation.
         /// </summary>
-        public static ContextBag GetOperationProperties(this IRoutingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static ReadOnlyContextBag GetOperationProperties(this IRoutingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
-        static ContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
+        static ReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
         {
             Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
-            if (!behaviorContext.Extensions.TryGet(MessageOperations.OperationPropertiesKey, out ContextBag context))
+            if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))
             {
                 //context = new ContextBag();
                 //behaviorContext.Extensions.Set(MessageOperations.OperationPropertiesKey, context);

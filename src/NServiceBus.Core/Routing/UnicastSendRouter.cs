@@ -37,7 +37,11 @@ namespace NServiceBus
 
         public virtual UnicastRoutingStrategy Route(IOutgoingSendContext context)
         {
-            var state = context.GetOperationProperties().GetOrCreate<State>();
+            if (!context.GetOperationProperties().TryGet(out State state))
+            {
+                state = new State();
+            }
+
             var route = SelectRoute(state, context);
             return ResolveRoute(route, context);
         }

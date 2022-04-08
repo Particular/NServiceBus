@@ -24,7 +24,11 @@
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            var state = context.GetOperationProperties().GetOrCreate<State>();
+            if (!context.GetOperationProperties().TryGet(out State state))
+            {
+                state = new State();
+            }
+
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");

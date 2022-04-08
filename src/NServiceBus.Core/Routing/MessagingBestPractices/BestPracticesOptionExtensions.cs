@@ -34,7 +34,7 @@
         public static void DoNotEnforceBestPractices(this IOutgoingReplyContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.GetOperationProperties().SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -43,7 +43,7 @@
         public static void DoNotEnforceBestPractices(this IOutgoingSendContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.GetOperationProperties().SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         public static void DoNotEnforceBestPractices(this ISubscribeContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.GetOperationProperties().SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -61,7 +61,7 @@
         public static void DoNotEnforceBestPractices(this IOutgoingPublishContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.GetOperationProperties().SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -70,7 +70,7 @@
         public static void DoNotEnforceBestPractices(this IUnsubscribeContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.GetOperationProperties().SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         static void SetDoNotEnforceBestPractices(this ContextBag context)
