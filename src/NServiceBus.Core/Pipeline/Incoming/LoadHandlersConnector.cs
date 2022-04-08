@@ -27,43 +27,43 @@
         {
             var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
-            using (var sessionProvider = context.Builder.GetService<SynchronizedStorageSessionProvider>())
-            using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false))
+
+            using var sessionProvider = context.Builder.GetService<SynchronizedStorageSessionProvider>();
+            using var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+
+            if (sessionProvider != null)
             {
-                if (sessionProvider != null)
-                {
-                    sessionProvider.SynchronizedStorageSession = storageSession;
-                }
-
-                var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
-
-                if (!context.MessageHandled && handlersToInvoke.Count == 0)
-                {
-                    var error = $"No handlers could be found for message type: {context.Message.MessageType}";
-                    throw new InvalidOperationException(error);
-                }
-
-                if (isDebugIsEnabled)
-                {
-                    LogHandlersInvocation(context, handlersToInvoke);
-                }
-
-                foreach (var messageHandler in handlersToInvoke)
-                {
-                    messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
-
-                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-                    await stage(handlingContext).ConfigureAwait(false);
-
-                    if (handlingContext.HandlerInvocationAborted)
-                    {
-                        //if the chain was aborted skip the other handlers
-                        break;
-                    }
-                }
-                context.MessageHandled = true;
-                await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
+                sessionProvider.SynchronizedStorageSession = storageSession;
             }
+
+            var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
+
+            if (!context.MessageHandled && handlersToInvoke.Count == 0)
+            {
+                var error = $"No handlers could be found for message type: {context.Message.MessageType}";
+                throw new InvalidOperationException(error);
+            }
+
+            if (isDebugIsEnabled)
+            {
+                LogHandlersInvocation(context, handlersToInvoke);
+            }
+
+            foreach (var messageHandler in handlersToInvoke)
+            {
+                messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
+
+                var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
+                await stage(handlingContext).ConfigureAwait(false);
+
+                if (handlingContext.HandlerInvocationAborted)
+                {
+                    //if the chain was aborted skip the other handlers
+                    break;
+                }
+            }
+            context.MessageHandled = true;
+            await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
         }
 
         async Task<ICompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, IOutboxTransaction outboxTransaction, ContextBag contextBag, CancellationToken cancellationToken)
