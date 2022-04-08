@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using System.Threading.Tasks;
     using Outbox;
     using NServiceBus.Transport;
@@ -28,7 +29,7 @@
         }
 
         [Test]
-        public async Task Should_not_have_synchronized_session_available_after_handlers_connector_completes()
+        public void Should_not_have_synchronized_session_available_after_handlers_connector_completes()
         {
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new FakeSynchronizedStorage(),
                 new FakeTransactionalSynchronizedStorageAdapter());
@@ -41,13 +42,10 @@
             var synchronizedStorageSessionProvider = new SynchronizedStorageSessionProvider();
             context.Services.AddSingleton(synchronizedStorageSessionProvider);
 
-            await behavior.Invoke(context, c =>
-            {
-                var capturedSession = synchronizedStorageSessionProvider.SynchronizedStorageSession;
-                Assert.NotNull(capturedSession);
-                return Task.CompletedTask;
-            });
-
+            Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
+                synchronizedStorageSessionProvider.SynchronizedStorageSession is null
+                ? throw new ArgumentNullException(nameof(synchronizedStorageSessionProvider.SynchronizedStorageSession))
+                : Task.CompletedTask));
             Assert.IsNull(synchronizedStorageSessionProvider.SynchronizedStorageSession);
         }
     }
