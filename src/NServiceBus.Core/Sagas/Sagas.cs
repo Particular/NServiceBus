@@ -17,6 +17,10 @@
 
             Defaults(s =>
             {
+                s.EnableFeatureByDefault<SynchronizedStorage>();
+
+                s.Set(new SagaMetadataCollection());
+
                 conventions = s.Get<Conventions>();
 
                 var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
@@ -26,7 +30,7 @@
                 }
             });
 
-            Defaults(s => s.Set(new SagaMetadataCollection()));
+            DependsOn<SynchronizedStorage>();
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");

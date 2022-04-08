@@ -11,7 +11,14 @@
     {
         internal Outbox()
         {
-            Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
+            Defaults(s =>
+            {
+                s.EnableFeatureByDefault<SynchronizedStorage>();
+                s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5));
+            });
+
+            DependsOn<SynchronizedStorage>();
+
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
                 "Outbox is only relevant for endpoints receiving messages.");
 
