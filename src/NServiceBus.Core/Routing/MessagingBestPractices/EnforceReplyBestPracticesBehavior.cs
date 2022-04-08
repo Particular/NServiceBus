@@ -14,7 +14,8 @@ namespace NServiceBus
 
         public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
         {
-            if (!context.TryGetOperationProperty(out EnforceBestPracticesOptions options) || options.Enabled)
+            if (!context.Extensions.TryGet(ContextBag.GetPrefixedKey<EnforceBestPracticesOptions>(context.MessageId), out EnforceBestPracticesOptions options)
+                || options.Enabled)
             {
                 validations.AssertIsValidForReply(context.Message.MessageType);
             }

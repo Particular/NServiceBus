@@ -14,11 +14,7 @@
     {
         public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
-            var dispatchConsistency = DispatchConsistency.Default;
-            if (context.TryGetOperationProperty(out State state) && state.ImmediateDispatch)
-            {
-                dispatchConsistency = DispatchConsistency.Isolated;
-            }
+            var dispatchConsistency = context.Extensions.GetOrCreate<State>(ContextBag.GetPrefixedKey<State>(context.Message.MessageId)).ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
 
             var operations = new TransportOperation[context.RoutingStrategies.Count];
             var index = 0;

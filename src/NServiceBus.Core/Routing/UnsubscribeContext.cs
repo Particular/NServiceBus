@@ -12,7 +12,8 @@
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(options), options);
 
-            Merge(options);
+            Merge(options.Context);
+            Merge(options.Context, "unsubscribe");
 
             EventType = eventType;
         }

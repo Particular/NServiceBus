@@ -24,10 +24,9 @@
 
         static IOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
         {
-            var context = new TestableOutgoingLogicalMessageContext
-            {
-                Extensions = options.Context
-            };
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Extensions.Merge(options.Context);
+            context.Extensions.Merge(options.Context, context.MessageId);
 
             return context;
         }

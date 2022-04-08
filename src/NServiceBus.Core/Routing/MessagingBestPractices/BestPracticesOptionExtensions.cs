@@ -14,7 +14,7 @@
         public static void DoNotEnforceBestPractices(this ExtendableOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            options.Context.SetDoNotEnforceBestPractices();
+            options.Context.SetDoNotEnforceBestPractices(null);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
         public static void DoNotEnforceBestPractices(this IOutgoingReplyContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.Extensions.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices(context.MessageId);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@
         public static void DoNotEnforceBestPractices(this IOutgoingSendContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.Extensions.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices(context.MessageId);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         public static void DoNotEnforceBestPractices(this ISubscribeContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.Extensions.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices("subscribe");
         }
 
         /// <summary>
@@ -61,7 +61,7 @@
         public static void DoNotEnforceBestPractices(this IOutgoingPublishContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.Extensions.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices(context.MessageId);
         }
 
         /// <summary>
@@ -70,16 +70,16 @@
         public static void DoNotEnforceBestPractices(this IUnsubscribeContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            context.Extensions.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices("unsubscribe");
         }
 
-        static void SetDoNotEnforceBestPractices(this ContextBag context)
+        static void SetDoNotEnforceBestPractices(this ContextBag context, string prefix)
         {
             var bestPracticesOptions = new EnforceBestPracticesOptions
             {
                 Enabled = false
             };
-            context.Set(bestPracticesOptions);
+            context.Set(ContextBag.GetPrefixedKey<EnforceBestPracticesOptions>(prefix), bestPracticesOptions);
         }
     }
 }

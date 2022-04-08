@@ -9,11 +9,8 @@
     {
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            string correlationId = null;
-            if (context.TryGetOperationProperty(out State state))
-            {
-                correlationId = state.CustomCorrelationId;
-            }
+            var state = context.Extensions.GetOrCreate<State>(ContextBag.GetPrefixedKey<State>(context.MessageId));
+            string correlationId = state.CustomCorrelationId;
 
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))

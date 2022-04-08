@@ -14,7 +14,8 @@
 
             Message = message;
 
-            Merge(options);
+            Merge(options.Context);
+            Merge(options.Context, messageId);
         }
 
         public OutgoingLogicalMessage Message { get; }

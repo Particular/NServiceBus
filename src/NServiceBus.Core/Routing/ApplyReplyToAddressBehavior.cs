@@ -24,10 +24,7 @@
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            if (!context.TryGetOperationProperty(out State state))
-            {
-                state = new State();
-            }
+            var state = context.Extensions.GetOrCreate<State>(ContextBag.GetPrefixedKey<State>(context.MessageId));
 
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
             {

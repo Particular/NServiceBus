@@ -16,6 +16,21 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
+        /// TODO.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string GetPrefixedKey(string prefix, string key) => string.IsNullOrEmpty(prefix) ? key : $"{prefix}:{key}";
+        /// <summary>
+        /// TODO.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string GetPrefixedKey<T>(string prefix) => GetPrefixedKey(prefix, typeof(T).FullName);
+
+        /// <summary>
         /// Retrieves the specified type from the context.
         /// </summary>
         /// <typeparam name="T">The type to retrieve.</typeparam>
@@ -91,6 +106,23 @@ namespace NServiceBus.Extensibility
             return newInstance;
         }
 
+        /// <summary>
+        /// Gets the requested extension, a new one will be created if needed.
+        /// </summary>
+        public T GetOrCreate<T>(string key) where T : class, new()
+        {
+            if (TryGet(key, out T value))
+            {
+                return value;
+            }
+
+            var newInstance = new T();
+
+            Set(key, newInstance);
+
+            return newInstance;
+        }
+
 
         /// <summary>
         /// Stores the type instance in the context.
@@ -143,12 +175,14 @@ namespace NServiceBus.Extensibility
             }
         }
 
-        internal void Merge(ExtendableOptions extendableOptions)
+        /// <summary>
+        /// Merges the passed context into this one.
+        /// </summary>
+        /// <param name="context">The source context.</param>
+        /// <param name="prefix">The prefix to use.</param>
+        internal void Merge(ContextBag context, string prefix)
         {
-            Merge(extendableOptions.Context);
-            var prefix = extendableOptions.Context.GetHashCode();
-            Set("NServiceBus.ExtendableOptionsKey", prefix);
-            foreach (var kvp in extendableOptions.Context.stash)
+            foreach (var kvp in context.stash)
             {
                 stash[$"{prefix}:{kvp.Key}"] = kvp.Value;
             }
