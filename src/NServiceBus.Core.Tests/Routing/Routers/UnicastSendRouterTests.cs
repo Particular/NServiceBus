@@ -420,8 +420,8 @@ namespace NServiceBus.Core.Tests.Routing
             var context = new TestableOutgoingSendContext
             {
                 Message = new OutgoingLogicalMessage(message.GetType(), message),
-                Extensions = options.Context
             };
+            context.Extensions.MergeScoped(options.Context, context.MessageId);
             return context;
         }
     }

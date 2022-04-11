@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using Transport;
     using NUnit.Framework;
@@ -30,15 +28,23 @@
         [Test]
         public async Task Should_dispatch_immediately_if_user_requested()
         {
+            var behavior = new RoutingToDispatchConnector();
+            var dispatched = false;
+
             var options = new SendOptions();
             options.RequireImmediateDispatch();
 
-            var dispatched = false;
-            var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
+            var routingContext = new TestableRoutingContext()
+            {
+                RoutingStrategies = new RoutingStrategy[]
+                {
+                    new CustomRoutingStrategy()
+                }
+            };
+            routingContext.Extensions.Set(new PendingTransportOperations()); // simular message handler batching behavior
+            routingContext.Extensions.MergeScoped(options.Context, routingContext.Message.MessageId);
 
-            await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), CreateContext(options, true)), c =>
+            await behavior.Invoke(routingContext, c =>
                 {
                     dispatched = true;
                     return TaskEx.CompletedTask;
@@ -54,8 +60,14 @@
             var behavior = new RoutingToDispatchConnector();
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
-            await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), false)), c =>
+            var routingContext = new TestableRoutingContext()
+            {
+                RoutingStrategies = new RoutingStrategy[]
+                {
+                    new CustomRoutingStrategy()
+                }
+            };
+            await behavior.Invoke(routingContext, c =>
                 {
                     dispatched = true;
                     return TaskEx.CompletedTask;
@@ -69,27 +81,22 @@
         {
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
-            await behavior.Invoke(new RoutingContext(message,
-                new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), true)), c =>
+            var routingContext = new TestableRoutingContext()
+            {
+                RoutingStrategies = new RoutingStrategy[]
+                {
+                    new CustomRoutingStrategy()
+                }
+            };
+            routingContext.Extensions.Set(new PendingTransportOperations()); // simular message handler batching behavior
+            await behavior.Invoke(routingContext, c =>
                 {
                     dispatched = true;
                     return TaskEx.CompletedTask;
                 });
 
             Assert.IsFalse(dispatched);
-        }
-
-        static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
-        {
-            var message = new MyMessage();
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options, new FakeRootContext());
-            if (fromHandler)
-            {
-                context.Extensions.Set(new PendingTransportOperations());
-            }
-            return context;
         }
 
         class CustomRoutingStrategy : RoutingStrategy

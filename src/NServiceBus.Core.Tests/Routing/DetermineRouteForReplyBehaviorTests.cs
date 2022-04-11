@@ -58,11 +58,10 @@
         {
             var behavior = new ReplyConnector();
             var options = new ReplyOptions();
-
             options.SetDestination("CustomReplyToAddress");
 
             var context = CreateContext(new OutgoingLogicalMessage(typeof(MyReply), new MyReply()));
-            context.Extensions = options.Context;
+            context.Extensions.MergeScoped(options.Context, context.MessageId);
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>

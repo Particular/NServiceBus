@@ -15,7 +15,7 @@
             replyOptions.SetDestination("Fake");
 
             var context = new TestableOutgoingReplyContext();
-            context.Extensions.Merge(replyOptions.Context);
+            context.Extensions.MergeScoped(replyOptions.Context, context.MessageId);
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
 
