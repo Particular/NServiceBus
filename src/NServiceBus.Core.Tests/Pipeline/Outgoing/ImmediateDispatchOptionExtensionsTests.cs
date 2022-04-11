@@ -10,7 +10,7 @@
         {
             var options = new SendOptions();
 
-            Assert.IsFalse(options.RequiredImmediateDispatch());
+            Assert.IsFalse(options.IsImmediateDispatchSet());
         }
 
         [Test]
@@ -19,7 +19,7 @@
             var options = new SendOptions();
             options.RequireImmediateDispatch();
 
-            Assert.IsTrue(options.RequiredImmediateDispatch());
+            Assert.IsTrue(options.IsImmediateDispatchSet());
         }
     }
 }
