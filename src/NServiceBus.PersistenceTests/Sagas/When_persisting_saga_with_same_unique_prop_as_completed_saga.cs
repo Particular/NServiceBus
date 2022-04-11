@@ -19,7 +19,7 @@
             var context1 = configuration.GetContextBagForSagaStorage();
             using (var completeSession = configuration.CreateStorageSession())
             {
-                await completeSession.OpenSession(context1);
+                await completeSession.Open(context1);
 
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
                 Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
@@ -34,7 +34,7 @@
             var context2 = configuration.GetContextBagForSagaStorage();
             using (var completeSession = configuration.CreateStorageSession())
             {
-                await completeSession.OpenSession(context2);
+                await completeSession.Open(context2);
 
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
                 Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);

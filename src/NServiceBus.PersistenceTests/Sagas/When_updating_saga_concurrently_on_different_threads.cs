@@ -25,7 +25,7 @@
                 var winningContext = configuration.GetContextBagForSagaStorage();
                 using (var winningSaveSession = configuration.CreateStorageSession())
                 {
-                    await winningSaveSession.OpenSession(winningContext);
+                    await winningSaveSession.Open(winningContext);
 
                     var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
 
@@ -45,7 +45,7 @@
                 var losingSaveContext = configuration.GetContextBagForSagaStorage();
                 using (var losingSaveSession = configuration.CreateStorageSession())
                 {
-                    await losingSaveSession.OpenSession(losingSaveContext);
+                    await losingSaveSession.Open(losingSaveContext);
 
                     var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext);
 

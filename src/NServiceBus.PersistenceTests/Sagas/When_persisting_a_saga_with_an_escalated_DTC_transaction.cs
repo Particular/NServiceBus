@@ -33,9 +33,9 @@
                         var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
                         using (var unenlistedSession = configuration.CreateStorageSession())
                         {
-                            await unenlistedSession.OpenSession(unenlistedContextBag);
+                            await unenlistedSession.Open(unenlistedContextBag);
 
-                            await enlistedSession.OpenSession(transportTransaction, enlistedContextBag);
+                            await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
 
                             var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession,
                                 unenlistedContextBag);

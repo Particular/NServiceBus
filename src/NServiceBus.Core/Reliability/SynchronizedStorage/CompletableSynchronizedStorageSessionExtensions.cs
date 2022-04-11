@@ -20,15 +20,15 @@ namespace NServiceBus
         static async ValueTask OpenSession(this ICompletableSynchronizedStorageSession session, IOutboxTransaction outboxTransaction, TransportTransaction transportTransaction,
             ContextBag contextBag, CancellationToken cancellationToken)
         {
-            if (await session.OpenSession(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false))
+            if (await session.TryOpen(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false))
             {
                 return;
             }
-            if (await session.OpenSession(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false))
+            if (await session.TryOpen(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false))
             {
                 return;
             }
-            await session.OpenSession(contextBag, cancellationToken).ConfigureAwait(false);
+            await session.Open(contextBag, cancellationToken).ConfigureAwait(false);
         }
     }
 }

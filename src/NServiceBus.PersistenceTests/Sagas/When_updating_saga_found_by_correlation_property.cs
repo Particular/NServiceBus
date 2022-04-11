@@ -24,7 +24,7 @@
             var persister = configuration.SagaStorage;
             using (var completeSession = configuration.CreateStorageSession())
             {
-                await completeSession.OpenSession(context);
+                await completeSession.Open(context);
 
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 

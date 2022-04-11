@@ -34,7 +34,7 @@
             var insertContextBag = configuration.GetContextBagForSagaStorage();
             using (var insertSession = configuration.CreateStorageSession())
             {
-                await insertSession.OpenSession(insertContextBag, cancellationToken);
+                await insertSession.Open(insertContextBag, cancellationToken);
 
                 await SaveSagaWithSession(saga, insertSession, insertContextBag, cancellationToken);
                 await insertSession.CompleteAsync(cancellationToken);
@@ -57,7 +57,7 @@
 
             using (var completeSession = configuration.CreateStorageSession())
             {
-                await completeSession.OpenSession(context, cancellationToken);
+                await completeSession.Open(context, cancellationToken);
 
                 sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, cancellationToken);
 
@@ -73,7 +73,7 @@
             TSagaData sagaData;
             using (var readSession = configuration.CreateStorageSession())
             {
-                await readSession.OpenSession(readContextBag, cancellationToken);
+                await readSession.Open(readContextBag, cancellationToken);
 
                 sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, cancellationToken);
 

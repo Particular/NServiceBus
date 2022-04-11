@@ -24,7 +24,7 @@
 
         public FakeTransaction Transaction { get; private set; }
 
-        public ValueTask<bool> OpenSession(IOutboxTransaction transaction, ContextBag context,
+        public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
             CancellationToken cancellationToken = default)
         {
             if (transaction is FakeOutboxTransaction inMemOutboxTransaction)
@@ -37,7 +37,7 @@
             return new ValueTask<bool>(false);
         }
 
-        public ValueTask<bool> OpenSession(TransportTransaction transportTransaction, ContextBag context,
+        public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
             CancellationToken cancellationToken = default)
         {
             if (!transportTransaction.TryGet(out Transaction ambientTransaction))
@@ -51,11 +51,11 @@
             return new ValueTask<bool>(true);
         }
 
-        public ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public Task Open(ContextBag contextBag, CancellationToken cancellationToken = default)
         {
             ownsTransaction = true;
             Transaction = new FakeTransaction();
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
         public void Dispose() => Transaction = null;

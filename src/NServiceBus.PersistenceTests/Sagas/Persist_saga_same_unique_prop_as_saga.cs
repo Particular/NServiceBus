@@ -24,7 +24,7 @@
             var winningContextBag = configuration.GetContextBagForSagaStorage();
             using (var winningSession = configuration.CreateStorageSession())
             {
-                await winningSession.OpenSession(winningContextBag);
+                await winningSession.Open(winningContextBag);
 
                 await SaveSagaWithSession(saga1, winningSession, winningContextBag);
                 await winningSession.CompleteAsync();
@@ -33,7 +33,7 @@
             var losingContextBag = configuration.GetContextBagForSagaStorage();
             using (var losingSession = configuration.CreateStorageSession())
             {
-                await losingSession.OpenSession(losingContextBag);
+                await losingSession.Open(losingContextBag);
 
                 Assert.That(async () =>
                 {

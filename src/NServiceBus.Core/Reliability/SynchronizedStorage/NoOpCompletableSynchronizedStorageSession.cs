@@ -13,16 +13,16 @@ namespace NServiceBus
     [SkipWeaving]
     sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
-        public ValueTask<bool> OpenSession(IOutboxTransaction transaction, ContextBag context,
+        public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
             CancellationToken cancellationToken = default) =>
             new ValueTask<bool>(true);
 
-        public ValueTask<bool> OpenSession(TransportTransaction transportTransaction, ContextBag context,
+        public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
             CancellationToken cancellationToken = default) =>
             new ValueTask<bool>(false);
 
-        public ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default) =>
-            new ValueTask();
+        public Task Open(ContextBag contextBag, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
 
         public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 

@@ -17,7 +17,7 @@
             var context = configuration.GetContextBagForSagaStorage();
             using (var completeSession = configuration.CreateStorageSession())
             {
-                await completeSession.OpenSession(context);
+                await completeSession.Open(context);
 
                 var sagaData = await configuration.SagaStorage.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 

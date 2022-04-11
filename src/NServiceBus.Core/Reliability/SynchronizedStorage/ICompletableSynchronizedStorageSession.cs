@@ -13,29 +13,29 @@
     public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSession, IDisposable
     {
         /// <summary>
-        /// Begins a new storage session which is an atomic unit of work.
+        /// Tries to open the storage session with the provided outbox transaction.
         /// </summary>
         /// <param name="transaction">Outbox transaction.</param>
         /// <param name="context">Context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns><c>true</c> when the session was opened; otherwise <c>false</c>.</returns>
-        ValueTask<bool> OpenSession(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
+        ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Begins a new storage session which is an atomic unit of work.
+        /// Tries to open the storage session with the provided transport transaction.
         /// </summary>
         /// <param name="transportTransaction">Transport transaction.</param>
         /// <param name="context">Context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns><c>true</c> when the session was opened; otherwise <c>false</c>.</returns>
-        ValueTask<bool> OpenSession(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default);
+        ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Begins a new storage session which is an atomic unit of work.
+        /// Opens the storage session.
         /// </summary>
         /// <param name="contextBag">The context information.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default);
+        Task Open(ContextBag contextBag, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Completes the session by saving the changes.

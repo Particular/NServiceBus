@@ -25,7 +25,7 @@
             var context = configuration.GetContextBagForSagaStorage();
             using (var completeSession = configuration.CreateStorageSession())
             {
-                await completeSession.OpenSession(context);
+                await completeSession.Open(context);
 
                 // the saga won't be loaded via a persister.Get operation in this case
                 var customFinder = new CustomFinder(saga);

@@ -34,7 +34,7 @@
                 var firstSessionContext = configuration.GetContextBagForSagaStorage();
                 using (var firstSaveSession = configuration.CreateStorageSession())
                 {
-                    await firstSaveSession.OpenSession(firstSessionContext);
+                    await firstSaveSession.Open(firstSessionContext);
 
                     var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstSessionContext);
                     firstSessionGetDone.SetResult(true);
@@ -54,7 +54,7 @@
                 var secondContext = configuration.GetContextBagForSagaStorage();
                 using (var secondSession = configuration.CreateStorageSession())
                 {
-                    await secondSession.OpenSession(secondContext);
+                    await secondSession.Open(secondContext);
 
                     await firstSessionGetDone.Task.ConfigureAwait(false);
 
