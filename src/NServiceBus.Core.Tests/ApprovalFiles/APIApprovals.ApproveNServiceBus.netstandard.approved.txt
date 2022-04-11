@@ -1552,7 +1552,8 @@ namespace NServiceBus.Extensibility
             where T :  class, new () { }
         public static void SetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, T value) { }
         public static void SetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, string key, T value) { }
-        public static bool TryGetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, out T result) { }
+        public static bool TryGetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, out T result)
+            where T :  class { }
         public static bool TryGetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, string key, out T result) { }
     }
     public abstract class ExtendableOptions
