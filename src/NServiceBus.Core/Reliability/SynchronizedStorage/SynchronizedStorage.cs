@@ -1,5 +1,8 @@
 namespace NServiceBus.Features
 {
+    using Microsoft.Extensions.DependencyInjection;
+    using Persistence;
+
     /// <summary>
     /// Configures the synchronized storage.
     /// </summary>
@@ -14,6 +17,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            context.Services.AddScoped<ISynchronizedStorageSession>(provider => provider.GetService<ICompletableSynchronizedStorageSession>());
         }
     }
 }

@@ -28,7 +28,6 @@ namespace NServiceBus
             {
                 return;
             }
-
             await session.OpenSession(contextBag, cancellationToken).ConfigureAwait(false);
         }
     }

@@ -8,7 +8,7 @@
     using Core.Tests.Fakes;
 
     [TestFixture]
-    public class LoadHandlersBehaviorTests
+    public class LoadHandlersConnectorTests
     {
         [Test]
         public void Should_throw_when_there_are_no_registered_message_handlers()
