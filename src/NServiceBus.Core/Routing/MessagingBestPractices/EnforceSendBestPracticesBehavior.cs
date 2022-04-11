@@ -14,8 +14,7 @@
 
         public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next)
         {
-            if (!context.Extensions.TryGetScoped(context.MessageId, out EnforceBestPracticesOptions options)
-                || options.Enabled)
+            if (!context.Extensions.TryGetScoped(context.MessageId, out EnforceBestPracticesOptions options) || options.Enabled)
             {
                 validations.AssertIsValidForSend(context.Message.MessageType);
             }

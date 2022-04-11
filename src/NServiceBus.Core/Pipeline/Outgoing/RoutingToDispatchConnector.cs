@@ -14,7 +14,8 @@
     {
         public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
-            var dispatchConsistency = context.Extensions.GetOrCreateScoped<State>(context.Message.MessageId).ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
+            var state = context.Extensions.GetOrCreateScoped<State>(context.Message.MessageId);
+            var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
 
             var operations = new TransportOperation[context.RoutingStrategies.Count];
             var index = 0;
@@ -25,18 +26,16 @@
                 operations[index] = new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
                 index++;
             }
-
             if (isDebugEnabled)
             {
                 LogOutgoingOperations(operations);
             }
 
-            if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
+            if (!state.ImmediateDispatch && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
                 return TaskEx.CompletedTask;
             }
-
             return stage(this.CreateDispatchContext(operations, context));
         }
 

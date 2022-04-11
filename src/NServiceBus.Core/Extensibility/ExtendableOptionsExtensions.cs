@@ -7,7 +7,9 @@ namespace NServiceBus.Extensibility
     {
         /// <summary>
         /// Gets access to a "bucket", this allows the developer to pass information from extension methods down to behaviors.
-        /// </summary>        
+        /// </summary>
+        /// <param name="options">Extendable options instance.</param>
+        /// <returns>A big bucket.</returns>   
         public static ContextBag GetExtensions(this ExtendableOptions options)
         {
             Guard.AgainstNull(nameof(options), options);

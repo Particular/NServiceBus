@@ -9,8 +9,7 @@
     {
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            var state = context.Extensions.GetOrCreateScoped<State>(context.MessageId);
-            string correlationId = state.CustomCorrelationId;
+            var correlationId = context.Extensions.GetOrCreateScoped<State>(context.MessageId).CustomCorrelationId;
 
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))
