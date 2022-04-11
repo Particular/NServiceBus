@@ -1537,12 +1537,23 @@ namespace NServiceBus.Extensibility
         public T Get<T>(string key) { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
+        public T GetOrCreate<T>(string key)
+            where T :  class, new () { }
         public void Remove<T>() { }
         public void Remove(string key) { }
         public void Set<T>(T t) { }
         public void Set<T>(string key, T t) { }
         public bool TryGet<T>(out T result) { }
         public bool TryGet<T>(string key, out T result) { }
+    }
+    public class static ContextBagExtensions
+    {
+        public static T GetOrCreateScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope)
+            where T :  class, new () { }
+        public static void SetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, T value) { }
+        public static void SetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, string key, T value) { }
+        public static bool TryGetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, out T value) { }
+        public static bool TryGetScoped<T>(this NServiceBus.Extensibility.ContextBag context, string scope, string key, out T value) { }
     }
     public abstract class ExtendableOptions
     {
@@ -1551,8 +1562,6 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
-        public static bool TryGetOperationProperty<T>(this NServiceBus.Pipeline.IBehaviorContext behaviorContext, out T value) { }
-        public static bool TryGetOperationProperty<T>(this NServiceBus.Pipeline.IBehaviorContext behaviorContext, string key, out T value) { }
     }
     public interface IExtendable
     {
