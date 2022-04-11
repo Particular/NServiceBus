@@ -14,8 +14,10 @@
             var replyOptions = new ReplyOptions();
             replyOptions.SetDestination("Fake");
 
-            var context = new TestableOutgoingReplyContext();
-            context.Extensions.Merge(replyOptions.Context);
+            var context = new TestableOutgoingReplyContext()
+            {
+                Extensions = replyOptions.Context
+            };
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
 

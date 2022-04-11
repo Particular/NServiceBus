@@ -17,7 +17,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.Context.Set(new RoutingToDispatchConnector.State
+            options.GetExtensions().Set(new RoutingToDispatchConnector.State
             {
                 ImmediateDispatch = true
             });
@@ -32,7 +32,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.Context.TryGet(out RoutingToDispatchConnector.State state);
+            options.GetExtensions().TryGet(out RoutingToDispatchConnector.State state);
 
             return state?.ImmediateDispatch ?? false;
         }
