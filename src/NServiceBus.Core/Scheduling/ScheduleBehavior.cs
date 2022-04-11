@@ -14,7 +14,7 @@ namespace NServiceBus
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            if (context.Extensions.TryGet(ContextBag.GetPrefixedKey<State>(context.MessageId), out State state))
+            if (context.Extensions.TryGetScoped(context.MessageId, out State state))
             {
                 scheduler.Schedule(state.TaskDefinition);
             }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
     using Pipeline;
 
     class EnforceSendBestPracticesBehavior : IBehavior<IOutgoingSendContext, IOutgoingSendContext>
@@ -14,7 +13,7 @@
 
         public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next)
         {
-            if (!context.Extensions.TryGet(ContextBag.GetPrefixedKey<EnforceBestPracticesOptions>(context.MessageId), out EnforceBestPracticesOptions options)
+            if (!context.Extensions.TryGetScoped(context.MessageId, out EnforceBestPracticesOptions options)
                 || options.Enabled)
             {
                 validations.AssertIsValidForSend(context.Message.MessageType);

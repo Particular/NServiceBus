@@ -2,14 +2,13 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using Pipeline;
 
     class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            var state = context.Extensions.GetOrCreate<State>(ContextBag.GetPrefixedKey<State>(context.MessageId));
+            var state = context.Extensions.GetOrCreateScoped<State>(context.MessageId);
             string correlationId = state.CustomCorrelationId;
 
             //if we don't have a explicit correlation id set

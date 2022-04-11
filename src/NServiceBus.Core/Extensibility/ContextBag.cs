@@ -28,7 +28,37 @@ namespace NServiceBus.Extensibility
         /// <param name="prefix"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string GetPrefixedKey<T>(string prefix) => GetPrefixedKey(prefix, typeof(T).FullName);
+        static string GetPrefixedKey<T>(string prefix) => GetPrefixedKey(prefix, typeof(T).FullName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool TryGetScoped<T>(string scope, out T value)
+        {
+            if (TryGet("scope:" + scope, out bool _))
+            {
+                return TryGet(GetPrefixedKey<T>(scope), out value);
+            }
+            else
+            {
+                return TryGet(out value);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public T GetOrCreateScoped<T>(string scope) where T : class, new()
+        {
+            if (TryGet("scope:" + scope, out bool _))
+            {
+                return GetOrCreate<T>(GetPrefixedKey<T>(scope));
+            }
+            else
+            {
+                return GetOrCreate<T>();
+            }
+        }
 
         /// <summary>
         /// Retrieves the specified type from the context.
@@ -179,13 +209,16 @@ namespace NServiceBus.Extensibility
         /// Merges the passed context into this one.
         /// </summary>
         /// <param name="context">The source context.</param>
-        /// <param name="prefix">The prefix to use.</param>
-        internal void Merge(ContextBag context, string prefix)
+        /// <param name="scopeKey">The scopeKey to use.</param>
+        internal void Merge(ContextBag context, string scopeKey)
         {
             foreach (var kvp in context.stash)
             {
-                stash[$"{prefix}:{kvp.Key}"] = kvp.Value;
+                stash[$"{scopeKey}:{kvp.Key}"] = kvp.Value;
             }
+
+            stash["scopeKey:" + scopeKey] = true; // track scope
+            //TODO see set-only usage!
         }
 
         ContextBag parentBag;

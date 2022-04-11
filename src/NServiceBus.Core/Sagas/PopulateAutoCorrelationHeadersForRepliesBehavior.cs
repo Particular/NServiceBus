@@ -21,7 +21,7 @@
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out var sagaId);
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out var sagaType);
 
-                if (context.Extensions.TryGet(ContextBag.GetPrefixedKey<State>(context.MessageId), out State state))
+                if (context.Extensions.TryGetScoped(context.MessageId, out State state))
                 {
                     sagaId = state.SagaIdToUse;
                     sagaType = state.SagaTypeToUse;

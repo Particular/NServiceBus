@@ -70,7 +70,7 @@
 
         IDispatchMessages GetDispatcher()
         {
-            return this.transportSendInfrastructure.DispatcherFactory();
+            return transportSendInfrastructure.DispatcherFactory();
         }
 
 

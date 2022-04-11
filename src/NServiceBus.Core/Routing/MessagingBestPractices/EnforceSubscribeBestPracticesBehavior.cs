@@ -14,7 +14,7 @@ namespace NServiceBus
 
         public Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
         {
-            if (!context.Extensions.TryGet(ContextBag.GetPrefixedKey<EnforceBestPracticesOptions>("subscribe"), out EnforceBestPracticesOptions options)
+            if (!context.Extensions.TryGetScoped("subscribe", out EnforceBestPracticesOptions options)
                 || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.EventType);

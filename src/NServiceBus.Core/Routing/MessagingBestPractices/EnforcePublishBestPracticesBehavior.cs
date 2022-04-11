@@ -14,7 +14,7 @@
 
         public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next)
         {
-            if (!context.Extensions.TryGet(ContextBag.GetPrefixedKey<EnforceBestPracticesOptions>(context.MessageId), out EnforceBestPracticesOptions options)
+            if (!context.Extensions.TryGetScoped(context.MessageId, out EnforceBestPracticesOptions options)
                 || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.Message.MessageType);
