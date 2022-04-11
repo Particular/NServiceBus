@@ -34,8 +34,8 @@ namespace NServiceBus
         public ValueTask<bool> OpenSession(TransportTransaction transportTransaction, ContextBag context,
             CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
 
-        public ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
-            => new ValueTask<bool>(true);
+        public ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+            => new ValueTask();
 
         public async Task CompleteAsync(CancellationToken cancellationToken = default)
         {

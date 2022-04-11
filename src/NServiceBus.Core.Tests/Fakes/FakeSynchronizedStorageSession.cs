@@ -51,11 +51,11 @@
             return new ValueTask<bool>(true);
         }
 
-        public ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
         {
             ownsTransaction = true;
             Transaction = new FakeTransaction();
-            return new ValueTask<bool>(true);
+            return new ValueTask();
         }
 
         public void Dispose() => Transaction = null;

@@ -21,8 +21,8 @@
             CancellationToken cancellationToken = default) =>
             new ValueTask<bool>(false);
 
-        public ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default) =>
-            new ValueTask<bool>(false);
+        public ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default) =>
+            new ValueTask();
 
         public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -30,6 +30,6 @@
         {
         }
 
-        public static ICompletableSynchronizedStorageSession Instance = new NoOpCompletableSynchronizedStorageSession();
+        public static readonly ICompletableSynchronizedStorageSession Instance = new NoOpCompletableSynchronizedStorageSession();
     }
 }

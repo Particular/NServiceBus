@@ -3,15 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
-    using Outbox;
     using Persistence;
     using Pipeline;
-    using Transport;
     using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
@@ -20,11 +16,8 @@
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
-            var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
-            var transportTransaction = context.Extensions.Get<TransportTransaction>();
-
             using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>() ?? NoOpCompletableSynchronizedStorageSession.Instance;
-            await OpenSynchronizedStorageSession(storageSession, outboxTransaction, transportTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+            await storageSession.OpenSession(context).ConfigureAwait(false);
 
             var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
 
@@ -54,22 +47,6 @@
             }
             context.MessageHandled = true;
             await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
-        }
-
-        static async ValueTask OpenSynchronizedStorageSession(ICompletableSynchronizedStorageSession session,
-            IOutboxTransaction outboxTransaction, TransportTransaction transportTransaction, ContextBag contextBag,
-            CancellationToken cancellationToken)
-        {
-            if (await session.OpenSession(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false))
-            {
-                return;
-            }
-            if (await session.OpenSession(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false))
-            {
-                return;
-            }
-
-            _ = await session.OpenSession(contextBag, cancellationToken).ConfigureAwait(false);
         }
 
         static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)

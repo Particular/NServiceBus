@@ -35,8 +35,7 @@
         /// </summary>
         /// <param name="contextBag">The context information.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        /// <returns><c>true</c> when the session was opened; otherwise <c>false</c>.</returns>
-        ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default);
+        ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Completes the session by saving the changes.

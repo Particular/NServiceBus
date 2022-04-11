@@ -42,11 +42,11 @@ namespace NServiceBus.AcceptanceTesting
             return new ValueTask<bool>(true);
         }
 
-        public ValueTask<bool> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public ValueTask OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default)
         {
             ownsTransaction = true;
             Transaction = new AcceptanceTestingTransaction();
-            return new ValueTask<bool>(true);
+            return new ValueTask();
         }
 
         public Task CompleteAsync(CancellationToken cancellationToken = default)
