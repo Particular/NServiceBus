@@ -12,7 +12,6 @@
         /// <param name="conversationId">The id for the new conversation. If not provided, an id will be generated.</param>
         public static void StartNewConversation(this SendOptions sendOptions, string conversationId = null)
         {
-            Guard.AgainstNull(nameof(sendOptions), sendOptions);
             sendOptions.Context.Set(AttachCausationHeadersBehavior.NewConversationId, conversationId);
         }
     }
