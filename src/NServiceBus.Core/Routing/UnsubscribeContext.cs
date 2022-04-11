@@ -13,7 +13,7 @@
             Guard.AgainstNull(nameof(options), options);
 
             Merge(options.Context);
-            Merge(options.Context, "unsubscribe");
+            MergeScoped(options.Context, "unsubscribe");
 
             EventType = eventType;
         }

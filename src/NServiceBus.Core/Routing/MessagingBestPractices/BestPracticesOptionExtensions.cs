@@ -79,7 +79,7 @@
             {
                 Enabled = false
             };
-            context.Set(ContextBag.GetPrefixedKey<EnforceBestPracticesOptions>(prefix), bestPracticesOptions);
+            context.SetScoped(prefix, bestPracticesOptions);
         }
     }
 }

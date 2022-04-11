@@ -16,51 +16,6 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// TODO.
-        /// </summary>
-        /// <param name="prefix"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static string GetPrefixedKey(string prefix, string key) => string.IsNullOrEmpty(prefix) ? key : $"{prefix}:{key}";
-        /// <summary>
-        /// TODO.
-        /// </summary>
-        /// <param name="prefix"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        static string GetPrefixedKey<T>(string prefix) => GetPrefixedKey(prefix, typeof(T).FullName);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool TryGetScoped<T>(string scope, out T value)
-        {
-            if (TryGet("scope:" + scope, out bool _))
-            {
-                return TryGet(GetPrefixedKey<T>(scope), out value);
-            }
-            else
-            {
-                return TryGet(out value);
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public T GetOrCreateScoped<T>(string scope) where T : class, new()
-        {
-            if (TryGet("scope:" + scope, out bool _))
-            {
-                return GetOrCreate<T>(GetPrefixedKey<T>(scope));
-            }
-            else
-            {
-                return GetOrCreate<T>();
-            }
-        }
-
-        /// <summary>
         /// Retrieves the specified type from the context.
         /// </summary>
         /// <typeparam name="T">The type to retrieve.</typeparam>
@@ -206,19 +161,16 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// Merges the passed context into this one.
+        /// Merges the passed context into this one with scoped keys.
         /// </summary>
         /// <param name="context">The source context.</param>
-        /// <param name="scopeKey">The scopeKey to use.</param>
-        internal void Merge(ContextBag context, string scopeKey)
+        /// <param name="scopeKey">The scope key to use.</param>
+        internal void MergeScoped(ContextBag context, string scopeKey)
         {
             foreach (var kvp in context.stash)
             {
                 stash[$"{scopeKey}:{kvp.Key}"] = kvp.Value;
             }
-
-            stash["scopeKey:" + scopeKey] = true; // track scope
-            //TODO see set-only usage!
         }
 
         ContextBag parentBag;

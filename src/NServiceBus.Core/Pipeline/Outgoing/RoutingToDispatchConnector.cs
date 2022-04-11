@@ -4,6 +4,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using DeliveryConstraints;
+    using Extensibility;
     using Logging;
     using Pipeline;
     using Routing;

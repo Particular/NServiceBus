@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using Extensibility;
     using Pipeline;
     using Routing;
 

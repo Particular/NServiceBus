@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
 
     class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>

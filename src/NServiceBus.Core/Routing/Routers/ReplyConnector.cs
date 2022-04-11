@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Routing;
     using Unicast.Queuing;

@@ -26,7 +26,7 @@
         {
             var context = new TestableOutgoingLogicalMessageContext();
             context.Extensions.Merge(options.Context);
-            context.Extensions.Merge(options.Context, context.MessageId);
+            context.Extensions.MergeScoped(options.Context, context.MessageId);
 
             return context;
         }
