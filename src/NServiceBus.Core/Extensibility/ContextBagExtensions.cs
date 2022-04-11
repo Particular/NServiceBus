@@ -11,7 +11,7 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Tries to retrieves the specified type from the context in a given scope.
         /// </summary>
-        public static bool TryGetScoped<T>(this ContextBag context, string scope, out T result) => context.TryGet(GetPrefixedKey<T>(scope), out result);
+        public static bool TryGetScoped<T>(this ContextBag context, string scope, out T result) where T : class => context.TryGet(GetPrefixedKey<T>(scope), out result);
 
         /// <summary>
         /// Tries to retrieves the specified type from the context in a given scope.
@@ -26,7 +26,7 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Stores the type instance in the context in a specific scope.
         /// </summary>
-        public static void SetScoped<T>(this ContextBag context, string scope, T value) => context.Set(GetPrefixedKey<T>(scope), value);
+        public static void SetScoped<T>(this ContextBag context, string scope, T value) where T : class => context.Set(GetPrefixedKey<T>(scope), value);
 
         /// <summary>
         /// Stores the type instance in the context in a specific scope.

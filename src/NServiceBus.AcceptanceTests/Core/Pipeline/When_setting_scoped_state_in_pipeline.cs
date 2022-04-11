@@ -77,7 +77,7 @@
                     }
                     context.Extensions.SetScoped(context.MessageId, ExistingSettingKey, false);
 
-                    context.Extensions.TryGetScoped(NewSettingKey, out bool? value); // should not exist
+                    context.Extensions.TryGetScoped(context.MessageId, NewSettingKey, out bool? value); // should not exist
                     testContext.NewSettingValues.Add(value);
                     context.Extensions.SetScoped(context.MessageId, NewSettingKey, true);
 
