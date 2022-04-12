@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using NServiceBus.Sagas;
+    using Persistence;
 
     class LearningSagaPersistence : Feature
     {
@@ -21,9 +22,7 @@
 
             var sagaManifests = new SagaManifestCollection(allSagas, storageLocation);
 
-            context.Container.ConfigureComponent(b => new LearningSynchronizedStorage(sagaManifests), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<LearningStorageAdapter>(DependencyLifecycle.SingleInstance);
-
+            context.Container.ConfigureComponent<ICompletableSynchronizedStorageSession>(b => new LearningSynchronizedStorageSession(sagaManifests), DependencyLifecycle.InstancePerUnitOfWork);
             context.Container.ConfigureComponent(b => new LearningSagaPersister(), DependencyLifecycle.SingleInstance);
         }
 
