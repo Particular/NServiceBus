@@ -1931,6 +1931,11 @@ namespace NServiceBus.Persistence
     [System.Obsolete("Use `ICompletableSynchronizedStorageSession` instead. Will be removed in version " +
         "9.0.0.", true)]
     public interface CompletableSynchronizedStorageSession { }
+    public static class CompletableSynchronizedStorageSessionExtensions
+    {
+        public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
+        public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Outbox.IOutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default) { }
+    }
     public interface ICompletableSynchronizedStorageSession : NServiceBus.Persistence.ISynchronizedStorageSession, System.IDisposable
     {
         System.Threading.Tasks.Task CompleteAsync(System.Threading.CancellationToken cancellationToken = default);

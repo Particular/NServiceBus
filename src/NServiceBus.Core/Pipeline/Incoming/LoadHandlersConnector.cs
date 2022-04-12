@@ -17,7 +17,7 @@
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
             using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>() ?? NoOpCompletableSynchronizedStorageSession.Instance;
-            await storageSession.OpenSession(context).ConfigureAwait(false);
+            await storageSession.Open(context).ConfigureAwait(false);
 
             var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
 
