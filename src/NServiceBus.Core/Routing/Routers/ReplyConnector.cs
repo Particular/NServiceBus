@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Routing;
     using Unicast.Queuing;
@@ -10,9 +11,11 @@ namespace NServiceBus
     {
         public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
-            var state = context.Extensions.GetOrCreate<State>();
-
-            var replyToAddress = state.ExplicitDestination;
+            string replyToAddress = null;
+            if (context.GetOperationProperties().TryGet(out State state))
+            {
+                replyToAddress = state.ExplicitDestination;
+            }
 
             if (string.IsNullOrEmpty(replyToAddress))
             {
