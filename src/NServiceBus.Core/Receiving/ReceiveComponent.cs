@@ -75,8 +75,9 @@ namespace NServiceBus
             {
                 var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
                 var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var useScopedSession = hostingConfiguration.Container.HasComponent<ICompletableSynchronizedStorageSession>();
 
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
+                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter, b, useScopedSession);
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");

@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
+    using ObjectBuilder;
     using Outbox;
     using Persistence;
     using Pipeline;
@@ -14,48 +15,68 @@
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
-        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, ISynchronizedStorage synchronizedStorage, ISynchronizedStorageAdapter adapter)
+        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, ISynchronizedStorage synchronizedStorage, ISynchronizedStorageAdapter adapter, IBuilder serviceProvider, bool useScopedSession)
         {
             this.messageHandlerRegistry = messageHandlerRegistry;
             this.synchronizedStorage = synchronizedStorage;
             this.adapter = adapter;
+            this.serviceProvider = serviceProvider;
+            this.useScopedSession = useScopedSession;
         }
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
             var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
-            using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions).ConfigureAwait(false))
+
+            if (useScopedSession)
             {
-                var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
+                var scopedSession = serviceProvider.Build<ICompletableSynchronizedStorageSession>();
 
-                if (!context.MessageHandled && handlersToInvoke.Count == 0)
-                {
-                    var error = $"No handlers could be found for message type: {context.Message.MessageType}";
-                    throw new InvalidOperationException(error);
-                }
-
-                if (isDebugIsEnabled)
-                {
-                    LogHandlersInvocation(context, handlersToInvoke);
-                }
-
-                foreach (var messageHandler in handlersToInvoke)
-                {
-                    messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
-
-                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-                    await stage(handlingContext).ConfigureAwait(false);
-
-                    if (handlingContext.HandlerInvocationAborted)
-                    {
-                        //if the chain was aborted skip the other handlers
-                        break;
-                    }
-                }
-                context.MessageHandled = true;
-                await storageSession.CompleteAsync().ConfigureAwait(false);
+                await scopedSession.OpenSession(outboxTransaction, transportTransaction, context.Extensions).ConfigureAwait(false);
+                await InvokeHandlers(context, stage, scopedSession).ConfigureAwait(false);
+                await scopedSession.CompleteAsync().ConfigureAwait(false);
             }
+            else
+            {
+                using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions).ConfigureAwait(false))
+                {
+                    await InvokeHandlers(context, stage, storageSession).ConfigureAwait(false);
+                    await storageSession.CompleteAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
+        async Task InvokeHandlers(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage, SynchronizedStorageSession storageSession)
+        {
+            var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
+
+            if (!context.MessageHandled && handlersToInvoke.Count == 0)
+            {
+                var error = $"No handlers could be found for message type: {context.Message.MessageType}";
+                throw new InvalidOperationException(error);
+            }
+
+            if (isDebugIsEnabled)
+            {
+                LogHandlersInvocation(context, handlersToInvoke);
+            }
+
+            foreach (var messageHandler in handlersToInvoke)
+            {
+                messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
+
+                var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
+                await stage(handlingContext).ConfigureAwait(false);
+
+                if (handlingContext.HandlerInvocationAborted)
+                {
+                    //if the chain was aborted skip the other handlers
+                    break;
+                }
+            }
+
+            context.MessageHandled = true;
         }
 
         async Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag)
@@ -85,11 +106,30 @@
             logger.Debug(builder.ToString());
         }
 
-        readonly ISynchronizedStorageAdapter adapter;
-        readonly ISynchronizedStorage synchronizedStorage;
         readonly MessageHandlerRegistry messageHandlerRegistry;
+        readonly IBuilder serviceProvider;
+        readonly bool useScopedSession;
+        readonly ISynchronizedStorage synchronizedStorage;
+        readonly ISynchronizedStorageAdapter adapter;
 
         static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
         static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
+
+        [Janitor.SkipWeaving]
+        class CompletableWrapper : IDisposable
+        {
+            readonly Func<Task> completeCallback;
+            readonly Action disposeCallback;
+
+            public CompletableWrapper(Func<Task> completeCallback, Action disposeCallback)
+            {
+                this.completeCallback = completeCallback;
+                this.disposeCallback = disposeCallback;
+            }
+
+            public Task Complete() => completeCallback();
+
+            public void Dispose() => disposeCallback();
+        }
     }
 }

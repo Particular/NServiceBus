@@ -112,6 +112,18 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Creates a <see cref="IInvokeHandlerContext" /> based on the current context.
+        /// </summary>
+        public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, SynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(messageHandler), messageHandler);
+            Guard.AgainstNull(nameof(storageSession), storageSession);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new InvokeHandlerContext(messageHandler, storageSession, sourceContext);
+        }
+
+        /// <summary>
         /// Creates a <see cref="IBatchDispatchContext" /> based on the current context.
         /// </summary>
         public static IBatchDispatchContext CreateBatchDispatchContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IReadOnlyCollection<TransportOperation> transportOperations, IIncomingPhysicalMessageContext sourceContext)
