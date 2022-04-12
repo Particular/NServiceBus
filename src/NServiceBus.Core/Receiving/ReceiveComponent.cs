@@ -4,6 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
+    using Janitor;
     using Logging;
     using ObjectBuilder;
     using Outbox;
@@ -71,13 +73,21 @@ namespace NServiceBus
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
+            var scopedSessionRegistered = hostingConfiguration.Container.HasComponent<ICompletableSynchronizedStorageSession>();
+
+            if (scopedSessionRegistered == false)
+            {
+                hostingConfiguration.Container.ConfigureComponent<ICompletableSynchronizedStorageSession>(b =>
+                {
+                    return new CompletableSynchronizedStorageSessionAdapter(
+                        b.Build<ISynchronizedStorageAdapter>() ?? new NoOpSynchronizedStorageAdapter(),
+                        b.Build<ISynchronizedStorage>() ?? new NoOpSynchronizedStorage());
+                }, DependencyLifecycle.InstancePerUnitOfWork);
+            }
+
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
-                var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
-                var useScopedSession = hostingConfiguration.Container.HasComponent<ICompletableSynchronizedStorageSession>();
-
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter, b, useScopedSession);
+                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>());
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
@@ -314,5 +324,43 @@ namespace NServiceBus
 
         static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
         static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+    }
+
+    [SkipWeaving]
+    class CompletableSynchronizedStorageSessionAdapter : ICompletableSynchronizedStorageSession
+    {
+        readonly ISynchronizedStorageAdapter adapter;
+        readonly ISynchronizedStorage syncStorage;
+
+        CompletableSynchronizedStorageSession session;
+
+        public CompletableSynchronizedStorageSessionAdapter(ISynchronizedStorageAdapter adapter, ISynchronizedStorage syncStorage)
+        {
+            this.adapter = adapter;
+            this.syncStorage = syncStorage;
+        }
+
+        public void Dispose() => session.Dispose();
+
+        public async Task<bool> TryOpenSession(OutboxTransaction transaction, ContextBag context)
+        {
+            session = await adapter.TryAdapt(transaction, context).ConfigureAwait(false);
+
+            return session != null;
+        }
+
+        public async Task<bool> TryOpenSession(TransportTransaction transportTransaction, ContextBag context)
+        {
+            session = await adapter.TryAdapt(transportTransaction, context).ConfigureAwait(false);
+
+            return session != null;
+        }
+
+        public async Task OpenSession(ContextBag contextBag)
+        {
+            session = await syncStorage.OpenSession(contextBag).ConfigureAwait(false);
+        }
+
+        public Task CompleteAsync() => throw new NotImplementedException();
     }
 }

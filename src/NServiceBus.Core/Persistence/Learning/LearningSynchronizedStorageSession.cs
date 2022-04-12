@@ -29,7 +29,7 @@ namespace NServiceBus
 
         public Task<bool> TryOpenSession(OutboxTransaction transaction, ContextBag context) => TaskEx.FalseTask;
 
-        public Task<bool> TryOpenSession(TransportTransaction transportTransaction, ContextBag context) => TaskEx.TrueTask;
+        public Task<bool> TryOpenSession(TransportTransaction transportTransaction, ContextBag context) => TaskEx.FalseTask;
 
         public Task OpenSession(ContextBag contextBag) => TaskEx.CompletedTask;
 
