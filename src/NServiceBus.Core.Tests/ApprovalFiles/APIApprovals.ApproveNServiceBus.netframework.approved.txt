@@ -1549,6 +1549,10 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static NServiceBus.Extensibility.ReadOnlyContextBag GetOperationProperties(this NServiceBus.Pipeline.IOutgoingContext behaviorContext) { }
+        public static NServiceBus.Extensibility.ReadOnlyContextBag GetOperationProperties(this NServiceBus.Pipeline.IUnsubscribeContext behaviorContext) { }
+        public static NServiceBus.Extensibility.ReadOnlyContextBag GetOperationProperties(this NServiceBus.Pipeline.ISubscribeContext behaviorContext) { }
+        public static NServiceBus.Extensibility.ReadOnlyContextBag GetOperationProperties(this NServiceBus.Pipeline.IRoutingContext behaviorContext) { }
     }
     public interface IExtendable
     {
