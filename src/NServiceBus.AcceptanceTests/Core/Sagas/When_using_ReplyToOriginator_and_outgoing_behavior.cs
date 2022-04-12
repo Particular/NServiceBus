@@ -56,7 +56,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
             {
                 c.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
                 c.Pipeline.Register(new OutgoingPipelineBehaviorSendingMessages(), "behavior sending messages from the outgoing pipeline");
-                c.ConfigureTransport().Routing().RouteToEndpoint(typeof(BehaviorMessage), Conventions.EndpointNamingConvention(typeof(EndpointB)));
+                c.ConfigureRouting().RouteToEndpoint(typeof(BehaviorMessage), Conventions.EndpointNamingConvention(typeof(EndpointB)));
             });
 
             class MessageHandler : IHandleMessages<ReplyToOriginatorMessage>

@@ -25,28 +25,28 @@ namespace NServiceBus.Extensibility
             Guard.AgainstNull(nameof(options), options);
             return options.DispatchProperties;
         }
-        
-        /// <summary>
-        /// Get readonly access to the <see cref="ContextBag"/> used by the <see cref="ExtendableOptions"/> to capture any operation properties.
-        /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this IOutgoingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
         /// <summary>
         /// Get readonly access to the <see cref="ContextBag"/> used by the <see cref="ExtendableOptions"/> to capture any operation properties.
         /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this IUnsubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static IReadOnlyContextBag GetOperationProperties(this IOutgoingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
         /// <summary>
         /// Get readonly access to the <see cref="ContextBag"/> used by the <see cref="ExtendableOptions"/> to capture any operation properties.
         /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this ISubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static IReadOnlyContextBag GetOperationProperties(this IUnsubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
         /// <summary>
         /// Get readonly access to the <see cref="ContextBag"/> used by the <see cref="ExtendableOptions"/> to capture any operation properties.
         /// </summary>
-        public static ReadOnlyContextBag GetOperationProperties(this IRoutingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+        public static IReadOnlyContextBag GetOperationProperties(this ISubscribeContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
-        static ReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
+        /// <summary>
+        /// Get readonly access to the <see cref="ContextBag"/> used by the <see cref="ExtendableOptions"/> to capture any operation properties.
+        /// </summary>
+        public static IReadOnlyContextBag GetOperationProperties(this IRoutingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
+
+        static IReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
         {
             Guard.AgainstNull(nameof(behaviorContext), behaviorContext);
             if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))

@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -38,8 +38,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MessageToEndpointB), typeof(EndpointB));
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MessageToEndpointC), typeof(EndpointC));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(MessageToEndpointB), typeof(EndpointB));
+                    c.ConfigureRouting().RouteToEndpoint(typeof(MessageToEndpointC), typeof(EndpointC));
                     c.Pipeline.Register(new OutgoingBehaviorWithSend(), "sends a message as part of an incoming message pipeline");
                 });
             }

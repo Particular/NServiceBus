@@ -44,7 +44,7 @@
         {
             public SenderEndpoint() => EndpointSetup<DefaultServer>(c =>
             {
-                c.ConfigureTransport().Routing().RouteToEndpoint(Assembly.GetExecutingAssembly(), Conventions.EndpointNamingConvention(typeof(ReplyEndpoint)));
+                c.ConfigureRouting().RouteToEndpoint(Assembly.GetExecutingAssembly(), Conventions.EndpointNamingConvention(typeof(ReplyEndpoint)));
                 c.Pipeline.Register(new InnerSendBehavior(), "sends an inner message on send operations");
             });
 

@@ -18,7 +18,7 @@
                     .CustomConfig(c =>
                     {
                         c.Pipeline.Register(new SendingBehaviorUsingDefaultRouting(), "outgoing pipeline behavior sending messages");
-                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(BehaviorMessage), typeof(EndpointB));
+                        c.ConfigureRouting().RouteToEndpoint(typeof(BehaviorMessage), typeof(EndpointB));
                     })
                     .When(s => s.SendLocal(new LocalMessage())))
                 .WithEndpoint<EndpointB>()
