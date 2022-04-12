@@ -15,6 +15,7 @@
             Guard.AgainstNull(nameof(extensions), extensions);
 
             Merge(extensions);
+            Set(ExtendableOptions.OperationPropertiesKey, extensions);
 
             EventTypes = eventTypes;
         }

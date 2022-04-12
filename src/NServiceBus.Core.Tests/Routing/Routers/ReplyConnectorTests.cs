@@ -11,8 +11,13 @@
         public async Task Should_set_messageintent_to_reply()
         {
             var router = new ReplyConnector();
-            var context = new TestableOutgoingReplyContext();
-            context.Extensions.Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
+            var replyOptions = new ReplyOptions();
+            replyOptions.SetDestination("Fake");
+
+            var context = new TestableOutgoingReplyContext()
+            {
+                Extensions = replyOptions.Context
+            };
 
             await router.Invoke(context, ctx => Task.CompletedTask);
 
