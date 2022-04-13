@@ -80,8 +80,8 @@ namespace NServiceBus
                 hostingConfiguration.Container.ConfigureComponent<ICompletableSynchronizedStorageSession>(b =>
                 {
                     return new CompletableSynchronizedStorageSessionAdapter(
-                        b.Build<ISynchronizedStorageAdapter>() ?? new NoOpSynchronizedStorageAdapter(),
-                        b.Build<ISynchronizedStorage>() ?? new NoOpSynchronizedStorage());
+                        b.BuildAll<ISynchronizedStorageAdapter>().FirstOrDefault() ?? new NoOpSynchronizedStorageAdapter(),
+                        b.BuildAll<ISynchronizedStorage>().FirstOrDefault() ?? new NoOpSynchronizedStorage());
                 }, DependencyLifecycle.InstancePerUnitOfWork);
             }
 
