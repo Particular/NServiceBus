@@ -71,6 +71,8 @@ namespace NServiceBus
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
+            //If the persister does not register it's own ICompletableSynchronizedStorageSession we will register an adapter
+            //making sure that implementation is always available in the DI
             var scopedSessionRegistered = hostingConfiguration.Container.HasComponent<ICompletableSynchronizedStorageSession>();
 
             if (scopedSessionRegistered == false)
