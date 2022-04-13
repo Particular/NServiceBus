@@ -10,7 +10,7 @@
     /// <summary>
     /// Extension methods for <see cref="ICompletableSynchronizedStorageSession"/>.
     /// </summary>
-    static class CompletableSynchronizedStorageSessionExtensions
+    public static class CompletableSynchronizedStorageSessionExtensions
     {
         /// <summary>
         /// Opens the storage session by attempting to extract the outbox and transport transaction from the incoming logical context.
