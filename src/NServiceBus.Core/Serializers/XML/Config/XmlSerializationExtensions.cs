@@ -10,7 +10,6 @@
         /// <summary>
         /// Tells the serializer to not wrap properties which have either XDocument or XElement with a "PropertyName" element.
         /// By default the xml serializer serializes the following message.
-        /// </summary>
         /// <code>
         /// interface MyMessage { XDocument Property { get; set; } }
         /// </code>
@@ -36,6 +35,7 @@
         /// </Root>
         /// </MyMessage>
         /// </code>
+        /// </summary>
         public static SerializationExtensions<XmlSerializer> DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)
         {
             Guard.AgainstNull(nameof(config), config);

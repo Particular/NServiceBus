@@ -10,9 +10,9 @@ namespace NServiceBus.Transport
     {
         /// <summary>
         /// Creates new result object.
+        /// </summary>
         /// <param name="dispatcherFactory">Factory to create the dispatcher.</param>
         /// <param name="preStartupCheck">Callback to perform checks before the transports starts sending messages.</param>
-        /// </summary>
         public TransportSendInfrastructure(Func<IDispatchMessages> dispatcherFactory,
             Func<Task<StartupCheckResult>> preStartupCheck)
         {
