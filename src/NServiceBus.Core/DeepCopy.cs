@@ -52,7 +52,23 @@ namespace System
 
             if (typeof(Delegate).IsAssignableFrom(typeToReflect))
             {
-                return null;
+                var originalDelegate = (Delegate)originalObject;
+                var clonedDelegate = (Delegate)originalDelegate.Clone();
+                var newTarget = originalDelegate.Target.DeepCopy();
+                var targetField = clonedDelegate.GetType().GetField("_target", BindingFlags.Instance | BindingFlags.NonPublic);
+                targetField.SetValue(clonedDelegate, newTarget);
+                // var compilerGeneratedType = originalDelegate.Target.GetType();
+                // var fields = compilerGeneratedType.GetFields();
+                //
+                // foreach (var field in fields)
+                // {
+                //     if (field.FieldType == originalDelegate.GetType() && field.GetValue(originalDelegate.Target) == (object)originalDelegate)
+                //     {
+                //         field.SetValue(clonedDelegate.Target, newTarget);
+                //     }
+                // }
+                visited.Add(originalObject, clonedDelegate);
+                return clonedDelegate;
             }
 
             var cloneObject = CloneMethod.Invoke(originalObject, null);
