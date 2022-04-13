@@ -28,8 +28,8 @@
                 .Done(c => c.OuterMessageReceived && c.InnerMessageReceived)
                 .Run();
 
-            Assert.AreEqual(customReplyAddress, context.OuterMessageReplyAddress);
-            Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(SenderEndpoint)), context.InnerMessageReplyAddress);
+            Assert.AreEqual(customReplyAddress, context.OuterMessageReplyAddress, "it should apply the configured custom replyTo address.");
+            Assert.AreNotEqual(customReplyAddress, context.InnerMessageReplyAddress, "it should apply the default replyTo address"); // it's difficult to verify the default replyTo address across transports as transport address translation makes it difficult to define the expected default value.
         }
 
         class Context : ScenarioContext
