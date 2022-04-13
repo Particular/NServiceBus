@@ -3,14 +3,11 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
     using Janitor;
-    using Outbox;
     using Persistence;
-    using Transport;
 
     [SkipWeaving]
-    class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
+    class LearningSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
         public LearningSynchronizedStorageSession(SagaManifestCollection sagaManifests)
         {
@@ -26,12 +23,6 @@ namespace NServiceBus
 
             sagaFiles.Clear();
         }
-
-        public Task<bool> TryOpenSession(OutboxTransaction transaction, ContextBag context) => TaskEx.FalseTask;
-
-        public Task<bool> TryOpenSession(TransportTransaction transportTransaction, ContextBag context) => TaskEx.FalseTask;
-
-        public Task OpenSession(ContextBag contextBag) => TaskEx.CompletedTask;
 
         public async Task CompleteAsync()
         {
