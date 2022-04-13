@@ -5,62 +5,50 @@
     using System.Text;
     using System.Threading.Tasks;
     using Logging;
-    using Outbox;
     using Persistence;
     using Pipeline;
-    using Transport;
     using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
-        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry)
-        {
-            this.messageHandlerRegistry = messageHandlerRegistry;
-        }
+        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry) => this.messageHandlerRegistry = messageHandlerRegistry;
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
-            var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
-            var transportTransaction = context.Extensions.Get<TransportTransaction>();
-
-            using (var scopedSession = context.Builder.Build<ICompletableSynchronizedStorageSession>())
+            using (var storageSession = context.Builder.Build<ICompletableSynchronizedStorageSession>())
             {
-                await scopedSession.OpenSession(outboxTransaction, transportTransaction, context.Extensions).ConfigureAwait(false);
-                await InvokeHandlers(context, stage, scopedSession).ConfigureAwait(false);
-                await scopedSession.CompleteAsync().ConfigureAwait(false);
-            }
-        }
+                await storageSession.Open(context).ConfigureAwait(false);
 
-        async Task InvokeHandlers(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage, SynchronizedStorageSession storageSession)
-        {
-            var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
+                var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
 
-            if (!context.MessageHandled && handlersToInvoke.Count == 0)
-            {
-                var error = $"No handlers could be found for message type: {context.Message.MessageType}";
-                throw new InvalidOperationException(error);
-            }
-
-            if (isDebugIsEnabled)
-            {
-                LogHandlersInvocation(context, handlersToInvoke);
-            }
-
-            foreach (var messageHandler in handlersToInvoke)
-            {
-                messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
-
-                var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-                await stage(handlingContext).ConfigureAwait(false);
-
-                if (handlingContext.HandlerInvocationAborted)
+                if (!context.MessageHandled && handlersToInvoke.Count == 0)
                 {
-                    //if the chain was aborted skip the other handlers
-                    break;
+                    var error = $"No handlers could be found for message type: {context.Message.MessageType}";
+                    throw new InvalidOperationException(error);
                 }
-            }
 
-            context.MessageHandled = true;
+                if (isDebugIsEnabled)
+                {
+                    LogHandlersInvocation(context, handlersToInvoke);
+                }
+
+                foreach (var messageHandler in handlersToInvoke)
+                {
+                    messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
+
+                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
+                    await stage(handlingContext).ConfigureAwait(false);
+
+                    if (handlingContext.HandlerInvocationAborted)
+                    {
+                        //if the chain was aborted skip the other handlers
+                        break;
+                    }
+                }
+
+                context.MessageHandled = true;
+                await storageSession.CompleteAsync().ConfigureAwait(false);
+            }
         }
 
         static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)

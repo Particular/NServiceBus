@@ -4,8 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Extensibility;
-    using Janitor;
     using Logging;
     using ObjectBuilder;
     using Outbox;
@@ -324,43 +322,5 @@ namespace NServiceBus
 
         static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
         static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
-    }
-
-    [SkipWeaving]
-    class CompletableSynchronizedStorageSessionAdapter : ICompletableSynchronizedStorageSession
-    {
-        readonly ISynchronizedStorageAdapter adapter;
-        readonly ISynchronizedStorage syncStorage;
-
-        CompletableSynchronizedStorageSession session;
-
-        public CompletableSynchronizedStorageSessionAdapter(ISynchronizedStorageAdapter adapter, ISynchronizedStorage syncStorage)
-        {
-            this.adapter = adapter;
-            this.syncStorage = syncStorage;
-        }
-
-        public void Dispose() => session.Dispose();
-
-        public async Task<bool> TryOpenSession(OutboxTransaction transaction, ContextBag context)
-        {
-            session = await adapter.TryAdapt(transaction, context).ConfigureAwait(false);
-
-            return session != null;
-        }
-
-        public async Task<bool> TryOpenSession(TransportTransaction transportTransaction, ContextBag context)
-        {
-            session = await adapter.TryAdapt(transportTransaction, context).ConfigureAwait(false);
-
-            return session != null;
-        }
-
-        public async Task OpenSession(ContextBag contextBag)
-        {
-            session = await syncStorage.OpenSession(contextBag).ConfigureAwait(false);
-        }
-
-        public Task CompleteAsync() => throw new NotImplementedException();
     }
 }
