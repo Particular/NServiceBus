@@ -10,6 +10,62 @@
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
+    public class When_a_persistence_provides_synchronized_session : NServiceBusAcceptanceTest
+    {
+        [Test]
+        public async Task Synchronized_session_should_be_of_exact_type_provided_by_persistence()
+        {
+            var result = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
+                .Done(c => c.MessageReceived)
+                .Run();
+
+            Assert.IsNotNull(result.SynchronizedStorageSessionInstanceInContainer);
+            Assert.IsNotNull(result.SynchronizedStorageSessionInstanceInHandlingContext);
+            Assert.AreSame(result.SynchronizedStorageSessionInstanceInContainer, result.SynchronizedStorageSessionInstanceInHandlingContext);
+            Assert.IsTrue(result.SynchronizedStorageSessionInstanceInContainer.GetType().Name == "LearningSynchronizedStorageSession");
+        }
+
+        class Context : ScenarioContext
+        {
+            public object SynchronizedStorageSessionInstanceInContainer { get; set; }
+            public object SynchronizedStorageSessionInstanceInHandlingContext { get; set; }
+            public bool MessageReceived { get; set; }
+        }
+
+        class Endpoint : EndpointConfigurationBuilder
+        {
+            public Endpoint()
+            {
+                EndpointSetup<DefaultServer>(c =>
+                {
+                });
+            }
+
+            class MyMessageHandler : IHandleMessages<MyMessage>
+            {
+                readonly Context testContext;
+
+                public MyMessageHandler(Context testContext, SynchronizedStorageSession storageSession)
+                {
+                    this.testContext = testContext;
+                    testContext.SynchronizedStorageSessionInstanceInContainer = storageSession;
+                }
+
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    testContext.SynchronizedStorageSessionInstanceInHandlingContext = context.SynchronizedStorageSession;
+                    testContext.MessageReceived = true;
+                    return Task.FromResult(0);
+                }
+            }
+        }
+
+        class MyMessage : IMessage
+        {
+        }
+    }
+
     public class When_a_persistence_does_not_provide_ISynchronizationContext : NServiceBusAcceptanceTest
     {
         // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method

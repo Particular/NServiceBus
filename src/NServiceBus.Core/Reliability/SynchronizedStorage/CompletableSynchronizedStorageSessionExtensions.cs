@@ -10,14 +10,14 @@
     /// <summary>
     /// Extension methods for <see cref="ICompletableSynchronizedStorageSession"/>.
     /// </summary>
-    public static class CompletableSynchronizedStorageSessionExtensions
+    static class CompletableSynchronizedStorageSessionExtensions
     {
         /// <summary>
         /// Opens the storage session by attempting to extract the outbox and transport transaction from the incoming logical context.
         /// </summary>
         /// <param name="session">The storage session.</param>
         /// <param name="context">The context information.</param>
-        public static Task Open(this ICompletableSynchronizedStorageSession session, IIncomingLogicalMessageContext context)
+        public static Task Open(this CompletableSynchronizedStorageSessionAdapter session, IIncomingLogicalMessageContext context)
         {
             var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
@@ -31,7 +31,7 @@
         /// <param name="outboxTransaction">The outbox transaction.</param>
         /// <param name="transportTransaction">The transport transaction.</param>
         /// <param name="contextBag">The context bag.</param>
-        public static async Task Open(this ICompletableSynchronizedStorageSession session, OutboxTransaction outboxTransaction, TransportTransaction transportTransaction, ContextBag contextBag)
+        static async Task Open(this CompletableSynchronizedStorageSessionAdapter session, OutboxTransaction outboxTransaction, TransportTransaction transportTransaction, ContextBag contextBag)
         {
             if (await session.TryOpen(outboxTransaction, contextBag).ConfigureAwait(false))
             {

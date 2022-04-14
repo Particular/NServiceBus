@@ -1,5 +1,6 @@
 namespace NServiceBus.Persistence
 {
+    using System;
     using System.Threading.Tasks;
     using Extensibility;
     using Janitor;
@@ -7,12 +8,10 @@ namespace NServiceBus.Persistence
     using Transport;
 
     [SkipWeaving]
-    class CompletableSynchronizedStorageSessionAdapter : ICompletableSynchronizedStorageSession
+    class CompletableSynchronizedStorageSessionAdapter : IDisposable
     {
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage syncStorage;
-
-        CompletableSynchronizedStorageSession session;
 
         public CompletableSynchronizedStorageSessionAdapter(ISynchronizedStorageAdapter adapter, ISynchronizedStorage syncStorage)
         {
@@ -20,27 +19,29 @@ namespace NServiceBus.Persistence
             this.syncStorage = syncStorage;
         }
 
-        public void Dispose() => session.Dispose();
+        public void Dispose() => Session?.Dispose();
+
+        public CompletableSynchronizedStorageSession Session { get; private set; }
 
         public async Task<bool> TryOpen(OutboxTransaction transaction, ContextBag context)
         {
-            session = await adapter.TryAdapt(transaction, context).ConfigureAwait(false);
+            Session = await adapter.TryAdapt(transaction, context).ConfigureAwait(false);
 
-            return session != null;
+            return Session != null;
         }
 
         public async Task<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context)
         {
-            session = await adapter.TryAdapt(transportTransaction, context).ConfigureAwait(false);
+            Session = await adapter.TryAdapt(transportTransaction, context).ConfigureAwait(false);
 
-            return session != null;
+            return Session != null;
         }
 
         public async Task Open(ContextBag contextBag)
         {
-            session = await syncStorage.OpenSession(contextBag).ConfigureAwait(false);
+            Session = await syncStorage.OpenSession(contextBag).ConfigureAwait(false);
         }
 
-        public Task CompleteAsync() => session.CompleteAsync();
+        public Task CompleteAsync() => Session.CompleteAsync();
     }
 }

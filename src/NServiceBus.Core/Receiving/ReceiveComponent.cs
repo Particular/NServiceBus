@@ -71,19 +71,33 @@ namespace NServiceBus
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
+            /*
+             * Constraint: we don't want to release downstreams for this to work
+             * Fact: downstream register their specific things that don't inherit from SSS in the DI via a provider
+             * Fact: downstream extension methods hang from SSS and rely on SSS to be the exact instance produced by the downstream
+             * Constraint: the user-provider EF context registration needs to be the same for handler and controller -> needs to rely on resolving SSS from the DI
+             * 
+             * Need: register the SSS in the DI as unit of work / scoped
+             * Need: open the session via behavior or middleware
+             *
+             * Problem: the creation of the SSS is async and coupled to opening it
+             */
+
             //If the persister does not register it's own ICompletableSynchronizedStorageSession we will register an adapter
             //making sure that implementation is always available in the DI
             var scopedSessionRegistered = hostingConfiguration.Container.HasComponent<ICompletableSynchronizedStorageSession>();
 
-            if (scopedSessionRegistered == false)
+            hostingConfiguration.Container.ConfigureComponent(b =>
             {
-                hostingConfiguration.Container.ConfigureComponent<ICompletableSynchronizedStorageSession>(b =>
-                {
-                    return new CompletableSynchronizedStorageSessionAdapter(
-                        b.BuildAll<ISynchronizedStorageAdapter>().FirstOrDefault() ?? new NoOpSynchronizedStorageAdapter(),
-                        b.BuildAll<ISynchronizedStorage>().FirstOrDefault() ?? new NoOpSynchronizedStorage());
-                }, DependencyLifecycle.InstancePerUnitOfWork);
-            }
+                return new CompletableSynchronizedStorageSessionAdapter(
+                    b.BuildAll<ISynchronizedStorageAdapter>().FirstOrDefault() ?? new NoOpSynchronizedStorageAdapter(),
+                    b.BuildAll<ISynchronizedStorage>().FirstOrDefault() ?? new NoOpSynchronizedStorage());
+            }, DependencyLifecycle.InstancePerUnitOfWork);
+
+            hostingConfiguration.Container.ConfigureComponent<SynchronizedStorageSession>(b =>
+            {
+                return b.Build<CompletableSynchronizedStorageSessionAdapter>().Session;
+            }, DependencyLifecycle.InstancePerUnitOfWork);
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
