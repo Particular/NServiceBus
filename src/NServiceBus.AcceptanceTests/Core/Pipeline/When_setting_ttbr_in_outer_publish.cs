@@ -12,7 +12,7 @@
     public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_apply_ttbr_to_inner_operation()
+        public async Task Should_not_apply_ttbr_to_inner_publish()
         {
             Requires.NativePubSubSupport();
 
