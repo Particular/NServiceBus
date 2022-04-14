@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
 
     class ScheduleBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
@@ -13,7 +14,7 @@ namespace NServiceBus
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            if (context.Extensions.TryGet(out State state))
+            if (context.GetOperationProperties().TryGet(out State state))
             {
                 scheduler.Schedule(state.TaskDefinition);
             }
