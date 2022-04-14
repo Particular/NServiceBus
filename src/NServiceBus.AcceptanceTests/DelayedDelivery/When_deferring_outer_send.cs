@@ -91,11 +91,11 @@
             }
         }
 
-        class DelayedMessage : IMessage
+        public class DelayedMessage : IMessage
         {
         }
 
-        class NonDelayedMessage : IMessage
+        public class NonDelayedMessage : IMessage
         {
         }
     }

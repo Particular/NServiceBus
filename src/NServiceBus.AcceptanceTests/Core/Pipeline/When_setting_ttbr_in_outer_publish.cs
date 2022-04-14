@@ -118,11 +118,11 @@
         }
 
         [TimeToBeReceived("00:30:00")]
-        class OuterEvent : IEvent
+        public class OuterEvent : IEvent
         {
         }
 
-        class InnerEvent : IEvent
+        public class InnerEvent : IEvent
         {
         }
     }
