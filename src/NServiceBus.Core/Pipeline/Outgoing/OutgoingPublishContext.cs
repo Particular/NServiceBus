@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
+    using DeliveryConstraints;
     using Extensibility;
     using Pipeline;
 
@@ -17,7 +18,7 @@
 
             Merge(extensions);
             Set(ExtendableOptions.OperationPropertiesKey, extensions);
-
+            Set(new List<DeliveryConstraint>(0)); // set empty delivery constraint to prevent leaking nested constraints collections.
         }
 
         public OutgoingLogicalMessage Message { get; }
