@@ -7,6 +7,8 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -47,6 +49,10 @@
             {
                 c.Pipeline.Register(new NestedSendBehavior(), "Sends an additional message when sending a delayed message");
                 c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DelayedMessage).Assembly, Conventions.EndpointNamingConvention(typeof(Receiver)));
+                if (!TestSuiteConstraints.Current.SupportsNativeDeferral)
+                {
+                    c.EnableFeature<TimeoutManager>();
+                }
             });
 
             class NestedSendBehavior : Behavior<IOutgoingSendContext>
@@ -78,14 +84,30 @@
                 public Task Handle(DelayedMessage message, IMessageHandlerContext context)
                 {
                     testContext.ReceivedDelayedMessage = true;
-                    testContext.DelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _);
+                    if (TestSuiteConstraints.Current.SupportsNativeDeferral)
+                    {
+                        testContext.DelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _); // header value not set when routing to timeout manager    
+                    }
+                    else
+                    {
+                        testContext.DelayedMessageDelayed = context.MessageHeaders.TryGetValue("NServiceBus.Timeout.RouteExpiredTimeoutTo", out var _); // header value when routing to timeout manager queue
+                    }
+                    
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(NonDelayedMessage message, IMessageHandlerContext context)
                 {
                     testContext.ReceivedNonDelayedMessage = true;
-                    testContext.NonDelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _);
+                    if (TestSuiteConstraints.Current.SupportsNativeDeferral)
+                    {
+                        testContext.NonDelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _); // header value not set when routing to timeout manager    
+                    }
+                    else
+                    {
+                        testContext.NonDelayedMessageDelayed = context.MessageHeaders.TryGetValue("NServiceBus.Timeout.RouteExpiredTimeoutTo", out var _); // header value when routing to timeout manager queue
+                    }
+
                     return Task.FromResult(0);
                 }
             }
