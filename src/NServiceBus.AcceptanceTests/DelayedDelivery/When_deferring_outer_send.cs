@@ -1,15 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
-    using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Extensibility;
     using Features;
-    using NServiceBus.DelayedDelivery;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -92,7 +88,7 @@
                     {
                         testContext.DelayedMessageDelayed = context.MessageHeaders.TryGetValue("NServiceBus.Timeout.RouteExpiredTimeoutTo", out var _); // header value when routing to timeout manager queue
                     }
-                    
+
                     return Task.FromResult(0);
                 }
 
