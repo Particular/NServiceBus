@@ -29,7 +29,7 @@ namespace NServiceBus
         public static bool ShouldSkipSerialization(this IOutgoingLogicalMessageContext context)
         {
             Guard.AgainstNull(nameof(context), context);
-            if (context.Extensions.TryGet($"{context.Message}:MessageSerialization.Skip", out bool shouldSkipSerialization))
+            if (context.Extensions.TryGet($"{context.MessageId}:MessageSerialization.Skip", out bool shouldSkipSerialization))
             {
                 return shouldSkipSerialization;
             }
