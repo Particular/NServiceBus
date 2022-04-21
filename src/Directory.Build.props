@@ -25,10 +25,4 @@
     <SourceRoot Include="$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory)..\))" />
   </ItemGroup>
 
-  <!-- Workaround for https://github.com/NuGet/Home/issues/9431 -->
-  <ItemGroup>
-    <SourceRoot Include="$(NuGetPackageRoot)" Condition="'$(NuGetPackageRoot)' != ''" />
-  </ItemGroup>
-  <!-- End Workaround -->
-
 </Project>
