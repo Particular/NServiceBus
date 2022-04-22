@@ -50,13 +50,8 @@
             public MyComponent CustomService { get; set; }
         }
 
-        public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
+        public class ExternallyManagedContainerEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public ExternallyManagedContainerEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
                 public SomeMessageHandler(Context context, MyComponent component, IServiceProvider serviceProvider)

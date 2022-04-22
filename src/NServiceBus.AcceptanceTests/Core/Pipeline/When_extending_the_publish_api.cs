@@ -91,11 +91,17 @@
                 EndpointSetup<DefaultServer>(builder => builder.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
-            public class MyHandler : IHandleMessages<MyEvent>
+            public class BaseHandler<TContext>
             {
-                public MyHandler(Context context)
+                protected TContext testContext;
+
+                public BaseHandler(TContext testContext) => this.testContext = testContext;
+            }
+
+            public class MyHandler : BaseHandler<Context>, IHandleMessages<MyEvent>
+            {
+                public MyHandler(Context testContext) : base(testContext)
                 {
-                    testContext = context;
                 }
 
                 public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
@@ -103,8 +109,6 @@
                     testContext.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 

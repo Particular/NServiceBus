@@ -33,13 +33,8 @@
             public string ReceivedConversationId { get; set; }
         }
 
-        class ReceivingEndpoint : EndpointConfigurationBuilder
+        class ReceivingEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public ReceivingEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class ConversationIdMessageHandler : IHandleMessages<MessageWithConversationId>
             {
                 Context testContext;

@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_deferring_to_non_local : NServiceBusAcceptanceTest
@@ -42,24 +41,17 @@
             public DateTimeOffset ReceivedAt { get; set; }
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointFromTemplate<DefaultServer>
         {
-            public Endpoint()
-            {
-                EndpointSetup<DefaultServer>(config =>
+            public Endpoint() =>
+                EndpointSetup(config =>
                 {
                     config.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
                 });
-            }
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        public class Receiver : EndpointFromTemplate<DefaultServer>
         {
-            public Receiver()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public MyMessageHandler(Context context)

@@ -19,11 +19,11 @@
             Assert.True(context.MessageAudited);
         }
 
-        public class UserEndpoint : EndpointConfigurationBuilder
+        public class UserEndpoint : EndpointFromTemplate<DefaultServer>
         {
             public UserEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
+                EndpointSetup(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
             }
 
             class Handler : IHandleMessages<MessageToBeAudited>

@@ -30,12 +30,8 @@
             Assert.True(exception.Message.Contains("A Transaction scope unit of work can't be used when the transport already uses a scope"));
         }
 
-        public class ScopeEndpoint : EndpointConfigurationBuilder
+        public class ScopeEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public ScopeEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
         }
     }
 }

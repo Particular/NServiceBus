@@ -33,12 +33,9 @@
             public bool TTBRHasExpiredAndMessageIsStillInAuditQueue { get; set; }
         }
 
-        class EndpointWithAuditOn : EndpointConfigurationBuilder
+        class EndpointWithAuditOn : EndpointFromTemplate<DefaultServer>
         {
-            public EndpointWithAuditOn()
-            {
-                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
-            }
+            public EndpointWithAuditOn() => EndpointSetup(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {

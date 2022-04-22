@@ -39,13 +39,8 @@
             public string HeaderValue { get; set; }
         }
 
-        public class Server : EndpointConfigurationBuilder
+        public class Server : EndpointFromTemplate<DefaultServer>
         {
-            public Server()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class RequestHandler : IHandleMessages<Request>
             {
                 public Task Handle(Request message, IMessageHandlerContext context)

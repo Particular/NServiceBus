@@ -39,14 +39,14 @@
             public bool IsMessageHandledByTheAuditEndpoint { get; set; }
         }
 
-        public class EndpointWithAuditOff : EndpointConfigurationBuilder
+        public class EndpointWithAuditOff : EndpointFromTemplate<DefaultServer>
         {
             public EndpointWithAuditOff()
             {
                 // Although the AuditProcessedMessagesTo seems strange here, this test tries to fake the scenario where
                 // even though the user has specified audit config, because auditing is explicitly turned
                 // off, no messages should be audited.
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup(c =>
                 {
                     c.DisableFeature<Audit>();
                     c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
@@ -70,12 +70,9 @@
             }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        public class EndpointWithAuditOn : EndpointFromTemplate<DefaultServer>
         {
-            public EndpointWithAuditOn()
-            {
-                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
-            }
+            public EndpointWithAuditOn() => EndpointSetup(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
@@ -94,13 +91,8 @@
             }
         }
 
-        public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
+        public class EndpointThatHandlesAuditMessages : EndpointFromTemplate<DefaultServer>
         {
-            public EndpointThatHandlesAuditMessages()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
                 public AuditMessageHandler(Context context)

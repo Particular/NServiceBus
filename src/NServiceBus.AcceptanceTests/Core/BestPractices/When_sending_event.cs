@@ -36,12 +36,8 @@
             public Exception Exception { get; set; }
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointFromTemplate<DefaultServer>
         {
-            public Endpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
         }
 
         public class MyEvent : IEvent

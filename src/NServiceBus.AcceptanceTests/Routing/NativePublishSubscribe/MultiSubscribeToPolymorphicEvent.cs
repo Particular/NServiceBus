@@ -37,29 +37,16 @@
             public bool SubscriberGotMyEvent2 { get; set; }
         }
 
-        public class Publisher1 : EndpointConfigurationBuilder
+        public class Publisher1 : EndpointFromTemplate<DefaultPublisher>
         {
-            public Publisher1()
-            {
-                EndpointSetup<DefaultPublisher>();
-            }
         }
 
-        public class Publisher2 : EndpointConfigurationBuilder
+        public class Publisher2 : EndpointFromTemplate<DefaultPublisher>
         {
-            public Publisher2()
-            {
-                EndpointSetup<DefaultPublisher>();
-            }
         }
 
-        public class Subscriber : EndpointConfigurationBuilder
+        public class Subscriber : EndpointFromTemplate<DefaultServer>
         {
-            public Subscriber()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class MyHandler : IHandleMessages<IMyEvent>
             {
                 public MyHandler(Context context)

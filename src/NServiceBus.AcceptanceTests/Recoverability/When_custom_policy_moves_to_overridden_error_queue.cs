@@ -54,13 +54,8 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             }
         }
 
-        class ErrorSpy : EndpointConfigurationBuilder
+        class ErrorSpy : EndpointFromTemplate<DefaultServer>
         {
-            public ErrorSpy()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
                 public InitiatingMessageHandler(Context context)

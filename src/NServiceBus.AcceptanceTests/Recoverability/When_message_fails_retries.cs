@@ -29,13 +29,8 @@
                 .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")));
         }
 
-        public class RetryEndpoint : EndpointConfigurationBuilder
+        public class RetryEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public RetryEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class MessageHandler : IHandleMessages<MessageWhichFailsRetries>
             {
                 public MessageHandler(Context context)

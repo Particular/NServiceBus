@@ -28,13 +28,8 @@
             StringAssert.Contains($"No publisher address could be found for message type '{typeof(MyEvent).FullName}'.", log.Message);
         }
 
-        public class Subscriber : EndpointConfigurationBuilder
+        public class Subscriber : EndpointFromTemplate<DefaultServer>
         {
-            public Subscriber()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class MyHandler : IHandleMessages<MyEvent>
             {
                 public Task Handle(MyEvent @event, IMessageHandlerContext context)

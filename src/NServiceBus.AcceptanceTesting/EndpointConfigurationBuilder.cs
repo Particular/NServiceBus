@@ -6,6 +6,56 @@
     using Features;
     using Support;
 
+    public class EndpointFromTemplate<TTemplate> : IEndpointConfigurationFactory where TTemplate : IEndpointSetupTemplate, new()
+    {
+        Action<EndpointConfiguration, ScenarioContext> configurationCustomization = (rd, b) => { };
+
+        public EndpointFromTemplate()
+        {
+            configuration.BuilderType = GetType();
+        }
+
+        public void EndpointSetup(Action<EndpointConfiguration> configurationBuilderCustomization,
+            Action<PublisherMetadata> publisherMetadata = null)
+        {
+            EndpointSetup<ScenarioContext>((rd, b) => configurationBuilderCustomization(rd), publisherMetadata);
+        }
+
+        public void EndpointSetup<TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+            where TContext : ScenarioContext
+        {
+            configurationCustomization = (rd, b) => configurationBuilderCustomization(rd, (TContext)b);
+
+            publisherMetadata?.Invoke(configuration.PublisherMetadata);
+        }
+
+        public EndpointCustomizationConfiguration Get()
+        {
+            configuration.GetConfiguration = async runDescriptor =>
+            {
+                var endpointSetupTemplate = new TTemplate();
+                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
+                {
+                    configurationCustomization(bc, runDescriptor.ScenarioContext);
+                    return Task.CompletedTask;
+                }).ConfigureAwait(false);
+
+                if (configuration.DisableStartupDiagnostics)
+                {
+                    endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+                }
+
+                return endpointConfiguration;
+            };
+
+            return configuration;
+        }
+
+        public ScenarioContext ScenarioContext { get; set; }
+
+        EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
+    }
+
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
     {
         public EndpointConfigurationBuilder CustomMachineName(string customMachineName)

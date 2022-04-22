@@ -28,11 +28,11 @@
             public ConcurrentBag<Type> SubscribedEvents { get; set; } = new ConcurrentBag<Type>();
         }
 
-        class Subscriber : EndpointConfigurationBuilder
+        class Subscriber : EndpointFromTemplate<DefaultServer>
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
                     c.Pipeline.Register(typeof(SubscribeSpy), "Inspects all subscribe operations");

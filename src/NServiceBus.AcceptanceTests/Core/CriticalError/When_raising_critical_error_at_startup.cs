@@ -39,13 +39,8 @@
             public int CriticalErrorsRaised { get; set; }
         }
 
-        public class EndpointWithCriticalError : EndpointConfigurationBuilder
+        public class EndpointWithCriticalError : EndpointFromTemplate<DefaultServer>
         {
-            public EndpointWithCriticalError()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class CriticalHandler : IHandleMessages<Message>
             {
                 public CriticalHandler(CriticalError criticalError, TestContext testContext)

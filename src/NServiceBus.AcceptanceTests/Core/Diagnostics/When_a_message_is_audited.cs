@@ -49,13 +49,8 @@
             }
         }
 
-        class AuditSpyEndpoint : EndpointConfigurationBuilder
+        class AuditSpyEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public AuditSpyEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
                 public MessageToBeAuditedHandler(Context context)

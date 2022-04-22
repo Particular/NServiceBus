@@ -77,13 +77,8 @@
             public bool GotTheMessage { get; set; }
         }
 
-        public class StartedEndpoint : EndpointConfigurationBuilder
+        public class StartedEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public StartedEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
                 public SomeMessageHandler(Context context)

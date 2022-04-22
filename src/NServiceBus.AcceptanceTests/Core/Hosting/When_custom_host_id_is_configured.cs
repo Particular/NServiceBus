@@ -26,12 +26,8 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
             Assert.AreEqual(context.CustomHostId, context.HostIdObserved);
         }
 
-        public class MyEndpoint : EndpointConfigurationBuilder
+        public class MyEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public MyEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
         }
 
         public class MyFeatureThatOverridesHostInformationDefaults : Feature

@@ -19,13 +19,8 @@
             StringAssert.Contains("IMessageSession", exception.ToString());
         }
 
-        public class StartedEndpoint : EndpointConfigurationBuilder
+        public class StartedEndpoint : EndpointFromTemplate<DefaultServer>
         {
-            public StartedEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             class MyHandler : IHandleMessages<MyMessage>
             {
                 //not supported

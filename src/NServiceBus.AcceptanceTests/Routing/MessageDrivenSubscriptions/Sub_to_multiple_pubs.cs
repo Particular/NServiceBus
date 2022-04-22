@@ -57,12 +57,8 @@
             }
         }
 
-        class Publisher : EndpointConfigurationBuilder
+        class Publisher : EndpointFromTemplate<DefaultServer>
         {
-            public Publisher()
-            {
-                EndpointSetup<DefaultServer>();
-            }
         }
 
         public class SomeEvent : IEvent

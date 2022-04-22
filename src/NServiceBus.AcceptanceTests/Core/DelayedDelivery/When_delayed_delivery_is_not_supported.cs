@@ -39,13 +39,8 @@
             public bool SecondMessageReceived { get; set; }
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointFromTemplate<DefaultServer>
         {
-            public Endpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
             {
                 public MyMessageHandler(Context testContext)
