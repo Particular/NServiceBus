@@ -150,6 +150,7 @@ namespace NServiceBus.Extensibility
                 targetStash[kvp.Key] = kvp.Value;
             }
         }
+
         Dictionary<string, object> GetOrCreateStash()
         {
             if (stash == null)
