@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using Extensibility;
     using Pipeline;
     using Routing;
     using Transport;
@@ -40,7 +41,11 @@ namespace NServiceBus
 
         public virtual UnicastRoutingStrategy Route(IOutgoingSendContext context)
         {
-            var state = context.Extensions.GetOrCreate<State>();
+            if (!context.GetOperationProperties().TryGet(out State state))
+            {
+                state = new State();
+            }
+
             var route = SelectRoute(state, context);
             return ResolveRoute(route, context);
         }

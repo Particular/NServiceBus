@@ -3,6 +3,7 @@
     using System;
     using System.Text;
     using System.Threading.Tasks;
+    using Extensibility;
     using Logging;
     using Pipeline;
     using Routing;
@@ -12,8 +13,11 @@
     {
         public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
-            var state = context.Extensions.GetOrCreate<State>();
-            var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
+            var dispatchConsistency = DispatchConsistency.Default;
+            if (context.GetOperationProperties().TryGet(out State state) && state.ImmediateDispatch)
+            {
+                dispatchConsistency = DispatchConsistency.Isolated;
+            }
 
             var operations = new TransportOperation[context.RoutingStrategies.Count];
             var index = 0;
@@ -28,7 +32,7 @@
                 LogOutgoingOperations(operations);
             }
 
-            if (!state.ImmediateDispatch && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
+            if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
                 return Task.CompletedTask;
