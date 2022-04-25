@@ -48,7 +48,7 @@ namespace NServiceBus.Extensibility
         public bool TryGet<T>(string key, out T result)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            if (stash.TryGetValue(key, out var value))
+            if (stash?.TryGetValue(key, out var value) == true)
             {
                 result = (T)value;
                 return true;
@@ -121,7 +121,7 @@ namespace NServiceBus.Extensibility
         public void Remove(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            stash.Remove(key);
+            _ = stash?.Remove(key);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace NServiceBus.Extensibility
         public void Set<T>(string key, T t)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            stash[key] = t;
+            GetOrCreateStash()[key] = t;
         }
 
         /// <summary>
@@ -139,10 +139,26 @@ namespace NServiceBus.Extensibility
         /// <param name="context">The source context.</param>
         internal void Merge(ContextBag context)
         {
+            if (context.stash == null)
+            {
+                return;
+            }
+
+            var targetStash = GetOrCreateStash();
             foreach (var kvp in context.stash)
             {
-                stash[kvp.Key] = kvp.Value;
+                targetStash[kvp.Key] = kvp.Value;
             }
+        }
+
+        Dictionary<string, object> GetOrCreateStash()
+        {
+            if (stash == null)
+            {
+                stash = new Dictionary<string, object>();
+            }
+
+            return stash;
         }
 
         /// <summary>
@@ -153,6 +169,6 @@ namespace NServiceBus.Extensibility
         internal IBehavior[] Behaviors { get; set; }
 
         ContextBag parentBag;
-        Dictionary<string, object> stash = new Dictionary<string, object>();
+        Dictionary<string, object> stash; // might be null!
     }
 }
