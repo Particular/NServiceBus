@@ -1031,7 +1031,7 @@ public class MySaga : Saga<Data>,
 
         // https://github.com/Particular/NServiceBus/issues/6370
         [Test]
-        public Task NServiceBusIssue6370PartialClasses()
+        public Task SagaHandlersInPartialClasses()
         {
             var source =
 @"
