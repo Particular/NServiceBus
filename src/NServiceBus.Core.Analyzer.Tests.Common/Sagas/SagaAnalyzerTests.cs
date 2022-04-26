@@ -1028,6 +1028,115 @@ public class MySaga : Saga<Data>,
                 return Assert(source);
             }
         }
+
+        // https://github.com/Particular/NServiceBus/issues/6370
+        [Test]
+        public Task NServiceBusIssue6370PartialClasses()
+        {
+            var source =
+@"
+using System.Threading.Tasks;
+using NServiceBus;
+
+public partial class SagaImplementation : Saga<SagaData>, IAmStartedByMessages<SagaStartMessage>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+    {
+        mapper.MapSaga(s => s.OrderId)
+            .ToMessage<SagaStartMessage>(b => b.OrderId)
+            .ToMessage<SagaStep1>(b => b.OrderId)
+            .ToMessage<SagaStep2>(s => s.OrderId)
+            .ToMessage<SagaStep3>(b => b.OrderId);
+    }
+
+    public async Task Handle(SagaStartMessage message, IMessageHandlerContext context)
+    {
+        var options = new SendOptions();
+        options.RouteToThisEndpoint();
+        await context.Send(new SagaStep1 {OrderId = Data.OrderId}, options);
+        await context.Send(new SagaStep2 {OrderId = Data.OrderId}, options);
+        await context.Send(new SagaStep3 {OrderId = Data.OrderId}, options);
+    }
+
+    private void CompleteSaga()
+    {
+        if(Data.Step1Complete && Data.Step2Complete && Data.Step3Complete)
+        {
+            MarkAsComplete();
+        }
+    }
+}
+-----
+using System.Threading.Tasks;
+using NServiceBus;
+
+public partial class SagaImplementation : IHandleMessages<SagaStep1>
+{
+    public Task Handle(SagaStep1 message, IMessageHandlerContext context)
+    {
+        Data.Step1Complete = true;
+        CompleteSaga();
+        return Task.CompletedTask;
+    }
+}
+-----
+using System.Threading.Tasks;
+using NServiceBus;
+
+public partial class SagaImplementation : IHandleMessages<SagaStep2>
+{
+    public  Task Handle(SagaStep2 message, IMessageHandlerContext context)
+    {
+        Data.Step2Complete = true;
+        CompleteSaga();
+        return Task.CompletedTask;
+    }
+}
+-----
+using System.Threading.Tasks;
+using NServiceBus;
+
+public partial class SagaImplementation : IHandleMessages<SagaStep3>
+{
+    public Task Handle(SagaStep3 message, IMessageHandlerContext context)
+    {
+        Data.Step3Complete = true;
+        CompleteSaga();
+        return Task.CompletedTask;
+    }
+}
+-----
+using NServiceBus;
+
+public class SagaData : ContainSagaData
+{
+    public string OrderId { get; set; } = null!;
+
+    public bool Step1Complete { get; set; }
+    public bool Step2Complete { get; set; }
+    public bool Step3Complete { get; set; }
+}
+
+public class SagaStartMessage : ICommand
+{
+    public string OrderId { get; set; } = null!;
+}
+
+public class SagaStep1 : SagaStartMessage
+{
+}
+
+public class SagaStep2 : SagaStartMessage
+{
+}
+
+public class SagaStep3 : SagaStartMessage
+{
+}
+";
+
+            return Assert(source);
+        }
     }
 
     public class SagaAnalyzerTestsCSharp9 : SagaAnalyzerTestsCSharp8

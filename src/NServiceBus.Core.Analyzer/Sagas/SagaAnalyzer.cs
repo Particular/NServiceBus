@@ -102,7 +102,10 @@
                 }
             }
 
-            if (!TryGetSagaDetails(context, knownTypes, sagaType, out var saga))
+            // Manages access to semantic models for other files, since those are expensive to create
+            var semanticModels = new SemanticModelCache(context.Compilation, context.Node.SyntaxTree, context.SemanticModel);
+
+            if (!TryGetSagaDetails(context, semanticModels, knownTypes, sagaType, out var saga))
             {
                 return;
             }
@@ -235,7 +238,11 @@
 
             // Figure out which message types have a ConfigureHowToFindSaga mapping...
             var mappedMessageTypes = saga.MessageMappings
-                .Select(m => context.SemanticModel.GetTypeInfo(m.MessageTypeSyntax).Type)
+                .Select(m =>
+                {
+                    var semanticModel = semanticModels.GetFor(m.MessageTypeSyntax);
+                    return semanticModel.GetTypeInfo(m.MessageTypeSyntax).Type;
+                })
                 .ToImmutableHashSet(SymbolEqualityComparer.Default); // Message types shouldn't need nullability annotations
 
             // ...then find the IAmStartedBy message types that don't already have a mapping defined
@@ -325,7 +332,10 @@
                 return;
             }
 
-            if (!TryGetSagaDetails(context, knownTypes, sagaType, out var saga))
+            // Manages access to semantic models for other files, since those are expensive to create
+            var semanticModels = new SemanticModelCache(context.Compilation, context.Node.SyntaxTree, context.SemanticModel);
+
+            if (!TryGetSagaDetails(context, semanticModels, knownTypes, sagaType, out var saga))
             {
                 return;
             }
@@ -487,7 +497,7 @@
             return diagnostic;
         }
 
-        static bool TryGetSagaDetails(SyntaxNodeAnalysisContext context, KnownTypes knownTypes, INamedTypeSymbol sagaType, out SagaDetails saga)
+        static bool TryGetSagaDetails(SyntaxNodeAnalysisContext context, SemanticModelCache semanticModels, KnownTypes knownTypes, INamedTypeSymbol sagaType, out SagaDetails saga)
         {
             saga = null;
 
@@ -514,9 +524,6 @@
             {
                 return false;
             }
-
-            // Manages access to semantic models for other files, since those are expensive to create
-            var semanticModels = new SemanticModelCache(context.Compilation, context.Node.SyntaxTree, context.SemanticModel);
 
             // From all the base lists on all partials, find the methods that are one of our IAmStarted/IHandle methods, then get
             // the TypeSymbol so we have both the syntax and type available
