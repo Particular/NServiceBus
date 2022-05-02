@@ -11,6 +11,7 @@ NServiceBus.IHandleMessages`1[[NServiceBus.AcceptanceTests.Core.DependencyInject
 NServiceBus.IMessageCreator - Singleton
 NServiceBus.MessageInterfaces.IMessageMapper - Singleton
 NServiceBus.Notifications - Singleton
+NServiceBus.Persistence.ISynchronizedStorageSession - Scoped
 NServiceBus.Pipeline.IBehavior - Transient
 NServiceBus.Pipeline.IBehavior`2[[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c],[NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c]] - Transient
 NServiceBus.Pipeline.LogicalMessageFactory - Singleton
