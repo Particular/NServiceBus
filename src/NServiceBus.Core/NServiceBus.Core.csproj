@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
-    <PackageReference Include="Fody" Version="6.6.0" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="6.6.1" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.9.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.3.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="4.0.0" PrivateAssets="All" />
