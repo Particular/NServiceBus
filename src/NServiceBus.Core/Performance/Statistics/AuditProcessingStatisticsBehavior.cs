@@ -6,12 +6,13 @@
 
     class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext>
     {
+        internal const string ProcessingStartedKey = "NServiceBus.Auditing.ProcessingStarted";
+
         public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
-            if (context.Extensions.TryGet(out ProcessingStatisticsBehavior.State state))
+            if (context.Extensions.TryGet(ProcessingStartedKey, out DateTimeOffset processingStarted))
             {
-                context.AuditMetadata[Headers.ProcessingStarted] = DateTimeOffsetHelper.ToWireFormattedString(state.ProcessingStarted);
-                // We can't take the processing time from the state since we don't know it yet.
+                context.AuditMetadata[Headers.ProcessingStarted] = DateTimeOffsetHelper.ToWireFormattedString(processingStarted);
                 context.AuditMetadata[Headers.ProcessingEnded] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
             }
 

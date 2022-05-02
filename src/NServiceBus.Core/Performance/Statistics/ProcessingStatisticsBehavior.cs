@@ -8,18 +8,8 @@
     {
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            var state = new State
-            {
-                ProcessingStarted = DateTimeOffset.UtcNow
-            };
-
-            context.Extensions.Set(state);
+            context.Extensions.Set(AuditProcessingStatisticsBehavior.ProcessingStartedKey, DateTimeOffset.UtcNow);
             await next(context).ConfigureAwait(false);
-        }
-
-        public class State
-        {
-            public DateTimeOffset ProcessingStarted { get; set; }
         }
     }
 }
