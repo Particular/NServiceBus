@@ -42,18 +42,12 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public MessageToBeAuditedHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    var testContext = context.GetTestContext<Context>();
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 
@@ -66,16 +60,13 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                public AuditMessageHandler(Context textContext)
-                {
-                    this.textContext = textContext;
-                }
-
                 public async Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    if (textContext.AuditRetries > 0)
+                    var testContext = context.GetTestContext<Context>();
+
+                    if (testContext.AuditRetries > 0)
                     {
-                        textContext.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;
+                        testContext.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;
                         return;
                     }
 
@@ -84,11 +75,9 @@
                     await Task.Delay(ttbr.Add(TimeSpan.FromSeconds(1)));
 
                     // enforce message retry
-                    Interlocked.Increment(ref textContext.AuditRetries);
+                    Interlocked.Increment(ref testContext.AuditRetries);
                     throw new Exception("retry message");
                 }
-
-                Context textContext;
             }
         }
 

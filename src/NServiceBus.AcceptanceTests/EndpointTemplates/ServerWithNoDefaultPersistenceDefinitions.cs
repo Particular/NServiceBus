@@ -2,8 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
+    using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
+    using NServiceBus.Pipeline;
 
     public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {
@@ -19,6 +21,8 @@
                 .Immediate(immediate => immediate.NumberOfRetries(0));
             builder.SendFailedMessagesTo("error");
 
+            builder.Pipeline.Register(new RegisterTestContextBehavior(runDescriptor.ScenarioContext), "Stores the test context into the pipeline extensions.");
+
             await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
@@ -29,6 +33,35 @@
             builder.TypesToIncludeInScan(endpointConfiguration.GetTypesScopedByTestClass());
 
             return builder;
+        }
+    }
+
+    class RegisterTestContextBehavior : Behavior<ITransportReceiveContext>
+    {
+        readonly ScenarioContext testContext;
+
+        public RegisterTestContextBehavior(ScenarioContext testContext)
+        {
+            this.testContext = testContext;
+        }
+
+        public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
+        {
+            context.Extensions.Set(testContext);
+            return next();
+        }
+    }
+
+    public static class TestContextExtensions
+    {
+        public static T GetTestContext<T>(this IPipelineContext behavior) where T : ScenarioContext
+        {
+            //if (behavior is ITransportReceiveContext)
+            //{
+            //    throw new InvalidOperationException("cannot call on transport receive context");
+            //}
+
+            return behavior.Extensions.Get<ScenarioContext>() as T;
         }
     }
 }

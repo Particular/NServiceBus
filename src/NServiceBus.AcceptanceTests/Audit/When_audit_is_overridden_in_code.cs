@@ -28,10 +28,7 @@
 
             class Handler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
-                }
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.FromResult(0);
             }
         }
 
@@ -45,18 +42,12 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                public AuditMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    var testContext = context.GetTestContext<Context>();
                     testContext.MessageAudited = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 

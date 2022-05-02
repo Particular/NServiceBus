@@ -55,18 +55,12 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    testContext = context;
-                }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    var testContext = context.GetTestContext<Context>();
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 
@@ -79,18 +73,12 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    testContext = context;
-                }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    var testContext = context.GetTestContext<Context>();
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 
@@ -103,18 +91,12 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                public AuditMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    var testContext = context.GetTestContext<Context>();
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 

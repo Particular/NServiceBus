@@ -41,10 +41,7 @@
 
         public class Server : EndpointConfigurationBuilder
         {
-            public Server()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public Server() => EndpointSetup<DefaultServer>();
 
             class RequestHandler : IHandleMessages<Request>
             {
@@ -61,40 +58,29 @@
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
-            public EndpointWithAuditOn()
-            {
+            public EndpointWithAuditOn() =>
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<Outbox>();
                     c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
                     c.ConfigureRouting().RouteToEndpoint(typeof(Request), typeof(Server));
                 });
-            }
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    testContext = context;
-                }
-
                 public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
+                    var testContext = context.GetTestContext<Context>();
                     testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     testContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 
         class AuditSpyEndpoint : EndpointConfigurationBuilder
         {
-            public AuditSpyEndpoint()
-            {
-                EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
-            }
+            public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
 
             class BodySpy : IMutateIncomingTransportMessages
             {
