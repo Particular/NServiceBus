@@ -12,23 +12,23 @@
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    public class When_a_persistence_does_not_provide_ISynchronizationContext : NServiceBusAcceptanceTest
+    public class When_a_persistence_does_not_provide_synchronized_storage_session : NServiceBusAcceptanceTest
     {
         // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method
         // is not altered by Fody to throw an ObjectDisposedException if it was disposed
         [Test]
         [Repeat(2)]
-        public Task ReceiveFeature_should_work_without_ISynchronizedStorage()
+        public async Task ReceiveFeature_should_work_without_ISynchronizedStorage()
         {
-            return Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
                 .Done(c => c.MessageReceived)
                 .Run();
         }
 
-        class FakeNoSyncContextPersistence : PersistenceDefinition
+        class FakeNoSynchronizedStorageSupportPersistence : PersistenceDefinition
         {
-            public FakeNoSyncContextPersistence()
+            public FakeNoSynchronizedStorageSupportPersistence()
             {
                 Supports<StorageType.Sagas>(s => { });
                 Supports<StorageType.Subscriptions>(s => { });
@@ -44,12 +44,12 @@
 
             public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
 
@@ -59,8 +59,9 @@
             {
                 EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
+                    // The subscription storage is needed because at this stage we have no way of DisablingPublishing on the non-generic version of ConfigureTransport
                     c.RegisterComponents(container => container.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>());
-                    c.UsePersistence<FakeNoSyncContextPersistence>();
+                    c.UsePersistence<FakeNoSynchronizedStorageSupportPersistence>();
                 });
             }
         }
