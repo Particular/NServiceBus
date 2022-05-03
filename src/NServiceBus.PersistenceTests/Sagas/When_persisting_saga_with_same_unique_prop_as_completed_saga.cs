@@ -17,8 +17,10 @@
 
             await SaveSaga(saga1);
             var context1 = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context1))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.Open(context1);
+
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
                 Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
 
@@ -30,8 +32,10 @@
 
             await SaveSaga(saga2);
             var context2 = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context2))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.Open(context2);
+
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
                 Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);
 

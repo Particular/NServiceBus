@@ -24,12 +24,15 @@
             var persister = configuration.SagaStorage;
 
             var winningContext = configuration.GetContextBagForSagaStorage();
-            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
+            using (var winningSaveSession = configuration.CreateStorageSession())
             {
+                await winningSaveSession.Open(winningContext);
+
                 var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
 
                 losingContext = configuration.GetContextBagForSagaStorage();
-                losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext);
+                losingSaveSession = configuration.CreateStorageSession();
+                await losingSaveSession.Open(losingContext);
                 staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingContext);
 
                 record.DateTimeProperty = DateTime.UtcNow;

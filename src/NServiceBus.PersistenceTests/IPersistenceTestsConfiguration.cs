@@ -25,11 +25,7 @@
 
         ISagaPersister SagaStorage { get; }
 
-        ISynchronizedStorage SynchronizedStorage { get; }
-
         TimeSpan? SessionTimeout { get; }
-
-        ISynchronizedStorageAdapter SynchronizedStorageAdapter { get; }
 
         IOutboxStorage OutboxStorage { get; }
 
@@ -38,6 +34,8 @@
         Task Configure(CancellationToken cancellationToken = default);
 
         Task Cleanup(CancellationToken cancellationToken = default);
+
+        Func<ICompletableSynchronizedStorageSession> CreateStorageSession { get; }
 
         Func<ContextBag> GetContextBagForSagaStorage { get; }
 

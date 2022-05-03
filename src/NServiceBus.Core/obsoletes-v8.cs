@@ -1651,11 +1651,34 @@ namespace NServiceBus.Persistence
 
 namespace NServiceBus.Persistence
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Outbox;
+    using Transport;
+
     [ObsoleteEx(
         TreatAsErrorFromVersion = "8.0.0",
         RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(ICompletableSynchronizedStorageSession))]
 #pragma warning disable IDE1006 // Naming Styles
     public interface CompletableSynchronizedStorageSession { }
+
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(ICompletableSynchronizedStorageSession))]
+    public interface ISynchronizedStorageAdapter
+    {
+        Task<ICompletableSynchronizedStorageSession> TryAdapt(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
+
+        Task<ICompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default);
+    }
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "8.0.0",
+        RemoveInVersion = "9.0.0", ReplacementTypeOrMember = nameof(ICompletableSynchronizedStorageSession))]
+    public interface ISynchronizedStorage
+    {
+        Task<ICompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag, CancellationToken cancellationToken = default);
+    }
 #pragma warning restore IDE1006 // Naming Styles
 }
 

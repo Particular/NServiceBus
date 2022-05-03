@@ -23,11 +23,9 @@
 
         public ISagaPersister SagaStorage { get; private set; }
 
-        public ISynchronizedStorage SynchronizedStorage { get; private set; }
-
-        public ISynchronizedStorageAdapter SynchronizedStorageAdapter { get; private set; }
-
         public IOutboxStorage OutboxStorage { get; private set; }
+
+        public Func<ICompletableSynchronizedStorageSession> CreateStorageSession { get; private set; }
 
         public Task Configure(CancellationToken cancellationToken = default)
         {
@@ -38,16 +36,11 @@
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"),
                 name => DeterministicGuid.Create(name).ToString());
 
-            SynchronizedStorage = new LearningSynchronizedStorage(sagaManifests);
-
-            SynchronizedStorageAdapter = new LearningStorageAdapter();
+            CreateStorageSession = () => new LearningSynchronizedStorageSession(sagaManifests);
 
             return Task.CompletedTask;
         }
 
-        public Task Cleanup(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Cleanup(CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

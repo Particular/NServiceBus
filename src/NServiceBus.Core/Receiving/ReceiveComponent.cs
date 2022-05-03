@@ -8,7 +8,6 @@ namespace NServiceBus
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
     using Outbox;
-    using Persistence;
     using Pipeline;
     using Transport;
     using Unicast;
@@ -68,10 +67,7 @@ namespace NServiceBus
 
             pipelineSettings.Register("LoadHandlersConnector", b =>
             {
-                var adapter = b.GetService<ISynchronizedStorageAdapter>() ?? new NoOpSynchronizedStorageAdapter();
-                var syncStorage = b.GetService<ISynchronizedStorage>() ?? new NoOpSynchronizedStorage();
-
-                return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), syncStorage, adapter);
+                return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");

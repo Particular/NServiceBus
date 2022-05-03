@@ -3,68 +3,50 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
-    using Outbox;
     using Persistence;
     using Pipeline;
-    using Transport;
     using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
-        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, ISynchronizedStorage synchronizedStorage, ISynchronizedStorageAdapter adapter)
-        {
-            this.messageHandlerRegistry = messageHandlerRegistry;
-            this.synchronizedStorage = synchronizedStorage;
-            this.adapter = adapter;
-        }
+        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry) => this.messageHandlerRegistry = messageHandlerRegistry;
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
-            var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
-            var transportTransaction = context.Extensions.Get<TransportTransaction>();
-            using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false))
+            using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>() ?? NoOpCompletableSynchronizedStorageSession.Instance;
+            await storageSession.Open(context).ConfigureAwait(false);
+
+            var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
+
+            if (!context.MessageHandled && handlersToInvoke.Count == 0)
             {
-                var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
-
-                if (!context.MessageHandled && handlersToInvoke.Count == 0)
-                {
-                    var error = $"No handlers could be found for message type: {context.Message.MessageType}";
-                    throw new InvalidOperationException(error);
-                }
-
-                if (isDebugIsEnabled)
-                {
-                    LogHandlersInvocation(context, handlersToInvoke);
-                }
-
-                foreach (var messageHandler in handlersToInvoke)
-                {
-                    messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
-
-                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-                    await stage(handlingContext).ConfigureAwait(false);
-
-                    if (handlingContext.HandlerInvocationAborted)
-                    {
-                        //if the chain was aborted skip the other handlers
-                        break;
-                    }
-                }
-                context.MessageHandled = true;
-                await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
+                var error = $"No handlers could be found for message type: {context.Message.MessageType}";
+                throw new InvalidOperationException(error);
             }
-        }
 
-        async Task<ICompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, IOutboxTransaction outboxTransaction, ContextBag contextBag, CancellationToken cancellationToken)
-        {
-            return await adapter.TryAdapt(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false)
-                   ?? await adapter.TryAdapt(transportTransaction, contextBag, cancellationToken).ConfigureAwait(false)
-                   ?? await synchronizedStorage.OpenSession(contextBag, cancellationToken).ConfigureAwait(false);
+            if (isDebugIsEnabled)
+            {
+                LogHandlersInvocation(context, handlersToInvoke);
+            }
+
+            foreach (var messageHandler in handlersToInvoke)
+            {
+                messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
+
+                var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
+                await stage(handlingContext).ConfigureAwait(false);
+
+                if (handlingContext.HandlerInvocationAborted)
+                {
+                    //if the chain was aborted skip the other handlers
+                    break;
+                }
+            }
+            context.MessageHandled = true;
+            await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
         }
 
         static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)
@@ -87,8 +69,6 @@
             logger.Debug(builder.ToString());
         }
 
-        readonly ISynchronizedStorageAdapter adapter;
-        readonly ISynchronizedStorage synchronizedStorage;
         readonly MessageHandlerRegistry messageHandlerRegistry;
 
         static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();

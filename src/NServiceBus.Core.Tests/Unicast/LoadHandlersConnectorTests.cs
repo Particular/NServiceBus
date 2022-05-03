@@ -8,12 +8,12 @@
     using Core.Tests.Fakes;
 
     [TestFixture]
-    public class LoadHandlersBehaviorTests
+    public class LoadHandlersConnectorTests
     {
         [Test]
         public void Should_throw_when_there_are_no_registered_message_handlers()
         {
-            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new FakeSynchronizedStorage(), new FakeTransactionalSynchronizedStorageAdapter());
+            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry());
 
             var context = new TestableIncomingLogicalMessageContext();
 

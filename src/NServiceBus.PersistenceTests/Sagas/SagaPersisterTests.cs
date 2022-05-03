@@ -32,8 +32,10 @@
         protected async Task SaveSaga<TSagaData>(TSagaData saga, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
-            using (var insertSession = await configuration.SynchronizedStorage.OpenSession(insertContextBag, cancellationToken))
+            using (var insertSession = configuration.CreateStorageSession())
             {
+                await insertSession.Open(insertContextBag, cancellationToken);
+
                 await SaveSagaWithSession(saga, insertSession, insertContextBag, cancellationToken);
                 await insertSession.CompleteAsync(cancellationToken);
             }
@@ -53,8 +55,10 @@
             TSagaData sagaData;
             var persister = configuration.SagaStorage;
 
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context, cancellationToken))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.Open(context, cancellationToken);
+
                 sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, cancellationToken);
 
                 await completeSession.CompleteAsync(cancellationToken);
@@ -67,8 +71,10 @@
         {
             var readContextBag = configuration.GetContextBagForSagaStorage();
             TSagaData sagaData;
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag, cancellationToken))
+            using (var readSession = configuration.CreateStorageSession())
             {
+                await readSession.Open(readContextBag, cancellationToken);
+
                 sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, cancellationToken);
 
                 await readSession.CompleteAsync(cancellationToken);

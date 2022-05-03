@@ -1612,6 +1612,10 @@ namespace NServiceBus.Features
         public static bool IsFeatureActive(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
         public static bool IsFeatureEnabled(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
     }
+    public class SynchronizedStorage : NServiceBus.Features.Feature
+    {
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     [System.Obsolete("The timeout manager has been removed in favor of native delayed delivery support " +
         "provided by transports. See the upgrade guide for more details. Will be removed " +
         "in version 9.0.0.", true)]
@@ -1934,14 +1938,26 @@ namespace NServiceBus.Persistence
     [System.Obsolete("Use `ICompletableSynchronizedStorageSession` instead. Will be removed in version " +
         "9.0.0.", true)]
     public interface CompletableSynchronizedStorageSession { }
+    public static class CompletableSynchronizedStorageSessionExtensions
+    {
+        public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
+        public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Outbox.IOutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default) { }
+    }
     public interface ICompletableSynchronizedStorageSession : NServiceBus.Persistence.ISynchronizedStorageSession, System.IDisposable
     {
         System.Threading.Tasks.Task CompleteAsync(System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
+    [System.Obsolete("Use `ICompletableSynchronizedStorageSession` instead. Will be removed in version " +
+        "9.0.0.", true)]
     public interface ISynchronizedStorage
     {
         System.Threading.Tasks.Task<NServiceBus.Persistence.ICompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default);
     }
+    [System.Obsolete("Use `ICompletableSynchronizedStorageSession` instead. Will be removed in version " +
+        "9.0.0.", true)]
     public interface ISynchronizedStorageAdapter
     {
         System.Threading.Tasks.Task<NServiceBus.Persistence.ICompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);

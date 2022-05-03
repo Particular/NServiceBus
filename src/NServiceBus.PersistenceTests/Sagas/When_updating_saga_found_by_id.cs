@@ -21,8 +21,10 @@
             var updatedValue = "bar";
             var context = configuration.GetContextBagForSagaStorage();
             var persister = configuration.SagaStorage;
-            using (var completeSession = await configuration.SynchronizedStorage.OpenSession(context))
+            using (var completeSession = configuration.CreateStorageSession())
             {
+                await completeSession.Open(context);
+
                 var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(saga1.Id, completeSession, context);
 
                 sagaData.SomeProperty = updatedValue;
