@@ -741,8 +741,8 @@ namespace NServiceBus
     {
         public static void DisablePublishing<T>(this NServiceBus.RoutingSettings<T> routingSettings)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        [System.Obsolete("Use `RoutingExtensions<T>.DisablePublishing` instead. The member currently throws" +
-            " a NotImplementedException. Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `RoutingSettings<T>.DisablePublishing` instead. The member currently throws a" +
+            " NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static void DisablePublishing<T>(this NServiceBus.TransportExtensions<T> transportExtensions)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string publisherEndpoint)
