@@ -1394,7 +1394,7 @@ namespace NServiceBus
             where T : TransportDefinition, IMessageDrivenSubscriptionTransport
             => throw new NotImplementedException();
         [ObsoleteEx(
-            ReplacementTypeOrMember = "RoutingExtensions<T>.DisablePublishing",
+            ReplacementTypeOrMember = "RoutingSettings<T>.DisablePublishing",
             TreatAsErrorFromVersion = "8",
             RemoveInVersion = "9")]
         public static void DisablePublishing<T>(this TransportExtensions<T> transportExtensions)
