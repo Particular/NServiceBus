@@ -178,7 +178,7 @@ namespace NServiceBus.Hosting.Helpers
 #endif
                 return true;
             }
-            catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
+            catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
             {
                 results.ErrorsThrownDuringScanning = true;
 
@@ -239,7 +239,7 @@ namespace NServiceBus.Hosting.Helpers
             {
                 referencedAssembly = Assembly.Load(assemblyName);
             }
-            catch (Exception ex) when (ex is FileNotFoundException || ex is BadImageFormatException || ex is FileLoadException) { }
+            catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
 
             if (referencedAssembly == null)
             {

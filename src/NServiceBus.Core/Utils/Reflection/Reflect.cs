@@ -40,7 +40,7 @@ namespace NServiceBus
                 throw new ArgumentNullException(nameof(member));
             }
 
-            if (!(member is LambdaExpression lambda))
+            if (member is not LambdaExpression lambda)
             {
                 throw new ArgumentException("Not a lambda expression", nameof(member));
             }

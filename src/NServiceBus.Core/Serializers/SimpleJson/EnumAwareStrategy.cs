@@ -16,7 +16,7 @@
 
         public override object DeserializeObject(object value, Type type)
         {
-            if (!(value is string stringValue))
+            if (value is not string stringValue)
             {
                 return base.DeserializeObject(value, type);
             }

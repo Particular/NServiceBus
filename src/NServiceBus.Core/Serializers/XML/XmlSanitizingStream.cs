@@ -19,25 +19,24 @@ namespace NServiceBus
                 case "1.1": // http://www.w3.org/TR/xml11/#charsets
                     {
                         return
-                            !(
-                                character <= 0x8 ||
-                                character == 0xB ||
-                                character == 0xC ||
-                                (character >= 0xE && character <= 0x1F) ||
-                                (character >= 0x7F && character <= 0x84) ||
-                                (character >= 0x86 && character <= 0x9F) ||
-                                character > 0x10FFFF
-                                );
+                                character is not (<= 0x8 or
+                                0xB or
+                                0xC or
+                                (>= 0xE and <= 0x1F) or
+                                (>= 0x7F and <= 0x84) or
+                                (>= 0x86 and <= 0x9F) or
+                                > 0x10FFFF)
+;
                     }
                 case "1.0": // http://www.w3.org/TR/REC-xml/#charsets
                     {
                         return
-                            character == 0x9 /* == '\t' == 9   */||
-                            character == 0xA /* == '\n' == 10  */||
-                            character == 0xD /* == '\r' == 13  */||
-                            (character >= 0x20 && character <= 0xD7FF) ||
-                            (character >= 0xE000 && character <= 0xFFFD) ||
-                            (character >= 0x10000 && character <= 0x10FFFF);
+                            character is 0x9 /* == '\t' == 9   */or
+                            0xA /* == '\n' == 10  */or
+                            0xD /* == '\r' == 13  */or
+                            (>= 0x20 and <= 0xD7FF) or
+                            (>= 0xE000 and <= 0xFFFD) or
+                            (>= 0x10000 and <= 0x10FFFF);
                     }
                 default:
                     {

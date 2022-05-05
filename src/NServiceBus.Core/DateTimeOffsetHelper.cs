@@ -44,7 +44,7 @@
                 switch (format[i])
                 {
                     case 'y':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }
@@ -53,7 +53,7 @@
                         break;
 
                     case 'M':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }
@@ -62,7 +62,7 @@
                         break;
 
                     case 'd':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }
@@ -71,7 +71,7 @@
                         break;
 
                     case 'H':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }
@@ -80,7 +80,7 @@
                         break;
 
                     case 'm':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }
@@ -89,7 +89,7 @@
                         break;
 
                     case 's':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }
@@ -98,7 +98,7 @@
                         break;
 
                     case 'f':
-                        if (digit < '0' || digit > '9')
+                        if (digit is < '0' or > '9')
                         {
                             throw new FormatException(errorMessage);
                         }

@@ -36,7 +36,7 @@
 
             RemoveSagaHeadersIfProcessingAEvent(context);
 
-            if (!(context.MessageHandler.Instance is Saga saga))
+            if (context.MessageHandler.Instance is not Saga saga)
             {
                 await next(context).ConfigureAwait(false);
                 return;
