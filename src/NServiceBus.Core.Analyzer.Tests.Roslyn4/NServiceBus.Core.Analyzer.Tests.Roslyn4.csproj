@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netcoreapp3.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
     <DefineConstants>$(DefineConstants);ROSLYN4</DefineConstants>
   </PropertyGroup>
