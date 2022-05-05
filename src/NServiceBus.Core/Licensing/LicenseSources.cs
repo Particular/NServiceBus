@@ -24,11 +24,6 @@ namespace NServiceBus
                 var standardSources = LicenseSource.GetStandardLicenseSources();
 
                 sources.AddRange(standardSources);
-
-#if APPCONFIGLICENSESOURCE
-                sources.Add(new LicenseSourceAppConfigLicenseSetting());
-                sources.Add(new LicenseSourceAppConfigLicensePathSetting());
-#endif
             }
 
             return sources.ToArray();
