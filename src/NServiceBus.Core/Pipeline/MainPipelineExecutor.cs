@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
+    using Performance.Statistics;
     using Pipeline;
     using Transport;
 
@@ -28,6 +29,7 @@ namespace NServiceBus
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
+                rootContext.SetPipelineStartTime(pipelineStartedAt);
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 

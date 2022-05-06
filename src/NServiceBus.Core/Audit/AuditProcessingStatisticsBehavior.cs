@@ -2,17 +2,17 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Performance.Statistics;
     using Pipeline;
 
     class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext>
     {
-        internal const string ProcessingStartedKey = "NServiceBus.Auditing.ProcessingStarted";
-
         public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
-            if (context.Extensions.TryGet(ProcessingStartedKey, out DateTimeOffset processingStarted))
+            var processingStarted = context.GetPipelineStartTime();
+            if (processingStarted.HasValue)
             {
-                context.AuditMetadata[Headers.ProcessingStarted] = DateTimeOffsetHelper.ToWireFormattedString(processingStarted);
+                context.AuditMetadata[Headers.ProcessingStarted] = DateTimeOffsetHelper.ToWireFormattedString(processingStarted.Value);
                 context.AuditMetadata[Headers.ProcessingEnded] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
             }
 
