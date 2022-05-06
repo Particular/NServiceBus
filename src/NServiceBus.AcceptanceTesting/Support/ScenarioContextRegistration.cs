@@ -16,7 +16,7 @@
             var type = scenarioContext.GetType();
             while (type != typeof(object))
             {
-                context.Container.AddSingleton(type, scenarioContext);
+                context.Services.AddSingleton(type, scenarioContext);
                 type = type.BaseType;
             }
 
@@ -24,6 +24,7 @@
             context.Pipeline.Register(new RegisterTestContextBehavior(scenarioContext), "Stores the test context into the pipeline extensions.");
         }
     }
+
     class RegisterTestContextBehavior : Behavior<ITransportReceiveContext>
     {
         readonly ScenarioContext testContext;
