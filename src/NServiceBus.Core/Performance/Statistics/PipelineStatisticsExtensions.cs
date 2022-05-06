@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Performance.Statistics
+﻿namespace NServiceBus
 {
     using System;
     using Pipeline;

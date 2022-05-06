@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Performance.Statistics;
     using Pipeline;
 
     class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext>
