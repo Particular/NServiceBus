@@ -8,10 +8,6 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
-    <DefineConstants>$(DefineConstants);REGISTRYLICENSESOURCE</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="System.Transactions" />
     <Reference Include="System.Security" />
