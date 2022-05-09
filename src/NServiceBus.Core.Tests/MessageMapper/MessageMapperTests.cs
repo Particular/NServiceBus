@@ -47,7 +47,7 @@
             });
         }
 
-#if NETCOREAPP
+#if NET
 #nullable enable
         [Test]
         public void Should_handle_messages_with_nullable_reference_types()

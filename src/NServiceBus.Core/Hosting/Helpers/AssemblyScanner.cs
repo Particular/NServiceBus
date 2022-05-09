@@ -6,7 +6,7 @@ namespace NServiceBus.Hosting.Helpers
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-#if NETCOREAPP
+#if NET
     using System.Runtime.Loader;
 #endif
     using System.Text;
@@ -170,7 +170,7 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-#if NETCOREAPP
+#if NET
                 var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
                 assembly = context.LoadFromAssemblyPath(assemblyPath);
 #else
