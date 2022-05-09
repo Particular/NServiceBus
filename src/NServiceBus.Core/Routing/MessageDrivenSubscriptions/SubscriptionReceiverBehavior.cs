@@ -35,7 +35,7 @@
                 throw new InvalidOperationException("Message intent is Subscribe, but the subscription message type header is missing.");
             }
 
-            if (intent != MessageIntent.Subscribe && intent != MessageIntent.Unsubscribe)
+            if (intent is not MessageIntent.Subscribe and not MessageIntent.Unsubscribe)
             {
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }

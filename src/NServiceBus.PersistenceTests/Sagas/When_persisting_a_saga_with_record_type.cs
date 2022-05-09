@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
-#if NET6_0_OR_GREATER
+#if NET
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;

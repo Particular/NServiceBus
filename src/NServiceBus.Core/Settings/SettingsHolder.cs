@@ -51,7 +51,7 @@ namespace NServiceBus.Settings
                 }
             }
 
-            if (!(tmp is T))
+            if (tmp is not T)
             {
                 return false;
             }

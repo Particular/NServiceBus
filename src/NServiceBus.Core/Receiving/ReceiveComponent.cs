@@ -46,7 +46,7 @@ namespace NServiceBus
                 }
 
                 var satelliteReceiveAddresses = transport.Receivers.Values
-                    .Where(r => r.Id != MainReceiverId && r.Id != InstanceSpecificReceiverId)
+                    .Where(r => r.Id is not MainReceiverId and not InstanceSpecificReceiverId)
                     .Select(r => r.ReceiveAddress)
                     .ToArray();
 

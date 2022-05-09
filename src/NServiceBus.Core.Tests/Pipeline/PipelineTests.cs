@@ -98,8 +98,6 @@
             // "unknown" approval file, which will fail. The test should be updated to handle the new TFM.
 #if NET472
             var scenario = "net472";
-#elif NETCOREAPP3_1
-            var scenario = "netcoreapp3.1";
 #elif NET6_0
             var scenario = "net6.0";
 #else

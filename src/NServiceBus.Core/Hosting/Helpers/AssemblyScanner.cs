@@ -6,7 +6,7 @@ namespace NServiceBus.Hosting.Helpers
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-#if NETCOREAPP
+#if NET
     using System.Runtime.Loader;
 #endif
     using System.Text;
@@ -170,7 +170,7 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-#if NETCOREAPP
+#if NET
                 var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
                 assembly = context.LoadFromAssemblyPath(assemblyPath);
 #else
@@ -178,7 +178,7 @@ namespace NServiceBus.Hosting.Helpers
 #endif
                 return true;
             }
-            catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
+            catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
             {
                 results.ErrorsThrownDuringScanning = true;
 
@@ -239,7 +239,7 @@ namespace NServiceBus.Hosting.Helpers
             {
                 referencedAssembly = Assembly.Load(assemblyName);
             }
-            catch (Exception ex) when (ex is FileNotFoundException || ex is BadImageFormatException || ex is FileLoadException) { }
+            catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
 
             if (referencedAssembly == null)
             {

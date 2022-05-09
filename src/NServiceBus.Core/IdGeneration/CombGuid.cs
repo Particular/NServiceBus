@@ -22,7 +22,7 @@ namespace NServiceBus
         {
             var newGuid = inputGuid;
             Span<byte> guidArray = stackalloc byte[16];
-#if NETCOREAPP
+#if NET
             if (!newGuid.TryWriteBytes(guidArray))
 #else
             if (!MemoryMarshal.TryWrite(guidArray, ref newGuid))
@@ -65,7 +65,7 @@ namespace NServiceBus
             daysArray.Slice(daysArray.Length - 2).CopyTo(guidArray.Slice(10, 2));
             milliSecondsArray.Slice(milliSecondsArray.Length - 4).CopyTo(guidArray.Slice(12, 4));
 
-#if NETCOREAPP
+#if NET
             return new Guid(guidArray);
 #else
             if (!MemoryMarshal.TryRead(guidArray, out Guid readGuid))

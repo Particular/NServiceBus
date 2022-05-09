@@ -113,7 +113,7 @@
 
                         break;
                     }
-                    catch (Exception exception) when (!(exception is OperationCanceledException) || !cancellationToken.IsCancellationRequested)
+                    catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
                     {
                         Logger.WarnFormat("Could not switch to {0} mode. '{1}'", startRateLimiting ? "rate limit" : "normal", exception);
                         //Raise critical error
@@ -133,7 +133,7 @@
                     await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted(cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (Exception exception) when (!(exception is OperationCanceledException) || !cancellationToken.IsCancellationRequested)
+            catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
                 Logger.WarnFormat("Failed to enter system outage mode: {0}", exception);
             }
@@ -150,7 +150,7 @@
                     await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded(cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (Exception exception) when (!(exception is OperationCanceledException) || !cancellationToken.IsCancellationRequested)
+            catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
                 Logger.WarnFormat("Failed to stop system outage mode: {0}", exception);
             }

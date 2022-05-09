@@ -108,7 +108,7 @@
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
-#if NETCOREAPP
+#if NET
                 MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 #endif
                 MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
