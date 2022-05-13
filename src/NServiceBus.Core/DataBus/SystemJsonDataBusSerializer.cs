@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Text.Json;
     using DataBus;
 
-#pragma warning disable IDE0079
-#pragma warning disable SYSLIB0011
     /// <summary>
-    /// Data bus serialization using the System.Text.Json serializer. />.
+    /// Data bus serialization using the <see cref="JsonSerializer"/> serializer.
     /// </summary>
     public class SystemJsonDataBusSerializer : IDataBusSerializer
     {
@@ -16,19 +15,15 @@
         /// </summary>
         public void Serialize(object databusProperty, Stream stream)
         {
-            formatter.Serialize(stream, databusProperty);
+            JsonSerializer.Serialize(stream, databusProperty);
         }
 
         /// <summary>
         /// Deserializes the property.
         /// </summary>
-        public object Deserialize(Stream stream)
+        public object Deserialize(Type propertyType, Stream stream)
         {
-            return formatter.Deserialize(stream);
+            return JsonSerializer.Deserialize(stream, propertyType);
         }
-
-        static BinaryFormatter formatter = new BinaryFormatter();
     }
-#pragma warning restore SYSLIB0011
-#pragma warning restore IDE0079
 }

@@ -17,9 +17,11 @@
             where TDataBusSerializer : IDataBusSerializer, new()
         {
             Guard.AgainstNull(nameof(config), config);
+
             var type = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBus));
             var extension = (DataBusExtensions<TDataBus>)Activator.CreateInstance(type, config.Settings);
             var definition = (DataBusDefinition)Activator.CreateInstance(typeof(TDataBus));
+
             config.Settings.Set(Features.DataBus.SelectedDataBusKey, definition);
             config.Settings.Set(Features.DataBus.DataBusSerializerTypeKey, typeof(TDataBusSerializer));
 

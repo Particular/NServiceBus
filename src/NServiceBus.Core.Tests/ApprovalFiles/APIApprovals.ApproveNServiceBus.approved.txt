@@ -55,7 +55,7 @@ namespace NServiceBus
     public class BinaryFormatterDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public BinaryFormatterDataBusSerializer() { }
-        public object Deserialize(System.IO.Stream stream) { }
+        public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         public void Serialize(object databusProperty, System.IO.Stream stream) { }
     }
     [System.Obsolete("The timeout manager has been removed in favor of native delayed delivery support " +
@@ -220,6 +220,7 @@ namespace NServiceBus
         protected DataBusProperty(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public bool HasValue { get; set; }
         public string Key { get; set; }
+        public System.Type Type { get; }
         public T Value { get; }
         public void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public object GetValue() { }
@@ -509,6 +510,7 @@ namespace NServiceBus
     {
         bool HasValue { get; set; }
         string Key { get; set; }
+        System.Type Type { get; }
         object GetValue();
         void SetValue(object value);
     }
@@ -1182,7 +1184,7 @@ namespace NServiceBus
     public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public SystemJsonDataBusSerializer() { }
-        public object Deserialize(System.IO.Stream stream) { }
+        public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         public void Serialize(object databusProperty, System.IO.Stream stream) { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
@@ -1383,7 +1385,7 @@ namespace NServiceBus.DataBus
     }
     public interface IDataBusSerializer
     {
-        object Deserialize(System.IO.Stream stream);
+        object Deserialize(System.Type propertyType, System.IO.Stream stream);
         void Serialize(object databusProperty, System.IO.Stream stream);
     }
 }

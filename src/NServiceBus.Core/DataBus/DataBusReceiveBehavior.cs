@@ -45,14 +45,16 @@
                 {
                     using (var stream = await dataBus.Get(dataBusKey, context.CancellationToken).ConfigureAwait(false))
                     {
-                        var value = dataBusSerializer.Deserialize(stream);
-
                         if (dataBusProperty != null)
                         {
+                            var value = dataBusSerializer.Deserialize(dataBusProperty.Type, stream);
+
                             dataBusProperty.SetValue(value);
                         }
                         else
                         {
+                            var value = dataBusSerializer.Deserialize(property.Type, stream);
+
                             property.Setter(message, value);
                         }
                     }

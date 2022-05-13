@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
     using DataBus;
@@ -26,7 +27,7 @@ namespace NServiceBus
         /// <summary>
         /// Deserializes the property.
         /// </summary>
-        public object Deserialize(Stream stream)
+        public object Deserialize(Type propertyType, Stream stream)
         {
             return formatter.Deserialize(stream);
         }
