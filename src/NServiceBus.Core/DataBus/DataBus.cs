@@ -19,7 +19,7 @@ namespace NServiceBus.Features
 
         static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
         {
-            if (!settings.TryGet("SelectedDataBus", out DataBusDefinition dataBusDefinition))
+            if (!settings.TryGet(SelectedDataBusKey, out DataBusDefinition dataBusDefinition))
             {
                 dataBusDefinition = new FileShareDataBus();
             }
@@ -32,9 +32,12 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            var serializerType = context.Settings.Get<Type>(DataBusSerializerTypeKey);
+
+            //TODO: What should we do (if any) if there is a type registered in DI that is different?
             if (!context.Container.HasComponent<IDataBusSerializer>())
             {
-                context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent(serializerType, DependencyLifecycle.SingleInstance);
             }
 
             context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
@@ -43,6 +46,10 @@ namespace NServiceBus.Features
             context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
             context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
         }
+
+        internal static string SelectedDataBusKey = "SelectedDataBus";
+        internal static string CustomDataBusTypeKey = "CustomDataBusType";
+        internal static string DataBusSerializerTypeKey = "DataBusSerializerType";
 
         class DataBusInitializer : FeatureStartupTask
         {

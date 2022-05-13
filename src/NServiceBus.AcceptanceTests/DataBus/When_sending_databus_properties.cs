@@ -42,7 +42,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
-                    builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
+                    builder.UseDataBus<FileShareDataBus, string>().BasePath(basePath);
 
                     builder.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 });
@@ -56,7 +56,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
-                    builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
+                    builder.UseDataBus<FileShareDataBus, string>().BasePath(basePath);
                     builder.RegisterMessageMutator(new Mutator());
                 });
             }
