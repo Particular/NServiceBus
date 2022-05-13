@@ -41,7 +41,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.UseDataBus(typeof(MyDataBus), typeof(string));
+                    b.UseDataBus(typeof(MyDataBus), typeof(SystemJsonDataBusSerializer));
                     b.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(ReceiverViaFluent));
                 });
             }
@@ -51,7 +51,7 @@
         {
             public ReceiverViaFluent()
             {
-                EndpointSetup<DefaultServer>(b => b.UseDataBus(typeof(MyDataBus), typeof(string)));
+                EndpointSetup<DefaultServer>(b => b.UseDataBus(typeof(MyDataBus), typeof(SystemJsonDataBusSerializer)));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessageWithLargePayload>

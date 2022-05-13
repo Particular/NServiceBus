@@ -49,6 +49,15 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IUnsubscribeContext context) { }
         public static bool IgnoredBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
+    [System.Obsolete("The BinaryFormatter is a security vurnerability and should not be used. Use the J" +
+        "sonDataBusSerializer instead. Will be treated as an error from version 9.0.0. Wi" +
+        "ll be removed in version 10.0.0.", false)]
+    public class BinaryFormatterDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
+    {
+        public BinaryFormatterDataBusSerializer() { }
+        public object Deserialize(System.IO.Stream stream) { }
+        public void Serialize(object databusProperty, System.IO.Stream stream) { }
+    }
     [System.Obsolete("The timeout manager has been removed in favor of native delayed delivery support " +
         "provided by transports. See the upgrade guide for more details. Will be removed " +
         "in version 9.0.0.", true)]
@@ -1170,6 +1179,12 @@ namespace NServiceBus
         public void RegisterPublisher(System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint) { }
         public void SubscriptionAuthorizer(System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
     }
+    public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
+    {
+        public SystemJsonDataBusSerializer() { }
+        public object Deserialize(System.IO.Stream stream) { }
+        public void Serialize(object databusProperty, System.IO.Stream stream) { }
+    }
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {
@@ -1256,9 +1271,19 @@ namespace NServiceBus
     }
     public static class UseDataBusExtensions
     {
+        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that acceptes a dat" +
+            "a bus serializer type. Will be treated as an error from version 9.0.0. Will be r" +
+            "emoved in version 10.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
+        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType, System.Type dataBusSerializerType) { }
+        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that acceptes a dat" +
+            "a bus serializer type. Will be treated as an error from version 9.0.0. Will be r" +
+            "emoved in version 10.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtensions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.DataBus.DataBusDefinition, new () { }
+        public static NServiceBus.DataBus.DataBusExtensions<TDataBus> UseDataBus<TDataBus, TDataBusSerializer>(this NServiceBus.EndpointConfiguration config)
+            where TDataBus : NServiceBus.DataBus.DataBusDefinition, new ()
+            where TDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
     }
     [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. Will be re" +
         "moved in version 9.0.0.", true)]

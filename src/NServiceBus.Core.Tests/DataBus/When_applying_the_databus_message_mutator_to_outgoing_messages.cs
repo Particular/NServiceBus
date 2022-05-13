@@ -27,7 +27,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var fakeDatabus = new FakeDataBus();
 
-            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new Conventions());
 
             await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
@@ -49,7 +49,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var fakeDatabus = new FakeDataBus();
 
-            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new Conventions());
 
             await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 

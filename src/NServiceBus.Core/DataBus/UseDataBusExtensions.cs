@@ -12,7 +12,9 @@
         /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static DataBusExtensions<TDataBus> UseDataBus<TDataBus, TDataBusSerializer>(this EndpointConfiguration config) where TDataBus : DataBusDefinition, new()
+        public static DataBusExtensions<TDataBus> UseDataBus<TDataBus, TDataBusSerializer>(this EndpointConfiguration config)
+            where TDataBus : DataBusDefinition, new()
+            where TDataBusSerializer : IDataBusSerializer, new()
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBus));
@@ -40,7 +42,12 @@
 
             if (!typeof(IDataBus).IsAssignableFrom(dataBusType))
             {
-                throw new ArgumentException("The type needs to implement IDataBus.", nameof(dataBusType));
+                throw new ArgumentException("The data bus type needs to implement IDataBus.", nameof(dataBusType));
+            }
+
+            if (!typeof(IDataBusSerializer).IsAssignableFrom(dataBusSerializerType))
+            {
+                throw new ArgumentException("The data bus serializer type needs to implement IDataBusSerializer.", nameof(dataBusSerializerType));
             }
 
             config.Settings.Set(Features.DataBus.SelectedDataBusKey, new CustomDataBus());
@@ -64,7 +71,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
 
-            return config.UseDataBus<T, string>(); //todo: pass binary serializer type
+            return config.UseDataBus<T, BinaryFormatterDataBusSerializer>();
         }
 
         /// <summary>
@@ -80,7 +87,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
 
-            return config.UseDataBus(dataBusType, typeof(string)); //todo: pass binary serializer type
+            return config.UseDataBus(dataBusType, typeof(BinaryFormatterDataBusSerializer));
         }
     }
 }

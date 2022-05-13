@@ -46,7 +46,7 @@
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
-                    builder.UseDataBus<FileShareDataBus, string>().BasePath(basePath);
+                    builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
 
                     builder.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 }).ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
@@ -64,7 +64,7 @@
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
-                    builder.UseDataBus<FileShareDataBus, string>().BasePath(basePath);
+                    builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
                     builder.RegisterMessageMutator(new Mutator());
                 });
             }
