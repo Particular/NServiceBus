@@ -28,12 +28,12 @@ namespace NServiceBus.Core.Tests.DataBus
             });
 
             var fakeDatabus = new FakeDataBus();
-            var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, new XmlDataBusSerializer<string>(), new Conventions());
+            var serializer = new SystemJsonDataBusSerializer();
+            var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, serializer, new Conventions());
 
             using (var stream = new MemoryStream())
             {
-                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(string));
-                serializer.Serialize(stream, "test");
+                serializer.Serialize("test", stream);
                 stream.Position = 0;
 
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
