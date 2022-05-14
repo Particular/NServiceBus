@@ -25,5 +25,11 @@
         {
             return JsonSerializer.Deserialize(stream, propertyType);
         }
+
+
+        /// <summary>
+        /// The name of this serializer. Used to populate the NServiceBus.Databus.Serializer header.
+        /// </summary>
+        public string Name { get; } = "system-json";
     }
 }

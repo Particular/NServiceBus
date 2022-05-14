@@ -223,5 +223,10 @@
         /// of the message can be known.
         /// </summary>
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+
+        /// <summary>
+        /// The serializer used to serialize the data bus properties in the message.
+        /// </summary>
+        public const string DataBusSerializer = "NServiceBus.DataBus.Serializer";
     }
 }

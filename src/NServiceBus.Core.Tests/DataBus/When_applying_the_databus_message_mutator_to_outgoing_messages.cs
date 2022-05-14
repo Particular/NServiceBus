@@ -35,6 +35,27 @@ namespace NServiceBus.Core.Tests.DataBus
         }
 
         [Test]
+        public async Task Serializer_header_should_be_set()
+        {
+            var context = new TestableOutgoingLogicalMessageContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(MessageWithDataBusProperty), new MessageWithDataBusProperty
+                {
+                    DataBusProperty = new DataBusProperty<string>("test")
+                })
+            };
+
+            var fakeDatabus = new FakeDataBus();
+            var serializer = new SystemJsonDataBusSerializer();
+
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, serializer, new Conventions());
+
+            await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
+
+            Assert.AreEqual(serializer.Name, context.Headers[Headers.DataBusSerializer]);
+        }
+
+        [Test]
         public async Task Time_to_live_should_be_passed_on_the_databus()
         {
             var context = new TestableOutgoingLogicalMessageContext

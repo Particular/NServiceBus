@@ -1,6 +1,8 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +45,30 @@ namespace NServiceBus.Features
             context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
 
             var conventions = context.Settings.Get<Conventions>();
-            context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
+            context.Pipeline.Register(new DataBusReceiveBehavior.Registration(b =>
+            {
+                var defaultSerializer = b.GetRequiredService<IDataBusSerializer>();
+                var serializers = new List<IDataBusSerializer>
+                {
+                    defaultSerializer
+                };
+
+                var jsonSerializer = new SystemJsonDataBusSerializer();
+
+                if (!serializers.Any(s => s.Name == jsonSerializer.Name))
+                {
+                    serializers.Add(jsonSerializer);
+                }
+
+                var binarySerializer = new BinaryFormatterDataBusSerializer();
+
+                if (!serializers.Any(s => s.Name == binarySerializer.Name))
+                {
+                    serializers.Add(binarySerializer);
+                }
+
+                return new DataBusReceiveBehavior(b.GetRequiredService<IDataBus>(), new DataBusDeserializer(serializers), conventions);
+            }));
             context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
         }
 

@@ -55,6 +55,7 @@ namespace NServiceBus
     public class BinaryFormatterDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public BinaryFormatterDataBusSerializer() { }
+        public string Name { get; }
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         public void Serialize(object databusProperty, System.IO.Stream stream) { }
     }
@@ -419,6 +420,7 @@ namespace NServiceBus
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
+        public const string DataBusSerializer = "NServiceBus.DataBus.Serializer";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
         public const string DeliverAt = "NServiceBus.DeliverAt";
@@ -1184,6 +1186,7 @@ namespace NServiceBus
     public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public SystemJsonDataBusSerializer() { }
+        public string Name { get; }
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         public void Serialize(object databusProperty, System.IO.Stream stream) { }
     }
@@ -1385,6 +1388,7 @@ namespace NServiceBus.DataBus
     }
     public interface IDataBusSerializer
     {
+        string Name { get; }
         object Deserialize(System.Type propertyType, System.IO.Stream stream);
         void Serialize(object databusProperty, System.IO.Stream stream);
     }

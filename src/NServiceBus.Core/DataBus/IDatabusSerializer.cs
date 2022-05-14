@@ -22,5 +22,10 @@ namespace NServiceBus.DataBus
         /// <param name="propertyType">The type of the property that should be deserialized.</param>
         /// <returns>The deserialized object.</returns>
         object Deserialize(Type propertyType, Stream stream);
+
+        /// <summary>
+        /// The name of this serializer. Used to populate the <see cref="Headers.DataBusSerializer"/> header.
+        /// </summary>
+        string Name { get; }
     }
 }

@@ -4,16 +4,18 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using DataBus;
-    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
     class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DataBusReceiveBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
+        public DataBusReceiveBehavior(
+            IDataBus dataBus,
+            DataBusDeserializer deserializer,
+            Conventions conventions)
         {
             this.conventions = conventions;
-            dataBusSerializer = serializer;
-            dataBus = databus;
+            this.deserializer = deserializer;
+            this.dataBus = dataBus;
         }
 
         public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
@@ -45,15 +47,17 @@
                 {
                     using (var stream = await dataBus.Get(dataBusKey, context.CancellationToken).ConfigureAwait(false))
                     {
+                        context.Headers.TryGetValue(Headers.DataBusSerializer, out var serializerUsed);
+
                         if (dataBusProperty != null)
                         {
-                            var value = dataBusSerializer.Deserialize(dataBusProperty.Type, stream);
+                            var value = deserializer.Deserialize(serializerUsed, dataBusProperty.Type, stream);
 
                             dataBusProperty.SetValue(value);
                         }
                         else
                         {
-                            var value = dataBusSerializer.Deserialize(property.Type, stream);
+                            var value = deserializer.Deserialize(serializerUsed, property.Type, stream);
 
                             property.Setter(message, value);
                         }
@@ -66,11 +70,11 @@
 
         readonly Conventions conventions;
         readonly IDataBus dataBus;
-        readonly IDataBusSerializer dataBusSerializer;
+        readonly DataBusDeserializer deserializer;
 
         public class Registration : RegisterStep
         {
-            public Registration(Conventions conventions) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => new DataBusReceiveBehavior(b.GetRequiredService<IDataBus>(), b.GetRequiredService<IDataBusSerializer>(), conventions))
+            public Registration(Func<IServiceProvider, DataBusReceiveBehavior> factory) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => factory(b))
             {
                 InsertAfter("MutateIncomingMessages");
             }
