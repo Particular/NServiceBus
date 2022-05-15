@@ -1,8 +1,6 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -35,8 +33,8 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var serializerType = context.Settings.Get<Type>(DataBusSerializerTypeKey);
+            var conventions = context.Settings.Get<Conventions>();
 
-            //TODO: What should we do (if any) if there is a type registered in DI that is different?
             if (!context.Container.HasComponent<IDataBusSerializer>())
             {
                 context.Container.ConfigureComponent(serializerType, DependencyLifecycle.SingleInstance);
@@ -44,31 +42,28 @@ namespace NServiceBus.Features
 
             context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
 
-            var conventions = context.Settings.Get<Conventions>();
             context.Pipeline.Register(new DataBusReceiveBehavior.Registration(b =>
             {
-                var defaultSerializer = b.GetRequiredService<IDataBusSerializer>();
-                var serializers = new List<IDataBusSerializer>
-                {
-                    defaultSerializer
-                };
+                var mainSerializer = b.GetRequiredService<IDataBusSerializer>();
 
-                var jsonSerializer = new SystemJsonDataBusSerializer();
+                IDataBusSerializer fallbackSerializer = null;
 
-                if (!serializers.Any(s => s.Name == jsonSerializer.Name))
+                if (mainSerializer is BinaryFormatterDataBusSerializer)
                 {
-                    serializers.Add(jsonSerializer);
+                    fallbackSerializer = new SystemJsonDataBusSerializer();
                 }
 
-                var binarySerializer = new BinaryFormatterDataBusSerializer();
-
-                if (!serializers.Any(s => s.Name == binarySerializer.Name))
+                if (mainSerializer is SystemJsonDataBusSerializer)
                 {
-                    serializers.Add(binarySerializer);
+                    fallbackSerializer = new BinaryFormatterDataBusSerializer();
                 }
 
-                return new DataBusReceiveBehavior(b.GetRequiredService<IDataBus>(), new DataBusDeserializer(serializers), conventions);
+                return new DataBusReceiveBehavior(
+                    b.GetRequiredService<IDataBus>(),
+                    new DataBusDeserializer(mainSerializer, fallbackSerializer),
+                    conventions);
             }));
+
             context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
         }
 
