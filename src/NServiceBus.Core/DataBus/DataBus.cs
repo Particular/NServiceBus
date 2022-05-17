@@ -46,25 +46,32 @@ namespace NServiceBus.Features
             {
                 var mainSerializer = b.GetRequiredService<IDataBusSerializer>();
 
-                IDataBusSerializer fallbackSerializer = null;
-
-                if (mainSerializer is BinaryFormatterDataBusSerializer)
-                {
-                    fallbackSerializer = new SystemJsonDataBusSerializer();
-                }
-
-                if (mainSerializer is SystemJsonDataBusSerializer)
-                {
-                    fallbackSerializer = new BinaryFormatterDataBusSerializer();
-                }
-
                 return new DataBusReceiveBehavior(
                     b.GetRequiredService<IDataBus>(),
-                    new DataBusDeserializer(mainSerializer, fallbackSerializer),
+                    new DataBusDeserializer(mainSerializer, GetFallbackSerializer(mainSerializer)),
                     conventions);
             }));
 
             context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
+        }
+
+        [ObsoleteEx(
+            Message = "No fallback serializer is needed in version 9 so this can be safely removed.",
+            TreatAsErrorFromVersion = "9.0",
+            RemoveInVersion = "10.0")]
+        IDataBusSerializer GetFallbackSerializer(IDataBusSerializer mainSerializer)
+        {
+            if (mainSerializer is BinaryFormatterDataBusSerializer)
+            {
+                return new SystemJsonDataBusSerializer();
+            }
+
+            if (mainSerializer is SystemJsonDataBusSerializer)
+            {
+                return new BinaryFormatterDataBusSerializer();
+            }
+
+            return null;
         }
 
         internal static string SelectedDataBusKey = "SelectedDataBus";
