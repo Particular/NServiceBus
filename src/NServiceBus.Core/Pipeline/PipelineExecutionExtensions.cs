@@ -5,8 +5,11 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+#if NET
+    using System.Runtime.InteropServices;
+#endif
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using Extensibility;
     using FastExpressionCompiler;
     using Pipeline;
 
@@ -18,10 +21,10 @@
 
         /// <code>
         /// rootContext
-        ///    => ((Behavior1)rootContext.Extensions.Behaviors[0]).Invoke(rootContext,
-        ///       context1 => ((Behavior2)context2.Extensions.Behaviors[1]).Invoke(context1,
+        ///    => GetBehavior(rootContext, 0).Invoke(rootContext,
+        ///       context1 => GetBehavior(context2, 1).Invoke(context1,
         ///        ...
-        ///          context{N} => ((Behavior{N})context{N}.Extensions.Behaviors[{N-1}]).Invoke(context{N},
+        ///          context{N} => GetBehavior(context{N}, {N-1}).Invoke(context{N},
         ///             context{N+1} => TaskEx.Completed))
         /// </code>
         public static Delegate CreatePipelineExecutionExpression(this IBehavior[] behaviors, List<Expression> expressions = null)
@@ -64,21 +67,32 @@
         }
 
         /// <code>
-        /// context{i} => ((BehaviorType)context{i}.Extensions.Behaviors[i]).Invoke(context{i+1} => previous)
+        /// context{i} => GetBehavior(context{i}, {i}).Invoke(context{i+1} => previous)
         /// </code>>
         static Delegate CreateBehaviorCallDelegate(MethodInfo methodInfo, ParameterExpression outerContextParam, Type behaviorType, Delegate previous, int i, List<Expression> expressions = null)
         {
-            PropertyInfo extensionProperty = typeof(IExtendable).GetProperty("Extensions");
-            Expression extensionPropertyExpression = Expression.Property(outerContextParam, extensionProperty);
-            PropertyInfo behaviorsProperty = typeof(ContextBag).GetProperty("Behaviors", BindingFlags.Instance | BindingFlags.NonPublic);
-            Expression behaviorsPropertyExpression = Expression.Property(extensionPropertyExpression, behaviorsProperty);
-            Expression indexerPropertyExpression = Expression.ArrayIndex(behaviorsPropertyExpression, Expression.Constant(i));
-            Expression castToBehavior = Expression.Convert(indexerPropertyExpression, behaviorType);
-            Expression body = Expression.Call(castToBehavior, methodInfo, outerContextParam, Expression.Constant(previous));
+            MethodInfo getBehaviorMethodInfo = typeof(PipelineExecutionExtensions).GetMethod("GetBehavior")!.MakeGenericMethod(outerContextParam.Type, behaviorType);
+            Expression getBehaviorCallExpression = Expression.Call(null, getBehaviorMethodInfo, outerContextParam, Expression.Constant(i));
+            Expression body = Expression.Call(getBehaviorCallExpression, methodInfo, outerContextParam, Expression.Constant(previous));
             var lambdaExpression = Expression.Lambda(body, outerContextParam);
             expressions?.Add(lambdaExpression);
             return lambdaExpression.CompileFast();
         }
+
+#if NET
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TBehavior GetBehavior<TContext, TBehavior>(TContext context, int index)
+            where TContext : class, IBehaviorContext
+            where TBehavior : class, IBehavior
+            => Unsafe.As<TBehavior>(
+                Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(context.Extensions.Behaviors), index));
+#else
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TBehavior GetBehavior<TContext, TBehavior>(TContext context, int index)
+            where TContext : class, IBehaviorContext
+            where TBehavior : class, IBehavior
+            => (TBehavior)context.Extensions.Behaviors[index];
+#endif
 
         /// <code>
         /// context{i} => return TaskEx.CompletedTask;
