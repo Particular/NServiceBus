@@ -93,17 +93,7 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-            // The output varies between TFMs, so a separate approval file is created for each framework.
-            // If a TFM gets added to the test project in the future, it intentionally will create a new
-            // "unknown" approval file, which will fail. The test should be updated to handle the new TFM.
-#if NET472
-            var scenario = "net472";
-#elif NET6_0
-            var scenario = "net6.0";
-#else
-            var scenario = "unknown";
-#endif
-            Approver.Verify(expressions.PrettyPrint(), scenario: scenario);
+            Approver.Verify(expressions.PrettyPrint());
         }
 
         [Test]
