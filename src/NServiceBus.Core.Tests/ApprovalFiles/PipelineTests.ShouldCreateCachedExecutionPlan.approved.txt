@@ -3,4 +3,4 @@ context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServi
         context2 => GetBehavior(context2, 2).Invoke(context2, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
             context3 => GetBehavior(context3, 3).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
                 context4 => GetBehavior(context4, 4).Invoke(context4, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
-                    context5 => GetBehavior(context5, 5).Invoke(context5, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+                    context5 => GetBehavior(context5, 5).Invoke(context5, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),

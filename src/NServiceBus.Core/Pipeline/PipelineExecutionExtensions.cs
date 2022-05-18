@@ -100,7 +100,8 @@
         static Delegate CreateDoneDelegate(Type inContextType, int i)
         {
             var innerContextParam = Expression.Parameter(inContextType, $"context{i + 1}");
-            return Expression.Lambda(Expression.Constant(Task.CompletedTask), innerContextParam).CompileFast();
+            var doneDelegateType = typeof(Func<,>).MakeGenericType(inContextType, typeof(Task));
+            return Expression.Lambda(doneDelegateType, Expression.Constant(Task.CompletedTask), innerContextParam).CompileFast();
         }
     }
 }

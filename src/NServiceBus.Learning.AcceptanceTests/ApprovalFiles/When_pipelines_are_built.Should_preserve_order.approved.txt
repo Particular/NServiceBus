@@ -11,7 +11,7 @@ context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServi
                                         context10 => GetBehavior(context10, 10).Invoke(context10, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
                                             context11 => GetBehavior(context11, 11).Invoke(context11, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
                                                 context12 => GetBehavior(context12, 12).Invoke(context12, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
-                                                    context13 => GetBehavior(context13, 13).Invoke(context13, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+                                                    context13 => GetBehavior(context13, 13).Invoke(context13, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),
 
 context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IOutgoingSendContext,System.Threading.Tasks.Task])),
     context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.IOutgoingLogicalMessageContext,System.Threading.Tasks.Task])),
@@ -26,7 +26,7 @@ context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServi
                                         context10 => GetBehavior(context10, 10).Invoke(context10, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
                                             context11 => GetBehavior(context11, 11).Invoke(context11, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
                                                 context12 => GetBehavior(context12, 12).Invoke(context12, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
-                                                    context13 => GetBehavior(context13, 13).Invoke(context13, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+                                                    context13 => GetBehavior(context13, 13).Invoke(context13, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),
 
 context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IOutgoingReplyContext,System.Threading.Tasks.Task])),
     context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.IOutgoingReplyContext,System.Threading.Tasks.Task])),
@@ -42,13 +42,13 @@ context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServi
                                             context11 => GetBehavior(context11, 11).Invoke(context11, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
                                                 context12 => GetBehavior(context12, 12).Invoke(context12, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
                                                     context13 => GetBehavior(context13, 13).Invoke(context13, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
-                                                        context14 => GetBehavior(context14, 14).Invoke(context14, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+                                                        context14 => GetBehavior(context14, 14).Invoke(context14, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),
 
 context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.ISubscribeContext,System.Threading.Tasks.Task])),
-    context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.ISubscribeContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+    context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.ISubscribeContext],System.Threading.Tasks.Task])),
 
 context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IUnsubscribeContext,System.Threading.Tasks.Task])),
-    context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IUnsubscribeContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+    context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IUnsubscribeContext],System.Threading.Tasks.Task])),
 
 context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.ITransportReceiveContext,System.Threading.Tasks.Task])),
     context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.ITransportReceiveContext,System.Threading.Tasks.Task])),
@@ -60,9 +60,9 @@ context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServi
                             context7 => GetBehavior(context7, 7).Invoke(context7, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
                                 context8 => GetBehavior(context8, 8).Invoke(context8, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
                                     context9 => GetBehavior(context9, 9).Invoke(context9, value(System.Func`2[NServiceBus.Pipeline.IInvokeHandlerContext,System.Threading.Tasks.Task])),
-                                        context10 => GetBehavior(context10, 10).Invoke(context10, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IInvokeHandlerContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+                                        context10 => GetBehavior(context10, 10).Invoke(context10, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IInvokeHandlerContext],System.Threading.Tasks.Task])),
 
 context0 => GetBehavior(context0, 0).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
     context1 => GetBehavior(context1, 1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.IRoutingContext,System.Threading.Tasks.Task])),
         context2 => GetBehavior(context2, 2).Invoke(context2, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
-            context3 => GetBehavior(context3, 3).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]])),
+            context3 => GetBehavior(context3, 3).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),
