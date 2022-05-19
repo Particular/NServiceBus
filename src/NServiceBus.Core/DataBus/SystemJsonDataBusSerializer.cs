@@ -26,7 +26,6 @@
             return JsonSerializer.Deserialize(stream, propertyType);
         }
 
-
         /// <summary>
         /// The name of this serializer. Used to populate the NServiceBus.Databus.Serializer header.
         /// </summary>
