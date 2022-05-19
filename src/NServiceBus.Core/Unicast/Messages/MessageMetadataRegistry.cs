@@ -133,6 +133,13 @@
         {
             foreach (var type in availableTypes)
             {
+                if (type.Name.Contains("Sample"))
+                {
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
+                    var t = 5;
+#pragma warning restore CS0219 // Variable is assigned but its value is never used
+                }
+
                 if (isMessageType(type))
                 {
                     RegisterMessageType(type);
