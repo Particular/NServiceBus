@@ -71,7 +71,7 @@
         /// </code>>
         static Delegate CreateBehaviorCallDelegate(MethodInfo methodInfo, ParameterExpression outerContextParam, Type behaviorType, Delegate previous, int i, List<Expression> expressions = null)
         {
-            MethodInfo getBehaviorMethodInfo = typeof(PipelineExecutionExtensions).GetMethod("GetBehavior")!.MakeGenericMethod(outerContextParam.Type, behaviorType);
+            MethodInfo getBehaviorMethodInfo = GetBehaviorMethodInfo.MakeGenericMethod(outerContextParam.Type, behaviorType);
             Expression getBehaviorCallExpression = Expression.Call(null, getBehaviorMethodInfo, outerContextParam, Expression.Constant(i));
             Expression body = Expression.Call(getBehaviorCallExpression, methodInfo, outerContextParam, Expression.Constant(previous));
             var lambdaExpression = Expression.Lambda(body, outerContextParam);
@@ -103,5 +103,8 @@
             var doneDelegateType = typeof(Func<,>).MakeGenericType(inContextType, typeof(Task));
             return Expression.Lambda(doneDelegateType, Expression.Constant(Task.CompletedTask), innerContextParam).CompileFast();
         }
+
+        static readonly MethodInfo GetBehaviorMethodInfo =
+            typeof(PipelineExecutionExtensions).GetMethod("GetBehavior")!;
     }
 }
