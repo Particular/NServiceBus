@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.MessageDrivenPubSub.Compatibility\NServiceBus.MessageDrivenPubSub.Compatibility.csproj" />
+    <ProjectReference Include="..\SqsMessages\SqsMessages.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.MessageDrivenPubSub.Compatibility;
+    using SqsMessages;
 
     class Program
     {
@@ -19,6 +20,8 @@
 
             endpointConfiguration.EnableFeature<MessageDrivenPubSubCompatibility>();
 
+            endpointConfiguration.Conventions().DefiningEventsAs(t => t == typeof(SampleEvent));
+
             #endregion
 
             endpointConfiguration.EnableInstallers();
@@ -28,7 +31,14 @@
             Console.WriteLine("Started");
             Console.ReadLine();
 
-            await endpointInstance.Stop().ConfigureAwait(false);
+            while (true)
+            {
+                await endpointInstance.Publish(new SampleEvent()).ConfigureAwait(false);
+
+                await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+            }
+
+            //await endpointInstance.Stop().ConfigureAwait(false);
         }
     }
 }
