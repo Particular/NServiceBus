@@ -40,7 +40,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Learning.Accept
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Core.Analyzer.Tests.Roslyn4", "NServiceBus.Core.Analyzer.Tests.Roslyn4\NServiceBus.Core.Analyzer.Tests.Roslyn4.csproj", "{71330321-DA6D-4199-89C4-FB36F92E77C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.MessageDrivenPubSub.Compatibility", "NServiceBus.MessageDrivenPubSub.Compatibility\NServiceBus.MessageDrivenPubSub.Compatibility.csproj", "{4403A86E-9871-47E1-96AA-25CAB60487EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.MessageDrivenPubSub.Compatibility", "NServiceBus.MessageDrivenPubSub.Compatibility\NServiceBus.MessageDrivenPubSub.Compatibility.csproj", "{4403A86E-9871-47E1-96AA-25CAB60487EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SqsCompatibilitySpike", "SqsCompatibilitySpike", "{A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageDrivenSqsSubscriber", "MessageDrivenSqsSubscriber\MessageDrivenSqsSubscriber.csproj", "{A0A2BC45-36F0-4665-98F1-E64FACF08119}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativePubSubSqsPublisher", "NativePubSubSqsPublisher\NativePubSubSqsPublisher.csproj", "{6F9E4930-DC83-4A55-8767-D596954E956E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqsMessages", "SqsMessages\SqsMessages.csproj", "{BAAD9B27-650D-4475-96DD-33FE1C108251}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,6 +108,18 @@ Global
 		{4403A86E-9871-47E1-96AA-25CAB60487EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4403A86E-9871-47E1-96AA-25CAB60487EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4403A86E-9871-47E1-96AA-25CAB60487EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0A2BC45-36F0-4665-98F1-E64FACF08119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0A2BC45-36F0-4665-98F1-E64FACF08119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0A2BC45-36F0-4665-98F1-E64FACF08119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0A2BC45-36F0-4665-98F1-E64FACF08119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F9E4930-DC83-4A55-8767-D596954E956E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F9E4930-DC83-4A55-8767-D596954E956E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F9E4930-DC83-4A55-8767-D596954E956E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F9E4930-DC83-4A55-8767-D596954E956E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +136,10 @@ Global
 		{157D1894-BAE7-45B2-9906-0445B38F3A97} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{360438BD-AEDE-48AC-BE75-FBB6BF2F004D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{71330321-DA6D-4199-89C4-FB36F92E77C2} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{4403A86E-9871-47E1-96AA-25CAB60487EC} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
+		{A0A2BC45-36F0-4665-98F1-E64FACF08119} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
+		{6F9E4930-DC83-4A55-8767-D596954E956E} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
+		{BAAD9B27-650D-4475-96DD-33FE1C108251} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A32A19A8-C700-4AC8-8A34-1D56DA9CDF95}

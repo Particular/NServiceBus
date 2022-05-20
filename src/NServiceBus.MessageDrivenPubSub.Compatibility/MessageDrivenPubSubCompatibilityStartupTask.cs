@@ -2,51 +2,41 @@
 namespace NServiceBus.MessageDrivenPubSub.Compatibility
 {
     using System;
-    using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Features;
-    using Settings;
+    using Microsoft.Extensions.DependencyInjection;
+    using Pipeline;
     using Transport;
 
     public class MessageDrivenPubSubCompatibility : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.RegisterStartupTask(sp => new MessageDrivenPubSubCompatibilityStartupTask(context.Settings));
+            context.Pipeline.Register(
+                sp => new SubscribeMessageToNativeSubscribe(context.Settings.Get<TransportDefinition>()),
+                "Translates message-driven subscribe messages to native subscriptions");
         }
     }
 
-    public class MessageDrivenPubSubCompatibilityStartupTask : FeatureStartupTask
+    public class SubscribeMessageToNativeSubscribe : Behavior<IIncomingPhysicalMessageContext>
     {
-        readonly IReadOnlySettings contextSettings;
-        TransportDefinition transportDefinition;
+#pragma warning disable IDE0052 // Remove unread private members
+        readonly TransportDefinition transportDefinition;
+#pragma warning restore IDE0052 // Remove unread private members
 
-        public MessageDrivenPubSubCompatibilityStartupTask(IReadOnlySettings contextSettings)
+        public SubscribeMessageToNativeSubscribe(TransportDefinition transportDefinition)
         {
-            this.contextSettings = contextSettings;
+            this.transportDefinition = transportDefinition;
         }
 
-        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+        public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
-            var method = contextSettings.GetType().GetMethods()
-                .Where(x => x.Name == nameof(contextSettings.Get))
-                .FirstOrDefault(x => x.IsGenericMethod && x.GetParameters().Length == 0);
-            if (method != null)
+            if (context.Message.GetMessageIntent() == MessageIntent.Subscribe)
             {
-                var seamType = Type.GetType("NServiceBus.TransportSeam, NServiceBus.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c");
-                var settingsType = seamType.GetNestedType("Settings");
-
-                var genericMethod = method.MakeGenericMethod(settingsType);
-                var settings = genericMethod.Invoke(contextSettings, null);
-                var property = settings.GetType().GetProperty("TransportDefinition");
-
-                transportDefinition = property.GetValue(settings) as TransportDefinition;
+                Console.WriteLine("subscription received");
             }
 
-            return Task.CompletedTask;
+            return next();
         }
-
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }
