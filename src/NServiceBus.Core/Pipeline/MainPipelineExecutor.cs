@@ -1,6 +1,9 @@
+using NServiceBus.Diagnostics;
+
 namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +12,8 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
+        private const string IncomingMessageActivityName = "NServiceBus.Diagnostics.IncomingMessage";
+        
         public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
@@ -21,10 +26,13 @@ namespace NServiceBus
         public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
-
+            
+            using var activity = ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Server);
+            
             using (var childScope = rootBuilder.CreateScope())
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
+                activity?.AddTag("NServiceBus.MessageId", message.MessageId);
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
@@ -53,6 +61,8 @@ namespace NServiceBus
 
                 await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
             }
+
+            activity?.Dispose(); //TODO ensure disposal. Set acitivity state.
         }
 
         readonly IServiceProvider rootBuilder;
