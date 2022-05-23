@@ -46,9 +46,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SqsCompatibilitySpike", "Sq
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageDrivenSqsSubscriber", "MessageDrivenSqsSubscriber\MessageDrivenSqsSubscriber.csproj", "{A0A2BC45-36F0-4665-98F1-E64FACF08119}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativePubSubSqsPublisher", "NativePubSubSqsPublisher\NativePubSubSqsPublisher.csproj", "{6F9E4930-DC83-4A55-8767-D596954E956E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NativePubSubSqsPublisher", "NativePubSubSqsPublisher\NativePubSubSqsPublisher.csproj", "{6F9E4930-DC83-4A55-8767-D596954E956E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqsMessages", "SqsMessages\SqsMessages.csproj", "{BAAD9B27-650D-4475-96DD-33FE1C108251}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqsMessages", "SqsMessages\SqsMessages.csproj", "{BAAD9B27-650D-4475-96DD-33FE1C108251}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.MessageDrivePubSub.Compatibility.Cli", "NServiceBus.MessageDrivePubSub.Compatibility.Cli\NServiceBus.MessageDrivePubSub.Compatibility.Cli.csproj", "{29608AC1-1025-4590-8C89-E200D0B96F4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli.MessageDrivenPublisher", "Cli.MessageDrivenPublisher\Cli.MessageDrivenPublisher.csproj", "{61688D19-37E6-4E99-9FAF-F5A50FFF963A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli.MessageDrivenSubscriber", "Cli.MessageDrivenSubscriber\Cli.MessageDrivenSubscriber.csproj", "{767E32EF-B296-4891-87DD-A6839914986E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,6 +126,18 @@ Global
 		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAAD9B27-650D-4475-96DD-33FE1C108251}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29608AC1-1025-4590-8C89-E200D0B96F4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29608AC1-1025-4590-8C89-E200D0B96F4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29608AC1-1025-4590-8C89-E200D0B96F4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29608AC1-1025-4590-8C89-E200D0B96F4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61688D19-37E6-4E99-9FAF-F5A50FFF963A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61688D19-37E6-4E99-9FAF-F5A50FFF963A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61688D19-37E6-4E99-9FAF-F5A50FFF963A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61688D19-37E6-4E99-9FAF-F5A50FFF963A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{767E32EF-B296-4891-87DD-A6839914986E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{767E32EF-B296-4891-87DD-A6839914986E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{767E32EF-B296-4891-87DD-A6839914986E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{767E32EF-B296-4891-87DD-A6839914986E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -140,6 +158,9 @@ Global
 		{A0A2BC45-36F0-4665-98F1-E64FACF08119} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
 		{6F9E4930-DC83-4A55-8767-D596954E956E} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
 		{BAAD9B27-650D-4475-96DD-33FE1C108251} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
+		{29608AC1-1025-4590-8C89-E200D0B96F4A} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
+		{61688D19-37E6-4E99-9FAF-F5A50FFF963A} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
+		{767E32EF-B296-4891-87DD-A6839914986E} = {A2810FBA-DD83-4D03-ABDC-2D4027DD1FDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A32A19A8-C700-4AC8-8A34-1D56DA9CDF95}
