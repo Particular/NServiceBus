@@ -27,7 +27,7 @@
         }
 
         /// <summary>
-        /// The name of this serializer. Used to populate the NServiceBus.Databus.Serializer header.
+        /// The content type this serializer handles. Used to populate the <see cref="Headers.DataBusContentType"/> header.
         /// </summary>
         public string ContentType { get; } = "application/json";
     }
