@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,6 +14,8 @@
   <ItemGroup>
     <PackageReference Include="NServiceBus" Version="7.*" />
     <PackageReference Include="NServiceBus.AmazonSQS" Version="4.*" />
+    <PackageReference Include="NServiceBus.Persistence.Sql" Version="6.5.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
 </Project>

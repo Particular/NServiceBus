@@ -8,7 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+    <ProjectReference Include="..\SqsMessages\SqsMessages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NServiceBus" Version="8.0.0-beta.2" />
+    <PackageReference Include="NServiceBus.AmazonSQS" Version="6.0.0-beta.2" />
+    <PackageReference Include="NServiceBus.Persistence.Sql" Version="7.0.0-beta.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
 </Project>

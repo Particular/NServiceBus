@@ -1,6 +1,7 @@
 ﻿namespace Cli.MessageDrivenPublisher
 {
     using System;
+    using System.Data.SqlClient;
     using System.Threading.Tasks;
     using NServiceBus;
     using SqsMessages;
@@ -19,7 +20,11 @@
 
             endpointConfiguration.Conventions().DefiningEventsAs(t => t == typeof(SampleEvent));
 
-            endpointConfiguration.UsePersistence<InMemoryPersistence>();
+            var connection = Environment.GetEnvironmentVariable("SQLServerConnectionString");
+            var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+            persistence.SubscriptionSettings().CacheFor(TimeSpan.FromSeconds(1));
+            persistence.SqlDialect<SqlDialect.MsSqlServer>();
+            persistence.ConnectionBuilder(() => new SqlConnection(connection));
 
             //transport.S3("bucketname", "my/key/prefix");
 
