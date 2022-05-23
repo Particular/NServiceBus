@@ -29,6 +29,6 @@
         /// <summary>
         /// The name of this serializer. Used to populate the NServiceBus.Databus.Serializer header.
         /// </summary>
-        public string ContentType { get; } = "system-json";
+        public string ContentType { get; } = "application/json";
     }
 }
