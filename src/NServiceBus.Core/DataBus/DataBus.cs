@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -19,12 +20,8 @@ namespace NServiceBus.Features
 
         static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
         {
-            if (!settings.TryGet(SelectedDataBusKey, out DataBusDefinition dataBusDefinition))
-            {
-                dataBusDefinition = new FileShareDataBus();
-            }
-
-            return dataBusDefinition.ProvidedByFeature();
+            return settings.Get<DataBusDefinition>(SelectedDataBusKey)
+                .ProvidedByFeature();
         }
 
         /// <summary>
@@ -32,51 +29,29 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var serializerType = context.Settings.Get<Type>(DataBusSerializerTypeKey);
+            if (context.Services.HasComponent<IDataBusSerializer>())
+            {
+                throw new Exception("Providing custom data bus serializers are no longer supported via dependency injection.");
+            }
+
+            var serializer = context.Settings.Get<IDataBusSerializer>(DataBusSerializerKey);
+            var additionalDeserializers = context.Settings.Get<List<IDataBusSerializer>>(AdditionalDataBusDeserializersKey);
             var conventions = context.Settings.Get<Conventions>();
 
-            if (!context.Container.HasComponent<IDataBusSerializer>())
-            {
-                context.Container.ConfigureComponent(serializerType, DependencyLifecycle.SingleInstance);
-            }
-
             context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
-
+            context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions, serializer));
             context.Pipeline.Register(new DataBusReceiveBehavior.Registration(b =>
             {
-                var mainSerializer = b.GetRequiredService<IDataBusSerializer>();
-
                 return new DataBusReceiveBehavior(
                     b.GetRequiredService<IDataBus>(),
-                    new DataBusDeserializer(mainSerializer, GetFallbackSerializer(mainSerializer)),
+                    new DataBusDeserializer(serializer, additionalDeserializers),
                     conventions);
             }));
-
-            context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
-        }
-
-        [ObsoleteEx(
-            Message = "No fallback serializer is needed in version 9 so this can be safely removed.",
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        IDataBusSerializer GetFallbackSerializer(IDataBusSerializer mainSerializer)
-        {
-            if (mainSerializer is BinaryFormatterDataBusSerializer)
-            {
-                return new SystemJsonDataBusSerializer();
-            }
-
-            if (mainSerializer is SystemJsonDataBusSerializer)
-            {
-                return new BinaryFormatterDataBusSerializer();
-            }
-
-            return null;
         }
 
         internal static string SelectedDataBusKey = "SelectedDataBus";
-        internal static string CustomDataBusTypeKey = "CustomDataBusType";
-        internal static string DataBusSerializerTypeKey = "DataBusSerializerType";
+        internal static string DataBusSerializerKey = "DataBusSerializer";
+        internal static string AdditionalDataBusDeserializersKey = "AdditionalDataBusDeserializers";
 
         class DataBusInitializer : FeatureStartupTask
         {

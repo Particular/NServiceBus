@@ -225,8 +225,8 @@
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
         /// <summary>
-        /// The serializer used to serialize the data bus properties in the message.
+        /// The content type used to serialize the data bus properties in the message.
         /// </summary>
-        public const string DataBusSerializer = "NServiceBus.DataBus.Serializer";
+        public const string DataBusContentType = "NServiceBus.DataBus.ContentType";
     }
 }

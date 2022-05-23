@@ -52,7 +52,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
-            Assert.AreEqual(serializer.Name, context.Headers[Headers.DataBusSerializer]);
+            Assert.AreEqual(serializer.ContentType, context.Headers[Headers.DataBusContentType]);
         }
 
         [Test]

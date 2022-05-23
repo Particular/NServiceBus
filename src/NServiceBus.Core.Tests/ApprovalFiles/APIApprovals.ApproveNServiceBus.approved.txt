@@ -49,16 +49,6 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IUnsubscribeContext context) { }
         public static bool IgnoredBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
-    [System.Obsolete("The BinaryFormatter is a security vurnerability and should not be used. Use the J" +
-        "sonDataBusSerializer instead. Will be treated as an error from version 9.0.0. Wi" +
-        "ll be removed in version 10.0.0.", false)]
-    public class BinaryFormatterDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
-    {
-        public BinaryFormatterDataBusSerializer() { }
-        public string Name { get; }
-        public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
-        public void Serialize(object databusProperty, System.IO.Stream stream) { }
-    }
     [System.Obsolete("The timeout manager has been removed in favor of native delayed delivery support " +
         "provided by transports. See the upgrade guide for more details. Will be removed " +
         "in version 9.0.0.", true)]
@@ -420,7 +410,7 @@ namespace NServiceBus
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
-        public const string DataBusSerializer = "NServiceBus.DataBus.Serializer";
+        public const string DataBusContentType = "NServiceBus.DataBus.ContentType";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
         public const string DeliverAt = "NServiceBus.DeliverAt";
@@ -1186,7 +1176,7 @@ namespace NServiceBus
     public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public SystemJsonDataBusSerializer() { }
-        public string Name { get; }
+        public string ContentType { get; }
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         public void Serialize(object databusProperty, System.IO.Stream stream) { }
     }
@@ -1276,16 +1266,18 @@ namespace NServiceBus
     }
     public static class UseDataBusExtensions
     {
-        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that acceptes a dat" +
-            "a bus serializer type. Will be treated as an error from version 9.0.0. Will be r" +
-            "emoved in version 10.0.0.", false)]
+        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that accepts a data" +
+            " bus serializer type. The member currently throws a NotImplementedException. Wil" +
+            "l be removed in version 9.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
-        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType, System.Type dataBusSerializerType) { }
-        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that acceptes a dat" +
-            "a bus serializer type. Will be treated as an error from version 9.0.0. Will be r" +
-            "emoved in version 10.0.0.", false)]
+        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer) { }
+        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that accepts a data" +
+            " bus serializer type. The member currently throws a NotImplementedException. Wil" +
+            "l be removed in version 9.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.DataBus.DataBusDefinition, new () { }
+            where T : NServiceBus.DataBus.DataBusDefinition { }
+        public static NServiceBus.DataBus.DataBusExtensions<TDataBus> UseDataBus<TDataBus>(this NServiceBus.EndpointConfiguration config, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer)
+            where TDataBus : NServiceBus.DataBus.DataBusDefinition, new () { }
         public static NServiceBus.DataBus.DataBusExtensions<TDataBus> UseDataBus<TDataBus, TDataBusSerializer>(this NServiceBus.EndpointConfiguration config)
             where TDataBus : NServiceBus.DataBus.DataBusDefinition, new ()
             where TDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
@@ -1374,6 +1366,10 @@ namespace NServiceBus.DataBus
     public class DataBusExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public NServiceBus.DataBus.DataBusExtensions AddDeserializer<TSerializer>()
+            where TSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
+        public NServiceBus.DataBus.DataBusExtensions AddDeserializer<TSerializer>(TSerializer serializer)
+            where TSerializer : NServiceBus.DataBus.IDataBusSerializer { }
     }
     public class DataBusExtensions<T> : NServiceBus.DataBus.DataBusExtensions
         where T : NServiceBus.DataBus.DataBusDefinition
@@ -1388,7 +1384,7 @@ namespace NServiceBus.DataBus
     }
     public interface IDataBusSerializer
     {
-        string Name { get; }
+        string ContentType { get; }
         object Deserialize(System.Type propertyType, System.IO.Stream stream);
         void Serialize(object databusProperty, System.IO.Stream stream);
     }

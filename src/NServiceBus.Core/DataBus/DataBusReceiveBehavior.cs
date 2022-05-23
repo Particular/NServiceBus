@@ -47,7 +47,7 @@
                 {
                     using (var stream = await dataBus.Get(dataBusKey, context.CancellationToken).ConfigureAwait(false))
                     {
-                        context.Headers.TryGetValue(Headers.DataBusSerializer, out var serializerUsed);
+                        context.Headers.TryGetValue(Headers.DataBusContentType, out var serializerUsed);
 
                         if (dataBusProperty != null)
                         {

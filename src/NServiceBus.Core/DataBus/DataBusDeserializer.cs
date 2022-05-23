@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using NServiceBus.DataBus;
     using NServiceBus.Logging;
@@ -8,59 +9,51 @@
     class DataBusDeserializer
     {
         public DataBusDeserializer(
-            IDataBusSerializer mainSerializer,
-            IDataBusSerializer fallbackSerializer)
+            IDataBusSerializer mainDeserializer,
+            IReadOnlyCollection<IDataBusSerializer> additionalDeserializers)
         {
-            this.mainSerializer = mainSerializer;
-            this.fallbackSerializer = fallbackSerializer;
+            deserializers = new Dictionary<string, IDataBusSerializer>
+            {
+                { mainDeserializer.ContentType, mainDeserializer }
+            };
+
+            foreach (var additionalDeserializer in additionalDeserializers)
+            {
+                deserializers.Add(additionalDeserializer.ContentType, additionalDeserializer);
+            }
         }
 
         public object Deserialize(string serializerUsed, Type propertyType, Stream stream)
         {
             if (string.IsNullOrEmpty(serializerUsed))
             {
-                try
+                foreach (var deserializerToTry in deserializers.Values)
                 {
-                    return mainSerializer.Deserialize(propertyType, stream);
-                }
-                catch (Exception ex)
-                {
-                    if (fallbackSerializer == null)
+                    try
                     {
-                        throw;
+                        return deserializerToTry.Deserialize(propertyType, stream);
                     }
+                    catch (Exception ex)
+                    {
+                        logger.Info($"Failed to deserialize data bus property using the main {deserializerToTry.ContentType} serializer.", ex);
 
-                    logger.Info($"Failed to deserialize data bus property using the main {mainSerializer.Name} serializer.", ex);
-
-                    return TryFallbackSerializer(propertyType, stream);
+                        stream.Position = 0;
+                    }
                 }
+
+                throw new Exception($"None of the configured serializers for {string.Join(", ", deserializers.Keys)} where able to deserialize the data bus property.");
             }
 
-            if (mainSerializer.Name == serializerUsed)
+            if (!deserializers.TryGetValue(serializerUsed, out var deserializer))
             {
-                return mainSerializer.Deserialize(propertyType, stream);
+
+                throw new Exception($"Serializer for content type {serializerUsed} not configured.");
             }
 
-            if (fallbackSerializer?.Name != serializerUsed)
-            {
-                throw new Exception($"Serializer {serializerUsed} not configured.");
-            }
-
-            return fallbackSerializer.Deserialize(propertyType, stream);
+            return deserializer.Deserialize(propertyType, stream);
         }
 
-        [ObsoleteEx(Message = "No fallback serializer is needed in version 9 so this can be safely removed.",
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        object TryFallbackSerializer(Type propertyType, Stream stream)
-        {
-            stream.Position = 0;
-
-            return fallbackSerializer.Deserialize(propertyType, stream);
-        }
-
-        readonly IDataBusSerializer mainSerializer;
-        readonly IDataBusSerializer fallbackSerializer;
+        readonly IDictionary<string, IDataBusSerializer> deserializers;
 
         static readonly ILog logger = LogManager.GetLogger<DataBusDeserializer>();
     }

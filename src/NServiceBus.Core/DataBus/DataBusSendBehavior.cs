@@ -73,7 +73,7 @@
 
                     //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
                     context.Headers["NServiceBus.DataBus." + headerKey] = headerValue;
-                    context.Headers[Headers.DataBusSerializer] = dataBusSerializer.Name;
+                    context.Headers[Headers.DataBusContentType] = dataBusSerializer.ContentType;
                 }
             }
 
@@ -86,7 +86,11 @@
 
         public class Registration : RegisterStep
         {
-            public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.GetRequiredService<IDataBus>(), b.GetRequiredService<IDataBusSerializer>(), conventions))
+            public Registration(Conventions conventions, IDataBusSerializer serializer) : base(
+                "DataBusSend",
+                typeof(DataBusSendBehavior),
+                "Saves the payload into the shared location",
+                b => new DataBusSendBehavior(b.GetRequiredService<IDataBus>(), serializer, conventions))
             {
                 InsertAfter("MutateOutgoingMessages");
                 InsertAfter("ApplyTimeToBeReceived");

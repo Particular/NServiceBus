@@ -24,8 +24,8 @@ namespace NServiceBus.DataBus
         object Deserialize(Type propertyType, Stream stream);
 
         /// <summary>
-        /// The name of this serializer. Used to populate the <see cref="Headers.DataBusSerializer"/> header.
+        /// The content type this serializer handles. Used to populate the <see cref="Headers.DataBusContentType"/> header.
         /// </summary>
-        string Name { get; }
+        string ContentType { get; }
     }
 }
