@@ -84,9 +84,9 @@
             // Assert.AreEqual(incomingMessageActivities[0].ParentId, outgoingMessageActivities[0].Id, "first incoming message is correlated to the first send operation");
             // Assert.AreEqual(incomingMessageActivities[0].RootId, outgoingMessageActivities[0].Id, "first send operation is the root activity");
             Assert.AreEqual(outgoingMessageActivities[1].ParentId, incomingMessageActivities[0].Id, "second send operation is correlated to the first incoming message");
-            Assert.AreEqual(outgoingMessageActivities[1].RootId, incomingMessageActivities[0].Id, "first send operation is the root activity");
+            Assert.AreEqual(outgoingMessageActivities[1].RootId, incomingMessageActivities[0].RootId, "first send operation is the root activity");
             Assert.AreEqual(incomingMessageActivities[1].ParentId, outgoingMessageActivities[1].Id, "second incoming message is correlated to the second send operation");
-            Assert.AreEqual(incomingMessageActivities[1].RootId, outgoingMessageActivities[0].Id, "first send operation is the root activity");
+            Assert.AreEqual(incomingMessageActivities[1].RootId, outgoingMessageActivities[0].RootId, "first send operation is the root activity");
 
             Assert.AreEqual(context.IncomingMessageId, outgoingMessageActivities[0].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
             Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);

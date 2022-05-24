@@ -26,7 +26,7 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
 
-            using var activity = ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Server);
+            using var activity = CreateIncomingActivity(messageContext);
 
             using (var childScope = rootBuilder.CreateScope())
             {
@@ -62,6 +62,13 @@ namespace NServiceBus
             }
 
             activity?.Dispose(); //TODO ensure disposal. Set acitivity state.
+        }
+
+        static Activity CreateIncomingActivity(MessageContext context)
+        {
+            return context.Headers.TryGetValue("traceparent", out var parentId)
+                ? ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Server, parentId)
+                : ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Server);
         }
 
         readonly IServiceProvider rootBuilder;

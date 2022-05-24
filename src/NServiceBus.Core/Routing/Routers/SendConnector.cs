@@ -22,6 +22,11 @@ namespace NServiceBus
             var activity = ActivitySources.Main.StartActivity(OutgoingMessageActivityName, ActivityKind.Producer);
             activity?.SetTag("NServiceBus.MessageId", context.MessageId);
 
+            if (activity != null)
+            {
+                context.Headers.Add("traceparent", activity.Id);
+            }
+
             var routingStrategy = unicastSendRouter.Route(context);
             context.Headers[Headers.MessageIntent] = MessageIntent.Send.ToString();
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, new[] { routingStrategy }, context);

@@ -19,7 +19,8 @@
             activityListener = new ActivityListener
             {
                 Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ShouldListenTo = source => string.IsNullOrEmpty(sourceName) || source.Name == sourceName
+                ShouldListenTo = source => string.IsNullOrEmpty(sourceName) || source.Name == sourceName,
+                SampleUsingParentId = (ref ActivityCreationOptions<string> options) => ActivitySamplingResult.AllData
             };
             activityListener.ActivityStarted += activity =>
             {
