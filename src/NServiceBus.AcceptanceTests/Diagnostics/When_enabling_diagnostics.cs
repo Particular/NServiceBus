@@ -80,18 +80,23 @@
             Assert.AreEqual(2, incomingMessageActivities.Count, "2 messages are received as part of this test");
             Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are sent as part of this test");
 
-            //TODO not yet implemented
-            // Assert.AreEqual(incomingMessageActivities[0].ParentId, outgoingMessageActivities[0].Id, "first incoming message is correlated to the first send operation");
-            // Assert.AreEqual(incomingMessageActivities[0].RootId, outgoingMessageActivities[0].Id, "first send operation is the root activity");
-            Assert.AreEqual(outgoingMessageActivities[1].ParentId, incomingMessageActivities[0].Id, "second send operation is correlated to the first incoming message");
-            Assert.AreEqual(outgoingMessageActivities[1].RootId, incomingMessageActivities[0].RootId, "first send operation is the root activity");
-            Assert.AreEqual(incomingMessageActivities[1].ParentId, outgoingMessageActivities[1].Id, "second incoming message is correlated to the second send operation");
-            Assert.AreEqual(incomingMessageActivities[1].RootId, outgoingMessageActivities[0].RootId, "first send operation is the root activity");
+            var sendRequest = outgoingMessageActivities[0];
+            var receiveRequest = incomingMessageActivities[0];
+            var sendReply = outgoingMessageActivities[1];
+            var receiveReply = incomingMessageActivities[1];
 
-            Assert.AreEqual(context.IncomingMessageId, outgoingMessageActivities[0].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.OutgoingMessageId, outgoingMessageActivities[1].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.OutgoingMessageId, incomingMessageActivities[1].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            //TODO not yet implemented
+            Assert.AreEqual(sendRequest.Id, receiveRequest.ParentId, "first incoming message is correlated to the first send operation");
+            Assert.AreEqual(sendRequest.RootId, receiveRequest.RootId, "first send operation is the root activity");
+            Assert.AreEqual(receiveRequest.Id, sendReply.ParentId, "second send operation is correlated to the first incoming message");
+            Assert.AreEqual(sendRequest.RootId, sendReply.RootId, "first send operation is the root activity");
+            Assert.AreEqual(sendReply.Id, receiveReply.ParentId, "second incoming message is correlated to the second send operation");
+            Assert.AreEqual(sendRequest.RootId, receiveReply.RootId, "first send operation is the root activity");
+
+            Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.OutgoingMessageId, sendReply.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.OutgoingMessageId, receiveReply.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
 
             //TODO: Also add transport message id?
             //TODO: Test that the second send is connected to the first send
