@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
-
-namespace NServiceBus.Diagnostics;
-
-static class ActivitySources
+﻿namespace NServiceBus.Diagnostics
 {
-    public static readonly ActivitySource Main = new("NServiceBus.Diagnostics", "1.42.0");
+    using System.Diagnostics;
+
+    static class ActivitySources
+    {
+        public static readonly ActivitySource Main = new("NServiceBus.Diagnostics", "1.42.0");
+    }
 }

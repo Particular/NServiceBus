@@ -4,7 +4,7 @@
     using System.Diagnostics;
     class TestingActivityListener
     {
-        private ActivityListener activityListener;
+        ActivityListener activityListener;
 
         public static TestingActivityListener Setup()
         {
@@ -14,7 +14,7 @@
             return testingListener;
         }
 
-        private TestingActivityListener(string sourceName = null)
+        TestingActivityListener(string sourceName = null)
         {
             activityListener = new ActivityListener
             {

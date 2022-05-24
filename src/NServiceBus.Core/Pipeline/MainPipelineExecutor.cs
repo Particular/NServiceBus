@@ -1,5 +1,3 @@
-using NServiceBus.Diagnostics;
-
 namespace NServiceBus
 {
     using System;
@@ -7,13 +5,14 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
+    using Diagnostics;
     using Pipeline;
     using Transport;
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        private const string IncomingMessageActivityName = "NServiceBus.Diagnostics.IncomingMessage";
-        
+        const string IncomingMessageActivityName = "NServiceBus.Diagnostics.IncomingMessage";
+
         public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
@@ -26,9 +25,9 @@ namespace NServiceBus
         public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
-            
+
             using var activity = ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Server);
-            
+
             using (var childScope = rootBuilder.CreateScope())
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);

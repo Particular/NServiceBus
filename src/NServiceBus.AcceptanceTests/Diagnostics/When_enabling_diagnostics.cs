@@ -1,7 +1,6 @@
-﻿using System.Linq;
-
-namespace NServiceBus.AcceptanceTests.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -112,7 +111,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
             class MessageHandler : IHandleMessages<IncomingMessage>
             {
-                private readonly Context testContext;
+                readonly Context testContext;
 
                 public MessageHandler(Context testContext) => this.testContext = testContext;
 
@@ -131,7 +130,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
             class MessageHandler : IHandleMessages<IncomingMessage>
             {
-                private readonly Context testContext;
+                readonly Context testContext;
 
                 public MessageHandler(Context testContext) => this.testContext = testContext;
 

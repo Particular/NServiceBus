@@ -1,17 +1,16 @@
-using System.Diagnostics;
-using NServiceBus.Diagnostics;
-
 namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
+    using Diagnostics;
     using Pipeline;
     using Unicast.Queuing;
 
     class SendConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
         //TODO just a hack implementation to get the acceptance tests started
-        private const string OutgoingMessageActivityName = "NServiceBus.Diagnostics.OutgoingMessage";
+        const string OutgoingMessageActivityName = "NServiceBus.Diagnostics.OutgoingMessage";
 
         public SendConnector(UnicastSendRouter unicastSendRouter)
         {
