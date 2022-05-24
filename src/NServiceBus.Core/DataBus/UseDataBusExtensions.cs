@@ -13,15 +13,13 @@
         /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static DataBusExtensions<TDataBus> UseDataBus<TDataBus, TDataBusSerializer>(this EndpointConfiguration config)
-            where TDataBus : DataBusDefinition, new()
+        public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this EndpointConfiguration config)
+            where TDataBusDefinition : DataBusDefinition, new()
             where TDataBusSerializer : IDataBusSerializer, new()
         {
             Guard.AgainstNull(nameof(config), config);
 
-            var dataBusSerializer = (IDataBusSerializer)Activator.CreateInstance(typeof(TDataBusSerializer));
-
-            return config.UseDataBus<TDataBus>(dataBusSerializer);
+            return config.UseDataBus<TDataBusDefinition>(new TDataBusSerializer());
         }
 
         /// <summary>
@@ -29,15 +27,15 @@
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
-        public static DataBusExtensions<TDataBus> UseDataBus<TDataBus>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
-            where TDataBus : DataBusDefinition, new()
+        public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
+            where TDataBusDefinition : DataBusDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(dataBusSerializer), dataBusSerializer);
 
-            var dataBusType = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBus));
-            var dataBusExtension = (DataBusExtensions<TDataBus>)Activator.CreateInstance(dataBusType, config.Settings);
-            var dataBusDefinition = (DataBusDefinition)Activator.CreateInstance(typeof(TDataBus));
+            var dataBusExtensionType = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBusDefinition));
+            var dataBusExtension = (DataBusExtensions<TDataBusDefinition>)Activator.CreateInstance(dataBusExtensionType, config.Settings);
+            var dataBusDefinition = new TDataBusDefinition();
 
             EnableDataBus(config, dataBusDefinition, dataBusSerializer);
 
