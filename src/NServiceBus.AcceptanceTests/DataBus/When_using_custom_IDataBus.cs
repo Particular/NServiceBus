@@ -7,6 +7,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.DataBus;
     using NUnit.Framework;
 
@@ -41,7 +42,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.UseDataBus(typeof(MyDataBus), new SystemJsonDataBusSerializer());
+                    b.UseDataBus(sp => new MyDataBus(sp.GetRequiredService<Context>()), new SystemJsonDataBusSerializer());
                     b.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(ReceiverViaFluent));
                 });
             }
@@ -51,7 +52,7 @@
         {
             public ReceiverViaFluent()
             {
-                EndpointSetup<DefaultServer>(b => b.UseDataBus(typeof(MyDataBus), new SystemJsonDataBusSerializer()));
+                EndpointSetup<DefaultServer>(b => b.UseDataBus(sp => new MyDataBus(sp.GetRequiredService<Context>()), new SystemJsonDataBusSerializer()));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessageWithLargePayload>

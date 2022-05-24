@@ -1266,20 +1266,20 @@ namespace NServiceBus
     }
     public static class UseDataBusExtensions
     {
-        [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that accepts a data" +
-            " bus serializer type. The member currently throws a NotImplementedException. Wil" +
-            "l be removed in version 9.0.0.", true)]
+        [System.Obsolete("Specifying a serializer for data bus is mandatory. Use the overload that accepts " +
+            "a data bus serializer type. The member currently throws a NotImplementedExceptio" +
+            "n. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
-        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer) { }
+        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Func<System.IServiceProvider, NServiceBus.DataBus.IDataBus> dataBusFactory, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer) { }
         [System.Obsolete("Specifying data bus serializer is mandatory. Use the overload that accepts a data" +
             " bus serializer type. The member currently throws a NotImplementedException. Wil" +
             "l be removed in version 9.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.DataBus.DataBusDefinition { }
-        public static NServiceBus.DataBus.DataBusExtensions<TDataBus> UseDataBus<TDataBus>(this NServiceBus.EndpointConfiguration config, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer)
-            where TDataBus : NServiceBus.DataBus.DataBusDefinition, new () { }
-        public static NServiceBus.DataBus.DataBusExtensions<TDataBus> UseDataBus<TDataBus, TDataBusSerializer>(this NServiceBus.EndpointConfiguration config)
-            where TDataBus : NServiceBus.DataBus.DataBusDefinition, new ()
+        public static NServiceBus.DataBus.DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this NServiceBus.EndpointConfiguration config, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer)
+            where TDataBusDefinition : NServiceBus.DataBus.DataBusDefinition, new () { }
+        public static NServiceBus.DataBus.DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this NServiceBus.EndpointConfiguration config)
+            where TDataBusDefinition : NServiceBus.DataBus.DataBusDefinition, new ()
             where TDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
     }
     [System.Obsolete("Use `EndpointConfiguration.UseTransport(TransportDefinition)` instead. Will be re" +

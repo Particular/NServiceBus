@@ -46,20 +46,15 @@
         /// Configures NServiceBus to use a custom <see cref="IDataBus" /> implementation.
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="dataBusType">The <see cref="IDataBus" /> <see cref="Type" /> to use.</param>
+        /// <param name="dataBusFactory">The factory to create the custom <see cref="IDataBus" /> to use.</param>
         /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
-        public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Type dataBusType, IDataBusSerializer dataBusSerializer)
+        public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer)
         {
             Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(dataBusType), dataBusType);
+            Guard.AgainstNull(nameof(dataBusFactory), dataBusFactory);
             Guard.AgainstNull(nameof(dataBusSerializer), dataBusSerializer);
 
-            if (!typeof(IDataBus).IsAssignableFrom(dataBusType))
-            {
-                throw new ArgumentException("The data bus type needs to implement IDataBus.", nameof(dataBusType));
-            }
-
-            EnableDataBus(config, new CustomDataBus(dataBusType), dataBusSerializer);
+            EnableDataBus(config, new CustomDataBus(dataBusFactory), dataBusSerializer);
 
             return new DataBusExtensions(config.Settings);
         }

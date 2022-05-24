@@ -12,14 +12,6 @@
     public class DataBusConfigurationTests
     {
         [Test]
-        public void Should_require_data_bus_type_to_implement_interface()
-        {
-            var endpointConfiguration = new EndpointConfiguration("MyEndpoint");
-
-            Assert.Throws<ArgumentException>(() => endpointConfiguration.UseDataBus(typeof(string), new MySerializer()));
-        }
-
-        [Test]
         public void Should_allow_multiple_deserializers_to_be_used()
         {
             var endpointConfiguration = new EndpointConfiguration("MyEndpoint");

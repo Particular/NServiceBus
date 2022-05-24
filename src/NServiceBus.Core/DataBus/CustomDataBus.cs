@@ -6,9 +6,9 @@
 
     class CustomDataBus : DataBusDefinition
     {
-        public CustomDataBus(Type dataBusType)
+        public CustomDataBus(Func<IServiceProvider, IDataBus> dataBusFactory)
         {
-            DataBusType = dataBusType;
+            DataBusFactory = dataBusFactory;
         }
 
         protected internal override Type ProvidedByFeature()
@@ -16,6 +16,6 @@
             return typeof(CustomIDataBus);
         }
 
-        public Type DataBusType { get; }
+        public Func<IServiceProvider, IDataBus> DataBusFactory { get; }
     }
 }
