@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
+    using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.DataBus;
 
     class CustomIDataBus : Feature
     {
@@ -11,7 +12,9 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(context.Settings.Get<Type>("CustomDataBusType"), DependencyLifecycle.SingleInstance);
+            var customDataBusDefinition = context.Settings.Get<DataBusDefinition>(DataBus.SelectedDataBusKey) as CustomDataBus;
+
+            context.Services.AddSingleton(sp => customDataBusDefinition.DataBusFactory(sp));
         }
     }
 }

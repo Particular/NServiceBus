@@ -27,11 +27,32 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var fakeDatabus = new FakeDataBus();
 
-            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new Conventions());
 
             await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
             Assert.AreEqual(TimeSpan.MaxValue, fakeDatabus.TTBRUsed);
+        }
+
+        [Test]
+        public async Task Serializer_header_should_be_set()
+        {
+            var context = new TestableOutgoingLogicalMessageContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(MessageWithDataBusProperty), new MessageWithDataBusProperty
+                {
+                    DataBusProperty = new DataBusProperty<string>("test")
+                })
+            };
+
+            var fakeDatabus = new FakeDataBus();
+            var serializer = new SystemJsonDataBusSerializer();
+
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, serializer, new Conventions());
+
+            await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
+
+            Assert.AreEqual(serializer.ContentType, context.Headers[Headers.DataBusContentType]);
         }
 
         [Test]
@@ -49,7 +70,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             var fakeDatabus = new FakeDataBus();
 
-            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new Conventions());
 
             await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
