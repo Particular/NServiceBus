@@ -35,7 +35,7 @@
                     }
                     catch (Exception ex)
                     {
-                        logger.Info($"Failed to deserialize data bus property using the main {deserializerToTry.ContentType} serializer.", ex);
+                        logger.Info($"Failed to deserialize data bus property using the main '{deserializerToTry.ContentType}' serializer.", ex);
 
                         stream.Position = 0;
                     }

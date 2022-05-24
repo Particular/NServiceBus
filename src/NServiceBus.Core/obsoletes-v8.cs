@@ -1716,7 +1716,7 @@ namespace NServiceBus
         public static DataBusExtensions<T> UseDataBus<T>(this EndpointConfiguration config) where T : DataBusDefinition => throw new NotImplementedException();
 
         [ObsoleteEx(
-            Message = "Specifying data bus serializer is mandatory. Use the overload that accepts a data bus serializer type.",
+            Message = "Specifying a serializer for data bus is mandatory. Use the overload that accepts a data bus serializer type.",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
         public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Type dataBusType) => throw new NotImplementedException();

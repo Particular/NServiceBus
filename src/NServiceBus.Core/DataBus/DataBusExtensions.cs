@@ -55,14 +55,14 @@
 
             if (deserializers.Any(d => d.ContentType == serializer.ContentType))
             {
-                throw new ArgumentException($"Deserializer for content type  {serializer.ContentType} already registered.");
+                throw new ArgumentException($"Deserializer for content type  '{serializer.ContentType}' is already registered.");
             }
 
             var mainSerializer = Settings.Get<IDataBusSerializer>(Features.DataBus.DataBusSerializerKey);
 
             if (mainSerializer.ContentType == serializer.ContentType)
             {
-                throw new ArgumentException($"Main serializer already handles content typ {serializer.ContentType}.");
+                throw new ArgumentException($"Main serializer already handles content type '{serializer.ContentType}'.");
             }
 
             deserializers.Add(serializer);
