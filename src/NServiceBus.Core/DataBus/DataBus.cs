@@ -31,7 +31,7 @@ namespace NServiceBus.Features
         {
             if (context.Services.HasComponent<IDataBusSerializer>())
             {
-                throw new Exception("Providing custom data bus serializers are no longer supported via dependency injection.");
+                throw new Exception("Providing data bus serializer via dependency injection is no longer supported.");
             }
 
             var serializer = context.Settings.Get<IDataBusSerializer>(DataBusSerializerKey);
