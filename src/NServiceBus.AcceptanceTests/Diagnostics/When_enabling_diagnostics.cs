@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System.Collections.Immutable;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -14,31 +13,7 @@
         //TODO test "disabled" behavior?
         //TODO should these tests be moved to the Core test folder to not be shipped to downstreams?
 
-        [Test]
-        public async Task Should_capture_incoming_message_traces()
-        {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<TestEndpoint>(b => b
-                    .CustomConfig(c =>
-                    {
-                        c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReceivingEndpoint));
-                    })
-                    .When(s => s.Send(new IncomingMessage())))
-                .WithEndpoint<ReceivingEndpoint>()
-                .Done(c => c.IncomingMessageReceived)
-                .Run();
-
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
-            Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(ActivityKind.Consumer, incomingMessageActivities[0].Kind, "asynchronous receivers should use 'Consumer'");
-
-            //TODO: Also add transport/native message id?
-        }
 
         [Test]
         public async Task Should_capture_outgoing_message_traces()
