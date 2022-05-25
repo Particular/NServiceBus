@@ -24,12 +24,14 @@
                 .Run();
 
             Assert.AreEqual(context.AmbientActivityId, activityListener.CompletedActivities.Last(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage").ParentId, "the outgoing message should be connected to the ambient trace");
+            Assert.AreEqual(activityListener.CompletedActivities.First(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").Id, context.AmbientParentActivityId, "the ambient activity should be connected to the incoming pipeline trace");
         }
 
         class Context : ScenarioContext
         {
             public bool MessageReceived { get; set; }
             public string AmbientActivityId { get; set; }
+            public string AmbientParentActivityId { get; set; }
         }
 
         class EndpointWithAmbientActivity : EndpointConfigurationBuilder
@@ -47,6 +49,7 @@
                     using (var ambientActivity = externalActivitySource.StartActivity())
                     {
                         testContext.AmbientActivityId = ambientActivity.Id;
+                        testContext.AmbientParentActivityId = ambientActivity.ParentId;
                         await context.SendLocal(new MessageFromAmbientTrace());
                     }
                 }

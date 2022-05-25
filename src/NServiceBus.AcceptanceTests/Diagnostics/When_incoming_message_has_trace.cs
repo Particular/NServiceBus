@@ -1,64 +1,53 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System.Collections.Immutable;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_enabling_diagnostics : NServiceBusAcceptanceTest
+    public class When_incoming_message_has_trace : NServiceBusAcceptanceTest
     {
-        //TODO test outgoing
-        //TODO test "disabled" behavior?
-        //TODO should these tests be moved to the Core test folder to not be shipped to downstreams?
-
         [Test]
-        public async Task Should_capture_incoming_message_traces()
+        public async Task Should_correlate_traces()
         {
             var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b => b
-                    .CustomConfig(c =>
-                    {
-                        c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReceivingEndpoint));
-                    })
+                    .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
                     .When(s => s.Send(new IncomingMessage())))
-                .WithEndpoint<ReceivingEndpoint>()
-                .Done(c => c.IncomingMessageReceived)
+                .WithEndpoint<ReplyingEndpoint>()
+                .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
             Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
 
             var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
-            Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(ActivityKind.Consumer, incomingMessageActivities[0].Kind, "asynchronous receivers should use 'Consumer'");
+            var outgoingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
+            Assert.AreEqual(2, incomingMessageActivities.Count, "2 messages are received as part of this test");
+            Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are sent as part of this test");
 
-            //TODO: Also add transport/native message id?
-        }
+            var sendRequest = outgoingMessageActivities[0];
+            var receiveRequest = incomingMessageActivities[0];
+            var sendReply = outgoingMessageActivities[1];
+            var receiveReply = incomingMessageActivities[1];
 
-        [Test]
-        public async Task Should_capture_outgoing_message_traces()
-        {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            Assert.AreEqual(sendRequest.Id, receiveRequest.ParentId, "first incoming message is correlated to the first send operation");
+            Assert.AreEqual(sendRequest.RootId, receiveRequest.RootId, "first send operation is the root activity");
+            Assert.AreEqual(receiveRequest.Id, sendReply.ParentId, "second send operation is correlated to the first incoming message");
+            Assert.AreEqual(sendRequest.RootId, sendReply.RootId, "first send operation is the root activity");
+            Assert.AreEqual(sendReply.Id, receiveReply.ParentId, "second incoming message is correlated to the second send operation");
+            Assert.AreEqual(sendRequest.RootId, receiveReply.RootId, "first send operation is the root activity");
 
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<TestEndpoint>(b => b
-                    .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReceivingEndpoint)))
-                    .When(s => s.Send(new IncomingMessage())))
-                .WithEndpoint<ReceivingEndpoint>()
-                .Done(c => c.IncomingMessageReceived)
-                .Run();
+            Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.OutgoingMessageId, sendReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.OutgoingMessageId, receiveReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
 
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
-            Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being sent");
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.IsNull(incomingMessageActivities[0].ParentId);
+            //TODO: Also add transport message id?
+            //TODO: Test that the second send is connected to the first send
         }
 
         class Context : ScenarioContext

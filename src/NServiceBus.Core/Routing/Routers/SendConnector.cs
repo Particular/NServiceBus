@@ -40,7 +40,9 @@ namespace NServiceBus
                 throw new Exception($"The destination queue '{ex.Queue}' could not be found. The destination may be misconfigured for this kind of message ({context.Message.MessageType}) in the routing section of the transport configuration. It may also be the case that the given queue hasn't been created yet, or has been deleted.", ex);
             }
 
-            activity?.Dispose(); //TODO ensure disposal. Set acitivity state.
+            //TODO should we stop the acitivty only once the message has been handed to the dispatcher?
+            //TODO ensure disposal. Set acitivity state.
+            activity?.Dispose();
         }
 
         readonly UnicastSendRouter unicastSendRouter;
