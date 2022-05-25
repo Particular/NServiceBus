@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
@@ -148,7 +149,8 @@ namespace NServiceBus
             var version = VersionInformation.MajorMinorPatch;
             var isRenewal = result.License.IsExtendedTrial ? "1" : "0";
             var platform = GetPlatformCode();
-            return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}";
+            var frameworkVersion = GetFrameworkVersion();
+            return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}&f={frameworkVersion}";
         }
 
         string GetPlatformCode()
@@ -169,6 +171,12 @@ namespace NServiceBus
             }
 
             return "unknown";
+        }
+
+        string GetFrameworkVersion()
+        {
+            var match = Regex.Match(RuntimeInformation.FrameworkDescription, @"\d+");
+            return match.Success ? match.Value : "0";
         }
 
         internal ActiveLicenseFindResult result;
