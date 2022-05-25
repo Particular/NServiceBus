@@ -6,9 +6,11 @@
     {
         ActivityListener activityListener;
 
-        public static TestingActivityListener Setup()
+        public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener("NServiceBus.Diagnostics");
+
+        public static TestingActivityListener SetupDiagnosticListener(string sourceName)
         {
-            var testingListener = new TestingActivityListener("NServiceBus.Diagnostics");
+            var testingListener = new TestingActivityListener(sourceName);
 
             ActivitySource.AddActivityListener(testingListener.activityListener);
             return testingListener;
@@ -18,8 +20,8 @@
         {
             activityListener = new ActivityListener
             {
-                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
                 ShouldListenTo = source => string.IsNullOrEmpty(sourceName) || source.Name == sourceName,
+                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
                 SampleUsingParentId = (ref ActivityCreationOptions<string> options) => ActivitySamplingResult.AllData
             };
             activityListener.ActivityStarted += activity =>
