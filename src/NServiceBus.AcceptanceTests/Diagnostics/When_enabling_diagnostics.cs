@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
-    using System.Linq;
+    using System.Collections.Immutable;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -10,7 +10,6 @@
     public class When_enabling_diagnostics : NServiceBusAcceptanceTest
     {
         //TODO test outgoing
-        //TODO test correlation
         //TODO test "disabled" behavior?
         //TODO should these tests be moved to the Core test folder to not be shipped to downstreams?
 
@@ -31,7 +30,7 @@
 
             var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
 
             //TODO: Also add transport/native message id?
             //TODO should have no parent/correlation
@@ -54,7 +53,7 @@
 
             var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being sent");
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
 
             //TODO should have no parent/correlation
         }
@@ -85,7 +84,6 @@
             var sendReply = outgoingMessageActivities[1];
             var receiveReply = incomingMessageActivities[1];
 
-            //TODO not yet implemented
             Assert.AreEqual(sendRequest.Id, receiveRequest.ParentId, "first incoming message is correlated to the first send operation");
             Assert.AreEqual(sendRequest.RootId, receiveRequest.RootId, "first send operation is the root activity");
             Assert.AreEqual(receiveRequest.Id, sendReply.ParentId, "second send operation is correlated to the first incoming message");
@@ -93,10 +91,10 @@
             Assert.AreEqual(sendReply.Id, receiveReply.ParentId, "second incoming message is correlated to the second send operation");
             Assert.AreEqual(sendRequest.RootId, receiveReply.RootId, "first send operation is the root activity");
 
-            Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.OutgoingMessageId, sendReply.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.OutgoingMessageId, receiveReply.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.OutgoingMessageId, sendReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.OutgoingMessageId, receiveReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
 
             //TODO: Also add transport message id?
             //TODO: Test that the second send is connected to the first send
