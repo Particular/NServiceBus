@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
@@ -32,6 +33,8 @@
                 LogOutgoingOperations(operations);
             }
 
+            AddTraceInfo(Activity.Current, operations);
+
             if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
@@ -39,6 +42,38 @@
             }
 
             return stage(this.CreateDispatchContext(operations, context));
+        }
+
+        static void AddTraceInfo(Activity activity, TransportOperation[] operations)
+        {
+            if (activity == null)
+            {
+                return;
+            }
+
+            // TODO: How do we handle multiple operations here?
+            foreach (var operation in operations)
+            {
+                activity.AddTag("messaging.message_id", operation.Message.MessageId);
+                activity.AddTag("messaging.operation", "send");
+
+                if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
+                {
+                    activity.AddTag("messaging.destination", unicastAddressTag.Destination);
+                    activity.AddTag("messaging.destination_kind", "queue");
+                    activity.DisplayName = $"{unicastAddressTag.Destination} send";
+                }
+
+                // TODO: Multicast address tags to topics
+
+                if (operation.Message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
+                {
+                    activity.AddTag("messaging.conversation_id", conversationId);
+                }
+
+                // HINT: This needs to be converted into a string or the tag is not created
+                activity.AddTag("messaging.message_payload_size_bytes", operation.Message.Body.Length.ToString());
+            }
         }
 
         static void LogOutgoingOperations(TransportOperation[] operations)

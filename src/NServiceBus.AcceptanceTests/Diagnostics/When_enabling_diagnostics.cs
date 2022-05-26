@@ -32,14 +32,36 @@
 
             var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being sent");
-            Assert.AreEqual(context.IncomingMessageId, incomingMessageActivities[0].Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.IsNull(incomingMessageActivities[0].ParentId);
+            var sentMessage = incomingMessageActivities[0];
+            var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
+            Assert.IsNull(sentMessage.ParentId);
+
+            var destination = Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
+
+            Assert.AreEqual($"{destination} send", sentMessage.DisplayName, "Display name should be set according to spec");
+
+            void VerifyTag(string tagKey, string expectedValue)
+            {
+                Assert.IsTrue(sentMessageTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
+                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
+            }
+
+            // TODO: Verify whether we want to keep this. messaging.message_id is from the spec
+            VerifyTag("NServiceBus.MessageId", context.IncomingMessageId);
+            VerifyTag("messaging.message_id", context.IncomingMessageId);
+            VerifyTag("messaging.conversation_id", context.IncomingMessageConversationId);
+            VerifyTag("messaging.operation", "send");
+            VerifyTag("messaging.destination_kind", "queue");
+            VerifyTag("messaging.destination", destination);
+            // NOTE: Payload size is zero and the tag is not added
+            VerifyTag("messaging.message_payload_size_bytes", "222");
         }
 
         class Context : ScenarioContext
         {
             public bool OutgoingMessageReceived { get; set; }
             public string IncomingMessageId { get; set; }
+            public string IncomingMessageConversationId { get; set; }
             public string OutgoingMessageId { get; set; }
             public bool IncomingMessageReceived { get; set; }
         }
@@ -57,6 +79,10 @@
                 public Task Handle(IncomingMessage message, IMessageHandlerContext context)
                 {
                     testContext.IncomingMessageId = context.MessageId;
+                    if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
+                    {
+                        testContext.IncomingMessageConversationId = conversationId;
+                    }
                     testContext.IncomingMessageReceived = true;
                     return Task.CompletedTask;
                 }
