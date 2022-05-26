@@ -25,6 +25,10 @@ namespace NServiceBus
             if (activity != null)
             {
                 context.Headers.Add("traceparent", activity.Id);
+                if (activity.TraceStateString != null)
+                {
+                    context.Headers["tracestate"] = activity.TraceStateString;
+                }
             }
 
             var routingStrategy = unicastSendRouter.Route(context);

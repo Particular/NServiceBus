@@ -66,9 +66,17 @@ namespace NServiceBus
 
         static Activity CreateIncomingActivity(MessageContext context)
         {
-            return context.Headers.TryGetValue("traceparent", out var parentId)
+            var activity = context.Headers.TryGetValue("traceparent", out var parentId)
                 ? ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Consumer, parentId)
                 : ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Consumer);
+
+            if (activity != null)
+            {
+                context.Headers.TryGetValue("tracestate", out var traceState);
+                activity.TraceStateString = traceState;
+            }
+
+            return activity;
         }
 
         readonly IServiceProvider rootBuilder;
