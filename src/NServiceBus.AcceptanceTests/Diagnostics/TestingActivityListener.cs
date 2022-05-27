@@ -37,4 +37,9 @@
         public List<Activity> StartedActivities { get; } = new List<Activity>();
         public List<Activity> CompletedActivities { get; } = new List<Activity>();
     }
+
+    static class ActivityExtensions
+    {
+        public static List<Activity> GetIncomingActivities(this List<Activity> activities) => activities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
+    }
 }
