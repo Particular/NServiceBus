@@ -41,5 +41,6 @@
     static class ActivityExtensions
     {
         public static List<Activity> GetIncomingActivities(this List<Activity> activities) => activities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
+        public static List<Activity> GetOutgoingActivities(this List<Activity> activities) => activities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
     }
 }
