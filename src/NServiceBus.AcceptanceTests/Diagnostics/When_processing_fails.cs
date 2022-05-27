@@ -21,7 +21,9 @@
                 .Done(c => c.HandlerInvoked).Run();
 
             Assert.AreEqual(1, context.FailedMessages.Count, "the message should have failed");
-            Assert.AreEqual(ActivityStatusCode.Error, activityListener.CompletedActivities.GetIncomingActivities().Single().Status);
+            Activity failedActivity = activityListener.CompletedActivities.GetIncomingActivities().Single();
+            Assert.AreEqual(ActivityStatusCode.Error, failedActivity.Status);
+            Assert.AreEqual(ErrorMessage, failedActivity.StatusDescription);
         }
 
         class Context : ScenarioContext
@@ -35,6 +37,7 @@
 
             class FailingMessageHandler : IHandleMessages<FailingMessage>
             {
+
                 Context textContext;
 
                 public FailingMessageHandler(Context textContext) => this.textContext = textContext;
@@ -42,7 +45,7 @@
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
                     textContext.HandlerInvoked = true;
-                    throw new SimulatedException();
+                    throw new SimulatedException(ErrorMessage);
                 }
             }
         }
@@ -50,5 +53,7 @@
         class FailingMessage : IMessage
         {
         }
+
+        const string ErrorMessage = "oh no!";
     }
 }

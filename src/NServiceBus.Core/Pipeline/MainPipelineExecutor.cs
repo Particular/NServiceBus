@@ -55,6 +55,7 @@ namespace NServiceBus
 
                     ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     throw;
                 }
 
