@@ -13,8 +13,6 @@
         //TODO test "disabled" behavior?
         //TODO should these tests be moved to the Core test folder to not be shipped to downstreams?
 
-
-
         [Test]
         public async Task Should_capture_outgoing_message_traces()
         {

@@ -16,13 +16,20 @@
             var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
             string wrapperActivityRootId = null;
+            string wrapperActivityId = null;
+            string wrapperActivityTraceState = "test trace state";
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAmbientActivity>(b => b
                     .When(async s =>
                     {
-                        using (var wrapperActivity = externalActivitySource.StartActivity())
+                        // Otherwise the activity is created with a hierarchical ID format on .NET Framework which resets the RootId once it's converted to W3C format in the send pipeline.
+                        var activityTraceContext = new ActivityContext(ActivityTraceId.CreateRandom(),
+                            ActivitySpanId.CreateRandom(), ActivityTraceFlags.Recorded);
+                        using (var wrapperActivity = externalActivitySource.StartActivity("ambient span", ActivityKind.Server, activityTraceContext))
                         {
+                            wrapperActivity.TraceStateString = wrapperActivityTraceState;
+                            wrapperActivityId = wrapperActivity.Id;
                             wrapperActivityRootId = wrapperActivity.RootId;
                             await s.SendLocal(new LocalMessage());
                         }
@@ -30,11 +37,15 @@
                 .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
-            var outgoingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
-            var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
+            var outgoingMessageActivity = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage").Single();
+            var incomingMessageActivity = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").Single();
 
-            Assert.AreEqual(wrapperActivityRootId, outgoingMessageActivities.Single().RootId);
-            Assert.AreEqual(wrapperActivityRootId, incomingMessageActivities.Single().RootId);
+            Assert.AreEqual(wrapperActivityId, outgoingMessageActivity.ParentId, "outgoing message should be connected to the ambient span");
+            Assert.AreEqual(wrapperActivityRootId, outgoingMessageActivity.RootId, "outgoing message should be connected to the ambient trace");
+            Assert.AreEqual(wrapperActivityTraceState, outgoingMessageActivity.TraceStateString, "ambient trace state should be floated to outgoing message span");
+            Assert.AreEqual(outgoingMessageActivity.Id, incomingMessageActivity.ParentId, "received message should be connected to send operation span");
+            Assert.AreEqual(wrapperActivityRootId, incomingMessageActivity.RootId, "received message should be connected to the ambient trace");
+            Assert.AreEqual(wrapperActivityTraceState, incomingMessageActivity.TraceStateString, "ambient trace state should be floated to incoming message span");
         }
 
         class Context : ScenarioContext
