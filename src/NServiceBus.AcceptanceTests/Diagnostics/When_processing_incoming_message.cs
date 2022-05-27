@@ -30,6 +30,8 @@
             Assert.AreEqual(context.IncomingMessageId, incomingActivity.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
             Assert.AreEqual(ActivityKind.Consumer, incomingActivity.Kind, "asynchronous receivers should use 'Consumer'");
 
+            Assert.AreEqual(ActivityStatusCode.Ok, incomingActivity.Status);
+
             //TODO: Also add transport/native message id?
             //TODO: verify necessary tags/etc. here...
         }
