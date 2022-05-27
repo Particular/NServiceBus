@@ -31,6 +31,23 @@
             Assert.AreEqual(ActivityKind.Consumer, incomingActivity.Kind, "asynchronous receivers should use 'Consumer'");
 
             Assert.AreEqual(ActivityStatusCode.Ok, incomingActivity.Status);
+            var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
+            Assert.AreEqual($"{destination} process", incomingActivity.DisplayName, "Display name should be set according to spec");
+
+            var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
+
+            void VerifyTag(string tagKey, string expectedValue)
+            {
+                Assert.IsTrue(incomingActivityTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
+                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
+            }
+
+            VerifyTag("NServiceBus.MessageId", context.IncomingMessageId);
+            VerifyTag("messaging.message_id", context.IncomingMessageId);
+            VerifyTag("messaging.conversation_id", context.IncomingMessageConversationId);
+            VerifyTag("messaging.operation", "process");
+            VerifyTag("messaging.destination", destination);
+            VerifyTag("messaging.message_payload_size_bytes", "222");
 
             //TODO: Also add transport/native message id?
             //TODO: verify necessary tags/etc. here...
@@ -39,6 +56,7 @@
         class Context : ScenarioContext
         {
             public string IncomingMessageId { get; set; }
+            public string IncomingMessageConversationId { get; set; }
             public bool IncomingMessageReceived { get; set; }
         }
 
@@ -55,6 +73,10 @@
                 public Task Handle(IncomingMessage message, IMessageHandlerContext context)
                 {
                     testContext.IncomingMessageId = context.MessageId;
+                    if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
+                    {
+                        testContext.IncomingMessageConversationId = conversationId;
+                    }
                     testContext.IncomingMessageReceived = true;
                     return Task.CompletedTask;
                 }

@@ -31,6 +31,7 @@ namespace NServiceBus
             using (var childScope = rootBuilder.CreateScope())
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
+                AddTraceInfo(activity, message);
                 activity?.AddTag("NServiceBus.MessageId", message.MessageId);
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
@@ -64,6 +65,27 @@ namespace NServiceBus
 
             activity?.SetStatus(ActivityStatusCode.Ok);
             activity?.Dispose(); //TODO ensure disposal. Set acitivity state.
+        }
+
+        void AddTraceInfo(Activity activity, IncomingMessage message)
+        {
+            if (activity == null)
+            {
+                return;
+            }
+
+            var operation = "process";
+            // TODO: Set destination properly
+            var destination = "ReceivingEndpoint";
+            activity.DisplayName = $"{destination} {operation}";
+            activity.AddTag("messaging.operation", operation);
+            activity.AddTag("messaging.destination", destination);
+            activity.AddTag("messaging.message_id", message.MessageId);
+            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
+            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
+            {
+                activity.AddTag("messaging.conversation_id", conversationId);
+            }
         }
 
         static Activity CreateIncomingActivity(MessageContext context)
