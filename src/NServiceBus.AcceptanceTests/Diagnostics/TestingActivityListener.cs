@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using NUnit.Framework;
 
     class TestingActivityListener : IDisposable
     {
@@ -31,12 +30,10 @@
             };
             activityListener.ActivityStarted += activity =>
             {
-                TestContext.WriteLine($"Activity {activity.Id} started by {GetHashCode()}");
                 StartedActivities.Enqueue(activity);
             };
             activityListener.ActivityStopped += activity =>
             {
-                TestContext.WriteLine($"Activity {activity.Id} completed by {GetHashCode()}");
                 CompletedActivities.Enqueue(activity);
             };
         }
