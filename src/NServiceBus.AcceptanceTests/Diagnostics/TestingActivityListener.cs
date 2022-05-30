@@ -1,12 +1,15 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
+    using NUnit.Framework;
 
-    //TODO dispose listeners
-    class TestingActivityListener
+    class TestingActivityListener : IDisposable
     {
-        ActivityListener activityListener;
+        readonly ActivityListener activityListener;
 
         public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener("NServiceBus.Diagnostics");
 
@@ -28,21 +31,25 @@
             };
             activityListener.ActivityStarted += activity =>
             {
-                StartedActivities.Add(activity);
+                TestContext.WriteLine($"Activity {activity.Id} started by {GetHashCode()}");
+                StartedActivities.Enqueue(activity);
             };
             activityListener.ActivityStopped += activity =>
             {
-                CompletedActivities.Add(activity);
+                TestContext.WriteLine($"Activity {activity.Id} completed by {GetHashCode()}");
+                CompletedActivities.Enqueue(activity);
             };
         }
 
-        public List<Activity> StartedActivities { get; } = new List<Activity>();
-        public List<Activity> CompletedActivities { get; } = new List<Activity>();
+        public void Dispose() => activityListener?.Dispose();
+
+        public ConcurrentQueue<Activity> StartedActivities { get; } = new ConcurrentQueue<Activity>();
+        public ConcurrentQueue<Activity> CompletedActivities { get; } = new ConcurrentQueue<Activity>();
     }
 
     static class ActivityExtensions
     {
-        public static List<Activity> GetIncomingActivities(this List<Activity> activities) => activities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
-        public static List<Activity> GetOutgoingActivities(this List<Activity> activities) => activities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
+        public static List<Activity> GetIncomingActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToList();
+        public static List<Activity> GetOutgoingActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage").ToList();
     }
 }

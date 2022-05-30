@@ -16,8 +16,8 @@
         [Test]
         public async Task Should_capture_outgoing_message_traces()
         {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
+            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            TestContext.WriteLine($"Created listener {activityListener.GetHashCode()}");
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b => b
                     .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReceivingEndpoint)))
@@ -28,7 +28,7 @@
 
             Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
 
-            var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
+            var incomingMessageActivities = activityListener.CompletedActivities.GetOutgoingActivities();
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being sent");
             var sentMessage = incomingMessageActivities[0];
             var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();

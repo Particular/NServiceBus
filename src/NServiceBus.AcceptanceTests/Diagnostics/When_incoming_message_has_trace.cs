@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_correlate_traces()
         {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b => b
@@ -25,8 +25,8 @@
 
             Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
 
-            var incomingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
-            var outgoingMessageActivities = activityListener.CompletedActivities.FindAll(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage");
+            var incomingMessageActivities = activityListener.CompletedActivities.GetIncomingActivities();
+            var outgoingMessageActivities = activityListener.CompletedActivities.GetOutgoingActivities();
             Assert.AreEqual(2, incomingMessageActivities.Count, "2 messages are received as part of this test");
             Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are sent as part of this test");
 

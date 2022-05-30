@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
@@ -9,13 +10,13 @@
 
     public class When_ambient_trace_in_pipeline : NServiceBusAcceptanceTest
     {
-        static ActivitySource externalActivitySource = new ActivitySource("external activity source");
+        static ActivitySource externalActivitySource = new(Guid.NewGuid().ToString());
 
         [Test]
         public async Task Should_attach_to_ambient_trace()
         {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-            var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
+            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            using var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAmbientActivity>(e => e

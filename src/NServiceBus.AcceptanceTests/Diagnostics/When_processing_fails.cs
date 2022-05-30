@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_mark_span_as_failed()
         {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<FailingEndpoint>(e => e

@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_start_new_trace()
         {
-            var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ReceivingEndpoint>(b => b
