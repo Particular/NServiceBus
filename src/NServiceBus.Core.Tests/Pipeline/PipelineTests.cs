@@ -6,7 +6,6 @@
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
@@ -311,20 +310,6 @@
         class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
         {
             public Task Invoke(IBatchDispatchContext context) => Task.CompletedTask;
-        }
-    }
-
-    static class LambdaExpressionPrettyPrint
-    {
-        public static string PrettyPrint(this List<Expression> expression)
-        {
-            expression.Reverse();
-            var sb = new StringBuilder();
-            for (var i = 0; i < expression.Count; i++)
-            {
-                sb.AppendLine($"{new string(' ', i * 4)}{expression[i].ToString().TrimStart()},");
-            }
-            return sb.ToString();
         }
     }
 
