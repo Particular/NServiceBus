@@ -7,6 +7,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
+    [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_ambient_trace_in_message_session : NServiceBusAcceptanceTest
     {
         [Test]

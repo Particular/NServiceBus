@@ -8,6 +8,7 @@
     using NUnit.Framework;
 
     //TODO split test into the trace ID format being A.) hierarchical, B.) W3C
+    [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_incoming_message_has_trace : NServiceBusAcceptanceTest
     {
         [Test]

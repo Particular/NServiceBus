@@ -8,6 +8,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
+    [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_processing_incoming_message
     {
         [Test]
