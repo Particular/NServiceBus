@@ -10,6 +10,8 @@
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_processing_fails : NServiceBusAcceptanceTest
     {
+        //TODO test retries?
+
         [Test]
         public async Task Should_mark_span_as_failed()
         {
