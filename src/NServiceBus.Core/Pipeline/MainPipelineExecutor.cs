@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
-    using Diagnostics;
     using Pipeline;
     using Transport;
 
