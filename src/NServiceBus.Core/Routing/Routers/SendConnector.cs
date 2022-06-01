@@ -17,16 +17,9 @@ namespace NServiceBus
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
             using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
-            activity?.SetTag("NServiceBus.MessageId", context.MessageId);
 
-            if (activity != null)
-            {
-                context.Headers.Add("traceparent", activity.Id);
-                if (activity.TraceStateString != null)
-                {
-                    context.Headers["tracestate"] = activity.TraceStateString;
-                }
-            }
+            ActivityDecorator.SetSendTags(activity, context);
+            ActivityDecorator.InjectHeaders(activity, context.Headers);
 
             var routingStrategy = unicastSendRouter.Route(context);
             context.Headers[Headers.MessageIntent] = MessageIntent.Send.ToString();

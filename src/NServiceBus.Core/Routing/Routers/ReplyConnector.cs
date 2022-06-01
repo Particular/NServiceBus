@@ -25,17 +25,9 @@ namespace NServiceBus
             }
 
             using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
-            activity?.SetTag("NServiceBus.MessageId", context.MessageId);
-            activity?.SetTag("NServiceBus.ReplyToAddress", replyToAddress);
 
-            if (activity != null)
-            {
-                context.Headers.Add("traceparent", activity.Id);
-                if (activity.TraceStateString != null)
-                {
-                    context.Headers["tracestate"] = activity.TraceStateString;
-                }
-            }
+            ActivityDecorator.SetReplyTags(activity, replyToAddress, context);
+            ActivityDecorator.InjectHeaders(activity, context.Headers);
 
             context.Headers[Headers.MessageIntent] = MessageIntent.Reply.ToString();
 
