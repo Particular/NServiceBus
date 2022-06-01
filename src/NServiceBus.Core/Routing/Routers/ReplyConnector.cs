@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
+    using Diagnostics;
     using Extensibility;
     using Pipeline;
     using Routing;
@@ -22,6 +24,19 @@ namespace NServiceBus
                 replyToAddress = GetReplyToAddressFromIncomingMessage(context);
             }
 
+            using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
+            activity?.SetTag("NServiceBus.MessageId", context.MessageId);
+            activity?.SetTag("NServiceBus.ReplyToAddress", replyToAddress);
+
+            if (activity != null)
+            {
+                context.Headers.Add("traceparent", activity.Id);
+                if (activity.TraceStateString != null)
+                {
+                    context.Headers["tracestate"] = activity.TraceStateString;
+                }
+            }
+
             context.Headers[Headers.MessageIntent] = MessageIntent.Reply.ToString();
 
             var addressLabels = new[] { new UnicastRoutingStrategy(replyToAddress) };
@@ -31,10 +46,23 @@ namespace NServiceBus
             {
                 await stage(logicalMessageContext).ConfigureAwait(false);
             }
-            catch (QueueNotFoundException ex)
+            catch (QueueNotFoundException qnfe)
             {
-                throw new Exception($"The destination queue '{ex.Queue}' could not be found. It may be the case that the given queue hasn't been created yet, or has been deleted.", ex);
+                var err = new Exception($"The destination queue '{qnfe.Queue}' could not be found. " +
+                                        "It may be the case that the given queue hasn't been created yet, or has been deleted.", qnfe);
+                activity?.SetStatus(ActivityStatusCode.Error, err.Message);
+                throw err;
             }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+
+            //TODO should we stop the acitivty only once the message has been handed to the dispatcher?
+            activity?.SetStatus(ActivityStatusCode.Ok); //Set acitivity state.
         }
 
         static string GetReplyToAddressFromIncomingMessage(IOutgoingReplyContext context)
