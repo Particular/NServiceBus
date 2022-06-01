@@ -73,7 +73,7 @@
             }
         }
 
-        class LocalMessage : IMessage
+        public class LocalMessage : IMessage
         {
         }
     }

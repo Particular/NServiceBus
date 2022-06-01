@@ -9,7 +9,7 @@
     using NUnit.Framework;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_processing_incoming_message
+    public class When_processing_incoming_message : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_create_incoming_message_span()

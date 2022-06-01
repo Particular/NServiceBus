@@ -76,11 +76,11 @@
             }
         }
 
-        class TriggerMessage : IMessage
+        public class TriggerMessage : IMessage
         {
         }
 
-        class MessageFromAmbientTrace : IMessage
+        public class MessageFromAmbientTrace : IMessage
         {
         }
 
