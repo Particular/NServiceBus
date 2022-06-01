@@ -65,8 +65,7 @@ namespace NServiceBus
                 await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
             }
 
-            activity?.SetStatus(ActivityStatusCode.Ok);
-            activity?.Dispose(); //TODO ensure disposal. Set acitivity state.
+            activity?.SetStatus(ActivityStatusCode.Ok); //Set acitivity state.
         }
 
         void AddTraceInfo(Activity activity, IncomingMessage message)
