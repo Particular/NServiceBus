@@ -71,8 +71,8 @@
         /// </summary>
         public string TraceParent
         {
-            get => ContainsKey(TraceParentKeyName) ? this[TraceParent] : null;
-            set => this[TraceParent] = value;
+            get => ContainsKey(TraceParentKeyName) ? this[TraceParentKeyName] : null;
+            set => this[TraceParentKeyName] = value;
         }
     }
 }

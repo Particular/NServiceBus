@@ -8,7 +8,7 @@
 
     class BatchToDispatchConnector : StageConnector<IBatchDispatchContext, IDispatchContext>
     {
-        public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage)
+        public override async Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage)
         {
             var activityLinks = context.Operations.Select(o =>
             {
@@ -16,7 +16,7 @@
                 return new ActivityLink(operationActivityContext);
             });
             using var activity = ActivitySources.Main.StartActivity(name: "dispatching", links: activityLinks, kind: ActivityKind.Producer);
-            return stage(this.CreateDispatchContext(context.Operations, context));
+            await stage(this.CreateDispatchContext(context.Operations, context)).ConfigureAwait(false);
         }
     }
 }
