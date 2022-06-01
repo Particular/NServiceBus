@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Diagnostics;
     using Pipeline;
     using Routing;
     using Transport;
@@ -15,6 +16,8 @@
             {
                 dispatchProperties = new DispatchProperties();
             }
+
+            dispatchProperties.TraceParent = Activity.Current?.Id; //TODO needs to be a W3C format!
 
             var transportOperation = new TransportOperation(message, addressLabel, dispatchProperties, dispatchConsistency);
             return transportOperation;
