@@ -33,8 +33,8 @@ namespace NServiceBus
             using (var childScope = rootBuilder.CreateScope())
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
-                AddTraceInfo(activity, message);
-                activity?.AddTag("NServiceBus.MessageId", message.MessageId);
+
+                ActivityDecorator.SetReceiveTags(activity, endpointQueueName, message);
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
@@ -66,26 +66,6 @@ namespace NServiceBus
             }
 
             activity?.SetStatus(ActivityStatusCode.Ok); //Set acitivity state.
-        }
-
-        void AddTraceInfo(Activity activity, IncomingMessage message)
-        {
-            if (activity == null)
-            {
-                return;
-            }
-
-            var operation = "process";
-            // TODO: Set destination properly
-            activity.DisplayName = $"{endpointQueueName} {operation}";
-            activity.AddTag("messaging.operation", operation);
-            activity.AddTag("messaging.destination", endpointQueueName);
-            activity.AddTag("messaging.message_id", message.MessageId);
-            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
-            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
-            {
-                activity.AddTag("messaging.conversation_id", conversationId);
-            }
         }
 
         static Activity CreateIncomingActivity(MessageContext context)
