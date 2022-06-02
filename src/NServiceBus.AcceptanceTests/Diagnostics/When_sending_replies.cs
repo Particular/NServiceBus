@@ -7,6 +7,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using NUnit.Framework;
     using NServiceBus.AcceptanceTesting.Customization;
 
+    [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_sending_replies : NServiceBusAcceptanceTest
     {
         [Test]

@@ -23,7 +23,7 @@ namespace NServiceBus
             context.Headers[Headers.MessageIntent] = MessageIntent.Send.ToString();
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, new[] { routingStrategy }, context);
 
-            return LogicalMessageStager.Stage(stage, logicalMessageContext, activity,
+            return LogicalMessageStager.StageOutgoing(stage, logicalMessageContext, activity,
                 $"The destination may be misconfigured for this kind of message ({context.Message.MessageType}) in the routing section of the transport configuration. ");
         }
 

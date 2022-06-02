@@ -33,7 +33,10 @@
                 LogOutgoingOperations(operations);
             }
 
-            ActivityDecorator.SetOutgoingTraceTags(Activity.Current, operations);
+            if (context.Extensions.TryGet<Activity>(ActivityNames.OutgoingMessageActivityName, out var activity))
+            {
+                ActivityDecorator.SetOutgoingTraceTags(activity, operations);
+            }
 
             if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {

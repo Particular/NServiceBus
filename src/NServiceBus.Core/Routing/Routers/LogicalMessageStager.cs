@@ -8,10 +8,11 @@ namespace NServiceBus
 
     static class LogicalMessageStager
     {
-        public static async Task Stage(Func<IOutgoingLogicalMessageContext, Task> stager, IOutgoingLogicalMessageContext logicalMessageContext, Activity activity, string queueNotFoundMessage = null)
+        public static async Task StageOutgoing(Func<IOutgoingLogicalMessageContext, Task> stager, IOutgoingLogicalMessageContext logicalMessageContext, Activity activity, string queueNotFoundMessage = null)
         {
             try
             {
+                logicalMessageContext.Extensions.Set(ActivityNames.OutgoingMessageActivityName, activity);
                 await stager(logicalMessageContext).ConfigureAwait(false);
             }
             catch (QueueNotFoundException qnfe)

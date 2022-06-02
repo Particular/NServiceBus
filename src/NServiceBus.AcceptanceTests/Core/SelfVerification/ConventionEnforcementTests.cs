@@ -39,6 +39,19 @@
         }
 
         [Test]
+        public void Ensure_all_diagnostics_tests_are_run_sequentially()
+        {
+            var testTypes = Assembly.GetExecutingAssembly().GetTypes().Where(HasTestMethod);
+
+            var diagnosticTests = testTypes
+                .Where(t => t.Namespace == "NServiceBus.AcceptanceTests.Diagnostics")
+                .Where(t => t.GetCustomAttribute<NonParallelizableAttribute>() == null)
+                .ToList();
+
+            CollectionAssert.IsEmpty(diagnosticTests, string.Join(",", diagnosticTests));
+        }
+
+        [Test]
         public void Ensure_all_sagadatas_are_public()
         {
             var testTypes = Assembly.GetExecutingAssembly().GetTypes();

@@ -32,7 +32,7 @@ namespace NServiceBus
             var addressLabels = new[] { new UnicastRoutingStrategy(replyToAddress) };
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context);
 
-            return LogicalMessageStager.Stage(stage, logicalMessageContext, activity);
+            return LogicalMessageStager.StageOutgoing(stage, logicalMessageContext, activity);
         }
 
         static string GetReplyToAddressFromIncomingMessage(IOutgoingReplyContext context)
