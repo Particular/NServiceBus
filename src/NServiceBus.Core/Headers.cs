@@ -223,5 +223,17 @@
         /// of the message can be known.
         /// </summary>
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+
+        /// <summary>
+        /// Traceparent header according to the W3C spec:
+        /// https://www.w3.org/TR/trace-context/#traceparent-header
+        /// </summary>
+        public const string DiagnosticsTraceParent = "traceparent";
+
+        /// <summary>
+        /// Tracestate header according to the W3C spec:
+        /// https://www.w3.org/TR/trace-context/#tracestate-header
+        /// </summary>
+        public const string DiagnosticsTraceState = "tracestate";
     }
 }

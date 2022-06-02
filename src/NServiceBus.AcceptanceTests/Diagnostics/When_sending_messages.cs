@@ -31,9 +31,9 @@
             var sentMessage = outgoingMessageActivities.Single();
 
             Assert.IsNull(sentMessage.ParentId, "sends without ambient span should start a new trace");
+            // TODO: is this correct? it seems like this needs to be filled by the transport
             var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
             Assert.AreEqual($"{destination} send", sentMessage.DisplayName, "Display name should be set according to spec");
-
 
             var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
             // TODO: Verify whether we want to keep this. messaging.message_id is from the spec

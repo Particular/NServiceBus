@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using NServiceBus.Routing;
+    using Routing;
     using Pipeline;
     using Transport;
 
@@ -23,10 +23,10 @@ namespace NServiceBus
         {
             if (activity != null)
             {
-                headers.Add("traceparent", activity.Id);
+                headers.Add(Headers.DiagnosticsTraceParent, activity.Id);
                 if (activity.TraceStateString != null)
                 {
-                    headers["tracestate"] = activity.TraceStateString;
+                    headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
                 }
             }
         }
@@ -36,6 +36,11 @@ namespace NServiceBus
             activity?.SetTag("NServiceBus.MessageId", context.MessageId);
         }
 
+        public static void SetPublishTags(Activity activity, IOutgoingPublishContext context)
+        {
+            activity?.AddTag("NServiceBus.MessageId", context.MessageId);
+        }
+
         public static void SetReceiveTags(Activity activity, IncomingMessage message)
         {
             if (activity == null)
@@ -43,6 +48,7 @@ namespace NServiceBus
                 return;
             }
 
+            // TODO: do tags needs to be lowercase and use _ to signal camelcase, e.g. nservicebus.message_id
             activity.AddTag("NServiceBus.MessageId", message.MessageId);
             var operation = "process";
 

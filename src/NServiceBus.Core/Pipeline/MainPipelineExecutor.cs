@@ -10,8 +10,6 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        const string IncomingMessageActivityName = "NServiceBus.Diagnostics.IncomingMessage";
-
         public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
@@ -69,8 +67,8 @@ namespace NServiceBus
         {
             //TODO Do we need to check for Activity.Current first in case the transport creates it's own span?
             var activity = context.Headers.TryGetValue("traceparent", out var parentId)
-                ? ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Consumer, parentId)
-                : ActivitySources.Main.StartActivity(name: IncomingMessageActivityName, ActivityKind.Consumer);
+                ? ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentId)
+                : ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
 
             if (activity != null)
             {

@@ -33,7 +33,7 @@
                 LogOutgoingOperations(operations);
             }
 
-            if (context.Extensions.TryGet<Activity>(ActivityNames.OutgoingMessageActivityName, out var activity))
+            if (context.Extensions.TryGet<Activity>(DiagnosticsKeys.OutgoingActivityKey, out var activity))
             {
                 ActivityDecorator.SetOutgoingTraceTags(activity, operations);
             }

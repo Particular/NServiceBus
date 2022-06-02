@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces;
@@ -45,8 +46,9 @@ namespace NServiceBus
             return Publish(context, messageType, message, options);
         }
 
-        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+        async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
+            using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingEventActivityName, ActivityKind.Producer);
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
             {
@@ -60,9 +62,12 @@ namespace NServiceBus
                 options.Context,
                 context);
 
+            ActivityDecorator.SetPublishTags(activity, publishContext);
+            publishContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
+
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            return publishPipeline.Invoke(publishContext);
+            await publishPipeline.Invoke(publishContext).ConfigureAwait(false);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)

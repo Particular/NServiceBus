@@ -48,5 +48,6 @@
     {
         public static List<Activity> GetIncomingActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToList();
         public static List<Activity> GetOutgoingActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.OutgoingMessage").ToList();
+        public static List<Activity> GetOutgoingEventActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.PublishMessage").ToList();
     }
 }

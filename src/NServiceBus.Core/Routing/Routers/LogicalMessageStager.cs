@@ -12,7 +12,7 @@ namespace NServiceBus
         {
             try
             {
-                logicalMessageContext.Extensions.Set(ActivityNames.OutgoingMessageActivityName, activity);
+                logicalMessageContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
                 await stager(logicalMessageContext).ConfigureAwait(false);
             }
             catch (QueueNotFoundException qnfe)
@@ -30,8 +30,8 @@ namespace NServiceBus
             }
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
 
-            //TODO should we stop the acitivty only once the message has been handed to the dispatcher?
-            activity?.SetStatus(ActivityStatusCode.Ok); //Set acitivity state.
+            //TODO should we stop the activity only once the message has been handed to the dispatcher?
+            activity?.SetStatus(ActivityStatusCode.Ok); //Set activity state.
         }
     }
 }
