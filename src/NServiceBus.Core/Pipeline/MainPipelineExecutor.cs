@@ -19,8 +19,6 @@ namespace NServiceBus
             this.messageOperations = messageOperations;
             this.receivePipelineNotification = receivePipelineNotification;
             this.receivePipeline = receivePipeline;
-            // TODO: Get this in a more convenient manner
-            endpointQueueName = rootBuilder.GetRequiredService<Settings.IReadOnlySettings>().EndpointQueueName();
         }
 
         public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -33,7 +31,7 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
-                ActivityDecorator.SetReceiveTags(activity, endpointQueueName, message);
+                ActivityDecorator.SetReceiveTags(activity, message);
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
@@ -83,7 +81,6 @@ namespace NServiceBus
             return activity;
         }
 
-        readonly string endpointQueueName;
         readonly IServiceProvider rootBuilder;
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;

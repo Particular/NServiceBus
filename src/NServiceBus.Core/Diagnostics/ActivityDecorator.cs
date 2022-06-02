@@ -2,11 +2,14 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using NServiceBus.Settings;
     using Pipeline;
     using Transport;
 
     class ActivityDecorator
     {
+        static string endpointQueueName;
+
         public static void SetReplyTags(Activity activity, string replyToAddress, IOutgoingReplyContext context)
         {
             if (activity != null)
@@ -33,7 +36,7 @@ namespace NServiceBus
             activity?.SetTag("NServiceBus.MessageId", context.MessageId);
         }
 
-        public static void SetReceiveTags(Activity activity, string endpointQueueName, IncomingMessage message)
+        public static void SetReceiveTags(Activity activity, IncomingMessage message)
         {
             if (activity == null)
             {
@@ -53,6 +56,15 @@ namespace NServiceBus
             if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
             {
                 activity.AddTag("messaging.conversation_id", conversationId);
+            }
+        }
+
+        public static void Initialize(SettingsHolder settings)
+        {
+            // TODO: Figure out how to use ReceiveAddresses
+            if (!settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                endpointQueueName = settings.EndpointQueueName();
             }
         }
     }

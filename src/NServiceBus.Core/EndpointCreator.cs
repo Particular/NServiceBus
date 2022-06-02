@@ -49,6 +49,8 @@ namespace NServiceBus
                 settings.Get<ReceiveComponent.Settings>(),
                 transportSeam);
 
+            ActivityDecorator.Initialize(settings);
+
             var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
             var messageMapper = new MessageMapper();
