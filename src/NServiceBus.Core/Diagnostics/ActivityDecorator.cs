@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using NServiceBus.Settings;
     using Pipeline;
     using Transport;
 
@@ -46,7 +45,6 @@ namespace NServiceBus
             activity.AddTag("NServiceBus.MessageId", message.MessageId);
             var operation = "process";
 
-            // TODO: Set destination properly
             activity.DisplayName = $"{endpointQueueName} {operation}";
             activity.AddTag("messaging.operation", operation);
             activity.AddTag("messaging.destination", endpointQueueName);
@@ -59,13 +57,9 @@ namespace NServiceBus
             }
         }
 
-        public static void Initialize(SettingsHolder settings)
+        public static void Initialize(string receiveAddress)
         {
-            // TODO: Figure out how to use ReceiveAddresses
-            if (!settings.GetOrDefault<bool>("Endpoint.SendOnly"))
-            {
-                endpointQueueName = settings.EndpointQueueName();
-            }
+            endpointQueueName = receiveAddress;
         }
     }
 }

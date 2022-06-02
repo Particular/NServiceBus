@@ -151,7 +151,9 @@ namespace NServiceBus
                 return;
             }
 
-            var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId]);
+            var mainReceiver = transportInfrastructure.Receivers[MainReceiverId];
+            var mainPump = CreateReceiver(consecutiveFailuresConfiguration, mainReceiver);
+            ActivityDecorator.Initialize(mainReceiver.ReceiveAddress);
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
