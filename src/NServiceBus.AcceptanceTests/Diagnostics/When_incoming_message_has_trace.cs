@@ -7,12 +7,11 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    //TODO split test into the trace ID format being A.) hierarchical, B.) W3C
     [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_incoming_message_has_trace : NServiceBusAcceptanceTest
+    public class When_incoming_message_has_trace : NServiceBusAcceptanceTest // assuming W3C trace!
     {
         [Test]
-        public async Task Should_correlate_traces()
+        public async Task Should_correlate_trace_from_send()
         {
             using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
@@ -21,7 +20,7 @@
                     .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
                     .When(s => s.Send(new IncomingMessage())))
                 .WithEndpoint<ReplyingEndpoint>()
-                .Done(c => c.OutgoingMessageReceived)
+                .Done(c => c.ReplyMessageReceived)
                 .Run();
 
             Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
@@ -45,8 +44,8 @@
 
             Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
             Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.OutgoingMessageId, sendReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.OutgoingMessageId, receiveReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.ReplyMessageId, sendReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.ReplyMessageId, receiveReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
 
             //TODO: Also add transport message id?
             //TODO: Test that the second send is connected to the first send
@@ -54,9 +53,9 @@
 
         class Context : ScenarioContext
         {
-            public bool OutgoingMessageReceived { get; set; }
+            public bool ReplyMessageReceived { get; set; }
             public string IncomingMessageId { get; set; }
-            public string OutgoingMessageId { get; set; }
+            public string ReplyMessageId { get; set; }
             public bool IncomingMessageReceived { get; set; }
         }
 
@@ -81,7 +80,7 @@
 
         class ReplyingEndpoint : EndpointConfigurationBuilder
         {
-            public ReplyingEndpoint() => EndpointSetup<DefaultServer>(c => c.ConfigureRouting().RouteToEndpoint(typeof(OutgoingMessage), typeof(TestEndpoint)));
+            public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
 
             class MessageHandler : IHandleMessages<IncomingMessage>
             {
@@ -93,7 +92,7 @@
                 {
                     testContext.IncomingMessageId = context.MessageId;
                     testContext.IncomingMessageReceived = true;
-                    return context.Send(new OutgoingMessage()); //TODO change this to reply
+                    return context.Reply(new ReplyMessage());
                 }
             }
         }
@@ -102,16 +101,16 @@
         {
             public TestEndpoint() => EndpointSetup<DefaultServer>();
 
-            class MessageHandler : IHandleMessages<OutgoingMessage>
+            class MessageHandler : IHandleMessages<ReplyMessage>
             {
                 Context testContext;
 
                 public MessageHandler(Context testContext) => this.testContext = testContext;
 
-                public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+                public Task Handle(ReplyMessage message, IMessageHandlerContext context)
                 {
-                    testContext.OutgoingMessageId = context.MessageId;
-                    testContext.OutgoingMessageReceived = true;
+                    testContext.ReplyMessageId = context.MessageId;
+                    testContext.ReplyMessageReceived = true;
                     return Task.CompletedTask;
                 }
             }
@@ -122,7 +121,7 @@
 
         }
 
-        public class OutgoingMessage : IMessage
+        public class ReplyMessage : IMessage
         {
 
         }

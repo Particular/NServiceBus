@@ -63,6 +63,7 @@ namespace NServiceBus
                 context);
 
             ActivityDecorator.SetPublishTags(activity, publishContext);
+            ActivityDecorator.InjectHeaders(activity, publishContext.Headers);
             publishContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);

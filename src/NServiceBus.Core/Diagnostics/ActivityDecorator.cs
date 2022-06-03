@@ -19,6 +19,7 @@ namespace NServiceBus
             }
         }
 
+        //TODO should this be moved somewhere else, naming indicates that we're adding headers to the activity
         public static void InjectHeaders(Activity activity, Dictionary<string, string> headers)
         {
             if (activity != null)

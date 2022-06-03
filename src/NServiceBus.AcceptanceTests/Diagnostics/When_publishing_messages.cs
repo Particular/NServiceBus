@@ -11,9 +11,6 @@
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_publishing_messages : NServiceBusAcceptanceTest
     {
-        //TODO test "disabled" behavior?
-        //TODO should these tests be moved to the Core test folder to not be shipped to downstreams?
-
         [Test]
         public async Task Should_create_outgoing_event_span()
         {
@@ -35,15 +32,16 @@
 
             Assert.AreEqual(activityListener.StartedActivities.Count, activityListener.CompletedActivities.Count, "all activities should be completed");
 
-            var outgoingMessageActivities = activityListener.CompletedActivities.GetOutgoingEventActivities();
-            Assert.AreEqual(1, outgoingMessageActivities.Count, "1 event is being published");
-            var sentMessage = outgoingMessageActivities.Single();
+            var outgoingEventActivities = activityListener.CompletedActivities.GetOutgoingEventActivities();
+            Assert.AreEqual(1, outgoingEventActivities.Count, "1 event is being published");
+            var publishedMessage = outgoingEventActivities.Single();
 
-            Assert.IsNull(sentMessage.ParentId, "publishes without ambient span should start a new trace");
+            Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
-            var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
-            // TODO: Verify whether we want to keep this. messaging.message_id is from the spec
+            var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
             VerifyTag("NServiceBus.MessageId", context.SentMessageId);
+
+            Assert.IsNotNull(context.TraceParentHeader, "tracing header should be set on the published event");
 
             void VerifyTag(string tagKey, string expectedValue)
             {
@@ -56,15 +54,13 @@
         {
             public bool OutgoingEventReceived { get; set; }
             public string SentMessageId { get; set; }
-            public string MessageConversationId { get; set; }
             public string TraceParentHeader { get; set; }
             public bool SomeEventSubscribed { get; set; }
         }
 
         class Publisher : EndpointConfigurationBuilder
         {
-            public Publisher()
-            {
+            public Publisher() =>
                 EndpointSetup<DefaultPublisher>(b =>
                 {
                     b.OnEndpointSubscribed<Context>((s, context) =>
@@ -78,7 +74,6 @@
                         }
                     });
                 });
-            }
         }
 
         public class Subscriber : EndpointConfigurationBuilder
@@ -109,7 +104,6 @@
                     }
 
                     testContext.SentMessageId = context.MessageId;
-                    testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
                     testContext.OutgoingEventReceived = true;
                     return Task.CompletedTask;
                 }
