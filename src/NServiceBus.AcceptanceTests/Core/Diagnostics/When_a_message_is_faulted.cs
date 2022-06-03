@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
