@@ -30,12 +30,15 @@ public class When_incoming_event_has_trace : NServiceBusAcceptanceTest
             .Done(c => c.ReplyMessageReceived)
             .Run(TimeSpan.FromSeconds(10));
 
-        var expectedIncomingMessages = context.HasNativePubSubSupport ? 2 : 3; // we expect an additional message for the subscription message when using message-driven pub/sub.
-        Assert.AreEqual(expectedIncomingMessages, activityListener.CompletedActivities.GetIncomingActivities().Count, $"{expectedIncomingMessages} messages are received as part of this test (event + reply)");
+        Assert.AreEqual(2, activityListener.CompletedActivities.GetIncomingActivities().Count, "2 messages are received as part of this test (event + reply)");
         Assert.AreEqual(1, activityListener.CompletedActivities.GetOutgoingActivities().Count, "1 message is sent as part of this test (reply)");
         Assert.AreEqual(1, activityListener.CompletedActivities.GetOutgoingEventActivities().Count, "1 event is published as part of this test");
 
-        Assert.IsTrue(activityListener.CompletedActivities.All(a => a.RootId == activityListener.CompletedActivities.GetIncomingActivities()[0].RootId), "all activities should belong to the same trace");
+        Assert.IsTrue(activityListener.CompletedActivities
+            .Where(a => !Convert.ToBoolean(a.GetTagItem("nservicebus.is_control_message")))
+            .All(a => a.RootId == activityListener.CompletedActivities.GetIncomingActivities()[0].RootId), "all activities should belong to the same trace");
+
+        //TODO this will currently fail on CI because we don't set the is_control_message tag (or header) yet.
     }
     public class Context : ScenarioContext
     {
