@@ -23,7 +23,7 @@
                     .DoNotFailOnErrorMessages()
                     .When(s => s.SendLocal(new MessageWithoutTypeHeader())))
                 .Done(c => c.IncomingMessageReceived)
-                .Run(TimeSpan.FromSeconds(20));
+                .Run(TimeSpan.FromSeconds(35));
 
             Assert.IsFalse(context.HandlerInvoked);
             Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
@@ -40,7 +40,7 @@
                     .DoNotFailOnErrorMessages()
                     .When(s => s.SendLocal(new UnknownMessage())))
                 .Done(c => c.IncomingMessageReceived)
-                .Run(TimeSpan.FromSeconds(20));
+                .Run(TimeSpan.FromSeconds(35));
 
             Assert.IsFalse(context.HandlerInvoked);
             Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
