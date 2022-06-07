@@ -10,13 +10,9 @@ namespace NServiceBus
     {
         static string endpointQueueName;
 
-        public static void SetReplyTags(Activity activity, string replyToAddress, IOutgoingReplyContext context)
+        public static void SetReplyTags(Activity activity, IOutgoingReplyContext context)
         {
-            if (activity != null)
-            {
-                activity.SetTag("NServiceBus.MessageId", context.MessageId);
-                activity.SetTag("NServiceBus.ReplyToAddress", replyToAddress);
-            }
+            activity?.SetTag("NServiceBus.MessageId", context.MessageId);
         }
 
         //TODO should this be moved somewhere else, naming indicates that we're adding headers to the activity
