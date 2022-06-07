@@ -7,6 +7,7 @@ using EndpointTemplates;
 using NUnit.Framework;
 
 //TODO: we might not need this test if we verify that we copy NSB headers to tags because then we can just use the Headers.ControlMessage value instead
+[NonParallelizable] // Ensure only activities for the current test are captured
 public class When_using_control_messages : NServiceBusAcceptanceTest
 {
     [Test]
@@ -50,7 +51,7 @@ public class When_using_control_messages : NServiceBusAcceptanceTest
         public Subscriber() => EndpointSetup<DefaultServer>(endpointConfiguration => { }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
     }
 
-    class MyEvent : IEvent
+    public class MyEvent : IEvent
     {
     }
 }

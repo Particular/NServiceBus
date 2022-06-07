@@ -227,12 +227,14 @@
         /// <summary>
         /// Traceparent header according to the W3C spec:
         /// https://www.w3.org/TR/trace-context/#traceparent-header
+        /// 23 November 2021. 
         /// </summary>
         public const string DiagnosticsTraceParent = "traceparent";
 
         /// <summary>
         /// Tracestate header according to the W3C spec:
         /// https://www.w3.org/TR/trace-context/#tracestate-header
+        /// 23 November 2021.
         /// </summary>
         public const string DiagnosticsTraceState = "tracestate";
     }
