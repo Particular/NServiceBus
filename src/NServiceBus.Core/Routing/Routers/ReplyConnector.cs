@@ -3,9 +3,9 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Unicast.Queuing;
     using Pipeline;
     using Routing;
+    using Unicast.Queuing;
 
     class ReplyConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {

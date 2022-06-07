@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Unicast.Queuing;
     using Pipeline;
+    using Unicast.Queuing;
 
     class SendConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
