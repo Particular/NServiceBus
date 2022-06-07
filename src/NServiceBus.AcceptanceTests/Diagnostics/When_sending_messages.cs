@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -46,6 +48,17 @@
             // NOTE: Payload size is zero and the tag is not added
             VerifyTag("messaging.message_payload_size_bytes", "222");
 
+            VerifyTag("nservicebus.message_id", context.SentMessageId);
+            VerifyTag("nservicebus.correlation_id", context.SentMessageHeaders[Headers.CorrelationId]);
+            VerifyTag("nservicebus.conversation_id", context.SentMessageHeaders[Headers.ConversationId]);
+            VerifyTag("nservicebus.content_type", context.SentMessageHeaders[Headers.ContentType]);
+            VerifyTag("nservicebus.enclosed_message_types", context.SentMessageHeaders[Headers.EnclosedMessageTypes]);
+            VerifyTag("nservicebus.reply_to_address", context.SentMessageHeaders[Headers.ReplyToAddress]);
+            VerifyTag("nservicebus.originating_machine", context.SentMessageHeaders[Headers.OriginatingMachine]);
+            VerifyTag("nservicebus.originating_endpoint", context.SentMessageHeaders[Headers.OriginatingEndpoint]);
+            VerifyTag("nservicebus.version", context.SentMessageHeaders[Headers.NServiceBusVersion]);
+            VerifyTag("nservicebus.message_intent", context.SentMessageHeaders[Headers.MessageIntent]);
+
             void VerifyTag(string tagKey, string expectedValue)
             {
                 Assert.IsTrue(sentMessageTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
@@ -58,6 +71,7 @@
             public bool OutgoingMessageReceived { get; set; }
             public string SentMessageId { get; set; }
             public string MessageConversationId { get; set; }
+            public IReadOnlyDictionary<string, string> SentMessageHeaders { get; set; }
         }
 
         class TestEndpoint : EndpointConfigurationBuilder
@@ -75,6 +89,7 @@
                     testContext.SentMessageId = context.MessageId;
                     testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
                     testContext.OutgoingMessageReceived = true;
+                    testContext.SentMessageHeaders = new ReadOnlyDictionary<string, string>((IDictionary<string, string>)context.MessageHeaders);
                     return Task.CompletedTask;
                 }
             }
