@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Diagnostics;
     using System.Linq;
@@ -28,7 +29,6 @@
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
 
             var incomingActivity = incomingMessageActivities.Single();
-            Assert.AreEqual(context.IncomingMessageId, incomingActivity.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
             Assert.AreEqual(ActivityKind.Consumer, incomingActivity.Kind, "asynchronous receivers should use 'Consumer'");
 
             Assert.AreEqual(ActivityStatusCode.Ok, incomingActivity.Status);
@@ -37,13 +37,6 @@
 
             var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
 
-            void VerifyTag(string tagKey, string expectedValue)
-            {
-                Assert.IsTrue(incomingActivityTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
-                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
-            }
-
-            VerifyTag("NServiceBus.MessageId", context.IncomingMessageId);
             VerifyTag("messaging.message_id", context.IncomingMessageId);
             VerifyTag("messaging.conversation_id", context.IncomingMessageConversationId);
             VerifyTag("messaging.operation", "process");
@@ -51,7 +44,22 @@
             VerifyTag("messaging.message_payload_size_bytes", "222");
 
             //TODO: Also add transport/native message id?
-            //TODO: verify necessary tags/etc. here...
+            VerifyTag("nservicebus.message_id", context.IncomingMessageId);
+            VerifyTag("nservicebus.correlation_id", context.ReceivedHeaders[Headers.CorrelationId]);
+            VerifyTag("nservicebus.conversation_id", context.ReceivedHeaders[Headers.ConversationId]);
+            VerifyTag("nservicebus.content_type", context.ReceivedHeaders[Headers.ContentType]);
+            VerifyTag("nservicebus.enclosed_message_types", context.ReceivedHeaders[Headers.EnclosedMessageTypes]);
+            VerifyTag("nservicebus.reply_to_address", context.ReceivedHeaders[Headers.ReplyToAddress]);
+            VerifyTag("nservicebus.originating_machine", context.ReceivedHeaders[Headers.OriginatingMachine]);
+            VerifyTag("nservicebus.originating_endpoint", context.ReceivedHeaders[Headers.OriginatingEndpoint]);
+            VerifyTag("nservicebus.version", context.ReceivedHeaders[Headers.NServiceBusVersion]);
+            VerifyTag("nservicebus.message_intent", context.ReceivedHeaders[Headers.MessageIntent]);
+
+            void VerifyTag(string tagKey, string expectedValue)
+            {
+                Assert.IsTrue(incomingActivityTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
+                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
+            }
         }
 
         class Context : ScenarioContext
@@ -59,6 +67,7 @@
             public string IncomingMessageId { get; set; }
             public string IncomingMessageConversationId { get; set; }
             public bool IncomingMessageReceived { get; set; }
+            public IReadOnlyDictionary<string, string> ReceivedHeaders { get; set; }
         }
 
         class ReceivingEndpoint : EndpointConfigurationBuilder
@@ -79,6 +88,7 @@
                         testContext.IncomingMessageConversationId = conversationId;
                     }
                     testContext.IncomingMessageReceived = true;
+                    testContext.ReceivedHeaders = new Dictionary<string, string>(context.MessageHeaders.ToImmutableDictionary());
                     return Task.CompletedTask;
                 }
             }

@@ -42,10 +42,10 @@
             Assert.AreEqual(sendReply.Id, receiveReply.ParentId, "second incoming message is correlated to the second send operation");
             Assert.AreEqual(sendRequest.RootId, receiveReply.RootId, "first send operation is the root activity");
 
-            Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.ReplyMessageId, sendReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
-            Assert.AreEqual(context.ReplyMessageId, receiveReply.Tags.ToImmutableDictionary()["NServiceBus.MessageId"]);
+            Assert.AreEqual(context.IncomingMessageId, sendRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
+            Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
+            Assert.AreEqual(context.ReplyMessageId, sendReply.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
+            Assert.AreEqual(context.ReplyMessageId, receiveReply.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
 
             //TODO: Also add transport message id?
             //TODO: Test that the second send is connected to the first send

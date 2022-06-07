@@ -46,8 +46,6 @@ namespace NServiceBus
                 return;
             }
 
-            // TODO: do tags needs to be lowercase and use _ to signal camelcase, e.g. nservicebus.message_id
-            activity.AddTag("NServiceBus.MessageId", message.MessageId);
             var operation = "process";
 
             activity.DisplayName = $"{endpointQueueName} {operation}";
@@ -101,6 +99,11 @@ namespace NServiceBus
 
         public static void SetHeaderTraceTags(Activity activity, Dictionary<string, string> headers)
         {
+            if (activity == null)
+            {
+                return;
+            }
+
             foreach (var header in headers)
             {
                 if (header.Key.StartsWith("NServiceBus.") && !IgnoreHeaders.Contains(header.Key))

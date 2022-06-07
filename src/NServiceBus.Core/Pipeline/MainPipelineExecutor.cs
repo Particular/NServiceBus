@@ -30,6 +30,7 @@ namespace NServiceBus
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
                 ActivityDecorator.SetReceiveTags(activity, message);
+                ActivityDecorator.SetHeaderTraceTags(activity, messageContext.Headers);
 
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);

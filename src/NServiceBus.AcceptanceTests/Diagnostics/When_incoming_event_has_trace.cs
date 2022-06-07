@@ -36,7 +36,7 @@ public class When_incoming_event_has_trace : NServiceBusAcceptanceTest
         Assert.AreEqual(1, activityListener.CompletedActivities.GetOutgoingEventActivities().Count, "1 event is published as part of this test");
 
         Assert.IsTrue(activityListener.CompletedActivities
-            .Where(a => !Convert.ToBoolean(a.GetTagItem("nservicebus.is_control_message")))
+            .Where(a => !Convert.ToBoolean(a.GetTagItem("nservicebus.control_message")))
             .All(a => a.RootId == activityListener.CompletedActivities.GetIncomingActivities()[0].RootId), "all activities should belong to the same trace");
 
         //TODO this will currently fail on CI because we don't set the is_control_message tag (or header) yet.

@@ -25,7 +25,7 @@ public class When_using_control_messages : NServiceBusAcceptanceTest
 
         //TODO subscribe/unsubscribe don't create activities, should they?
         Assert.AreEqual(1, activityListener.CompletedActivities.Count);
-        Assert.AreEqual(true, activityListener.CompletedActivities.Single().GetTagItem("nservicebus.headers.control_message"));
+        Assert.AreEqual(bool.TrueString, activityListener.CompletedActivities.Single().GetTagItem("nservicebus.control_message")); // value is a string
     }
 
     class Context : ScenarioContext
