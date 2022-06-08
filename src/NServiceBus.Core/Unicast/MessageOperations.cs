@@ -46,9 +46,8 @@ namespace NServiceBus
             return Publish(context, messageType, message, options);
         }
 
-        async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
-            using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingEventActivityName, ActivityKind.Producer);
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
             {
@@ -62,12 +61,9 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            ActivityDecorator.InjectHeaders(activity, publishContext.Headers);
-            publishContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
-
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            await publishPipeline.Invoke(publishContext).ConfigureAwait(false);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingEventActivityName, publishContext, publishPipeline);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -111,7 +107,7 @@ namespace NServiceBus
             return SendMessage(context, messageType, message, options);
         }
 
-        async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+        Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -128,24 +124,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
-
-            ActivityDecorator.InjectHeaders(activity, headers);
-            outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
-
-            try
-            {
-                await sendPipeline.Invoke(outgoingContext).ConfigureAwait(false);
-            }
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-            catch (Exception ex)
-#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-            {
-                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-                throw;
-            }
-            // TODO: should we stop the activity only once the message has been handed to the dispatcher?
-            activity?.SetStatus(ActivityStatusCode.Ok);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, outgoingContext, sendPipeline);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -160,7 +139,7 @@ namespace NServiceBus
             return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
         }
 
-        async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+        Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -177,13 +156,20 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
-            ActivityDecorator.InjectHeaders(activity, headers);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, outgoingContext, replyPipeline);
+        }
+
+        static async Task InvokePipelineWithTracing<TContext>(string activityName, TContext outgoingContext, IPipeline<TContext> pipeline)
+            where TContext : IOutgoingContext
+        {
+            using var activity = ActivitySources.Main.StartActivity(activityName, ActivityKind.Producer);
+
+            ActivityDecorator.InjectHeaders(activity, outgoingContext.Headers);
             outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
             try
             {
-                await replyPipeline.Invoke(outgoingContext).ConfigureAwait(false);
+                await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
             }
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
             catch (Exception ex)
