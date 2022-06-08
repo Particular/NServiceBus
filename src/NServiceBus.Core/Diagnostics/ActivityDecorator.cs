@@ -4,17 +4,11 @@ namespace NServiceBus
     using System.Diagnostics;
     using System.Linq;
     using Routing;
-    using Pipeline;
     using Transport;
 
     class ActivityDecorator
     {
         static string endpointQueueName;
-
-        public static void SetReplyTags(Activity activity, IOutgoingReplyContext context)
-        {
-            activity?.SetTag("NServiceBus.MessageId", context.MessageId);
-        }
 
         //TODO should this be moved somewhere else, naming indicates that we're adding headers to the activity
         public static void InjectHeaders(Activity activity, Dictionary<string, string> headers)
@@ -27,16 +21,6 @@ namespace NServiceBus
                     headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
                 }
             }
-        }
-
-        public static void SetSendTags(Activity activity, IOutgoingSendContext context)
-        {
-            activity?.SetTag("NServiceBus.MessageId", context.MessageId);
-        }
-
-        public static void SetPublishTags(Activity activity, IOutgoingPublishContext context)
-        {
-            activity?.AddTag("NServiceBus.MessageId", context.MessageId);
         }
 
         public static void SetReceiveTags(Activity activity, IncomingMessage message)
@@ -70,6 +54,7 @@ namespace NServiceBus
             // TODO: How do we handle multiple operations here?
             foreach (var operation in operations)
             {
+                activity.AddTag("NServiceBus.MessageId", operation.Message.MessageId);
                 activity.AddTag("messaging.message_id", operation.Message.MessageId);
                 activity.AddTag("messaging.operation", "send");
 

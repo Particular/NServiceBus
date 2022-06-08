@@ -62,7 +62,6 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            ActivityDecorator.SetPublishTags(activity, publishContext);
             ActivityDecorator.InjectHeaders(activity, publishContext.Headers);
             publishContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
@@ -131,7 +130,6 @@ namespace NServiceBus
 
             using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
 
-            ActivityDecorator.SetSendTags(activity, outgoingContext);
             ActivityDecorator.InjectHeaders(activity, headers);
             outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
@@ -180,7 +178,6 @@ namespace NServiceBus
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
             using var activity = ActivitySources.Main.StartActivity(ActivityNames.OutgoingMessageActivityName, ActivityKind.Producer);
-            ActivityDecorator.SetReplyTags(activity, outgoingContext);
             ActivityDecorator.InjectHeaders(activity, headers);
             outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
