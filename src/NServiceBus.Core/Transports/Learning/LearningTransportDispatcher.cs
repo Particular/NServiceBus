@@ -61,8 +61,14 @@ namespace NServiceBus
 
         async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction, CancellationToken cancellationToken)
         {
-            // enlisting to ambient activity
-            using var dispatchActivity = ActivitySources.Main.StartActivity("LearningTransport.Dispatch", ActivityKind.Producer);
+            // enlisting to dispatch property acitivty
+            var sendContext = ActivityContext.Parse(transportOperation.Properties.TraceParent, null);
+
+            // link to ambient
+            var links = Activity.Current != null
+                ? new[] { new ActivityLink(Activity.Current.Context) }
+                : null;
+            using var dispatchActivity = ActivitySources.Main.StartActivity("LearningTransport.Dispatch", ActivityKind.Producer, sendContext, links: links);
 
             var message = transportOperation.Message;
 
