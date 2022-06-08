@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -60,10 +61,17 @@ namespace NServiceBus
 
         async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction, CancellationToken cancellationToken)
         {
+            // enlisting to ambient activity
+            using var dispatchActivity = ActivitySources.Main.StartActivity("LearningTransport.Dispatch", ActivityKind.Producer);
+
             var message = transportOperation.Message;
 
             var nativeMessageId = Guid.NewGuid().ToString();
+            dispatchActivity?.AddTag("nservicebus.transport.native_message_id", nativeMessageId);
+
             var destinationPath = Path.Combine(basePath, destination);
+            dispatchActivity?.AddTag("nservicebus.transport.learning_transport.message_path", destinationPath);
+
             var bodyDir = Path.Combine(destinationPath, LearningTransportMessagePump.BodyDirName);
 
             Directory.CreateDirectory(bodyDir);
@@ -112,7 +120,12 @@ namespace NServiceBus
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
 
+            //TODO shouldn't the transport use the non-prefixed traceparent header?
+            //or should we move the existing header and restore it transparently?
+            message.Headers.Add("NServiceBus.LearningTransport.Traceparent", dispatchActivity.Id);
+
             var headerPayload = HeaderSerializer.Serialize(message.Headers);
+
             var headerSize = Encoding.UTF8.GetByteCount(headerPayload);
 
             if (headerSize + message.Body.Length > maxMessageSizeKB * 1024)
@@ -124,13 +137,17 @@ namespace NServiceBus
             {
                 await directoryBasedTransaction.Enlist(messagePath, headerPayload, cancellationToken)
                     .ConfigureAwait(false);
+                dispatchActivity?.AddTag("nservicebus.transport.transaction", true);
             }
             else
             {
                 // atomic avoids the file being locked when the receiver tries to process it
                 await AsyncFile.WriteTextAtomic(messagePath, headerPayload, cancellationToken)
                     .ConfigureAwait(false);
+                dispatchActivity?.AddTag("nservicebus.transport.transaction", true);
             }
+
+            dispatchActivity?.SetStatus(ActivityStatusCode.Ok);
         }
 
         async Task<IEnumerable<string>> GetSubscribersFor(Type messageType, CancellationToken cancellationToken)

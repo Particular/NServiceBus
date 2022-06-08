@@ -253,6 +253,7 @@
         {
             try
             {
+
                 await ProcessFileAndComplete(transaction, filePath, messageId, messageProcessingCancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
@@ -303,6 +304,9 @@
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
 
+            var parentId = headers["NServiceBus.LearningTransport.Traceparent"]; // fetch the transport specific traceparent value
+            using var receiveActivity = ActivitySources.Main.StartActivity("LearningTransport.Receive", ActivityKind.Consumer, parentId);
+
             if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
                 headers.Remove(LearningTransportHeaders.TimeToBeReceived);
@@ -329,6 +333,8 @@
             if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
             {
                 transportTransaction.Set(transaction);
+                receiveActivity?.SetTag("nservicebus.transport.learning.transaction_id",
+                    transportTransaction.GetHashCode());
             }
 
             var processingContext = new ContextBag();
@@ -374,6 +380,7 @@
                     result = ErrorHandleResult.RetryRequired;
                 }
 
+                receiveActivity?.SetStatus(ActivityStatusCode.Error, result.ToString("G"));
                 if (result == ErrorHandleResult.RetryRequired)
                 {
                     transaction.Rollback();
@@ -381,6 +388,7 @@
                 }
             }
 
+            receiveActivity?.SetStatus(ActivityStatusCode.Ok);
             await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
         }
 

@@ -69,9 +69,21 @@ namespace NServiceBus
         static Activity CreateIncomingActivity(MessageContext context)
         {
             //TODO Do we need to check for Activity.Current first in case the transport creates it's own span?
-            var activity = context.Headers.TryGetValue("traceparent", out var parentId)
-                ? ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentId)
-                : ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
+            Activity activity;
+            if (context.Headers.TryGetValue("traceparent", out var parentId))
+            {
+                // check for ambient (transport) activity
+                var ambient = Activity.Current;
+                var activityLink = ambient != null ? new[] { new ActivityLink(ambient.Context) } : null;
+                var parent = ActivityContext.Parse(parentId, null);
+                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName,
+                    ActivityKind.Consumer, parent, links: activityLink);
+            }
+            else
+            {
+                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName,
+                    ActivityKind.Consumer);
+            }
 
             if (activity != null)
             {
