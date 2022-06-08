@@ -51,25 +51,28 @@ namespace NServiceBus
                 return;
             }
 
+            var destinations = new string[operations.Length];
+            var currentOperation = 0;
             // TODO: How do we handle multiple operations here?
             foreach (var operation in operations)
             {
+                destinations[currentOperation] = operation.AddressTag switch
+                {
+                    UnicastAddressTag u => u.Destination,
+                    MulticastAddressTag m => m.MessageType.FullName,
+                    _ => null
+                };
+
                 activity.AddTag("NServiceBus.MessageId", operation.Message.MessageId);
                 activity.AddTag("messaging.message_id", operation.Message.MessageId);
-                activity.AddTag("messaging.operation", "send");
 
                 if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
-                    activity.AddTag("messaging.destination", unicastAddressTag.Destination);
                     activity.AddTag("messaging.destination_kind", "queue");
-                    activity.DisplayName = $"{unicastAddressTag.Destination} send";
                 }
                 else if (operation.AddressTag is MulticastAddressTag multicastAddressTag)
                 {
-                    var destination = multicastAddressTag.MessageType.ToString();
-                    activity.AddTag("messaging.destination", destination);
                     activity.AddTag("messaging.destination_kind", "topic");
-                    activity.DisplayName = $"{destination} send";
                 }
                 if (operation.Message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
                 {
@@ -78,7 +81,14 @@ namespace NServiceBus
 
                 // HINT: This needs to be converted into a string or the tag is not created
                 activity.AddTag("messaging.message_payload_size_bytes", operation.Message.Body.Length.ToString());
+
+                currentOperation++;
             }
+
+            activity.AddTag("messaging.operation", "send");
+            var destination = string.Join(", ", destinations);
+            activity.AddTag("messaging.destination", destination);
+            activity.DisplayName = $"{destination} send";
         }
 
         public static void Initialize(string receiveAddress)

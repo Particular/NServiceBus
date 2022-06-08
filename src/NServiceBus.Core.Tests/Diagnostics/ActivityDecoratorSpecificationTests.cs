@@ -50,6 +50,48 @@
 
         [TestCase(true)]
         [TestCase(false)]
+        // NOTE: the spec doesn't define what happens here.
+        public void Multiple_outgoing_unicast_operations_matches_spec(bool includeConversationId)
+        {
+            var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+            var destination1 = "unicastDestinationAddress1";
+            var destination2 = "unicastDestinationAddress2";
+            var destination = $"{destination1}, {destination2}";
+            var operation = "send";
+            var conversationId = "conversation-id";
+            var outgoingMessage = CreateMessage();
+
+            if (includeConversationId)
+            {
+                outgoingMessage.Headers[Headers.ConversationId] = conversationId;
+            }
+
+            var destinationTag1 = new UnicastAddressTag(destination1);
+            var destinationTag2 = new UnicastAddressTag(destination2);
+
+            var transportOperations = new[]
+            {
+                new TransportOperation(outgoingMessage, destinationTag1),
+                new TransportOperation(outgoingMessage, destinationTag2),
+            };
+
+            ActivityDecorator.SetOutgoingTraceTags(activity, transportOperations);
+
+            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
+
+            VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
+            VerifyTag(activity, "messaging.operation", operation);
+            VerifyTag(activity, "messaging.destination", destination);
+            VerifyTag(activity, "messaging.destination_kind", "queue");
+            if (includeConversationId)
+            {
+                VerifyTag(activity, "messaging.conversation_id", conversationId);
+            }
+            VerifyTag(activity, "messaging.message_payload_size_bytes", "5");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
         public void Single_outgoing_multicast_operation_matches_spec(bool includeConversationId)
         {
             var activity = new Activity(ActivityNames.OutgoingEventActivityName);
