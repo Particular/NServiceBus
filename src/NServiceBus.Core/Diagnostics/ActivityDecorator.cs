@@ -64,9 +64,13 @@ namespace NServiceBus
                     activity.AddTag("messaging.destination_kind", "queue");
                     activity.DisplayName = $"{unicastAddressTag.Destination} send";
                 }
-
-                // TODO: Multicast address tags to topics
-
+                else if (operation.AddressTag is MulticastAddressTag multicastAddressTag)
+                {
+                    var destination = multicastAddressTag.MessageType.ToString();
+                    activity.AddTag("messaging.destination", destination);
+                    activity.AddTag("messaging.destination_kind", "topic");
+                    activity.DisplayName = $"{destination} send";
+                }
                 if (operation.Message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
                 {
                     activity.AddTag("messaging.conversation_id", conversationId);
