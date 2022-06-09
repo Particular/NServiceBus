@@ -35,8 +35,8 @@
 
             if (context.Extensions.TryGet<Activity>(DiagnosticsKeys.OutgoingActivityKey, out var activity))
             {
-                ActivityDecorator.SetOutgoingTraceTags(activity, operations);
-                ActivityDecorator.SetHeaderTraceTags(activity, operations[0].Message.Headers); //TODO what header values should we set when there are multiple operations (unicast publishing)
+                ActivityDecorator.SetOutgoingTraceTags(activity, context.Message, operations);
+                ActivityDecorator.SetHeaderTraceTags(activity, context.Message.Headers);
             }
 
             if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))

@@ -44,48 +44,55 @@ namespace NServiceBus
             }
         }
 
-        public static void SetOutgoingTraceTags(Activity activity, TransportOperation[] operations)
+        public static void SetOutgoingTraceTags(Activity activity, OutgoingMessage message, TransportOperation[] operations)
         {
             if (activity == null)
             {
                 return;
             }
 
+            activity.AddTag("NServiceBus.MessageId", message.MessageId);
+            activity.AddTag("messaging.message_id", message.MessageId);
+
+            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
+            {
+                activity.AddTag("messaging.conversation_id", conversationId);
+            }
+
+            // HINT: This needs to be converted into a string or the tag is not created
+            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
+            activity.AddTag("messaging.operation", "send");
+
             var destinations = new string[operations.Length];
             var currentOperation = 0;
-            // TODO: How do we handle multiple operations here?
+            var allUnicast = true;
+            var allMulticast = true;
             foreach (var operation in operations)
             {
-                destinations[currentOperation] = operation.AddressTag switch
+                if (operation.AddressTag is MulticastAddressTag m)
                 {
-                    UnicastAddressTag u => u.Destination,
-                    MulticastAddressTag m => m.MessageType.FullName,
-                    _ => null
-                };
-
-                activity.AddTag("NServiceBus.MessageId", operation.Message.MessageId);
-                activity.AddTag("messaging.message_id", operation.Message.MessageId);
-
-                if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
-                {
-                    activity.AddTag("messaging.destination_kind", "queue");
+                    destinations[currentOperation] = m.MessageType.FullName;
+                    allUnicast = false;
                 }
-                else if (operation.AddressTag is MulticastAddressTag multicastAddressTag)
+                else if (operation.AddressTag is UnicastAddressTag u)
                 {
-                    activity.AddTag("messaging.destination_kind", "topic");
+                    destinations[currentOperation] = u.Destination;
+                    allMulticast = false;
                 }
-                if (operation.Message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
-                {
-                    activity.AddTag("messaging.conversation_id", conversationId);
-                }
-
-                // HINT: This needs to be converted into a string or the tag is not created
-                activity.AddTag("messaging.message_payload_size_bytes", operation.Message.Body.Length.ToString());
 
                 currentOperation++;
             }
 
-            activity.AddTag("messaging.operation", "send");
+            if (allUnicast)
+            {
+                activity.AddTag("messaging.destination_kind", "queue");
+            }
+
+            if (allMulticast)
+            {
+                activity.AddTag("messaging.destination_kind", "topic");
+            }
+
             var destination = string.Join(", ", destinations);
             activity.AddTag("messaging.destination", destination);
             activity.DisplayName = $"{destination} send";
