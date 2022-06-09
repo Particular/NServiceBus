@@ -17,7 +17,10 @@
                 dispatchProperties = new DispatchProperties();
             }
 
-            dispatchProperties.TraceParent = Activity.Current?.Id; //TODO needs to be a W3C format!
+            if (Activity.Current is { IdFormat: ActivityIdFormat.W3C })
+            {
+                dispatchProperties.TraceParent = Activity.Current.Id;
+            }
 
             var transportOperation = new TransportOperation(message, addressLabel, dispatchProperties, dispatchConsistency);
             return transportOperation;

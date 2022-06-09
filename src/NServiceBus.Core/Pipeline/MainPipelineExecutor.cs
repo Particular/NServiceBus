@@ -63,30 +63,33 @@ namespace NServiceBus
                 await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
             }
 
-            activity?.SetStatus(ActivityStatusCode.Ok); //Set acitivity state.
+            activity?.SetStatus(ActivityStatusCode.Ok); //Set activity state.
         }
 
         static Activity CreateIncomingActivity(MessageContext context)
         {
-            //TODO Do we need to check for Activity.Current first in case the transport creates it's own span?
             Activity activity;
-            if (Activity.Current != null) // enlist in ambient acitivity
+            if (Activity.Current != null) // create child from ambient activity and link to logical send
             {
-                var parent = Activity.Current.Context;
+                var ambientActivity = Activity.Current.Context;
 
                 // link to logical send
                 ActivityLink[] links = null;
-                if (context.Headers.TryGetValue("traceparent", out var parentId))
+                if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && sendSpanId != Activity.Current.Id)
                 {
-                    links = new ActivityLink[] { new ActivityLink(ActivityContext.Parse(parentId, null)) };
+                    //TODO do we need to pass the tracestate to the linked activityContext too?
+                    if (ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext))
+                    {
+                        links = new[] { new ActivityLink(sendSpanContext) };
+                    }
                 }
 
                 activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName,
-                    ActivityKind.Consumer, parent, links: links);
+                    ActivityKind.Consumer, ambientActivity, links: links);
             }
-            else if (context.Headers.TryGetValue("traceparent", out var parentId)) // otherwise link to send context
+            else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId)) // otherwise directly create child from logical send
             {
-                var parent = ActivityContext.Parse(parentId, null);
+                var parent = ActivityContext.Parse(sendSpanId, null);
                 activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName,
                     ActivityKind.Consumer, parent);
             }
@@ -99,7 +102,7 @@ namespace NServiceBus
 
             if (activity != null)
             {
-                context.Headers.TryGetValue("tracestate", out var traceState);
+                context.Headers.TryGetValue(Headers.DiagnosticsTraceState, out var traceState);
                 activity.TraceStateString = traceState;
             }
 

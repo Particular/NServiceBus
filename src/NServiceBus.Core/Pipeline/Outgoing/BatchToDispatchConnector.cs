@@ -15,7 +15,13 @@
                 var operationActivityContext = ActivityContext.Parse(o.Properties.TraceParent, null);
                 return new ActivityLink(operationActivityContext);
             });
-            using var activity = ActivitySources.Main.StartActivity(name: "dispatching", links: activityLinks, kind: ActivityKind.Producer);
+            //TODO do we need this activity at all?
+            using var activity = ActivitySources.Main.StartActivity(name: ActivityNames.MessageDispatchActivityName, links: activityLinks, kind: ActivityKind.Producer);
+            if (activity != null)
+            {
+                activity.DisplayName = "batch dispatch";
+            }
+
             await stage(this.CreateDispatchContext(context.Operations, context)).ConfigureAwait(false);
         }
     }
