@@ -21,7 +21,7 @@
                     .When(s => s.SendLocal(new FailingMessage())))
                 .Done(c => c.HandlerInvoked)
                 .Run();
-            
+
             metricsListener.AssertMetric("messaging.successes", 0);
             metricsListener.AssertMetric("messaging.fetches", 1);
             metricsListener.AssertMetric("messaging.failures", 1);

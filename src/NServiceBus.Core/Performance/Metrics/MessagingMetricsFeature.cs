@@ -1,9 +1,7 @@
-using System.Diagnostics.Metrics;
-using System.Threading.Tasks;
-using NServiceBus.Features;
-
 namespace NServiceBus.Performance.Metrics
 {
+    using Features;
+
     /// <summary>
     /// MessagingMetricsFeature captures messaging metrics
     /// </summary>
@@ -18,14 +16,9 @@ namespace NServiceBus.Performance.Metrics
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.ThrowIfSendOnly();
-            
-            var queueName =  context.Settings.EndpointQueueName();
-            var endpointName = context.Settings.EndpointName();
-            var settings = context.Settings;
-
             RegisterBehavior(context);
         }
-        
+
         static void RegisterBehavior(FeatureConfigurationContext context)
         {
             var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior();

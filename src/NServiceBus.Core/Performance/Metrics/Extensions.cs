@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using NServiceBus.Features;
-
 namespace NServiceBus.Performance.Metrics
 {
+    using System;
+    using System.Collections.Generic;
+    using Features;
+
     static class Extensions
     {
         public static void ThrowIfSendOnly(this FeatureConfigurationContext context)
@@ -14,7 +14,7 @@ namespace NServiceBus.Performance.Metrics
                 throw new Exception("Metrics are not supported on send only endpoints.");
             }
         }
-        
+
         public static bool TryGetMessageType(this ReceivePipelineCompleted completed, out string processedMessageType)
         {
             return completed.ProcessedMessage.Headers.TryGetMessageType(out processedMessageType);

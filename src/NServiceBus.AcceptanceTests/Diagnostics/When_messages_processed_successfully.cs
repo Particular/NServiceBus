@@ -1,11 +1,11 @@
-using System;
-using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NUnit.Framework;
-
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System;
+    using System.Threading.Tasks;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NUnit.Framework;
+
     public class When_messages_processed_successfully : NServiceBusAcceptanceTest
     {
         [Test]
@@ -26,12 +26,12 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                     }))
                 .Done(c => c.OutgoingMessagesReceived == 5)
                 .Run();
-            
+
             metricsListener.AssertMetric("messaging.successes", 5);
             metricsListener.AssertMetric("messaging.fetches", 5);
             metricsListener.AssertMetric("messaging.failures", 0);
         }
-        
+
         [Test]
         public async Task Should_report_failed_message_metric()
         {
@@ -47,7 +47,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                     }))
                 .Done(c => c.OutgoingMessagesReceived == 5)
                 .Run();
-            
+
             metricsListener.AssertMetric("messaging.successes", 5);
             metricsListener.AssertMetric("messaging.fetches", 5);
             metricsListener.AssertMetric("messaging.failures", 0);
@@ -81,7 +81,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             public Guid Id { get; set; }
         }
     }
-    
+
     static class AssertHelper
     {
         public static void AssertMetric(this TestingMetricListener listener, string metricName, long expected)
