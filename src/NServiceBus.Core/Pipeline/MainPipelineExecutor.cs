@@ -73,11 +73,7 @@ namespace NServiceBus
                 ? ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentId)
                 : ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
 
-            if (activity != null)
-            {
-                context.Headers.TryGetValue("tracestate", out var traceState);
-                activity.TraceStateString = traceState;
-            }
+            ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
             return activity;
         }

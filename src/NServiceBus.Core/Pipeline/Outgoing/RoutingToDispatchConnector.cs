@@ -20,6 +20,10 @@
                 dispatchConsistency = DispatchConsistency.Isolated;
             }
 
+            // HINT: Context is propagated to the message headers from the current activity, if present.
+            // This may not be the outgoing message activity created by NServiceBus.
+            ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers);
+
             var operations = new TransportOperation[context.RoutingStrategies.Count];
             var index = 0;
             foreach (var strategy in context.RoutingStrategies)
@@ -33,6 +37,7 @@
                 LogOutgoingOperations(operations);
             }
 
+            // HINT: These tags get applied to the outgoing message activity, if present.
             if (context.Extensions.TryGet<Activity>(DiagnosticsKeys.OutgoingActivityKey, out var activity))
             {
                 ActivityDecorator.SetOutgoingTraceTags(activity, context.Message, operations);

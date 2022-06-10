@@ -163,8 +163,6 @@ namespace NServiceBus
             where TContext : IOutgoingContext
         {
             using var activity = ActivitySources.Main.StartActivity(activityName, ActivityKind.Producer);
-
-            ActivityDecorator.InjectHeaders(activity, outgoingContext.Headers);
             outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
             try

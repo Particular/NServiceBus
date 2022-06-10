@@ -10,18 +10,6 @@ namespace NServiceBus
     {
         static string endpointQueueName;
 
-        //TODO should this be moved somewhere else, naming indicates that we're adding headers to the activity
-        public static void InjectHeaders(Activity activity, Dictionary<string, string> headers)
-        {
-            if (activity != null)
-            {
-                headers.Add(Headers.DiagnosticsTraceParent, activity.Id);
-                if (activity.TraceStateString != null)
-                {
-                    headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
-                }
-            }
-        }
 
         public static void SetReceiveTags(Activity activity, IncomingMessage message)
         {
