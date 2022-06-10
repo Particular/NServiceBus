@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
+    using System.Collections.Immutable;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
@@ -27,6 +28,16 @@
             Activity failedActivity = activityListener.CompletedActivities.GetIncomingActivities().Single();
             Assert.AreEqual(ActivityStatusCode.Error, failedActivity.Status);
             Assert.AreEqual(ErrorMessage, failedActivity.StatusDescription);
+
+            var tags = failedActivity.Tags.ToImmutableDictionary();
+            VerifyTag(tags, "otel.status_code", "ERROR");
+            VerifyTag(tags, "otel.status_description", ErrorMessage);
+        }
+
+        void VerifyTag(ImmutableDictionary<string, string> activityTags, string tagKey, string expectedValue)
+        {
+            Assert.IsTrue(activityTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
+            Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
         }
 
         class Context : ScenarioContext

@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -129,6 +130,18 @@ namespace NServiceBus
 
                 return new string(result);
             }
+        }
+
+        public static void SetErrorStatus(Activity activity, Exception ex)
+        {
+            if (activity == null)
+            {
+                return;
+            }
+
+            activity.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("otel.status_code", "ERROR");
+            activity?.SetTag("otel.status_description", ex.Message);
         }
 
         // List of message headers that shouldn't be added as activity tags
