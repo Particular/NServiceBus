@@ -4,6 +4,24 @@ namespace NServiceBus.Performance.Metrics
     using System.Collections.Generic;
     using Features;
 
+    /// <summary>
+    /// Extension methods to configure OpenTelemetry metrics.
+    /// </summary>
+    public static class MetricsExtensions
+    {
+        /// <summary>
+        /// Configures NServiceBus to report messaging metrics using OpenTelemetry.
+        /// </summary>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        public static EndpointConfiguration EnableOpenTelemetryMetrics(this EndpointConfiguration config)
+        {
+            Guard.AgainstNull(nameof(config), config);
+            config.EnableFeature<MessagingMetricsFeature>();
+
+            return config;
+        }
+    }
+
     static class Extensions
     {
         public static void ThrowIfSendOnly(this FeatureConfigurationContext context)

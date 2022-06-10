@@ -5,6 +5,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
+    using Performance.Metrics;
 
     public class When_messages_processed_successfully : NServiceBusAcceptanceTest
     {
@@ -14,6 +15,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
             _ = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b => b
+                    .CustomConfig(cfg => cfg.EnableOpenTelemetryMetrics())
                     .When(async (session, ctx) =>
                     {
                         for (var x = 0; x < 5; x++)
@@ -23,27 +25,6 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                                 Id = ctx.TestRunId
                             });
                         }
-                    }))
-                .Done(c => c.OutgoingMessagesReceived == 5)
-                .Run();
-
-            metricsListener.AssertMetric("messaging.successes", 5);
-            metricsListener.AssertMetric("messaging.fetches", 5);
-            metricsListener.AssertMetric("messaging.failures", 0);
-        }
-
-        [Test]
-        public async Task Should_report_failed_message_metric()
-        {
-            using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-            _ = await Scenario.Define<Context>()
-                .WithEndpoint<TestEndpoint>(b => b
-                    .When(async (session, ctx) =>
-                    {
-                        await session.SendLocal(new OutgoingMessage
-                        {
-                            Id = ctx.TestRunId
-                        });
                     }))
                 .Done(c => c.OutgoingMessagesReceived == 5)
                 .Run();
@@ -88,10 +69,11 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
         {
             if (expected == 0)
             {
-                Assert.False(listener.ReportedMeters.ContainsKey(metricName));
+                Assert.False(listener.ReportedMeters.ContainsKey(metricName), $"Should not have '{metricName}' metric reported.");
             }
             else
             {
+                Assert.True(listener.ReportedMeters.ContainsKey(metricName), $"'{metricName}' metric was not reported.");
                 Assert.AreEqual(expected, listener.ReportedMeters[metricName]);
             }
         }

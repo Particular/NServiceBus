@@ -7,11 +7,6 @@ namespace NServiceBus.Performance.Metrics
     /// </summary>
     public class MessagingMetricsFeature : Feature
     {
-        /// <summary>
-        /// Creates a new instance
-        /// </summary>
-        public MessagingMetricsFeature() => EnableByDefault();
-
         /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
