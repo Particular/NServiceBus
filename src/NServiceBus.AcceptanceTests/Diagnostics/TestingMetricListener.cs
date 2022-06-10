@@ -11,7 +11,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
         public TestingMetricListener(string sourceName)
         {
-            meterListener = new();
+            meterListener = new MeterListener();
 
             meterListener.InstrumentPublished = (instrument, l) =>
             {

@@ -8,7 +8,7 @@ namespace NServiceBus.Performance.Metrics
 
     class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        static readonly Meter NServiceBusMeter = new(
+        static readonly Meter NServiceBusMeter = new Meter(
             NServiceBusDiagnosticsInfo.InstrumentationName,
             NServiceBusDiagnosticsInfo.InstrumentationVersion);
 
