@@ -11,14 +11,15 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
         public TestingMetricListener(string sourceName)
         {
-            meterListener = new MeterListener();
-
-            meterListener.InstrumentPublished = (instrument, l) =>
+            meterListener = new()
             {
-                if (instrument.Meter.Name == sourceName)
+                InstrumentPublished = (instrument, l) =>
                 {
-                    Console.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
-                    l.EnableMeasurementEvents(instrument);
+                    if (instrument.Meter.Name == sourceName)
+                    {
+                        Console.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
+                        l.EnableMeasurementEvents(instrument);
+                    }
                 }
             };
 
