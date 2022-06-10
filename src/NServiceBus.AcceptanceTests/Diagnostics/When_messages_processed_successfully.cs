@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
-    public class When_messages_processed : NServiceBusAcceptanceTest
+    public class When_messages_processed_successfully : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_report_successful_message_metric()
@@ -23,6 +23,27 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                                 Id = ctx.TestRunId
                             });
                         }
+                    }))
+                .Done(c => c.OutgoingMessagesReceived == 5)
+                .Run();
+            
+            metricsListener.AssertMetric("messaging.successes", 5);
+            metricsListener.AssertMetric("messaging.fetches", 5);
+            metricsListener.AssertMetric("messaging.failures", 0);
+        }
+        
+        [Test]
+        public async Task Should_report_failed_message_metric()
+        {
+            using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+            _ = await Scenario.Define<Context>()
+                .WithEndpoint<TestEndpoint>(b => b
+                    .When(async (session, ctx) =>
+                    {
+                        await session.SendLocal(new OutgoingMessage
+                        {
+                            Id = ctx.TestRunId
+                        });
                     }))
                 .Done(c => c.OutgoingMessagesReceived == 5)
                 .Run();
