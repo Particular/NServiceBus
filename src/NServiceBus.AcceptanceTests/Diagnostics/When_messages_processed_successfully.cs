@@ -7,6 +7,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using NUnit.Framework;
     using Performance.Metrics;
 
+    [NonParallelizable]
     public class When_messages_processed_successfully : NServiceBusAcceptanceTest
     {
         [Test]
