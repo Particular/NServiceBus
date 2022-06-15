@@ -31,8 +31,10 @@ jobs:
         uses: actions/setup-dotnet@v1.9.0
         with:
           dotnet-version: |
+            7.0.x
             6.0.x
             3.1.x
+          include-prerelease: true
       - name: Build
         run: dotnet build src --configuration Release
       - name: Upload packages
