@@ -19,9 +19,9 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains($"No handlers could be found for message type: { typeof(MyCommand).FullName}")), "No handlers could be found was not logged.");
-            Assert.False(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Message header '{ typeof(MyCommand).FullName }' was mapped to type '{ typeof(MyCommand).FullName }' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode.")), "Message type could not be mapped.");
-            Assert.False(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Could not determine message type from message header '{ typeof(MyCommand).FullName}'")), "Message type could not be mapped.");
+            Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains($"No handlers could be found for message type: {typeof(MyCommand).FullName}")), "No handlers could be found was not logged.");
+            Assert.False(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Message header '{typeof(MyCommand).FullName}' was mapped to type '{typeof(MyCommand).FullName}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode.")), "Message type could not be mapped.");
+            Assert.False(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Could not determine message type from message header '{typeof(MyCommand).FullName}'")), "Message type could not be mapped.");
         }
 
         public class Context : ScenarioContext { }
