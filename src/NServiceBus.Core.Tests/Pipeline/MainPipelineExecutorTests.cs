@@ -16,8 +16,6 @@
     {
         private TestingActivityListener nsbActivityListener;
 
-        //TODO invalid input on header
-
         [OneTimeSetUp]
         public void Setup()
         {
@@ -185,8 +183,6 @@
             Assert.IsNull(receivePipeline.PipelineAcitivty.ParentId, "should start new trace");
             Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
         }
-
-        //TODO should always create W3C spans
 
         private Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)
         {

@@ -73,7 +73,6 @@ namespace NServiceBus
                 ActivityLink[] links = null;
                 if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && sendSpanId != transportActivity.Id)
                 {
-                    //TODO do we need to pass the tracestate to the linked activityContext too?
                     if (ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext))
                     {
                         links = new[] { new ActivityLink(sendSpanContext) };
@@ -90,7 +89,8 @@ namespace NServiceBus
             }
             else // otherwise start new trace
             {
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentId: null);
+                // This will use Activity.Current if set
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
 
             }
 
