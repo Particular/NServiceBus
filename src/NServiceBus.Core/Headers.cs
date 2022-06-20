@@ -237,5 +237,12 @@
         /// 23 November 2021.
         /// </summary>
         public const string DiagnosticsTraceState = "tracestate";
+
+        /// <summary>
+        /// Baggage header according to the W3C spec:
+        /// https://www.w3.org/TR/baggage/#baggage-http-header-format
+        /// 8 June 2022.
+        /// </summary>
+        public const string DiagnosticsBaggage = "baggage";
     }
 }

@@ -54,9 +54,8 @@ namespace NServiceBus
 
                     ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                    // TODO: set the otel specific error tags?
                     // TODO: Add an explicit tag for operation canceled
-                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    ActivityDecorator.SetErrorStatus(activity, ex);
                     throw;
                 }
 
@@ -97,11 +96,7 @@ namespace NServiceBus
 
             }
 
-            if (activity != null)
-            {
-                context.Headers.TryGetValue(Headers.DiagnosticsTraceState, out var traceState);
-                activity.TraceStateString = traceState;
-            }
+            ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
             return activity;
         }

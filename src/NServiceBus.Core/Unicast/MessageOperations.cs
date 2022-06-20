@@ -163,8 +163,6 @@ namespace NServiceBus
             where TContext : IOutgoingContext
         {
             using var activity = ActivitySources.Main.StartActivity(activityName, ActivityKind.Producer);
-
-            ActivityDecorator.InjectHeaders(activity, outgoingContext.Headers);
             outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
             try
@@ -175,9 +173,8 @@ namespace NServiceBus
             catch (Exception ex)
 #pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
             {
-                // TODO: set the otel specific error tags?
                 // TODO: Add an explicit tag for operation canceled
-                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                ActivityDecorator.SetErrorStatus(activity, ex);
                 throw;
             }
             // TODO: should we stop the activity only once the message has been handed to the dispatcher?

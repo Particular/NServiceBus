@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Diagnostics;
+    using System.Linq;
     using NServiceBus.Routing;
     using NServiceBus.Transport;
     using NUnit.Framework;
@@ -33,7 +34,7 @@
                 new TransportOperation(outgoingMessage, destinationTag)
             };
 
-            ActivityDecorator.SetOutgoingTraceTags(activity, transportOperations);
+            ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
             Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
 
@@ -75,7 +76,7 @@
                 new TransportOperation(outgoingMessage, destinationTag2),
             };
 
-            ActivityDecorator.SetOutgoingTraceTags(activity, transportOperations);
+            ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
             Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
 
@@ -112,7 +113,7 @@
                 new TransportOperation(outgoingMessage, destinationTag)
             };
 
-            ActivityDecorator.SetOutgoingTraceTags(activity, transportOperations);
+            ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
             Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
 
@@ -155,7 +156,7 @@
                 new TransportOperation(outgoingMessage, destinationTag2),
             };
 
-            ActivityDecorator.SetOutgoingTraceTags(activity, transportOperations);
+            ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
             Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
 
@@ -168,6 +169,50 @@
                 VerifyTag(activity, "messaging.conversation_id", conversationId);
             }
             VerifyTag(activity, "messaging.message_payload_size_bytes", "5");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        // NOTE: the spec doesn't define what happens here.
+        // Additionally, core should never do this.
+        public void Multiple_outgoing_mixed_operations_matches_spec(bool includeConversationId)
+        {
+            var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+            var destination1 = typeof(SomeEvent).FullName;
+            var destination2 = "unicastDestination";
+            var destination = $"{destination1}, {destination2}";
+            var operation = "send";
+            var conversationId = "conversation-id";
+            var outgoingMessage = CreateMessage();
+
+            if (includeConversationId)
+            {
+                outgoingMessage.Headers[Headers.ConversationId] = conversationId;
+            }
+
+            var destinationTag1 = new MulticastAddressTag(typeof(SomeEvent));
+            var destinationTag2 = new UnicastAddressTag(destination2);
+
+            var transportOperations = new[]
+            {
+                new TransportOperation(outgoingMessage, destinationTag1),
+                new TransportOperation(outgoingMessage, destinationTag2),
+            };
+
+            ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
+
+            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
+
+            VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
+            VerifyTag(activity, "messaging.operation", operation);
+            VerifyTag(activity, "messaging.destination", destination);
+            Assert.IsFalse(activity.Tags.Any(x => x.Key == "messaging.destination_kind"), "messaging.destination_kind should not be set");
+            if (includeConversationId)
+            {
+                VerifyTag(activity, "messaging.conversation_id", conversationId);
+            }
+            VerifyTag(activity, "messaging.message_payload_size_bytes", "5");
+
         }
 
         [TestCase(true)]

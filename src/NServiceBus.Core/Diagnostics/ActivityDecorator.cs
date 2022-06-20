@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -10,18 +11,6 @@ namespace NServiceBus
     {
         static string endpointQueueName;
 
-        //TODO should this be moved somewhere else, naming indicates that we're adding headers to the activity
-        public static void InjectHeaders(Activity activity, Dictionary<string, string> headers)
-        {
-            if (activity != null)
-            {
-                headers.Add(Headers.DiagnosticsTraceParent, activity.Id);
-                if (activity.TraceStateString != null)
-                {
-                    headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
-                }
-            }
-        }
 
         public static void SetReceiveTags(Activity activity, IncomingMessage message)
         {
@@ -44,48 +33,55 @@ namespace NServiceBus
             }
         }
 
-        public static void SetOutgoingTraceTags(Activity activity, TransportOperation[] operations)
+        public static void SetOutgoingTraceTags(Activity activity, OutgoingMessage message, TransportOperation[] operations)
         {
             if (activity == null)
             {
                 return;
             }
 
+            activity.AddTag("NServiceBus.MessageId", message.MessageId);
+            activity.AddTag("messaging.message_id", message.MessageId);
+
+            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
+            {
+                activity.AddTag("messaging.conversation_id", conversationId);
+            }
+
+            // HINT: This needs to be converted into a string or the tag is not created
+            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
+            activity.AddTag("messaging.operation", "send");
+
             var destinations = new string[operations.Length];
             var currentOperation = 0;
-            // TODO: How do we handle multiple operations here?
+            var allUnicast = true;
+            var allMulticast = true;
             foreach (var operation in operations)
             {
-                destinations[currentOperation] = operation.AddressTag switch
+                if (operation.AddressTag is MulticastAddressTag m)
                 {
-                    UnicastAddressTag u => u.Destination,
-                    MulticastAddressTag m => m.MessageType.FullName,
-                    _ => null
-                };
-
-                activity.AddTag("NServiceBus.MessageId", operation.Message.MessageId);
-                activity.AddTag("messaging.message_id", operation.Message.MessageId);
-
-                if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
-                {
-                    activity.AddTag("messaging.destination_kind", "queue");
+                    destinations[currentOperation] = m.MessageType.FullName;
+                    allUnicast = false;
                 }
-                else if (operation.AddressTag is MulticastAddressTag multicastAddressTag)
+                else if (operation.AddressTag is UnicastAddressTag u)
                 {
-                    activity.AddTag("messaging.destination_kind", "topic");
+                    destinations[currentOperation] = u.Destination;
+                    allMulticast = false;
                 }
-                if (operation.Message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
-                {
-                    activity.AddTag("messaging.conversation_id", conversationId);
-                }
-
-                // HINT: This needs to be converted into a string or the tag is not created
-                activity.AddTag("messaging.message_payload_size_bytes", operation.Message.Body.Length.ToString());
 
                 currentOperation++;
             }
 
-            activity.AddTag("messaging.operation", "send");
+            if (allUnicast)
+            {
+                activity.AddTag("messaging.destination_kind", "queue");
+            }
+
+            if (allMulticast)
+            {
+                activity.AddTag("messaging.destination_kind", "topic");
+            }
+
             var destination = string.Join(", ", destinations);
             activity.AddTag("messaging.destination", destination);
             activity.DisplayName = $"{destination} send";
@@ -134,6 +130,18 @@ namespace NServiceBus
 
                 return new string(result);
             }
+        }
+
+        public static void SetErrorStatus(Activity activity, Exception ex)
+        {
+            if (activity == null)
+            {
+                return;
+            }
+
+            activity.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("otel.status_code", "ERROR");
+            activity?.SetTag("otel.status_description", ex.Message);
         }
 
         // List of message headers that shouldn't be added as activity tags
