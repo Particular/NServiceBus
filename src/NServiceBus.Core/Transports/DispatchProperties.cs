@@ -14,7 +14,6 @@
         static string DoNotDeliverBeforeKeyName = "DeliverAt";
         static string DelayDeliveryWithKeyName = "DelayDeliveryFor";
         static string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
-        static string TraceParentKeyName = "TraceParent";
 
         /// <summary>
         /// Creates a new instance of <see cref="DispatchProperties"/>.
@@ -64,15 +63,6 @@
                 : null;
 
             set => this[DiscardIfNotReceivedBeforeKeyName] = value.MaxTime.ToString();
-        }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        public string TraceParent
-        {
-            get => ContainsKey(TraceParentKeyName) ? this[TraceParentKeyName] : null;
-            set => this[TraceParentKeyName] = value;
         }
     }
 }

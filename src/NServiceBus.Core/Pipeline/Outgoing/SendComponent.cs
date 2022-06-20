@@ -25,7 +25,8 @@
 
             pipelineSettings.Register(new OutgoingPhysicalToRoutingConnector(), "Starts the message dispatch pipeline");
             pipelineSettings.Register(new RoutingToDispatchConnector(), "Decides if the current message should be batched or immediately be dispatched to the transport");
-            pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
+            //TODO read configuration for dispatch span
+            pipelineSettings.Register(new BatchToDispatchConnector(false), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
             var sendComponent = new SendComponent(messageMapper);

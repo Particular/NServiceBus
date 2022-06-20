@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Diagnostics;
     using Pipeline;
     using Routing;
     using Transport;
@@ -15,11 +14,6 @@
             if (!context.Extensions.TryGet(out DispatchProperties dispatchProperties))
             {
                 dispatchProperties = new DispatchProperties();
-            }
-
-            if (Activity.Current is { IdFormat: ActivityIdFormat.W3C })
-            {
-                dispatchProperties.TraceParent = Activity.Current.Id;
             }
 
             var transportOperation = new TransportOperation(message, addressLabel, dispatchProperties, dispatchConsistency);
