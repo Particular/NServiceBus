@@ -14,125 +14,25 @@
     [TestFixture]
     public class MainPipelineExecutorTests
     {
-        //TODO context acitivity using legacy format
+        private TestingActivityListener nsbActivityListener;
 
         //TODO invalid input on header
 
         [OneTimeSetUp]
         public void Setup()
         {
-            Activity.DefaultIdFormat = ActivityIdFormat.W3C; // create W3C format by default
+            nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
         }
 
-        [Test]
-        public async Task When_activity_on_context_and_trace_message_header()
+        [OneTimeTearDown]
+        public void TearDown()
         {
-            var testSource = new ActivitySource("test");
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-            using var testSourceActivityListener = TestingActivityListener.SetupDiagnosticListener(testSource.Name);
-
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
-
-            using var contextActivity = testSource.StartActivity("transport receive activity");
-            using var sendActivity = ActivitySources.Main.StartActivity("sender activity");
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
-
-            await executor.Invoke(CreateMessageContext(messageHeaders, contextBag));
-
-            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
-            Assert.AreEqual(contextActivity.Id, receivePipeline.PipelineAcitivty.ParentId);
-            Assert.AreEqual(1, receivePipeline.PipelineAcitivty.Links.Count(), "should link to logical send span");
-            Assert.AreEqual(sendActivity.TraceId, receivePipeline.PipelineAcitivty.Links.Single().Context.TraceId);
-            Assert.AreEqual(sendActivity.SpanId, receivePipeline.PipelineAcitivty.Links.Single().Context.SpanId);
-        }
-
-        [Test]
-        public async Task When_activity_on_context_and_no_trace_message_header()
-        {
-            var testSource = new ActivitySource("test");
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-            using var testSourceActivityListener = TestingActivityListener.SetupDiagnosticListener(testSource.Name);
-
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
-
-            using var contextActivity = testSource.StartActivity("transport receive activity");
-            using var sendActivity = ActivitySources.Main.StartActivity("sender activity");
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            await executor.Invoke(CreateMessageContext(contextBag: contextBag));
-
-            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
-            Assert.AreEqual(contextActivity.Id, receivePipeline.PipelineAcitivty.ParentId);
-            Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
-        }
-
-        [Test]
-        public async Task When_activity_on_context_uses_legacy_id_format()
-        {
-            var testSource = new ActivitySource("test");
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-            using var testSourceActivityListener = TestingActivityListener.SetupDiagnosticListener(testSource.Name);
-
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
-
-            using var contextActivity = testSource.CreateActivity("transport receive activity", ActivityKind.Consumer, null, idFormat: ActivityIdFormat.Hierarchical);
-            contextActivity.Start();
-            Assert.AreEqual(ActivityIdFormat.Hierarchical, contextActivity.IdFormat);
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            await executor.Invoke(CreateMessageContext(contextBag: contextBag));
-
-            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
-            Assert.AreEqual(contextActivity.Id, receivePipeline.PipelineAcitivty.ParentId);
-            Assert.AreEqual(ActivityIdFormat.W3C, receivePipeline.PipelineAcitivty.IdFormat);
-        }
-
-        [Test]
-        public async Task When_no_activity_on_context_and_trace_message_header()
-        {
-            var testSource = new ActivitySource("test");
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-            using var testSourceActivityListener = TestingActivityListener.SetupDiagnosticListener(testSource.Name);
-
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
-
-            using var sendActivity = ActivitySources.Main.StartActivity("sender activity");
-
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
-
-            await executor.Invoke(CreateMessageContext(messageHeaders));
-
-            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
-            Assert.AreEqual(sendActivity.Id, receivePipeline.PipelineAcitivty.ParentId);
-            Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
-        }
-
-        [Test]
-        public async Task When_no_activity_on_context_and_no_trace_message_header()
-        {
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
-
-            await executor.Invoke(CreateMessageContext());
-
-            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
-            Assert.IsNull(receivePipeline.PipelineAcitivty.ParentId, "should start a new trace");
+            nsbActivityListener.Dispose();
         }
 
         [Test]
         public async Task When_pipeline_successful()
         {
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
             var executor = CreateMainPipelineExecutor(out var receivePipeline);
 
             await executor.Invoke(CreateMessageContext());
@@ -143,14 +43,158 @@
         [Test]
         public void When_pipeline_throws_exception()
         {
-            using var nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
             var executor = CreateMainPipelineExecutor(out var receivePipeline);
             receivePipeline.ThrowsException = true;
 
             Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
 
             Assert.AreEqual(ActivityStatusCode.Error, receivePipeline.PipelineAcitivty.Status);
+        }
+
+        [Test]
+        public async Task When_activity_on_context()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            using var contextActivity = CreateCompletedActivity("transport receive activity");
+            using var sendActivity = CreateCompletedActivity("send activity");
+
+            var contextBag = new ContextBag();
+            contextBag.Set(contextActivity);
+
+            await executor.Invoke(CreateMessageContext(contextBag: contextBag));
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.AreEqual(contextActivity.Id, receivePipeline.PipelineAcitivty.ParentId, "should use context activity as parent");
+            Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
+        }
+
+        [Test]
+        public async Task When_activity_on_context_and_trace_message_header()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            using var contextActivity = CreateCompletedActivity("transport receive activity");
+            using var sendActivity = CreateCompletedActivity("send activity");
+
+            var contextBag = new ContextBag();
+            contextBag.Set(contextActivity);
+
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
+
+            await executor.Invoke(CreateMessageContext(messageHeaders, contextBag));
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.AreEqual(contextActivity.Id, receivePipeline.PipelineAcitivty.ParentId, "should use context activity as parent");
+            Assert.AreEqual(1, receivePipeline.PipelineAcitivty.Links.Count(), "should link to logical send span");
+            Assert.AreEqual(sendActivity.TraceId, receivePipeline.PipelineAcitivty.Links.Single().Context.TraceId);
+            Assert.AreEqual(sendActivity.SpanId, receivePipeline.PipelineAcitivty.Links.Single().Context.SpanId);
+        }
+
+        [Test]
+        public async Task When_activity_on_context_and_ambient_activity()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            using var contextActivity = CreateCompletedActivity("transport receive activity");
+            var contextBag = new ContextBag();
+            contextBag.Set(contextActivity);
+
+            using var ambientActivity = ActivitySources.Main.StartActivity("ambient activity");
+            Assert.AreEqual(ambientActivity, Activity.Current);
+
+            await executor.Invoke(CreateMessageContext(contextBag: contextBag));
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.AreEqual(contextActivity.Id, receivePipeline.PipelineAcitivty.ParentId, "should use context activity as parent");
+        }
+
+        [Test]
+        public async Task When_activity_on_context_uses_legacy_id_format()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            using var contextActivity = CreateCompletedActivity("transport receive activity", ActivityIdFormat.Hierarchical);
+            Assert.AreEqual(ActivityIdFormat.Hierarchical, contextActivity.IdFormat);
+
+            var contextBag = new ContextBag();
+            contextBag.Set(contextActivity);
+
+            await executor.Invoke(CreateMessageContext(contextBag: contextBag));
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.IsNull(receivePipeline.PipelineAcitivty.ParentId, "should create a new trace");
+            Assert.AreEqual(ActivityIdFormat.W3C, receivePipeline.PipelineAcitivty.IdFormat);
+        }
+
+        [Test]
+        public async Task When_no_activity_on_context_and_trace_message_header()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            using var sendActivity = CreateCompletedActivity("send activity");
+
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
+
+            await executor.Invoke(CreateMessageContext(messageHeaders));
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.AreEqual(sendActivity.Id, receivePipeline.PipelineAcitivty.ParentId);
+            Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
+        }
+
+        [TestCase(ActivityIdFormat.W3C)]
+        [TestCase(ActivityIdFormat.Hierarchical)]
+        public async Task When_no_activity_on_context_and_no_trace_message_header_and_ambient_activity(ActivityIdFormat ambientActivityIdFormat)
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            using var activity = new Activity("ambient activity");
+            activity.SetIdFormat(ambientActivityIdFormat);
+            activity.Start();
+
+            await executor.Invoke(CreateMessageContext());
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.AreEqual(activity.Id, receivePipeline.PipelineAcitivty.ParentId, "should attach to ambient activity");
+            Assert.AreEqual(ActivityIdFormat.W3C, receivePipeline.PipelineAcitivty.IdFormat);
+        }
+
+        [Test]
+        public async Task When_no_activity_on_context_and_no_trace_message_header_and_no_ambient_activity()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            await executor.Invoke(CreateMessageContext());
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.IsNull(receivePipeline.PipelineAcitivty.ParentId, "should start a new trace");
+            Assert.AreEqual(ActivityIdFormat.W3C, receivePipeline.PipelineAcitivty.IdFormat);
+        }
+
+        [Test]
+        public async Task When_trace_header_contains_invalid_data()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, "Some invalid traceparent format" } };
+
+            await executor.Invoke(CreateMessageContext(messageHeaders));
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty, "should create activity for receive pipeline");
+            Assert.IsNull(receivePipeline.PipelineAcitivty.ParentId, "should start new trace");
+            Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
+        }
+
+        //TODO should always create W3C spans
+
+        private Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)
+        {
+            var activity = new Activity(activityName);
+            activity.SetIdFormat(idFormat);
+            activity.Start();
+            activity.Stop();
+            return activity;
         }
 
         private static MessageContext CreateMessageContext(Dictionary<string, string> messageHeaders = null, ContextBag contextBag = null)

@@ -84,21 +84,18 @@ namespace NServiceBus
                     ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
                 
             }
-            else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId)) // otherwise directly create child from logical send
+            else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext)) // otherwise directly create child from logical send
             {
-                var parent = ActivityContext.Parse(sendSpanId, null);
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
-                    ActivityKind.Consumer, parent);
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, sendSpanContext);
             }
             else // otherwise start new trace
             {
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
-                    ActivityKind.Consumer);
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentId: null);
 
             }
 
             ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-            //activity?.SetIdFormat(ActivityIdFormat.W3C);
+            activity?.SetIdFormat(ActivityIdFormat.W3C);
             activity?.Start();
             return activity;
         }
