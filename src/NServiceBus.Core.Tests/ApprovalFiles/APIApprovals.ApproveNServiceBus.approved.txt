@@ -413,6 +413,8 @@ namespace NServiceBus
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
         public const string DeliverAt = "NServiceBus.DeliverAt";
         public const string DestinationSites = "NServiceBus.DestinationSites";
+        public const string DiagnosticsTraceParent = "traceparent";
+        public const string DiagnosticsTraceState = "tracestate";
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
         public const string HasLicenseExpired = "$.diagnostics.license.expired";
         [System.Obsolete("Not intended for public usage. Will be removed in version 9.0.0.", true)]
