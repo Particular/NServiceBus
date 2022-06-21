@@ -14,7 +14,7 @@
     [TestFixture]
     public class MainPipelineExecutorTests
     {
-        private TestingActivityListener nsbActivityListener;
+        TestingActivityListener nsbActivityListener;
 
         [OneTimeSetUp]
         public void Setup()
@@ -55,7 +55,6 @@
             var executor = CreateMainPipelineExecutor(out var receivePipeline);
 
             using var contextActivity = CreateCompletedActivity("transport receive activity");
-            using var sendActivity = CreateCompletedActivity("send activity");
 
             var contextBag = new ContextBag();
             contextBag.Set(contextActivity);
@@ -184,7 +183,7 @@
             Assert.AreEqual(0, receivePipeline.PipelineAcitivty.Links.Count(), "should not link to logical send span");
         }
 
-        private Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)
+        Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)
         {
             var activity = new Activity(activityName);
             activity.SetIdFormat(idFormat);
@@ -193,18 +192,18 @@
             return activity;
         }
 
-        private static MessageContext CreateMessageContext(Dictionary<string, string> messageHeaders = null, ContextBag contextBag = null)
+        static MessageContext CreateMessageContext(Dictionary<string, string> messageHeaders = null, ContextBag contextBag = null)
         {
             return new MessageContext(
                 Guid.NewGuid().ToString(),
                 messageHeaders ?? new Dictionary<string, string>(),
                 Array.Empty<byte>(),
-                new TransportTransaction(), 
+                new TransportTransaction(),
                 "receiver",
                 contextBag ?? new ContextBag());
         }
 
-        private static MainPipelineExecutor CreateMainPipelineExecutor(out ReceivePipeline receivePipeline)
+        static MainPipelineExecutor CreateMainPipelineExecutor(out ReceivePipeline receivePipeline)
         {
             var serviceCollection = new ServiceCollection();
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -228,7 +227,7 @@
             public Task Invoke(ITransportReceiveContext context)
             {
                 PipelineAcitivty = Activity.Current;
-                
+
                 if (ThrowsException)
                 {
                     throw new Exception("Pipeline execution exception");
@@ -262,7 +261,6 @@
                     SampleUsingParentId = (ref ActivityCreationOptions<string> options) => ActivitySamplingResult.AllData
                 };
             }
-
             public void Dispose() => activityListener?.Dispose();
         }
     }

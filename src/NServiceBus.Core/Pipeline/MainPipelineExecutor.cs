@@ -81,7 +81,7 @@ namespace NServiceBus
 
                 activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
                     ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
-                
+
             }
             else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext)) // otherwise directly create child from logical send
             {
