@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
+        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
@@ -23,7 +23,7 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
 
-            using var activity = CreateIncomingActivity(messageContext);
+            using var activity = StartIncomingActivity(messageContext);
 
             using (var childScope = rootBuilder.CreateScope())
             {
@@ -62,18 +62,41 @@ namespace NServiceBus
                 await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
             }
 
-            activity?.SetStatus(ActivityStatusCode.Ok); //Set acitivity state.
+            activity?.SetStatus(ActivityStatusCode.Ok); //Set activity state.
         }
 
-        static Activity CreateIncomingActivity(MessageContext context)
+        static Activity StartIncomingActivity(MessageContext context)
         {
-            //TODO Do we need to check for Activity.Current first in case the transport creates it's own span?
-            var activity = context.Headers.TryGetValue("traceparent", out var parentId)
-                ? ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentId)
-                : ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
+            Activity activity;
+            if (context.Extensions.TryGet(out Activity transportActivity)) // attach to transport span but link receive pipeline to send pipeline spa
+            {
+                ActivityLink[] links = null;
+                if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && sendSpanId != transportActivity.Id)
+                {
+                    if (ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext))
+                    {
+                        links = new[] { new ActivityLink(sendSpanContext) };
+                    }
+                }
+
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
+                    ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
+
+            }
+            else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext)) // otherwise directly create child from logical send
+            {
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, sendSpanContext);
+            }
+            else // otherwise start new trace
+            {
+                // This will use Activity.Current if set
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
+
+            }
 
             ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-
+            activity?.SetIdFormat(ActivityIdFormat.W3C);
+            activity?.Start();
             return activity;
         }
 
@@ -81,6 +104,6 @@ namespace NServiceBus
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
-        readonly Pipeline<ITransportReceiveContext> receivePipeline;
+        readonly IPipeline<ITransportReceiveContext> receivePipeline;
     }
 }
