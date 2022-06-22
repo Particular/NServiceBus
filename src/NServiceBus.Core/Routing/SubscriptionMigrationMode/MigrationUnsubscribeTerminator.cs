@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
@@ -52,6 +53,10 @@
                 unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint;
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = VersionInformation.MajorMinorPatch;
+
+                // HINT: Context is propagated to the message headers from the current activity, if present.
+                // This may not be the outgoing message activity created by NServiceBus.
+                ContextPropagation.PropagateContextToHeaders(Activity.Current, unsubscribeMessage.Headers);
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
             }
