@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// The contract to implement a <see cref="IDataBusProperty" />.
     /// </summary>
@@ -24,5 +26,10 @@
         /// Sets the value for <see cref="IDataBusProperty" />.
         /// </summary>
         void SetValue(object value);
+
+        /// <summary>
+        /// The property <see cref="Type" />.
+        /// </summary>
+        Type Type { get; }
     }
 }

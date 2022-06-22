@@ -23,17 +23,7 @@ namespace NServiceBus.AcceptanceTests.Core.Pipeline
             var pipelineLogs = context.Logs.Where(x => x.LoggerName.StartsWith("NServiceBus.Pipeline"))
                 .Distinct(LoggerNameComparer.Instance).Select(x => x.Message);
 
-            // The output varies between TFMs, so a separate approval file is created for each framework.
-            // If a TFM gets added to the test project in the future, it intentionally will create a new
-            // "unknown" approval file, which will fail. The test should be updated to handle the new TFM.
-#if NET472
-            var scenario = "net472";
-#elif NET6_0
-            var scenario = "net6.0";
-#else
-            var scenario = "unknown";
-#endif
-            Approver.Verify(string.Join(Environment.NewLine, pipelineLogs), scenario: scenario);
+            Approver.Verify(string.Join(Environment.NewLine, pipelineLogs));
         }
 
         class LoggerNameComparer : IEqualityComparer<ScenarioContext.LogItem>

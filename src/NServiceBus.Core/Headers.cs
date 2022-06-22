@@ -244,5 +244,10 @@
         /// 8 June 2022.
         /// </summary>
         public const string DiagnosticsBaggage = "baggage";
+
+        /// <summary>
+        /// The content type used to serialize the data bus properties in the message.
+        /// </summary>
+        public const string DataBusContentType = "NServiceBus.DataBus.ContentType";
     }
 }

@@ -6,7 +6,6 @@
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
@@ -93,17 +92,7 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-            // The output varies between TFMs, so a separate approval file is created for each framework.
-            // If a TFM gets added to the test project in the future, it intentionally will create a new
-            // "unknown" approval file, which will fail. The test should be updated to handle the new TFM.
-#if NET472
-            var scenario = "net472";
-#elif NET6_0
-            var scenario = "net6.0";
-#else
-            var scenario = "unknown";
-#endif
-            Approver.Verify(expressions.PrettyPrint(), scenario: scenario);
+            Approver.Verify(expressions.PrettyPrint());
         }
 
         [Test]
@@ -321,20 +310,6 @@
         class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
         {
             public Task Invoke(IBatchDispatchContext context) => Task.CompletedTask;
-        }
-    }
-
-    static class LambdaExpressionPrettyPrint
-    {
-        public static string PrettyPrint(this List<Expression> expression)
-        {
-            expression.Reverse();
-            var sb = new StringBuilder();
-            for (var i = 0; i < expression.Count; i++)
-            {
-                sb.AppendLine($"{new string(' ', i * 4)}{expression[i].ToString().TrimStart()},");
-            }
-            return sb.ToString();
         }
     }
 

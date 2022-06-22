@@ -210,6 +210,7 @@
                         properties.Add(new DataBusPropertyInfo
                         {
                             Name = propertyInfo.Name,
+                            Type = propertyInfo.PropertyType,
                             Getter = DelegateFactory.CreateGet(propertyInfo),
                             Setter = DelegateFactory.CreateSet(propertyInfo)
                         });

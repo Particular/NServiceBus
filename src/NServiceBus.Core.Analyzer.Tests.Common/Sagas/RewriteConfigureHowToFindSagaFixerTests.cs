@@ -544,6 +544,81 @@ public class Msg1 : ICommand
 
             return Assert(original, expected);
         }
+
+        // https://github.com/Particular/NServiceBus/issues/6399
+        [Test]
+        public Task GenericSagaTest()
+        {
+            var original = @"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class ScheduledNotificationData : ContainSagaData
+{
+    public Guid SourceId { get; set; }
+
+    public DateTime? CancelledDateTime
+    {
+        get; set;
+    }
+}
+public class ScheduledNotification<T> : Saga<ScheduledNotificationData> where T : INotificationCommand
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ScheduledNotificationData> mapper)
+    {
+        mapper.ConfigureMapping<ScheduleCommandCommand<T>>(command => command.Command.Notification.SourceId)
+            .ToSaga(saga => saga.SourceId);
+    }
+}
+public class ScheduleCommandCommand<T> where T : INotificationCommand
+{
+    public T Command { get; set; }
+}
+public interface INotificationCommand
+{
+    Notification Notification { get; }
+}
+public class Notification
+{
+    public Guid SourceId { get; set; }
+}
+";
+
+            var expected = @"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class ScheduledNotificationData : ContainSagaData
+{
+    public Guid SourceId { get; set; }
+
+    public DateTime? CancelledDateTime
+    {
+        get; set;
+    }
+}
+public class ScheduledNotification<T> : Saga<ScheduledNotificationData> where T : INotificationCommand
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ScheduledNotificationData> mapper)
+    {
+        mapper.MapSaga(saga => saga.SourceId)
+            .ToMessage<ScheduleCommandCommand<T>>(command => command.Command.Notification.SourceId);
+    }
+}
+public class ScheduleCommandCommand<T> where T : INotificationCommand
+{
+    public T Command { get; set; }
+}
+public interface INotificationCommand
+{
+    Notification Notification { get; }
+}
+public class Notification
+{
+    public Guid SourceId { get; set; }
+}
+";
+
+            return Assert(original, expected);
+        }
     }
 
     public class RewriteConfigureHowToFindSagaFixerTestsCSharp8 : RewriteConfigureHowToFindSagaFixerTests

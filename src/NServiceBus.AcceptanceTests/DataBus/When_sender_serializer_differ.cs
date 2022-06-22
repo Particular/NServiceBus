@@ -7,12 +7,13 @@
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
+    using NServiceBus.DataBus;
     using NUnit.Framework;
 
-    public class When_sending_databus_properties : NServiceBusAcceptanceTest
+    public class When_sender_serializer_differ : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_messages_with_largepayload_correctly()
+        public async Task Should_deserialize_based_on_serializer_used()
         {
             var payloadToSend = new byte[PayloadSize];
 
@@ -42,7 +43,8 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
-                    builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
+
+                    builder.UseDataBus<FileShareDataBus, MyCustomSerializer>().BasePath(basePath);
 
                     builder.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 });
@@ -56,7 +58,11 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
-                    builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
+
+                    builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>()
+                        .BasePath(basePath)
+                        .AddDeserializer<MyCustomSerializer>();
+
                     builder.RegisterMessageMutator(new Mutator());
                 });
             }
@@ -89,6 +95,22 @@
                     return Task.FromResult(0);
                 }
             }
+        }
+
+        class MyCustomSerializer : IDataBusSerializer
+        {
+            public void Serialize(object databusProperty, Stream stream)
+            {
+                new System.Xml.Serialization.XmlSerializer(databusProperty.GetType())
+                    .Serialize(stream, databusProperty);
+            }
+
+            public object Deserialize(Type propertyType, Stream stream)
+            {
+                return new System.Xml.Serialization.XmlSerializer(propertyType).Deserialize(stream);
+            }
+
+            public string ContentType => "xml";
         }
 
         public class MyMessageWithLargePayload : ICommand

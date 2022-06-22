@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -19,12 +20,8 @@ namespace NServiceBus.Features
 
         static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
         {
-            if (!settings.TryGet("SelectedDataBus", out DataBusDefinition dataBusDefinition))
-            {
-                dataBusDefinition = new FileShareDataBus();
-            }
-
-            return dataBusDefinition.ProvidedByFeature();
+            return settings.Get<DataBusDefinition>(SelectedDataBusKey)
+                .ProvidedByFeature();
         }
 
         /// <summary>
@@ -32,17 +29,29 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (!context.Container.HasComponent<IDataBusSerializer>())
+            if (context.Services.HasComponent<IDataBusSerializer>())
             {
-                context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
+                throw new Exception("Providing data bus serializer via dependency injection is no longer supported.");
             }
 
-            context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
-
+            var serializer = context.Settings.Get<IDataBusSerializer>(DataBusSerializerKey);
+            var additionalDeserializers = context.Settings.Get<List<IDataBusSerializer>>(AdditionalDataBusDeserializersKey);
             var conventions = context.Settings.Get<Conventions>();
-            context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
-            context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
+
+            context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
+            context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions, serializer));
+            context.Pipeline.Register(new DataBusReceiveBehavior.Registration(b =>
+            {
+                return new DataBusReceiveBehavior(
+                    b.GetRequiredService<IDataBus>(),
+                    new DataBusDeserializer(serializer, additionalDeserializers),
+                    conventions);
+            }));
         }
+
+        internal static string SelectedDataBusKey = "SelectedDataBus";
+        internal static string DataBusSerializerKey = "DataBusSerializer";
+        internal static string AdditionalDataBusDeserializersKey = "AdditionalDataBusDeserializers";
 
         class DataBusInitializer : FeatureStartupTask
         {

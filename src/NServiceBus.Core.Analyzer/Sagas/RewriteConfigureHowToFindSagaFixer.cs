@@ -62,7 +62,7 @@
                     var isHeader = bool.Parse(diagnostic.Properties[i.ToString()]);
 
                     var messageType = root.FindToken(msgTypeLocation.SourceSpan.Start)
-                        .Parent.AncestorsAndSelf().OfType<IdentifierNameSyntax>().First();
+                        .Parent.AncestorsAndSelf().OfType<SimpleNameSyntax>().First();
                     var mappingExpression = root.FindToken(mappingExpressionLocation.SourceSpan.Start)
                         .Parent.AncestorsAndSelf().OfType<ArgumentSyntax>().First();
 

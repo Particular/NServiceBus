@@ -1,0 +1,73 @@
+(IOutgoingPublishContext context0) => EnforcePublishBestPracticesBehavior.Invoke(context0, 
+    (IOutgoingPublishContext context1) => UnicastPublishConnector.Invoke(context1, 
+        (IOutgoingLogicalMessageContext context2) => AttachCausationHeadersBehavior.Invoke(context2, 
+            (IOutgoingLogicalMessageContext context3) => AttachCorrelationIdBehavior.Invoke(context3, 
+                (IOutgoingLogicalMessageContext context4) => MutateOutgoingMessageBehavior.Invoke(context4, 
+                    (IOutgoingLogicalMessageContext context5) => ApplyTimeToBeReceivedBehavior.Invoke(context5, 
+                        (IOutgoingLogicalMessageContext context6) => ApplyReplyToAddressBehavior.Invoke(context6, 
+                            (IOutgoingLogicalMessageContext context7) => AddHostInfoHeadersBehavior.Invoke(context7, 
+                                (IOutgoingLogicalMessageContext context8) => SerializeMessageConnector.Invoke(context8, 
+                                    (IOutgoingPhysicalMessageContext context9) => MutateOutgoingTransportMessageBehavior.Invoke(context9, 
+                                        (IOutgoingPhysicalMessageContext context10) => OutgoingPhysicalToRoutingConnector.Invoke(context10, 
+                                            (IRoutingContext context11) => ThrowIfCannotDeferMessageBehavior.Invoke(context11, 
+                                                (IRoutingContext context12) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context12, 
+                                                    (IRoutingContext context13) => RoutingToDispatchConnector.Invoke(context13, 
+                                                        (IDispatchContext context14) => ImmediateDispatchTerminator.Invoke(context14))
+
+(IOutgoingSendContext context0) => EnforceSendBestPracticesBehavior.Invoke(context0, 
+    (IOutgoingSendContext context1) => SendConnector.Invoke(context1, 
+        (IOutgoingLogicalMessageContext context2) => AttachCausationHeadersBehavior.Invoke(context2, 
+            (IOutgoingLogicalMessageContext context3) => AttachCorrelationIdBehavior.Invoke(context3, 
+                (IOutgoingLogicalMessageContext context4) => MutateOutgoingMessageBehavior.Invoke(context4, 
+                    (IOutgoingLogicalMessageContext context5) => ApplyTimeToBeReceivedBehavior.Invoke(context5, 
+                        (IOutgoingLogicalMessageContext context6) => ApplyReplyToAddressBehavior.Invoke(context6, 
+                            (IOutgoingLogicalMessageContext context7) => AddHostInfoHeadersBehavior.Invoke(context7, 
+                                (IOutgoingLogicalMessageContext context8) => SerializeMessageConnector.Invoke(context8, 
+                                    (IOutgoingPhysicalMessageContext context9) => MutateOutgoingTransportMessageBehavior.Invoke(context9, 
+                                        (IOutgoingPhysicalMessageContext context10) => OutgoingPhysicalToRoutingConnector.Invoke(context10, 
+                                            (IRoutingContext context11) => ThrowIfCannotDeferMessageBehavior.Invoke(context11, 
+                                                (IRoutingContext context12) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context12, 
+                                                    (IRoutingContext context13) => RoutingToDispatchConnector.Invoke(context13, 
+                                                        (IDispatchContext context14) => ImmediateDispatchTerminator.Invoke(context14))
+
+(IOutgoingReplyContext context0) => PopulateAutoCorrelationHeadersForRepliesBehavior.Invoke(context0, 
+    (IOutgoingReplyContext context1) => EnforceReplyBestPracticesBehavior.Invoke(context1, 
+        (IOutgoingReplyContext context2) => ReplyConnector.Invoke(context2, 
+            (IOutgoingLogicalMessageContext context3) => AttachCausationHeadersBehavior.Invoke(context3, 
+                (IOutgoingLogicalMessageContext context4) => AttachCorrelationIdBehavior.Invoke(context4, 
+                    (IOutgoingLogicalMessageContext context5) => MutateOutgoingMessageBehavior.Invoke(context5, 
+                        (IOutgoingLogicalMessageContext context6) => ApplyTimeToBeReceivedBehavior.Invoke(context6, 
+                            (IOutgoingLogicalMessageContext context7) => ApplyReplyToAddressBehavior.Invoke(context7, 
+                                (IOutgoingLogicalMessageContext context8) => AddHostInfoHeadersBehavior.Invoke(context8, 
+                                    (IOutgoingLogicalMessageContext context9) => SerializeMessageConnector.Invoke(context9, 
+                                        (IOutgoingPhysicalMessageContext context10) => MutateOutgoingTransportMessageBehavior.Invoke(context10, 
+                                            (IOutgoingPhysicalMessageContext context11) => OutgoingPhysicalToRoutingConnector.Invoke(context11, 
+                                                (IRoutingContext context12) => ThrowIfCannotDeferMessageBehavior.Invoke(context12, 
+                                                    (IRoutingContext context13) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context13, 
+                                                        (IRoutingContext context14) => RoutingToDispatchConnector.Invoke(context14, 
+                                                            (IDispatchContext context15) => ImmediateDispatchTerminator.Invoke(context15))
+
+(ISubscribeContext context0) => EnforceSubscribeBestPracticesBehavior.Invoke(context0, 
+    (ISubscribeContext context1) => MessageDrivenSubscribeTerminator.Invoke(context1))
+
+(IUnsubscribeContext context0) => EnforceUnsubscribeBestPracticesBehavior.Invoke(context0, 
+    (IUnsubscribeContext context1) => MessageDrivenUnsubscribeTerminator.Invoke(context1))
+
+(ITransportReceiveContext context0) => CaptureExceptionBehavior.Invoke(context0, 
+    (ITransportReceiveContext context1) => RetryAcknowledgementBehavior.Invoke(context1, 
+        (ITransportReceiveContext context2) => TransportReceiveToPhysicalMessageConnector.Invoke(context2, 
+            (IIncomingPhysicalMessageContext context3) => ProcessingStatisticsBehavior.Invoke(context3, 
+                (IIncomingPhysicalMessageContext context4) => MutateIncomingTransportMessageBehavior.Invoke(context4, 
+                    (IIncomingPhysicalMessageContext context5) => SubscriptionReceiverBehavior.Invoke(context5, 
+                        (IIncomingPhysicalMessageContext context6) => UnitOfWorkBehavior.Invoke(context6, 
+                            (IIncomingPhysicalMessageContext context7) => DeserializeMessageConnector.Invoke(context7, 
+                                (IIncomingLogicalMessageContext context8) => MutateIncomingMessageBehavior.Invoke(context8, 
+                                    (IIncomingLogicalMessageContext context9) => InferredMessageTypeEnricherBehavior.Invoke(context9, 
+                                        (IIncomingLogicalMessageContext context10) => LoadHandlersConnector.Invoke(context10, 
+                                            (IInvokeHandlerContext context11) => InvokeHandlerTerminator.Invoke(context11))
+
+(IRecoverabilityContext context0) => RecoverabilityRoutingConnector.Invoke(context0, 
+    (IRoutingContext context1) => ThrowIfCannotDeferMessageBehavior.Invoke(context1, 
+        (IRoutingContext context2) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context2, 
+            (IRoutingContext context3) => RoutingToDispatchConnector.Invoke(context3, 
+                (IDispatchContext context4) => ImmediateDispatchTerminator.Invoke(context4))

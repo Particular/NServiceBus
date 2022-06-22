@@ -17,12 +17,12 @@ namespace NServiceBus.Core.Tests.DataBus
                 Message = new OutgoingLogicalMessage(typeof(MessageWithNullDataBusProperty), new MessageWithNullDataBusProperty())
             };
 
-            var sendBehavior = new DataBusSendBehavior(null, new XmlDataBusSerializer<string>(), new Conventions());
+            var serializer = new SystemJsonDataBusSerializer();
+            var sendBehavior = new DataBusSendBehavior(null, serializer, new Conventions());
 
             using (var stream = new MemoryStream())
             {
-                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(string));
-                serializer.Serialize(stream, "test");
+                serializer.Serialize("test", stream);
                 stream.Position = 0;
 
                 await sendBehavior.Invoke(context, ctx => Task.CompletedTask);

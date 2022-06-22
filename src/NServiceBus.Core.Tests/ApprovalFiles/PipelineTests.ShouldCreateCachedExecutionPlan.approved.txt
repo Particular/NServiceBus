@@ -1,0 +1,6 @@
+(ITransportReceiveContext context0) => StageFork.Invoke(context0, 
+    (IIncomingPhysicalMessageContext context1) => Behavior1.Invoke(context1, 
+        (IIncomingPhysicalMessageContext context2) => Stage1.Invoke(context2, 
+            (IIncomingLogicalMessageContext context3) => Behavior2.Invoke(context3, 
+                (IIncomingLogicalMessageContext context4) => Stage2.Invoke(context4, 
+                    (IDispatchContext context5) => Terminator.Invoke(context5))
