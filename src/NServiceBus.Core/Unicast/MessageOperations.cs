@@ -80,7 +80,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            return subscribePipeline.Invoke(subscribeContext);
+            return InvokePipelineWithTracing(ActivityNames.SubscribeActivityName, subscribeContext, subscribePipeline);
         }
 
         public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -160,7 +160,7 @@ namespace NServiceBus
         }
 
         static async Task InvokePipelineWithTracing<TContext>(string activityName, TContext outgoingContext, IPipeline<TContext> pipeline)
-            where TContext : IOutgoingContext
+            where TContext : IBehaviorContext
         {
             using var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
             activity?.SetIdFormat(ActivityIdFormat.W3C);

@@ -13,7 +13,7 @@
             FakePipeline<IOutgoingSendContext> sendPipeline = null,
             FakePipeline<IOutgoingReplyContext> replyPipeline = null,
             FakePipeline<ISubscribeContext> subscribePipeline = null,
-            FakePipeline<IUnsubscribeContext> subscribeContext = null)
+            FakePipeline<IUnsubscribeContext> unsubscribePipeline = null)
         {
             return new MessageOperations(
                 new MessageMapper(),
@@ -21,7 +21,7 @@
                 sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
                 replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
                 subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
-                subscribeContext ?? new FakePipeline<IUnsubscribeContext>());
+                unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>());
         }
 
         [Test]

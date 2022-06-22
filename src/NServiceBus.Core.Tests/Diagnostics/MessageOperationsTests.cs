@@ -96,7 +96,30 @@ public class MessageOperationsTests
     }
 
     [Test]
-    public void Sends_should_set_span_error_state_on_failure()
+    public async Task Subscribe_should_create_span()
+    {
+        var publishPipeline = new FakePipeline<ISubscribeContext>();
+        var operations = CreateMessageOperations(subscribePipeline: publishPipeline);
+
+        await operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions());
+
+        var activity = publishPipeline.CurrentActivity;
+        Assert.IsNotNull(activity);
+        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+
+        //TODO not implemented:
+        //Assert.AreEqual("reply", activity.DisplayName);
+        Assert.AreEqual(ActivityNames.SubscribeActivityName, activity.OperationName);
+
+        //TODO: verify message intent tag == subscribe
+
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+    }
+
+    [Test]
+    public void Should_set_span_error_state_on_failure()
     {
         var sendPipeline = new FakePipeline<IOutgoingSendContext> { ShouldThrow = true };
         var operations = CreateMessageOperations(sendPipeline: sendPipeline);
@@ -135,7 +158,7 @@ public class MessageOperationsTests
         FakePipeline<IOutgoingSendContext> sendPipeline = null,
         FakePipeline<IOutgoingReplyContext> replyPipeline = null,
         FakePipeline<ISubscribeContext> subscribePipeline = null,
-        FakePipeline<IUnsubscribeContext> subscribeContext = null)
+        FakePipeline<IUnsubscribeContext> unsubscribePipeline = null)
     {
         return new MessageOperations(
             new MessageMapper(),
@@ -143,7 +166,7 @@ public class MessageOperationsTests
             sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
             replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
             subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
-            subscribeContext ?? new FakePipeline<IUnsubscribeContext>());
+            unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>());
     }
 
     class FakePipeline<T> : IPipeline<T> where T : IBehaviorContext
