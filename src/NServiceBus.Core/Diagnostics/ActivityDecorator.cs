@@ -92,7 +92,7 @@ namespace NServiceBus
             endpointQueueName = receiveAddress;
         }
 
-        public static void SetHeaderTraceTags(Activity activity, Dictionary<string, string> headers)
+        public static void PromoteHeadersToTags(Activity activity, Dictionary<string, string> headers)
         {
             if (activity == null)
             {

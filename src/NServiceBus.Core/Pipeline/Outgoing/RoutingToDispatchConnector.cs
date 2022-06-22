@@ -41,7 +41,7 @@
             if (context.Extensions.TryGet<Activity>(DiagnosticsKeys.OutgoingActivityKey, out var activity))
             {
                 ActivityDecorator.SetOutgoingTraceTags(activity, context.Message, operations);
-                ActivityDecorator.SetHeaderTraceTags(activity, context.Message.Headers);
+                ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
             }
 
             if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))

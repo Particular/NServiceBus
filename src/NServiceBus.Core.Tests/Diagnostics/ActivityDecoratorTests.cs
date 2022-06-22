@@ -9,7 +9,7 @@ using NUnit.Framework;
 public class ActivityDecoratorTests
 {
     [Test]
-    public void SetHeaderTraceTags_should_promote_nservicebus_headers_to_tags()
+    public void PromoteHeadersToTags_should_promote_nservicebus_headers_to_tags()
     {
         var activity = new Activity("test");
         var headers = new Dictionary<string, string>()
@@ -20,7 +20,7 @@ public class ActivityDecoratorTests
             {"SomeOtherHeader", "some other header"}
         };
 
-        ActivityDecorator.SetHeaderTraceTags(activity, headers);
+        ActivityDecorator.PromoteHeadersToTags(activity, headers);
 
         var tags = activity.Tags.ToImmutableDictionary();
 
@@ -31,7 +31,7 @@ public class ActivityDecoratorTests
     }
 
     [Test]
-    public void SetHeaderTraceTags_should_not_promote_ignored_headers()
+    public void PromoteHeadersToTags_should_not_promote_ignored_headers()
     {
         var activity = new Activity("test");
         var headers = new Dictionary<string, string>()
@@ -39,7 +39,7 @@ public class ActivityDecoratorTests
             {Headers.TimeSent, "some value"},
         };
 
-        ActivityDecorator.SetHeaderTraceTags(activity, headers);
+        ActivityDecorator.PromoteHeadersToTags(activity, headers);
 
         Assert.IsEmpty(activity.Tags);
     }
