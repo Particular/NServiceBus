@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics;
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -31,13 +33,15 @@ public class When_incoming_event_has_trace : NServiceBusAcceptanceTest
             .Done(c => c.ReplyMessageReceived)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.AreEqual(2, activityListener.CompletedActivities.GetIncomingActivities().Count, "2 messages are received as part of this test (event + reply)");
-        Assert.AreEqual(1, activityListener.CompletedActivities.GetOutgoingActivities().Count, "1 message is sent as part of this test (reply)");
+        var incomingActivities = activityListener.CompletedActivities.GetIncomingActivities();
+        var outgoingActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+
+        Assert.AreEqual(2, incomingActivities.Count, "2 messages are received as part of this test (event + reply)");
+        Assert.AreEqual(1, outgoingActivities.Count, "1 message is sent as part of this test (reply)");
         Assert.AreEqual(1, activityListener.CompletedActivities.GetOutgoingEventActivities().Count, "1 event is published as part of this test");
 
-        Assert.IsTrue(activityListener.CompletedActivities
-            .Where(a => !Convert.ToBoolean(a.GetTagItem("nservicebus.control_message")))
-            .All(a => a.RootId == activityListener.CompletedActivities.GetIncomingActivities()[0].RootId), "all activities should belong to the same trace");
+        Assert.IsTrue(incomingActivities.Concat(outgoingActivities)
+            .All(a => a.RootId == incomingActivities[0].RootId), "all activities should belong to the same trace");
 
         //TODO this will currently fail on CI because we don't set the is_control_message tag (or header) yet.
     }
