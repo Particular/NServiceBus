@@ -33,7 +33,7 @@
 
             Assert.AreEqual(ActivityStatusCode.Ok, incomingActivity.Status);
             var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
-            Assert.AreEqual($"{destination} process", incomingActivity.DisplayName, "Display name should be set according to spec");
+            Assert.AreEqual($"process", incomingActivity.DisplayName);
 
             var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
 

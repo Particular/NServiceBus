@@ -230,8 +230,6 @@
 
             ActivityDecorator.SetReceiveTags(activity, incomingMessage);
 
-            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
-
             VerifyTag(activity, "messaging.message_id", incomingMessage.MessageId);
             VerifyTag(activity, "messaging.operation", operation);
             VerifyTag(activity, "messaging.destination", destination);

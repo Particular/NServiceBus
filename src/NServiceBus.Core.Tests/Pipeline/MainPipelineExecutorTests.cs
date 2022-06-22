@@ -30,6 +30,18 @@
         }
 
         [Test]
+        public async Task When_invoking_pipeline()
+        {
+            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+
+            await executor.Invoke(CreateMessageContext());
+
+            Assert.NotNull(receivePipeline.PipelineAcitivty);
+            Assert.AreEqual(ActivityNames.IncomingMessageActivityName, receivePipeline.PipelineAcitivty.OperationName);
+            Assert.AreEqual("process", receivePipeline.PipelineAcitivty.DisplayName);
+        }
+
+        [Test]
         public async Task When_pipeline_successful()
         {
             var executor = CreateMainPipelineExecutor(out var receivePipeline);

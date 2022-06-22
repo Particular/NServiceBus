@@ -19,10 +19,7 @@ namespace NServiceBus
                 return;
             }
 
-            var operation = "process";
-
-            activity.DisplayName = $"{endpointQueueName} {operation}";
-            activity.AddTag("messaging.operation", operation);
+            activity.AddTag("messaging.operation", "process");
             activity.AddTag("messaging.destination", endpointQueueName);
             activity.AddTag("messaging.message_id", message.MessageId);
             activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());

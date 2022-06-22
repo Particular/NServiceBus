@@ -95,8 +95,14 @@ namespace NServiceBus
             }
 
             ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-            activity?.SetIdFormat(ActivityIdFormat.W3C);
-            activity?.Start();
+
+            if (activity != null)
+            {
+                activity.DisplayName = "process";
+                activity.SetIdFormat(ActivityIdFormat.W3C);
+                activity.Start();
+            }
+
             return activity;
         }
 
