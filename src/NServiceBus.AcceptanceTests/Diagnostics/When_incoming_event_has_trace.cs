@@ -103,7 +103,7 @@ public class When_incoming_event_has_trace : NServiceBusAcceptanceTest
                 return context.Reply(new ReplyMessage());
             }
 
-            Context testContext;
+            readonly Context testContext;
         }
     }
 

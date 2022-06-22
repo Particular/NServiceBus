@@ -1,0 +1,170 @@
+﻿namespace NServiceBus.Core.Tests.Diagnostics;
+
+using System;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Helpers;
+using MessageInterfaces.MessageMapper.Reflection;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+[TestFixture]
+public class MessageOperationsTests
+{
+    TestingActivityListener listener;
+
+    [OneTimeSetUp]
+    public void Setup()
+    {
+        listener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+    }
+
+    [OneTimeTearDown]
+    public void Teardown()
+    {
+        listener?.Dispose();
+    }
+
+    [Test]
+    public async Task Send_should_create_span()
+    {
+        var sendPipeline = new FakePipeline<IOutgoingSendContext>();
+        var operations = CreateMessageOperations(sendPipeline: sendPipeline);
+
+        await operations.Send(new FakeRootContext(), new object(), new SendOptions());
+
+        var activity = sendPipeline.CurrentActivity;
+        Assert.IsNotNull(activity);
+        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+
+        //TODO not implemented:
+        //Assert.AreEqual("send", activity.DisplayName);
+        Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
+
+        //TODO: verify message intent tag == send
+
+        Assert.AreEqual(sendPipeline.CurrentActivity, sendPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+    }
+
+    [Test]
+    public async Task Publish_should_create_span()
+    {
+        var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
+        var operations = CreateMessageOperations(publishPipeline: publishPipeline);
+
+        await operations.Publish(new FakeRootContext(), new object(), new PublishOptions());
+
+        var activity = publishPipeline.CurrentActivity;
+        Assert.IsNotNull(activity);
+        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+
+        //TODO not implemented:
+        //Assert.AreEqual("publish", activity.DisplayName);
+        Assert.AreEqual(ActivityNames.OutgoingEventActivityName, activity.OperationName);
+
+        //TODO: verify message intent tag == publish
+
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+    }
+
+    [Test]
+    public async Task Reply_should_create_span()
+    {
+        var publishPipeline = new FakePipeline<IOutgoingReplyContext>();
+        var operations = CreateMessageOperations(replyPipeline: publishPipeline);
+
+        await operations.Reply(new FakeRootContext(), new object(), new ReplyOptions());
+
+        var activity = publishPipeline.CurrentActivity;
+        Assert.IsNotNull(activity);
+        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+
+        //TODO not implemented:
+        //Assert.AreEqual("reply", activity.DisplayName);
+        Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
+
+        //TODO: verify message intent tag == reply
+
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+    }
+
+    [Test]
+    public void Sends_should_set_span_error_state_on_failure()
+    {
+        var sendPipeline = new FakePipeline<IOutgoingSendContext> { ShouldThrow = true };
+        var operations = CreateMessageOperations(sendPipeline: sendPipeline);
+
+        var ex = Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+
+        var activity = sendPipeline.CurrentActivity;
+        Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
+        var tags = activity.Tags.ToImmutableDictionary();
+        Assert.AreEqual("ERROR", tags["otel.status_code"]);
+        Assert.AreEqual(ex.Message, tags["otel.status_description"]);
+    }
+
+    [Test]
+    public async Task Should_always_create_w3c_id_span()
+    {
+        var sendPipeline = new FakePipeline<IOutgoingSendContext>();
+        var operations = CreateMessageOperations(sendPipeline: sendPipeline);
+
+        using var ambientActivity = new Activity("ambient activity");
+        ambientActivity.SetIdFormat(ActivityIdFormat.Hierarchical);
+        ambientActivity.Start();
+        Assert.AreEqual(ambientActivity.IdFormat, ActivityIdFormat.Hierarchical);
+
+        await operations.Send(new FakeRootContext(), new object(), new SendOptions());
+
+        var activity = sendPipeline.CurrentActivity;
+        Assert.IsNotNull(activity);
+        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        Assert.AreEqual(ambientActivity.Id, activity.ParentId);
+        Assert.AreNotEqual(ambientActivity.TraceId, activity.TraceId);
+    }
+
+    MessageOperations CreateMessageOperations(
+        FakePipeline<IOutgoingPublishContext> publishPipeline = null,
+        FakePipeline<IOutgoingSendContext> sendPipeline = null,
+        FakePipeline<IOutgoingReplyContext> replyPipeline = null,
+        FakePipeline<ISubscribeContext> subscribePipeline = null,
+        FakePipeline<IUnsubscribeContext> subscribeContext = null)
+    {
+        return new MessageOperations(
+            new MessageMapper(),
+            publishPipeline ?? new FakePipeline<IOutgoingPublishContext>(),
+            sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
+            replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
+            subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
+            subscribeContext ?? new FakePipeline<IUnsubscribeContext>());
+    }
+
+    class FakePipeline<T> : IPipeline<T> where T : IBehaviorContext
+    {
+        public T Context { get; set; }
+
+        public Activity CurrentActivity { get; set; }
+
+        public bool ShouldThrow { get; set; }
+
+        public Task Invoke(T context)
+        {
+            Context = context;
+            CurrentActivity = Activity.Current;
+
+            if (ShouldThrow)
+            {
+                throw new Exception("processing exception");
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+}

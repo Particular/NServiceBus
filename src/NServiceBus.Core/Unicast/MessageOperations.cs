@@ -162,7 +162,9 @@ namespace NServiceBus
         static async Task InvokePipelineWithTracing<TContext>(string activityName, TContext outgoingContext, IPipeline<TContext> pipeline)
             where TContext : IOutgoingContext
         {
-            using var activity = ActivitySources.Main.StartActivity(activityName, ActivityKind.Producer);
+            using var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
+            activity?.SetIdFormat(ActivityIdFormat.W3C);
+            activity?.Start();
             outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
 
             try
