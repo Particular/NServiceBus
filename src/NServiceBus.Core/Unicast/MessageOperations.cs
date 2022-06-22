@@ -92,7 +92,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            return unsubscribePipeline.Invoke(unsubscribeContext);
+            return InvokePipelineWithTracing(ActivityNames.UnsubscribeActivityName, unsubscribeContext, unsubscribePipeline);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)

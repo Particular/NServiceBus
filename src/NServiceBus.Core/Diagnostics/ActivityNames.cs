@@ -7,6 +7,7 @@ namespace NServiceBus
         public const string OutgoingMessageActivityName = "NServiceBus.Diagnostics.OutgoingMessage";
         public const string OutgoingEventActivityName = "NServiceBus.Diagnostics.PublishMessage";
         public const string SubscribeActivityName = "NServiceBus.Diagnostics.Subscribe";
+        public const string UnsubscribeActivityName = "NServiceBus.Diagnostics.Unsubscribe";
     }
 
     class DiagnosticsKeys

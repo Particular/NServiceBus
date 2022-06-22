@@ -119,6 +119,29 @@ public class MessageOperationsTests
     }
 
     [Test]
+    public async Task Unsubscribe_should_create_span()
+    {
+        var publishPipeline = new FakePipeline<IUnsubscribeContext>();
+        var operations = CreateMessageOperations(unsubscribePipeline: publishPipeline);
+
+        await operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions());
+
+        var activity = publishPipeline.CurrentActivity;
+        Assert.IsNotNull(activity);
+        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+
+        //TODO not implemented:
+        //Assert.AreEqual("reply", activity.DisplayName);
+        Assert.AreEqual(ActivityNames.UnsubscribeActivityName, activity.OperationName);
+
+        //TODO: verify message intent tag == subscribe
+
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+    }
+
+    [Test]
     public void Should_set_span_error_state_on_failure()
     {
         var sendPipeline = new FakePipeline<IOutgoingSendContext> { ShouldThrow = true };
