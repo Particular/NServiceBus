@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics.Metrics;
+    using NUnit.Framework;
 
     class TestingMetricListener : IDisposable
     {
@@ -17,7 +18,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                 {
                     if (instrument.Meter.Name == sourceName)
                     {
-                        Console.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
+                        TestContext.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
                         l.EnableMeasurementEvents(instrument);
                     }
                 }
@@ -28,7 +29,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                 ReadOnlySpan<KeyValuePair<string, object>> tags,
                 object _) =>
             {
-                Console.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+                TestContext.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
 
                 //TODO: Do we need to capture and evaluate tags?
                 ReportedMeters.AddOrUpdate(instrument.Name, measurement, (_, val) => val + measurement);

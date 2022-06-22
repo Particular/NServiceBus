@@ -33,20 +33,14 @@ namespace NServiceBus.Performance.Metrics
             }
         }
 
-        public static bool TryGetMessageType(this ReceivePipelineCompleted completed, out string processedMessageType)
+        public static bool TryGetMessageTypes(this ReceivePipelineCompleted completed, out string processedMessageType)
         {
             return completed.ProcessedMessage.Headers.TryGetMessageType(out processedMessageType);
         }
 
         internal static bool TryGetMessageType(this IReadOnlyDictionary<string, string> headers, out string processedMessageType)
         {
-            if (headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageType))
-            {
-                processedMessageType = enclosedMessageType;
-                return true;
-            }
-            processedMessageType = null;
-            return false;
+            return headers.TryGetValue(Headers.EnclosedMessageTypes, out processedMessageType);
         }
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -37,7 +38,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
         class Context : ScenarioContext
         {
-            public int OutgoingMessagesReceived { get; set; }
+            public int OutgoingMessagesReceived;
         }
 
         class TestEndpoint : EndpointConfigurationBuilder
@@ -52,7 +53,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
                 public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
                 {
-                    testContext.OutgoingMessagesReceived += 1;
+                    Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
                     return Task.CompletedTask;
                 }
             }
