@@ -13,13 +13,13 @@ namespace NServiceBus.Performance.Metrics
             NServiceBusDiagnosticsInfo.InstrumentationVersion);
 
         static readonly Counter<long> TotalProcessedSuccessfully =
-            NServiceBusMeter.CreateCounter<long>("messaging.successes", "Total number of messages processed successfully by the endpoint.");
+            NServiceBusMeter.CreateCounter<long>("messaging.successes", description: "Total number of messages processed successfully by the endpoint.");
 
         static readonly Counter<long> TotalFetched =
-            NServiceBusMeter.CreateCounter<long>("messaging.fetches", "Total number of messages fetched from the queue by the endpoint.");
+            NServiceBusMeter.CreateCounter<long>("messaging.fetches", description: "Total number of messages fetched from the queue by the endpoint.");
 
         static readonly Counter<long> TotalFailures =
-            NServiceBusMeter.CreateCounter<long>("messaging.failures", "Total number of messages processed unsuccessfully by the endpoint.");
+            NServiceBusMeter.CreateCounter<long>("messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
 
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
