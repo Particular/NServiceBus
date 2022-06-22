@@ -34,8 +34,9 @@
 
             var outgoingEventActivities = activityListener.CompletedActivities.GetOutgoingEventActivities();
             Assert.AreEqual(1, outgoingEventActivities.Count, "1 event is being published");
-            var publishedMessage = outgoingEventActivities.Single();
 
+            var publishedMessage = outgoingEventActivities.Single();
+            Assert.AreEqual("publish", publishedMessage.DisplayName);
             Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
             var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();

@@ -36,8 +36,6 @@
 
             ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
-            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
-
             VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
             VerifyTag(activity, "messaging.operation", operation);
             VerifyTag(activity, "messaging.destination", destination);
@@ -78,8 +76,6 @@
 
             ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
-            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
-
             VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
             VerifyTag(activity, "messaging.operation", operation);
             VerifyTag(activity, "messaging.destination", destination);
@@ -114,8 +110,6 @@
             };
 
             ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
-
-            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
 
             VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
             VerifyTag(activity, "messaging.operation", operation);
@@ -158,8 +152,6 @@
 
             ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
 
-            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
-
             VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
             VerifyTag(activity, "messaging.operation", operation);
             VerifyTag(activity, "messaging.destination", destination);
@@ -200,8 +192,6 @@
             };
 
             ActivityDecorator.SetOutgoingTraceTags(activity, outgoingMessage, transportOperations);
-
-            Assert.AreEqual($"{destination} {operation}", activity.DisplayName, "Activity display name does not match spec");
 
             VerifyTag(activity, "messaging.message_id", outgoingMessage.MessageId);
             VerifyTag(activity, "messaging.operation", operation);

@@ -26,9 +26,9 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are being sent");
             var replyMessage = outgoingMessageActivities[1];
 
+            Assert.AreEqual("reply", replyMessage.DisplayName);
             Assert.IsNotNull(replyMessage.ParentId, "reply should have ambient span");
             var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
-            Assert.AreEqual($"{destination} send", replyMessage.DisplayName, "Display name should be set according to spec");
 
             var replyMessageTags = replyMessage.Tags.ToImmutableDictionary();
             // TODO: Verify whether we want to keep this. messaging.message_id is from the spec

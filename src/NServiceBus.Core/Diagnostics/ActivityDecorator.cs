@@ -84,7 +84,6 @@ namespace NServiceBus
 
             var destination = string.Join(", ", destinations);
             activity.AddTag("messaging.destination", destination);
-            activity.DisplayName = $"{destination} send";
         }
 
         public static void Initialize(string receiveAddress)

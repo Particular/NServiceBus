@@ -40,9 +40,8 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
-        //TODO not implemented:
-        //Assert.AreEqual("send", activity.DisplayName);
         Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
+        Assert.AreEqual("send", activity.DisplayName);
 
         //TODO: verify message intent tag == send
 
@@ -63,9 +62,8 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
-        //TODO not implemented:
-        //Assert.AreEqual("publish", activity.DisplayName);
         Assert.AreEqual(ActivityNames.OutgoingEventActivityName, activity.OperationName);
+        Assert.AreEqual("publish", activity.DisplayName);
 
         //TODO: verify message intent tag == publish
 
@@ -86,9 +84,8 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
-        //TODO not implemented:
-        //Assert.AreEqual("reply", activity.DisplayName);
         Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
+        Assert.AreEqual("reply", activity.DisplayName);
 
         //TODO: verify message intent tag == reply
 
@@ -109,9 +106,8 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
-        //TODO not implemented:
-        //Assert.AreEqual("reply", activity.DisplayName);
         Assert.AreEqual(ActivityNames.SubscribeActivityName, activity.OperationName);
+        Assert.AreEqual("subscribe", activity.DisplayName);
 
         //TODO: verify message intent tag == subscribe
 
@@ -132,9 +128,8 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
-        //TODO not implemented:
-        //Assert.AreEqual("reply", activity.DisplayName);
         Assert.AreEqual(ActivityNames.UnsubscribeActivityName, activity.OperationName);
+        Assert.AreEqual("unsubscribe", activity.DisplayName);
 
         //TODO: verify message intent tag == subscribe
 

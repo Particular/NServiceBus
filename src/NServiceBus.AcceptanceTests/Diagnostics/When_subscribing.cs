@@ -29,6 +29,8 @@ public class When_subscribing : NServiceBusAcceptanceTest
 
         Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should subscribe to the event");
 
+        var subscribeActivity = subscribeActivities.Single();
+        Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
         //TODO assert tags etc.
 
         var receiveActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
@@ -55,6 +57,8 @@ public class When_subscribing : NServiceBusAcceptanceTest
 
         Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should subscribe to the event");
 
+        var subscribeActivity = subscribeActivities.Single();
+        Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
         //TODO assert tags etc.
 
         var subscriptionReceiveActivity = activityListener.CompletedActivities.GetIncomingActivities();

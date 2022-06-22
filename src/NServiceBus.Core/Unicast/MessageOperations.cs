@@ -63,7 +63,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingEventActivityName, publishContext, publishPipeline);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingEventActivityName, "publish", publishContext, publishPipeline);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -80,7 +80,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.SubscribeActivityName, subscribeContext, subscribePipeline);
+            return InvokePipelineWithTracing(ActivityNames.SubscribeActivityName, "subscribe", subscribeContext, subscribePipeline);
         }
 
         public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -92,7 +92,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.UnsubscribeActivityName, unsubscribeContext, unsubscribePipeline);
+            return InvokePipelineWithTracing(ActivityNames.UnsubscribeActivityName, "unsubscribe", unsubscribeContext, unsubscribePipeline);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -124,7 +124,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, outgoingContext, sendPipeline);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "send", outgoingContext, sendPipeline);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -156,31 +156,39 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, outgoingContext, replyPipeline);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext, replyPipeline);
         }
 
-        static async Task InvokePipelineWithTracing<TContext>(string activityName, TContext outgoingContext, IPipeline<TContext> pipeline)
+        static async Task InvokePipelineWithTracing<TContext>(string activityName, string displayName, TContext outgoingContext, IPipeline<TContext> pipeline)
             where TContext : IBehaviorContext
         {
             using var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-            activity?.SetIdFormat(ActivityIdFormat.W3C);
-            activity?.Start();
-            outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
-
-            try
+            if (activity == null)
             {
                 await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
             }
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-            catch (Exception ex)
-#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
+            else
             {
-                // TODO: Add an explicit tag for operation canceled
-                ActivityDecorator.SetErrorStatus(activity, ex);
-                throw;
+                activity.SetIdFormat(ActivityIdFormat.W3C);
+                activity.DisplayName = displayName;
+                activity.Start();
+                outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
+
+                try
+                {
+                    await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
+                }
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
+                catch (Exception ex)
+#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
+                {
+                    // TODO: Add an explicit tag for operation canceled
+                    ActivityDecorator.SetErrorStatus(activity, ex);
+                    throw;
+                }
+                // TODO: should we stop the activity only once the message has been handed to the dispatcher?
+                activity.SetStatus(ActivityStatusCode.Ok);
             }
-            // TODO: should we stop the activity only once the message has been handed to the dispatcher?
-            activity?.SetStatus(ActivityStatusCode.Ok);
         }
 
         static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)

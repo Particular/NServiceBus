@@ -26,8 +26,10 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
 
         var unsubscribeActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
             .ToArray();
-
         Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
+
+        var unsubscribeActivity = unsubscribeActivities.Single();
+        Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
 
         //TODO assert tags etc.
 
@@ -50,10 +52,11 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        var subscribeActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
-            .ToArray();
+        var unsubscribeActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe").ToArray();
+        Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
 
-        Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should unsubscribe to the event");
+        var unsubscribeActivity = unsubscribeActivities.Single();
+        Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
 
         //TODO assert tags etc.
 
