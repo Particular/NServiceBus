@@ -40,7 +40,6 @@
             // HINT: These tags get applied to the outgoing message activity, if present.
             if (context.Extensions.TryGet<Activity>(DiagnosticsKeys.OutgoingActivityKey, out var activity))
             {
-                ActivityDecorator.SetOutgoingTraceTags(activity, context.Message, operations);
                 ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
             }
 

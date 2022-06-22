@@ -40,12 +40,11 @@
             Assert.AreEqual("publish", publishedMessage.DisplayName);
             Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
+            //TODO assert tags from header values
             var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
-            sentMessageTags.VerifyTag("NServiceBus.MessageId", context.SentMessageId);
+            VerifyTag("NServiceBus.MessageId", context.SentMessageId);
 
             Assert.IsNotNull(context.TraceParentHeader, "tracing header should be set on the published event");
-
-
         }
 
         public class Context : ScenarioContext
