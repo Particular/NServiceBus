@@ -7,7 +7,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using Performance.Metrics;
+    using NServiceBus;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_processing_fails : NServiceBusAcceptanceTest

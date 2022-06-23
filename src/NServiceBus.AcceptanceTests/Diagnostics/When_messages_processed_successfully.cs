@@ -1,13 +1,12 @@
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
-    using Performance.Metrics;
+    using NServiceBus;
 
     [NonParallelizable]
     public class When_messages_processed_successfully : NServiceBusAcceptanceTest
