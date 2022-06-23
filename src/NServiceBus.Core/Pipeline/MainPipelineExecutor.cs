@@ -100,6 +100,7 @@ namespace NServiceBus
             {
                 activity.DisplayName = "process";
                 activity.SetIdFormat(ActivityIdFormat.W3C);
+                activity.AddTag("nservicebus.native_message_id", context.NativeMessageId);
                 activity.Start();
             }
 
