@@ -29,6 +29,7 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
         Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
 
         var unsubscribeActivity = unsubscribeActivities.Single();
+        unsubscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
 
         //TODO assert tags etc.
@@ -56,6 +57,7 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
         Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
 
         var unsubscribeActivity = unsubscribeActivities.Single();
+        unsubscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
 
         //TODO assert tags etc.

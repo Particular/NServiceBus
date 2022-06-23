@@ -36,19 +36,16 @@
             Assert.AreEqual(1, outgoingEventActivities.Count, "1 event is being published");
 
             var publishedMessage = outgoingEventActivities.Single();
+            publishedMessage.VerifyUniqueTags();
             Assert.AreEqual("publish", publishedMessage.DisplayName);
             Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
             var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
-            VerifyTag("NServiceBus.MessageId", context.SentMessageId);
+            sentMessageTags.VerifyTag("NServiceBus.MessageId", context.SentMessageId);
 
             Assert.IsNotNull(context.TraceParentHeader, "tracing header should be set on the published event");
 
-            void VerifyTag(string tagKey, string expectedValue)
-            {
-                Assert.IsTrue(sentMessageTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
-                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
-            }
+
         }
 
         public class Context : ScenarioContext

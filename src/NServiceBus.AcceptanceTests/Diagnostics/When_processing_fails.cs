@@ -30,14 +30,8 @@
             Assert.AreEqual(ErrorMessage, failedActivity.StatusDescription);
 
             var tags = failedActivity.Tags.ToImmutableDictionary();
-            VerifyTag(tags, "otel.status_code", "ERROR");
-            VerifyTag(tags, "otel.status_description", ErrorMessage);
-        }
-
-        void VerifyTag(ImmutableDictionary<string, string> activityTags, string tagKey, string expectedValue)
-        {
-            Assert.IsTrue(activityTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
-            Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
+            tags.VerifyTag("otel.status_code", "ERROR");
+            tags.VerifyTag("otel.status_description", ErrorMessage);
         }
 
         class Context : ScenarioContext

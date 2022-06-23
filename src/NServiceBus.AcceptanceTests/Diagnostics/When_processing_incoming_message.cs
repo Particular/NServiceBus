@@ -37,29 +37,26 @@
 
             var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
 
-            VerifyTag("messaging.message_id", context.IncomingMessageId);
-            VerifyTag("messaging.conversation_id", context.IncomingMessageConversationId);
-            VerifyTag("messaging.operation", "process");
-            VerifyTag("messaging.destination", destination);
-            VerifyTag("messaging.message_payload_size_bytes", "222");
+            incomingActivityTags.VerifyTag("messaging.message_id", context.IncomingMessageId);
+            incomingActivityTags.VerifyTag("messaging.conversation_id", context.IncomingMessageConversationId);
+            incomingActivityTags.VerifyTag("messaging.operation", "process");
+            incomingActivityTags.VerifyTag("messaging.destination", destination);
+            incomingActivityTags.VerifyTag("messaging.message_payload_size_bytes", "222");
 
-            VerifyTag("nservicebus.message_id", context.IncomingMessageId);
-            VerifyTag("nservicebus.correlation_id", context.ReceivedHeaders[Headers.CorrelationId]);
-            VerifyTag("nservicebus.conversation_id", context.ReceivedHeaders[Headers.ConversationId]);
-            VerifyTag("nservicebus.content_type", context.ReceivedHeaders[Headers.ContentType]);
-            VerifyTag("nservicebus.enclosed_message_types", context.ReceivedHeaders[Headers.EnclosedMessageTypes]);
-            VerifyTag("nservicebus.reply_to_address", context.ReceivedHeaders[Headers.ReplyToAddress]);
-            VerifyTag("nservicebus.originating_machine", context.ReceivedHeaders[Headers.OriginatingMachine]);
-            VerifyTag("nservicebus.originating_endpoint", context.ReceivedHeaders[Headers.OriginatingEndpoint]);
-            VerifyTag("nservicebus.version", context.ReceivedHeaders[Headers.NServiceBusVersion]);
-            VerifyTag("nservicebus.message_intent", context.ReceivedHeaders[Headers.MessageIntent]);
+            incomingActivityTags.VerifyTag("nservicebus.message_id", context.IncomingMessageId);
+            incomingActivityTags.VerifyTag("nservicebus.correlation_id", context.ReceivedHeaders[Headers.CorrelationId]);
+            incomingActivityTags.VerifyTag("nservicebus.conversation_id", context.ReceivedHeaders[Headers.ConversationId]);
+            incomingActivityTags.VerifyTag("nservicebus.content_type", context.ReceivedHeaders[Headers.ContentType]);
+            incomingActivityTags.VerifyTag("nservicebus.enclosed_message_types", context.ReceivedHeaders[Headers.EnclosedMessageTypes]);
+            incomingActivityTags.VerifyTag("nservicebus.reply_to_address", context.ReceivedHeaders[Headers.ReplyToAddress]);
+            incomingActivityTags.VerifyTag("nservicebus.originating_machine", context.ReceivedHeaders[Headers.OriginatingMachine]);
+            incomingActivityTags.VerifyTag("nservicebus.originating_endpoint", context.ReceivedHeaders[Headers.OriginatingEndpoint]);
+            incomingActivityTags.VerifyTag("nservicebus.version", context.ReceivedHeaders[Headers.NServiceBusVersion]);
+            incomingActivityTags.VerifyTag("nservicebus.message_intent", context.ReceivedHeaders[Headers.MessageIntent]);
 
-            VerifyTag("nservicebus.native_message_id", context.IncomingNativeMessageId);
-            void VerifyTag(string tagKey, string expectedValue)
-            {
-                Assert.IsTrue(incomingActivityTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
-                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
-            }
+            incomingActivityTags.VerifyTag("nservicebus.native_message_id", context.IncomingNativeMessageId);
+
+            incomingActivity.VerifyUniqueTags();
         }
 
         class Context : ScenarioContext

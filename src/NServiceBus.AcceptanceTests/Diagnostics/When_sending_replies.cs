@@ -30,22 +30,17 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             Assert.IsNotNull(replyMessage.ParentId, "reply should have ambient span");
             var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
 
+            replyMessage.VerifyUniqueTags();
             var replyMessageTags = replyMessage.Tags.ToImmutableDictionary();
             // TODO: Verify whether we want to keep this. messaging.message_id is from the spec
-            VerifyTag("NServiceBus.MessageId", context.OutgoingMessageId);
-            VerifyTag("messaging.message_id", context.OutgoingMessageId); // TODO: should be set by the transport? If set by NSB, this should be the transport message id?
-            VerifyTag("messaging.conversation_id", context.MessageConversationId);
-            VerifyTag("messaging.operation", "send");
-            VerifyTag("messaging.destination_kind", "queue");
-            VerifyTag("messaging.destination", destination);
+            replyMessageTags.VerifyTag("NServiceBus.MessageId", context.OutgoingMessageId);
+            replyMessageTags.VerifyTag("messaging.message_id", context.OutgoingMessageId); // TODO: should be set by the transport? If set by NSB, this should be the transport message id?
+            replyMessageTags.VerifyTag("messaging.conversation_id", context.MessageConversationId);
+            replyMessageTags.VerifyTag("messaging.operation", "send");
+            replyMessageTags.VerifyTag("messaging.destination_kind", "queue");
+            replyMessageTags.VerifyTag("messaging.destination", destination);
             // NOTE: Payload size is zero and the tag is not added
-            VerifyTag("messaging.message_payload_size_bytes", "218");
-
-            void VerifyTag(string tagKey, string expectedValue)
-            {
-                Assert.IsTrue(replyMessageTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
-                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
-            }
+            replyMessageTags.VerifyTag("messaging.message_payload_size_bytes", "218");
         }
 
         class Context : ScenarioContext

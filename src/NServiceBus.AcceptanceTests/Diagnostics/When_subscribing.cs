@@ -30,6 +30,7 @@ public class When_subscribing : NServiceBusAcceptanceTest
         Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should subscribe to the event");
 
         var subscribeActivity = subscribeActivities.Single();
+        subscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
         //TODO assert tags etc.
 
@@ -58,6 +59,7 @@ public class When_subscribing : NServiceBusAcceptanceTest
         Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should subscribe to the event");
 
         var subscribeActivity = subscribeActivities.Single();
+        subscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
         //TODO assert tags etc.
 
