@@ -1,18 +1,15 @@
-﻿using System.Diagnostics;
+﻿namespace NServiceBus.AcceptanceTests.Diagnostics;
+
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
+using AcceptanceTesting;
+using EndpointTemplates;
 using NUnit.Framework;
-
-namespace NServiceBus.AcceptanceTests.Diagnostics;
 
 [NonParallelizable] // Ensure only activities for the current test are captured
 public class When_retrying_messages : NServiceBusAcceptanceTest
 {
-    //TODO immediate retried
-    //TODO delayed retries
-
     [Test]
     public async Task Should_correlate_immediate_retry_with_send()
     {
@@ -23,7 +20,7 @@ public class When_retrying_messages : NServiceBusAcceptanceTest
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.RetryActivity != null)
+            .Done(c => c.InvocationCounter == 2)
             .Run();
 
         var receiveActivities = activityListener.CompletedActivities.GetIncomingActivities();
@@ -34,20 +31,38 @@ public class When_retrying_messages : NServiceBusAcceptanceTest
         Assert.AreEqual(sendActivities[0].Id, receiveActivities[0].ParentId, "should not change parent span");
         Assert.AreEqual(sendActivities[0].Id, receiveActivities[1].ParentId, "should not change parent span");
 
-        Assert.IsTrue(activityListener.CompletedActivities.All(a => a.TraceId == sendActivities[0].TraceId), "all activities should be part of the same trace");
+        Assert.IsTrue(sendActivities.Concat(receiveActivities).All(a => a.TraceId == sendActivities[0].TraceId), "all activities should be part of the same trace");
     }
 
     [Test]
-    public void Should_correlate_delayed_retry_with_send()
+    public async Task Should_correlate_delayed_retry_with_send()
     {
-        
+        Requires.DelayedDelivery();
+
+        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+
+        await Scenario.Define<Context>()
+            .WithEndpoint<RetryingEndpoint>(e => e
+                .CustomConfig(c => c.Recoverability().Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
+                .DoNotFailOnErrorMessages()
+                .When(s => s.SendLocal(new FailingMessage())))
+            .Done(c => c.InvocationCounter == 2)
+            .Run();
+
+        var receiveActivities = activityListener.CompletedActivities.GetIncomingActivities();
+        var sendActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+
+        Assert.AreEqual(1, sendActivities.Count);
+        Assert.AreEqual(2, receiveActivities.Count, "the message should be processed twice due to one immediate retry");
+        Assert.AreEqual(sendActivities[0].Id, receiveActivities[0].ParentId, "should not change parent span");
+        Assert.AreEqual(sendActivities[0].Id, receiveActivities[1].ParentId, "should not change parent span");
+
+        Assert.IsTrue(sendActivities.Concat(receiveActivities).All(a => a.TraceId == sendActivities[0].TraceId), "all activities should be part of the same trace");
     }
 
     class Context : ScenarioContext
     {
         public int InvocationCounter { get; set; }
-        public Activity FirstReceiveActivity { get; set; }
-        public Activity RetryActivity { get; set; }
     }
 
     class RetryingEndpoint : EndpointConfigurationBuilder
@@ -59,7 +74,7 @@ public class When_retrying_messages : NServiceBusAcceptanceTest
 
         class Handler : IHandleMessages<FailingMessage>
         {
-            private Context testContext;
+            Context testContext;
 
             public Handler(Context testContext)
             {
@@ -72,18 +87,15 @@ public class When_retrying_messages : NServiceBusAcceptanceTest
 
                 if (testContext.InvocationCounter == 1)
                 {
-                    testContext.FirstReceiveActivity = Activity.Current;
                     throw new SimulatedException("first attempt fails");
                 }
-
-                testContext.RetryActivity = Activity.Current;
 
                 return Task.CompletedTask;
             }
         }
     }
 
-    class FailingMessage : IMessage
+    public class FailingMessage : IMessage
     {
     }
 }
