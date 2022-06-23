@@ -1,4 +1,4 @@
-namespace NServiceBus.Performance.Metrics
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
