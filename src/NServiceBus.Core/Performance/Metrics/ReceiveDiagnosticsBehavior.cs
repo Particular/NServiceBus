@@ -25,7 +25,7 @@ namespace NServiceBus
         {
             this.endpointName = endpointName;
             this.queueNameBase = queueNameBase;
-            this.discriminator = discriminator;
+            this.discriminator = discriminator ?? "";
         }
 
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)

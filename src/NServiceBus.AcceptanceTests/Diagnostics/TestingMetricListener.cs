@@ -66,7 +66,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             }
         }
 
-        public void AssertTagValue(string metricName, string tagKey, object tagValue)
+        public object AssertTagKeyExists(string metricName, string tagKey)
         {
             if (!Tags.ContainsKey(metricName))
             {
@@ -80,7 +80,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                 Assert.Fail($"'{tagKey}' tag was not found.");
             }
 
-            Assert.AreEqual(tagValue, meterTag.Value);
+            return meterTag.Value;
         }
     }
 }

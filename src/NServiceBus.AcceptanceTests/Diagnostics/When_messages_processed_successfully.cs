@@ -35,13 +35,15 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             metricsListener.AssertMetric("messaging.fetches", 5);
             metricsListener.AssertMetric("messaging.failures", 0);
 
-            metricsListener.AssertTagValue("messaging.successes", "messaging.endpoint", "EndpointWithMetrics");
-            metricsListener.AssertTagValue("messaging.successes", "messaging.queue", "EndpointWithMetrics");
-            metricsListener.AssertTagValue("messaging.successes", "messaging.type", "NServiceBus.AcceptanceTests.Diagnostics.When_messages_processed_successfully+OutgoingMessage, NServiceBus.AcceptanceTests, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null");
+            var expectedEndpoint = metricsListener.AssertTagKeyExists("messaging.successes", "messaging.endpoint");
+            metricsListener.AssertTagKeyExists("messaging.successes", "messaging.queue");
+            metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.endpoint");
+            metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.queue");
+            Assert.AreEqual("EndpointWithMetrics", expectedEndpoint);
 
-            metricsListener.AssertTagValue("messaging.fetches", "messaging.endpoint", "EndpointWithMetrics");
-            metricsListener.AssertTagValue("messaging.fetches", "messaging.queue", "EndpointWithMetrics");
-            metricsListener.AssertTagValue("messaging.fetches", "messaging.type", "NServiceBus.AcceptanceTests.Diagnostics.When_messages_processed_successfully+OutgoingMessage, NServiceBus.AcceptanceTests, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null");
+            var expectedType = metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.type").ToString();
+            metricsListener.AssertTagKeyExists("messaging.successes", "messaging.type");
+            Assert.True(expectedType.Contains("When_messages_processed_successfully+OutgoingMessage"));
         }
 
         class Context : ScenarioContext

@@ -20,11 +20,6 @@ namespace NServiceBus
 
     static class Extensions
     {
-        public static bool TryGetMessageTypes(this ReceivePipelineCompleted completed, out string processedMessageTypes)
-        {
-            return completed.ProcessedMessage.Headers.TryGetMessageType(out processedMessageTypes);
-        }
-
         internal static bool TryGetMessageType(this IReadOnlyDictionary<string, string> headers, out string processedMessageTypes)
         {
             return headers.TryGetValue(Headers.EnclosedMessageTypes, out processedMessageTypes);
