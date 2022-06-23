@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics.Metrics;
+    using System.Linq;
     using NUnit.Framework;
 
     class TestingMetricListener : IDisposable
@@ -26,13 +27,14 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
             meterListener.SetMeasurementEventCallback((Instrument instrument,
                 long measurement,
-                ReadOnlySpan<KeyValuePair<string, object>> tags,
+                ReadOnlySpan<KeyValuePair<string, object>> t,
                 object _) =>
             {
                 TestContext.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
 
-                //TODO: Do we need to capture and evaluate tags?
+                var tags = t.ToArray();
                 ReportedMeters.AddOrUpdate(instrument.Name, measurement, (_, val) => val + measurement);
+                Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
             });
             meterListener.Start();
         }
@@ -49,5 +51,36 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
         public void Dispose() => meterListener?.Dispose();
 
         public ConcurrentDictionary<string, long> ReportedMeters { get; } = new();
+        public ConcurrentDictionary<string, KeyValuePair<string, object>[]> Tags { get; } = new();
+
+        public void AssertMetric(string metricName, long expected)
+        {
+            if (expected == 0)
+            {
+                Assert.False(ReportedMeters.ContainsKey(metricName), $"Should not have '{metricName}' metric reported.");
+            }
+            else
+            {
+                Assert.True(ReportedMeters.ContainsKey(metricName), $"'{metricName}' metric was not reported.");
+                Assert.AreEqual(expected, ReportedMeters[metricName]);
+            }
+        }
+
+        public void AssertTagValue(string metricName, string tagKey, object tagValue)
+        {
+            if (!Tags.ContainsKey(metricName))
+            {
+                Assert.Fail($"'{metricName}' metric was not reported");
+            }
+
+            var emptyTag = default(KeyValuePair<string, object>);
+            var meterTag = Tags[metricName].FirstOrDefault(t => t.Key == tagKey);
+            if (meterTag.Equals(emptyTag))
+            {
+                Assert.Fail($"'{tagKey}' tag was not found.");
+            }
+
+            Assert.AreEqual(tagValue, meterTag.Value);
+        }
     }
 }

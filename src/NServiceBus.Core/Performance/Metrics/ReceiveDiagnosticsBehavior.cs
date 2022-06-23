@@ -21,14 +21,26 @@ namespace NServiceBus.Performance.Metrics
         static readonly Counter<long> TotalFailures =
             NServiceBusMeter.CreateCounter<long>("messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
 
+        public ReceiveDiagnosticsBehavior(string endpointName, string queueNameBase, string discriminator)
+        {
+            this.endpointName = endpointName;
+            this.queueNameBase = queueNameBase;
+            this.discriminator = discriminator;
+        }
+
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            context.MessageHeaders.TryGetMessageType(out var _);
+            context.MessageHeaders.TryGetMessageType(out var messageTypes);
 
-            //TODO: do we need to tag the message type, or any other data? 
-            var tags = Array.Empty<KeyValuePair<string, object>>();
+            var tags = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("messaging.endpoint", endpointName),
+                new KeyValuePair<string, object>("messaging.discriminator", discriminator),
+                new KeyValuePair<string, object>("messaging.queue", queueNameBase),
+                new KeyValuePair<string, object>("messaging.type", messageTypes),
+            };
 
-            TotalFetched.Add(1, tags);
+            TotalFetched.Add(1, tags.ToArray());
 
             try
             {
@@ -36,11 +48,16 @@ namespace NServiceBus.Performance.Metrics
             }
             catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
-                TotalFailures.Add(1, tags);
+                tags.Add(new KeyValuePair<string, object>("messaging.failure_type", ex.GetType()));
+                TotalFailures.Add(1, tags.ToArray());
                 throw;
             }
 
-            TotalProcessedSuccessfully.Add(1, tags);
+            TotalProcessedSuccessfully.Add(1, tags.ToArray());
         }
+
+        readonly string endpointName;
+        readonly string queueNameBase;
+        readonly string discriminator;
     }
 }

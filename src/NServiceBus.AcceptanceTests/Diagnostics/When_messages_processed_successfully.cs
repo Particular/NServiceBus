@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
@@ -34,6 +35,14 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             metricsListener.AssertMetric("messaging.successes", 5);
             metricsListener.AssertMetric("messaging.fetches", 5);
             metricsListener.AssertMetric("messaging.failures", 0);
+
+            metricsListener.AssertTagValue("messaging.successes", "messaging.endpoint", "EndpointWithMetrics");
+            metricsListener.AssertTagValue("messaging.successes", "messaging.queue", "EndpointWithMetrics");
+            metricsListener.AssertTagValue("messaging.successes", "messaging.type", "NServiceBus.AcceptanceTests.Diagnostics.When_messages_processed_successfully+OutgoingMessage, NServiceBus.AcceptanceTests, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null");
+
+            metricsListener.AssertTagValue("messaging.fetches", "messaging.endpoint", "EndpointWithMetrics");
+            metricsListener.AssertTagValue("messaging.fetches", "messaging.queue", "EndpointWithMetrics");
+            metricsListener.AssertTagValue("messaging.fetches", "messaging.type", "NServiceBus.AcceptanceTests.Diagnostics.When_messages_processed_successfully+OutgoingMessage, NServiceBus.AcceptanceTests, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null");
         }
 
         class Context : ScenarioContext
@@ -43,7 +52,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>();
+            public TestEndpoint() => EndpointSetup<DefaultServer>().CustomEndpointName("EndpointWithMetrics");
 
             class MessageHandler : IHandleMessages<OutgoingMessage>
             {
@@ -62,22 +71,6 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
         public class OutgoingMessage : IMessage
         {
             public Guid Id { get; set; }
-        }
-    }
-
-    static class AssertHelper
-    {
-        public static void AssertMetric(this TestingMetricListener listener, string metricName, long expected)
-        {
-            if (expected == 0)
-            {
-                Assert.False(listener.ReportedMeters.ContainsKey(metricName), $"Should not have '{metricName}' metric reported.");
-            }
-            else
-            {
-                Assert.True(listener.ReportedMeters.ContainsKey(metricName), $"'{metricName}' metric was not reported.");
-                Assert.AreEqual(expected, listener.ReportedMeters[metricName]);
-            }
         }
     }
 }

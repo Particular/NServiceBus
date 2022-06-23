@@ -1,22 +1,33 @@
 namespace NServiceBus.Performance.Metrics
 {
+    using System;
     using Features;
 
     /// <summary>
     /// MessagingMetricsFeature captures messaging metrics
     /// </summary>
-    public class MessagingMetricsFeature : Feature
+    class MessagingMetricsFeature : Feature
     {
         /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.ThrowIfSendOnly();
+            var isSendOnly = context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
+            if (isSendOnly)
+            {
+                throw new Exception("Metrics are not supported on send only endpoints.");
+            }
+
             RegisterBehavior(context);
         }
 
         static void RegisterBehavior(FeatureConfigurationContext context)
         {
-            var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior();
+            var settings = context.Settings.Get<ReceiveComponent.Settings>();
+            var endpointName = settings.EndpointName;
+            var discriminator = settings.EndpointInstanceDiscriminator;
+            var queueNameBase = settings.CustomQueueNameBase ?? endpointName;
+
+            var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(endpointName, queueNameBase, discriminator);
 
             context.Pipeline.Register(
                 "NServiceBus.ReceiveDiagnosticsBehavior",
