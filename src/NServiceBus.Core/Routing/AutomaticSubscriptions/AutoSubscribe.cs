@@ -36,34 +36,25 @@
             context.RegisterStartupTask(b =>
             {
                 var handlerRegistry = b.GetRequiredService<MessageHandlerRegistry>();
-                var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                return new ApplySubscriptions(messageTypesHandled);
+
+                return new ApplySubscriptions(handlerRegistry, conventions, settings);
             });
-        }
-
-        static Type[] GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
-        {
-            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
-                .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
-                .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
-                .Where(t => conventions.IsEventType(t)) //only events unless the user asked for all messages
-                .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
-                .Except(settings.ExcludedTypes)
-                .ToArray();
-
-            return messageTypesHandled;
         }
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(Type[] messagesHandledByThisEndpoint)
+            public ApplySubscriptions(MessageHandlerRegistry messageHandlerRegistry, Conventions conventions, SubscribeSettings subscribeSettings)
             {
-                this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
+                this.messageHandlerRegistry = messageHandlerRegistry;
+                this.conventions = conventions;
+                this.subscribeSettings = subscribeSettings;
             }
 
             protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
-                if (messagesHandledByThisEndpoint.Length == 0)
+                var eventsToSubscribe = GetHandledEventTypes(messageHandlerRegistry, conventions, subscribeSettings);
+
+                if (eventsToSubscribe.Length == 0)
                 {
                     return;
                 }
@@ -71,12 +62,12 @@
                 try
                 {
                     var messageSession = session as MessageSession;
-                    await messageSession.SubscribeAll(messagesHandledByThisEndpoint, new SubscribeOptions(), cancellationToken)
+                    await messageSession.SubscribeAll(eventsToSubscribe, new SubscribeOptions(), cancellationToken)
                         .ConfigureAwait(false);
                     if (Logger.IsDebugEnabled)
                     {
                         Logger.DebugFormat("Auto subscribed to events {0}",
-                            string.Join<Type>(",", messagesHandledByThisEndpoint));
+                            string.Join<Type>(",", eventsToSubscribe));
                     }
                 }
                 catch (AggregateException e)
@@ -109,13 +100,27 @@
                 }
             }
 
-
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 return Task.CompletedTask;
             }
 
-            readonly Type[] messagesHandledByThisEndpoint;
+            static Type[] GetHandledEventTypes(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
+            {
+                var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
+                    .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
+                    .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
+                    .Where(t => conventions.IsEventType(t)) //only events
+                    .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
+                    .Except(settings.ExcludedTypes)
+                    .ToArray();
+
+                return messageTypesHandled;
+            }
+
+            readonly MessageHandlerRegistry messageHandlerRegistry;
+            readonly Conventions conventions;
+            readonly SubscribeSettings subscribeSettings;
             static readonly ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
