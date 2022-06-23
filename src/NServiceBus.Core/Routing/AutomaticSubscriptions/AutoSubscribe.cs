@@ -63,6 +63,11 @@
 
             protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
+                if (messagesHandledByThisEndpoint.Length == 0)
+                {
+                    return;
+                }
+
                 try
                 {
                     var messageSession = session as MessageSession;
