@@ -10,10 +10,51 @@
     [TestFixture]
     public class ContextPropagationTests
     {
+        [Test]
+        public void Propagate_activity_id_to_header()
+        {
+            using var activity = new Activity("test");
+            activity.SetIdFormat(ActivityIdFormat.W3C);
+            activity.Start();
+
+            var headers = new Dictionary<string, string>();
+
+            ContextPropagation.PropagateContextToHeaders(activity, headers);
+
+            Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
+        }
+
+        [Test]
+        public void Should_not_set_header_without_activity()
+        {
+            var headers = new Dictionary<string, string>();
+
+            ContextPropagation.PropagateContextToHeaders(null, headers);
+
+            Assert.IsEmpty(headers);
+        }
+
+        [Test]
+        public void Overwrites_existing_propagation_header()
+        {
+            using var activity = new Activity("test");
+            activity.SetIdFormat(ActivityIdFormat.W3C);
+            activity.Start();
+
+            var headers = new Dictionary<string, string>()
+            {
+                { Headers.DiagnosticsTraceParent, "some existing id" }
+            };
+
+            ContextPropagation.PropagateContextToHeaders(activity, headers);
+
+            Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
+        }
+
         [TestCaseSource(nameof(TestCases))]
         public void Can_propagate_baggage_from_header_to_activity(ContextPropagationTestCase testCase)
         {
-            Console.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+            TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
             var headers = new Dictionary<string, string>();
 
@@ -38,7 +79,7 @@
         [TestCaseSource(nameof(TestCases))]
         public void Can_propagate_baggage_from_activity_to_header(ContextPropagationTestCase testCase)
         {
-            Console.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+            TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
             var headers = new Dictionary<string, string>();
 
@@ -68,7 +109,7 @@
         [TestCaseSource(nameof(TestCases))]
         public void Can_roundtrip_baggage(ContextPropagationTestCase testCase)
         {
-            Console.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+            TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
             var outgoingHeaders = new Dictionary<string, string>();
             var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);

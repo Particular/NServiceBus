@@ -14,7 +14,8 @@
                 return;
             }
 
-            headers.Add(Headers.DiagnosticsTraceParent, activity.Id);
+            headers[Headers.DiagnosticsTraceParent] = activity.Id;
+
             if (activity.TraceStateString != null)
             {
                 headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
