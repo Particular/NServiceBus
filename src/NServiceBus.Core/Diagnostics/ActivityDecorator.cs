@@ -4,6 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Sagas;
     using Routing;
     using Transport;
 
@@ -81,6 +83,18 @@ namespace NServiceBus
 
             var destination = string.Join(", ", destinations);
             activity.AddTag("messaging.destination", destination);
+        }
+
+        public static void SetInvokeHandlerTags(Activity activity, MessageHandler messageHandler, ActiveSagaInstance saga)
+        {
+            if (activity != null)
+            {
+                activity.AddTag("nservicebus.handler_type", messageHandler.HandlerType.FullName);
+                if (saga != null)
+                {
+                    activity.AddTag("nservicebus.saga_id", saga.SagaId);
+                }
+            }
         }
 
         public static void Initialize(string receiveAddress)
