@@ -14,6 +14,9 @@
                 return;
             }
 
+            using var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
+            ActivityDecorator.SetInvokeHandlerTags(activity, context.MessageHandler, saga);
+
             var messageHandler = context.MessageHandler;
 
             // Might as well abort before invoking the handler if we're shutting down
