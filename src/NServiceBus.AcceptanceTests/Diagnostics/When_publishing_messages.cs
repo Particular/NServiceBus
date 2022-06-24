@@ -42,7 +42,7 @@
 
             //TODO assert tags from header values
             var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
-            VerifyTag("NServiceBus.MessageId", context.SentMessageId);
+            sentMessageTags.VerifyTag("nservicebus.message_id", context.SentMessageId);
 
             Assert.IsNotNull(context.TraceParentHeader, "tracing header should be set on the published event");
         }

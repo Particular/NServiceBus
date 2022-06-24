@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Diagnostics;
-    using System.Linq;
-    using NServiceBus.Routing;
     using NServiceBus.Transport;
     using NUnit.Framework;
 
@@ -45,14 +43,6 @@
             {
                 VerifyTag(activity, "messaging.conversation_id", conversationId);
             }
-        }
-
-        static OutgoingMessage CreateMessage()
-        {
-            var messageId = Guid.NewGuid().ToString();
-            var headers = new Dictionary<string, string>();
-            var body = new ReadOnlyMemory<byte>(new byte[5]);
-            return new OutgoingMessage(messageId, headers, body);
         }
 
         static void VerifyTag(Activity activity, string tagName, string expectedValue)
