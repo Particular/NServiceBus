@@ -87,10 +87,13 @@ namespace NServiceBus
 
         public static void SetInvokeHandlerTags(Activity activity, MessageHandler messageHandler, ActiveSagaInstance saga)
         {
-            activity?.AddTag("nservicebus.handler_type", messageHandler.HandlerType.FullName);
-            if (saga != null)
+            if (activity != null)
             {
-                activity?.AddTag("nservicebus.saga_id", saga.SagaId);
+                activity.AddTag("nservicebus.handler_type", messageHandler.HandlerType.FullName);
+                if (saga != null)
+                {
+                    activity.AddTag("nservicebus.saga_id", saga.SagaId);
+                }
             }
         }
 

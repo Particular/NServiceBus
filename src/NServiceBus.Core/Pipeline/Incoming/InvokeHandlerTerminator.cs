@@ -14,6 +14,7 @@
                 return;
             }
 
+            //TODO set activity status
             using var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
             ActivityDecorator.SetInvokeHandlerTags(activity, context.MessageHandler, saga);
 
