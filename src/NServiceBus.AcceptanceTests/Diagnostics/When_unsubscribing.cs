@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics;
 
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -32,6 +33,9 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
         unsubscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
 
+        var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
+        unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
+
         //TODO assert tags etc.
 
         var receiveActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
@@ -59,6 +63,9 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
         var unsubscribeActivity = unsubscribeActivities.Single();
         unsubscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
+
+        var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
+        unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
         //TODO assert tags etc.
 

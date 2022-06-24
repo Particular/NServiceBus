@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics;
 
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -32,7 +33,11 @@ public class When_subscribing : NServiceBusAcceptanceTest
         var subscribeActivity = subscribeActivities.Single();
         subscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
-        //TODO assert tags etc.
+        var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
+        subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
+
+        //TODO not implemented currently, we can have multiple dispatches from the same outgoing span
+        //Assert.IsTrue(subscribeActivityTags.ContainsKey("nservicebus.message_id"));
 
         var receiveActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
         Assert.AreEqual(1, receiveActivities.Length, "the subscription message should be received by the publisher");
@@ -61,7 +66,8 @@ public class When_subscribing : NServiceBusAcceptanceTest
         var subscribeActivity = subscribeActivities.Single();
         subscribeActivity.VerifyUniqueTags();
         Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
-        //TODO assert tags etc.
+        var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
+        subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
         var subscriptionReceiveActivity = activityListener.CompletedActivities.GetIncomingActivities();
         Assert.IsEmpty(subscriptionReceiveActivity, "native pubsub should not produce a message");
