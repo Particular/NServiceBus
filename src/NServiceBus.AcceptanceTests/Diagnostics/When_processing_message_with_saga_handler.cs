@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System;
+    using System.Collections.Immutable;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -29,29 +30,26 @@
 
             Assert.AreEqual(1, invokedHandlerActivities.Count, "One handlers should be invoked");
 
-            var invokedSagaActivity = invokedHandlerActivities.Single();
+            var handlerActivityTags = invokedHandlerActivities.Single().Tags.ToImmutableDictionary();
+            handlerActivityTags.VerifyTag("nservicebus.handler_type", typeof(TestEndpoint.TracedSaga).FullName);
+            handlerActivityTags.VerifyTag("nservicebus.saga_id", context.SagaId);
+        }
 
-            var handlerType = invokedSagaActivity.GetTagItem("nservicebus.handler_type");
-            Assert.NotNull(handlerType, "Handler type tag should be set");
-            Assert.AreEqual(handlerType, typeof(TestEndpoint.TracedSaga).FullName, "invocation of saga should be recorded");
-
-            var sagaId = invokedSagaActivity.GetTagItem("nservicebus.saga_id");
-            Assert.NotNull(sagaId, "Saga Id tag should be set");
-            Assert.AreEqual(context.SagaId, sagaId, "Saga Id does not match");
+        public class Context : ScenarioContext
+        {
+            public string SagaId { get; set; }
+            public bool MessageHandled { get; set; }
         }
 
         public class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public TestEndpoint() => EndpointSetup<DefaultServer>();
 
             public class TracedSaga : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
             {
-                Context scenarioContext;
+                Context testContext;
 
-                public TracedSaga(Context scenarioContext) => this.scenarioContext = scenarioContext;
+                public TracedSaga(Context testContext) => this.testContext = testContext;
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TracedSagaData> mapper)
                     => mapper.MapSaga(saga => saga.BusinessId)
@@ -59,8 +57,8 @@
 
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    scenarioContext.MessageHandled = true;
-                    scenarioContext.SagaId = Data.Id.ToString();
+                    testContext.MessageHandled = true;
+                    testContext.SagaId = Data.Id.ToString();
                     return Task.CompletedTask;
                 }
 
@@ -74,12 +72,6 @@
         public class SomeMessage : IMessage
         {
             public Guid BusinessId { get; set; }
-        }
-
-        public class Context : ScenarioContext
-        {
-            public string SagaId { get; set; }
-            public bool MessageHandled { get; set; }
         }
     }
 }
