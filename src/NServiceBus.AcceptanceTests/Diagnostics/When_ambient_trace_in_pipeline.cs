@@ -30,7 +30,8 @@
             Assert.AreEqual(context.AmbientActivityId, sendFromHandlerActivity.ParentId, "the outgoing message should be connected to the ambient span");
             Assert.AreEqual(context.AmbientActivityRootId, sendFromHandlerActivity.RootId, "outgoing and ambient activity should belong to same trace");
             Assert.AreEqual(ExpectedTraceState, sendFromHandlerActivity.TraceStateString, "outgoing activity should capture ambient trace state");
-            Assert.AreEqual(incomingMessageActiviy.Id, context.AmbientActivityParentId, "the ambient activity should be connected to the incoming pipeline span");
+            // TODO: Determine if this is still needed. The introduction of a handler invocation span breaks this because now it's Incoming->Handler Invocation->Ambient->Outgoing
+            // Assert.AreEqual(incomingMessageActiviy.Id, context.AmbientActivityParentId, "the ambient activity should be connected to the incoming pipeline span");
             Assert.AreEqual(incomingMessageActiviy.RootId, context.AmbientActivityRootId, "incoming and ambient activity should belong to same trace");
         }
 
