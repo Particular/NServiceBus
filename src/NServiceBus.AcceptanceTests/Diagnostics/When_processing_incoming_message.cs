@@ -37,12 +37,6 @@
 
             var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
 
-            incomingActivityTags.VerifyTag("messaging.message_id", context.IncomingMessageId);
-            incomingActivityTags.VerifyTag("messaging.conversation_id", context.IncomingMessageConversationId);
-            incomingActivityTags.VerifyTag("messaging.operation", "process");
-            incomingActivityTags.VerifyTag("messaging.destination", destination);
-            incomingActivityTags.VerifyTag("messaging.message_payload_size_bytes", "222");
-
             incomingActivityTags.VerifyTag("nservicebus.message_id", context.IncomingMessageId);
             incomingActivityTags.VerifyTag("nservicebus.correlation_id", context.ReceivedHeaders[Headers.CorrelationId]);
             incomingActivityTags.VerifyTag("nservicebus.conversation_id", context.ReceivedHeaders[Headers.ConversationId]);

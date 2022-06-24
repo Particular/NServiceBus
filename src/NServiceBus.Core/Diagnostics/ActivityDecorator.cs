@@ -6,30 +6,9 @@ namespace NServiceBus
     using System.Linq;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
-    using Transport;
 
     class ActivityDecorator
     {
-        static string endpointQueueName;
-
-        public static void SetReceiveTags(Activity activity, IncomingMessage message)
-        {
-            if (activity == null)
-            {
-                return;
-            }
-
-            activity.AddTag("messaging.operation", "process");
-            activity.AddTag("messaging.destination", endpointQueueName);
-            activity.AddTag("messaging.message_id", message.MessageId);
-            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
-
-            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
-            {
-                activity.AddTag("messaging.conversation_id", conversationId);
-            }
-        }
-
         public static void SetInvokeHandlerTags(Activity activity, MessageHandler messageHandler,
             ActiveSagaInstance saga)
         {
@@ -41,11 +20,6 @@ namespace NServiceBus
                     activity.AddTag("nservicebus.saga_id", saga.SagaId);
                 }
             }
-        }
-
-        public static void Initialize(string receiveAddress)
-        {
-            endpointQueueName = receiveAddress;
         }
 
         public static void PromoteHeadersToTags(Activity activity, Dictionary<string, string> headers)
