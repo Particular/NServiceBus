@@ -33,7 +33,7 @@
 
             var handlerType = invokedSagaActivity.GetTagItem("nservicebus.handler_type");
             Assert.NotNull(handlerType, "Handler type tag should be set");
-            Assert.AreEqual(handlerType, typeof(TestEndpoint.MySaga).FullName, "invocation of saga should be recorded");
+            Assert.AreEqual(handlerType, typeof(TestEndpoint.TracedSaga).FullName, "invocation of saga should be recorded");
 
             var sagaId = invokedSagaActivity.GetTagItem("nservicebus.saga_id");
             Assert.NotNull(sagaId, "Saga Id tag should be set");
@@ -47,13 +47,13 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MySaga : Saga<MySaga.SagaData>, IAmStartedByMessages<SomeMessage>
+            public class TracedSaga : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
             {
                 Context scenarioContext;
 
-                public MySaga(Context scenarioContext) => this.scenarioContext = scenarioContext;
+                public TracedSaga(Context scenarioContext) => this.scenarioContext = scenarioContext;
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TracedSagaData> mapper)
                     => mapper.MapSaga(saga => saga.BusinessId)
                             .ToMessage<SomeMessage>(msg => msg.BusinessId);
 
@@ -64,9 +64,9 @@
                     return Task.CompletedTask;
                 }
 
-                public class SagaData : ContainSagaData
+                public class TracedSagaData : ContainSagaData
                 {
-                    public Guid BusinessId { get; set; }
+                    public virtual Guid BusinessId { get; set; }
                 }
             }
         }
