@@ -56,6 +56,7 @@
 
                 if (eventsToSubscribe.Length == 0)
                 {
+                    Logger.Debug("Auto-subscribe found no event types to subscribe.");
                     return;
                 }
 
