@@ -36,15 +36,15 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             metricsListener.AssertMetric("messaging.fetches", 5);
             metricsListener.AssertMetric("messaging.failures", 0);
 
-            var expectedEndpoint = metricsListener.AssertTagKeyExists("messaging.successes", "messaging.endpoint");
-            metricsListener.AssertTagKeyExists("messaging.successes", "messaging.queue");
-            metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.endpoint");
-            metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.queue");
-            Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), expectedEndpoint);
+            var successEndpoint = metricsListener.AssertTagKeyExists("messaging.successes", "messaging.queue");
+            var successType = metricsListener.AssertTagKeyExists("messaging.successes", "messaging.type");
+            var fetchedEndpoint = metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.queue");
+            var fetchedType = metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.type").ToString();
 
-            var expectedType = metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.type").ToString();
-            metricsListener.AssertTagKeyExists("messaging.successes", "messaging.type");
-            Assert.AreEqual(expectedType, typeof(OutgoingMessage));
+            Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
+            Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
+            Assert.AreEqual(successType, typeof(OutgoingMessage).AssemblyQualifiedName);
+            Assert.AreEqual(fetchedType, typeof(OutgoingMessage).AssemblyQualifiedName);
         }
 
         class Context : ScenarioContext

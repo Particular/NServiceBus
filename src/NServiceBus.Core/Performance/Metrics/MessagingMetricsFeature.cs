@@ -27,8 +27,8 @@ namespace NServiceBus
 
         static void RegisterBehavior(FeatureConfigurationContext context)
         {
-            var discriminator = context.Receiving.QueueNameBase;
-            var queueNameBase = context.Receiving.InstanceSpecificQueueAddress?.Discriminator;
+            var discriminator = context.Receiving.InstanceSpecificQueueAddress?.Discriminator;
+            var queueNameBase = context.Receiving.QueueNameBase;
             var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(queueNameBase, discriminator);
 
             context.Pipeline.Register(
