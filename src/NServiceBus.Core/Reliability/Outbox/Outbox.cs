@@ -48,7 +48,7 @@
             if (context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.ReceiveOnly)
             {
                 throw new Exception(
-                    $"Outbox requires transport to be running in ${nameof(TransportTransactionMode.ReceiveOnly)} mode. Use ${nameof(TransportDefinition.TransportTransactionMode)} property on the transport definition to specify the transaction mode.");
+                    $"Outbox requires transport to be running in `{nameof(TransportTransactionMode.ReceiveOnly)}` mode. Use the `{nameof(TransportDefinition.TransportTransactionMode)}` property on the transport definition to specify the transaction mode.");
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
