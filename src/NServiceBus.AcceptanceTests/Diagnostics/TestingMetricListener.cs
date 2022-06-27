@@ -40,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
         }
 
         public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-            SetupMetricsListener("NServiceBus.Diagnostics");
+            SetupMetricsListener("NServiceBus.Core");
 
         public static TestingMetricListener SetupMetricsListener(string sourceName)
         {

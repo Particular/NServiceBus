@@ -10,7 +10,7 @@
     {
         readonly ActivityListener activityListener;
 
-        public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener("NServiceBus.Diagnostics");
+        public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener("NServiceBus.Core");
 
         public static TestingActivityListener SetupDiagnosticListener(string sourceName)
         {
