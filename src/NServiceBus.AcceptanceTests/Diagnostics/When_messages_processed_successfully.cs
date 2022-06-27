@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
@@ -9,7 +8,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using NServiceBus;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
-    [NonParallelizable]
+    [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_messages_processed_successfully : NServiceBusAcceptanceTest
     {
         [Test]
@@ -23,10 +22,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
                     {
                         for (var x = 0; x < 5; x++)
                         {
-                            await session.SendLocal(new OutgoingMessage
-                            {
-                                Id = ctx.TestRunId
-                            });
+                            await session.SendLocal(new OutgoingMessage());
                         }
                     }))
                 .Done(c => c.OutgoingMessagesReceived == 5)
@@ -58,7 +54,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
             class MessageHandler : IHandleMessages<OutgoingMessage>
             {
-                Context testContext;
+                readonly Context testContext;
 
                 public MessageHandler(Context testContext) => this.testContext = testContext;
 
@@ -72,7 +68,6 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
 
         public class OutgoingMessage : IMessage
         {
-            public Guid Id { get; set; }
         }
     }
 }
