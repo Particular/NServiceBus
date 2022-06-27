@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Pipeline;
     using Sagas;
@@ -14,9 +15,12 @@
                 return;
             }
 
-            //TODO set activity status
             using var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
-            ActivityDecorator.SetInvokeHandlerTags(activity, context.MessageHandler, saga);
+            if (activity != null)
+            {
+                activity.DisplayName = context.MessageHandler.HandlerType.Name;
+                ActivityDecorator.SetInvokeHandlerTags(activity, context.MessageHandler, saga);
+            }
 
             var messageHandler = context.MessageHandler;
 
@@ -30,6 +34,8 @@
                     .Invoke(context.MessageBeingHandled, context)
                     .ThrowIfNull()
                     .ConfigureAwait(false);
+
+                activity?.SetStatus(ActivityStatusCode.Ok);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)
@@ -40,6 +46,8 @@
                 ex.Data["Handler start time"] = DateTimeOffsetHelper.ToWireFormattedString(startTime);
                 ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
+
+                ActivityDecorator.SetErrorStatus(activity, ex);
                 throw;
             }
         }

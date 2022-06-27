@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Diagnostics
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -33,10 +34,11 @@
 
             foreach (var invokedHandlerActivity in invokedHandlerActivities)
             {
-                var handlerType = invokedHandlerActivity.GetTagItem("nservicebus.handler_type") as string;
-                Assert.NotNull(handlerType, "Handler type tag should be set");
-                recordedHandlerTypes.Add(handlerType);
+                var handlerTypeTag = invokedHandlerActivity.GetTagItem("nservicebus.handler_type") as string;
+                Assert.NotNull(handlerTypeTag, "Handler type tag should be set");
+                recordedHandlerTypes.Add(handlerTypeTag);
                 Assert.AreEqual(receivePipelineActivities[0].Id, invokedHandlerActivity.ParentId);
+                Assert.AreEqual(ActivityStatusCode.Ok, invokedHandlerActivity.Status);
             }
 
             Assert.True(recordedHandlerTypes.Contains(typeof(ReceivingEndpoint.HandlerOne).FullName), "invocation of handler one should be traced");

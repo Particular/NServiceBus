@@ -29,8 +29,6 @@
             metricsListener.AssertMetric("messaging.successes", 0);
         }
 
-        //TODO test retries?
-
         [Test]
         public async Task Should_mark_span_as_failed()
         {
@@ -43,13 +41,23 @@
                 .Done(c => c.HandlerInvoked).Run();
 
             Assert.AreEqual(1, context.FailedMessages.Count, "the message should have failed");
-            Activity failedActivity = activityListener.CompletedActivities.GetIncomingActivities().Single();
-            Assert.AreEqual(ActivityStatusCode.Error, failedActivity.Status);
-            Assert.AreEqual(ErrorMessage, failedActivity.StatusDescription);
 
-            var tags = failedActivity.Tags.ToImmutableDictionary();
-            tags.VerifyTag("otel.status_code", "ERROR");
-            tags.VerifyTag("otel.status_description", ErrorMessage);
+            Activity failedPipelineActivity = activityListener.CompletedActivities.GetIncomingActivities().Single();
+            Assert.AreEqual(ActivityStatusCode.Error, failedPipelineActivity.Status);
+            Assert.AreEqual(ErrorMessage, failedPipelineActivity.StatusDescription);
+
+            var pipelineActivityTags = failedPipelineActivity.Tags.ToImmutableDictionary();
+            pipelineActivityTags.VerifyTag("otel.status_code", "ERROR");
+            pipelineActivityTags.VerifyTag("otel.status_description", ErrorMessage);
+
+            Activity failedHandlerActivity = activityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+            Assert.AreEqual(ActivityStatusCode.Error, failedHandlerActivity.Status);
+            Assert.AreEqual(ErrorMessage, failedHandlerActivity.StatusDescription);
+
+            var handlerActivityTags = failedHandlerActivity.Tags.ToImmutableDictionary();
+            handlerActivityTags.VerifyTag("otel.status_code", "ERROR");
+            handlerActivityTags.VerifyTag("otel.status_description", ErrorMessage);
+
         }
 
         class Context : ScenarioContext
