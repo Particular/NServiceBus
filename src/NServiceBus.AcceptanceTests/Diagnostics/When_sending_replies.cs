@@ -31,16 +31,8 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
 
             replyMessage.VerifyUniqueTags();
+            //TODO verify header tags
             var replyMessageTags = replyMessage.Tags.ToImmutableDictionary();
-            // TODO: Verify whether we want to keep this. messaging.message_id is from the spec
-            replyMessageTags.VerifyTag("NServiceBus.MessageId", context.OutgoingMessageId);
-            replyMessageTags.VerifyTag("messaging.message_id", context.OutgoingMessageId); // TODO: should be set by the transport? If set by NSB, this should be the transport message id?
-            replyMessageTags.VerifyTag("messaging.conversation_id", context.MessageConversationId);
-            replyMessageTags.VerifyTag("messaging.operation", "send");
-            replyMessageTags.VerifyTag("messaging.destination_kind", "queue");
-            replyMessageTags.VerifyTag("messaging.destination", destination);
-            // NOTE: Payload size is zero and the tag is not added
-            replyMessageTags.VerifyTag("messaging.message_payload_size_bytes", "218");
         }
 
         class Context : ScenarioContext

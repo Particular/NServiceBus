@@ -6,86 +6,11 @@ namespace NServiceBus
     using System.Linq;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
-    using Routing;
-    using Transport;
 
     class ActivityDecorator
     {
-        static string endpointQueueName;
-
-
-        public static void SetReceiveTags(Activity activity, IncomingMessage message)
-        {
-            if (activity == null)
-            {
-                return;
-            }
-
-            activity.AddTag("messaging.operation", "process");
-            activity.AddTag("messaging.destination", endpointQueueName);
-            activity.AddTag("messaging.message_id", message.MessageId);
-            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
-
-            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
-            {
-                activity.AddTag("messaging.conversation_id", conversationId);
-            }
-        }
-
-        public static void SetOutgoingTraceTags(Activity activity, OutgoingMessage message, TransportOperation[] operations)
-        {
-            if (activity == null)
-            {
-                return;
-            }
-
-            activity.AddTag("NServiceBus.MessageId", message.MessageId);
-            activity.AddTag("messaging.message_id", message.MessageId);
-
-            if (message.Headers.TryGetValue(Headers.ConversationId, out var conversationId))
-            {
-                activity.AddTag("messaging.conversation_id", conversationId);
-            }
-
-            // HINT: This needs to be converted into a string or the tag is not created
-            activity.AddTag("messaging.message_payload_size_bytes", message.Body.Length.ToString());
-            activity.AddTag("messaging.operation", "send");
-
-            var destinations = new string[operations.Length];
-            var currentOperation = 0;
-            var allUnicast = true;
-            var allMulticast = true;
-            foreach (var operation in operations)
-            {
-                if (operation.AddressTag is MulticastAddressTag m)
-                {
-                    destinations[currentOperation] = m.MessageType.FullName;
-                    allUnicast = false;
-                }
-                else if (operation.AddressTag is UnicastAddressTag u)
-                {
-                    destinations[currentOperation] = u.Destination;
-                    allMulticast = false;
-                }
-
-                currentOperation++;
-            }
-
-            if (allUnicast)
-            {
-                activity.AddTag("messaging.destination_kind", "queue");
-            }
-
-            if (allMulticast)
-            {
-                activity.AddTag("messaging.destination_kind", "topic");
-            }
-
-            var destination = string.Join(", ", destinations);
-            activity.AddTag("messaging.destination", destination);
-        }
-
-        public static void SetInvokeHandlerTags(Activity activity, MessageHandler messageHandler, ActiveSagaInstance saga)
+        public static void SetInvokeHandlerTags(Activity activity, MessageHandler messageHandler,
+            ActiveSagaInstance saga)
         {
             if (activity != null)
             {
@@ -95,11 +20,6 @@ namespace NServiceBus
                     activity.AddTag("nservicebus.saga_id", saga.SagaId);
                 }
             }
-        }
-
-        public static void Initialize(string receiveAddress)
-        {
-            endpointQueueName = receiveAddress;
         }
 
         public static void PromoteHeadersToTags(Activity activity, Dictionary<string, string> headers)

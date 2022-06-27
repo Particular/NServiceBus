@@ -38,16 +38,6 @@
             Assert.AreEqual("send", sentMessage.DisplayName);
 
             var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
-            // TODO: Verify whether we want to keep this. messaging.message_id is from the spec
-            VerifyTag("NServiceBus.MessageId", context.SentMessageId);
-            VerifyTag("messaging.message_id", context.SentMessageId); // TODO: should be set by the transport? If set by NSB, this should be the transport message id?
-            VerifyTag("messaging.conversation_id", context.MessageConversationId);
-            VerifyTag("messaging.operation", "send");
-            VerifyTag("messaging.destination_kind", "queue");
-            VerifyTag("messaging.destination", destination);
-            // NOTE: Payload size is zero and the tag is not added
-            VerifyTag("messaging.message_payload_size_bytes", "222");
-
             VerifyTag("nservicebus.message_id", context.SentMessageId);
             VerifyTag("nservicebus.correlation_id", context.SentMessageHeaders[Headers.CorrelationId]);
             VerifyTag("nservicebus.conversation_id", context.SentMessageHeaders[Headers.ConversationId]);

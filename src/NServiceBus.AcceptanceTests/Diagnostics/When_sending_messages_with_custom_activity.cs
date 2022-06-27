@@ -33,19 +33,11 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             var sendActivityTags = sendActivity.Tags.ToImmutableDictionary();
             var customActivityTags = customActivity.Tags.ToImmutableDictionary();
 
-            VerifyTagDoesNotExist("NServiceBus.MessageId");
-            VerifyTagDoesNotExist("messaging.message_id");
-            VerifyTagDoesNotExist("messaging.conversation_id");
-            VerifyTagDoesNotExist("messaging.operation");
-            VerifyTagDoesNotExist("messaging.destination");
-            VerifyTagDoesNotExist("messaging.message_payload_size_bytes");
+            VerifyTagDoesNotExist("nservicebus.message_id");
+            VerifyTagDoesNotExist("nservicebus.conversation_id");
 
-            VerifyTag("NServiceBus.MessageId");
-            VerifyTag("messaging.message_id");
-            VerifyTag("messaging.conversation_id");
-            VerifyTag("messaging.operation");
-            VerifyTag("messaging.destination");
-            VerifyTag("messaging.message_payload_size_bytes");
+            VerifyTag("nservicebus.message_id");
+            VerifyTag("nservicebus.conversation_id");
 
             void VerifyTag(string tagKey)
             {

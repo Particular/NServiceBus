@@ -29,9 +29,6 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
-                ActivityDecorator.SetReceiveTags(activity, message);
-                ActivityDecorator.PromoteHeadersToTags(activity, messageContext.Headers);
-
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
 
@@ -101,6 +98,9 @@ namespace NServiceBus
                 activity.DisplayName = "process";
                 activity.SetIdFormat(ActivityIdFormat.W3C);
                 activity.AddTag("nservicebus.native_message_id", context.NativeMessageId);
+
+                ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
+
                 activity.Start();
             }
 
