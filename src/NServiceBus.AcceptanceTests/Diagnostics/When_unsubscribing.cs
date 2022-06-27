@@ -31,7 +31,7 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
 
         var unsubscribeActivity = unsubscribeActivities.Single();
         unsubscribeActivity.VerifyUniqueTags();
-        Assert.AreEqual("unsubscribe", unsubscribeActivity.DisplayName);
+        Assert.AreEqual("unsubscribe event", unsubscribeActivity.DisplayName);
 
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);

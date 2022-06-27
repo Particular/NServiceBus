@@ -33,7 +33,7 @@
 
             Assert.AreEqual(ActivityStatusCode.Ok, incomingActivity.Status);
             var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
-            Assert.AreEqual($"process", incomingActivity.DisplayName);
+            Assert.AreEqual("process message", incomingActivity.DisplayName);
 
             var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
 

@@ -98,7 +98,7 @@ namespace NServiceBus
 
             if (activity != null)
             {
-                activity.DisplayName = "process";
+                activity.DisplayName = "process message";
                 activity.SetIdFormat(ActivityIdFormat.W3C);
                 activity.AddTag("nservicebus.native_message_id", context.NativeMessageId);
                 activity.Start();
