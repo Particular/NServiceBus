@@ -7,10 +7,28 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using NServiceBus;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_processing_fails : NServiceBusAcceptanceTest
     {
+        [Test]
+        public async Task Should_report_failing_message_metrics()
+        {
+            using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+            _ = await Scenario.Define<Context>()
+                .WithEndpoint<FailingEndpoint>(e => e
+                    .CustomConfig(cfg => cfg.EnableOpenTelemetryMetrics())
+                    .DoNotFailOnErrorMessages()
+                    .When(s => s.SendLocal(new FailingMessage())))
+                .Done(c => c.HandlerInvoked)
+                .Run();
+
+            metricsListener.AssertMetric("messaging.fetches", 1);
+            metricsListener.AssertMetric("messaging.failures", 1);
+            metricsListener.AssertMetric("messaging.successes", 0);
+        }
+
         //TODO test retries?
 
         [Test]
