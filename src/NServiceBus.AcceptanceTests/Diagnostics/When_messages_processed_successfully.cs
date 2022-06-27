@@ -7,6 +7,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using NServiceBus;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     [NonParallelizable]
     public class When_messages_processed_successfully : NServiceBusAcceptanceTest
@@ -16,7 +17,7 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
         {
             using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
             _ = await Scenario.Define<Context>()
-                .WithEndpoint<TestEndpoint>(b => b
+                .WithEndpoint<EndpointWithMetrics>(b => b
                     .CustomConfig(cfg => cfg.EnableOpenTelemetryMetrics())
                     .When(async (session, ctx) =>
                     {
@@ -39,11 +40,11 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             metricsListener.AssertTagKeyExists("messaging.successes", "messaging.queue");
             metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.endpoint");
             metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.queue");
-            Assert.AreEqual("EndpointWithMetrics", expectedEndpoint);
+            Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), expectedEndpoint);
 
             var expectedType = metricsListener.AssertTagKeyExists("messaging.fetches", "messaging.type").ToString();
             metricsListener.AssertTagKeyExists("messaging.successes", "messaging.type");
-            Assert.True(expectedType.Contains("When_messages_processed_successfully+OutgoingMessage"));
+            Assert.AreEqual(expectedType, typeof(OutgoingMessage));
         }
 
         class Context : ScenarioContext
@@ -51,9 +52,9 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             public int OutgoingMessagesReceived;
         }
 
-        class TestEndpoint : EndpointConfigurationBuilder
+        class EndpointWithMetrics : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>().CustomEndpointName("EndpointWithMetrics");
+            public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
 
             class MessageHandler : IHandleMessages<OutgoingMessage>
             {

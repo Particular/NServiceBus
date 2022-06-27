@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Extension methods to configure OpenTelemetry metrics.
     /// </summary>
@@ -15,14 +13,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
             config.EnableFeature<MessagingMetricsFeature>();
-        }
-    }
-
-    static class Extensions
-    {
-        internal static bool TryGetMessageType(this IReadOnlyDictionary<string, string> headers, out string processedMessageTypes)
-        {
-            return headers.TryGetValue(Headers.EnclosedMessageTypes, out processedMessageTypes);
         }
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Diagnostics.Metrics;
     using Features;
 
     /// <summary>
@@ -8,10 +9,14 @@ namespace NServiceBus
     /// </summary>
     class MessagingMetricsFeature : Feature
     {
+        internal static readonly Meter NServiceBusMeter = new Meter(
+            NServiceBusDiagnosticsInfo.InstrumentationName,
+            NServiceBusDiagnosticsInfo.InstrumentationVersion);
+
         /// <inheritdoc />
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var isSendOnly = context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
+            var isSendOnly = context.Receiving.IsSendOnlyEndpoint;
             if (isSendOnly)
             {
                 throw new Exception("Metrics are not supported on send only endpoints.");
@@ -22,15 +27,11 @@ namespace NServiceBus
 
         static void RegisterBehavior(FeatureConfigurationContext context)
         {
-            var settings = context.Settings.Get<ReceiveComponent.Settings>();
-            var endpointName = settings.EndpointName;
-            var discriminator = settings.EndpointInstanceDiscriminator;
-            var queueNameBase = settings.CustomQueueNameBase ?? endpointName;
-
-            var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(endpointName, queueNameBase, discriminator);
+            var discriminator = context.Receiving.QueueNameBase;
+            var queueNameBase = context.Receiving.InstanceSpecificQueueAddress?.Discriminator;
+            var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(queueNameBase, discriminator);
 
             context.Pipeline.Register(
-                "NServiceBus.ReceiveDiagnosticsBehavior",
                 performanceDiagnosticsBehavior,
                 "Provides OpenTelemetry counters for message processing"
             );
