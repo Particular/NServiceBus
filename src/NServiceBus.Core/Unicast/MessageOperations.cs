@@ -172,7 +172,7 @@ namespace NServiceBus
                 activity.SetIdFormat(ActivityIdFormat.W3C);
                 activity.DisplayName = displayName;
                 activity.Start();
-                outgoingContext.Extensions.Set(DiagnosticsKeys.OutgoingActivityKey, activity);
+                outgoingContext.Extensions.SetPipelineActitvity(activity);
 
                 try
                 {

@@ -45,7 +45,7 @@ public class MessageOperationsTests
 
         //TODO: verify message intent tag == send
 
-        Assert.AreEqual(sendPipeline.CurrentActivity, sendPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+        Assert.AreEqual(sendPipeline.CurrentActivity, sendPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class MessageOperationsTests
 
         //TODO: verify message intent tag == publish
 
-        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
     [Test]
@@ -89,7 +89,7 @@ public class MessageOperationsTests
 
         //TODO: verify message intent tag == reply
 
-        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class MessageOperationsTests
 
         //TODO: verify message intent tag == subscribe
 
-        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
     [Test]
@@ -133,7 +133,7 @@ public class MessageOperationsTests
 
         //TODO: verify message intent tag == subscribe
 
-        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(DiagnosticsKeys.OutgoingActivityKey));
+        Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
     [Test]

@@ -10,9 +10,4 @@ namespace NServiceBus
         public const string UnsubscribeActivityName = "NServiceBus.Diagnostics.Unsubscribe";
         public const string InvokeHandlerActivityName = "NServiceBus.Diagnostics.InvokeHandler";
     }
-
-    class DiagnosticsKeys
-    {
-        public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
-    }
 }
