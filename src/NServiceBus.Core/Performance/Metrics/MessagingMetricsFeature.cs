@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Diagnostics.Metrics;
     using Features;
 
@@ -13,17 +12,10 @@ namespace NServiceBus
             NServiceBusDiagnosticsInfo.InstrumentationName,
             NServiceBusDiagnosticsInfo.InstrumentationVersion);
 
-        /// <inheritdoc />
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            var isSendOnly = context.Receiving.IsSendOnlyEndpoint;
-            if (isSendOnly)
-            {
-                throw new Exception("Metrics are not supported on send only endpoints.");
-            }
+        public MessagingMetricsFeature() => Prerequisite(c => !c.Receiving.IsSendOnlyEndpoint, "Processing metrics are not supported on send-only endpoints");
 
-            RegisterBehavior(context);
-        }
+        /// <inheritdoc />
+        protected internal override void Setup(FeatureConfigurationContext context) => RegisterBehavior(context);
 
         static void RegisterBehavior(FeatureConfigurationContext context)
         {
