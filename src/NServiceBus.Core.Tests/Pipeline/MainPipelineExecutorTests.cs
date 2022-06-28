@@ -38,7 +38,7 @@
 
             Assert.NotNull(receivePipeline.PipelineAcitivty);
             Assert.AreEqual(ActivityNames.IncomingMessageActivityName, receivePipeline.PipelineAcitivty.OperationName);
-            Assert.AreEqual("process", receivePipeline.PipelineAcitivty.DisplayName);
+            Assert.AreEqual("process message", receivePipeline.PipelineAcitivty.DisplayName);
         }
 
         [Test]

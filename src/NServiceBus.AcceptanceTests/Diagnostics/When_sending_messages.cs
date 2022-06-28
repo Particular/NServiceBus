@@ -35,7 +35,7 @@
             Assert.IsNull(sentMessage.ParentId, "sends without ambient span should start a new trace");
             // TODO: is this correct? it seems like this needs to be filled by the transport
             var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
-            Assert.AreEqual("send", sentMessage.DisplayName);
+            Assert.AreEqual("send message", sentMessage.DisplayName);
 
             var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
             VerifyTag("nservicebus.message_id", context.SentMessageId);

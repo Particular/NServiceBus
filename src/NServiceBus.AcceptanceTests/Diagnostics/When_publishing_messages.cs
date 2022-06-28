@@ -37,7 +37,7 @@
 
             var publishedMessage = outgoingEventActivities.Single();
             publishedMessage.VerifyUniqueTags();
-            Assert.AreEqual("publish", publishedMessage.DisplayName);
+            Assert.AreEqual("publish event", publishedMessage.DisplayName);
             Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
             //TODO assert tags from header values

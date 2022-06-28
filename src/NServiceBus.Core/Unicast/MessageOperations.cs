@@ -63,7 +63,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingEventActivityName, "publish", publishContext, publishPipeline);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingEventActivityName, "publish event", publishContext, publishPipeline);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -80,7 +80,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.SubscribeActivityName, "subscribe", subscribeContext, subscribePipeline);
+            return InvokePipelineWithTracing(ActivityNames.SubscribeActivityName, "subscribe event", subscribeContext, subscribePipeline);
         }
 
         public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -92,7 +92,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.UnsubscribeActivityName, "unsubscribe", unsubscribeContext, unsubscribePipeline);
+            return InvokePipelineWithTracing(ActivityNames.UnsubscribeActivityName, "unsubscribe event", unsubscribeContext, unsubscribePipeline);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -124,7 +124,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "send", outgoingContext, sendPipeline);
+            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "send message", outgoingContext, sendPipeline);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)

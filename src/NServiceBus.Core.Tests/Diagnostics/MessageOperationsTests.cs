@@ -41,7 +41,7 @@ public class MessageOperationsTests
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
         Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
-        Assert.AreEqual("send", activity.DisplayName);
+        Assert.AreEqual("send message", activity.DisplayName);
 
         //TODO: verify message intent tag == send
 
@@ -63,7 +63,7 @@ public class MessageOperationsTests
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
         Assert.AreEqual(ActivityNames.OutgoingEventActivityName, activity.OperationName);
-        Assert.AreEqual("publish", activity.DisplayName);
+        Assert.AreEqual("publish event", activity.DisplayName);
 
         //TODO: verify message intent tag == publish
 
@@ -107,7 +107,7 @@ public class MessageOperationsTests
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
         Assert.AreEqual(ActivityNames.SubscribeActivityName, activity.OperationName);
-        Assert.AreEqual("subscribe", activity.DisplayName);
+        Assert.AreEqual("subscribe event", activity.DisplayName);
 
         //TODO: verify message intent tag == subscribe
 
@@ -129,7 +129,7 @@ public class MessageOperationsTests
         Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
 
         Assert.AreEqual(ActivityNames.UnsubscribeActivityName, activity.OperationName);
-        Assert.AreEqual("unsubscribe", activity.DisplayName);
+        Assert.AreEqual("unsubscribe event", activity.DisplayName);
 
         //TODO: verify message intent tag == subscribe
 
