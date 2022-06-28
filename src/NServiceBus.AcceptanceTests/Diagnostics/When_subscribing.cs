@@ -65,7 +65,7 @@ public class When_subscribing : NServiceBusAcceptanceTest
 
         var subscribeActivity = subscribeActivities.Single();
         subscribeActivity.VerifyUniqueTags();
-        Assert.AreEqual("subscribe", subscribeActivity.DisplayName);
+        Assert.AreEqual("subscribe event", subscribeActivity.DisplayName);
         var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
