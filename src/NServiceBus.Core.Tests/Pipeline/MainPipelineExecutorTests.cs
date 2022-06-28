@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
+    using Diagnostics;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Core.Tests.Diagnostics.Helpers;
@@ -224,9 +225,10 @@
             var executor = new MainPipelineExecutor(
                 serviceProvider,
                 new PipelineCache(serviceProvider, new PipelineModifications()),
-                new MessageOperations(null, null, null, null, null, null),
+                new MessageOperations(null, null, null, null, null, null, null),
                 new Notification<ReceivePipelineCompleted>(),
-                receivePipeline);
+                receivePipeline,
+                new ActivityFactory());
 
             return executor;
         }

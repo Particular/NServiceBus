@@ -41,7 +41,8 @@
                 pipelineComponent.CreatePipeline<IOutgoingSendContext>(builder),
                 pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
                 pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
-                pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder));
+                pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder),
+                builder.GetService<ActivityFactory>()); //TODO get from host config instead from DI
         }
 
         readonly IMessageMapper messageMapper;

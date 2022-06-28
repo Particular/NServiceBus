@@ -21,7 +21,8 @@
                 sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
                 replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
                 subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
-                unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>());
+                unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>(),
+                null);
         }
 
         [Test]

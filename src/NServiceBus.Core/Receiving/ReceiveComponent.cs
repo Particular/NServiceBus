@@ -72,7 +72,7 @@ namespace NServiceBus
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
 
-            pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
+            pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetService<ActivityFactory>()), "Calls the IHandleMessages<T>.Handle(T)"); //TODO get factory from host config instad of DI
 
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -155,7 +155,9 @@ namespace NServiceBus
             var mainPump = CreateReceiver(consecutiveFailuresConfiguration, mainReceiver);
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
+
+            var activityFactory = builder.GetService<ActivityFactory>(); // TODO: get from hosting component instead via DI. TODO: use null or Dummy-instance?
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory);
 
             var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
                 builder,

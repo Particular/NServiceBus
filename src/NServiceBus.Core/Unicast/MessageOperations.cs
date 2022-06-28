@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces;
@@ -17,6 +16,7 @@ namespace NServiceBus
         readonly IPipeline<IOutgoingReplyContext> replyPipeline;
         readonly IPipeline<ISubscribeContext> subscribePipeline;
         readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
+        readonly ActivityFactory activityFactory;
 
         public MessageOperations(
             IMessageMapper messageMapper,
@@ -24,7 +24,8 @@ namespace NServiceBus
             IPipeline<IOutgoingSendContext> sendPipeline,
             IPipeline<IOutgoingReplyContext> replyPipeline,
             IPipeline<ISubscribeContext> subscribePipeline,
-            IPipeline<IUnsubscribeContext> unsubscribePipeline)
+            IPipeline<IUnsubscribeContext> unsubscribePipeline,
+            ActivityFactory activityFactory)
         {
             this.messageMapper = messageMapper;
             this.publishPipeline = publishPipeline;
@@ -32,6 +33,7 @@ namespace NServiceBus
             this.replyPipeline = replyPipeline;
             this.subscribePipeline = subscribePipeline;
             this.unsubscribePipeline = unsubscribePipeline;
+            this.activityFactory = activityFactory;
         }
 
         public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
@@ -159,36 +161,22 @@ namespace NServiceBus
             return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext, replyPipeline);
         }
 
-        static async Task InvokePipelineWithTracing<TContext>(string activityName, string displayName, TContext outgoingContext, IPipeline<TContext> pipeline)
+        async Task InvokePipelineWithTracing<TContext>(string activityName, string displayName, TContext outgoingContext, IPipeline<TContext> pipeline)
             where TContext : IBehaviorContext
         {
-            using var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-            if (activity == null)
-            {
-                await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
-            }
-            else
-            {
-                activity.SetIdFormat(ActivityIdFormat.W3C);
-                activity.DisplayName = displayName;
-                activity.Start();
-                outgoingContext.Extensions.SetPipelineActitvity(activity);
+            using var activity = activityFactory?.StartOutgoingPipelineActivity(activityName, displayName);
 
-                try
-                {
-                    await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
-                }
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-                catch (Exception ex)
-#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-                {
-                    // TODO: Add an explicit tag for operation canceled
-                    ActivityDecorator.SetErrorStatus(activity, ex);
-                    throw;
-                }
-                // TODO: should we stop the activity only once the message has been handed to the dispatcher?
-                activity.SetStatus(ActivityStatusCode.Ok);
+            if (activity != null)
+            {
+                outgoingContext.Extensions.SetPipelineActitvity(activity);
             }
+
+            await TracingHelper.TryTraceInvocation(activity, async (value) =>
+                {
+                    (IPipeline<TContext> p, TContext ctx) = value;
+                    await p.Invoke(ctx).ConfigureAwait(false);
+                }, (pipeline, outgoingContext))
+                .ConfigureAwait(false);
         }
 
         static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)

@@ -15,7 +15,7 @@
         public async Task When_saga_found_and_handler_is_saga_should_invoke_handler()
         {
             var handlerInvoked = false;
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
             var saga = new FakeSaga();
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, saga);
@@ -31,7 +31,7 @@
         public async Task When_saga_not_found_and_handler_is_saga_should_not_invoke_handler()
         {
             var handlerInvoked = false;
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
             var saga = new FakeSaga();
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, saga);
@@ -48,7 +48,7 @@
         public async Task When_saga_not_found_and_handler_is_not_saga_should_invoke_handler()
         {
             var handlerInvoked = false;
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
@@ -64,7 +64,7 @@
         public async Task When_no_saga_should_invoke_handler()
         {
             var handlerInvoked = false;
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
@@ -78,7 +78,7 @@
         public async Task Should_invoke_handler_with_current_message()
         {
             object receivedMessage = null;
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
             var messageHandler = CreateMessageHandler((i, m, ctx) => receivedMessage = m, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
@@ -91,7 +91,7 @@
         public void Should_rethrow_exception_with_additional_data()
         {
             var thrownException = new InvalidOperationException();
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
             var messageHandler = CreateMessageHandler((i, m, ctx) => throw thrownException, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
@@ -107,7 +107,7 @@
         [Test]
         public void Should_throw_friendly_exception_if_handler_returns_null()
         {
-            var terminator = new InvokeHandlerTerminator();
+            var terminator = new InvokeHandlerTerminator(null);
             var messageHandler = CreateMessageHandlerThatReturnsNull((i, m, ctx) => { }, new FakeSaga());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 

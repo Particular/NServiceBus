@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +9,21 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline)
+        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, ActivityFactory activityFactory)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
             this.messageOperations = messageOperations;
             this.receivePipelineNotification = receivePipelineNotification;
             this.receivePipeline = receivePipeline;
+            this.activityFactory = activityFactory;
         }
 
         public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
 
-            using var activity = StartIncomingActivity(messageContext);
+            using var activity = activityFactory?.StartIncomingActivity(messageContext);
 
             using (var childScope = rootBuilder.CreateScope())
             {
@@ -36,7 +36,12 @@ namespace NServiceBus
 
                 try
                 {
-                    await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                    await TracingHelper.TryTraceInvocation(activity, async (value) =>
+                        {
+                            (IPipeline<ITransportReceiveContext> pipeline, TransportReceiveContext ctx) = value;
+                            await pipeline.Invoke(ctx).ConfigureAwait(false);
+                        }, (receivePipeline, transportReceiveContext))
+                        .ConfigureAwait(false);
                 }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
                 catch (Exception ex)
@@ -51,60 +56,11 @@ namespace NServiceBus
 
                     ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                    // TODO: Add an explicit tag for operation canceled
-                    ActivityDecorator.SetErrorStatus(activity, ex);
                     throw;
                 }
 
                 await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
             }
-
-            activity?.SetStatus(ActivityStatusCode.Ok); //Set activity state.
-        }
-
-        static Activity StartIncomingActivity(MessageContext context)
-        {
-            Activity activity;
-            if (context.Extensions.TryGet(out Activity transportActivity)) // attach to transport span but link receive pipeline to send pipeline spa
-            {
-                ActivityLink[] links = null;
-                if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && sendSpanId != transportActivity.Id)
-                {
-                    if (ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext))
-                    {
-                        links = new[] { new ActivityLink(sendSpanContext) };
-                    }
-                }
-
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
-                    ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
-
-            }
-            else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext)) // otherwise directly create child from logical send
-            {
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, sendSpanContext);
-            }
-            else // otherwise start new trace
-            {
-                // This will use Activity.Current if set
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
-
-            }
-
-            ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-
-            if (activity != null)
-            {
-                activity.DisplayName = "process message";
-                activity.SetIdFormat(ActivityIdFormat.W3C);
-                activity.AddTag("nservicebus.native_message_id", context.NativeMessageId);
-
-                ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
-
-                activity.Start();
-            }
-
-            return activity;
         }
 
         readonly IServiceProvider rootBuilder;
@@ -112,5 +68,6 @@ namespace NServiceBus
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
         readonly IPipeline<ITransportReceiveContext> receivePipeline;
+        readonly ActivityFactory activityFactory;
     }
 }

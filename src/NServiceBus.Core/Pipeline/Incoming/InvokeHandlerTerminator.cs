@@ -1,13 +1,17 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using Pipeline;
     using Sagas;
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
+        public InvokeHandlerTerminator(ActivityFactory activityFactory)
+        {
+            this.activityFactory = activityFactory;
+        }
+
         protected override async Task Terminate(IInvokeHandlerContext context)
         {
             if (context.Extensions.TryGet(out ActiveSagaInstance saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
@@ -15,12 +19,7 @@
                 return;
             }
 
-            using var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
-            if (activity != null)
-            {
-                activity.DisplayName = context.MessageHandler.HandlerType.Name;
-                ActivityDecorator.SetInvokeHandlerTags(activity, context.MessageHandler, saga);
-            }
+            using var activity = activityFactory?.StartHandlerActivity(context.MessageHandler, saga);
 
             var messageHandler = context.MessageHandler;
 
@@ -30,12 +29,14 @@
             var startTime = DateTimeOffset.UtcNow;
             try
             {
-                await messageHandler
-                    .Invoke(context.MessageBeingHandled, context)
-                    .ThrowIfNull()
-                    .ConfigureAwait(false);
-
-                activity?.SetStatus(ActivityStatusCode.Ok);
+                await TracingHelper.TryTraceInvocation(activity, async value =>
+                {
+                    (MessageHandler handler, IInvokeHandlerContext ctx) = value;
+                    await handler
+                        .Invoke(ctx.MessageBeingHandled, ctx)
+                        .ThrowIfNull()
+                        .ConfigureAwait(false);
+                }, (messageHandler, context)).ConfigureAwait(false);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)
@@ -46,10 +47,10 @@
                 ex.Data["Handler start time"] = DateTimeOffsetHelper.ToWireFormattedString(startTime);
                 ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
-
-                ActivityDecorator.SetErrorStatus(activity, ex);
                 throw;
             }
         }
+
+        readonly ActivityFactory activityFactory;
     }
 }

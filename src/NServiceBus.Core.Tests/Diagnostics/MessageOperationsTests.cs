@@ -184,7 +184,8 @@ public class MessageOperationsTests
             sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
             replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
             subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
-            unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>());
+            unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>(),
+            new ActivityFactory());
     }
 
     class FakePipeline<T> : IPipeline<T> where T : IBehaviorContext
