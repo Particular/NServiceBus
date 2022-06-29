@@ -44,6 +44,8 @@ namespace NServiceBus
             }
             else
             {
+                context.Extensions.TryGetRecordingPipelineActivity(out var activity);
+                activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
                 ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
 

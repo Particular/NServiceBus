@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Outbox;
@@ -100,6 +102,23 @@
             Assert.NotNull(routing);
             Assert.AreEqual(typeof(MyEvent), routing.MessageType);
             Assert.Null(fakeOutbox.StoredMessage);
+        }
+
+        [Test]
+        public async Task Should_add_outbox_span_tag_when_deduplicating()
+        {
+            string messageId = Guid.NewGuid().ToString();
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
+            var context = CreateContext(fakeBatchPipeline, messageId);
+
+            using var pipelineActivity = new Activity("test activity");
+            pipelineActivity.Start();
+            context.Extensions.SetPipelineActitvity(pipelineActivity);
+
+            await Invoke(context);
+
+            pipelineActivity.Stop();
+            Assert.AreEqual(true, pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"]);
         }
 
         static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
