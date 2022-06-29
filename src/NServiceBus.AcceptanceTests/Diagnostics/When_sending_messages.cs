@@ -38,22 +38,16 @@
             Assert.AreEqual("send message", sentMessage.DisplayName);
 
             var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
-            VerifyTag("nservicebus.message_id", context.SentMessageId);
-            VerifyTag("nservicebus.correlation_id", context.SentMessageHeaders[Headers.CorrelationId]);
-            VerifyTag("nservicebus.conversation_id", context.SentMessageHeaders[Headers.ConversationId]);
-            VerifyTag("nservicebus.content_type", context.SentMessageHeaders[Headers.ContentType]);
-            VerifyTag("nservicebus.enclosed_message_types", context.SentMessageHeaders[Headers.EnclosedMessageTypes]);
-            VerifyTag("nservicebus.reply_to_address", context.SentMessageHeaders[Headers.ReplyToAddress]);
-            VerifyTag("nservicebus.originating_machine", context.SentMessageHeaders[Headers.OriginatingMachine]);
-            VerifyTag("nservicebus.originating_endpoint", context.SentMessageHeaders[Headers.OriginatingEndpoint]);
-            VerifyTag("nservicebus.version", context.SentMessageHeaders[Headers.NServiceBusVersion]);
-            VerifyTag("nservicebus.message_intent", context.SentMessageHeaders[Headers.MessageIntent]);
-
-            void VerifyTag(string tagKey, string expectedValue)
-            {
-                Assert.IsTrue(sentMessageTags.TryGetValue(tagKey, out var tagValue), $"Tags should contain key {tagKey}");
-                Assert.AreEqual(expectedValue, tagValue, $"Tag with key {tagKey} is incorrect");
-            }
+            sentMessageTags.VerifyTag("nservicebus.message_id", context.SentMessageId);
+            sentMessageTags.VerifyTag("nservicebus.correlation_id", context.SentMessageHeaders[Headers.CorrelationId]);
+            sentMessageTags.VerifyTag("nservicebus.conversation_id", context.SentMessageHeaders[Headers.ConversationId]);
+            sentMessageTags.VerifyTag("nservicebus.content_type", context.SentMessageHeaders[Headers.ContentType]);
+            sentMessageTags.VerifyTag("nservicebus.enclosed_message_types", context.SentMessageHeaders[Headers.EnclosedMessageTypes]);
+            sentMessageTags.VerifyTag("nservicebus.reply_to_address", context.SentMessageHeaders[Headers.ReplyToAddress]);
+            sentMessageTags.VerifyTag("nservicebus.originating_machine", context.SentMessageHeaders[Headers.OriginatingMachine]);
+            sentMessageTags.VerifyTag("nservicebus.originating_endpoint", context.SentMessageHeaders[Headers.OriginatingEndpoint]);
+            sentMessageTags.VerifyTag("nservicebus.version", context.SentMessageHeaders[Headers.NServiceBusVersion]);
+            sentMessageTags.VerifyTag("nservicebus.message_intent", context.SentMessageHeaders[Headers.MessageIntent]);
         }
 
         class Context : ScenarioContext
