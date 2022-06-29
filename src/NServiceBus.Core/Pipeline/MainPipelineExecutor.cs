@@ -34,6 +34,11 @@ namespace NServiceBus
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 
+                if (activity != null)
+                {
+                    transportReceiveContext.SetPipelineActitvity(activity);
+                }
+
                 try
                 {
                     await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);

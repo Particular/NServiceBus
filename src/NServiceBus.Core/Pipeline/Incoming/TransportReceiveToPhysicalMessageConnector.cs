@@ -51,7 +51,14 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
+                if (context.Extensions.TryGetRecordingPipelineActivity(out var activity))
+                {
+                    var activityTagsCollection = new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } };
+                    activity?.AddEvent(new ActivityEvent("Start dispatching", tags: activityTagsCollection));
+                }
+
                 await this.Fork(batchDispatchContext).ConfigureAwait(false);
+                activity?.AddEvent(new ActivityEvent("Finished dispatching"));
             }
 
             await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
