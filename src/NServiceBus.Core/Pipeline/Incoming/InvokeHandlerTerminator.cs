@@ -8,7 +8,7 @@
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
-        public InvokeHandlerTerminator(ActivityFactory activityFactory)
+        public InvokeHandlerTerminator(IActivityFactory activityFactory)
         {
             this.activityFactory = activityFactory;
         }
@@ -53,6 +53,6 @@
             }
         }
 
-        readonly ActivityFactory activityFactory;
+        readonly IActivityFactory activityFactory;
     }
 }

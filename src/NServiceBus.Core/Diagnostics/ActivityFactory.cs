@@ -5,7 +5,7 @@ using Pipeline;
 using Sagas;
 using Transport;
 
-class ActivityFactory
+class ActivityFactory : IActivityFactory
 {
     public Activity StartIncomingActivity(MessageContext context)
     {

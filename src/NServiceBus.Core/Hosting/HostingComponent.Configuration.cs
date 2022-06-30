@@ -27,7 +27,8 @@
                 serviceCollection,
                 settings.InstallationUserName,
                 settings.ShouldRunInstallers,
-                settings.UserRegistrations);
+                settings.UserRegistrations,
+                ActivitySources.Main.HasListeners() ? new ActivityFactory() : new NoOpActivityFactory());
 
             return configuration;
         }
@@ -44,7 +45,7 @@
                 IServiceCollection services,
                 string installationUserName,
                 bool shouldRunInstallers,
-                List<Action<IServiceCollection>> userRegistrations)
+                List<Action<IServiceCollection>> userRegistrations, IActivityFactory activityFactory)
             {
                 AvailableTypes = availableTypes;
                 CriticalError = criticalError;
@@ -56,6 +57,7 @@
                 InstallationUserName = installationUserName;
                 ShouldRunInstallers = shouldRunInstallers;
                 UserRegistrations = userRegistrations;
+                ActivityFactory = activityFactory;
 
                 settings.ApplyHostIdDefaultIfNeeded();
                 HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -87,6 +89,8 @@
             public string InstallationUserName { get; }
 
             public List<Action<IServiceCollection>> UserRegistrations { get; }
+
+            public IActivityFactory ActivityFactory { get; set; }
         }
     }
 }

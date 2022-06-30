@@ -16,7 +16,7 @@ namespace NServiceBus
         readonly IPipeline<IOutgoingReplyContext> replyPipeline;
         readonly IPipeline<ISubscribeContext> subscribePipeline;
         readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-        readonly ActivityFactory activityFactory;
+        readonly IActivityFactory activityFactory;
 
         public MessageOperations(
             IMessageMapper messageMapper,
@@ -25,7 +25,7 @@ namespace NServiceBus
             IPipeline<IOutgoingReplyContext> replyPipeline,
             IPipeline<ISubscribeContext> subscribePipeline,
             IPipeline<IUnsubscribeContext> unsubscribePipeline,
-            ActivityFactory activityFactory)
+            IActivityFactory activityFactory)
         {
             this.messageMapper = messageMapper;
             this.publishPipeline = publishPipeline;

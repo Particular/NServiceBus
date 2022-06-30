@@ -9,7 +9,7 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, ActivityFactory activityFactory)
+        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
@@ -63,6 +63,6 @@ namespace NServiceBus
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
         readonly IPipeline<ITransportReceiveContext> receivePipeline;
-        readonly ActivityFactory activityFactory;
+        readonly IActivityFactory activityFactory;
     }
 }

@@ -8,9 +8,10 @@
 
     class SendComponent
     {
-        SendComponent(IMessageMapper messageMapper)
+        SendComponent(IMessageMapper messageMapper, IActivityFactory activityFactory)
         {
             this.messageMapper = messageMapper;
+            this.activityFactory = activityFactory;
         }
 
         public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper)
@@ -28,23 +29,22 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            var sendComponent = new SendComponent(messageMapper);
+            var sendComponent = new SendComponent(messageMapper, hostingConfiguration.ActivityFactory);
 
             return sendComponent;
         }
 
-        public MessageOperations CreateMessageOperations(IServiceProvider builder, PipelineComponent pipelineComponent)
-        {
-            return new MessageOperations(
+        public MessageOperations CreateMessageOperations(IServiceProvider builder, PipelineComponent pipelineComponent) =>
+            new MessageOperations(
                 messageMapper,
                 pipelineComponent.CreatePipeline<IOutgoingPublishContext>(builder),
                 pipelineComponent.CreatePipeline<IOutgoingSendContext>(builder),
                 pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
                 pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
                 pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder),
-                builder.GetService<ActivityFactory>()); //TODO get from host config instead from DI
-        }
+                activityFactory);
 
+        readonly IActivityFactory activityFactory;
         readonly IMessageMapper messageMapper;
     }
 }
