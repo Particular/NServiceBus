@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Pipeline;
     using Sagas;
@@ -29,14 +30,12 @@
             var startTime = DateTimeOffset.UtcNow;
             try
             {
-                await TracingHelper.TryTraceInvocation(activity, async value =>
-                {
-                    (MessageHandler handler, IInvokeHandlerContext ctx) = value;
-                    await handler
-                        .Invoke(ctx.MessageBeingHandled, ctx)
-                        .ThrowIfNull()
-                        .ConfigureAwait(false);
-                }, (messageHandler, context)).ConfigureAwait(false);
+                await messageHandler
+                    .Invoke(context.MessageBeingHandled, context)
+                    .ThrowIfNull()
+                    .ConfigureAwait(false);
+
+                activity?.SetStatus(ActivityStatusCode.Ok);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)
@@ -47,6 +46,9 @@
                 ex.Data["Handler start time"] = DateTimeOffsetHelper.ToWireFormattedString(startTime);
                 ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
+
+                ActivityDecorator.SetErrorStatus(activity, ex);
+
                 throw;
             }
         }
