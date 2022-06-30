@@ -65,7 +65,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            using var activity = activityFactory?.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, "publish event", publishContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, "publish event", publishContext);
 
             return publishPipeline.Invoke(publishContext, activity);
         }
@@ -84,7 +84,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            using var activity = activityFactory?.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, "subscribe event", context);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, "subscribe event", context);
 
             return subscribePipeline.Invoke(subscribeContext, activity);
         }
@@ -98,7 +98,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            using var activity = activityFactory?.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, "unsubscribe event", context);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, "unsubscribe event", context);
 
             return unsubscribePipeline.Invoke(unsubscribeContext, activity);
         }
@@ -132,7 +132,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            using var activity = activityFactory?.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "send message", outgoingContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "send message", outgoingContext);
 
             return sendPipeline.Invoke(outgoingContext, activity);
         }
@@ -166,7 +166,7 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            using var activity = activityFactory?.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext);
 
             return replyPipeline.Invoke(outgoingContext, activity);
         }

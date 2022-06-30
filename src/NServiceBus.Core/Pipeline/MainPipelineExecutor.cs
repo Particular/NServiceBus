@@ -23,7 +23,7 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
 
-            using var activity = activityFactory?.StartIncomingActivity(messageContext);
+            using var activity = activityFactory.StartIncomingActivity(messageContext);
 
             using (var childScope = rootBuilder.CreateScope())
             {

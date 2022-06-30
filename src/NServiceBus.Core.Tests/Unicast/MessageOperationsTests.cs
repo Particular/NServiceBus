@@ -22,7 +22,7 @@
                 replyPipeline ?? new FakePipeline<IOutgoingReplyContext>(),
                 subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
                 unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>(),
-                null);
+                new NoOpActivityFactory());
         }
 
         [Test]

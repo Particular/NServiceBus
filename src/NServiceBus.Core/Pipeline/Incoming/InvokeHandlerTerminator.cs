@@ -20,7 +20,7 @@
                 return;
             }
 
-            using var activity = activityFactory?.StartHandlerActivity(context.MessageHandler, saga);
+            using var activity = activityFactory.StartHandlerActivity(context.MessageHandler, saga);
 
             var messageHandler = context.MessageHandler;
 
