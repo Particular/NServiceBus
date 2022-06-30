@@ -76,7 +76,12 @@ class ActivityFactory : IActivityFactory
         if (activity != null)
         {
             activity.DisplayName = messageHandler.HandlerType.Name;
-            ActivityDecorator.SetInvokeHandlerTags(activity, messageHandler, saga); //TODO inline decorator logic?
+            activity.AddTag("nservicebus.handler_type", messageHandler.HandlerType.FullName);
+
+            if (saga != null)
+            {
+                activity.AddTag("nservicebus.saga_id", saga.SagaId);
+            }
         }
 
         return activity;

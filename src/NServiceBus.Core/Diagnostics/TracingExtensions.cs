@@ -22,7 +22,7 @@ static class TracingExtensions
             catch (Exception ex)
             {
                 // TODO: Add an explicit tag for operation canceled
-                ActivityDecorator.SetErrorStatus(activity, ex);
+                activity.SetErrorStatus(ex);
                 throw;
             }
 #pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for

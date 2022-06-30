@@ -47,7 +47,7 @@
                 ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
-                ActivityDecorator.SetErrorStatus(activity, ex);
+                activity?.SetErrorStatus(ex);
 
                 throw;
             }
