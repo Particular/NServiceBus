@@ -36,12 +36,7 @@ namespace NServiceBus
 
                 try
                 {
-                    await TracingHelper.TryTraceInvocation(activity, async (value) =>
-                        {
-                            (IPipeline<ITransportReceiveContext> pipeline, TransportReceiveContext ctx) = value;
-                            await pipeline.Invoke(ctx).ConfigureAwait(false);
-                        }, (receivePipeline, transportReceiveContext))
-                        .ConfigureAwait(false);
+                    await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
                 }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
                 catch (Exception ex)

@@ -52,7 +52,7 @@ class ActivityFactory
         return activity;
     }
 
-    public Activity StartOutgoingPipelineActivity(string activityName, string displayName)
+    public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
 
         var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
@@ -62,6 +62,8 @@ class ActivityFactory
             activity.SetIdFormat(ActivityIdFormat.W3C);
             activity.DisplayName = displayName;
             activity.Start();
+
+            outgoingContext.Extensions.SetPipelineActitvity(activity);
         }
 
         return activity;
