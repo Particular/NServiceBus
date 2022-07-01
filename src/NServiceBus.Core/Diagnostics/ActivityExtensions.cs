@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus;
 
+using System;
 using System.Diagnostics;
 using Extensibility;
 
@@ -21,4 +22,11 @@ static class ActivityExtensions
     }
 
     public static void SetPipelineActitvity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
+
+    public static void SetErrorStatus(this Activity activity, Exception ex)
+    {
+        activity.SetStatus(ActivityStatusCode.Error, ex.Message);
+        activity.SetTag("otel.status_code", "ERROR");
+        activity.SetTag("otel.status_description", ex.Message);
+    }
 }

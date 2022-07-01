@@ -1,27 +1,11 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Sagas;
 
     class ActivityDecorator
     {
-        public static void SetInvokeHandlerTags(Activity activity, MessageHandler messageHandler,
-            ActiveSagaInstance saga)
-        {
-            if (activity != null)
-            {
-                activity.AddTag("nservicebus.handler_type", messageHandler.HandlerType.FullName);
-                if (saga != null)
-                {
-                    activity.AddTag("nservicebus.saga_id", saga.SagaId);
-                }
-            }
-        }
-
         public static void PromoteHeadersToTags(Activity activity, Dictionary<string, string> headers)
         {
             if (activity == null)
@@ -62,17 +46,7 @@ namespace NServiceBus
             }
         }
 
-        public static void SetErrorStatus(Activity activity, Exception ex)
-        {
-            if (activity == null)
-            {
-                return;
-            }
 
-            activity.SetStatus(ActivityStatusCode.Error, ex.Message);
-            activity?.SetTag("otel.status_code", "ERROR");
-            activity?.SetTag("otel.status_description", ex.Message);
-        }
 
         // List of message headers that shouldn't be added as activity tags
         static readonly HashSet<string> IgnoreHeaders = new HashSet<string> { Headers.TimeSent };

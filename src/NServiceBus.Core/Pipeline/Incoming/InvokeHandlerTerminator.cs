@@ -8,6 +8,11 @@
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
+        public InvokeHandlerTerminator(IActivityFactory activityFactory)
+        {
+            this.activityFactory = activityFactory;
+        }
+
         protected override async Task Terminate(IInvokeHandlerContext context)
         {
             if (context.Extensions.TryGet(out ActiveSagaInstance saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
@@ -15,12 +20,7 @@
                 return;
             }
 
-            using var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
-            if (activity != null)
-            {
-                activity.DisplayName = context.MessageHandler.HandlerType.Name;
-                ActivityDecorator.SetInvokeHandlerTags(activity, context.MessageHandler, saga);
-            }
+            using var activity = activityFactory.StartHandlerActivity(context.MessageHandler, saga);
 
             var messageHandler = context.MessageHandler;
 
@@ -47,9 +47,12 @@
                 ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                 ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
-                ActivityDecorator.SetErrorStatus(activity, ex);
+                activity?.SetErrorStatus(ex);
+
                 throw;
             }
         }
+
+        readonly IActivityFactory activityFactory;
     }
 }

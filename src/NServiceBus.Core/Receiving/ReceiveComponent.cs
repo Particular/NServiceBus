@@ -14,9 +14,10 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
-        ReceiveComponent(Configuration configuration)
+        ReceiveComponent(Configuration configuration, IActivityFactory activityFactory)
         {
             this.configuration = configuration;
+            this.activityFactory = activityFactory;
         }
 
         public static ReceiveComponent Configure(
@@ -28,10 +29,10 @@ namespace NServiceBus
             if (configuration.IsSendOnlyEndpoint)
             {
                 configuration.transportSeam.Configure(new ReceiveSettings[0]);
-                return new ReceiveComponent(configuration);
+                return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
             }
 
-            var receiveComponent = new ReceiveComponent(configuration);
+            var receiveComponent = new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
 
             hostingConfiguration.Services.AddSingleton(sp =>
             {
@@ -72,7 +73,7 @@ namespace NServiceBus
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
 
-            pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
+            pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
 
             var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -155,7 +156,8 @@ namespace NServiceBus
             var mainPump = CreateReceiver(consecutiveFailuresConfiguration, mainReceiver);
 
             var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline);
+
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory);
 
             var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
                 builder,
@@ -288,8 +290,9 @@ namespace NServiceBus
             return receiver;
         }
 
-        Configuration configuration;
-        List<IMessageReceiver> receivers = new List<IMessageReceiver>();
+        readonly Configuration configuration;
+        readonly IActivityFactory activityFactory;
+        readonly List<IMessageReceiver> receivers = new List<IMessageReceiver>();
 
         public const string MainReceiverId = "Main";
         public const string InstanceSpecificReceiverId = "InstanceSpecific";

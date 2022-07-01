@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using Extensibility;
     using MessageInterfaces;
@@ -17,6 +16,7 @@ namespace NServiceBus
         readonly IPipeline<IOutgoingReplyContext> replyPipeline;
         readonly IPipeline<ISubscribeContext> subscribePipeline;
         readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
+        readonly IActivityFactory activityFactory;
 
         public MessageOperations(
             IMessageMapper messageMapper,
@@ -24,7 +24,8 @@ namespace NServiceBus
             IPipeline<IOutgoingSendContext> sendPipeline,
             IPipeline<IOutgoingReplyContext> replyPipeline,
             IPipeline<ISubscribeContext> subscribePipeline,
-            IPipeline<IUnsubscribeContext> unsubscribePipeline)
+            IPipeline<IUnsubscribeContext> unsubscribePipeline,
+            IActivityFactory activityFactory)
         {
             this.messageMapper = messageMapper;
             this.publishPipeline = publishPipeline;
@@ -32,6 +33,7 @@ namespace NServiceBus
             this.replyPipeline = replyPipeline;
             this.subscribePipeline = subscribePipeline;
             this.unsubscribePipeline = unsubscribePipeline;
+            this.activityFactory = activityFactory;
         }
 
         public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
@@ -63,7 +65,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingEventActivityName, "publish event", publishContext, publishPipeline);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, "publish event", publishContext);
+
+            return publishPipeline.Invoke(publishContext, activity);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -80,7 +84,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.SubscribeActivityName, "subscribe event", subscribeContext, subscribePipeline);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, "subscribe event", context);
+
+            return subscribePipeline.Invoke(subscribeContext, activity);
         }
 
         public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -92,7 +98,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.UnsubscribeActivityName, "unsubscribe event", unsubscribeContext, unsubscribePipeline);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, "unsubscribe event", context);
+
+            return unsubscribePipeline.Invoke(unsubscribeContext, activity);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -124,7 +132,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "send message", outgoingContext, sendPipeline);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "send message", outgoingContext);
+
+            return sendPipeline.Invoke(outgoingContext, activity);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -156,39 +166,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return InvokePipelineWithTracing(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext, replyPipeline);
-        }
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext);
 
-        static async Task InvokePipelineWithTracing<TContext>(string activityName, string displayName, TContext outgoingContext, IPipeline<TContext> pipeline)
-            where TContext : IBehaviorContext
-        {
-            using var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-            if (activity == null)
-            {
-                await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
-            }
-            else
-            {
-                activity.SetIdFormat(ActivityIdFormat.W3C);
-                activity.DisplayName = displayName;
-                activity.Start();
-                outgoingContext.Extensions.SetPipelineActitvity(activity);
-
-                try
-                {
-                    await pipeline.Invoke(outgoingContext).ConfigureAwait(false);
-                }
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-                catch (Exception ex)
-#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-                {
-                    // TODO: Add an explicit tag for operation canceled
-                    ActivityDecorator.SetErrorStatus(activity, ex);
-                    throw;
-                }
-                // TODO: should we stop the activity only once the message has been handed to the dispatcher?
-                activity.SetStatus(ActivityStatusCode.Ok);
-            }
+            return replyPipeline.Invoke(outgoingContext, activity);
         }
 
         static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
