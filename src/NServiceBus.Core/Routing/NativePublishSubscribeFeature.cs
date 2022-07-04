@@ -19,6 +19,12 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register("MulticastPublishRouterBehavior", new MulticastPublishConnector(), "Determines how the published messages should be routed");
 
+            if (ActivitySources.Main.HasListeners())
+            {
+                context.Pipeline.Register(new SubscribeDiagnosticsBehavior(), "Adds additional subscribe diagnostic attributes to OpenTelemetry spans");
+                context.Pipeline.Register(new UnsubscribeDiagnosticsBehavior(), "Adds additional unsubscribe diagnostic attributes to OpenTelemetry spans");
+            }
+
             if (canReceive)
             {
                 context.Pipeline.Register(b => new NativeSubscribeTerminator(b.GetRequiredService<ISubscriptionManager>(), b.GetRequiredService<MessageMetadataRegistry>()), "Requests the transport to subscribe to a given message type");

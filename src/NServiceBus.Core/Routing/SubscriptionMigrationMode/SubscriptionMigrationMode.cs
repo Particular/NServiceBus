@@ -19,6 +19,12 @@
         {
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
+            if (ActivitySources.Main.HasListeners())
+            {
+                context.Pipeline.Register(new SubscribeDiagnosticsBehavior(), "Adds additional subscribe diagnostic attributes to OpenTelemetry spans");
+                context.Pipeline.Register(new UnsubscribeDiagnosticsBehavior(), "Adds additional unsubscribe diagnostic attributes to OpenTelemetry spans");
+            }
+
             var distributionPolicy = context.Routing.DistributionPolicy;
             var publishers = context.Routing.Publishers;
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
