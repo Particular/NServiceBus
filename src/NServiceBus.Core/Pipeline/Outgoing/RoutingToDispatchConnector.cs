@@ -38,7 +38,7 @@
             }
 
             // HINT: These tags get applied to the outgoing message activity, if present.
-            if (context.Extensions.TryGetRecordingPipelineActivity(out var activity))
+            if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
             {
                 ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
             }

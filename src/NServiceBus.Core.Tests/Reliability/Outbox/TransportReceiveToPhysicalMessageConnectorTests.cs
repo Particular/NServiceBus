@@ -113,7 +113,7 @@
 
             using var pipelineActivity = new Activity("test activity");
             pipelineActivity.Start();
-            context.Extensions.SetPipelineActitvity(pipelineActivity);
+            context.Extensions.SetIncomingPipelineActitvity(pipelineActivity);
 
             await Invoke(context);
 
@@ -127,7 +127,7 @@
 
             using var pipelineActivity = new Activity("test activity");
             pipelineActivity.Start();
-            context.Extensions.SetPipelineActitvity(pipelineActivity);
+            context.Extensions.SetIncomingPipelineActitvity(pipelineActivity);
 
             await Invoke(context, c =>
             {
@@ -154,7 +154,7 @@
 
             using var pipelineActivity = new Activity("test activity");
             pipelineActivity.Start();
-            context.Extensions.SetPipelineActitvity(pipelineActivity);
+            context.Extensions.SetIncomingPipelineActitvity(pipelineActivity);
 
             await Invoke(context);
 
