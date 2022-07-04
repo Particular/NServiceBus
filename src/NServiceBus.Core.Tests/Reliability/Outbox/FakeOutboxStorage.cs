@@ -3,6 +3,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Fakes;
     using NServiceBus.Outbox;
 
     class FakeOutboxStorage : IOutboxStorage
@@ -34,9 +35,7 @@
             return Task.CompletedTask;
         }
 
-        public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
-        {
-            throw new System.NotImplementedException();
-        }
+        public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IOutboxTransaction>(new FakeOutboxTransaction());
     }
 }

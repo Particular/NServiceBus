@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Outbox;
     using Pipeline;
@@ -44,6 +45,8 @@ namespace NServiceBus
             }
             else
             {
+                context.Extensions.TryGetRecordingPipelineActivity(out var activity);
+                activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
                 ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
 
@@ -51,7 +54,14 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
+                if (context.Extensions.TryGetRecordingPipelineActivity(out var activity))
+                {
+                    var activityTagsCollection = new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } };
+                    activity?.AddEvent(new ActivityEvent("Start dispatching", tags: activityTagsCollection));
+                }
+
                 await this.Fork(batchDispatchContext).ConfigureAwait(false);
+                activity?.AddEvent(new ActivityEvent("Finished dispatching"));
             }
 
             await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);

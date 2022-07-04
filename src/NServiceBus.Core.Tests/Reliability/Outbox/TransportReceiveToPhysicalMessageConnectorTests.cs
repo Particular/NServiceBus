@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Outbox;
@@ -102,6 +104,64 @@
             Assert.Null(fakeOutbox.StoredMessage);
         }
 
+        [Test]
+        public async Task Should_add_outbox_span_tag_when_deduplicating()
+        {
+            string messageId = Guid.NewGuid().ToString();
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
+            var context = CreateContext(fakeBatchPipeline, messageId);
+
+            using var pipelineActivity = new Activity("test activity");
+            pipelineActivity.Start();
+            context.Extensions.SetPipelineActitvity(pipelineActivity);
+
+            await Invoke(context);
+
+            Assert.AreEqual(true, pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"]);
+        }
+
+        [Test]
+        public async Task Should_add_batch_dispatch_events_when_sending_batched_messages()
+        {
+            var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
+
+            using var pipelineActivity = new Activity("test activity");
+            pipelineActivity.Start();
+            context.Extensions.SetPipelineActitvity(pipelineActivity);
+
+            await Invoke(context, c =>
+            {
+                var batchedSends = c.Extensions.Get<PendingTransportOperations>();
+                batchedSends.AddRange(new TransportOperation[]
+                {
+                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Array.Empty<byte>()), new UnicastAddressTag("destination")),
+                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Array.Empty<byte>()), new UnicastAddressTag("destination")),
+                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Array.Empty<byte>()), new UnicastAddressTag("destination"))
+                });
+                return Task.CompletedTask;
+            });
+
+            var startDispatchErActivityEventsvent = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
+            Assert.AreEqual(1, startDispatchErActivityEventsvent.Count());
+            Assert.AreEqual(3, startDispatchErActivityEventsvent.Single().Tags.ToImmutableDictionary()["message-count"]);
+            Assert.AreEqual(1, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
+        }
+
+        [Test]
+        public async Task Should_not_add_batch_dispatch_events_when_no_batched_messages()
+        {
+            var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
+
+            using var pipelineActivity = new Activity("test activity");
+            pipelineActivity.Start();
+            context.Extensions.SetPipelineActitvity(pipelineActivity);
+
+            await Invoke(context);
+
+            Assert.AreEqual(0, pipelineActivity.Events.Count(e => e.Name == "Start dispatching"));
+            Assert.AreEqual(0, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
+        }
+
         static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
         {
             var context = new TestableTransportReceiveContext
@@ -123,10 +183,7 @@
             behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox);
         }
 
-        Task Invoke(ITransportReceiveContext context)
-        {
-            return behavior.Invoke(context, c => Task.CompletedTask);
-        }
+        Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
 
         TransportReceiveToPhysicalMessageConnector behavior;
 
