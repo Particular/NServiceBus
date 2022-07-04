@@ -3,13 +3,41 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Reflection;
 using NUnit.Framework;
+using System.Text;
+using Particular.Approvals;
 
 [TestFixture]
 public class ActivityDecoratorTests
 {
     [Test]
-    public void PromoteHeadersToTags_should_promote_nservicebus_headers_to_tags()
+    public void Verify_promotable_headers()
+    {
+        var headers = typeof(Headers).GetFields(BindingFlags.Public | BindingFlags.Static);
+
+        var promotedStringBuilder = new StringBuilder();
+        var ignoredStringBuilder = new StringBuilder();
+
+        foreach (var headerField in headers)
+        {
+            var headerValue = headerField.GetValue(null).ToString();
+            if (ActivityDecorator.HeaderMapping.TryGetValue(headerValue, out var tagName))
+            {
+                promotedStringBuilder.AppendLine($"{nameof(Headers)}.{headerField.Name}: {headerValue} -> {tagName}");
+            }
+            else
+            {
+                ignoredStringBuilder.AppendLine($"{nameof(Headers)}.{headerField.Name}");
+            }
+        }
+
+        Approver.Verify(promotedStringBuilder.ToString(), scenario: "promoted");
+        Approver.Verify(ignoredStringBuilder.ToString(), scenario: "ignored");
+    }
+
+    [Test]
+    public void PromoteHeadersToTags_should_promote_promotable_headers_to_tags()
     {
         var activity = new Activity("test");
         var headers = new Dictionary<string, string>()
@@ -24,23 +52,8 @@ public class ActivityDecoratorTests
 
         var tags = activity.Tags.ToImmutableDictionary();
 
-        Assert.AreEqual(3, tags.Count, "should only contain NServiceBus headers");
+        Assert.AreEqual(2, tags.Count, "should only contain approved NServiceBus headers");
         Assert.AreEqual(headers[Headers.MessageId], tags["nservicebus.message_id"]);
         Assert.AreEqual(headers[Headers.ControlMessageHeader], tags["nservicebus.control_message"]);
-        Assert.AreEqual(headers["NServiceBus.UnknownMessageHeader"], tags["nservicebus.unknown_message_header"]);
-    }
-
-    [Test]
-    public void PromoteHeadersToTags_should_not_promote_ignored_headers()
-    {
-        var activity = new Activity("test");
-        var headers = new Dictionary<string, string>()
-        {
-            {Headers.TimeSent, "some value"},
-        };
-
-        ActivityDecorator.PromoteHeadersToTags(activity, headers);
-
-        Assert.IsEmpty(activity.Tags);
     }
 }
