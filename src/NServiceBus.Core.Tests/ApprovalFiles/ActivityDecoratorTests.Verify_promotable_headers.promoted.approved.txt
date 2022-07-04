@@ -13,9 +13,6 @@ Headers.DeliverAt: NServiceBus.DeliverAt -> nservicebus.deliver_at
 Headers.RelatedTo: NServiceBus.RelatedTo -> nservicebus.related_to
 Headers.EnclosedMessageTypes: NServiceBus.EnclosedMessageTypes -> nservicebus.enclosed_message_types
 Headers.ContentType: NServiceBus.ContentType -> nservicebus.content_type
-Headers.SubscriptionMessageType: SubscriptionMessageType -> nservicebus.subscription_message_type
-Headers.SubscriberTransportAddress: NServiceBus.SubscriberAddress -> nservicebus.subscriber_address
-Headers.SubscriberEndpoint: NServiceBus.SubscriberEndpoint -> nservicebus.subscriber_endpoint
 Headers.IsSagaTimeoutMessage: NServiceBus.IsSagaTimeoutMessage -> nservicebus.is_saga_timeout
 Headers.IsDeferredMessage: NServiceBus.IsDeferredMessage -> nservicebus.is_deferred
 Headers.OriginatingEndpoint: NServiceBus.OriginatingEndpoint -> nservicebus.originating_endpoint

@@ -8,6 +8,9 @@ Headers.ImmediateRetries
 Headers.ProcessingStarted
 Headers.ProcessingEnded
 Headers.TimeSent
+Headers.SubscriptionMessageType
+Headers.SubscriberTransportAddress
+Headers.SubscriberEndpoint
 Headers.DiagnosticsTraceParent
 Headers.DiagnosticsTraceState
 Headers.DiagnosticsBaggage

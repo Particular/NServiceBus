@@ -48,9 +48,9 @@ namespace NServiceBus
             { Headers.RelatedTo, "nservicebus.related_to" },
             { Headers.EnclosedMessageTypes, "nservicebus.enclosed_message_types" },
             { Headers.ContentType, "nservicebus.content_type" },
-            { Headers.SubscriptionMessageType, "nservicebus.subscription_message_type" }, //TODO can we skip the custom tags?
-            { Headers.SubscriberTransportAddress, "nservicebus.subscriber_address" },
-            { Headers.SubscriberEndpoint, "nservicebus.subscriber_endpoint" },
+            //{ Headers.SubscriptionMessageType, "nservicebus.subscription_message_type" }, // subscription headers are not promoted to tags
+            //{ Headers.SubscriberTransportAddress, "nservicebus.subscriber_address" },
+            //{ Headers.SubscriberEndpoint, "nservicebus.subscriber_endpoint" },
             { Headers.IsSagaTimeoutMessage, "nservicebus.is_saga_timeout" },
             { Headers.IsDeferredMessage, "nservicebus.is_deferred" },
             { Headers.OriginatingEndpoint, "nservicebus.originating_endpoint" },
