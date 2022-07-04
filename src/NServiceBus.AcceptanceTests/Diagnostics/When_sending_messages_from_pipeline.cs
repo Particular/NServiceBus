@@ -26,11 +26,10 @@ public class When_sending_messages_from_pipeline : NServiceBusAcceptanceTest
         var sentMessage = outgoingMessageActivities.First();
 
         Assert.IsNotEmpty(sentMessage.Events);
-        var startDispatchingEvent = sentMessage.Events.Single(e => e.Name == "Start dispatching");
-        Assert.NotNull(startDispatchingEvent, "should raise dispatch start event");
-        Assert.AreEqual(1, startDispatchingEvent.Tags.ToImmutableDictionary()["message-count"]);
-        var dispatchFinishedEvent = sentMessage.Events.Single(e => e.Name == "Finished dispatching");
-        Assert.NotNull(dispatchFinishedEvent, "should raise dispatch finished event");
+        var startDispatchingEvents = sentMessage.Events.Where(e => e.Name == "Start dispatching").ToArray();
+        Assert.AreEqual(1, startDispatchingEvents.Length, "should raise dispatch start event");
+        Assert.AreEqual(1, startDispatchingEvents.Single().Tags.ToImmutableDictionary()["message-count"]);
+        Assert.AreEqual(1, sentMessage.Events.Count(e => e.Name == "Finished dispatching"), "should raise dispatch completed event");
     }
 
     class Context : ScenarioContext
