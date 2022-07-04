@@ -45,9 +45,6 @@
             Assert.AreEqual(context.IncomingMessageId, receiveRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
             Assert.AreEqual(context.ReplyMessageId, sendReply.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
             Assert.AreEqual(context.ReplyMessageId, receiveReply.Tags.ToImmutableDictionary()["nservicebus.message_id"]);
-
-            //TODO: Also add transport message id?
-            //TODO: Test that the second send is connected to the first send
         }
 
         class Context : ScenarioContext
@@ -117,12 +114,10 @@
 
         public class IncomingMessage : IMessage
         {
-
         }
 
         public class ReplyMessage : IMessage
         {
-
         }
     }
 }

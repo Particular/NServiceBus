@@ -36,9 +36,6 @@ public class When_subscribing : NServiceBusAcceptanceTest
         var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        //TODO not implemented currently, we can have multiple dispatches from the same outgoing span
-        //Assert.IsTrue(subscribeActivityTags.ContainsKey("nservicebus.message_id"));
-
         var receiveActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
         Assert.AreEqual(1, receiveActivities.Length, "the subscription message should be received by the publisher");
         Assert.AreEqual(subscribeActivities[0].Id, receiveActivities[0].ParentId, "the received subscription message should connect to the subscribe operation");

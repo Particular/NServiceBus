@@ -1,11 +1,9 @@
 namespace NServiceBus.AcceptanceTests.Diagnostics
 {
-    using System.Collections.Immutable;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using NServiceBus.AcceptanceTesting.Customization;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_sending_replies : NServiceBusAcceptanceTest
@@ -27,12 +25,10 @@ namespace NServiceBus.AcceptanceTests.Diagnostics
             var replyMessage = outgoingMessageActivities[1];
 
             Assert.AreEqual("reply", replyMessage.DisplayName);
+            Assert.AreEqual(outgoingMessageActivities[0].RootId, replyMessage.RootId, "reply should belong to same trace as the triggering message");
             Assert.IsNotNull(replyMessage.ParentId, "reply should have ambient span");
-            var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
 
             replyMessage.VerifyUniqueTags();
-            //TODO verify header tags
-            var replyMessageTags = replyMessage.Tags.ToImmutableDictionary();
         }
 
         class Context : ScenarioContext

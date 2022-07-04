@@ -36,8 +36,6 @@ public class When_unsubscribing : NServiceBusAcceptanceTest
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        //TODO assert tags etc.
-
         var receiveActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
         Assert.AreEqual(1, receiveActivities.Length, "the unsubscribe message should be received by the publisher");
         Assert.AreEqual(unsubscribeActivities[0].Id, receiveActivities[0].ParentId, "the received unsubscribe message should connect to the subscribe operation");

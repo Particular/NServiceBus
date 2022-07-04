@@ -13,7 +13,6 @@
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_sending_messages : NServiceBusAcceptanceTest
     {
-        //TODO test "disabled" behavior?
         //TODO should these tests be moved to the Core test folder to not be shipped to downstreams?
 
         [Test]

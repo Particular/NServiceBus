@@ -43,8 +43,6 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
         Assert.AreEqual("send message", activity.DisplayName);
 
-        //TODO: verify message intent tag == send
-
         Assert.AreEqual(sendPipeline.CurrentActivity, sendPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
@@ -64,8 +62,6 @@ public class MessageOperationsTests
 
         Assert.AreEqual(ActivityNames.OutgoingEventActivityName, activity.OperationName);
         Assert.AreEqual("publish event", activity.DisplayName);
-
-        //TODO: verify message intent tag == publish
 
         Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
@@ -87,8 +83,6 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
         Assert.AreEqual("reply", activity.DisplayName);
 
-        //TODO: verify message intent tag == reply
-
         Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
@@ -109,8 +103,6 @@ public class MessageOperationsTests
         Assert.AreEqual(ActivityNames.SubscribeActivityName, activity.OperationName);
         Assert.AreEqual("subscribe event", activity.DisplayName);
 
-        //TODO: verify message intent tag == subscribe
-
         Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
 
@@ -130,8 +122,6 @@ public class MessageOperationsTests
 
         Assert.AreEqual(ActivityNames.UnsubscribeActivityName, activity.OperationName);
         Assert.AreEqual("unsubscribe event", activity.DisplayName);
-
-        //TODO: verify message intent tag == subscribe
 
         Assert.AreEqual(publishPipeline.CurrentActivity, publishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
     }
@@ -176,9 +166,8 @@ public class MessageOperationsTests
         FakePipeline<IOutgoingSendContext> sendPipeline = null,
         FakePipeline<IOutgoingReplyContext> replyPipeline = null,
         FakePipeline<ISubscribeContext> subscribePipeline = null,
-        FakePipeline<IUnsubscribeContext> unsubscribePipeline = null)
-    {
-        return new MessageOperations(
+        FakePipeline<IUnsubscribeContext> unsubscribePipeline = null) =>
+        new MessageOperations(
             new MessageMapper(),
             publishPipeline ?? new FakePipeline<IOutgoingPublishContext>(),
             sendPipeline ?? new FakePipeline<IOutgoingSendContext>(),
@@ -186,7 +175,6 @@ public class MessageOperationsTests
             subscribePipeline ?? new FakePipeline<ISubscribeContext>(),
             unsubscribePipeline ?? new FakePipeline<IUnsubscribeContext>(),
             new ActivityFactory());
-    }
 
     class FakePipeline<T> : IPipeline<T> where T : IBehaviorContext
     {

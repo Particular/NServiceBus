@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Extensibility;
@@ -15,6 +16,8 @@ public class ActivityFactoryTests
     class StartIncomingActivityTests
     {
         TestingActivityListener nsbActivityListener;
+        ActivityFactory activityFactory = new();
+
 
         [OneTimeSetUp]
         public void Setup()
@@ -28,10 +31,8 @@ public class ActivityFactoryTests
             nsbActivityListener.Dispose();
         }
 
-        ActivityFactory activityFactory = new();
-
         [Test]
-        public void When_activity_on_context()
+        public void Should_attach_to_context_activity_when_activity_on_context()
         {
             using var contextActivity = CreateCompletedActivity("transport receive activity");
 
@@ -46,7 +47,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void When_activity_on_context_and_trace_message_header()
+        public void Should_attach_to_context_activity_when_activity_on_context_and_trace_message_header()
         {
             using var contextActivity = CreateCompletedActivity("transport receive activity");
             using var sendActivity = CreateCompletedActivity("send activity");
@@ -66,7 +67,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void When_activity_on_context_and_ambient_activity()
+        public void Should_attach_to_context_activity_when_activity_on_context_and_ambient_activity()
         {
             using var contextActivity = CreateCompletedActivity("transport receive activity");
             var contextBag = new ContextBag();
@@ -82,7 +83,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void When_activity_on_context_uses_legacy_id_format()
+        public void Should_start_new_trace_when_activity_on_context_uses_legacy_id_format()
         {
             using var contextActivity = CreateCompletedActivity("transport receive activity", ActivityIdFormat.Hierarchical);
             Assert.AreEqual(ActivityIdFormat.Hierarchical, contextActivity.IdFormat);
@@ -98,7 +99,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void When_no_activity_on_context_and_trace_message_header()
+        public void Should_attach_to_header_trace_when_no_activity_on_context_and_trace_header()
         {
             using var sendActivity = CreateCompletedActivity("send activity");
 
@@ -113,7 +114,7 @@ public class ActivityFactoryTests
 
         [TestCase(ActivityIdFormat.W3C)]
         [TestCase(ActivityIdFormat.Hierarchical)]
-        public void When_no_activity_on_context_and_no_trace_message_header_and_ambient_activity(ActivityIdFormat ambientActivityIdFormat)
+        public void Should_attach_to_ambient_trace_when_no_activity_on_context_and_no_trace_header_and_ambient_activity(ActivityIdFormat ambientActivityIdFormat)
         {
             using var ambientActivity = new Activity("ambient activity");
             ambientActivity.SetIdFormat(ambientActivityIdFormat);
@@ -127,7 +128,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void When_no_activity_on_context_and_no_trace_message_header_and_no_ambient_activity()
+        public void Should_start_new_trace_when_no_activity_on_context_and_no_trace_message_header_and_no_ambient_activity()
         {
             var activity = activityFactory.StartIncomingActivity(CreateMessageContext());
 
@@ -137,7 +138,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void When_trace_header_contains_invalid_data()
+        public void Should_start_new_trace_when_trace_header_contains_invalid_data()
         {
             var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, "Some invalid traceparent format" } };
 
@@ -146,6 +147,16 @@ public class ActivityFactoryTests
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.IsNull(activity.ParentId, "should start new trace");
             Assert.AreEqual(0, activity.Links.Count(), "should not link to logical send span");
+        }
+
+        [Test]
+        public void Should_add_native_message_id_tag()
+        {
+            MessageContext messageContext = CreateMessageContext();
+
+            var activity = activityFactory.StartIncomingActivity(messageContext);
+
+            Assert.AreEqual(messageContext.NativeMessageId, activity.Tags.ToImmutableDictionary()["nservicebus.native_message_id"]);
         }
 
         static Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)

@@ -40,7 +40,6 @@
             Assert.AreEqual("publish event", publishedMessage.DisplayName);
             Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
-            //TODO assert tags from header values
             var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
             sentMessageTags.VerifyTag("nservicebus.message_id", context.SentMessageId);
 
