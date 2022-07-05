@@ -23,34 +23,21 @@ namespace NServiceBus
 
         internal static readonly Dictionary<string, string> HeaderMapping = new()
         {
-            //{ Headers.HttpFrom, "" },
-            //{ Headers.HttpTo, "" },
-            //{ Headers.RouteTo, "" },
-            //{ Headers.DestinationSites, "" },
-            //{ Headers.OriginatingSite, "" },
             { Headers.SagaId, "nservicebus.saga_id" },
             { Headers.MessageId, "nservicebus.message_id" },
             { Headers.CorrelationId, "nservicebus.correlation_id" },
             { Headers.ReplyToAddress, "nservicebus.reply_to_address" },
             { Headers.NServiceBusVersion, "nservicebus.version" },
-            //{ Headers.ReturnMessageErrorCodeHeader, "" },
             { Headers.ControlMessageHeader, "nservicebus.control_message" },
             { Headers.SagaType, "nservicebus.saga_type" },
             { Headers.OriginatingSagaId, "nservicebus.originating_saga_id" },
             { Headers.OriginatingSagaType, "nservicebus.originating_saga_type" },
             { Headers.DelayedRetries, "nservicebus.delayed_retries" },
             { Headers.DelayedRetriesTimestamp, "nservicebus.delayed_retries_timestamp" },
-            //{ Headers.ImmediateRetries, "" },
-            //{ Headers.ProcessingStarted, "" },
-            //{ Headers.ProcessingEnded, "" },
-            //{ Headers.TimeSent, "" },
             { Headers.DeliverAt, "nservicebus.deliver_at" },
             { Headers.RelatedTo, "nservicebus.related_to" },
             { Headers.EnclosedMessageTypes, "nservicebus.enclosed_message_types" },
             { Headers.ContentType, "nservicebus.content_type" },
-            //{ Headers.SubscriptionMessageType, "nservicebus.subscription_message_type" }, // subscription headers are not promoted to tags
-            //{ Headers.SubscriberTransportAddress, "nservicebus.subscriber_address" },
-            //{ Headers.SubscriberEndpoint, "nservicebus.subscriber_endpoint" },
             { Headers.IsSagaTimeoutMessage, "nservicebus.is_saga_timeout" },
             { Headers.IsDeferredMessage, "nservicebus.is_deferred" },
             { Headers.OriginatingEndpoint, "nservicebus.originating_endpoint" },
@@ -66,11 +53,7 @@ namespace NServiceBus
             { Headers.PreviousConversationId, "nservicebus.previous_conversation_id" },
             { Headers.MessageIntent, "nservicebus.message_intent" },
             { Headers.TimeToBeReceived, "nservicebus.time_to_be_received" },
-            //{ Headers.DiagnosticsTraceParent, "" },
-            //{ Headers.DiagnosticsTraceState, "" },
-            //{ Headers.DiagnosticsBaggage, "" },
             { Headers.DataBusContentType, "nservicebus.databus.content_type" },
-            //{ Headers.HeaderName, "" },
             { Headers.NonDurableMessage, "nservicebus.non_durable" }
         };
     }
