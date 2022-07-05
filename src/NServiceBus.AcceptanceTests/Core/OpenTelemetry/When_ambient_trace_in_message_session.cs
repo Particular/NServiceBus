@@ -13,7 +13,6 @@
         public async Task Should_attach_to_ambient_trace()
         {
             using var externalActivitySource = new ActivitySource("external trace source");
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             using var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
 
             string wrapperActivityRootId = null;
@@ -38,8 +37,8 @@
                 .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
-            var outgoingMessageActivity = activityListener.CompletedActivities.GetOutgoingActivities().Single();
-            var incomingMessageActivity = activityListener.CompletedActivities.GetIncomingActivities().Single();
+            var outgoingMessageActivity = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities().Single();
+            var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities().Single();
 
             Assert.AreEqual(wrapperActivityId, outgoingMessageActivity.ParentId, "outgoing message should be connected to the ambient span");
             Assert.AreEqual(wrapperActivityRootId, outgoingMessageActivity.RootId, "outgoing message should be connected to the ambient trace");

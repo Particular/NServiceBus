@@ -15,16 +15,13 @@
         [Test]
         public async Task Should_create_outgoing_message_span()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b => b
                     .When(s => s.SendLocal(new OutgoingMessage())))
                 .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var outgoingMessageActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
             Assert.AreEqual(1, outgoingMessageActivities.Count, "1 message is being sent");
             var sentMessage = outgoingMessageActivities.Single();
 

@@ -12,16 +12,13 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_add_batch_dispatch_events()
     {
-        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new TriggerMessage())))
             .Done(c => c.OutgoingMessageReceived)
             .Run();
 
-        Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-        var outgoingMessageActivities = activityListener.CompletedActivities.GetIncomingActivities();
+        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
         var sentMessage = outgoingMessageActivities.First();
 
         Assert.IsNotEmpty(sentMessage.Events);

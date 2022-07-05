@@ -12,7 +12,6 @@
         public async Task Should_propagate_baggage_to_headers()
         {
             using var externalActivitySource = new ActivitySource("external trace source");
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             using var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
 
             var context = await Scenario.Define<Context>()

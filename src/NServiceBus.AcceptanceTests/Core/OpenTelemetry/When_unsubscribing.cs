@@ -15,8 +15,6 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
     {
         Requires.MessageDrivenPubSub();
 
-        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SubscriberEndpoint>(e => e
                 .When(s => s.Unsubscribe<DemoEvent>()))
@@ -24,7 +22,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             .Done(c => c.Unsubscribed)
             .Run();
 
-        var unsubscribeActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
+        var unsubscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
             .ToArray();
         Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
 
@@ -35,7 +33,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        var receiveActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
+        var receiveActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
         Assert.AreEqual(1, receiveActivities.Length, "the unsubscribe message should be received by the publisher");
         Assert.AreEqual(unsubscribeActivities[0].Id, receiveActivities[0].ParentId, "the received unsubscribe message should connect to the subscribe operation");
     }
@@ -45,8 +43,6 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
     {
         Requires.NativePubSubSupport();
 
-        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SubscriberEndpoint>(e => e
                 .When(s => s.Unsubscribe<DemoEvent>()))
@@ -54,7 +50,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        var unsubscribeActivities = activityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe").ToArray();
+        var unsubscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe").ToArray();
         Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
 
         var unsubscribeActivity = unsubscribeActivities.Single();
@@ -66,7 +62,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
 
         //TODO assert tags etc.
 
-        var subscriptionReceiveActivity = activityListener.CompletedActivities.GetIncomingActivities();
+        var subscriptionReceiveActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
         Assert.IsEmpty(subscriptionReceiveActivity, "native pubsub should not produce a message");
     }
 

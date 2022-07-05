@@ -17,7 +17,6 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
         [Test]
         public async Task Should_add_tags_to_the_existing_activity()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             using var customActivityListener = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
 
             var context = await Scenario.Define<Context>()
@@ -26,7 +25,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
                 .Done(c => c.MessageReceived)
                 .Run();
 
-            var sendActivity = activityListener.CompletedActivities.GetOutgoingActivities().First();
+            var sendActivity = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities().First();
             var customActivity = customActivityListener.CompletedActivities.First();
 
             var sendActivityTags = sendActivity.Tags.ToImmutableDictionary();

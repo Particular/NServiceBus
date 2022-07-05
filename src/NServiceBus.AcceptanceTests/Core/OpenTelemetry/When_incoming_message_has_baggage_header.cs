@@ -11,8 +11,6 @@
         [Test]
         public async Task Should_propagate_baggage_to_activity()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b =>
                     b.When(async session =>
@@ -26,7 +24,7 @@
                 .Done(ctx => ctx.MessageReceived)
                 .Run();
 
-            var incomingMessageTraces = activityListener.CompletedActivities.GetIncomingActivities();
+            var incomingMessageTraces = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
             Assert.AreEqual(1, incomingMessageTraces.Count, "There should be 1 message received");
             var incomingMessageTrace = incomingMessageTraces.Single();
 

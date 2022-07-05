@@ -12,8 +12,6 @@
         [Test]
         public async Task Should_create_message_handler_spans()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ReceivingEndpoint>(b =>
                     b.When(session => session.SendLocal(new SomeMessage()))
@@ -21,10 +19,8 @@
                 .Done(c => c.FirstHandlerRun && c.SecondHandlerRun)
                 .Run();
 
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var invokedHandlerActivities = activityListener.CompletedActivities.GetInvokedHandlerActivities();
-            var receivePipelineActivities = activityListener.CompletedActivities.GetIncomingActivities();
+            var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
+            var receivePipelineActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
 
             Assert.AreEqual(2, invokedHandlerActivities.Count, "a dedicated span for each handler should be created");
             Assert.AreEqual(1, receivePipelineActivities.Count, "the receive pipeline should be invoked once");

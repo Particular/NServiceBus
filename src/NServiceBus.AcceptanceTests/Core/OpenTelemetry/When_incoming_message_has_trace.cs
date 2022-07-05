@@ -12,8 +12,6 @@
         [Test]
         public async Task Should_correlate_trace_from_send()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<TestEndpoint>(b => b
                     .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
@@ -22,10 +20,8 @@
                 .Done(c => c.ReplyMessageReceived)
                 .Run();
 
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var incomingMessageActivities = activityListener.CompletedActivities.GetIncomingActivities();
-            var outgoingMessageActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+            var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
             Assert.AreEqual(2, incomingMessageActivities.Count, "2 messages are received as part of this test");
             Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are sent as part of this test");
 

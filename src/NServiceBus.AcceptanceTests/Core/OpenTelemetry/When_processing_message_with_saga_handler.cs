@@ -13,7 +13,6 @@
         [Test]
         public async Task Should_trace_saga_id()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             var businessId = Guid.NewGuid();
 
             var context = await Scenario.Define<Context>()
@@ -23,9 +22,7 @@
                 .Done(ctx => ctx.MessageHandled)
                 .Run();
 
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var invokedHandlerActivities = activityListener.CompletedActivities.GetInvokedHandlerActivities();
+            var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
 
             Assert.AreEqual(1, invokedHandlerActivities.Count, "One handlers should be invoked");
 

@@ -5,12 +5,11 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using NUnit.Framework;
 
-    class TestingActivityListener : IDisposable
+    public class TestingActivityListener : IDisposable
     {
         readonly ActivityListener activityListener;
-
-        public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener("NServiceBus.Core");
 
         public static TestingActivityListener SetupDiagnosticListener(string sourceName)
         {
@@ -42,6 +41,11 @@
 
         public ConcurrentQueue<Activity> StartedActivities { get; } = new ConcurrentQueue<Activity>();
         public ConcurrentQueue<Activity> CompletedActivities { get; } = new ConcurrentQueue<Activity>();
+
+        public void VerifyAllActivitiesCompleted()
+        {
+            Assert.AreEqual(StartedActivities.Count, CompletedActivities.Count, "all started activities should be completed");
+        }
     }
 
     static class ActivityExtensions

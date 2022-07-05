@@ -31,8 +31,6 @@
         [Test]
         public async Task Should_mark_span_as_failed()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<FailingEndpoint>(e => e
                     .DoNotFailOnErrorMessages()
@@ -41,7 +39,7 @@
 
             Assert.AreEqual(1, context.FailedMessages.Count, "the message should have failed");
 
-            Activity failedPipelineActivity = activityListener.CompletedActivities.GetIncomingActivities().Single();
+            Activity failedPipelineActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities().Single();
             Assert.AreEqual(ActivityStatusCode.Error, failedPipelineActivity.Status);
             Assert.AreEqual(ErrorMessage, failedPipelineActivity.StatusDescription);
 
@@ -49,7 +47,7 @@
             pipelineActivityTags.VerifyTag("otel.status_code", "ERROR");
             pipelineActivityTags.VerifyTag("otel.status_description", ErrorMessage);
 
-            Activity failedHandlerActivity = activityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+            Activity failedHandlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
             Assert.AreEqual(ActivityStatusCode.Error, failedHandlerActivity.Status);
             Assert.AreEqual(ErrorMessage, failedHandlerActivity.StatusDescription);
 

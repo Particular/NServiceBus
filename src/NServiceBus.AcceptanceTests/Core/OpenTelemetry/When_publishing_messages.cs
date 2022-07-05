@@ -13,7 +13,6 @@
         [Test]
         public async Task Should_create_outgoing_event_span()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b
                     .When(ctx => ctx.SomeEventSubscribed, s => s.Publish<ThisIsAnEvent>()))
@@ -29,9 +28,7 @@
                 .Done(c => c.OutgoingEventReceived)
                 .Run();
 
-            Assert.AreEqual(activityListener.StartedActivities.Count, activityListener.CompletedActivities.Count, "all activities should be completed");
-
-            var outgoingEventActivities = activityListener.CompletedActivities.GetOutgoingEventActivities();
+            var outgoingEventActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingEventActivities();
             Assert.AreEqual(1, outgoingEventActivities.Count, "1 event is being published");
 
             var publishedMessage = outgoingEventActivities.Single();

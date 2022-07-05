@@ -15,7 +15,6 @@
         [Test]
         public async Task Should_attach_to_ambient_trace()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
             using var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
 
             var context = await Scenario.Define<Context>()
@@ -24,8 +23,8 @@
                 .Done(c => c.MessageReceived)
                 .Run();
 
-            var handlerActivity = activityListener.CompletedActivities.GetInvokedHandlerActivities().First();
-            var sendFromHandlerActivity = activityListener.CompletedActivities.GetOutgoingActivities().Last();
+            var handlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
+            var sendFromHandlerActivity = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities().Last();
             Assert.AreEqual(context.AmbientActivityId, sendFromHandlerActivity.ParentId, "the outgoing message should be connected to the ambient span");
             Assert.AreEqual(context.AmbientActivityRootId, sendFromHandlerActivity.RootId, "outgoing and ambient activity should belong to same trace");
             Assert.AreEqual(ExpectedTraceState, sendFromHandlerActivity.TraceStateString, "outgoing activity should capture ambient trace state");

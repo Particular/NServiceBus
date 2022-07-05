@@ -14,17 +14,13 @@
         [Test]
         public async Task Should_create_incoming_message_span()
         {
-            using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-            TestContext.WriteLine($"Created listener {activityListener.GetHashCode()}");
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ReceivingEndpoint>(e => e
                     .When(s => s.SendLocal(new IncomingMessage())))
                 .Done(c => c.IncomingMessageReceived)
                 .Run();
 
-            Assert.AreEqual(activityListener.CompletedActivities.Count, activityListener.StartedActivities.Count, "all activities should be completed");
-
-            var incomingMessageActivities = activityListener.CompletedActivities.GetIncomingActivities();
+            var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
 
             var incomingActivity = incomingMessageActivities.Single();

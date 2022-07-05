@@ -12,8 +12,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_correlate_immediate_retry_with_send()
     {
-        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
         await Scenario.Define<Context>()
             .WithEndpoint<RetryingEndpoint>(e => e
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
@@ -22,8 +20,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.InvocationCounter == 2)
             .Run();
 
-        var receiveActivities = activityListener.CompletedActivities.GetIncomingActivities();
-        var sendActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+        var sendActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
 
         Assert.AreEqual(1, sendActivities.Count);
         Assert.AreEqual(2, receiveActivities.Count, "the message should be processed twice due to one immediate retry");
@@ -38,8 +36,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     {
         Requires.DelayedDelivery();
 
-        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
         await Scenario.Define<Context>()
             .WithEndpoint<RetryingEndpoint>(e => e
                 .CustomConfig(c => c.Recoverability().Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
@@ -48,8 +44,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.InvocationCounter == 2)
             .Run();
 
-        var receiveActivities = activityListener.CompletedActivities.GetIncomingActivities();
-        var sendActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+        var sendActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
 
         Assert.AreEqual(1, sendActivities.Count);
         Assert.AreEqual(2, receiveActivities.Count, "the message should be processed twice due to one immediate retry");

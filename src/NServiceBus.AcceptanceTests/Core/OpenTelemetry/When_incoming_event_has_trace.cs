@@ -13,8 +13,6 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_correlate_trace_from_publish()
     {
-        using var activityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b
                 .When(ctx => ctx.SomeEventSubscribed, s => s.Publish<ThisIsAnEvent>()))
@@ -30,17 +28,15 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
             .Done(c => c.ReplyMessageReceived)
             .Run(TimeSpan.FromSeconds(10));
 
-        var incomingActivities = activityListener.CompletedActivities.GetIncomingActivities();
-        var outgoingActivities = activityListener.CompletedActivities.GetOutgoingActivities();
+        var incomingActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+        var outgoingActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
 
         Assert.AreEqual(2, incomingActivities.Count, "2 messages are received as part of this test (event + reply)");
         Assert.AreEqual(1, outgoingActivities.Count, "1 message is sent as part of this test (reply)");
-        Assert.AreEqual(1, activityListener.CompletedActivities.GetOutgoingEventActivities().Count, "1 event is published as part of this test");
+        Assert.AreEqual(1, NServicebusActivityListener.CompletedActivities.GetOutgoingEventActivities().Count, "1 event is published as part of this test");
 
         Assert.IsTrue(incomingActivities.Concat(outgoingActivities)
             .All(a => a.RootId == incomingActivities[0].RootId), "all activities should belong to the same trace");
-
-        //TODO this will currently fail on CI because we don't set the is_control_message tag (or header) yet.
     }
     public class Context : ScenarioContext
     {

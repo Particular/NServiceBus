@@ -14,6 +14,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
         public async Task Should_report_successful_message_metric()
         {
             using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
             _ = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithMetrics>(b => b
                     .CustomConfig(cfg => cfg.EnableOpenTelemetryMetrics())
