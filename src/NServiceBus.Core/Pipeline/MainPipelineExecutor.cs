@@ -36,7 +36,7 @@ namespace NServiceBus
 
                 if (activity != null)
                 {
-                    transportReceiveContext.SetPipelineActitvity(activity);
+                    transportReceiveContext.SetIncomingPipelineActitvity(activity);
                 }
 
                 try

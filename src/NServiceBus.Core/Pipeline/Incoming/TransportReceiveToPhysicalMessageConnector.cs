@@ -45,7 +45,7 @@ namespace NServiceBus
             }
             else
             {
-                context.Extensions.TryGetRecordingPipelineActivity(out var activity);
+                context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity);
                 activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
                 ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
@@ -54,7 +54,7 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-                if (context.Extensions.TryGetRecordingPipelineActivity(out var activity))
+                if (context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
                 {
                     var activityTagsCollection = new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } };
                     activity?.AddEvent(new ActivityEvent("Start dispatching", tags: activityTagsCollection));

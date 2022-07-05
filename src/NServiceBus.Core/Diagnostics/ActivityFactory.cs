@@ -63,7 +63,7 @@ class ActivityFactory : IActivityFactory
             activity.DisplayName = displayName;
             activity.Start();
 
-            outgoingContext.Extensions.SetPipelineActitvity(activity);
+            outgoingContext.Extensions.SetOutgoingPipelineActitvity(activity);
         }
 
         return activity;
