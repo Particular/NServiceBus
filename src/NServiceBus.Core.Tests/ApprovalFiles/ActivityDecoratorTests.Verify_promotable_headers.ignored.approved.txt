@@ -1,0 +1,17 @@
+Headers.HttpFrom
+Headers.HttpTo
+Headers.RouteTo
+Headers.DestinationSites
+Headers.OriginatingSite
+Headers.ReturnMessageErrorCodeHeader
+Headers.ImmediateRetries
+Headers.ProcessingStarted
+Headers.ProcessingEnded
+Headers.TimeSent
+Headers.SubscriptionMessageType
+Headers.SubscriberTransportAddress
+Headers.SubscriberEndpoint
+Headers.DiagnosticsTraceParent
+Headers.DiagnosticsTraceState
+Headers.DiagnosticsBaggage
+Headers.HeaderName
