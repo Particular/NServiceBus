@@ -1,13 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 {
     using System.Collections.Immutable;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
     using NServiceBus;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NUnit.Framework;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_processing_fails : NServiceBusAcceptanceTest

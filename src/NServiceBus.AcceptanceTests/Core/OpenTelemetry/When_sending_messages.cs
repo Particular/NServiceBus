@@ -1,13 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 {
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     [NonParallelizable] // Ensure only activities for the current test are captured

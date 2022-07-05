@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 {
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
@@ -75,7 +75,7 @@
                 public Task Handle(IncomingMessage message, IMessageHandlerContext context)
                 {
                     testContext.IncomingMessageId = context.MessageId;
-                    testContext.IncomingNativeMessageId = context.Extensions.Get<NServiceBus.Transport.IncomingMessage>().NativeMessageId;
+                    testContext.IncomingNativeMessageId = context.Extensions.Get<Transport.IncomingMessage>().NativeMessageId;
                     if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
                     {
                         testContext.IncomingMessageConversationId = conversationId;

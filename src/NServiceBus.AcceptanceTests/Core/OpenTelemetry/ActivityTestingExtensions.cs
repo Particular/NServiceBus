@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Diagnostics;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
 using System;
 using System.Collections.Immutable;

@@ -1,13 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
+    using NServiceBus.Transport;
     using NUnit.Framework;
-    using Transport;
 
     [NonParallelizable] // Ensure only activities for the current test are captured
     public class When_incoming_message_has_no_trace : NServiceBusAcceptanceTest

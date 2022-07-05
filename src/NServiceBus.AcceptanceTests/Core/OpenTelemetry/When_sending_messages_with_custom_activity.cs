@@ -1,12 +1,12 @@
-namespace NServiceBus.AcceptanceTests.Diagnostics
+namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 {
     using System;
     using System.Collections.Immutable;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
