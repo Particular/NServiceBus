@@ -45,7 +45,8 @@
                 IServiceCollection services,
                 string installationUserName,
                 bool shouldRunInstallers,
-                List<Action<IServiceCollection>> userRegistrations, IActivityFactory activityFactory)
+                List<Action<IServiceCollection>> userRegistrations,
+                IActivityFactory activityFactory)
             {
                 AvailableTypes = availableTypes;
                 CriticalError = criticalError;
