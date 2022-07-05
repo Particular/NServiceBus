@@ -10,8 +10,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_sending_messages_with_custom_activity : NServiceBusAcceptanceTest
+    public class When_sending_messages_with_custom_activity : OpenTelemetryAcceptanceTest
     {
         static ActivitySource externalActivitySource = new(Guid.NewGuid().ToString());
 

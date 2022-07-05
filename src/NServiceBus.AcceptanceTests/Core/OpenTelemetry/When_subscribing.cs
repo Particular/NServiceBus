@@ -8,8 +8,7 @@ using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NServiceBus.Features;
 using NUnit.Framework;
 
-[NonParallelizable] // Ensure only activities for the current test are captured
-public class When_subscribing : NServiceBusAcceptanceTest
+public class When_subscribing : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_create_subscription_span_when_mdps()

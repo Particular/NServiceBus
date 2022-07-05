@@ -8,8 +8,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_processing_message_with_saga_handler : NServiceBusAcceptanceTest
+    public class When_processing_message_with_saga_handler : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_trace_saga_id()

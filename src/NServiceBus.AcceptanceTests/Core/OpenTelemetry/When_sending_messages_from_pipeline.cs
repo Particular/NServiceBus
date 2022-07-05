@@ -7,8 +7,7 @@ using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
-[NonParallelizable] // Ensure only activities for the current test are captured
-public class When_sending_messages_from_pipeline : NServiceBusAcceptanceTest
+public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_add_batch_dispatch_events()

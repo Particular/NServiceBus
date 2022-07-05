@@ -9,8 +9,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_processing_fails : NServiceBusAcceptanceTest
+    public class When_processing_fails : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_report_failing_message_metrics()

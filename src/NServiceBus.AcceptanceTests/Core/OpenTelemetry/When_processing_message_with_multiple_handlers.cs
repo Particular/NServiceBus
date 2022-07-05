@@ -7,8 +7,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_processing_message_with_multiple_handlers : NServiceBusAcceptanceTest
+    public class When_processing_message_with_multiple_handlers : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_create_message_handler_spans()

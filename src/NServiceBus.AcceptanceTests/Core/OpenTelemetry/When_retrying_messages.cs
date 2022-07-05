@@ -7,8 +7,7 @@ using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
-[NonParallelizable] // Ensure only activities for the current test are captured
-public class When_retrying_messages : NServiceBusAcceptanceTest
+public class When_retrying_messages : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_correlate_immediate_retry_with_send()

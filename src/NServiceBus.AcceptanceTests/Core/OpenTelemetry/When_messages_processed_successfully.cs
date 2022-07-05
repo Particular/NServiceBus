@@ -8,8 +8,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
     using NUnit.Framework;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_messages_processed_successfully : NServiceBusAcceptanceTest
+    public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_report_successful_message_metric()

@@ -6,8 +6,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_outgoing_activity_has_baggage : NServiceBusAcceptanceTest
+    public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_propagate_baggage_to_headers()

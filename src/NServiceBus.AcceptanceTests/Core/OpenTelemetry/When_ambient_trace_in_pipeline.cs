@@ -8,8 +8,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_ambient_trace_in_pipeline : NServiceBusAcceptanceTest
+    public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
     {
         static ActivitySource externalActivitySource = new(Guid.NewGuid().ToString());
 

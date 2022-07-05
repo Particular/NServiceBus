@@ -7,8 +7,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_ambient_trace_in_message_session : NServiceBusAcceptanceTest
+    public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_attach_to_ambient_trace()

@@ -9,8 +9,7 @@
     using NServiceBus.Transport;
     using NUnit.Framework;
 
-    [NonParallelizable] // Ensure only activities for the current test are captured
-    public class When_incoming_message_has_no_trace : NServiceBusAcceptanceTest
+    public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
     {
         [Test]
         public async Task Should_start_new_trace()

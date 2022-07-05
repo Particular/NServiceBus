@@ -8,8 +8,7 @@ using NServiceBus.AcceptanceTesting.Customization;
 using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
-[NonParallelizable] // Ensure only activities for the current test are captured
-public class When_incoming_event_has_trace : NServiceBusAcceptanceTest
+public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_correlate_trace_from_publish()
