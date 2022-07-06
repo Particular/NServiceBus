@@ -41,10 +41,7 @@
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public TestEndpoint() => EndpointSetup<DefaultServer>();
 
             public class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
@@ -66,7 +63,6 @@
 
         public class SomeMessage : IMessage
         {
-
         }
 
         class Context : ScenarioContext

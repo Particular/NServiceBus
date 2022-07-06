@@ -31,7 +31,8 @@
 
         class ReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(new StopTraceBehavior(), "removes tracing headers from outgoing messages"));
+            public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c 
+                => c.Pipeline.Register(new StopTraceBehavior(), "removes tracing headers from outgoing messages"));
 
             class StopTraceBehavior : Behavior<IDispatchContext>
             {
@@ -39,8 +40,9 @@
                 {
                     foreach (TransportOperation transportOperation in context.Operations)
                     {
-                        transportOperation.Message.Headers.Remove("traceparent");
-                        transportOperation.Message.Headers.Remove("tracestate");
+                        transportOperation.Message.Headers.Remove(Headers.DiagnosticsTraceParent);
+                        transportOperation.Message.Headers.Remove(Headers.DiagnosticsTraceState);
+                        transportOperation.Message.Headers.Remove(Headers.DiagnosticsBaggage);
                     }
 
                     return next();

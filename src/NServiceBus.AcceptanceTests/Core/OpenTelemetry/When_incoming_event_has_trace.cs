@@ -15,7 +15,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b
-                .When(ctx => ctx.SomeEventSubscribed, s => s.Publish<ThisIsAnEvent>()))
+                .When(ctx => ctx.SomeEventSubscribed, s => s.Publish<SomeEvent>()))
             .WithEndpoint<Subscriber>(b => b.When((_, ctx) =>
             {
                 if (ctx.HasNativePubSubSupport)
@@ -55,7 +55,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                 {
                     if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber))))
                     {
-                        if (s.MessageType == typeof(ThisIsAnEvent).AssemblyQualifiedName)
+                        if (s.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
                         {
                             context.SomeEventSubscribed = true;
                         }
@@ -81,19 +81,19 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
-            EndpointSetup<DefaultServer>(c =>
+            EndpointSetup<DefaultServer>(_ =>
                 {
                 },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<ThisIsAnEvent>(typeof(Publisher));
+                    metadata.RegisterPublisherFor<SomeEvent>(typeof(Publisher));
                 });
 
-        public class ThisHandlesSomethingHandler : IHandleMessages<ThisIsAnEvent>
+        public class ThisHandlesSomethingHandler : IHandleMessages<SomeEvent>
         {
             public ThisHandlesSomethingHandler(Context testContext) => this.testContext = testContext;
 
-            public Task Handle(ThisIsAnEvent @event, IMessageHandlerContext context)
+            public Task Handle(SomeEvent @event, IMessageHandlerContext context)
             {
                 testContext.EventTraceParent = context.MessageHeaders[Headers.DiagnosticsTraceParent];
 
@@ -104,7 +104,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class ThisIsAnEvent : IEvent
+    public class SomeEvent : IEvent
     {
     }
 
