@@ -50,7 +50,11 @@
 
     static class ActivityExtensions
     {
-        public static List<Activity> GetIncomingActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage" && !Convert.ToBoolean(a.GetTagItem("nservicebus.control_message"))).ToList();
+        public static List<Activity> GetIncomingActivities(this ConcurrentQueue<Activity> activities, bool includeControlMessages = false)
+            => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.ReceiveMessage")
+                         .Where(a => includeControlMessages || !Convert.ToBoolean(a.GetTagItem("nservicebus.control_message")))
+                         .ToList();
+
         public static List<Activity> GetOutgoingActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.SendMessage").ToList();
         public static List<Activity> GetOutgoingEventActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.PublishMessage").ToList();
         public static List<Activity> GetInvokedHandlerActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.InvokeHandler").ToList();

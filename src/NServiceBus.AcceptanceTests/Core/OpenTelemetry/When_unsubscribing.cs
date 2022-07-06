@@ -33,7 +33,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        var receiveActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage").ToArray();
+        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities(includeControlMessages: true).ToArray();
         Assert.AreEqual(1, receiveActivities.Length, "the unsubscribe message should be received by the publisher");
         Assert.AreEqual(unsubscribeActivities[0].Id, receiveActivities[0].ParentId, "the received unsubscribe message should connect to the subscribe operation");
     }
@@ -62,7 +62,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
 
         //TODO assert tags etc.
 
-        var subscriptionReceiveActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+        var subscriptionReceiveActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities(includeControlMessages: true);
         Assert.IsEmpty(subscriptionReceiveActivity, "native pubsub should not produce a message");
     }
 
