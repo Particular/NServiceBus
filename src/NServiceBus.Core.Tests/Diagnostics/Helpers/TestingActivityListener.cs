@@ -7,7 +7,7 @@ class TestingActivityListener : IDisposable
 {
     readonly ActivityListener activityListener;
 
-    public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener(NServiceBusDiagnosticsInfo.InstrumentationName);
+    public static TestingActivityListener SetupNServiceBusDiagnosticListener() => SetupDiagnosticListener(ActivitySources.Main.Name);
 
     public static TestingActivityListener SetupDiagnosticListener(string sourceName)
     {

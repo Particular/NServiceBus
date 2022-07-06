@@ -5,7 +5,7 @@
     static class ActivitySources
     {
         public static readonly ActivitySource Main =
-            new(NServiceBusDiagnosticsInfo.InstrumentationName,
-                NServiceBusDiagnosticsInfo.InstrumentationVersion);
+            new("NServiceBus.Core",
+                "0.1.0");
     }
 }
