@@ -24,7 +24,7 @@
                 .Done(ctx => ctx.MessageReceived)
                 .Run();
 
-            var incomingMessageTraces = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+            var incomingMessageTraces = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
             Assert.AreEqual(1, incomingMessageTraces.Count, "There should be 1 message received");
             var incomingMessageTrace = incomingMessageTraces.Single();
 

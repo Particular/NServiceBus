@@ -37,8 +37,8 @@
                 .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
-            var outgoingMessageActivity = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities().Single();
-            var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities().Single();
+            var outgoingMessageActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
+            var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
 
             Assert.AreEqual(wrapperActivityId, outgoingMessageActivity.ParentId, "outgoing message should be connected to the ambient span");
             Assert.AreEqual(wrapperActivityRootId, outgoingMessageActivity.RootId, "outgoing message should be connected to the ambient trace");

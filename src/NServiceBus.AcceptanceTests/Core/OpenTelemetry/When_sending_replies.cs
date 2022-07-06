@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
                 .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
-            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
+            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
             Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are being sent");
             var replyMessage = outgoingMessageActivities[1];
 

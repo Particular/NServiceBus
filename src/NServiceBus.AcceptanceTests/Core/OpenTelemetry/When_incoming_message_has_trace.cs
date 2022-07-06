@@ -20,8 +20,8 @@
                 .Done(c => c.ReplyMessageReceived)
                 .Run();
 
-            var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
-            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
+            var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
             Assert.AreEqual(2, incomingMessageActivities.Count, "2 messages are received as part of this test");
             Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are sent as part of this test");
 

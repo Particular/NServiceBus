@@ -20,8 +20,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.InvocationCounter == 2)
             .Run();
 
-        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
-        var sendActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
+        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var sendActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
 
         Assert.AreEqual(1, sendActivities.Count);
         Assert.AreEqual(2, receiveActivities.Count, "the message should be processed twice due to one immediate retry");
@@ -44,8 +44,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.InvocationCounter == 2)
             .Run();
 
-        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
-        var sendActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
+        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var sendActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
 
         Assert.AreEqual(1, sendActivities.Count);
         Assert.AreEqual(2, receiveActivities.Count, "the message should be processed twice due to one immediate retry");

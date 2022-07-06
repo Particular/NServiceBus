@@ -25,7 +25,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
                 .Done(c => c.MessageReceived)
                 .Run();
 
-            var sendActivity = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities().First();
+            var sendActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().First();
             var customActivity = customActivityListener.CompletedActivities.First();
 
             var sendActivityTags = sendActivity.Tags.ToImmutableDictionary();

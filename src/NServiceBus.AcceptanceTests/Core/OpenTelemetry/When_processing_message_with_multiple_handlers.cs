@@ -20,7 +20,7 @@
                 .Run();
 
             var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
-            var receivePipelineActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+            var receivePipelineActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
 
             Assert.AreEqual(2, invokedHandlerActivities.Count, "a dedicated span for each handler should be created");
             Assert.AreEqual(1, receivePipelineActivities.Count, "the receive pipeline should be invoked once");

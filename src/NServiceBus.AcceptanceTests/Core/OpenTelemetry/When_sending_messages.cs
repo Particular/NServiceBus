@@ -21,7 +21,7 @@
                 .Done(c => c.OutgoingMessageReceived)
                 .Run();
 
-            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities();
+            var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
             Assert.AreEqual(1, outgoingMessageActivities.Count, "1 message is being sent");
             var sentMessage = outgoingMessageActivities.Single();
 

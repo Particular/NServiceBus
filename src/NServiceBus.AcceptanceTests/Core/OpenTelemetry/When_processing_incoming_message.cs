@@ -20,7 +20,7 @@
                 .Done(c => c.IncomingMessageReceived)
                 .Run();
 
-            var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetIncomingActivities();
+            var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
             Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
 
             var incomingActivity = incomingMessageActivities.Single();
