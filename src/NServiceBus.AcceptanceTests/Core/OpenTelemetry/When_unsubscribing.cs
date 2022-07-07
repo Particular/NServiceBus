@@ -60,8 +60,6 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        //TODO assert tags etc.
-
         var subscriptionReceiveActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true);
         Assert.IsEmpty(subscriptionReceiveActivity, "native pubsub should not produce a message");
     }

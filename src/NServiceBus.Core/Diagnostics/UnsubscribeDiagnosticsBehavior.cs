@@ -10,7 +10,6 @@ class UnsubscribeDiagnosticsBehavior : IBehavior<IUnsubscribeContext, IUnsubscri
     {
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
-            //TODO unsubscribe is always a single event type, should the tag name reflect that?
             activity?.SetTag("nservicebus.event_types", context.EventType.FullName);
         }
 

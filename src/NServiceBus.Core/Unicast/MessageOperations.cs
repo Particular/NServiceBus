@@ -66,7 +66,7 @@ namespace NServiceBus
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
             using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, "publish event", publishContext);
-
+            // TODO: This call should be awaited or the activity will be disposed too early
             return publishPipeline.Invoke(publishContext, activity);
         }
 
