@@ -7,7 +7,6 @@ using NUnit.Framework;
 
 public static class ActivityTestingExtensions
 {
-
     public static void VerifyTag(this ImmutableDictionary<string, string> tags, string tagName, string expectedValue)
     {
         Assert.IsTrue(tags.TryGetValue(tagName, out var tagValue), $"Tags should contain key '{tagName}'");

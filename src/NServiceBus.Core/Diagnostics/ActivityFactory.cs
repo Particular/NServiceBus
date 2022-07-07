@@ -10,7 +10,7 @@ class ActivityFactory : IActivityFactory
     public Activity StartIncomingActivity(MessageContext context)
     {
         Activity activity;
-        if (context.Extensions.TryGet(out Activity transportActivity)) // attach to transport span but link receive pipeline to send pipeline spa
+        if (context.Extensions.TryGet(out Activity transportActivity) && transportActivity != null) // attach to transport span but link receive pipeline span to send pipeline span
         {
             ActivityLink[] links = null;
             if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && sendSpanId != transportActivity.Id)
@@ -31,15 +31,14 @@ class ActivityFactory : IActivityFactory
         }
         else // otherwise start new trace
         {
-            // This will use Activity.Current if set
+            // This will set Activity.Current as parent if available
             activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
-
         }
-
-        ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
         if (activity != null)
         {
+            ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
+
             activity.DisplayName = "process message";
             activity.SetIdFormat(ActivityIdFormat.W3C);
             activity.AddTag("nservicebus.native_message_id", context.NativeMessageId);

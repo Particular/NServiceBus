@@ -13,7 +13,7 @@ public class OpenTelemetryAcceptanceTest : NServiceBusAcceptanceTest
     [TearDown]
     public void Cleanup()
     {
-        NServicebusActivityListener.VerifyAllActivitiesCompleted();
+        NServicebusActivityListener?.VerifyAllActivitiesCompleted();
         NServicebusActivityListener?.Dispose();
     }
 }

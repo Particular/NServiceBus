@@ -15,12 +15,12 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
         {
             meterListener = new()
             {
-                InstrumentPublished = (instrument, l) =>
+                InstrumentPublished = (instrument, listener) =>
                 {
                     if (instrument.Meter.Name == sourceName)
                     {
                         TestContext.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
-                        l.EnableMeasurementEvents(instrument);
+                        listener.EnableMeasurementEvents(instrument);
                     }
                 }
             };

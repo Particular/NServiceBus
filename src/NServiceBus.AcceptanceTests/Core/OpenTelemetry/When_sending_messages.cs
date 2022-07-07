@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
@@ -26,8 +25,6 @@
             var sentMessage = outgoingMessageActivities.Single();
 
             Assert.IsNull(sentMessage.ParentId, "sends without ambient span should start a new trace");
-            // TODO: is this correct? it seems like this needs to be filled by the transport
-            var destination = Conventions.EndpointNamingConvention(typeof(TestEndpoint));
             Assert.AreEqual("send message", sentMessage.DisplayName);
 
             var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();

@@ -9,8 +9,8 @@ namespace NServiceBus
     class MessagingMetricsFeature : Feature
     {
         internal static readonly Meter NServiceBusMeter = new Meter(
-            NServiceBusDiagnosticsInfo.InstrumentationName,
-            NServiceBusDiagnosticsInfo.InstrumentationVersion);
+            "NServiceBus.Core",
+            "0.1.0");
 
         public MessagingMetricsFeature() => Prerequisite(c => !c.Receiving.IsSendOnlyEndpoint, "Processing metrics are not supported on send-only endpoints");
 
