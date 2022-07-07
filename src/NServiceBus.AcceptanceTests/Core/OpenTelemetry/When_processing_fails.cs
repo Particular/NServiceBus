@@ -39,7 +39,7 @@
 
             Assert.AreEqual(1, context.FailedMessages.Count, "the message should have failed");
 
-            Activity failedPipelineActivity = NServicebusActivityListener.CompletedActivities.GetIncomingActivities().Single();
+            Activity failedPipelineActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
             Assert.AreEqual(ActivityStatusCode.Error, failedPipelineActivity.Status);
             Assert.AreEqual(ErrorMessage, failedPipelineActivity.StatusDescription);
 

@@ -24,7 +24,7 @@
                 .Run();
 
             var handlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
-            var sendFromHandlerActivity = NServicebusActivityListener.CompletedActivities.GetOutgoingActivities().Last();
+            var sendFromHandlerActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().Last();
             Assert.AreEqual(context.AmbientActivityId, sendFromHandlerActivity.ParentId, "the outgoing message should be connected to the ambient span");
             Assert.AreEqual(context.AmbientActivityRootId, sendFromHandlerActivity.RootId, "outgoing and ambient activity should belong to same trace");
             Assert.AreEqual(ExpectedTraceState, sendFromHandlerActivity.TraceStateString, "outgoing activity should capture ambient trace state");

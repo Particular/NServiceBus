@@ -20,7 +20,7 @@
                 .Done(c => c.MessageReceived)
                 .Run();
 
-            var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.Single(a => a.OperationName == "NServiceBus.Diagnostics.IncomingMessage");
+            var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
             Assert.AreEqual(null, incomingMessageActivity.ParentId, "should start a trace when incoming message isn't part of a trace already");
         }
 

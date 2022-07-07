@@ -28,7 +28,7 @@
                 .Done(c => c.OutgoingEventReceived)
                 .Run();
 
-            var outgoingEventActivities = NServicebusActivityListener.CompletedActivities.GetOutgoingEventActivities();
+            var outgoingEventActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
             Assert.AreEqual(1, outgoingEventActivities.Count, "1 event is being published");
 
             var publishedMessage = outgoingEventActivities.Single();
