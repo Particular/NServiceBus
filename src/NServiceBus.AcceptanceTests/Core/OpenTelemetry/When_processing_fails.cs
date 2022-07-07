@@ -23,9 +23,9 @@
                 .Done(c => c.HandlerInvoked)
                 .Run();
 
-            metricsListener.AssertMetric("messaging.fetches", 1);
-            metricsListener.AssertMetric("messaging.failures", 1);
-            metricsListener.AssertMetric("messaging.successes", 0);
+            metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
+            metricsListener.AssertMetric("nservicebus.messaging.failures", 1);
+            metricsListener.AssertMetric("nservicebus.messaging.successes", 0);
         }
 
         [Test]

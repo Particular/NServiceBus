@@ -10,13 +10,13 @@ namespace NServiceBus
     {
         //TODO review tag names
         static readonly Counter<long> TotalProcessedSuccessfully =
-            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("messaging.successes", description: "Total number of messages processed successfully by the endpoint.");
+            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.successes", description: "Total number of messages processed successfully by the endpoint.");
 
         static readonly Counter<long> TotalFetched =
-            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("messaging.fetches", description: "Total number of messages fetched from the queue by the endpoint.");
+            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.fetches", description: "Total number of messages fetched from the queue by the endpoint.");
 
         static readonly Counter<long> TotalFailures =
-            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
+            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
 
         public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
         {
@@ -31,9 +31,9 @@ namespace NServiceBus
             //TODO review tag names
             var tags = new List<KeyValuePair<string, object>>
             {
-                new("messaging.discriminator", discriminator ?? ""),
-                new("messaging.queue", queueNameBase ?? ""),
-                new("messaging.type", messageTypes ?? ""),
+                new("nservicebus.discriminator", discriminator ?? ""),
+                new("nservicebus.queue", queueNameBase ?? ""),
+                new("nservicebus.type", messageTypes ?? ""),
             };
 
             TotalFetched.Add(1, tags.ToArray());
@@ -44,7 +44,7 @@ namespace NServiceBus
             }
             catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
-                tags.Add(new KeyValuePair<string, object>("messaging.failure_type", ex.GetType()));
+                tags.Add(new KeyValuePair<string, object>("nservicebus.failure_type", ex.GetType()));
                 TotalFailures.Add(1, tags.ToArray());
                 throw;
             }
