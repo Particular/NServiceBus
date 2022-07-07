@@ -8,7 +8,6 @@ namespace NServiceBus
 
     class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        //TODO review tag names
         static readonly Counter<long> TotalProcessedSuccessfully =
             MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.successes", description: "Total number of messages processed successfully by the endpoint.");
 
@@ -28,7 +27,6 @@ namespace NServiceBus
         {
             context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
 
-            //TODO review tag names
             var tags = new List<KeyValuePair<string, object>>
             {
                 new("nservicebus.discriminator", discriminator ?? ""),
