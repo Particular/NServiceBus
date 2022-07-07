@@ -17,7 +17,6 @@
             using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
             _ = await Scenario.Define<Context>()
                 .WithEndpoint<FailingEndpoint>(e => e
-                    .CustomConfig(cfg => cfg.EnableOpenTelemetryMetrics())
                     .DoNotFailOnErrorMessages()
                     .When(s => s.SendLocal(new FailingMessage())))
                 .Done(c => c.HandlerInvoked)

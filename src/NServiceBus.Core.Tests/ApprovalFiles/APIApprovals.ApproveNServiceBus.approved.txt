@@ -804,10 +804,6 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
     }
-    public static class MetricsExtensions
-    {
-        public static void EnableOpenTelemetryMetrics(this NServiceBus.EndpointConfiguration config) { }
-    }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {
         protected MoveToError(string errorQueue) { }

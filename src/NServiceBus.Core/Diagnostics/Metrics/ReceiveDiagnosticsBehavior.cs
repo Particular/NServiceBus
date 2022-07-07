@@ -2,20 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Metrics;
     using System.Threading.Tasks;
     using Pipeline;
 
     class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        static readonly Counter<long> TotalProcessedSuccessfully =
-            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.successes", description: "Total number of messages processed successfully by the endpoint.");
-
-        static readonly Counter<long> TotalFetched =
-            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.fetches", description: "Total number of messages fetched from the queue by the endpoint.");
-
-        static readonly Counter<long> TotalFailures =
-            MessagingMetricsFeature.NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
 
         public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
         {
@@ -34,7 +25,7 @@ namespace NServiceBus
                 new("nservicebus.type", messageTypes ?? ""),
             };
 
-            TotalFetched.Add(1, tags.ToArray());
+            MessagingMetricsFeature.TotalFetched.Add(1, tags.ToArray());
 
             try
             {
@@ -43,11 +34,11 @@ namespace NServiceBus
             catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
                 tags.Add(new KeyValuePair<string, object>("nservicebus.failure_type", ex.GetType()));
-                TotalFailures.Add(1, tags.ToArray());
+                MessagingMetricsFeature.TotalFailures.Add(1, tags.ToArray());
                 throw;
             }
 
-            TotalProcessedSuccessfully.Add(1, tags.ToArray());
+            MessagingMetricsFeature.TotalProcessedSuccessfully.Add(1, tags.ToArray());
         }
 
         readonly string queueNameBase;
