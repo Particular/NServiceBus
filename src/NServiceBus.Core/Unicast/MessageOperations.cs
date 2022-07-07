@@ -48,7 +48,7 @@ namespace NServiceBus
             return Publish(context, messageType, message, options);
         }
 
-        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+        async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -66,8 +66,8 @@ namespace NServiceBus
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
             using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, "publish event", publishContext);
-            // TODO: This call should be awaited or the activity will be disposed too early
-            return publishPipeline.Invoke(publishContext, activity);
+
+            await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -75,7 +75,7 @@ namespace NServiceBus
             return Subscribe(context, new Type[] { eventType }, options);
         }
 
-        public Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
+        public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
         {
             var subscribeContext = new SubscribeContext(
                 context,
@@ -86,10 +86,10 @@ namespace NServiceBus
 
             using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, "subscribe event", context);
 
-            return subscribePipeline.Invoke(subscribeContext, activity);
+            await subscribePipeline.Invoke(subscribeContext, activity).ConfigureAwait(false);
         }
 
-        public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
+        public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
             var unsubscribeContext = new UnsubscribeContext(
                 context,
@@ -100,7 +100,7 @@ namespace NServiceBus
 
             using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, "unsubscribe event", context);
 
-            return unsubscribePipeline.Invoke(unsubscribeContext, activity);
+            await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -115,7 +115,7 @@ namespace NServiceBus
             return SendMessage(context, messageType, message, options);
         }
 
-        Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+        async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -134,7 +134,7 @@ namespace NServiceBus
 
             using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "send message", outgoingContext);
 
-            return sendPipeline.Invoke(outgoingContext, activity);
+            await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -149,7 +149,7 @@ namespace NServiceBus
             return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
         }
 
-        Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+        async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -168,7 +168,7 @@ namespace NServiceBus
 
             using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, "reply", outgoingContext);
 
-            return replyPipeline.Invoke(outgoingContext, activity);
+            await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
         }
 
         static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
