@@ -29,7 +29,7 @@
 
             foreach (var invokedHandlerActivity in invokedHandlerActivities)
             {
-                var handlerTypeTag = invokedHandlerActivity.GetTagItem("nservicebus.handler_type") as string;
+                var handlerTypeTag = invokedHandlerActivity.GetTagItem("nservicebus.handler.handler_type") as string;
                 Assert.NotNull(handlerTypeTag, "Handler type tag should be set");
                 recordedHandlerTypes.Add(handlerTypeTag);
                 Assert.AreEqual(receivePipelineActivities[0].Id, invokedHandlerActivity.ParentId);

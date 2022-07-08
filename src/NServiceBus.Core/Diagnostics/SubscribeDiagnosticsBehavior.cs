@@ -10,7 +10,7 @@ class SubscribeDiagnosticsBehavior : IBehavior<ISubscribeContext, ISubscribeCont
     {
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
-            activity?.SetTag("nservicebus.event_types", string.Join(",", (object[])context.EventTypes));
+            activity?.SetTag(ActivityTags.EventTypes, string.Join(",", (object[])context.EventTypes));
         }
 
         return next(context);

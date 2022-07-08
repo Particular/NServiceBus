@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -18,14 +19,14 @@ namespace NServiceBus
         {
             context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
 
-            var tags = new List<KeyValuePair<string, object>>
+            var tags = new TagList(new KeyValuePair<string, object>[]
             {
-                new("nservicebus.discriminator", discriminator ?? ""),
-                new("nservicebus.queue", queueNameBase ?? ""),
-                new("nservicebus.type", messageTypes ?? ""),
-            };
+                new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
+                new(MeterTags.QueueName, queueNameBase ?? ""),
+                new(MeterTags.MessageType, messageTypes ?? ""),
+            }.AsSpan());
 
-            Meters.TotalFetched.Add(1, tags.ToArray());
+            Meters.TotalFetched.Add(1, tags);
 
             try
             {
@@ -33,12 +34,12 @@ namespace NServiceBus
             }
             catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
-                tags.Add(new KeyValuePair<string, object>("nservicebus.failure_type", ex.GetType()));
-                Meters.TotalFailures.Add(1, tags.ToArray());
+                tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, ex.GetType()));
+                Meters.TotalFailures.Add(1, tags);
                 throw;
             }
 
-            Meters.TotalProcessedSuccessfully.Add(1, tags.ToArray());
+            Meters.TotalProcessedSuccessfully.Add(1, tags);
         }
 
         readonly string queueNameBase;

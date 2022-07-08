@@ -39,9 +39,9 @@ class ActivityFactory : IActivityFactory
         {
             ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
-            activity.DisplayName = "process message";
+            activity.DisplayName = ActivityDisplayNames.ProcessMessage;
             activity.SetIdFormat(ActivityIdFormat.W3C);
-            activity.AddTag("nservicebus.native_message_id", context.NativeMessageId);
+            activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
 
             ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
 
@@ -75,11 +75,11 @@ class ActivityFactory : IActivityFactory
         if (activity != null)
         {
             activity.DisplayName = messageHandler.HandlerType.Name;
-            activity.AddTag("nservicebus.handler_type", messageHandler.HandlerType.FullName);
+            activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);
 
             if (saga != null)
             {
-                activity.AddTag("nservicebus.saga_id", saga.SagaId);
+                activity.AddTag(ActivityTags.HandlerSagaId, saga.SagaId);
             }
         }
 

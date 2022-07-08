@@ -10,7 +10,7 @@ class UnsubscribeDiagnosticsBehavior : IBehavior<IUnsubscribeContext, IUnsubscri
     {
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
-            activity?.SetTag("nservicebus.event_types", context.EventType.FullName);
+            activity?.SetTag(ActivityTags.EventTypes, context.EventType.FullName);
         }
 
         return next(context);

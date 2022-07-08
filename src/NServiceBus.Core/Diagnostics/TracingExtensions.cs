@@ -21,7 +21,6 @@ static class TracingExtensions
             }
             catch (Exception ex)
             {
-                // TODO: Add an explicit tag for operation canceled
                 activity.SetErrorStatus(ex);
                 throw;
             }
