@@ -32,9 +32,9 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
             metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
 
             var successEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
-            var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.type");
+            var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
             var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
-            var fetchedType = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.type").ToString();
+            var fetchedType = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.message_type").ToString();
 
             Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
             Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
