@@ -79,7 +79,7 @@ class ActivityFactory : IActivityFactory
 
             if (saga != null)
             {
-                activity.AddTag(ActivityTags.SagaId, saga.SagaId);
+                activity.AddTag(ActivityTags.HandlerSagaId, saga.SagaId);
             }
         }
 

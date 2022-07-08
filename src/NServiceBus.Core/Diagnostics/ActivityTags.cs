@@ -35,7 +35,8 @@ namespace NServiceBus
         public const string DataBusContentType = "nservicebus.databus.content_type";
         public const string NonDurableMessage = "nservicebus.non_durable";
         public const string NativeMessageId = "nservicebus.native_message_id";
-        public const string HandlerType = "nservicebus.handler_type";
+        public const string HandlerType = "nservicebus.handler.handler_type";
+        public const string HandlerSagaId = "nservicebus.handler.saga_id";
         public const string EventTypes = "nservicebus.event_types";
         public const string CancelledTask = "nservicebus.cancelled";
     }
