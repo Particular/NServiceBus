@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    class ActivityNames
+    static class ActivityNames
     {
         public const string IncomingMessageActivityName = "NServiceBus.Diagnostics.ReceiveMessage";
         public const string OutgoingMessageActivityName = "NServiceBus.Diagnostics.SendMessage";
