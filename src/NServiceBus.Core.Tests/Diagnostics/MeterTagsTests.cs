@@ -19,7 +19,7 @@ public class MeterTagsTests
 
         Approver.Verify(new
         {
-            Note = "Changes to meter tags should result in Meter version updates",
+            Note = "Changes to meter tags should result in Meters version updates",
             ActivitySourceVersion = Meters.NServiceBusMeter.Version,
             Tags = meterTags
         });
