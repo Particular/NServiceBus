@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Extensibility;
 
@@ -35,5 +36,13 @@ static class ActivityExtensions
         activity.SetStatus(ActivityStatusCode.Error, ex.Message);
         activity.SetTag("otel.status_code", "ERROR");
         activity.SetTag("otel.status_description", ex.Message);
+        activity.AddEvent(new ActivityEvent("exception", DateTimeOffset.UtcNow,
+            new ActivityTagsCollection(new[]
+            {
+                new KeyValuePair<string, object>("exception.escaped", true),
+                new KeyValuePair<string, object>("exception.type", ex.GetType()),
+                new KeyValuePair<string, object>("exception.message", ex.Message),
+                new KeyValuePair<string, object>("exception.stacktrace", ex.ToString()),
+            })));
     }
 }
