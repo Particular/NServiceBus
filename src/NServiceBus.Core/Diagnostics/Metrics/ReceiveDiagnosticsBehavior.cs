@@ -25,7 +25,7 @@ namespace NServiceBus
                 new("nservicebus.type", messageTypes ?? ""),
             };
 
-            MessagingMetricsFeature.TotalFetched.Add(1, tags.ToArray());
+            Meters.TotalFetched.Add(1, tags.ToArray());
 
             try
             {
@@ -34,11 +34,11 @@ namespace NServiceBus
             catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
             {
                 tags.Add(new KeyValuePair<string, object>("nservicebus.failure_type", ex.GetType()));
-                MessagingMetricsFeature.TotalFailures.Add(1, tags.ToArray());
+                Meters.TotalFailures.Add(1, tags.ToArray());
                 throw;
             }
 
-            MessagingMetricsFeature.TotalProcessedSuccessfully.Add(1, tags.ToArray());
+            Meters.TotalProcessedSuccessfully.Add(1, tags.ToArray());
         }
 
         readonly string queueNameBase;
