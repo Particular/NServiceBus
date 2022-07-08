@@ -27,8 +27,8 @@
             Assert.AreEqual(1, invokedHandlerActivities.Count, "One handlers should be invoked");
 
             var handlerActivityTags = invokedHandlerActivities.Single().Tags.ToImmutableDictionary();
-            handlerActivityTags.VerifyTag("nservicebus.handler_type", typeof(TestEndpoint.TracedSaga).FullName);
-            handlerActivityTags.VerifyTag("nservicebus.saga_id", context.SagaId);
+            handlerActivityTags.VerifyTag("nservicebus.handler.handler_type", typeof(TestEndpoint.TracedSaga).FullName);
+            handlerActivityTags.VerifyTag("nservicebus.handler.saga_id", context.SagaId);
         }
 
         public class Context : ScenarioContext

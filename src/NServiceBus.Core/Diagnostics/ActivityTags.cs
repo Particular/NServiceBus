@@ -2,13 +2,13 @@ namespace NServiceBus
 {
     static class ActivityTags
     {
-        public const string SagaId = "nservicebus.saga_id";
+        public const string SagaId = "nservicebus.saga.saga_id";
         public const string MessageId = "nservicebus.message_id";
         public const string CorrelationId = "nservicebus.correlation_id";
         public const string ReplyToAddress = "nservicebus.reply_to_address";
         public const string NServiceBusVersion = "nservicebus.version";
         public const string ControlMessageHeader = "nservicebus.control_message";
-        public const string SagaType = "nservicebus.saga_type";
+        public const string SagaType = "nservicebus.saga.saga_type";
         public const string OriginatingSagaId = "nservicebus.originating_saga_id";
         public const string OriginatingSagaType = "nservicebus.originating_saga_type";
         public const string DelayedRetries = "nservicebus.delayed_retries";
@@ -17,15 +17,15 @@ namespace NServiceBus
         public const string RelatedTo = "nservicebus.related_to";
         public const string EnclosedMessageTypes = "nservicebus.enclosed_message_types";
         public const string ContentType = "nservicebus.content_type";
-        public const string IsSagaTimeoutMessage = "nservicebus.is_saga_timeout";
+        public const string IsSagaTimeoutMessage = "nservicebus.saga.is_timeout";
         public const string IsDeferredMessage = "nservicebus.is_deferred";
         public const string OriginatingEndpoint = "nservicebus.originating_endpoint";
         public const string OriginatingMachine = "nservicebus.originating_machine";
         public const string OriginatingHostId = "nservicebus.originating_host_id";
         public const string ProcessingEndpoint = "nservicebus.processing_endpoint";
         public const string ProcessingMachine = "nservicebus.processing_machine";
-        public const string HostDisplayName = "nservicebus.host_display_name";
-        public const string HostId = "nservicebus.host_id";
+        public const string HostDisplayName = "nservicebus.host.display_name";
+        public const string HostId = "nservicebus.host.host_id";
         public const string HasLicenseExpired = "nservicebus.has_license_expired";
         public const string OriginatingAddress = "nservicebus.originating_address";
         public const string ConversationId = "nservicebus.conversation_id";
