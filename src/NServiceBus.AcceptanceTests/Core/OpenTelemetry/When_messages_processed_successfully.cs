@@ -17,7 +17,6 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 
             _ = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithMetrics>(b => b
-                    .CustomConfig(cfg => cfg.EnableOpenTelemetryMetrics())
                     .When(async (session, ctx) =>
                     {
                         for (var x = 0; x < 5; x++)
