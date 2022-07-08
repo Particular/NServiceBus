@@ -34,7 +34,6 @@ static class ActivityExtensions
 
     public static void SetErrorStatus(this Activity activity, Exception ex)
     {
-        //TODO: Do we want to truncate the exception message? or use the existing safe method `ex.GetMessage()`?
         activity.SetStatus(ActivityStatusCode.Error, ex.Message);
         activity.SetTag("otel.status_code", "ERROR");
         activity.SetTag("otel.status_description", ex.Message);
