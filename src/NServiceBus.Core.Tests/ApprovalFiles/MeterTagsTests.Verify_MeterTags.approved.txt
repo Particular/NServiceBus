@@ -1,0 +1,10 @@
+{
+  "Note": "Changes to meter tags should result in Meters version updates",
+  "ActivitySourceVersion": "0.1.0",
+  "Tags": [
+    "EndpointDiscriminator => nservicebus.discriminator",
+    "QueueName => nservicebus.queue",
+    "MessageType => nservicebus.message_type",
+    "FailureType => nservicebus.failure_type"
+  ]
+}

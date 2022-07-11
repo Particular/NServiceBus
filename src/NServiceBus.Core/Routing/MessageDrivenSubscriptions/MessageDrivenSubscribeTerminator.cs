@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
@@ -49,6 +50,10 @@
                         subscriptionMessage.Headers[Headers.TimeSent] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
                         subscriptionMessage.Headers[Headers.NServiceBusVersion] = VersionInformation.MajorMinorPatch;
 
+                        // HINT: Context is propagated to the message headers from the current activity, if present.
+                        // This may not be the outgoing message activity created by NServiceBus.
+                        ContextPropagation.PropagateContextToHeaders(Activity.Current, subscriptionMessage.Headers);
+
                         subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
                     }
                 }
@@ -85,6 +90,7 @@
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
                 var transportTransaction = context.GetOrCreate<TransportTransaction>();
+
                 await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, cancellationToken).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)

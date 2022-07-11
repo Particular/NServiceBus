@@ -225,6 +225,27 @@
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
         /// <summary>
+        /// Traceparent header according to the W3C spec:
+        /// https://www.w3.org/TR/trace-context/#traceparent-header
+        /// 23 November 2021. 
+        /// </summary>
+        public const string DiagnosticsTraceParent = "traceparent";
+
+        /// <summary>
+        /// Tracestate header according to the W3C spec:
+        /// https://www.w3.org/TR/trace-context/#tracestate-header
+        /// 23 November 2021.
+        /// </summary>
+        public const string DiagnosticsTraceState = "tracestate";
+
+        /// <summary>
+        /// Baggage header according to the W3C spec:
+        /// https://www.w3.org/TR/baggage/#baggage-http-header-format
+        /// 8 June 2022.
+        /// </summary>
+        public const string DiagnosticsBaggage = "baggage";
+
+        /// <summary>
         /// The content type used to serialize the data bus properties in the message.
         /// </summary>
         public const string DataBusContentType = "NServiceBus.DataBus.ContentType";

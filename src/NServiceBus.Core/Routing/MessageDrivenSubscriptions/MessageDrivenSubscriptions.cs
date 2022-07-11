@@ -44,6 +44,12 @@ namespace NServiceBus.Features
                 return;
             }
 
+            if (ActivitySources.Main.HasListeners())
+            {
+                context.Pipeline.Register(new SubscribeDiagnosticsBehavior(), "Adds additional subscribe diagnostic attributes to OpenTelemetry spans");
+                context.Pipeline.Register(new UnsubscribeDiagnosticsBehavior(), "Adds additional unsubscribe diagnostic attributes to OpenTelemetry spans");
+            }
+
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Routing.EnforceBestPractices;
 

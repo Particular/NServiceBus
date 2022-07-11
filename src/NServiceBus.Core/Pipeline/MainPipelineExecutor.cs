@@ -9,18 +9,21 @@ namespace NServiceBus
 
     class MainPipelineExecutor : IPipelineExecutor
     {
-        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, Pipeline<ITransportReceiveContext> receivePipeline)
+        public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory)
         {
             this.rootBuilder = rootBuilder;
             this.pipelineCache = pipelineCache;
             this.messageOperations = messageOperations;
             this.receivePipelineNotification = receivePipelineNotification;
             this.receivePipeline = receivePipeline;
+            this.activityFactory = activityFactory;
         }
 
         public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
         {
             var pipelineStartedAt = DateTimeOffset.UtcNow;
+
+            using var activity = activityFactory.StartIncomingActivity(messageContext);
 
             using (var childScope = rootBuilder.CreateScope())
             {
@@ -31,9 +34,14 @@ namespace NServiceBus
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 
+                if (activity != null)
+                {
+                    transportReceiveContext.SetIncomingPipelineActitvity(activity);
+                }
+
                 try
                 {
-                    await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                    await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
                 }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
                 catch (Exception ex)
@@ -59,6 +67,7 @@ namespace NServiceBus
         readonly IPipelineCache pipelineCache;
         readonly MessageOperations messageOperations;
         readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
-        readonly Pipeline<ITransportReceiveContext> receivePipeline;
+        readonly IPipeline<ITransportReceiveContext> receivePipeline;
+        readonly IActivityFactory activityFactory;
     }
 }

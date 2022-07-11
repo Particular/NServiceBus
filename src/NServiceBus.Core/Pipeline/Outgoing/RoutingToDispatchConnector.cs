@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
@@ -19,6 +20,10 @@
                 dispatchConsistency = DispatchConsistency.Isolated;
             }
 
+            // HINT: Context is propagated to the message headers from the current activity, if present.
+            // This may not be the outgoing message activity created by NServiceBus.
+            ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers);
+
             var operations = new TransportOperation[context.RoutingStrategies.Count];
             var index = 0;
             foreach (var strategy in context.RoutingStrategies)
@@ -30,6 +35,12 @@
             if (isDebugEnabled)
             {
                 LogOutgoingOperations(operations);
+            }
+
+            // HINT: These tags get applied to the outgoing message activity, if present.
+            if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
+            {
+                ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
             }
 
             if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))

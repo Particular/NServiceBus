@@ -2,11 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using OpenTelemetry.Helpers;
     using Testing;
     using Transport;
 
@@ -79,6 +81,26 @@
                 });
 
             Assert.IsFalse(dispatched);
+        }
+
+        [Test]
+        public async Task Should_promote_message_headers_to_pipeline_activity()
+        {
+            var behavior = new RoutingToDispatchConnector();
+            var routingContext = new TestableRoutingContext();
+            routingContext.Message.Headers[Headers.ContentType] = "test content type"; // one of the headers that will be mapped to tags
+
+            using var pipelineActivity = new Activity("pipeline activity");
+            routingContext.Extensions.SetOutgoingPipelineActitvity(pipelineActivity);
+            using var ambientActivity = new Activity("ambient activity");
+            ambientActivity.Start();
+
+            await behavior.Invoke(routingContext, _ => Task.CompletedTask);
+
+            var contentTypeTag = pipelineActivity.GetTagItem(ActivityTags.ContentType);
+            Assert.AreEqual("test content type", contentTypeTag, "should set tags on activity from pipeline context");
+
+            Assert.IsNull(ambientActivity.GetTagItem(ActivityTags.ContentType), "should not set tags on Activity.Current");
         }
 
         static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)

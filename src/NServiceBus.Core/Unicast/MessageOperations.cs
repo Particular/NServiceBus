@@ -16,6 +16,7 @@ namespace NServiceBus
         readonly IPipeline<IOutgoingReplyContext> replyPipeline;
         readonly IPipeline<ISubscribeContext> subscribePipeline;
         readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
+        readonly IActivityFactory activityFactory;
 
         public MessageOperations(
             IMessageMapper messageMapper,
@@ -23,7 +24,8 @@ namespace NServiceBus
             IPipeline<IOutgoingSendContext> sendPipeline,
             IPipeline<IOutgoingReplyContext> replyPipeline,
             IPipeline<ISubscribeContext> subscribePipeline,
-            IPipeline<IUnsubscribeContext> unsubscribePipeline)
+            IPipeline<IUnsubscribeContext> unsubscribePipeline,
+            IActivityFactory activityFactory)
         {
             this.messageMapper = messageMapper;
             this.publishPipeline = publishPipeline;
@@ -31,6 +33,7 @@ namespace NServiceBus
             this.replyPipeline = replyPipeline;
             this.subscribePipeline = subscribePipeline;
             this.unsubscribePipeline = unsubscribePipeline;
+            this.activityFactory = activityFactory;
         }
 
         public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
@@ -45,7 +48,7 @@ namespace NServiceBus
             return Publish(context, messageType, message, options);
         }
 
-        Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+        async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -62,7 +65,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-            return publishPipeline.Invoke(publishContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, publishContext);
+
+            await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -70,7 +75,7 @@ namespace NServiceBus
             return Subscribe(context, new Type[] { eventType }, options);
         }
 
-        public Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
+        public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
         {
             var subscribeContext = new SubscribeContext(
                 context,
@@ -79,10 +84,12 @@ namespace NServiceBus
 
             MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-            return subscribePipeline.Invoke(subscribeContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
+
+            await subscribePipeline.Invoke(subscribeContext, activity).ConfigureAwait(false);
         }
 
-        public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
+        public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
             var unsubscribeContext = new UnsubscribeContext(
                 context,
@@ -91,7 +98,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-            return unsubscribePipeline.Invoke(unsubscribeContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
+
+            await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
         }
 
         public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -106,7 +115,7 @@ namespace NServiceBus
             return SendMessage(context, messageType, message, options);
         }
 
-        Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+        async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -123,7 +132,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return sendPipeline.Invoke(outgoingContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
+
+            await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -138,7 +149,7 @@ namespace NServiceBus
             return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
         }
 
-        Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+        async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
         {
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -155,7 +166,9 @@ namespace NServiceBus
 
             MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-            return replyPipeline.Invoke(outgoingContext);
+            using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
+
+            await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
         }
 
         static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
