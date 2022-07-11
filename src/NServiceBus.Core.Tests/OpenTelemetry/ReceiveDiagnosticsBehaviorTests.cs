@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.Core.Tests.Diagnostics;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using AcceptanceTests.Core.OpenTelemetry;
+using Helpers;
+using NServiceBus.Testing;
 using NUnit.Framework;
-using Testing;
 
 [TestFixture]
 class ReceiveDiagnosticsBehaviorTests

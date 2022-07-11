@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.Core.Tests.Diagnostics;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Helpers;
-using MessageInterfaces.MessageMapper.Reflection;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 

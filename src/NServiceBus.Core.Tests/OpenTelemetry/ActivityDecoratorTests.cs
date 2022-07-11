@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.Core.Tests.Diagnostics;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
-using NUnit.Framework;
 using System.Text;
+using NUnit.Framework;
 using Particular.Approvals;
 
 [TestFixture]

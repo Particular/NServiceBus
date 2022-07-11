@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus.Core.Tests.Diagnostics.Helpers;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using OpenTelemetry.Helpers;
     using Transport;
 
     [TestFixture]

@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.Core.Tests.Diagnostics;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System.Diagnostics;
-using Extensibility;
+using NServiceBus.Extensibility;
 using NUnit.Framework;
 
 [TestFixture]

@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.Diagnostics
+namespace NServiceBus.Core.Tests.OpenTelemetry
 {
     using System.Linq;
     using System.Reflection;

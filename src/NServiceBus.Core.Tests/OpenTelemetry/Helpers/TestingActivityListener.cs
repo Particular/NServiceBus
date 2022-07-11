@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Diagnostics.Helpers;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry.Helpers;
 
 using System;
 using System.Diagnostics;

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Diagnostics;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Generic;
@@ -6,12 +6,12 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Extensibility;
 using Helpers;
+using NServiceBus.Extensibility;
 using NServiceBus.Pipeline;
 using NServiceBus.Sagas;
+using NServiceBus.Transport;
 using NUnit.Framework;
-using Transport;
 
 [TestFixture]
 public class ActivityFactoryTests
