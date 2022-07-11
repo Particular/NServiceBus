@@ -44,11 +44,14 @@
             var testTypes = Assembly.GetExecutingAssembly().GetTypes().Where(HasTestMethod);
 
             var diagnosticTests = testTypes
-                .Where(t => t.Namespace == "NServiceBus.AcceptanceTests.Diagnostics")
-                .Where(t => t.GetCustomAttribute<NonParallelizableAttribute>() == null)
+                .Where(t => t.Namespace.StartsWith("NServiceBus.AcceptanceTests.Core.OpenTelemetry"))
                 .ToList();
 
-            CollectionAssert.IsEmpty(diagnosticTests, string.Join(",", diagnosticTests));
+            var diagnosticTestsWithoutNonParallelizableAttribute =
+                diagnosticTests.Where(t => t.GetCustomAttribute<NonParallelizableAttribute>() == null);
+
+            CollectionAssert.IsNotEmpty(diagnosticTests);
+            CollectionAssert.IsEmpty(diagnosticTestsWithoutNonParallelizableAttribute, string.Join(",", diagnosticTests));
         }
 
         [Test]
