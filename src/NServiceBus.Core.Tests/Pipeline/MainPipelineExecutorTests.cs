@@ -32,12 +32,14 @@
         public async Task When_invoking_pipeline()
         {
             var executor = CreateMainPipelineExecutor(out var receivePipeline);
+            var messageContext = CreateMessageContext();
 
-            await executor.Invoke(CreateMessageContext());
+            await executor.Invoke(messageContext);
 
             Assert.NotNull(receivePipeline.PipelineAcitivty);
             Assert.AreEqual(ActivityNames.IncomingMessageActivityName, receivePipeline.PipelineAcitivty.OperationName);
             Assert.AreEqual("process message", receivePipeline.PipelineAcitivty.DisplayName);
+            Assert.AreEqual(receivePipeline.PipelineAcitivty, receivePipeline.TransportReceiveContext.Extensions.Get<Activity>(ActivityExtensions.IncomingActivityKey));
         }
 
         [Test]
@@ -92,11 +94,14 @@
         {
             public Activity PipelineAcitivty { get; set; }
 
+            public ITransportReceiveContext TransportReceiveContext { get; set; }
+
             public bool ThrowsException { get; set; }
 
             public Task Invoke(ITransportReceiveContext context)
             {
                 PipelineAcitivty = Activity.Current;
+                TransportReceiveContext = context;
 
                 if (ThrowsException)
                 {
