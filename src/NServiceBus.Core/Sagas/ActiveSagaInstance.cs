@@ -27,7 +27,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The id of the saga.
         /// </summary>
-        public string SagaId { get; private set; }
+        public string SagaId { get; internal set; }
 
         /// <summary>
         /// Metadata for this active saga.

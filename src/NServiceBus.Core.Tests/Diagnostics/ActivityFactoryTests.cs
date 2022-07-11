@@ -5,32 +5,35 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Extensibility;
 using Helpers;
+using NServiceBus.Pipeline;
+using NServiceBus.Sagas;
 using NUnit.Framework;
 using Transport;
 
 [TestFixture]
 public class ActivityFactoryTests
 {
-    class StartIncomingActivityTests
+    ActivityFactory activityFactory = new();
+
+    TestingActivityListener nsbActivityListener;
+
+    [OneTimeSetUp]
+    public void Setup()
     {
-        TestingActivityListener nsbActivityListener;
-        ActivityFactory activityFactory = new();
+        nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+    }
 
+    [OneTimeTearDown]
+    public void TearDown()
+    {
+        nsbActivityListener.Dispose();
+    }
 
-        [OneTimeSetUp]
-        public void Setup()
-        {
-            nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-        }
-
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            nsbActivityListener.Dispose();
-        }
-
+    class StartIncomingActivity : ActivityFactoryTests
+    {
         [Test]
         public void Should_attach_to_context_activity_when_activity_on_context()
         {
@@ -177,6 +180,69 @@ public class ActivityFactoryTests
                 new TransportTransaction(),
                 "receiver",
                 contextBag ?? new ContextBag());
+        }
+    }
+
+    class StartOutgoingPipelineActivity : ActivityFactoryTests
+    {
+        [Test]
+        public void Should_attach_ambient_activity()
+        {
+            using var ambientActivity = new Activity("ambient activity");
+            ambientActivity.Start();
+
+            var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
+
+            Assert.AreEqual(ambientActivity.Id, activity.ParentId);
+        }
+
+        [Test]
+        public void Should_always_create_a_w3c_id()
+        {
+            using var ambientActivity = new Activity("ambient activity");
+            ambientActivity.SetIdFormat(ActivityIdFormat.Hierarchical); // when caller is running on .NET Framework without ambient W3C id format activity
+            ambientActivity.Start();
+
+            var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
+
+            Assert.AreEqual(ambientActivity.Id, activity.ParentId);
+            Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+        }
+
+        [Test]
+        public void Should_set_activity_in_context()
+        {
+            var context = new FakeRootContext();
+            activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
+
+            Assert.IsNotNull(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+        }
+    }
+
+    class StartHandlerActivity : ActivityFactoryTests
+    {
+        [Test]
+        public void Should_set_handler_type_as_tag()
+        {
+            Type handlerType = typeof(StartHandlerActivity);
+            var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType), null);
+
+            Assert.IsNotNull(activity);
+            var tags = activity.Tags.ToImmutableDictionary();
+            Assert.AreEqual(handlerType.FullName, tags[ActivityTags.HandlerType]);
+        }
+
+        [Test]
+        public void Should_set_saga_id_when_saga()
+        {
+            var sagaInstance = new ActiveSagaInstance(null, null, () => DateTimeOffset.UtcNow) { SagaId = Guid.NewGuid().ToString() };
+
+            var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, typeof(StartHandlerActivity)), sagaInstance);
+
+            Assert.IsNotNull(activity);
+            var tags = activity.Tags.ToImmutableDictionary();
+
+            Assert.AreEqual(sagaInstance.SagaId, tags[ActivityTags.HandlerSagaId]);
         }
     }
 }
