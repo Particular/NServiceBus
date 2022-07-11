@@ -1,5 +1,6 @@
 ## Language Features
-It is acceptable to use language features in C# 7.3 and lower versions.
+
+It is acceptable to use language features for the given `LangVersion` defined in the project that compile successfully against all targeted TFMs. Note that all language features later than C# 7.3 are not officially supported for .NET Framework so compatibility varies on a feature by feature level. This can result in some language features to cause compiler errors or slower performance.
 
 ## Performance related
 
