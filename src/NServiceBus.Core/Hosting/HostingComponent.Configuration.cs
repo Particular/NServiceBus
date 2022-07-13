@@ -28,7 +28,7 @@
                 settings.InstallationUserName,
                 settings.ShouldRunInstallers,
                 settings.UserRegistrations,
-                ActivitySources.Main.HasListeners() ? new ActivityFactory() : new NoOpActivityFactory());
+                settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory());
 
             return configuration;
         }
