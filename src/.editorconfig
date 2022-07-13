@@ -79,7 +79,7 @@ dotnet_diagnostic.IDE0032.severity = error
 dotnet_style_prefer_auto_properties = true:error
 
 dotnet_diagnostic.IDE0054.severity = error
-dotnet_diagnostic.IDE0074.severity = error
+dotnet_diagnostic.IDE0074.severity = suggestion
 dotnet_style_prefer_compound_assignment = true:error
 
 dotnet_diagnostic.IDE0071.severity = error
