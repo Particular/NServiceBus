@@ -36,7 +36,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>();
+            public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<IncomingMessage>,
                 IHandleMessages<OutgoingReply>

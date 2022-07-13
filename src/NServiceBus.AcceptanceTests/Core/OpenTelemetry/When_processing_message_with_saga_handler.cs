@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_processing_message_with_saga_handler : OpenTelemetryAcceptanceTest
@@ -39,7 +38,7 @@
 
         public class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>();
+            public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             public class TracedSaga : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
             {

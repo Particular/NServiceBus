@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_publishing_messages : OpenTelemetryAcceptanceTest
@@ -53,7 +52,7 @@
         class Publisher : EndpointConfigurationBuilder
         {
             public Publisher() =>
-                EndpointSetup<DefaultPublisher>(b =>
+                EndpointSetup<OpenTelemetryEnabledEndpoint>(b =>
                 {
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
@@ -70,16 +69,14 @@
 
         public class Subscriber : EndpointConfigurationBuilder
         {
-            public Subscriber()
-            {
-                EndpointSetup<DefaultServer>(c =>
+            public Subscriber() =>
+                EndpointSetup<OpenTelemetryEnabledEndpoint>(c =>
                     {
                     },
                     metadata =>
                     {
                         metadata.RegisterPublisherFor<ThisIsAnEvent>(typeof(Publisher));
                     });
-            }
 
             public class ThisHandlesSomethingHandler : IHandleMessages<ThisIsAnEvent>
             {

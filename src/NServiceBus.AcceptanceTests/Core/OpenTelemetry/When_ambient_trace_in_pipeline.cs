@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
@@ -43,7 +42,7 @@
 
         class EndpointWithAmbientActivity : EndpointConfigurationBuilder
         {
-            public EndpointWithAmbientActivity() => EndpointSetup<DefaultServer>();
+            public EndpointWithAmbientActivity() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<TriggerMessage>, IHandleMessages<MessageFromAmbientTrace>
             {

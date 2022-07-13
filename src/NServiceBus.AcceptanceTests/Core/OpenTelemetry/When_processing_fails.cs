@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_processing_fails : OpenTelemetryAcceptanceTest
@@ -63,7 +62,7 @@
 
         class FailingEndpoint : EndpointConfigurationBuilder
         {
-            public FailingEndpoint() => EndpointSetup<DefaultServer>();
+            public FailingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class FailingMessageHandler : IHandleMessages<FailingMessage>
             {

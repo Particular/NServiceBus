@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
     using NServiceBus.Transport;
     using NUnit.Framework;
@@ -31,7 +30,7 @@
 
         class ReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c
+            public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(c => c
                 .Pipeline.Register(new StopTraceBehavior(), "removes tracing headers from outgoing messages"));
 
             class StopTraceBehavior : Behavior<IDispatchContext>

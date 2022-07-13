@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
@@ -49,7 +48,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 
         class EndpointWithMetrics : EndpointConfigurationBuilder
         {
-            public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
+            public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<OutgoingMessage>
             {

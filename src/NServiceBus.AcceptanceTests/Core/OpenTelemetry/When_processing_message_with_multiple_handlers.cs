@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_processing_message_with_multiple_handlers : OpenTelemetryAcceptanceTest
@@ -48,7 +47,7 @@
 
         class ReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
+            public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             public class HandlerOne : IHandleMessages<SomeMessage>
             {
