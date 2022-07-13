@@ -1924,6 +1924,13 @@ namespace NServiceBus.ObjectBuilder
         public static void Release(this System.IServiceProvider serviceProvider, object instance) { }
     }
 }
+namespace NServiceBus.OpenTelemetry
+{
+    public static class OpenTelemetryConfigurationExtensions
+    {
+        public static void EnableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
+    }
+}
 namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
