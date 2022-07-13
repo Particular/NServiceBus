@@ -8,10 +8,9 @@
 
     class SendComponent
     {
-        SendComponent(IMessageMapper messageMapper, IActivityFactory activityFactory)
+        SendComponent(IMessageMapper messageMapper)
         {
             this.messageMapper = messageMapper;
-            this.activityFactory = activityFactory;
         }
 
         public static SendComponent Initialize(PipelineSettings pipelineSettings, HostingComponent.Configuration hostingConfiguration, RoutingComponent routingComponent, IMessageMapper messageMapper)
@@ -29,7 +28,7 @@
             pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
             pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
-            var sendComponent = new SendComponent(messageMapper, hostingConfiguration.ActivityFactory);
+            var sendComponent = new SendComponent(messageMapper);
 
             return sendComponent;
         }
@@ -42,9 +41,8 @@
                 pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
                 pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
                 pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder),
-                activityFactory);
+                builder.GetRequiredService<IActivityFactory>());
 
-        readonly IActivityFactory activityFactory;
         readonly IMessageMapper messageMapper;
     }
 }

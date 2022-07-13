@@ -34,6 +34,9 @@
                 registration(serviceCollection);
             }
 
+            serviceCollection.AddSingleton<IActivityFactory>(_ =>
+                ActivitySources.Main.HasListeners() ? new ActivityFactory() : new NoOpActivityFactory());
+
             configuration.AddStartupDiagnosticsSection("Hosting", new
             {
                 configuration.HostInformation.HostId,
