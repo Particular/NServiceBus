@@ -53,14 +53,15 @@
 (ITransportReceiveContext context0) => CaptureExceptionBehavior.Invoke(context0, 
     (ITransportReceiveContext context1) => RetryAcknowledgementBehavior.Invoke(context1, 
         (ITransportReceiveContext context2) => TransportReceiveToPhysicalMessageConnector.Invoke(context2, 
-            (IIncomingPhysicalMessageContext context3) => ProcessingStatisticsBehavior.Invoke(context3, 
-                (IIncomingPhysicalMessageContext context4) => MutateIncomingTransportMessageBehavior.Invoke(context4, 
-                    (IIncomingPhysicalMessageContext context5) => UnitOfWorkBehavior.Invoke(context5, 
-                        (IIncomingPhysicalMessageContext context6) => DeserializeMessageConnector.Invoke(context6, 
-                            (IIncomingLogicalMessageContext context7) => MutateIncomingMessageBehavior.Invoke(context7, 
-                                (IIncomingLogicalMessageContext context8) => InferredMessageTypeEnricherBehavior.Invoke(context8, 
-                                    (IIncomingLogicalMessageContext context9) => LoadHandlersConnector.Invoke(context9, 
-                                        (IInvokeHandlerContext context10) => InvokeHandlerTerminator.Invoke(context10))
+            (IIncomingPhysicalMessageContext context3) => ReceiveDiagnosticsBehavior.Invoke(context3, 
+                (IIncomingPhysicalMessageContext context4) => ProcessingStatisticsBehavior.Invoke(context4, 
+                    (IIncomingPhysicalMessageContext context5) => MutateIncomingTransportMessageBehavior.Invoke(context5, 
+                        (IIncomingPhysicalMessageContext context6) => UnitOfWorkBehavior.Invoke(context6, 
+                            (IIncomingPhysicalMessageContext context7) => DeserializeMessageConnector.Invoke(context7, 
+                                (IIncomingLogicalMessageContext context8) => MutateIncomingMessageBehavior.Invoke(context8, 
+                                    (IIncomingLogicalMessageContext context9) => InferredMessageTypeEnricherBehavior.Invoke(context9, 
+                                        (IIncomingLogicalMessageContext context10) => LoadHandlersConnector.Invoke(context10, 
+                                            (IInvokeHandlerContext context11) => InvokeHandlerTerminator.Invoke(context11))
 
 (IRecoverabilityContext context0) => RecoverabilityRoutingConnector.Invoke(context0, 
     (IRoutingContext context1) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context1, 
