@@ -8,6 +8,8 @@ namespace NServiceBus
 
     class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
+        readonly Lazy<bool> hasMetricsListener = new Lazy<bool>(() =>
+            Meters.TotalProcessedSuccessfully.Enabled || Meters.TotalFetched.Enabled || Meters.TotalFailures.Enabled);
 
         public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
         {
@@ -15,7 +17,17 @@ namespace NServiceBus
             this.discriminator = discriminator;
         }
 
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        {
+            if (!hasMetricsListener.Value)
+            {
+                return next(context);
+            }
+
+            return InvokeAndCaptureMetrics(context, next);
+        }
+
+        async Task InvokeAndCaptureMetrics(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
 

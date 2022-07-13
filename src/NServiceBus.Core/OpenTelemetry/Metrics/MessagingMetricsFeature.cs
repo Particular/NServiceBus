@@ -7,12 +7,9 @@ namespace NServiceBus
     /// </summary>
     class MessagingMetricsFeature : Feature
     {
-        static bool HasMetricsListener => Meters.TotalProcessedSuccessfully.Enabled || Meters.TotalFetched.Enabled || Meters.TotalFailures.Enabled;
-
         public MessagingMetricsFeature()
         {
             EnableByDefault();
-            Prerequisite(c => HasMetricsListener, "No subscribers for messaging metrics");
             Prerequisite(c => !c.Receiving.IsSendOnlyEndpoint, "Processing metrics are not supported on send-only endpoints");
         }
 
