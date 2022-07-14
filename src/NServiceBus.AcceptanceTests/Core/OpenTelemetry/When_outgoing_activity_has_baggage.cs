@@ -3,7 +3,6 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
@@ -40,10 +39,7 @@
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
@@ -65,7 +61,6 @@
 
         public class SomeMessage : IMessage
         {
-
         }
 
         class Context : ScenarioContext

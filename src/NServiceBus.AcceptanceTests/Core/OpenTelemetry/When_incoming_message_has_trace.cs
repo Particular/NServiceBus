@@ -52,7 +52,7 @@
 
         class ReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
+            public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<IncomingMessage>
             {
@@ -71,7 +71,7 @@
 
         class ReplyingEndpoint : EndpointConfigurationBuilder
         {
-            public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
+            public ReplyingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<IncomingMessage>
             {
@@ -90,7 +90,7 @@
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>();
+            public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<ReplyMessage>
             {

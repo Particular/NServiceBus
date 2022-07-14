@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_messages : OpenTelemetryAcceptanceTest
@@ -50,7 +49,7 @@
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>();
+            public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<OutgoingMessage>
             {

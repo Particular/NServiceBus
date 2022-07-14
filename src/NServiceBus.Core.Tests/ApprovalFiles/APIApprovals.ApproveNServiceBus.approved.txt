@@ -831,6 +831,10 @@ namespace NServiceBus
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
     }
     public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken = default);
+    public static class OpenTelemetryConfigurationExtensions
+    {
+        public static void EnableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
+    }
     public static class OutboxConfigExtensions
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }

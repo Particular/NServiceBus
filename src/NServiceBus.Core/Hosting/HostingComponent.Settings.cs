@@ -89,6 +89,8 @@
                 set => settings.Set("Installers.Enable", value);
             }
 
+            public bool EnableOpenTelemetry { get; set; }
+
             internal void ApplyHostIdDefaultIfNeeded()
             {
                 // We don't want to do settings.SetDefault() all the time, because the default uses MD5 which runs afoul of FIPS in such a way that cannot be worked around.

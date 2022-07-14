@@ -59,7 +59,7 @@
 
         class ReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
+            public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             class MessageHandler : IHandleMessages<IncomingMessage>
             {

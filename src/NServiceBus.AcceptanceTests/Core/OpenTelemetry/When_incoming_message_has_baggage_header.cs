@@ -3,7 +3,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceTest
@@ -41,7 +40,7 @@
 
         class TestEndpoint : EndpointConfigurationBuilder
         {
-            public TestEndpoint() => EndpointSetup<DefaultServer>();
+            public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
             public class SomeMessageHandler : IHandleMessages<SomeMessage>
             {

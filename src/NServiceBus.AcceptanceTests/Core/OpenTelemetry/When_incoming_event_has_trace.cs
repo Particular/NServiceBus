@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
@@ -49,7 +48,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     class Publisher : EndpointConfigurationBuilder
     {
         public Publisher() =>
-            EndpointSetup<DefaultPublisher>(b =>
+            EndpointSetup<OpenTelemetryEnabledEndpoint>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) =>
                 {
@@ -81,7 +80,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
-            EndpointSetup<DefaultServer>(_ =>
+            EndpointSetup<OpenTelemetryEnabledEndpoint>(_ =>
                 {
                 },
                 metadata =>
