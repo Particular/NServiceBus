@@ -194,6 +194,12 @@
             }
         }
 
+        /// <summary>
+        /// Adds a message convention implementation to the list of conventions.
+        /// </summary>
+        /// <param name="messageConvention">The message convention.</param>
+        public void Add(IMessageConvention messageConvention) => conventions.Add(messageConvention);
+
         internal bool CustomMessageTypeConventionUsed => defaultMessageConvention.ConventionModified || conventions.Count > 1;
 
         internal string[] RegisteredConventions => conventions.Select(x => x.Name).ToArray();
@@ -234,10 +240,7 @@
             defaultMessageConvention.DefiningEventsAs(definesEventType);
         }
 
-        internal void Add(IMessageConvention messageConvention)
-        {
-            conventions.Add(messageConvention);
-        }
+
 
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
 

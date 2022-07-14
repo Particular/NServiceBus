@@ -146,6 +146,7 @@ namespace NServiceBus
     public class Conventions
     {
         public Conventions() { }
+        public void Add(NServiceBus.IMessageConvention messageConvention) { }
         public void AddSystemMessagesConventions(System.Func<System.Type, bool> definesMessageType) { }
         public bool IsCommandType(System.Type t) { }
         public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
