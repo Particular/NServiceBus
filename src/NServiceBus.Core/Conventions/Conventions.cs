@@ -226,21 +226,13 @@
         }
 
         internal void DefineMessageTypeConvention(Func<Type, bool> definesMessageType)
-        {
-            defaultMessageConvention.DefiningMessagesAs(definesMessageType);
-        }
+            => defaultMessageConvention.DefiningMessagesAs(definesMessageType);
 
         internal void DefineCommandTypeConventions(Func<Type, bool> definesCommandType)
-        {
-            defaultMessageConvention.DefiningCommandsAs(definesCommandType);
-        }
+            => defaultMessageConvention.DefiningCommandsAs(definesCommandType);
 
         internal void DefineEventTypeConventions(Func<Type, bool> definesEventType)
-        {
-            defaultMessageConvention.DefiningEventsAs(definesEventType);
-        }
-
-
+            => defaultMessageConvention.DefiningEventsAs(definesEventType);
 
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
 
@@ -260,14 +252,9 @@
         class ConventionCache
         {
             public bool ApplyConvention(Type type, Func<RuntimeTypeHandle, bool> action)
-            {
-                return cache.GetOrAdd(type.TypeHandle, action);
-            }
+                => cache.GetOrAdd(type.TypeHandle, action);
 
-            public void Reset()
-            {
-                cache.Clear();
-            }
+            public void Reset() => cache.Clear();
 
             ConcurrentDictionary<RuntimeTypeHandle, bool> cache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
         }
