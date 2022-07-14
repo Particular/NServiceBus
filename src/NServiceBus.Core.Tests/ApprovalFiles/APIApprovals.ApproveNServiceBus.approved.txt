@@ -831,6 +831,10 @@ namespace NServiceBus
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
     }
     public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken = default);
+    public static class OpenTelemetryConfigurationExtensions
+    {
+        public static void EnableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
+    }
     public static class OutboxConfigExtensions
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
@@ -1922,13 +1926,6 @@ namespace NServiceBus.ObjectBuilder
         [System.Obsolete("The Release method is not supported. The member currently throws a NotImplemented" +
             "Exception. Will be removed in version 9.0.0.", true)]
         public static void Release(this System.IServiceProvider serviceProvider, object instance) { }
-    }
-}
-namespace NServiceBus.OpenTelemetry
-{
-    public static class OpenTelemetryConfigurationExtensions
-    {
-        public static void EnableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
 }
 namespace NServiceBus.Outbox

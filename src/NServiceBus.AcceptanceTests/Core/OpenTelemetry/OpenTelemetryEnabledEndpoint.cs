@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using AcceptanceTesting.Support;
 using EndpointTemplates;
-using NServiceBus.OpenTelemetry;
 
 public class OpenTelemetryEnabledEndpoint : DefaultServer
 {

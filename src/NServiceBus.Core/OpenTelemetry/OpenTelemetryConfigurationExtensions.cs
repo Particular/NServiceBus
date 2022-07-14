@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.OpenTelemetry;
+﻿namespace NServiceBus;
 
 /// <summary>
 /// Contains configuration extensions for OpenTelemetry support.
