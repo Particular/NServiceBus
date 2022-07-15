@@ -17,7 +17,8 @@
         /// </summary>
         /// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
         /// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
-        /// load types by using <see cref="Type.GetType(string)"/>.</param>
+        /// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
+        /// at runtime and all types must be explicitly loaded beforehand.</param>
         public MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
         {
             this.isMessageType = isMessageType;
