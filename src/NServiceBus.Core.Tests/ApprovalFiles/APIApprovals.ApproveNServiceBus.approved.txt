@@ -2986,6 +2986,7 @@ namespace NServiceBus.Unicast.Messages
     }
     public class MessageMetadataRegistry
     {
+        public MessageMetadataRegistry(System.Func<System.Type, bool> isMessageType, bool allowDynamicTypeLoading) { }
         public NServiceBus.Unicast.Messages.MessageMetadata[] GetAllMessages() { }
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(string messageTypeIdentifier) { }
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(System.Type messageType) { }

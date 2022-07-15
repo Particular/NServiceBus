@@ -6,12 +6,19 @@
     using System.Linq;
     using Logging;
     using NServiceBus;
+
     /// <summary>
     /// Cache of message metadata.
     /// </summary>
     public class MessageMetadataRegistry
     {
-        internal MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
+        /// <summary>
+        /// Create a new <see cref="MessageMetadataRegistry"/> instance.
+        /// </summary>
+        /// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
+        /// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
+        /// load types by using <see cref="Type.GetType(string)"/>.</param>
+        public MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
         {
             this.isMessageType = isMessageType;
             this.allowDynamicTypeLoading = allowDynamicTypeLoading;
