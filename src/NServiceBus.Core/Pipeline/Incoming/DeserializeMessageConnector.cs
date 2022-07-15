@@ -70,7 +70,7 @@
             if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
             {
                 messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
-                    (key, registry) =>
+                    static (key, registry) =>
                     {
                         string[] messageTypeStrings = key.Split(EnclosedMessageTypeSeparator);
                         var types = new List<Type>(messageTypeStrings.Length);
