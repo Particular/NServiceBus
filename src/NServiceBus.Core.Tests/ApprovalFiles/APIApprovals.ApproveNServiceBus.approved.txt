@@ -2982,6 +2982,7 @@ namespace NServiceBus.Unicast.Messages
         public MessageMetadata(System.Type messageType) { }
         public MessageMetadata(System.Type messageType, System.Type[] messageHierarchy) { }
         public System.Type[] MessageHierarchy { get; }
+        public string MessageHierarchySerialized { get; }
         public System.Type MessageType { get; }
     }
     public class MessageMetadataRegistry
