@@ -1,14 +1,13 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Message metadata class.
     /// </summary>
     public class MessageMetadata
     {
-        static Type[] emptyHierarchy = new Type[0];
-
         /// <summary>
         /// Create a new instance of <see cref="MessageMetadata"/>.
         /// </summary>
@@ -25,7 +24,8 @@
         public MessageMetadata(Type messageType, Type[] messageHierarchy)
         {
             MessageType = messageType;
-            MessageHierarchy = messageHierarchy ?? emptyHierarchy;
+            MessageHierarchy = messageHierarchy ?? Array.Empty<Type>();
+            MessageHierarchySerialized = SerializeMessageHierarchy(MessageHierarchy);
         }
 
         /// <summary>
@@ -38,5 +38,28 @@
         /// The message instance hierarchy.
         /// </summary>
         public Type[] MessageHierarchy { get; }
+
+        /// <summary>
+        /// The message instance hierarchy serialized into a semicolon seperated string.
+        /// </summary>
+        public string MessageHierarchySerialized { get; }
+
+        static string SerializeMessageHierarchy(Type[] messageHierarchy)
+        {
+            ICollection<string> assemblyQualifiedNames =
+                messageHierarchy.Length == 0 ? Array.Empty<string>() : new List<string>(messageHierarchy.Length);
+            foreach (var type in messageHierarchy)
+            {
+                var typeAssemblyQualifiedName = type.AssemblyQualifiedName;
+                if (assemblyQualifiedNames.Contains(typeAssemblyQualifiedName))
+                {
+                    continue;
+                }
+
+                assemblyQualifiedNames.Add(typeAssemblyQualifiedName);
+            }
+
+            return string.Join(";", assemblyQualifiedNames);
+        }
     }
 }

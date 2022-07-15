@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
     using Logging;
@@ -33,7 +32,8 @@ namespace NServiceBus
             }
 
             context.Headers[Headers.ContentType] = messageSerializer.ContentType;
-            context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
+            var metadata = messageMetadataRegistry.GetMessageMetadata(context.Message.MessageType);
+            context.Headers[Headers.EnclosedMessageTypes] = metadata.MessageHierarchySerialized;
 
             using (var ms = new MemoryStream())
             {
@@ -43,25 +43,6 @@ namespace NServiceBus
 
                 await stage(this.CreateOutgoingPhysicalMessageContext(body, context.RoutingStrategies, context)).ConfigureAwait(false);
             }
-        }
-
-        string SerializeEnclosedMessageTypes(Type messageType)
-        {
-            var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
-
-            var assemblyQualifiedNames = new List<string>(metadata.MessageHierarchy.Length);
-            foreach (var type in metadata.MessageHierarchy)
-            {
-                var typeAssemblyQualifiedName = type.AssemblyQualifiedName;
-                if (assemblyQualifiedNames.Contains(typeAssemblyQualifiedName))
-                {
-                    continue;
-                }
-
-                assemblyQualifiedNames.Add(typeAssemblyQualifiedName);
-            }
-
-            return string.Join(";", assemblyQualifiedNames);
         }
 
         readonly MessageMetadataRegistry messageMetadataRegistry;
