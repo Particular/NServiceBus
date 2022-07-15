@@ -95,6 +95,12 @@
             return null;
         }
 
+        /// <summary>
+        /// Retrieves all known messages <see cref="MessageMetadata" />.
+        /// </summary>
+        /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
+        public MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
+
         string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
         {
             var typeParts = messageTypeIdentifier.Split(',');
@@ -126,8 +132,6 @@
 
             return null;
         }
-
-        internal MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
 
         internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes)
         {
