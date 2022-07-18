@@ -21,8 +21,6 @@
 
             await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
-            builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
-
             await configurationBuilderCustomization(builder).ConfigureAwait(false);
 
             // scan types at the end so that all types used by the configuration have been loaded into the AppDomain

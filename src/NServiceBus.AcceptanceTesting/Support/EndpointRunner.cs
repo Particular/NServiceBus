@@ -8,6 +8,7 @@
     using Configuration.AdvancedExtensibility;
     using Faults;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
     using Transport;
 
     public class EndpointRunner : ComponentRunner
@@ -46,7 +47,7 @@
                     throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
                 }
                 var endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
-                RegisterInheritanceHierarchyOfContextInSettings(scenarioContext, endpointConfiguration);
+                RegisterScenarioContext(endpointConfiguration);
                 TrackFailingMessages(endpointName, endpointConfiguration);
 
                 if (!string.IsNullOrEmpty(configuration.CustomMachineName))
@@ -95,12 +96,14 @@
             endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
         }
 
-        void RegisterInheritanceHierarchyOfContextInSettings(ScenarioContext context, EndpointConfiguration endpointConfiguration)
+        void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)
         {
-            var type = context.GetType();
+            var type = scenarioContext.GetType();
             while (type != typeof(object))
             {
-                endpointConfiguration.GetSettings().Set(type.FullName, scenarioContext);
+                var currentType = type;
+                endpointConfiguration.GetSettings().Set(currentType.FullName, scenarioContext);
+                endpointConfiguration.RegisterComponents(serviceCollection => serviceCollection.AddSingleton(currentType, scenarioContext));
                 type = type.BaseType;
             }
         }
