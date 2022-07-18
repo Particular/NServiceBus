@@ -29,8 +29,6 @@
             await transportConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
 
-            configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
-
             var persistenceConfiguration = new ConfigureEndpointAcceptanceTestingPersistence();
             await persistenceConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
