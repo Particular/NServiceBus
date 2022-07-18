@@ -87,7 +87,7 @@ jobs:
           api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
           packages: octopus-package/${{env.PARTICULAR_REPO_NAME}}.Deploy.${{env.MinVerVersion}}.nupkg
       - name: Create Octopus Deploy release
-        uses: OctopusDeploy/create-release-action@v2.0.0
+        uses: OctopusDeploy/create-release-action@v2.0.1
         with:
           server: https://deploy.particular.net
           api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
