@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
+    using FastExpressionCompiler;
 
     /// <summary>
     /// Maintains the message handlers for this endpoint.
@@ -81,10 +82,7 @@
         /// <summary>
         /// Clears the cache.
         /// </summary>
-        public void Clear()
-        {
-            handlerAndMessagesHandledByHandlerCache.Clear();
-        }
+        public void Clear() => handlerAndMessagesHandledByHandlerCache.Clear();
 
         static void CacheHandlerMethods(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
@@ -136,7 +134,7 @@
 
             Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam);
 
-            return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).Compile();
+            return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).CompileFast();
         }
 
         static Type[] GetMessageTypesBeingHandledBy(Type type)
