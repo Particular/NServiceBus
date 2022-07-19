@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.CommonObjectBuilder
 {
     using System;
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using CommonObjectBuilder = NServiceBus.CommonObjectBuilder;
 
@@ -240,6 +241,36 @@ namespace NServiceBus.Core.Tests.CommonObjectBuilder
                         .Build(typeof(InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent));
                     var instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent2 = (InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent)nestedContainer
                         .Build(typeof(InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent));
+
+                    var instance1 = instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent1.Component;
+                    var instance2 = instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent2.Component;
+
+                    Assert.AreSame(instance1, instance2, "UoW's should be singleton in child container");
+                    Assert.AreSame(instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent1, instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent2, "UoW's should be singleton in child container");
+                }
+            }
+        }
+
+        [Test]
+        public async Task UoW_component_factory_resolved_via_builder_in_the_parent_container_from_a_different_thread_should_be_singletons_in_the_same_child_container()
+        {
+            using (var builder = new CommonObjectBuilder(new LightInjectObjectBuilder()))
+            {
+                builder.ConfigureComponent(() => new InstancePerUoWComponent(), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(b => new InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent(b.Build<InstancePerUoWComponent>()), DependencyLifecycle.InstancePerUnitOfWork);
+
+                using (var nestedContainer = builder.CreateChildBuilder())
+                {
+                    var task1 = Task.Run(
+                        () => (InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent)nestedContainer.Build(typeof(InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent)));
+
+                    var task2 = Task.Run(
+                        () => (InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent)nestedContainer.Build(typeof(InstancePerUnitOfWorkThatDependsOnInstancePerUoWComponent)));
+
+                    await Task.WhenAll(task1, task2);
+
+                    var instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent1 = await task1;
+                    var instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent2 = await task2;
 
                     var instance1 = instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent1.Component;
                     var instance2 = instancePerUnitOfWorkThatDependsOnInstancePerUoWComponent2.Component;
