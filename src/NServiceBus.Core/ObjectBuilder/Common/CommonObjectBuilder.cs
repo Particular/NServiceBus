@@ -9,17 +9,18 @@ namespace NServiceBus
 
     sealed class CommonObjectBuilder : IBuilder, IConfigureComponents
     {
-        static readonly AsyncLocal<IBuilder> currentBuilder = new AsyncLocal<IBuilder>();
+        readonly AsyncLocal<IBuilder> currentBuilder;
         readonly IBuilder previous;
 
-        public CommonObjectBuilder(IContainer container)
+        public CommonObjectBuilder(IContainer container, AsyncLocal<IBuilder> scope = null)
         {
             this.container = container;
+            currentBuilder = scope ?? new AsyncLocal<IBuilder>();
             previous = currentBuilder.Value;
             currentBuilder.Value = this;
         }
 
-        public IBuilder CreateChildBuilder() => new CommonObjectBuilder(container.BuildChildContainer());
+        public IBuilder CreateChildBuilder() => new CommonObjectBuilder(container.BuildChildContainer(), currentBuilder);
 
         public void Dispose()
         {
