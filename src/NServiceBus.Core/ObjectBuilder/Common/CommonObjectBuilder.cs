@@ -20,6 +20,9 @@ namespace NServiceBus
             currentBuilder.Value = this;
         }
 
+        // returns the current builder or the root
+        public IBuilder Current => currentBuilder.Value ?? this;
+
         public IBuilder CreateChildBuilder() => new CommonObjectBuilder(container.BuildChildContainer(), currentBuilder);
 
         public void Dispose()
@@ -49,7 +52,7 @@ namespace NServiceBus
 
         public void ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle instanceLifecycle) => container.Configure(componentFactory, instanceLifecycle);
 
-        public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle instanceLifecycle) => container.Configure(() => componentFactory(currentBuilder.Value), instanceLifecycle);
+        public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle instanceLifecycle) => container.Configure(() => componentFactory(Current), instanceLifecycle);
 
         void IConfigureComponents.RegisterSingleton(Type lookupType, object instance) => container.RegisterSingleton(lookupType, instance);
 
