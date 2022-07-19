@@ -7,6 +7,7 @@
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ObjectBuilder;
 
     public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanceTest
     {
@@ -93,21 +94,23 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public Handler(Context testContext, UnitOfWorkComponent component)
+                public Handler(Context testContext, UnitOfWorkComponent component, IBuilder builder)
                 {
                     this.testContext = testContext;
                     this.component = component;
+                    anotherComponent = builder.Build<UnitOfWorkComponent>();
                 }
 
                 public Task Handle(Message message, IMessageHandlerContext context)
                 {
-                    testContext.ValueEmpty |= component.ValueFromHeader == null;
+                    testContext.ValueEmpty |= component.ValueFromHeader == null || anotherComponent.ValueFromHeader == null;
                     testContext.OnMessageProcessed();
                     return Task.FromResult(0);
                 }
 
-                Context testContext;
-                UnitOfWorkComponent component;
+                readonly Context testContext;
+                readonly UnitOfWorkComponent component;
+                readonly UnitOfWorkComponent anotherComponent;
             }
         }
 
