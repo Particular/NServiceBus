@@ -1,7 +1,7 @@
 ﻿#if NETFRAMEWORK
 namespace System.Threading
 {
-    using Runtime.Remoting.Messaging;
+    using static Runtime.Remoting.Messaging.CallContext;
 
     // Provides a polyfill of AsyncLocal in .NET 4.5.2
     sealed class AsyncLocal<T>
@@ -13,24 +13,17 @@ namespace System.Threading
         {
             get
             {
-                var localValue = CallContext.LogicalGetData(id);
+                var localValue = LogicalGetData(id);
                 if (localValue != null)
                 {
                     return (T)localValue;
                 }
                 return default;
             }
-            set
-            {
-                // ReSharper disable once ArrangeAccessorOwnerBody
-                CallContext.LogicalSetData(id, value);
-            }
+            set => LogicalSetData(id, value);
         }
 
-        public AsyncLocal()
-        {
-            id = Guid.NewGuid().ToString();
-        }
+        public AsyncLocal() => id = Guid.NewGuid().ToString();
     }
 }
 #endif
