@@ -84,7 +84,7 @@ In all other cases, you should define your types as classes.
 
                 if (fieldInfo.FieldType.IsClass || fieldInfo.FieldType.IsInterface)
                 {
-                    mutabilityRules.Add($"      - Field {fieldInfo.Name} of type { fieldInfo.FieldType } is a reference type.");
+                    mutabilityRules.Add($"      - Field {fieldInfo.Name} of type {fieldInfo.FieldType} is a reference type.");
                 }
             }
 
@@ -108,7 +108,7 @@ In all other cases, you should define your types as classes.
             {
                 if (!fieldInfo.IsInitOnly && !fieldInfo.IsLiteral)
                 {
-                    mutabilityRules.Add($"      - Field {fieldInfo.Name} of type { fieldInfo.FieldType } is public.");
+                    mutabilityRules.Add($"      - Field {fieldInfo.Name} of type {fieldInfo.FieldType} is public.");
                 }
             }
 
@@ -132,7 +132,7 @@ In all other cases, you should define your types as classes.
             {
                 if (property.CanWrite)
                 {
-                    mutabilityRules.Add($"      - Property {property.Name} of type { property.PropertyType } can be written to.");
+                    mutabilityRules.Add($"      - Property {property.Name} of type {property.PropertyType} can be written to.");
                 }
             }
 
