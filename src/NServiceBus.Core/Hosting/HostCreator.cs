@@ -61,7 +61,7 @@
             IBuilder internalBuilder = commonObjectBuilder;
 
             //for backwards compatibility we need to make the IBuilder available in the container
-            internalContainer.ConfigureComponent(_ => internalBuilder, DependencyLifecycle.SingleInstance);
+            internalContainer.ConfigureComponent(_ => commonObjectBuilder.Current, DependencyLifecycle.InstancePerCall);
 
             var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, internalContainer);
 
