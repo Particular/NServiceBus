@@ -9,14 +9,11 @@ namespace NServiceBus
 
     sealed class CommonObjectBuilder : IBuilder, IConfigureComponents
     {
-        readonly AsyncLocal<IBuilder> currentBuilder;
-        readonly IBuilder previous;
-
         public CommonObjectBuilder(IContainer container, AsyncLocal<IBuilder> scope = null)
         {
             this.container = container;
             currentBuilder = scope ?? new AsyncLocal<IBuilder>();
-            previous = currentBuilder.Value;
+            parent = currentBuilder.Value;
             currentBuilder.Value = this;
         }
 
@@ -66,10 +63,12 @@ namespace NServiceBus
         void DisposeManaged()
 #pragma warning restore IDE0051 // Remove unused private members
         {
-            currentBuilder.Value = previous;
+            currentBuilder.Value = parent;
             container?.Dispose();
         }
 
-        IContainer container;
+        readonly IContainer container;
+        readonly AsyncLocal<IBuilder> currentBuilder;
+        readonly IBuilder parent;
     }
 }
