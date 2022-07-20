@@ -8,7 +8,7 @@ NServiceBus.Hosting.HostInformation - SingleInstance
 NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
 NServiceBus.NoOpCanceling - SingleInstance
 NServiceBus.Notifications - SingleInstance
-NServiceBus.ObjectBuilder.IBuilder - SingleInstance
+NServiceBus.ObjectBuilder.IBuilder - InstancePerCall
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
 NServiceBus.Settings.ReadOnlySettings - SingleInstance
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
