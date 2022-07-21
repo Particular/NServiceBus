@@ -9,12 +9,19 @@
     {
         internal Outbox()
         {
-            Defaults(s => s.SetDefault(InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
+            Defaults(s =>
+            {
+                s.SetDefault(InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5));
+
+                s.EnableFeatureByDefault<SynchronizedStorage>();
+            });
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
                 "Outbox is only relevant for endpoints receiving messages.");
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly")
                 && c.Receiving.TransactionMode != TransportTransactionMode.None,
                 "Outbox isn't needed since the receive transactions have been turned off");
+
+            DependsOn<SynchronizedStorage>();
         }
 
         /// <summary>
