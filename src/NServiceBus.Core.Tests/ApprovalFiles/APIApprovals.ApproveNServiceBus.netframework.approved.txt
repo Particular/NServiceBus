@@ -2038,6 +2038,11 @@ namespace NServiceBus.Persistence
     {
         System.Threading.Tasks.Task CompleteAsync();
     }
+    public class static CompletableSynchronizedStorageSessionExtensions
+    {
+        public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
+        public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Outbox.OutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = null) { }
+    }
     public interface ISynchronizedStorage
     {
         System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag);
