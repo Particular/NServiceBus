@@ -1,41 +1,43 @@
-namespace NServiceBus.Persistence
+namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Extensibility;
     using Janitor;
     using Outbox;
+    using Persistence;
     using Transport;
 
     [SkipWeaving]
-    sealed class CompletableSynchronizedStorageSessionAdapter : ICompletableSynchronizedStorageSession
+    sealed class CompletableSynchronizedStorageSessionAdapter : CompletableSynchronizedStorageSession
     {
         public CompletableSynchronizedStorageSessionAdapter(ISynchronizedStorageAdapter synchronizedStorageAdapter, ISynchronizedStorage synchronizedStorage)
         {
             this.synchronizedStorage = synchronizedStorage;
             this.synchronizedStorageAdapter = synchronizedStorageAdapter;
         }
-        public void Dispose() => session?.Dispose();
+        public CompletableSynchronizedStorageSession AdaptedSession { get; private set; }
 
-        public Task CompleteAsync() => throw new System.NotImplementedException();
+        public void Dispose() => AdaptedSession?.Dispose();
+
+        public Task CompleteAsync() => AdaptedSession.CompleteAsync();
 
         public async Task<bool> TryOpen(OutboxTransaction transaction, ContextBag context)
         {
-            session = await synchronizedStorageAdapter.TryAdapt(transaction, context).ConfigureAwait(false);
+            AdaptedSession = await synchronizedStorageAdapter.TryAdapt(transaction, context).ConfigureAwait(false);
 
-            return session != null;
+            return AdaptedSession != null;
         }
 
         public async Task<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context)
         {
-            session = await synchronizedStorageAdapter.TryAdapt(transportTransaction, context).ConfigureAwait(false);
+            AdaptedSession = await synchronizedStorageAdapter.TryAdapt(transportTransaction, context).ConfigureAwait(false);
 
-            return session != null;
+            return AdaptedSession != null;
         }
 
-        public async Task Open(ContextBag contextBag) => session = await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
+        public async Task Open(ContextBag contextBag) => AdaptedSession = await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
 
         readonly ISynchronizedStorageAdapter synchronizedStorageAdapter;
         readonly ISynchronizedStorage synchronizedStorage;
-        CompletableSynchronizedStorageSession session;
     }
 }

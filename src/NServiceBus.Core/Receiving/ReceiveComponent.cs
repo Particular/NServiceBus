@@ -71,13 +71,15 @@ namespace NServiceBus
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
-            pipelineSettings.Register("LoadHandlersConnector", b =>
+            hostingConfiguration.Container.ConfigureComponent(b =>
             {
                 var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
                 var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
-            }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+                return new CompletableSynchronizedStorageSessionAdapter(adapter, syncStorage);
+            }, DependencyLifecycle.InstancePerUnitOfWork);
+
+            pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.Build<MessageHandlerRegistry>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
 
