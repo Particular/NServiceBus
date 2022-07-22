@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
 {
+    using System.Reflection;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -19,13 +20,16 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
                 .Done(c => c.Done)
                 .Run();
 
+            Assert.True(context.AdaptedSessionIsNullBeforeOpening, "The adapted session was not null before opening the session.");
+            Assert.True(context.AdaptedSessionNotNullAfterOpening, "The adapted session was null after opening the session.");
             Assert.True(context.StorageSessionEqual, "The scoped storage session should be equal.");
         }
 
         public class Context : ScenarioContext
         {
             public bool StorageSessionEqual { get; set; }
-
+            public bool AdaptedSessionIsNullBeforeOpening { get; set; }
+            public bool AdaptedSessionNotNullAfterOpening { get; set; }
             public bool Done { get; set; }
         }
 
@@ -62,13 +66,21 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
                         using (var completableSynchronizedStorageSession =
                                childBuilder.Build<CompletableSynchronizedStorageSession>())
                         {
+                            PropertyInfo propertyInfo = completableSynchronizedStorageSession.GetType()
+                                .GetProperty("AdaptedSession");
+
+                            scenarioContext.AdaptedSessionIsNullBeforeOpening =
+                                propertyInfo.GetValue(completableSynchronizedStorageSession) == null;
+
                             await completableSynchronizedStorageSession.Open(new ContextBag());
+
+                            scenarioContext.AdaptedSessionNotNullAfterOpening =
+                                propertyInfo.GetValue(completableSynchronizedStorageSession) != null;
 
                             var synchronizedStorage = childBuilder.Build<SynchronizedStorageSession>();
 
                             scenarioContext.StorageSessionEqual =
-                                completableSynchronizedStorageSession.GetType()
-                                    .GetProperty("AdaptedSession")
+                                propertyInfo
                                     .GetValue(completableSynchronizedStorageSession)
                                     .Equals(synchronizedStorage);
 
