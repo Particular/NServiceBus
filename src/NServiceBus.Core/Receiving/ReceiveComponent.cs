@@ -71,7 +71,7 @@ namespace NServiceBus
                 return new TransportReceiveToPhysicalMessageConnector(storage);
             }, "Allows to abort processing the message");
 
-            hostingConfiguration.Container.ConfigureComponent(b =>
+            hostingConfiguration.Container.ConfigureComponent<CompletableSynchronizedStorageSession>(b =>
             {
                 var adapter = hostingConfiguration.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpSynchronizedStorageAdapter();
                 var syncStorage = hostingConfiguration.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();

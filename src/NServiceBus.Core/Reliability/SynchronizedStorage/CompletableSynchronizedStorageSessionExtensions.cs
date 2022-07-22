@@ -78,5 +78,7 @@ namespace NServiceBus.Persistence
         public static Task Open(this CompletableSynchronizedStorageSession session, ContextBag context) =>
             ((CompletableSynchronizedStorageSessionAdapter)session).Open(context);
 
+        internal static CompletableSynchronizedStorageSession GetAdaptedSession(this CompletableSynchronizedStorageSession session) =>
+            ((CompletableSynchronizedStorageSessionAdapter)session).AdaptedSession;
     }
 }
