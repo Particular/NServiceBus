@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
         public async Task Should_provide_adapted_session_with_same_scope()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointUsingStorageSessionOutsidePipeline>()
+                .WithEndpoint<Endpoint>()
                 .Done(c => c.Done)
                 .Run();
 
@@ -33,9 +33,9 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
             public bool Done { get; set; }
         }
 
-        public class EndpointUsingStorageSessionOutsidePipeline : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
-            public EndpointUsingStorageSessionOutsidePipeline()
+            public Endpoint()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
