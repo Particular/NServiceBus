@@ -14,12 +14,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Parse repo name
-        run: |
-          $FullName = "$env:GITHUB_REPOSITORY"
-          $Org,$RepoName = $FullName.Split('/')
-          echo "PARTICULAR_REPO_NAME=$RepoName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        shell: pwsh
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v2
         with:
@@ -46,53 +40,7 @@ jobs:
           name: nugets
           path: nugets/*
           retention-days: 1
-      - name: Install Octopus CLI
-        uses: OctopusDeploy/install-octopus-cli-action@v1.2.0
+      - name: Deploy
+        uses: Particular/push-octopus-package-action@v1.0.0
         with:
-          version: latest
-      - name: Create Octopus Package
-        run: |
-          # Creating the expected file layout for the Octopus package, including intermediate directories
-          mkdir -p packaging/content
-          
-          # Octopus expects NuGet packages to have an extra .nzip extension for NuGet, .czip for Chocolatey
-          $nugets = Get-ChildItem -Path "./nugets/*.nupkg"
-          foreach ($file in $nugets) {
-            cp $file "./packaging/content/$($file.Name).nzip"
-          }
-          
-          # Octopus Deploy scripts need an executable file to recreate this metadata
-          @"
-          `$Branch = "${{github.ref_name}}"
-          `$Version = "${{env.MinVerVersion}}"
-          `$Product = "${{env.PARTICULAR_REPO_NAME}}"
-          `$Major = "${{env.MinVerMajor}}"
-          `$Minor = "${{env.MinVerMinor}}"
-          `$Commit = "${{github.sha}}"
-          "@ > packaging/Metadata.ps1
-          
-          # Create the Octopus package
-          octo pack --id="${{env.PARTICULAR_REPO_NAME}}.Deploy" --version="${{env.MinVerVersion}}" --format="nupkg" --basePath="packaging" --outFolder="octopus-package"
-        shell: pwsh
-      - name: Publish Octopus Package Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: octopus-package
-          path: octopus-package/*
-          retention-days: 1
-      - name: Push package to Octopus Deploy
-        uses: OctopusDeploy/push-package-action@v2.1.0
-        with:
-          server: https://deploy.particular.net
-          api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
-          packages: octopus-package/${{env.PARTICULAR_REPO_NAME}}.Deploy.${{env.MinVerVersion}}.nupkg
-      - name: Create Octopus Deploy release
-        uses: OctopusDeploy/create-release-action@v2.0.1
-        with:
-          server: https://deploy.particular.net
-          api_key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
-          project: ${{env.PARTICULAR_REPO_NAME}}
-          release_number: ${{env.MinVerVersion}}
-          package_version: ${{env.MinVerVersion}}
-          package: "GitReleaseManager:0.11.0"
-          
+          octopus-deploy-api-key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
