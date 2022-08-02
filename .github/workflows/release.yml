@@ -2,40 +2,33 @@ name: Release
 on:
   push:
     tags:
-      - '[7-9].[0-9]+.[0-9]+'
-      - '[7-9].[0-9]+.[0-9]+-*'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
 env:
   DOTNET_NOLOGO: true
 jobs:
   release:
-    runs-on: windows-2019 # Code signing requirement https://github.com/NuGet/Home/issues/7939
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 0
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v2.1.0
         with:
           dotnet-version: 6.0.x
       - name: Build
         run: dotnet build src --configuration Release
-      - name: Install NuGetKeyVaultSignTool
-        run: dotnet tool install --global NuGetKeyVaultSignTool
-      - name: Sign NuGet Packages
-        run: |
-          NuGetKeyVaultSignTool sign nugets\*.nupkg `
-          --file-digest sha256 `
-          --timestamp-rfc3161 http://timestamp.digicert.com `
-          --timestamp-digest sha256 `
-          --azure-key-vault-url https://particularcodesigning.vault.azure.net `
-          --azure-key-vault-client-id ${{ secrets.AZURE_KEY_VAULT_CLIENT_ID }} `
-          --azure-key-vault-tenant-id ${{ secrets.AZURE_KEY_VAULT_TENANT_ID }} `
-          --azure-key-vault-client-secret ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }} `
-          --azure-key-vault-certificate ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
-        shell: pwsh
+      - name: Sign NuGet packages
+        uses: Particular/sign-nuget-packages-action@v1.0.0
+        with:
+          client-id: ${{ secrets.AZURE_KEY_VAULT_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_KEY_VAULT_TENANT_ID }}
+          client-secret: ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }}
+          certificate-name: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
       - name: Publish artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: nugets
           path: nugets/*
