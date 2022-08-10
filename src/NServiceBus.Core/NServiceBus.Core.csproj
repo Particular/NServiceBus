@@ -40,7 +40,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\packaging\nuget\tools\init.ps1" Pack="true" PackagePath="tools" Visible="false" />
+    <None Remove="init.ps1" />
+    <None Include="init.ps1" Pack="true" PackagePath="tools" />
     <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
   </ItemGroup>
 
