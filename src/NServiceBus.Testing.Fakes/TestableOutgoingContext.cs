@@ -27,10 +27,7 @@
         /// </summary>
         protected virtual IServiceProvider GetBuilder()
         {
-            if (builder == null)
-            {
-                builder = Services.BuildServiceProvider();
-            }
+            builder ??= Services.BuildServiceProvider();
             return builder;
         }
 

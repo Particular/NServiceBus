@@ -21,10 +21,7 @@
             List<string> publisherTransportAddresses = null;
             foreach (var publisherAddress in publishersOfThisEvent)
             {
-                if (publisherTransportAddresses == null)
-                {
-                    publisherTransportAddresses = new List<string>();
-                }
+                publisherTransportAddresses ??= new List<string>();
                 publisherTransportAddresses.AddRange(publisherAddress.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
             }
             return publisherTransportAddresses ?? noAddresses;

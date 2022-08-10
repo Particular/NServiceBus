@@ -329,10 +329,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                     version = new Version(1, 0, 0, 0);
                 }
 
-                if (references == null)
-                {
-                    references = new DynamicAssembly[0];
-                }
+                references ??= new DynamicAssembly[0];
 
                 Name = nameWithoutExtension;
                 Namespace = nameWithoutExtension;

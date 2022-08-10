@@ -11,10 +11,7 @@
         public static HostStartupDiagnosticsWriter GetDiagnosticsWriter(HostingComponent.Configuration configuration)
         {
             var diagnosticsWriter = configuration.HostDiagnosticsWriter;
-            if (diagnosticsWriter == null)
-            {
-                diagnosticsWriter = BuildDefaultDiagnosticsWriter(configuration);
-            }
+            diagnosticsWriter ??= BuildDefaultDiagnosticsWriter(configuration);
 
             return new HostStartupDiagnosticsWriter(diagnosticsWriter, false);
         }

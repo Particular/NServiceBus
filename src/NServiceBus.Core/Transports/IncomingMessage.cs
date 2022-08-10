@@ -63,10 +63,7 @@ namespace NServiceBus.Transport
         /// </summary>
         internal void UpdateBody(ReadOnlyMemory<byte> updatedBody)
         {
-            if (originalBody == null)
-            {
-                originalBody = Body;
-            }
+            originalBody ??= Body;
 
             Body = updatedBody;
         }

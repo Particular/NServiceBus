@@ -153,10 +153,7 @@ namespace NServiceBus.Extensibility
 
         Dictionary<string, object> GetOrCreateStash()
         {
-            if (stash == null)
-            {
-                stash = new Dictionary<string, object>();
-            }
+            stash ??= new Dictionary<string, object>();
 
             return stash;
         }

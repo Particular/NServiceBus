@@ -39,20 +39,14 @@
         public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization = null,
             Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
         {
-            if (configurationBuilderCustomization == null)
-            {
-                configurationBuilderCustomization = b => { };
-            }
+            configurationBuilderCustomization ??= b => { };
 
             return EndpointSetup<T>((bc, _) => configurationBuilderCustomization(bc), publisherMetadata);
         }
 
         public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
         {
-            if (configurationBuilderCustomization == null)
-            {
-                configurationBuilderCustomization = (rd, b) => { };
-            }
+            configurationBuilderCustomization ??= (rd, b) => { };
 
             var template = new T();
             return EndpointSetup(template, configurationBuilderCustomization, publisherMetadata);
@@ -85,10 +79,7 @@
             where T : IEndpointSetupTemplate, new()
             where TContext : ScenarioContext
         {
-            if (configurationBuilderCustomization == null)
-            {
-                configurationBuilderCustomization = (rd, b) => { };
-            }
+            configurationBuilderCustomization ??= (rd, b) => { };
 
             publisherMetadata?.Invoke(configuration.PublisherMetadata);
 

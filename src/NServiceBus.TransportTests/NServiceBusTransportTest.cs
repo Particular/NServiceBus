@@ -165,10 +165,14 @@
                 message.Headers.Add(TestIdHeaderName, testId);
             }
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0074 // Use compound assignment
             if (transportTransaction == null)
             {
                 transportTransaction = new TransportTransaction();
             }
+#pragma warning restore IDE0074 // Use compound assignment
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 
