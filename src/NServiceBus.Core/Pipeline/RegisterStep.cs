@@ -67,10 +67,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNullAndEmpty(nameof(id), id);
 
-            if (Befores == null)
-            {
-                Befores = new List<Dependency>();
-            }
+            Befores ??= new List<Dependency>();
 
             Befores.Add(new Dependency(StepId, id, Dependency.DependencyDirection.Before, false));
         }
@@ -82,10 +79,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNullAndEmpty(nameof(id), id);
 
-            if (Befores == null)
-            {
-                Befores = new List<Dependency>();
-            }
+            Befores ??= new List<Dependency>();
 
             Befores.Add(new Dependency(StepId, id, Dependency.DependencyDirection.Before, true));
         }
@@ -99,10 +93,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNullAndEmpty(nameof(id), id);
 
-            if (Afters == null)
-            {
-                Afters = new List<Dependency>();
-            }
+            Afters ??= new List<Dependency>();
 
             Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, false));
         }
@@ -114,10 +105,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNullAndEmpty(nameof(id), id);
 
-            if (Afters == null)
-            {
-                Afters = new List<Dependency>();
-            }
+            Afters ??= new List<Dependency>();
 
             Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, true));
         }

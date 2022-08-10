@@ -228,10 +228,7 @@
         {
             get
             {
-                if (activeEndpoints == null)
-                {
-                    activeEndpoints = new List<string>();
-                }
+                activeEndpoints ??= new List<string>();
 
                 return activeEndpoints;
             }

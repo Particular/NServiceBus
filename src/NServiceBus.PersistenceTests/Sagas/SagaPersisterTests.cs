@@ -116,10 +116,14 @@
                 sagaData.Id = configuration.SagaIdGenerator.Generate(new SagaIdGeneratorContext(correlationProperty, sagaMetadata, new ContextBag()));
             }
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0074 // Use compound assignment
             if (sagaData.OriginalMessageId == null)
             {
                 sagaData.OriginalMessageId = Guid.NewGuid().ToString("D");
             }
+#pragma warning restore IDE0074 // Use compound assignment
+#pragma warning restore IDE0079 // Remove unnecessary suppression
         }
 
         protected IPersistenceTestsConfiguration configuration;

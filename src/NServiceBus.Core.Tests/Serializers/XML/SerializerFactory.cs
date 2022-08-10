@@ -14,10 +14,7 @@ namespace NServiceBus.Serializers.XML.Test
             {
                 typeof(T)
             };
-            if (mapper == null)
-            {
-                mapper = new MessageMapper();
-            }
+            mapper ??= new MessageMapper();
 
             mapper.Initialize(types);
             var serializer = new XmlMessageSerializer(mapper, new Conventions());

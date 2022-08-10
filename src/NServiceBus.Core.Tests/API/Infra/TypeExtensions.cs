@@ -9,10 +9,7 @@
     {
         public static bool IsObsolete(this Type type, Stack<Type> seenTypes = null)
         {
-            if (seenTypes == null)
-            {
-                seenTypes = new Stack<Type>();
-            }
+            seenTypes ??= new Stack<Type>();
 
             if (seenTypes.Contains(type))
             {
