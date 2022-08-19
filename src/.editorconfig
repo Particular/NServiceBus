@@ -28,7 +28,7 @@ dotnet_diagnostic.CA1710.severity = error
 dotnet_diagnostic.CA1711.severity = error
 dotnet_diagnostic.CA2007.severity = error
 dotnet_diagnostic.CA2016.severity = error
-
+dotnet_diagnostic.IDE0074.severity = none
 
 #### .NET Coding Conventions ####
 
