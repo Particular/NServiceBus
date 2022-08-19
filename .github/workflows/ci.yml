@@ -3,10 +3,8 @@ on:
   push:
     branches:
       - master
-      - release-[7-9].*
+      - release-*
   pull_request:
-    branches-ignore:
-      - release-[0-6].*
   workflow_dispatch:
 env:
   DOTNET_NOLOGO: true
@@ -24,18 +22,18 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 0
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v2.1.0
         with:
           dotnet-version: 6.0.x
       - name: Build
         run: dotnet build src --configuration Release
       - name: Upload packages
         if: matrix.name == 'Windows'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: NuGet packages
           path: nugets/
