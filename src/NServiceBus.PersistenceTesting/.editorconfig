@@ -2,3 +2,6 @@
 
 # Justification: Test project
 dotnet_diagnostic.CA2007.severity = none
+
+# Justification: net461
+dotnet_diagnostic.IDE0074.severity = none
