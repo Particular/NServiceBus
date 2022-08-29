@@ -16,6 +16,7 @@
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
+            // registered in UnitOfWork scope, therefore can't be resolved at connector construction time
             using (var storageSessionAdapter = context.Builder.Build<CompletableSynchronizedStorageSession>())
             {
                 await storageSessionAdapter.Open(context).ConfigureAwait(false);
