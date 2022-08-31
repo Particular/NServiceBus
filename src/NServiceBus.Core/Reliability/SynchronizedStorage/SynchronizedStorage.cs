@@ -18,7 +18,7 @@ namespace NServiceBus.Features
         {
             context.Container.ConfigureComponent<SynchronizedStorageSession>(
                 builder => builder.Build<CompletableSynchronizedStorageSession>().GetAdaptedSession(),
-                DependencyLifecycle.InstancePerUnitOfWork);
+                DependencyLifecycle.InstancePerCall);
         }
     }
 }
