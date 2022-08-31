@@ -10,7 +10,7 @@ NServiceBus.NoOpCanceling - SingleInstance
 NServiceBus.Notifications - SingleInstance
 NServiceBus.ObjectBuilder.IBuilder - InstancePerCall
 NServiceBus.Persistence.CompletableSynchronizedStorageSession - InstancePerUnitOfWork
-NServiceBus.Persistence.SynchronizedStorageSession - InstancePerUnitOfWork
+NServiceBus.Persistence.SynchronizedStorageSession - InstancePerCall
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
 NServiceBus.Settings.ReadOnlySettings - SingleInstance
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
