@@ -17,7 +17,16 @@ namespace NServiceBus
         }
         public CompletableSynchronizedStorageSession AdaptedSession { get; private set; }
 
-        public void Dispose() => AdaptedSession?.Dispose();
+        public void Dispose()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            AdaptedSession?.Dispose();
+            disposed = true;
+        }
 
         public Task CompleteAsync() => AdaptedSession.CompleteAsync();
 
@@ -36,6 +45,8 @@ namespace NServiceBus
         }
 
         public async Task Open(ContextBag contextBag) => AdaptedSession = await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
+
+        bool disposed;
 
         readonly ISynchronizedStorageAdapter synchronizedStorageAdapter;
         readonly ISynchronizedStorage synchronizedStorage;
