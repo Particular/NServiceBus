@@ -78,7 +78,11 @@ namespace NServiceBus.Persistence
         public static Task Open(this CompletableSynchronizedStorageSession session, ContextBag context) =>
             ((CompletableSynchronizedStorageSessionAdapter)session).Open(context);
 
-        internal static CompletableSynchronizedStorageSession GetAdaptedSession(this CompletableSynchronizedStorageSession session) =>
+        /// <summary>
+        /// Returns the underlying, persistence specific, storage session.
+        /// </summary>
+        /// <param name="session">The storage session.</param>
+        public static CompletableSynchronizedStorageSession GetAdaptedSession(this CompletableSynchronizedStorageSession session) =>
             ((CompletableSynchronizedStorageSessionAdapter)session).AdaptedSession;
     }
 }

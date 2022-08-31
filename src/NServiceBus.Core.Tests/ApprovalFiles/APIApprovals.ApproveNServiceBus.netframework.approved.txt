@@ -2040,6 +2040,7 @@ namespace NServiceBus.Persistence
     }
     public class static CompletableSynchronizedStorageSessionExtensions
     {
+        public static NServiceBus.Persistence.CompletableSynchronizedStorageSession GetAdaptedSession(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session) { }
         public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
         public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Outbox.OutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag) { }
         public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context) { }
