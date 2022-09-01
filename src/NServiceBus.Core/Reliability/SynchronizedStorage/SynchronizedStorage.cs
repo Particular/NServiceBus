@@ -17,7 +17,7 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<SynchronizedStorageSession>(
-                builder => builder.Build<CompletableSynchronizedStorageSession>().GetAdaptedSession(),
+                builder => builder.Build<CompletableSynchronizedStorageSessionAdapter>().AdaptedSession,
                 DependencyLifecycle.InstancePerUnitOfWork);
         }
     }

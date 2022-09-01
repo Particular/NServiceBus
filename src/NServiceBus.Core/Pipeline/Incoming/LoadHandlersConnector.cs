@@ -17,7 +17,7 @@
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
             // registered in UnitOfWork scope, therefore can't be resolved at connector construction time
-            using (var storageSessionAdapter = context.Builder.Build<CompletableSynchronizedStorageSession>())
+            using (var storageSessionAdapter = context.Builder.Build<CompletableSynchronizedStorageSessionAdapter>())
             {
                 await storageSessionAdapter.Open(context).ConfigureAwait(false);
 
@@ -38,7 +38,7 @@
                 {
                     messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
-                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSessionAdapter.GetAdaptedSession(), context);
+                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSessionAdapter.AdaptedSession, context);
                     await stage(handlingContext).ConfigureAwait(false);
 
                     if (handlingContext.HandlerInvocationAborted)
