@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
 {
-    using System.Reflection;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -66,22 +65,18 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
                         using (var completableSynchronizedStorageSession =
                                childBuilder.Build<CompletableSynchronizedStorageSession>())
                         {
-                            PropertyInfo propertyInfo = completableSynchronizedStorageSession.GetType()
-                                .GetProperty("AdaptedSession");
-
                             scenarioContext.AdaptedSessionIsNullBeforeOpening =
-                                propertyInfo.GetValue(completableSynchronizedStorageSession) == null;
+                                completableSynchronizedStorageSession.GetAdaptedSession() == null;
 
                             await completableSynchronizedStorageSession.Open(new ContextBag());
 
                             scenarioContext.AdaptedSessionNotNullAfterOpening =
-                                propertyInfo.GetValue(completableSynchronizedStorageSession) != null;
+                                completableSynchronizedStorageSession.GetAdaptedSession() != null;
 
                             var synchronizedStorage = childBuilder.Build<SynchronizedStorageSession>();
 
                             scenarioContext.StorageSessionEqual =
-                                propertyInfo
-                                    .GetValue(completableSynchronizedStorageSession)
+                                completableSynchronizedStorageSession.GetAdaptedSession()
                                     .Equals(synchronizedStorage);
 
                             await completableSynchronizedStorageSession.CompleteAsync();
