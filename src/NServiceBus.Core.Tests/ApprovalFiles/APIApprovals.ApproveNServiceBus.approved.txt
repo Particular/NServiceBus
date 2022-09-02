@@ -410,7 +410,7 @@ namespace NServiceBus
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
-        public const string DataBusContentType = "NServiceBus.DataBusConfig.ContentType";
+        public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
         public const string DeliverAt = "NServiceBus.DeliverAt";
@@ -1185,7 +1185,7 @@ namespace NServiceBus
         public SystemJsonDataBusSerializer() { }
         public string ContentType { get; }
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
-        public void Serialize(object databusProperty, System.IO.Stream stream) { }
+        public void Serialize(object dataBusProperty, System.IO.Stream stream) { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute

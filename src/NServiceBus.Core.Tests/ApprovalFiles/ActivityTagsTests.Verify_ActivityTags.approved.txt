@@ -32,7 +32,7 @@
     "PreviousConversationId => nservicebus.previous_conversation_id",
     "MessageIntent => nservicebus.message_intent",
     "TimeToBeReceived => nservicebus.time_to_be_received",
-    "DataBusContentType => nservicebus.databus.content_type",
+    "DataBusConfigContentType => nservicebus.databusconfig.content_type",
     "NonDurableMessage => nservicebus.non_durable",
     "NativeMessageId => nservicebus.native_message_id",
     "HandlerType => nservicebus.handler.handler_type",
