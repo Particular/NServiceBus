@@ -82,7 +82,7 @@ namespace NServiceBus.Persistence
         /// Returns the underlying, persistence specific, storage session.
         /// </summary>
         /// <param name="session">The storage session.</param>
-        public static CompletableSynchronizedStorageSession GetAdaptedSession(this CompletableSynchronizedStorageSession session) =>
+        public static SynchronizedStorageSession GetAdaptedSession(this CompletableSynchronizedStorageSession session) =>
             ((CompletableSynchronizedStorageSessionAdapter)session).AdaptedSession;
     }
 }
