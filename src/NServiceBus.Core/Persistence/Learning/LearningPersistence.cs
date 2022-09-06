@@ -10,6 +10,8 @@
     {
         internal LearningPersistence()
         {
+            Defaults(s => s.EnableFeatureByDefault<LearningSynchronizedStorage>());
+
             Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<LearningSagaPersistence>());
         }
     }

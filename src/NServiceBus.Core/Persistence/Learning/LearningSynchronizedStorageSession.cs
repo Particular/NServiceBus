@@ -13,11 +13,6 @@ namespace NServiceBus
     [SkipWeaving]
     class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
-        public LearningSynchronizedStorageSession(SagaManifestCollection sagaManifests)
-        {
-            this.sagaManifests = sagaManifests;
-        }
-
         public void Dispose()
         {
             foreach (var sagaFile in sagaFiles.Values)
@@ -46,9 +41,9 @@ namespace NServiceBus
             deferredActions.Clear();
         }
 
-        public async Task<TSagaData> Read<TSagaData>(Guid sagaId, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+        public async Task<TSagaData> Read<TSagaData>(Guid sagaId, SagaManifestCollection sagaManifests, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
-            var sagaStorageFile = await Open(sagaId, typeof(TSagaData), cancellationToken)
+            var sagaStorageFile = await Open(sagaId, typeof(TSagaData), sagaManifests, cancellationToken)
                 .ConfigureAwait(false);
 
             if (sagaStorageFile == null)
@@ -60,22 +55,22 @@ namespace NServiceBus
                 .ConfigureAwait(false);
         }
 
-        public void Update(IContainSagaData sagaData)
+        public void Update(IContainSagaData sagaData, SagaManifestCollection sagaManifests)
         {
             deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
         }
 
-        public void Save(IContainSagaData sagaData)
+        public void Save(IContainSagaData sagaData, SagaManifestCollection sagaManifests)
         {
             deferredActions.Add(new SaveAction(sagaData, sagaFiles, sagaManifests));
         }
 
-        public void Complete(IContainSagaData sagaData)
+        public void Complete(IContainSagaData sagaData, SagaManifestCollection sagaManifests)
         {
             deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
         }
 
-        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, CancellationToken cancellationToken)
+        async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, SagaManifestCollection sagaManifests, CancellationToken cancellationToken)
         {
             var sagaManifest = sagaManifests.GetForEntityType(entityType);
 
@@ -89,8 +84,6 @@ namespace NServiceBus
 
             return sagaStorageFile;
         }
-
-        SagaManifestCollection sagaManifests;
 
         Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
 
