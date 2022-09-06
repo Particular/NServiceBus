@@ -28,5 +28,5 @@ Headers.ConversationId: NServiceBus.ConversationId -> nservicebus.conversation_i
 Headers.PreviousConversationId: NServiceBus.PreviousConversationId -> nservicebus.previous_conversation_id
 Headers.MessageIntent: NServiceBus.MessageIntent -> nservicebus.message_intent
 Headers.TimeToBeReceived: NServiceBus.TimeToBeReceived -> nservicebus.time_to_be_received
-Headers.DataBusConfigContentType: NServiceBus.DataBusConfig.ContentType -> nservicebus.databusconfig.content_type
+Headers.DataBusConfigContentType: NServiceBus.DataBusConfig.ContentType -> nservicebus.databus.content_type
 Headers.NonDurableMessage: NServiceBus.NonDurableMessage -> nservicebus.non_durable

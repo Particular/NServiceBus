@@ -32,7 +32,7 @@ namespace NServiceBus
         public const string PreviousConversationId = "nservicebus.previous_conversation_id";
         public const string MessageIntent = "nservicebus.message_intent";
         public const string TimeToBeReceived = "nservicebus.time_to_be_received";
-        public const string DataBusConfigContentType = "nservicebus.databusconfig.content_type";
+        public const string DataBusContentType = "nservicebus.databus.content_type";
         public const string NonDurableMessage = "nservicebus.non_durable";
         public const string NativeMessageId = "nservicebus.native_message_id";
         public const string HandlerType = "nservicebus.handler.handler_type";
