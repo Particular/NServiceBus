@@ -2044,7 +2044,7 @@ namespace NServiceBus.Persistence
         public NServiceBus.Persistence.CompletableSynchronizedStorageSession AdaptedSession { get; }
         public System.Threading.Tasks.Task CompleteAsync() { }
         public void Dispose() { }
-        public System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag contextBag) { }
+        public System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag context) { }
         public System.Threading.Tasks.Task<bool> TryOpen(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context) { }
         public System.Threading.Tasks.Task<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
     }

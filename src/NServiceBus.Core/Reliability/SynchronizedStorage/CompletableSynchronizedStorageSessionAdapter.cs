@@ -69,7 +69,7 @@ namespace NServiceBus.Persistence
         /// <summary>
         /// Opens a <see cref="CompletableSynchronizedStorageSession"/> via the persister that is not connected to an outbox or transport transaction.
         /// </summary>
-        public async Task Open(ContextBag contextBag) => AdaptedSession = await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
+        public async Task Open(ContextBag context) => AdaptedSession = await synchronizedStorage.OpenSession(context).ConfigureAwait(false);
 
         bool disposed;
 
