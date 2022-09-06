@@ -46,6 +46,16 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IUnsubscribeContext context) { }
         public static bool IgnoredBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
+    public sealed class CompletableSynchronizedStorageSessionAdapter : System.IDisposable
+    {
+        public CompletableSynchronizedStorageSessionAdapter(NServiceBus.Persistence.ISynchronizedStorageAdapter synchronizedStorageAdapter, NServiceBus.Persistence.ISynchronizedStorage synchronizedStorage) { }
+        public NServiceBus.Persistence.CompletableSynchronizedStorageSession AdaptedSession { get; }
+        public System.Threading.Tasks.Task CompleteAsync() { }
+        public void Dispose() { }
+        public System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag contextBag) { }
+        public System.Threading.Tasks.Task<bool> TryOpen(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context) { }
+        public System.Threading.Tasks.Task<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+    }
     public class static ConfigurationTimeoutExtensions
     {
         public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this NServiceBus.EndpointConfiguration config, System.TimeSpan timeToWait) { }
@@ -2040,12 +2050,8 @@ namespace NServiceBus.Persistence
     }
     public class static CompletableSynchronizedStorageSessionExtensions
     {
-        public static NServiceBus.Persistence.CompletableSynchronizedStorageSession GetAdaptedSession(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session) { }
-        public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
-        public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Outbox.OutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag) { }
-        public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context) { }
-        public static System.Threading.Tasks.Task<bool> TryOpen(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context) { }
-        public static System.Threading.Tasks.Task<bool> TryOpen(this NServiceBus.Persistence.CompletableSynchronizedStorageSession session, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        public static System.Threading.Tasks.Task Open(this NServiceBus.CompletableSynchronizedStorageSessionAdapter sessionAdapter, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
+        public static System.Threading.Tasks.Task Open(this NServiceBus.CompletableSynchronizedStorageSessionAdapter sessionAdapter, NServiceBus.Outbox.OutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag) { }
     }
     public interface ISynchronizedStorage
     {

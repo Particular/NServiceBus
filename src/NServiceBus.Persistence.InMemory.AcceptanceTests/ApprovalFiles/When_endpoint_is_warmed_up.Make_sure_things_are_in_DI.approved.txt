@@ -6,6 +6,7 @@ NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
 ----------- Registrations not used by the core, can be removed in next major if downstreams have been confirmed to not use it -----------
+NServiceBus.CompletableSynchronizedStorageSessionAdapter - InstancePerUnitOfWork
 NServiceBus.CriticalError - SingleInstance
 NServiceBus.Hosting.HostInformation - SingleInstance
 NServiceBus.InMemorySubscriptionStorage - SingleInstance
@@ -15,7 +16,6 @@ NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
 NServiceBus.NoOpCanceling - SingleInstance
 NServiceBus.Notifications - SingleInstance
 NServiceBus.ObjectBuilder.IBuilder - InstancePerCall
-NServiceBus.Persistence.CompletableSynchronizedStorageSession - InstancePerUnitOfWork
 NServiceBus.Persistence.SynchronizedStorageSession - InstancePerUnitOfWork
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
 NServiceBus.Settings.ReadOnlySettings - SingleInstance
