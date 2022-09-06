@@ -248,6 +248,6 @@
         /// <summary>
         /// The content type used to serialize the data bus properties in the message.
         /// </summary>
-        public const string DataBusContentType = "NServiceBus.DataBus.ContentType";
+        public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType"; // NOTE: .DataConfig required for compatibility with the Gateway BLOB matching behavior.
     }
 }
