@@ -53,7 +53,7 @@ namespace NServiceBus
             { Headers.PreviousConversationId, ActivityTags.PreviousConversationId },
             { Headers.MessageIntent, ActivityTags.MessageIntent },
             { Headers.TimeToBeReceived, ActivityTags.TimeToBeReceived },
-            { Headers.DataBusContentType, ActivityTags.DataBusContentType },
+            { Headers.DataBusConfigContentType, ActivityTags.DataBusContentType },
             { Headers.NonDurableMessage, ActivityTags.NonDurableMessage }
         };
     }
