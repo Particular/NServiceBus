@@ -33,9 +33,9 @@
         /// <summary>
         /// Opens the storage session.
         /// </summary>
-        /// <param name="contextBag">The context information.</param>
+        /// <param name="context">The context information.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        Task Open(ContextBag contextBag, CancellationToken cancellationToken = default);
+        Task Open(ContextBag context, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Completes the session by saving the changes.

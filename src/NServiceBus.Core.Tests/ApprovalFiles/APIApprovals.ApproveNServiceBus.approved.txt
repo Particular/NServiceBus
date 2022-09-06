@@ -1980,7 +1980,7 @@ namespace NServiceBus.Persistence
     public interface ICompletableSynchronizedStorageSession : NServiceBus.Persistence.ISynchronizedStorageSession, System.IDisposable
     {
         System.Threading.Tasks.Task CompleteAsync(System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }

@@ -34,7 +34,7 @@ namespace NServiceBus
         public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
             CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
 
-        public Task Open(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public Task Open(ContextBag context, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
         public async Task CompleteAsync(CancellationToken cancellationToken = default)
