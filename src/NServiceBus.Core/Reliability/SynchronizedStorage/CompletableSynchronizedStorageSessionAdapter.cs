@@ -1,11 +1,10 @@
-namespace NServiceBus
+namespace NServiceBus.Persistence
 {
     using System;
     using System.Threading.Tasks;
     using Extensibility;
     using Janitor;
     using Outbox;
-    using Persistence;
     using Transport;
 
     /// <summary>
