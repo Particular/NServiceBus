@@ -21,7 +21,7 @@ namespace NServiceBus
             CancellationToken cancellationToken = default) =>
             new ValueTask<bool>(false);
 
-        public Task Open(ContextBag contextBag, CancellationToken cancellationToken = default) =>
+        public Task Open(ContextBag context, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
         public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;

@@ -51,7 +51,7 @@
             return new ValueTask<bool>(true);
         }
 
-        public Task Open(ContextBag contextBag, CancellationToken cancellationToken = default)
+        public Task Open(ContextBag context, CancellationToken cancellationToken = default)
         {
             ownsTransaction = true;
             Transaction = new FakeTransaction();
