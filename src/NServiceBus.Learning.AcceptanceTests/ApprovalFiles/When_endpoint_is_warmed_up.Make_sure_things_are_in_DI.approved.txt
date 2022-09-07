@@ -1,4 +1,5 @@
 ----------- Public registrations used by Core -----------
+NServiceBus.Persistence.ICompletableSynchronizedStorageSession - Scoped
 NServiceBus.ReceiveAddresses - Singleton
 NServiceBus.Transport.IMessageDispatcher - Singleton
 NServiceBus.Transport.ISubscriptionManager - Singleton

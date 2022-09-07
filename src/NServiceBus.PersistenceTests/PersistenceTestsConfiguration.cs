@@ -30,13 +30,14 @@
         public Task Configure(CancellationToken cancellationToken = default)
         {
             SagaIdGenerator = new LearningSagaIdGenerator();
-            SagaStorage = new LearningSagaPersister();
 
             var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"),
                 name => DeterministicGuid.Create(name).ToString());
 
-            CreateStorageSession = () => new LearningSynchronizedStorageSession(sagaManifests);
+            SagaStorage = new LearningSagaPersister(sagaManifests);
+
+            CreateStorageSession = () => new LearningSynchronizedStorageSession();
 
             return Task.CompletedTask;
         }

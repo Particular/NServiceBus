@@ -4,7 +4,6 @@
     using System.IO;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Sagas;
-    using Persistence;
 
     class LearningSagaPersistence : Feature
     {
@@ -22,7 +21,6 @@
             var allSagas = context.Settings.Get<SagaMetadataCollection>();
 
             context.Services.AddSingleton(new SagaManifestCollection(allSagas, storageLocation, sagaName => sagaName.Replace("+", "")));
-            context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
             context.Services.AddSingleton<ISagaPersister, LearningSagaPersister>();
         }
 
