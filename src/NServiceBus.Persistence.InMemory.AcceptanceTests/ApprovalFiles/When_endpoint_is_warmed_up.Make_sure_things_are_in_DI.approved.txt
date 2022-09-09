@@ -15,5 +15,7 @@ NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
 NServiceBus.NoOpCanceling - SingleInstance
 NServiceBus.Notifications - SingleInstance
 NServiceBus.ObjectBuilder.IBuilder - InstancePerCall
+NServiceBus.Persistence.CompletableSynchronizedStorageSessionAdapter - InstancePerUnitOfWork
+NServiceBus.Persistence.SynchronizedStorageSession - InstancePerUnitOfWork
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
 NServiceBus.Settings.ReadOnlySettings - SingleInstance

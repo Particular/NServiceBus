@@ -4,29 +4,23 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
-    using Extensibility;
     using Logging;
-    using Outbox;
     using Persistence;
     using Pipeline;
-    using Transport;
     using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
-        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, ISynchronizedStorage synchronizedStorage, ISynchronizedStorageAdapter adapter)
-        {
+        public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry) =>
             this.messageHandlerRegistry = messageHandlerRegistry;
-            this.synchronizedStorage = synchronizedStorage;
-            this.adapter = adapter;
-        }
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
-            var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
-            var transportTransaction = context.Extensions.Get<TransportTransaction>();
-            using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions).ConfigureAwait(false))
+            // registered in UnitOfWork scope, therefore can't be resolved at connector construction time
+            using (var storageSessionAdapter = context.Builder.Build<CompletableSynchronizedStorageSessionAdapter>())
             {
+                await storageSessionAdapter.Open(context).ConfigureAwait(false);
+
                 var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
 
                 if (!context.MessageHandled && handlersToInvoke.Count == 0)
@@ -44,7 +38,7 @@
                 {
                     messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
-                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
+                    var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSessionAdapter.AdaptedSession, context);
                     await stage(handlingContext).ConfigureAwait(false);
 
                     if (handlingContext.HandlerInvocationAborted)
@@ -54,15 +48,8 @@
                     }
                 }
                 context.MessageHandled = true;
-                await storageSession.CompleteAsync().ConfigureAwait(false);
+                await storageSessionAdapter.CompleteAsync().ConfigureAwait(false);
             }
-        }
-
-        async Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag)
-        {
-            return await adapter.TryAdapt(outboxTransaction, contextBag).ConfigureAwait(false)
-                   ?? await adapter.TryAdapt(transportTransaction, contextBag).ConfigureAwait(false)
-                   ?? await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
         }
 
         static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)
@@ -85,8 +72,6 @@
             logger.Debug(builder.ToString());
         }
 
-        readonly ISynchronizedStorageAdapter adapter;
-        readonly ISynchronizedStorage synchronizedStorage;
         readonly MessageHandlerRegistry messageHandlerRegistry;
 
         static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
