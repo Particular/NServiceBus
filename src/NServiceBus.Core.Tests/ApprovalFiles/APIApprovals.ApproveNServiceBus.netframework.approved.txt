@@ -2048,7 +2048,7 @@ namespace NServiceBus.Persistence
         public System.Threading.Tasks.Task<bool> TryOpen(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context) { }
         public System.Threading.Tasks.Task<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
     }
-    public class static CompletableSynchronizedStorageSessionExtensions
+    public class static CompletableSynchronizedStorageSessionAdapterExtensions
     {
         public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSessionAdapter sessionAdapter, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
         public static System.Threading.Tasks.Task Open(this NServiceBus.Persistence.CompletableSynchronizedStorageSessionAdapter sessionAdapter, NServiceBus.Outbox.OutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag) { }

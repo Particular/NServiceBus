@@ -9,7 +9,7 @@ namespace NServiceBus.Persistence
     /// <summary>
     /// Extension methods for <see cref="CompletableSynchronizedStorageSession"/>.
     /// </summary>
-    public static class CompletableSynchronizedStorageSessionExtensions
+    public static class CompletableSynchronizedStorageSessionAdapterExtensions
     {
         /// <summary>
         /// Opens the storage session by attempting to extract the outbox and transport transaction from the incoming logical context.
