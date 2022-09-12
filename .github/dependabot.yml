@@ -4,7 +4,7 @@ updates:
   directory: "/"
   schedule:
     interval: daily
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 1000
   ignore:
     # Particular.Analyzers updates are distributed via RepoStandards
     - dependency-name: "Particular.Analyzers"
@@ -17,4 +17,4 @@ updates:
   directory: "/"
   schedule:
     interval: daily
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 1000
