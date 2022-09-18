@@ -200,6 +200,7 @@ namespace NServiceBus.ObjectBuilder
         void ConfigureComponent(Type concreteComponent, DependencyLifecycle dependencyLifecycle);
 
         [ObsoleteEx(
+            Message = "Ensure to explicitly register all interfaces of a specific type as this will no longer be done automatically."
             ReplacementTypeOrMember = "IServiceCollection.ConfigureComponent",
             TreatAsErrorFromVersion = "8.0",
             RemoveInVersion = "9.0")]
