@@ -9,6 +9,7 @@
 
     public static class EndpointCustomizationConfigurationExtensions
     {
+        [Obsolete("Use the `NServiceBus.AcceptanceTesting.Support.AssemblyScanningExtensions.FilterByTest` extension method instead", false)]
         public static IEnumerable<Type> GetTypesScopedByTestClass(this EndpointCustomizationConfiguration endpointConfiguration)
         {
             var assemblyScanner = new AssemblyScanner
