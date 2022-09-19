@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
+    using Hosting.Helpers;
 
     public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {
@@ -24,7 +25,8 @@
             await configurationBuilderCustomization(builder).ConfigureAwait(false);
 
             // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
-            builder.TypesToIncludeInScan(endpointConfiguration.GetTypesScopedByTestClass());
+            var assemblyScanner = new AssemblyScanner { ScanFileSystemAssemblies = false };
+            builder.TypesToIncludeInScan(assemblyScanner.GetScannableAssemblies().Types.FilterByTest(endpointConfiguration));
 
             return builder;
         }
