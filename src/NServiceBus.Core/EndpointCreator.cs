@@ -101,6 +101,8 @@ namespace NServiceBus
                     NServiceBusVersion = VersionInformation.MajorMinorPatch
                 }
             );
+
+            hostingComponent = HostingComponent.Initialize(hostingConfiguration);
         }
 
 
@@ -123,18 +125,18 @@ namespace NServiceBus
             });
         }
 
-        public IStartableEndpoint CreateStartableEndpoint(IServiceProvider builder, HostingComponent hostingComponent)
-        {
-            return new StartableEndpoint(settings,
+        public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool shouldDisposeBuilder) =>
+            new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
                 transportSeam,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
+                hostingConfiguration,
                 sendComponent,
-                builder);
-        }
+                builder,
+                shouldDisposeBuilder);
 
         PipelineComponent pipelineComponent;
         FeatureComponent featureComponent;
@@ -142,6 +144,7 @@ namespace NServiceBus
         RecoverabilityComponent recoverabilityComponent;
         SendComponent sendComponent;
         TransportSeam transportSeam;
+        HostingComponent hostingComponent;
 
         readonly SettingsHolder settings;
         readonly HostingComponent.Configuration hostingConfiguration;

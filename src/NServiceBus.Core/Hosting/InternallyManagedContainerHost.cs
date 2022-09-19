@@ -5,18 +5,17 @@
 
     class InternallyManagedContainerHost : IStartableEndpoint
     {
-        public InternallyManagedContainerHost(IStartableEndpoint startableEndpoint, HostingComponent hostingComponent)
+        public InternallyManagedContainerHost(StartableEndpoint endpoint)
         {
-            this.startableEndpoint = startableEndpoint;
-            this.hostingComponent = hostingComponent;
+            this.endpoint = endpoint;
         }
 
-        public Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
+        public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
         {
-            return hostingComponent.Start(startableEndpoint, cancellationToken);
+            await endpoint.Setup(cancellationToken).ConfigureAwait(false);
+            return await endpoint.Start(cancellationToken).ConfigureAwait(false);
         }
 
-        readonly IStartableEndpoint startableEndpoint;
-        readonly HostingComponent hostingComponent;
+        readonly StartableEndpoint endpoint;
     }
 }

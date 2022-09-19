@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Provides factory methods for creating and starting endpoint instances.
@@ -13,11 +14,18 @@ namespace NServiceBus
         /// </summary>
         /// <param name="configuration">Configuration.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
+        public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
+            var serviceCollection = new ServiceCollection();
+            var host = HostCreator.BuildEndpointCreator(configuration, serviceCollection);
 
-            return HostCreator.CreateWithInternallyManagedContainer(configuration, cancellationToken);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
+            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+
+            return new InternallyManagedContainerHost(endpoint);
         }
 
         /// <summary>
@@ -32,6 +40,24 @@ namespace NServiceBus
             var startableEndpoint = await Create(configuration, cancellationToken).ConfigureAwait(false);
 
             return await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="cancellationToken"></param>
+        public static async Task Install(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(nameof(configuration), configuration);
+            var serviceCollection = new ServiceCollection();
+            var host = HostCreator.BuildEndpointCreator(configuration, serviceCollection);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
+            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+            await endpoint.Setup(cancellationToken).ConfigureAwait(false);
         }
     }
 }

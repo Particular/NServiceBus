@@ -18,6 +18,14 @@ namespace NServiceBus
         Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task Install(IServiceProvider builder, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Access to the singleton IMessageSession to be registered in dependency injection container.
         /// Note: Lazily resolved since it's only valid for use once the endpoint has started.
         /// </summary>

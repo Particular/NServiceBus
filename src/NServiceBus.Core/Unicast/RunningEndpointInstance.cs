@@ -9,15 +9,16 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource)
+        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider builder, bool shouldDisposeBuilder)
         {
             this.settings = settings;
-            this.hostingComponent = hostingComponent;
             this.receiveComponent = receiveComponent;
             this.featureComponent = featureComponent;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
             this.stoppingTokenSource = stoppingTokenSource;
+            this.builder = builder;
+            this.shouldDisposeBuilder = shouldDisposeBuilder;
         }
 
         public async Task Stop(CancellationToken cancellationToken = default)
@@ -63,7 +64,11 @@ namespace NServiceBus
                 finally
                 {
                     settings.Clear();
-                    hostingComponent.Stop();
+                    if (shouldDisposeBuilder)
+                    {
+                        (builder as IDisposable)?.Dispose();
+                    }
+                    //hostingComponent.Stop();
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
@@ -137,12 +142,13 @@ namespace NServiceBus
             }
         }
 
-        HostingComponent hostingComponent;
         ReceiveComponent receiveComponent;
         FeatureComponent featureComponent;
         IMessageSession messageSession;
         readonly TransportInfrastructure transportInfrastructure;
         readonly CancellationTokenSource stoppingTokenSource;
+        readonly IServiceProvider builder;
+        readonly bool shouldDisposeBuilder;
         SettingsHolder settings;
 
         volatile Status status = Status.Running;
