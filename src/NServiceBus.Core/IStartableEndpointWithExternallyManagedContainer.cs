@@ -18,12 +18,6 @@ namespace NServiceBus
         Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Executes all the installers and transport configuration without starting the endpoint.
-        /// <see cref="Install"/> always runs installers, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.
-        /// </summary>
-        Task Install(IServiceProvider builder, CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// Access to the singleton IMessageSession to be registered in dependency injection container.
         /// Note: Lazily resolved since it's only valid for use once the endpoint has started.
         /// </summary>
