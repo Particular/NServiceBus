@@ -56,6 +56,11 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
+            // required for downstreams checking HostingConfiguration.ShouldRunInstallers.
+            // does not overwrite installer usernames configured by the user.
+            // will leak setting modifications but re-use of the EndpointConfiguration isn't supported at the moment.
+            configuration.EnableInstallers();
+
             var serviceCollection = new ServiceCollection();
             var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
