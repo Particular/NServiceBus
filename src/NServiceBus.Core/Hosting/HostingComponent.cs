@@ -66,19 +66,6 @@
             }
         }
 
-        public async Task<IEndpointInstance> Start(StartableEndpoint startableEndpoint, CancellationToken cancellationToken = default)
-        {
-            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
-
-            await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
-
-            var endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
-
-            configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
-
-            return endpointInstance;
-        }
-
         string GetInstallationUserName()
         {
             if (configuration.InstallationUserName != null)
