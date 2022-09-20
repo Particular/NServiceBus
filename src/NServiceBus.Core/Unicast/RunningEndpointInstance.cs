@@ -64,7 +64,6 @@ namespace NServiceBus
                 {
                     settings.Clear();
                     (builder as IDisposable)?.Dispose();
-                    //hostingComponent.Stop();
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
