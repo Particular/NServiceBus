@@ -332,6 +332,7 @@ namespace NServiceBus
     public static class Endpoint
     {
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Install(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -1138,6 +1139,10 @@ namespace NServiceBus
         [System.Obsolete("Use `SettingsExtensions.EndpointQueueName` instead. The member currently throws a" +
             " NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
+    public static class StartableEndpointWithExternallyManagedContainerExtensions
+    {
+        public static System.Threading.Tasks.Task Install(this NServiceBus.IStartableEndpointWithExternallyManagedContainer startableEndpoint, System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class StartupDiagnosticEntries
     {
