@@ -56,15 +56,8 @@
             return new HostingComponent(configuration);
         }
 
-        // This can't happen at start due to an old "feature" that allowed users to
-        // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
         public async Task RunInstallers(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
-            if (!configuration.ShouldRunInstallers)
-            {
-                return;
-            }
-
             var installationUserName = GetInstallationUserName();
 
             foreach (var installer in builder.GetServices<INeedToInstallSomething>())

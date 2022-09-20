@@ -28,11 +28,11 @@ namespace NServiceBus
             this.transportSeam = transportSeam;
             this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
-            this.hostingConfiguration = hostingConfiguration;
             this.hostingComponent = hostingComponent;
             this.sendComponent = sendComponent;
             this.builder = builder;
             this.shouldDisposeBuilder = shouldDisposeBuilder;
+            HostingConfiguration = hostingConfiguration;
         }
 
         public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(builder, cancellationToken);
@@ -55,13 +55,13 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
         {
-            hostingConfiguration.AddStartupDiagnosticsSection("Container", new
+            HostingConfiguration.AddStartupDiagnosticsSection("Container", new
             {
                 Type = shouldDisposeBuilder ? "internal" : "external"
             });
-            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(hostingConfiguration);
+            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(HostingConfiguration);
 
-            await hostStartupDiagnosticsWriter.Write(hostingConfiguration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
+            await hostStartupDiagnosticsWriter.Write(HostingConfiguration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -72,7 +72,7 @@ namespace NServiceBus
 
             var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, builder, shouldDisposeBuilder);
 
-            hostingConfiguration.CriticalError.SetEndpoint(runningInstance, cancellationToken);
+            HostingConfiguration.CriticalError.SetEndpoint(runningInstance, cancellationToken);
 
             await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
 
@@ -81,7 +81,6 @@ namespace NServiceBus
 
         readonly PipelineComponent pipelineComponent;
         readonly RecoverabilityComponent recoverabilityComponent;
-        readonly HostingComponent.Configuration hostingConfiguration;
         readonly HostingComponent hostingComponent;
         readonly SendComponent sendComponent;
         readonly IServiceProvider builder;
@@ -90,6 +89,7 @@ namespace NServiceBus
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;
         readonly TransportSeam transportSeam;
+        internal readonly HostingComponent.Configuration HostingConfiguration;
 
         MessageSession messageSession;
         TransportInfrastructure transportInfrastructure;

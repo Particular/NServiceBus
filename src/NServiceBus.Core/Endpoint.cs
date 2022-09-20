@@ -23,7 +23,11 @@ namespace NServiceBus
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
-            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+
+            if (endpoint.HostingConfiguration.ShouldRunInstallers)
+            {
+                await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+            }
 
             return new InternallyManagedContainerHost(endpoint);
         }
@@ -43,21 +47,25 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// TODO
+        /// Executes all the installers and transport configuration without starting the endpoint.
+        /// <see cref="Install"/> always runs installers, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="configuration">The endpoint configuration.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         public static async Task Install(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
+
             var serviceCollection = new ServiceCollection();
             var host = HostCreator.BuildEndpointCreator(configuration, serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
-            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            await endpoint.Setup(cancellationToken).ConfigureAwait(false);
+            await using (serviceProvider.ConfigureAwait(false))
+            {
+                var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
+                await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+                await endpoint.Setup(cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }
