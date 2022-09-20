@@ -37,8 +37,9 @@
             await configurationBuilderCustomization(configuration);
 
             // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
-            var assemblyScanner = new AssemblyScanner { ScanFileSystemAssemblies = false };
-            configuration.TypesToIncludeInScan(assemblyScanner.GetScannableAssemblies().Types.FilterByTest(endpointConfiguration));
+            configuration.TypesToIncludeInScan(
+                new AssemblyScanner { ScanFileSystemAssemblies = false }.GetScannableAssemblies().Types
+                    .FilterByTest(endpointConfiguration));
 
             return configuration;
         }
