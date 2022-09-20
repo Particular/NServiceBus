@@ -19,13 +19,33 @@ namespace NServiceBus
             this.conventions = conventions;
         }
 
-        public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration)
+        public static EndpointCreator Create(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
         {
-            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
+            var settings = endpointConfiguration.Settings;
+            CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+
+            endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
+
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, serviceCollection);
+
+
+            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
             endpointCreator.Configure();
 
             return endpointCreator;
+
+            //TODO this would prevent calling Install/Start on the same endpoint config?
+            void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
+            {
+                if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
+                {
+                    throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
+                }
+
+                settings.Set("UsedToCreateEndpoint", true);
+            }
         }
 
         void Configure()

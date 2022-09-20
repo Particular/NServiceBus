@@ -18,11 +18,11 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             var serviceCollection = new ServiceCollection();
-            var host = HostCreator.BuildEndpointCreator(configuration, serviceCollection);
+            var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
+            var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, true);
 
             if (endpoint.HostingConfiguration.ShouldRunInstallers)
             {
@@ -57,12 +57,12 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
 
             var serviceCollection = new ServiceCollection();
-            var host = HostCreator.BuildEndpointCreator(configuration, serviceCollection);
+            var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             await using (serviceProvider.ConfigureAwait(false))
             {
-                var endpoint = host.CreateStartableEndpoint(serviceProvider, true);
+                var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, true);
                 await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
                 await endpoint.Setup(cancellationToken).ConfigureAwait(false);
             }

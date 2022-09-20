@@ -15,8 +15,8 @@
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(serviceCollection), serviceCollection);
 
-            var host = HostCreator.BuildEndpointCreator(configuration, serviceCollection);
-            return new ExternallyManagedContainerHost(host);
+            var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
+            return new ExternallyManagedContainerHost(endpointCreator);
         }
     }
 }
