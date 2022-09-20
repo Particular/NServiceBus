@@ -18,11 +18,9 @@ namespace NServiceBus
         Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// TODO
+        /// Executes all the installers and transport configuration without starting the endpoint.
+        /// <see cref="Install"/> always runs installers, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.
         /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         Task Install(IServiceProvider builder, CancellationToken cancellationToken = default);
 
         /// <summary>
