@@ -70,7 +70,7 @@ namespace NServiceBus
 
             await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, builder, shouldDisposeBuilder);
+            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, shouldDisposeBuilder ? builder : null);
 
             HostingConfiguration.CriticalError.SetEndpoint(runningInstance, cancellationToken);
 

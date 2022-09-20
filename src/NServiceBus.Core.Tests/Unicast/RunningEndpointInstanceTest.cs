@@ -20,8 +20,7 @@
                 new MessageSession(new FakeRootContext()),
                 null,
                 new CancellationTokenSource(),
-                null,
-                false);
+                null);
             return testInstance;
         }
 
