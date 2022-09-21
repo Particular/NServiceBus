@@ -36,7 +36,6 @@ namespace NServiceBus
 
             return endpointCreator;
 
-            //TODO this would prevent calling Install/Start on the same endpoint config?
             void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
             {
                 if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
