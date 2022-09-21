@@ -5,6 +5,7 @@
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
     using EndpointTemplates;
+    using NServiceBus.Hosting.Helpers;
 
     class AcceptanceTestingTransportServer : IEndpointSetupTemplate
     {
@@ -36,7 +37,7 @@
             await configurationBuilderCustomization(configuration);
 
             // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
-            configuration.TypesToIncludeInScan(endpointConfiguration.GetTypesScopedByTestClass());
+            configuration.ScanTypesForTest(endpointConfiguration);
 
             return configuration;
         }
