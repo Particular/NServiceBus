@@ -1139,10 +1139,6 @@ namespace NServiceBus
             " NotImplementedException. Will be removed in version 9.0.0.", true)]
         public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    public static class StartableEndpointWithExternallyManagedContainerExtensions
-    {
-        public static System.Threading.Tasks.Task Install(this NServiceBus.IStartableEndpointWithExternallyManagedContainer startableEndpoint, System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default) { }
-    }
     public class StartupDiagnosticEntries
     {
         public StartupDiagnosticEntries() { }
