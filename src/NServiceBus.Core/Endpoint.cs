@@ -45,32 +45,5 @@ namespace NServiceBus
 
             return await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
         }
-
-        /// <summary>
-        /// Executes all the installers and transport configuration without starting the endpoint.
-        /// <see cref="Install"/> always runs installers, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.
-        /// </summary>
-        /// <param name="configuration">The endpoint configuration.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        public static async Task Install(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
-        {
-            Guard.AgainstNull(nameof(configuration), configuration);
-
-            // required for downstreams checking HostingConfiguration.ShouldRunInstallers.
-            // does not overwrite installer usernames configured by the user.
-            // will leak setting modifications but re-use of the EndpointConfiguration isn't supported at the moment.
-            configuration.EnableInstallers();
-
-            var serviceCollection = new ServiceCollection();
-            var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            await using (serviceProvider.ConfigureAwait(false))
-            {
-                var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, true);
-                await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-                await endpoint.Setup(cancellationToken).ConfigureAwait(false);
-            }
-        }
     }
 }

@@ -47,13 +47,6 @@ namespace NServiceBus
             return endpointInstance;
         }
 
-        public async Task Install(IServiceProvider builder, CancellationToken cancellationToken = default)
-        {
-            var startableEndpoint = endpointCreator.CreateStartableEndpoint(builder, false);
-            await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            await startableEndpoint.Setup(cancellationToken).ConfigureAwait(false);
-        }
-
         EndpointCreator endpointCreator;
         IMessageSession messageSession;
         IServiceProvider objectBuilder;
