@@ -7,17 +7,7 @@ jobs:
   stalebot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v5.2.0
-        name: Set stale PR as idle
+      - name: Mark stale PRs
+        uses: Particular/stale-action@main
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          stale-pr-message: |
-            This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.
-          stale-pr-label: 'stale'
-          days-before-pr-stale: 30
-          days-before-pr-close: 7
-          operations-per-run: 30
-          exempt-pr-labels: dependencies
-          # Don't close issues or mark as stale
-          days-before-issue-stale: -1
-          days-before-issue-close: -1
