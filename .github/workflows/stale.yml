@@ -7,7 +7,7 @@ jobs:
   stalebot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v5.2.0
+      - uses: actions/stale@v6.0.0
         name: Set stale PR as idle
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
