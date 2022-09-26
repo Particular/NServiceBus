@@ -12,10 +12,7 @@
 
     partial class HostingComponent
     {
-        public HostingComponent(Configuration configuration)
-        {
-            this.configuration = configuration;
-        }
+        public HostingComponent(Configuration configuration) => this.configuration = configuration;
 
         public static HostingComponent Initialize(Configuration configuration)
         {
@@ -58,6 +55,11 @@
 
         public async Task RunInstallers(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
+            if (!configuration.ShouldRunInstallers)
+            {
+                return;
+            }
+
             var installationUserName = GetInstallationUserName();
 
             foreach (var installer in builder.GetServices<INeedToInstallSomething>())
@@ -65,6 +67,16 @@
                 await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
             }
         }
+
+        public async Task WriteDiagnosticsFile(CancellationToken cancellationToken = default)
+        {
+            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
+
+            await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
+        }
+
+        public void SetupCriticalErrors(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default) =>
+            configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
 
         string GetInstallationUserName()
         {

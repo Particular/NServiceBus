@@ -23,11 +23,7 @@ namespace NServiceBus
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, true);
-
-            if (endpoint.HostingConfiguration.ShouldRunInstallers)
-            {
-                await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            }
+            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
 
             return new InternallyManagedContainerHost(endpoint);
         }

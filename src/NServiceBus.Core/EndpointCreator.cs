@@ -144,18 +144,24 @@ namespace NServiceBus
             });
         }
 
-        public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool shouldDisposeBuilder) =>
-            new StartableEndpoint(settings,
+        public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool shouldDisposeBuilder)
+        {
+            hostingConfiguration.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = shouldDisposeBuilder ? "internal" : "external"
+            });
+
+            return new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
                 transportSeam,
                 pipelineComponent,
                 recoverabilityComponent,
                 hostingComponent,
-                hostingConfiguration,
                 sendComponent,
                 builder,
                 shouldDisposeBuilder);
+        }
 
         PipelineComponent pipelineComponent;
         FeatureComponent featureComponent;

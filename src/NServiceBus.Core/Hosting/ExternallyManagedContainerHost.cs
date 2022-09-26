@@ -37,10 +37,7 @@ namespace NServiceBus
         {
             objectBuilder = externalBuilder;
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, false);
-            if (startableEndpoint.HostingConfiguration.ShouldRunInstallers)
-            {
-                await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            }
+            await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
             await startableEndpoint.Setup(cancellationToken).ConfigureAwait(false);
             IEndpointInstance endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
             messageSession = endpointInstance;

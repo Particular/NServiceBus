@@ -17,7 +17,6 @@ namespace NServiceBus
             PipelineComponent pipelineComponent,
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
-            HostingComponent.Configuration hostingConfiguration,
             SendComponent sendComponent,
             IServiceProvider builder,
             bool shouldDisposeBuilder)
@@ -32,7 +31,6 @@ namespace NServiceBus
             this.sendComponent = sendComponent;
             this.builder = builder;
             this.shouldDisposeBuilder = shouldDisposeBuilder;
-            HostingConfiguration = hostingConfiguration;
         }
 
         public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(builder, cancellationToken);
@@ -55,13 +53,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
         {
-            HostingConfiguration.AddStartupDiagnosticsSection("Container", new
-            {
-                Type = shouldDisposeBuilder ? "internal" : "external"
-            });
-            var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(HostingConfiguration);
-
-            await hostStartupDiagnosticsWriter.Write(HostingConfiguration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
+            await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -72,7 +64,7 @@ namespace NServiceBus
 
             var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, shouldDisposeBuilder ? builder : null);
 
-            HostingConfiguration.CriticalError.SetEndpoint(runningInstance, cancellationToken);
+            hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
             await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
 
@@ -89,7 +81,6 @@ namespace NServiceBus
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;
         readonly TransportSeam transportSeam;
-        internal readonly HostingComponent.Configuration HostingConfiguration;
 
         MessageSession messageSession;
         TransportInfrastructure transportInfrastructure;
