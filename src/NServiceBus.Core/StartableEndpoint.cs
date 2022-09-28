@@ -32,31 +32,38 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
         {
-            var transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
-
-            var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
-            var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
-            var stoppingTokenSource = new CancellationTokenSource();
-
-            var rootContext = new RootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
-            var messageSession = new MessageSession(rootContext);
-
-            var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
-
-            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            RunningEndpointInstance runningInstance = null;
+            try
             {
-                AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+                var transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
+
+                var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
+                var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
+                var stoppingTokenSource = new CancellationTokenSource();
+
+                var rootContext = new RootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
+                var messageSession = new MessageSession(rootContext);
+
+                runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource);
+
+                var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
+
+                await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+                }
+
+                await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
+                await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
+                return runningInstance;
             }
-
-            await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
-
-            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource);
-
-            await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
-
-            return runningInstance;
+            catch (Exception e) when (!e.IsCausedBy(cancellationToken))
+            {
+                runningInstance?.Stop(cancellationToken);
+                throw;
+            }
         }
 
         readonly PipelineComponent pipelineComponent;
