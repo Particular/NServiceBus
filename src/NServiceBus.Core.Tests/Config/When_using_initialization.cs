@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Config
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,7 +14,7 @@
 
             endpointConfiguration.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
 
-            var ae = Assert.ThrowsAsync<Exception>(() => HostCreator.CreateWithInternallyManagedContainer(endpointConfiguration));
+            var ae = Assert.Throws<Exception>(() => EndpointCreator.Create(endpointConfiguration, new ServiceCollection()));
             var expected = $"Unable to create the type '{nameof(FeatureWithInitialization)}'. Types implementing '{nameof(INeedInitialization)}' must have a public parameterless (default) constructor.";
             Assert.AreEqual(expected, ae.Message);
         }

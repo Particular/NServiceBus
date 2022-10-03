@@ -19,13 +19,32 @@ namespace NServiceBus
             this.conventions = conventions;
         }
 
-        public static EndpointCreator Create(SettingsHolder settings, HostingComponent.Configuration hostingConfiguration)
+        public static EndpointCreator Create(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
         {
-            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
+            var settings = endpointConfiguration.Settings;
+            CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+
+            endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
+
+            var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, serviceCollection);
+
+
+            var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
             endpointCreator.Configure();
 
             return endpointCreator;
+
+            void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
+            {
+                if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
+                {
+                    throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
+                }
+
+                settings.Set("UsedToCreateEndpoint", true);
+            }
         }
 
         void Configure()
@@ -101,6 +120,8 @@ namespace NServiceBus
                     NServiceBusVersion = VersionInformation.MajorMinorPatch
                 }
             );
+
+            hostingComponent = HostingComponent.Initialize(hostingConfiguration);
         }
 
 
@@ -123,8 +144,13 @@ namespace NServiceBus
             });
         }
 
-        public IStartableEndpoint CreateStartableEndpoint(IServiceProvider builder, HostingComponent hostingComponent)
+        public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool shouldDisposeBuilder)
         {
+            hostingConfiguration.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = shouldDisposeBuilder ? "internal" : "external"
+            });
+
             return new StartableEndpoint(settings,
                 featureComponent,
                 receiveComponent,
@@ -133,7 +159,8 @@ namespace NServiceBus
                 recoverabilityComponent,
                 hostingComponent,
                 sendComponent,
-                builder);
+                builder,
+                shouldDisposeBuilder);
         }
 
         PipelineComponent pipelineComponent;
@@ -142,6 +169,7 @@ namespace NServiceBus
         RecoverabilityComponent recoverabilityComponent;
         SendComponent sendComponent;
         TransportSeam transportSeam;
+        HostingComponent hostingComponent;
 
         readonly SettingsHolder settings;
         readonly HostingComponent.Configuration hostingConfiguration;

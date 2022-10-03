@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Provides factory methods for creating and starting endpoint instances.
@@ -13,11 +14,18 @@ namespace NServiceBus
         /// </summary>
         /// <param name="configuration">Configuration.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-        public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
+        public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
+            var serviceCollection = new ServiceCollection();
+            var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
-            return HostCreator.CreateWithInternallyManagedContainer(configuration, cancellationToken);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, true);
+            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+
+            return new InternallyManagedContainerHost(endpoint);
         }
 
         /// <summary>

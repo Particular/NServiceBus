@@ -12,14 +12,11 @@
 
     partial class HostingComponent
     {
-        public HostingComponent(Configuration configuration, bool shouldDisposeBuilder)
-        {
-            this.configuration = configuration;
-            this.shouldDisposeBuilder = shouldDisposeBuilder;
-        }
+        public HostingComponent(Configuration configuration) => this.configuration = configuration;
 
-        public static HostingComponent Initialize(Configuration configuration, IServiceCollection serviceCollection, bool shouldDisposeBuilder)
+        public static HostingComponent Initialize(Configuration configuration)
         {
+            var serviceCollection = configuration.Services;
             serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
             serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
 
@@ -53,17 +50,10 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            return new HostingComponent(configuration, shouldDisposeBuilder);
+            return new HostingComponent(configuration);
         }
 
-        public void RegisterBuilder(IServiceProvider objectBuilder)
-        {
-            builder = objectBuilder;
-        }
-
-        // This can't happen at start due to an old "feature" that allowed users to
-        // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
-        public async Task RunInstallers(CancellationToken cancellationToken = default)
+        public async Task RunInstallers(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
             if (!configuration.ShouldRunInstallers)
             {
@@ -78,26 +68,15 @@
             }
         }
 
-        public async Task<IEndpointInstance> Start(IStartableEndpoint startableEndpoint, CancellationToken cancellationToken = default)
+        public async Task WriteDiagnosticsFile(CancellationToken cancellationToken = default)
         {
             var hostStartupDiagnosticsWriter = HostStartupDiagnosticsWriterFactory.GetDiagnosticsWriter(configuration);
 
             await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
+        }
 
-            var endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
-
+        public void SetupCriticalErrors(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default) =>
             configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
-
-            return endpointInstance;
-        }
-
-        public void Stop()
-        {
-            if (shouldDisposeBuilder)
-            {
-                (builder as IDisposable)?.Dispose();
-            }
-        }
 
         string GetInstallationUserName()
         {
@@ -115,7 +94,5 @@
         }
 
         readonly Configuration configuration;
-        bool shouldDisposeBuilder;
-        IServiceProvider builder;
     }
 }

@@ -6,8 +6,9 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Settings;
+    using Transport;
 
-    class StartableEndpoint : IStartableEndpoint
+    class StartableEndpoint
     {
         public StartableEndpoint(SettingsHolder settings,
             FeatureComponent featureComponent,
@@ -17,7 +18,8 @@ namespace NServiceBus
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
             SendComponent sendComponent,
-            IServiceProvider builder)
+            IServiceProvider builder,
+            bool shouldDisposeBuilder)
         {
             this.settings = settings;
             this.featureComponent = featureComponent;
@@ -28,22 +30,30 @@ namespace NServiceBus
             this.hostingComponent = hostingComponent;
             this.sendComponent = sendComponent;
             this.builder = builder;
+            this.shouldDisposeBuilder = shouldDisposeBuilder;
         }
 
-        public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
+        public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(builder, cancellationToken);
+
+        public async Task Setup(CancellationToken cancellationToken = default)
         {
-            var transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
+            transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
 
             var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
-            var stoppingTokenSource = new CancellationTokenSource();
+            stoppingTokenSource = new CancellationTokenSource();
 
             var rootContext = new RootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
-            var messageSession = new MessageSession(rootContext);
+            messageSession = new MessageSession(rootContext);
 
             var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
             await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
+        }
+
+        public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
+        {
+            await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -52,7 +62,9 @@ namespace NServiceBus
 
             await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, hostingComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource);
+            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, shouldDisposeBuilder ? builder : null);
+
+            hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
             await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
 
@@ -64,9 +76,14 @@ namespace NServiceBus
         readonly HostingComponent hostingComponent;
         readonly SendComponent sendComponent;
         readonly IServiceProvider builder;
+        readonly bool shouldDisposeBuilder;
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;
         readonly TransportSeam transportSeam;
+
+        MessageSession messageSession;
+        TransportInfrastructure transportInfrastructure;
+        CancellationTokenSource stoppingTokenSource;
     }
 }

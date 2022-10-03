@@ -9,15 +9,15 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, HostingComponent hostingComponent, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource)
+        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider builder)
         {
             this.settings = settings;
-            this.hostingComponent = hostingComponent;
             this.receiveComponent = receiveComponent;
             this.featureComponent = featureComponent;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
             this.stoppingTokenSource = stoppingTokenSource;
+            this.builder = builder;
         }
 
         public async Task Stop(CancellationToken cancellationToken = default)
@@ -63,7 +63,7 @@ namespace NServiceBus
                 finally
                 {
                     settings.Clear();
-                    hostingComponent.Stop();
+                    (builder as IDisposable)?.Dispose();
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
@@ -137,12 +137,12 @@ namespace NServiceBus
             }
         }
 
-        HostingComponent hostingComponent;
         ReceiveComponent receiveComponent;
         FeatureComponent featureComponent;
         IMessageSession messageSession;
         readonly TransportInfrastructure transportInfrastructure;
         readonly CancellationTokenSource stoppingTokenSource;
+        readonly IServiceProvider builder;
         SettingsHolder settings;
 
         volatile Status status = Status.Running;
