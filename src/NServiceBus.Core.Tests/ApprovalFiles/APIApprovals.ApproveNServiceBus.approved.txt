@@ -1706,6 +1706,15 @@ namespace NServiceBus.Installation
     {
         System.Threading.Tasks.Task Install(string identity, System.Threading.CancellationToken cancellationToken = default);
     }
+    public static class Installer
+    {
+        public static NServiceBus.Installation.InstallerWithExternallyManagedContainer CreateInstallerWithExternallyManagedContainer(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
+        public static System.Threading.Tasks.Task Setup(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public class InstallerWithExternallyManagedContainer
+    {
+        public System.Threading.Tasks.Task Setup(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default) { }
+    }
 }
 namespace NServiceBus.Logging
 {
