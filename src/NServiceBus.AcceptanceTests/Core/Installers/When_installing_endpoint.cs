@@ -22,12 +22,12 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
 
         Assert.IsTrue(context.InstallerCalled, "Should run installers");
         Assert.IsTrue(context.FeatureSetupCalled, "Should initialize Features");
-        Assert.IsFalse(context.FeatureStartupTaskCalled, "should not start FeatureStartupTasks");
+        Assert.IsFalse(context.FeatureStartupTaskCalled, "Should not start FeatureStartupTasks");
         CollectionAssert.AreEqual(context.TransportStartupSequence, new string[]
         {
             $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
             $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
-        }, "should not start the receivers");
+        }, "Should not start the receivers");
     }
 
     class Context : ScenarioContext
