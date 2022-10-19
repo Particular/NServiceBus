@@ -1884,8 +1884,9 @@ namespace NServiceBus.ObjectBuilder
         [System.Obsolete("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
             ".0.0.", true)]
         void ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        [System.Obsolete("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
-            ".0.0.", true)]
+        [System.Obsolete("Ensure to explicitly register all interfaces of a specific type as this will no l" +
+            "onger be done automatically. Use `IServiceCollection.ConfigureComponent` instead" +
+            ". Will be removed in version 9.0.0.", true)]
         void ConfigureComponent<T>(NServiceBus.DependencyLifecycle dependencyLifecycle);
         [System.Obsolete("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
             ".0.0.", true)]
