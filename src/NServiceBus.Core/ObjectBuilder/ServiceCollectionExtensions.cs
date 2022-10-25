@@ -9,7 +9,7 @@
     /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by <see cref="IConfigureComponents"/>.
     /// </summary>
     [ObsoleteEx(
-        Message = "Use methods on IServiceCollection instead.",
+        Message = "Use methods on IServiceCollection instead and ensure to explicitly register all interfaces of a specific type as this will no longer be done automatically.",
         TreatAsErrorFromVersion = "9.0",
         RemoveInVersion = "10.0")]
     public static class ServiceCollectionExtensions
