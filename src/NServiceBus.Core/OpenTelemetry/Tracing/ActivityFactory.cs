@@ -70,6 +70,12 @@ class ActivityFactory : IActivityFactory
 
     public Activity StartHandlerActivity(MessageHandler messageHandler, ActiveSagaInstance saga)
     {
+        if (Activity.Current == null)
+        {
+            // don't call StartActivity if we haven't started an activity from the incoming pipeline to avoid the handlers being sampled although the incoming message isn't.
+            return null;
+        }
+
         var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
 
         if (activity != null)
