@@ -27,7 +27,10 @@ class ActivityFactory : IActivityFactory
         }
         else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext)) // otherwise directly create child from logical send
         {
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, sendSpanContext);
+            // TryParse doesn't have an overload that supports changing the isRemote setting yet
+            // This can be removed with .NET 7, see https://github.com/dotnet/runtime/issues/42575
+            var remoteParentActivityContext = new ActivityContext(sendSpanContext.TraceId, sendSpanContext.SpanId, sendSpanContext.TraceFlags, sendSpanContext.TraceState, isRemote: true);
+            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
         }
         else // otherwise start new trace
         {
