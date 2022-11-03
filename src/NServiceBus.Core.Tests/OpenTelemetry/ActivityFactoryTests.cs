@@ -222,9 +222,22 @@ public class ActivityFactoryTests
     class StartHandlerActivity : ActivityFactoryTests
     {
         [Test]
+        public void Should_not_start_activity_when_no_parent_activity_exists()
+        {
+            Type handlerType = typeof(StartHandlerActivity);
+            var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType), null);
+
+            Assert.IsNull(activity, "should not start handler activity when no parent activity exists");
+        }
+
+        [Test]
         public void Should_set_handler_type_as_tag()
         {
             Type handlerType = typeof(StartHandlerActivity);
+
+            using var ambientActivity = new Activity("ambient activity");
+            ambientActivity.Start();
+
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType), null);
 
             Assert.IsNotNull(activity);
@@ -236,6 +249,9 @@ public class ActivityFactoryTests
         public void Should_set_saga_id_when_saga()
         {
             var sagaInstance = new ActiveSagaInstance(null, null, () => DateTimeOffset.UtcNow) { SagaId = Guid.NewGuid().ToString() };
+
+            using var ambientActivity = new Activity("ambient activity");
+            ambientActivity.Start();
 
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, typeof(StartHandlerActivity)), sagaInstance);
 
