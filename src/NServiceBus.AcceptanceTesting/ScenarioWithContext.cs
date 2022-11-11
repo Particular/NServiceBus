@@ -102,11 +102,12 @@ namespace NServiceBus.AcceptanceTesting
         void PrintLog(TContext scenarioContext)
         {
             TestContext.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
-            TestContext.WriteLine("------------------------------------------------------");
+            TestContext.WriteLine("--- Start log entries ---------------------------------------------------");
             foreach (var logEntry in scenarioContext.Logs)
             {
                 TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? "<unknown>"}: {logEntry.Message}");
             }
+            TestContext.WriteLine("--- End log entries ---------------------------------------------------");
         }
 
         static void DisplayRunResult(RunSummary summary)
@@ -120,7 +121,6 @@ namespace NServiceBus.AcceptanceTesting
 
             PrintSettings(runDescriptor.Settings);
 
-            TestContext.WriteLine();
             TestContext.WriteLine("Endpoints:");
 
             foreach (var endpoint in runResult.ActiveEndpoints)
@@ -130,7 +130,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (runResult.Failed)
             {
-                TestContext.WriteLine("Test failed: {0}", runResult.Exception.SourceException);
+                TestContext.WriteLine("Scenario failed: {0}", runResult.Exception.SourceException);
             }
             else
             {
@@ -149,7 +149,6 @@ namespace NServiceBus.AcceptanceTesting
 
         static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
         {
-            TestContext.WriteLine();
             TestContext.WriteLine("Using settings:");
             foreach (var pair in settings)
             {
