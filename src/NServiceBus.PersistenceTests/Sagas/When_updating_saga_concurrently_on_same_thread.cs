@@ -42,9 +42,9 @@
 
             try
             {
+                staleRecord.DateTimeProperty = DateTime.UtcNow.AddHours(1);
                 Assert.CatchAsync<Exception>(async () =>
                 {
-                    staleRecord.DateTimeProperty = DateTime.UtcNow;
                     await persister.Update(staleRecord, losingSaveSession, losingContext);
                     await losingSaveSession.CompleteAsync();
                 });
