@@ -44,6 +44,7 @@
 
             try
             {
+                staleRecord1.DateTimeProperty = DateTime.UtcNow.AddHours(1);
                 Assert.That(async () =>
                 {
                     await persister.Update(staleRecord1, losingSaveSession1, losingContext1);
@@ -80,6 +81,7 @@
 
             try
             {
+                staleRecord2.DateTimeProperty = DateTime.UtcNow.AddHours(1);
                 Assert.That(async () =>
                  {
                      await persister.Update(staleRecord2, losingSaveSession2, losingContext2);
