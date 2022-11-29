@@ -18,7 +18,7 @@
         /// <summary>
         /// Initializes an UnrecoverableException, causing the message to be moved to the error queue immediately.
         /// </summary>
-        /// <param name="message">Exception message</param>
+        /// <param name="message">The exception message.</param>
         public UnrecoverableException(string message) : base(message)
         {
 
@@ -27,8 +27,8 @@
         /// <summary>
         /// Initializes an UnrecoverableException, causing the message to be moved to the error queue immediately.
         /// </summary>
-        /// <param name="message">Exception message</param>
-        /// <param name="innerException">Inner exception</param>
+        /// <param name="message">The exception message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public UnrecoverableException(string message, Exception innerException) : base(message, innerException)
         {
 
