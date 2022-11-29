@@ -1267,6 +1267,12 @@ namespace NServiceBus
     {
         public static NServiceBus.UnitOfWorkSettings UnitOfWork(this NServiceBus.EndpointConfiguration config) { }
     }
+    public class UnrecoverableException : System.Exception
+    {
+        public UnrecoverableException() { }
+        public UnrecoverableException(string message) { }
+        public UnrecoverableException(string message, System.Exception innerException) { }
+    }
     public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public UnsubscribeOptions() { }
