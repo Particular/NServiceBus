@@ -8,7 +8,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using OpenTelemetry.Helpers;
     using Testing;
     using Transport;
 
