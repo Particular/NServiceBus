@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NUnit.Framework;
     using Transport;
 
@@ -18,6 +18,32 @@
             var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move custom exception directly to error.");
+        }
+
+        [Test]
+        public void When_failure_is_unrecoverable_exception_should_move_to_error()
+        {
+            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3, unrecoverableExceptions: new HashSet<Type> { typeof(UnrecoverableException) });
+            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new UnrecoverableException("something happened"));
+
+            var recoverabilityAction = policy(errorContext);
+
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move custom exception directly to error.");
+        }
+
+        [Test]
+        public void When_failure_is_assignable_to_unrecoverable_exception_should_move_to_error()
+        {
+            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3, unrecoverableExceptions: new HashSet<Type> { typeof(UnrecoverableException) });
+            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new MyUnrecoverableException());
+
+            var recoverabilityAction = policy(errorContext);
+
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move unrecoverable exception directly to error.");
+        }
+
+        class MyUnrecoverableException : UnrecoverableException
+        {
         }
 
         class MyBaseCustomException : Exception
