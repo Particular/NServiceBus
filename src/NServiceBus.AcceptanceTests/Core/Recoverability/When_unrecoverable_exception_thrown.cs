@@ -29,7 +29,7 @@
         }
 
         [Test]
-        public async Task Should_move_to_error_queue_without_retries2()
+        public async Task Should_move_to_error_queue_without_retries_when_inheriting_from_unrecoverable_ex()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
@@ -57,7 +57,6 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
                     config.SendFailedMessagesTo(ErrorSpyAddress);
                 });
             }
@@ -99,10 +98,6 @@
                 public SpecificException(string message) : base(message)
                 {
                 }
-
-                public SpecificException(string message, Exception innerException) : base(message, innerException)
-                {
-                }
             }
         }
 
@@ -127,7 +122,7 @@
                         testContext.MessageMovedToErrorQueue = true;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -147,7 +142,7 @@
                         testContext.MessageMovedToErrorQueue = true;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
