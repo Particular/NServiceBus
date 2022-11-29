@@ -1267,10 +1267,12 @@ namespace NServiceBus
     {
         public static NServiceBus.UnitOfWorkSettings UnitOfWork(this NServiceBus.EndpointConfiguration config) { }
     }
+    [System.Serializable]
     public class UnrecoverableException : System.Exception
     {
         public UnrecoverableException() { }
         public UnrecoverableException(string message) { }
+        protected UnrecoverableException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public UnrecoverableException(string message, System.Exception innerException) { }
     }
     public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
