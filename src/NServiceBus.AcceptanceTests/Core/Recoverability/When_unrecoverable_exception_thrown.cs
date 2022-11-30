@@ -44,7 +44,6 @@
 
         class Context : ScenarioContext
         {
-            public bool MessageMovedToErrorQueue { get; set; }
             public int NrOfTimesHandlerWasInvoked { get; set; }
         }
 
