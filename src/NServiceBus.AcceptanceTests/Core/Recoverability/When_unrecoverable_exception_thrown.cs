@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -9,17 +8,12 @@
 
     public class When_unrecoverable_exception_thrown : NServiceBusAcceptanceTest
     {
-        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
-
         [Test]
         public async Task Should_move_to_error_queue_without_retries()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
-                    .When((session, c) => session.SendLocal(new MessageOne
-                    {
-                        Id = c.TestRunId
-                    }))
+                .WithEndpoint<EndpointThatThrowsUnrecoverableExceptions>(b => b.DoNotFailOnErrorMessages()
+                    .When((session, c) => session.SendLocal(new MessageOne()))
                 )
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
@@ -32,11 +26,8 @@
         public async Task Should_move_to_error_queue_without_retries_when_inheriting_from_unrecoverable_ex()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
-                    .When((session, c) => session.SendLocal(new MessageTwo()
-                    {
-                        Id = c.TestRunId
-                    }))
+                .WithEndpoint<EndpointThatThrowsUnrecoverableExceptions>(b => b.DoNotFailOnErrorMessages()
+                    .When((session, c) => session.SendLocal(new MessageTwo()))
                 )
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
@@ -51,13 +42,13 @@
             public int NrOfTimesHandlerWasInvoked { get; set; }
         }
 
-        class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
+        class EndpointThatThrowsUnrecoverableExceptions : EndpointConfigurationBuilder
         {
-            public EndpointWithOutgoingMessages()
+            public EndpointThatThrowsUnrecoverableExceptions()
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.SendFailedMessagesTo(ErrorSpyAddress);
+                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });
             }
 
@@ -105,7 +96,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
+                EndpointSetup<DefaultServer>();
             }
 
             class MessageOneHandler : IHandleMessages<MessageOne>
@@ -117,11 +108,7 @@
 
                 public Task Handle(MessageOne message, IMessageHandlerContext context)
                 {
-                    if (message.Id == testContext.TestRunId)
-                    {
-                        testContext.MessageMovedToErrorQueue = true;
-                    }
-
+                    testContext.MessageMovedToErrorQueue = true;
                     return Task.CompletedTask;
                 }
 
@@ -137,11 +124,7 @@
 
                 public Task Handle(MessageTwo message, IMessageHandlerContext context)
                 {
-                    if (message.Id == testContext.TestRunId)
-                    {
-                        testContext.MessageMovedToErrorQueue = true;
-                    }
-
+                    testContext.MessageMovedToErrorQueue = true;
                     return Task.CompletedTask;
                 }
 
@@ -151,12 +134,10 @@
 
         public class MessageOne : IMessage
         {
-            public Guid Id { get; set; }
         }
 
         public class MessageTwo : IMessage
         {
-            public Guid Id { get; set; }
         }
     }
 }
