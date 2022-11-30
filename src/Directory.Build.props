@@ -17,7 +17,11 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+    <GlobalPackageReference Include="Particular.Analyzers" Version="$(ParticularAnalyzersVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
     <PackageReference Include="Particular.Analyzers" Version="$(ParticularAnalyzersVersion)" PrivateAssets="All" />
   </ItemGroup>
 
