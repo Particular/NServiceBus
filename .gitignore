@@ -6,6 +6,7 @@ binaries
 .nu
 _UpgradeReport.*
 *.cache
+Thumbs.db
 *~
 *.swp
 results
