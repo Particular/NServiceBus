@@ -48,6 +48,6 @@
 
         internal const string CustomNamespaceConfigurationKey = "XmlSerializer.CustomNamespace";
         internal const string SkipWrappingRawXml = "XmlSerializer.SkipWrappingRawXml";
-        internal const string SanitizeInput = "XmlSerializer.SkipWrappingRawXml";
+        internal const string SanitizeInput = "XmlSerializer.SanitizeInput";
     }
 }
