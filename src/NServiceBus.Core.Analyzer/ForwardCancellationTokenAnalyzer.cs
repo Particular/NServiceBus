@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
+    using System.Threading;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -165,32 +166,58 @@
                     var memberName = memberAccess.Name.Identifier.ValueText;
 
                     // Is context.CancellationToken
-                    if (refName == callerCancellableContextParam && memberName == "CancellationToken")
+                    if (refName == callerCancellableContextParam && memberName == nameof(CancellationToken))
                     {
                         return true;
                     }
 
-                    if (refName == "CancellationToken" && memberName == "None")
+                    if (refName == nameof(CancellationToken) && memberName == "None")
                     {
                         return true;
                     }
                 }
             }
 
-            if (expression is ObjectCreationExpressionSyntax objectCreation &&
-                objectCreation.Type is IdentifierNameSyntax objectCreationTypeName &&
-                objectCreationTypeName.Identifier.ValueText == "CancellationToken")
+            // new CancellationToken(...)
+            if (expression is ObjectCreationExpressionSyntax objectCreation && TypeSyntaxLooksLikeCancellationToken(objectCreation.Type))
             {
                 return true;
             }
 
+            // default(CancellationToken)
+            if (expression is DefaultExpressionSyntax defaultSyntax && TypeSyntaxLooksLikeCancellationToken(defaultSyntax.Type))
+            {
+                return true;
+            }
+
+            // Note: `default` on its own is a LiteralExpressionSyntax, not a DefaultExpressionSyntax, so when this is used
+            // as a parameter we can't tell whether it's a CancellationToken at the lexical level and must allow IsCancellationToken
+            // to make the determination by consulting the semantic model
             return false;
         }
 
+        static bool TypeSyntaxLooksLikeCancellationToken(TypeSyntax typeSyntax) =>
+            typeSyntax is IdentifierNameSyntax identifierSyntax && identifierSyntax.Identifier.ValueText == nameof(CancellationToken);
+
         static bool IsCancellationToken(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellationTokenType)
         {
-            var expressionSymbol = context.SemanticModel.GetSymbolInfo(expressionSyntax, context.CancellationToken).Symbol;
-            return expressionSymbol.GetTypeSymbolOrDefault()?.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability) ?? false;
+            var typeSymbol = GetTypeSymbolFromExpression(expressionSyntax, context);
+            return typeSymbol?.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability) ?? false;
+        }
+
+        static ITypeSymbol GetTypeSymbolFromExpression(ExpressionSyntax expression, SyntaxNodeAnalysisContext context)
+        {
+            if (expression is LiteralExpressionSyntax) // `default` as a parameter
+            {
+                var typeInfo = context.SemanticModel.GetTypeInfo(expression, context.CancellationToken);
+                return typeInfo.Type;
+            }
+            else
+            {
+                var symbolInfo = context.SemanticModel.GetSymbolInfo(expression, context.CancellationToken);
+                var expressionSymbol = symbolInfo.Symbol;
+                return expressionSymbol.GetTypeSymbolOrDefault();
+            }
         }
 
         static IMethodSymbol GetRecommendedMethod(
@@ -247,7 +274,7 @@
 
         // if adding a cancellation token to the args will not put it in the right place
         static string GetRequiredArgName(IMethodSymbol recommendedMethod, IParameterSymbol extraParam, SeparatedSyntaxList<ArgumentSyntax> args) =>
-            !recommendedMethod.Parameters[args.Count].Equals(extraParam, SymbolEqualityComparer.IncludeNullability) ? extraParam.Name : null;
+            args.Count < recommendedMethod.Parameters.Length && !recommendedMethod.Parameters[args.Count].Equals(extraParam, SymbolEqualityComparer.IncludeNullability) ? extraParam.Name : null;
 
         static INamedTypeSymbol GetCalledType(InvocationExpressionSyntax call, IMethodSymbol calledMethod, SyntaxNodeAnalysisContext context)
         {
