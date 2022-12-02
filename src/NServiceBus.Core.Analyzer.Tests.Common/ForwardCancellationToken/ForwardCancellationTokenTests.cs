@@ -479,6 +479,79 @@ public class Bar {}");
     public class ForwardCancellationTokenTestsCSharp8 : ForwardCancellationTokenTests
     {
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+
+        [TestCase("default(CancellationToken)")]
+        [TestCase("default")]
+        [TestCase("CancellationToken.None")]
+        [TestCase("new CancellationToken(true)")]
+        [TestCase("context.CancellationToken")]
+        public Task DefaultTokenParameters(string parameterValue) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using NServiceBus;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await Test(""hi"", 1, DateTime.Now, " + parameterValue + @");
+        await Test(default(string), default(int), default(DateTime), " + parameterValue + @");
+        await Test(default, default, default, " + parameterValue + @");
+
+        await [|Test(""hi"", 1, DateTime.Now)|];
+        await [|Test(default(string), default(int), default(DateTime))|];
+        await [|Test(default, default, default)|];
+    }
+
+    Task Test(string s, int i, DateTime d, CancellationToken token = default)
+    {
+        System.Console.WriteLine($""{{s}} {{i}} {{d}}"");
+        return Task.Delay(i, token);
+    }
+}
+public class TestMessage : ICommand {}
+");
+
+#if NET // IAsyncEnumerable requires package Microsoft.Bcl.AsyncInterfaces on .NET Framework
+
+        [TestCase("AsyncEnumerator(context.CancellationToken)")]
+        [TestCase("AsyncEnumerator(CancellationToken.None)")]
+        [TestCase("AsyncEnumerator(default(CancellationToken))")]
+        [TestCase("AsyncEnumerator(default)")]
+        [TestCase("[|AsyncEnumerator()|]")]
+        [TestCase("[|AsyncEnumerator()|].WithCancellation(context.CancellationToken)")]
+        [TestCase("[|AsyncEnumerator()|].WithCancellation(CancellationToken.None)")]
+        [TestCase("[|AsyncEnumerator()|].WithCancellation(default(CancellationToken))")]
+        [TestCase("[|AsyncEnumerator()|].WithCancellation(default)")]
+        public Task AwaitForeach(string asyncCall) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo : IHandleMessages<TestMessage>
+{
+    public async Task Handle(TestMessage message, IMessageHandlerContext context)
+    {
+        await foreach (int item in " + asyncCall + @")
+        {
+            Console.WriteLine(item);
+        }
+    }
+
+    static async IAsyncEnumerable<int> AsyncEnumerator([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            await Task.Delay(0, cancellationToken);
+            yield return i;
+        }
+    }
+}
+public class TestMessage : ICommand {}
+");
+#endif
     }
 
     public class ForwardCancellationTokenTestsCSharp9 : ForwardCancellationTokenTestsCSharp8
