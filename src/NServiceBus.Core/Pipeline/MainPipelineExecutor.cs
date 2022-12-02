@@ -32,6 +32,9 @@ namespace NServiceBus
                 var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
                 rootContext.Extensions.Merge(messageContext.Extensions);
 
+                // We set the outer context to allow access for any settings we need to propagate up
+                rootContext.Extensions.Set("SharedContext", messageContext.Extensions);
+
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 
                 if (activity != null)
