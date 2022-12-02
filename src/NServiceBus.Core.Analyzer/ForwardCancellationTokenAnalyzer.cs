@@ -165,12 +165,12 @@
                     var memberName = memberAccess.Name.Identifier.ValueText;
 
                     // Is context.CancellationToken
-                    if (refName == callerCancellableContextParam && memberName == "CancellationToken")
+                    if (refName == callerCancellableContextParam && memberName == nameof(CancellationToken))
                     {
                         return true;
                     }
 
-                    if (refName == "CancellationToken" && memberName == "None")
+                    if (refName == nameof(CancellationToken) && memberName == "None")
                     {
                         return true;
                     }
@@ -196,7 +196,7 @@
         }
 
         static bool TypeSyntaxLooksLikeCancellationToken(TypeSyntax typeSyntax) =>
-            typeSyntax is IdentifierNameSyntax identifierSyntax && identifierSyntax.Identifier.ValueText == "CancellationToken";
+            typeSyntax is IdentifierNameSyntax identifierSyntax && identifierSyntax.Identifier.ValueText == nameof(CancellationToken);
 
         static bool IsCancellationToken(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellationTokenType)
         {
