@@ -9,7 +9,7 @@
     /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by <see cref="IConfigureComponents"/>.
     /// </summary>
     [ObsoleteEx(
-        Message = "Use methods on IServiceCollection instead. Note that the `Add...` extension methods do not register interfaces implicitly.",
+        Message = "Use methods on IServiceCollection instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide.",
         TreatAsErrorFromVersion = "9.0",
         RemoveInVersion = "10.0")]
     public static class ServiceCollectionExtensions
