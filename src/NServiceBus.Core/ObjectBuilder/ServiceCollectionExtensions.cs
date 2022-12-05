@@ -9,7 +9,7 @@
     /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by <see cref="IConfigureComponents"/>.
     /// </summary>
     [ObsoleteEx(
-        Message = "Use methods on IServiceCollection instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide.",
+        Message = "Use methods on IServiceCollection instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",
         TreatAsErrorFromVersion = "9.0",
         RemoveInVersion = "10.0")]
     public static class ServiceCollectionExtensions
@@ -37,7 +37,7 @@
         /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to register the types in.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         [ObsoleteEx(
-            Message = "Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead.",
+            Message = "Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, DependencyLifecycle dependencyLifecycle)
@@ -53,7 +53,7 @@
         /// <param name="componentFactory">Factory method that returns the given type.</param>
         /// <param name="dependencyLifecycle">Defines lifecycle semantics for the given type.</param>
         [ObsoleteEx(
-            Message = "Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead.",
+            Message = "Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
@@ -65,7 +65,7 @@
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
         [ObsoleteEx(
-            Message = "Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead.",
+            Message = "Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
         public static void ConfigureComponent<T>(this IServiceCollection serviceCollection, Func<IServiceProvider, T> componentFactory, DependencyLifecycle dependencyLifecycle)
