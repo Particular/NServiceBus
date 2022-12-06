@@ -165,7 +165,8 @@ namespace NServiceBus.Extensibility
         /// </summary>
         internal IBehavior[] Behaviors { get; set; }
 
-        ContextBag parentBag;
+        internal ContextBag parentBag;
+
         Dictionary<string, object> stash; // might be null!
     }
 }

@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using System;
-    using Extensibility;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -40,7 +39,7 @@
                     endpointConfiguration.Recoverability().CustomPolicy(
                         (config, context) =>
                         {
-                            var theAlohaValue = context.Extensions.Get<bool>("ALOHA");
+                            var theAlohaValue = context.Extensions.GetRootContext().Get<bool>("ALOHA");
 
                             var testCtx = (Context)descriptor.ScenarioContext;
                             testCtx.RecoverabilityExecuted = true;
@@ -55,7 +54,7 @@
             {
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    var sharedContext = context.Extensions.Get<ContextBag>("SharedContext");
+                    var sharedContext = context.Extensions.GetRootContext();
                     sharedContext.Set("ALOHA", true);
 
                     throw new InvalidOperationException("Something failed on purpose");

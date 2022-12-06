@@ -33,8 +33,7 @@
         {
             using (var childScope = serviceProvider.CreateScope())
             {
-                var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
-                rootContext.Extensions.Merge(errorContext.Extensions);
+                var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken, errorContext.Extensions);
 
                 var recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
