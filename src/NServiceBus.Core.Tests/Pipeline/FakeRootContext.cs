@@ -2,7 +2,7 @@
 {
     using System.Threading;
 
-    class FakeRootContext : RootContext
+    class FakeRootContext : PipelineRootContext
     {
         public FakeRootContext() : base(null, null, null, CancellationToken.None)
         {

@@ -6,7 +6,7 @@ namespace NServiceBus
 
     class MessageSession : IMessageSession
     {
-        public MessageSession(RootContext context)
+        public MessageSession(PipelineRootContext context)
         {
             this.context = context;
             messageOperations = context.Get<MessageOperations>();
@@ -68,7 +68,7 @@ namespace NServiceBus
             await messageOperations.Unsubscribe(new BehaviorContext(context, linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
         }
 
-        RootContext context;
+        PipelineRootContext context;
         MessageOperations messageOperations;
 
         internal const string SubscribeAllFlagKey = "NServiceBus.SubscribeAllFlag";

@@ -43,7 +43,7 @@ namespace NServiceBus
             var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
             stoppingTokenSource = new CancellationTokenSource();
 
-            var rootContext = new RootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
+            var rootContext = new PipelineRootContext(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
             messageSession = new MessageSession(rootContext);
 
             var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
