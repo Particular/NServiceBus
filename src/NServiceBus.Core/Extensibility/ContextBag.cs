@@ -14,6 +14,7 @@ namespace NServiceBus.Extensibility
         public ContextBag(ContextBag parentBag = null)
         {
             this.parentBag = parentBag;
+            root = parentBag?.root ?? this;
             Behaviors = parentBag?.Behaviors;
         }
 
@@ -133,6 +134,18 @@ namespace NServiceBus.Extensibility
             GetOrCreateStash()[key] = t;
         }
 
+        //TODO: only public for testing purpose, this will be internal
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="t"></param>
+        /// <typeparam name="T"></typeparam>
+        public void SetOnRoot<T>(string key, T t)
+        {
+            root.Set(key, t);
+        }
+
         /// <summary>
         /// Merges the passed context into this one.
         /// </summary>
@@ -166,6 +179,8 @@ namespace NServiceBus.Extensibility
         internal IBehavior[] Behaviors { get; set; }
 
         internal ContextBag parentBag;
+
+        private protected ContextBag root;
 
         Dictionary<string, object> stash; // might be null!
     }
