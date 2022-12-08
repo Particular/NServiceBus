@@ -2,8 +2,10 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
+    using Recoverability;
     using Sagas;
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
@@ -48,6 +50,16 @@
                 ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
                 activity?.SetErrorStatus(ex);
+
+                //context.Extensions.SetOnRoot(ex.GetHashCode(), messageHandler.HandlerType);
+
+                if (messageHandler.Instance.GetType().GetInterface("IUseRecoverabilityConfiguration`1") is { } t)
+                {
+                    var configType = t.GetGenericArguments().Single();
+                    var config = (IRecoverabilityConfiguration)Activator.CreateInstance(configType);
+                    var recoverabilityConfiguration = config.OnError(ex, context.MessageBeingHandled, context.Headers, context.Extensions);
+                    context.Extensions.SetOnRoot(ex.GetHashCode().ToString(), recoverabilityConfiguration);
+                }
 
                 throw;
             }

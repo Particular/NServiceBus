@@ -7,6 +7,7 @@
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Support;
+    using Recoverability;
     using Settings;
     using Transport;
 
@@ -90,11 +91,25 @@
                 (errorContext, state) =>
                 {
                     var (@this, localPolicy) = state;
+                    var recoverabilityConfig = @this.recoverabilityConfig;
+                    if (errorContext.Extensions.TryGet<RecoverabilityConfiguration>(errorContext.Exception.GetHashCode().ToString(), out var customization))
+                    {
+                        recoverabilityConfig = new RecoverabilityConfig(
+                            new ImmediateConfig(customization.MaximumImmediateRetries ??
+                                                @this.recoverabilityConfig.Immediate.MaxNumberOfRetries),
+                            new DelayedConfig(
+                                customization.MaximumDelayedRetries ??
+                                @this.recoverabilityConfig.Delayed.MaxNumberOfRetries,
+                                customization.DelayedRetriesTimeIncrease ??
+                                @this.recoverabilityConfig.Delayed.TimeIncrease),
+                            @this.recoverabilityConfig.Failed);
+                    }
+
                     return AdjustForTransportCapabilities(
                         @this.recoverabilityConfig.Failed.ErrorQueue,
                         @this.immediateRetriesAvailable,
                         @this.delayedRetriesAvailable,
-                        localPolicy(@this.recoverabilityConfig, errorContext));
+                        localPolicy(recoverabilityConfig, errorContext));
                 },
                 recoverabilityPipeline,
                 faultMetadataExtractor,

@@ -53,5 +53,7 @@
         /// Locks the recoverability action for further changes.
         /// </summary>
         IRecoverabilityActionContext PreventChanges();
+
+        //public Type? FailedHandler { get; set; }
     }
 }
