@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Settings;
+    using Testing;
 
     [TestFixture]
     public class RunningEndpointInstanceTest
@@ -17,7 +18,7 @@
                 settings,
                 null,
                 new FeatureComponent(settings),
-                new MessageSession(new FakeRootContext()),
+                new TestableMessageSession(),
                 null,
                 new CancellationTokenSource(),
                 null);

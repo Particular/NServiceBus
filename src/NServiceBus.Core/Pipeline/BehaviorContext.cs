@@ -5,7 +5,7 @@ namespace NServiceBus
     using Extensibility;
     using Pipeline;
 
-    class BehaviorContext : ContextBag, IBehaviorContext
+    abstract class BehaviorContext : ContextBag, IBehaviorContext
     {
         //TODO can parent ever be null here?
         protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext.Extensions, parentContext.CancellationToken)
