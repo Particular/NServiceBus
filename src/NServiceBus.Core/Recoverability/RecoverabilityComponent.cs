@@ -92,7 +92,7 @@
                 {
                     var (@this, localPolicy) = state;
                     var recoverabilityConfig = @this.recoverabilityConfig;
-                    if (errorContext.Extensions.TryGet<RecoverabilityConfiguration>(errorContext.Exception.GetHashCode().ToString(), out var customization))
+                    if (errorContext.Extensions.TryGet<RecoverabilityConfiguration>(errorContext.Exception.GetHashCode().ToString(), out var customization) && customization is not null)
                     {
                         recoverabilityConfig = new RecoverabilityConfig(
                             new ImmediateConfig(customization.MaximumImmediateRetries ??
