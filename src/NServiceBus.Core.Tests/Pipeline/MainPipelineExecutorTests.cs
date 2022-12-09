@@ -82,7 +82,6 @@
                 Assert.AreEqual(ActivityStatusCode.Error, receivePipeline.PipelineAcitivty.Status);
             }
         }
-        
 
         static MessageContext CreateMessageContext()
         {

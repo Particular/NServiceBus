@@ -1,8 +1,7 @@
-﻿using NServiceBus.Core.Tests.Pipeline;
-
-namespace NServiceBus.Unicast.Tests
+﻿namespace NServiceBus.Unicast.Tests
 {
     using System.Threading.Tasks;
+    using Core.Tests.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Core.Tests.Pipeline;
-using NServiceBus.Extensibility;
-using NServiceBus.Pipeline;
-using NServiceBus.Transport;
-using NUnit.Framework;
-
-namespace NServiceBus.Core.Tests.Recoverability
+﻿namespace NServiceBus.Core.Tests.Recoverability
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
+    using Pipeline;
+    using Extensibility;
+    using NServiceBus.Pipeline;
+    using Transport;
+    using NUnit.Framework;
+
     [TestFixture]
     public class RecoverabilityExecutorTests
     {
@@ -40,7 +40,7 @@ namespace NServiceBus.Core.Tests.Recoverability
             Assert.AreEqual(existingValue, pipelineExtensions.Get<Guid>("existing value"));
         }
 
-        private static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)
+        static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)
         {
             var executor = new RecoverabilityPipelineExecutor<object>(
                 new ServiceCollection().BuildServiceProvider(),
@@ -53,6 +53,6 @@ namespace NServiceBus.Core.Tests.Recoverability
             return executor;
         }
 
-        private static ErrorContext CreateErrorContext() => new(new Exception("test"), new Dictionary<string, string>(), Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 10, "receive address", new ContextBag());
+        static ErrorContext CreateErrorContext() => new(new Exception("test"), new Dictionary<string, string>(), Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 10, "receive address", new ContextBag());
     }
 }

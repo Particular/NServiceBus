@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using NServiceBus.Transport;
-using NUnit.Framework;
-
-namespace NServiceBus.TransportTests
+﻿namespace NServiceBus.TransportTests
 {
+    using System;
+    using System.Threading.Tasks;
+    using Transport;
+    using NUnit.Framework;
+
     public class When_on_error_invoked : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
@@ -15,14 +15,14 @@ namespace NServiceBus.TransportTests
         {
             var messageContextSource = CreateTaskCompletionSource<MessageContext>();
             var errorContextSource = CreateTaskCompletionSource<ErrorContext>();
-            
-            await StartPump((messageContext, _) =>
+
+            await StartPump((messageContext, cancellationToken) =>
             {
-                messageContextSource.SetCompleted(messageContext);
+                _ = messageContextSource.SetCompleted(messageContext);
                 throw new Exception("trigger onError");
-            }, (errorContext, _) =>
+            }, (errorContext, cancellationToken) =>
             {
-                errorContextSource.SetCompleted(errorContext);
+                _ = errorContextSource.SetCompleted(errorContext);
                 return Task.FromResult(ErrorHandleResult.Handled);
             }, transactionMode);
 
