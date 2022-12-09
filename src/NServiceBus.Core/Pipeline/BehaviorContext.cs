@@ -7,8 +7,7 @@ namespace NServiceBus
 
     abstract class BehaviorContext : ContextBag, IBehaviorContext
     {
-        //TODO can parent ever be null here?
-        protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext.Extensions, parentContext.CancellationToken)
+        protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext?.Extensions, parentContext?.CancellationToken ?? default)
         {
         }
 
