@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
 
-    //TODO add tests that modifying the root context does not leak aross operations
     class MessageSession : IMessageSession
     {
         public MessageSession(IServiceProvider builder, MessageOperations messageOperations, PipelineCache pipelineCache, CancellationToken cancellationToken)
