@@ -15,7 +15,7 @@
             MessageOperations messageOperations,
             RecoverabilityConfig recoverabilityConfig,
             Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
-            Pipeline<IRecoverabilityContext> recoverabilityPipeline,
+            IPipeline<IRecoverabilityContext> recoverabilityPipeline,
             FaultMetadataExtractor faultMetadataExtractor,
             TState state)
         {
@@ -57,7 +57,7 @@
         readonly MessageOperations messageOperations;
         readonly RecoverabilityConfig recoverabilityConfig;
         readonly Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy;
-        readonly Pipeline<IRecoverabilityContext> recoverabilityPipeline;
+        readonly IPipeline<IRecoverabilityContext> recoverabilityPipeline;
         readonly FaultMetadataExtractor faultMetadataExtractor;
         readonly TState state;
     }

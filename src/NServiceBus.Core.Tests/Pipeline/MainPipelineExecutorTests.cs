@@ -103,7 +103,7 @@
             var executor = new MainPipelineExecutor(
                 serviceProvider,
                 new PipelineCache(serviceProvider, new PipelineModifications()),
-                new MessageOperations(null, null, null, null, null, null, null),
+                new TestableMessageOperations(),
                 new Notification<ReceivePipelineCompleted>(),
                 receivePipeline,
                 new ActivityFactory());
