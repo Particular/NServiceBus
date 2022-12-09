@@ -134,14 +134,14 @@ namespace NServiceBus.Extensibility
             GetOrCreateStash()[key] = t;
         }
 
-        //TODO: only public for testing purpose, this will be internal
         /// <summary>
+        /// Sets a value on the context bag at the root of the context chain.
+        /// This can enable sharing context across the main and the recoverability pipeline or across forks without an existing value holder present in the shared context hierarchy
+        ///
+        /// Be careful, values set on the root are available to all pipeline forks that are created off the root context! Therefore there there's a risk of conflicting keys or overriding existing keys from other forks. The same pipeline behaviors can be executed multiple times on nested chains (e.g. nested sends).
         /// 
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="t"></param>
-        /// <typeparam name="T"></typeparam>
-        public void SetOnRoot<T>(string key, T t)
+        internal void SetOnRoot<T>(string key, T t)
         {
             root.Set(key, t);
         }
