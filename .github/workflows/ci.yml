@@ -29,6 +29,7 @@ jobs:
         uses: actions/setup-dotnet@v2.1.0
         with:
           dotnet-version: |
+            7.0.x
             6.0.x
             3.1.x
       - name: Build
