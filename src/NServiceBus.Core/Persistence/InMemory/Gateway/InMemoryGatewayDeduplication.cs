@@ -22,10 +22,7 @@
 
             // The design of the v1 gateway seam will only allow deduplicating scope commits.
             // This is fine since the gateway will always wrap the call in a transaction scope so this should always be true
-            if (Transaction.Current != null)
-            {
-                Transaction.Current.EnlistVolatile(new EnlistmentNotification(clientIdStorage, clientId), EnlistmentOptions.None);
-            }
+            Transaction.Current?.EnlistVolatile(new EnlistmentNotification(clientIdStorage, clientId), EnlistmentOptions.None);
 
             return TaskEx.TrueTask;
         }
