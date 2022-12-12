@@ -11,7 +11,7 @@ namespace NServiceBus
             this.builder = builder;
             this.messageOperations = messageOperations;
             this.pipelineCache = pipelineCache;
-            stoppingToken = cancellationToken;
+            endpointStoppingToken = cancellationToken;
         }
 
         PipelineRootContext CreateContext(CancellationToken cancellationToken) => new(builder, messageOperations, pipelineCache, cancellationToken);
@@ -20,7 +20,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
         }
 
@@ -28,7 +28,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
             Guard.AgainstNull(nameof(sendOptions), sendOptions);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
         }
 
@@ -36,7 +36,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(publishOptions), publishOptions);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
         }
 
@@ -44,7 +44,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
             Guard.AgainstNull(nameof(publishOptions), publishOptions);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Publish(CreateContext(linkedTokenSource.Token), messageConstructor, publishOptions).ConfigureAwait(false);
         }
 
@@ -52,7 +52,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(subscribeOptions), subscribeOptions);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventType, subscribeOptions).ConfigureAwait(false);
         }
 
@@ -60,7 +60,7 @@ namespace NServiceBus
         {
             // set a flag on the context so that subscribe implementations know which send API was used.
             subscribeOptions.Context.Set(SubscribeAllFlagKey, true);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventTypes, subscribeOptions).ConfigureAwait(false);
         }
 
@@ -68,14 +68,14 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(unsubscribeOptions), unsubscribeOptions);
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationToken);
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Unsubscribe(CreateContext(linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
         }
 
         readonly IServiceProvider builder;
         readonly MessageOperations messageOperations;
         readonly PipelineCache pipelineCache;
-        readonly CancellationToken stoppingToken;
+        readonly CancellationToken endpointStoppingToken;
 
         internal const string SubscribeAllFlagKey = "NServiceBus.SubscribeAllFlag";
     }
