@@ -2,6 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Http.Headers;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
@@ -62,5 +65,28 @@ namespace NServiceBus
 
             return this;
         }
+
+        /// <summary>
+        /// TOODO
+        /// </summary>
+        public void HttpRateLimitExceptions(int? maximumNumberOfRetries = null, params IRateLimitStrategy[] strategies)
+        {
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IRateLimitStrategy
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        HttpStatusCode StatusCode { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        TimeSpan? GetDelay(HttpRequestException exception, HttpResponseHeaders headers);
     }
 }

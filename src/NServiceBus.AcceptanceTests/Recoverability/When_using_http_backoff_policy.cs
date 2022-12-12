@@ -1,91 +1,177 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability;
-
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
-using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
-
-//TODO when using custom backoff policy
-//TODO when capturing context vs. no context
-public class When_using_http_backoff_policy : NServiceBusAcceptanceTest
+﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
-    //TODO auto-delay 429 with delay header
-    //TODO auto-delay 503 with delay header
-    //TODO moves to error queue after exhausting max delays
-    //TODO delays by delayed retry value when no header
-    [Test]
-    public async Task Should_delay_retry_by_http_delay_header_value()
-    {
-        var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithHttpBackoffPolicy>(e => e
-                .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
-            .Done(c => c.ServiceCallSuccessful)
-            .Run();
-    }
+    using System;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.Recoverability;
+    using NUnit.Framework;
 
-    class Context : ScenarioContext
+    public class When_using_http_backoff_policy : NServiceBusAcceptanceTest
     {
-        public bool ServiceCallSuccessful { get; set; }
-    }
-
-    class EndpointWithHttpBackoffPolicy : EndpointConfigurationBuilder
-    {
-        public EndpointWithHttpBackoffPolicy()
+        [TestCase(503)]
+        [TestCase(429)]
+        public async Task Should_delay_retry_by_http_delay_header_value(int httpStatusCode)
         {
-            //TODO: setup http config
-            EndpointSetup<DefaultServer>(c =>
-            {
-                c.RegisterComponents(sc => sc.AddSingleton(new FaultyHttpService()));
-            });
+            const int serviceFailures = 1;
+
+            var context = await Scenario.Define<Context>(c =>
+                    c.HttpService = new FaultyHttpService(serviceFailures, TimeSpan.FromSeconds(1), httpStatusCode))
+                .WithEndpoint<EndpointWithHttpBackoffPolicy>(e => e
+                    .CustomConfig(c => c
+                        .Recoverability().Delayed(d =>
+                        {
+                            d.TimeIncrease(TimeSpan.FromMinutes(5)); // fail test if applying default setting
+                            d.HttpRateLimitExceptions(99);
+                        }))
+                    .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
+                .Done(c => c.ServiceCallSuccessful)
+                .Run(TimeSpan.FromSeconds(30));
+
+            Assert.AreEqual(serviceFailures + 1, context.HandlerInvoked);
         }
 
-        class InvokeFaultyServiceMessageHandler : IHandleMessages<InvokeFaultyServiceMessage>
+        [TestCase(503)]
+        [TestCase(429)]
+        public async Task Should_delay_retry_by_delayed_delivery_config_when_no_header(int httpStatusCode)
         {
-            FaultyHttpService faultyService;
-            Context testContext;
+            const int serviceFailures = 1;
 
-            public InvokeFaultyServiceMessageHandler(FaultyHttpService faultyService, Context testContext)
+            var context = await Scenario.Define<Context>(c =>
+                    c.HttpService = new FaultyHttpService(serviceFailures, null, httpStatusCode))
+                .WithEndpoint<EndpointWithHttpBackoffPolicy>(e => e
+                    .CustomConfig(c => c
+                        .Recoverability().Delayed(d =>
+                        {
+                            d.TimeIncrease(TimeSpan.FromSeconds(1));
+                            d.HttpRateLimitExceptions(99);
+                        }))
+                    .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
+                .Done(c => c.ServiceCallSuccessful)
+                .Run(TimeSpan.FromSeconds(30));
+
+            Assert.AreEqual(1, context.HandlerInvoked);
+        }
+
+        [Test]
+        public async Task Should_move_to_error_queue_after_exhausting_configured_attempts()
+        {
+            var context = await Scenario
+                .Define<Context>(c => c.HttpService = new FaultyHttpService(99, TimeSpan.FromSeconds(1), 429))
+                .WithEndpoint<EndpointWithHttpBackoffPolicy>(e => e
+                    .CustomConfig(c => c.Recoverability().Delayed(d =>
+                    {
+                        d.NumberOfRetries(0);
+                        d.HttpRateLimitExceptions(maximumNumberOfRetries: 2);
+                    }))
+                    .DoNotFailOnErrorMessages()
+                    .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
+                .Done(c => c.FailedMessages.Any())
+                .Run(TimeSpan.FromSeconds(30));
+
+            Assert.AreEqual(3, context.HandlerInvoked);
+            Assert.IsFalse(context.ServiceCallSuccessful);
+        }
+
+        [Test]
+        public async Task Should_move_to_error_queue_after_exhausting_max_delayed_retries()
+        {
+            var context = await Scenario
+                .Define<Context>(c => c.HttpService = new FaultyHttpService(99, TimeSpan.FromSeconds(1), 429))
+                .WithEndpoint<EndpointWithHttpBackoffPolicy>(e => e
+                    .CustomConfig(c => c.Recoverability().Delayed(d =>
+                    {
+                        d.NumberOfRetries(3);
+                        d.HttpRateLimitExceptions(); // no explicit value configured
+                    }))
+                    .DoNotFailOnErrorMessages()
+                    .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
+                .Done(c => c.FailedMessages.Any())
+                .Run(TimeSpan.FromSeconds(30));
+
+            Assert.AreEqual(4, context.HandlerInvoked);
+            Assert.IsFalse(context.ServiceCallSuccessful);
+        }
+
+        class Context : ScenarioContext
+        {
+            public bool ServiceCallSuccessful { get; set; }
+            public int HandlerInvoked { get; set; }
+
+            public FaultyHttpService HttpService { get; set; }
+        }
+
+        class EndpointWithHttpBackoffPolicy : EndpointConfigurationBuilder
+        {
+            public EndpointWithHttpBackoffPolicy()
             {
-                this.faultyService = faultyService;
-                this.testContext = testContext;
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    c.RegisterComponents(sc => sc.AddSingleton(((Context)r.ScenarioContext).HttpService));
+                });
             }
 
-            public Task Handle(InvokeFaultyServiceMessage message, IMessageHandlerContext context)
+            class InvokeFaultyServiceMessageHandler : IHandleMessages<InvokeFaultyServiceMessage>
             {
-                var response = faultyService.Invoke();
-                response.EnsureSuccessStatusCode();
-                testContext.ServiceCallSuccessful = true;
-                return Task.CompletedTask;
+                FaultyHttpService faultyService;
+                Context testContext;
+
+                public InvokeFaultyServiceMessageHandler(FaultyHttpService faultyService, Context testContext)
+                {
+                    this.faultyService = faultyService;
+                    this.testContext = testContext;
+                }
+
+                public Task Handle(InvokeFaultyServiceMessage message, IMessageHandlerContext context)
+                {
+                    testContext.HandlerInvoked++;
+                    var response = faultyService.Invoke();
+                    response.EnsureSuccessStatusCodeWithContext();
+                    testContext.ServiceCallSuccessful = true;
+                    return Task.CompletedTask;
+                }
             }
         }
-    }
 
-    class FaultyHttpService
-    {
-        int invokeCounter = 0;
-        public int NumberOfFailures { get; set; } = 1;
-
-
-        public HttpResponseMessage Invoke()
+        class InvokeFaultyServiceMessage : IMessage
         {
-            invokeCounter++;
-            if (invokeCounter++ < NumberOfFailures)
+        }
+
+        class FaultyHttpService
+        {
+            int invokeCounter = 0;
+            readonly int numberOfFailures;
+            readonly TimeSpan? retryAfter;
+            readonly int statusCode;
+
+            public FaultyHttpService(int numberOfFailures, TimeSpan? retryAfter, int statusCode)
             {
-                var response = new HttpResponseMessage((HttpStatusCode)429);
-                response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(1));
-                return response;
+                this.numberOfFailures = numberOfFailures;
+                this.retryAfter = retryAfter;
+                this.statusCode = statusCode;
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
-        }
-    }
+            public HttpResponseMessage Invoke()
+            {
+                invokeCounter++;
+                if (invokeCounter++ < numberOfFailures)
+                {
+                    var response = new HttpResponseMessage((HttpStatusCode)statusCode);
+                    if (retryAfter.HasValue)
+                    {
+                        response.Headers.RetryAfter = new RetryConditionHeaderValue(retryAfter.Value);
+                    }
 
-    class InvokeFaultyServiceMessage : IMessage
-    {
+                    return response;
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+        }
     }
 }
