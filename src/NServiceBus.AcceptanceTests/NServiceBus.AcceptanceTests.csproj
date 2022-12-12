@@ -12,6 +12,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
