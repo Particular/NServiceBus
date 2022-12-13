@@ -35,6 +35,11 @@
         public int DelayedDeliveriesPerformed { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int? MaximumRetries { get; set; }
+
+        /// <summary>
         /// The recoverability configuration for the endpoint.
         /// </summary>
         public RecoverabilityConfig RecoverabilityConfiguration { get; }

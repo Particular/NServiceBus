@@ -35,6 +35,8 @@
         /// </summary>
         public int DelayedDeliveriesPerformed { get; set; }
 
+        public int? MaximumRetries { get; set; }
+
         /// <summary>
         /// Metadata for this message.
         /// </summary>
@@ -51,7 +53,7 @@
         /// <summary>
         /// The recoverability action to take for this message.
         /// </summary>
-        public RecoverabilityAction RecoverabilityAction { get; set; }
+        public RecoverabilityAction RecoverabilityAction { get; set; } = RecoverabilityAction.ImmediateRetry();
 
         /// <summary>
         /// Metadata for this message.

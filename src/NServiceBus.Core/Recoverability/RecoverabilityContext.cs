@@ -38,6 +38,8 @@
 
         public int DelayedDeliveriesPerformed { get; }
 
+        public int? MaximumRetries { get; set; }
+
         IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;
 
         public RecoverabilityConfig RecoverabilityConfiguration { get; }
