@@ -93,7 +93,7 @@
 
                 public HttpStatusCode StatusCode { get; }
 
-                public TimeSpan? GetDelay(HttpRequestException exception, HttpResponseHeaders headers)
+                public TimeSpan? GetDelay(HttpRequestException exception, int httpStatusCode, HttpResponseHeaders headers)
                 {
                     if (headers.TryGetValues("custom-delay-ms", out var values))
                     {

@@ -19,6 +19,7 @@ public static class HttpResponseExtensions
         catch (HttpRequestException e)
         {
             e.Data.Add("NServiceBus.HttpError.HttpResponseHeaders", response.Headers);
+            e.Data.Add("NServiceBus.HttpError.StatusCode", response.StatusCode);
             throw;
         }
     }

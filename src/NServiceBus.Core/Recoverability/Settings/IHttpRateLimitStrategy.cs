@@ -19,7 +19,8 @@ public interface IHttpRateLimitStrategy
     /// Gets the delay to apply to the next retry.
     /// </summary>
     /// <param name="exception">The exception that occurred.</param>
+    /// <param name="statusCode">The http status code returned by the API.</param>
     /// <param name="headers">The response headers.</param>
     /// <returns></returns>
-    TimeSpan? GetDelay(HttpRequestException exception, HttpResponseHeaders headers);
+    TimeSpan? GetDelay(HttpRequestException exception, int statusCode, HttpResponseHeaders headers);
 }
