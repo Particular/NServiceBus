@@ -11,6 +11,7 @@
     using EndpointTemplates;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Recoverability;
+    using NServiceBus.Recoverability.Settings;
 
     class When_using_custom_http_backoff_strategy : NServiceBusAcceptanceTest
     {
@@ -27,7 +28,7 @@
                         .Recoverability().Delayed(d =>
                         {
                             d.TimeIncrease(TimeSpan.FromMinutes(5)); // fail test if applying default setting
-                            d.HttpRateLimitExceptions(99, new EndpointWithHttpBackoffPolicy.CustomHeaderBackoffStrategy((HttpStatusCode)responseStatusCode));
+                            d.DelayOnHttpRateLimitException(99, new EndpointWithHttpBackoffPolicy.CustomHeaderBackoffStrategy((HttpStatusCode)responseStatusCode));
                         }))
                     .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
                 .Done(c => c.ServiceCallSuccessful)
@@ -48,7 +49,7 @@
                         .Recoverability().Delayed(d =>
                         {
                             d.TimeIncrease(TimeSpan.FromMinutes(5)); // fail test if applying default setting
-                            d.HttpRateLimitExceptions(99, new EndpointWithHttpBackoffPolicy.CustomHeaderBackoffStrategy((HttpStatusCode)responseStatusCode));
+                            d.DelayOnHttpRateLimitException(99, new EndpointWithHttpBackoffPolicy.CustomHeaderBackoffStrategy((HttpStatusCode)responseStatusCode));
                         }))
                     .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
                 .Done(c => c.ServiceCallSuccessful)
@@ -86,7 +87,7 @@
                 }
             }
 
-            public class CustomHeaderBackoffStrategy : IRateLimitStrategy
+            public class CustomHeaderBackoffStrategy : IHttpRateLimitStrategy
             {
                 public CustomHeaderBackoffStrategy(HttpStatusCode statusCode) => StatusCode = statusCode;
 

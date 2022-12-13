@@ -27,7 +27,7 @@
                         .Recoverability().Delayed(d =>
                         {
                             d.TimeIncrease(TimeSpan.FromMinutes(5)); // fail test if applying default setting
-                            d.HttpRateLimitExceptions(99);
+                            d.DelayOnHttpRateLimitException(99);
                         }))
                     .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
                 .Done(c => c.ServiceCallSuccessful)
@@ -49,7 +49,7 @@
                         .Recoverability().Delayed(d =>
                         {
                             d.TimeIncrease(TimeSpan.FromSeconds(1));
-                            d.HttpRateLimitExceptions(99);
+                            d.DelayOnHttpRateLimitException(99);
                         }))
                     .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
                 .Done(c => c.ServiceCallSuccessful)
@@ -67,7 +67,7 @@
                     .CustomConfig(c => c.Recoverability().Delayed(d =>
                     {
                         d.NumberOfRetries(0);
-                        d.HttpRateLimitExceptions(maximumNumberOfRetries: 2);
+                        d.DelayOnHttpRateLimitException(maxAttemptsOnHttpRateLimitExceptions: 2);
                     }))
                     .DoNotFailOnErrorMessages()
                     .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))
@@ -87,7 +87,7 @@
                     .CustomConfig(c => c.Recoverability().Delayed(d =>
                     {
                         d.NumberOfRetries(3);
-                        d.HttpRateLimitExceptions(); // no explicit value configured
+                        d.DelayOnHttpRateLimitException(); // no explicit value configured
                     }))
                     .DoNotFailOnErrorMessages()
                     .When(s => s.SendLocal(new InvokeFaultyServiceMessage())))

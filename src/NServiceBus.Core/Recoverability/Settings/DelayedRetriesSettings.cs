@@ -2,13 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Http.Headers;
-    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
     using Faults;
+    using Recoverability.Settings;
     using Settings;
 
     /// <summary>
@@ -45,6 +43,22 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Configures the delay interval increase for each failed Delayed Retries attempt.
+        /// </summary>
+        public DelayedRetriesSettings DelayOnHttpRateLimitException(int? maxAttemptsOnHttpRateLimitExceptions = null, params IHttpRateLimitStrategy[] strategies)
+        {
+            if (maxAttemptsOnHttpRateLimitExceptions.HasValue)
+            {
+                Guard.AgainstNegative(nameof(maxAttemptsOnHttpRateLimitExceptions), maxAttemptsOnHttpRateLimitExceptions.Value);
+            }
+
+            Settings.Set(RecoverabilityComponent.MaxAttemptsOnHttpRateLimitExceptions, maxAttemptsOnHttpRateLimitExceptions);
+            Settings.Set(RecoverabilityComponent.RateLimitStrategies, strategies);
+
+            return this;
+        }
+
+        /// <summary>
         /// Registers a callback which is invoked when a message fails processing and will be retried after a delay.
         /// </summary>
         public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, CancellationToken, Task> notificationCallback)
@@ -65,28 +79,5 @@ namespace NServiceBus
 
             return this;
         }
-
-        /// <summary>
-        /// TOODO
-        /// </summary>
-        public void HttpRateLimitExceptions(int? maximumNumberOfRetries = null, params IRateLimitStrategy[] strategies)
-        {
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IRateLimitStrategy
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        HttpStatusCode StatusCode { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        TimeSpan? GetDelay(HttpRequestException exception, HttpResponseHeaders headers);
     }
 }

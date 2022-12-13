@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Hosting;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Support;
+    using Hosting;
+    using Logging;
+    using Pipeline;
+    using Support;
+    using Recoverability.Settings;
     using Settings;
     using Transport;
 
@@ -183,7 +184,15 @@
                 }
             }
 
-            return new DelayedConfig(numberOfRetries, timeIncrease);
+            var maxAttemptsOnHttpRateLimitExceptionsSettings = settings.Get<int?>(MaxAttemptsOnHttpRateLimitExceptions);
+            var rateLimitStrategies = settings.Get<IHttpRateLimitStrategy[]>(RateLimitStrategies);
+            if (maxAttemptsOnHttpRateLimitExceptionsSettings == null && rateLimitStrategies == null)
+            {
+                return new DelayedConfig(numberOfRetries, timeIncrease);
+            }
+
+            var maxAttemptsOnHttpRateLimitExceptions = maxAttemptsOnHttpRateLimitExceptionsSettings ?? numberOfRetries;
+            return new DelayedConfig(numberOfRetries, timeIncrease, maxAttemptsOnHttpRateLimitExceptions, rateLimitStrategies);
         }
 
         Notification<MessageToBeRetried> messageRetryNotification;
@@ -198,6 +207,8 @@
 
         public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
         public const string DelayedRetriesTimeIncrease = "Recoverability.Delayed.DefaultPolicy.Timespan";
+        public const string MaxAttemptsOnHttpRateLimitExceptions = "Recoverability.Delayed.DefaultPolicy.MaxAttemptsOnHttpRateLimitExceptions";
+        public const string RateLimitStrategies = "Recoverability.Delayed.DefaultPolicy.RateLimitStrategies";
         public const string NumberOfImmediateRetries = "Recoverability.Immediate.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.CustomPolicy";
@@ -210,8 +221,8 @@
 
         public class Configuration
         {
-            public Notification<MessageToBeRetried> MessageRetryNotification { get; } = new Notification<MessageToBeRetried>();
-            public Notification<MessageFaulted> MessageFaultedNotification { get; } = new Notification<MessageFaulted>();
+            public Notification<MessageToBeRetried> MessageRetryNotification { get; } = new();
+            public Notification<MessageFaulted> MessageFaultedNotification { get; } = new();
         }
     }
 }
