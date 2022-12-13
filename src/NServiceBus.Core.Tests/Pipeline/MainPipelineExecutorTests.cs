@@ -15,19 +15,33 @@
     public class MainPipelineExecutorTests
     {
         [Test]
-        public async Task Should_use_message_context_extensions_as_context_root()
+        public async Task Should_share_message_context_extension_values()
         {
             var existingValue = Guid.NewGuid();
-            var newValue = Guid.NewGuid();
 
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+            var receivePipeline = new TestableMessageOperations.Pipeline<ITransportReceiveContext>();
+            var executor = CreateMainPipelineExecutor(receivePipeline);
             var messageContext = CreateMessageContext();
             messageContext.Extensions.Set("existing value", existingValue);
             await executor.Invoke(messageContext);
 
-            Assert.AreEqual(existingValue, receivePipeline.TransportReceiveContext.Extensions.Get<Guid>("existing value"));
+            Assert.AreEqual(existingValue, receivePipeline.Context.Extensions.Get<Guid>("existing value"));
+        }
 
-            receivePipeline.TransportReceiveContext.Extensions.SetOnRoot("new value", newValue);
+        [Test]
+        public async Task Should_use_message_context_extensions_as_context_root()
+        {
+            var newValue = Guid.NewGuid();
+
+            var receivePipeline = new TestableMessageOperations.Pipeline<ITransportReceiveContext>
+            {
+                OnInvoke = ctx => ctx.Extensions.SetOnRoot("new value", newValue)
+            };
+            var executor = CreateMainPipelineExecutor(receivePipeline);
+            var messageContext = CreateMessageContext();
+
+            await executor.Invoke(messageContext);
+
             Assert.AreEqual(newValue, messageContext.Extensions.Get<Guid>("new value"));
         }
 
@@ -50,7 +64,8 @@
             [Test]
             public async Task Should_start_Activity_when_invoking_pipeline()
             {
-                var executor = CreateMainPipelineExecutor(out var receivePipeline);
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var executor = CreateMainPipelineExecutor(receivePipeline);
                 var messageContext = CreateMessageContext();
 
                 await executor.Invoke(messageContext);
@@ -64,7 +79,8 @@
             [Test]
             public async Task Should_set_ok_status_on_activity_when_pipeline_successful()
             {
-                var executor = CreateMainPipelineExecutor(out var receivePipeline);
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var executor = CreateMainPipelineExecutor(receivePipeline);
 
                 await executor.Invoke(CreateMessageContext());
 
@@ -74,7 +90,8 @@
             [Test]
             public void Should_set_error_status_on_activity_when_pipeline_throws_exception()
             {
-                var executor = CreateMainPipelineExecutor(out var receivePipeline);
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var executor = CreateMainPipelineExecutor(receivePipeline);
                 receivePipeline.ThrowsException = true;
 
                 Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
@@ -83,22 +100,19 @@
             }
         }
 
-        static MessageContext CreateMessageContext()
-        {
-            return new MessageContext(
+        static MessageContext CreateMessageContext() =>
+            new(
                 Guid.NewGuid().ToString(),
                 new Dictionary<string, string>(),
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",
                 new ContextBag());
-        }
 
-        static MainPipelineExecutor CreateMainPipelineExecutor(out ReceivePipeline receivePipeline)
+        static MainPipelineExecutor CreateMainPipelineExecutor(IPipeline<ITransportReceiveContext> receivePipeline)
         {
             var serviceCollection = new ServiceCollection();
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            receivePipeline = new ReceivePipeline();
             var executor = new MainPipelineExecutor(
                 serviceProvider,
                 new PipelineCache(serviceProvider, new PipelineModifications()),
@@ -110,7 +124,7 @@
             return executor;
         }
 
-        class ReceivePipeline : IPipeline<ITransportReceiveContext>
+        class ActivityTrackingReceivePipeline : IPipeline<ITransportReceiveContext>
         {
             public Activity PipelineAcitivty { get; set; }
 

@@ -2,6 +2,7 @@
 {
     using Pipeline;
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -12,10 +13,16 @@
         [Test]
         public async Task Should_not_share_root_context_across_operations()
         {
+            var readValues = new List<int>();
             var messageOperations = new TestableMessageOperations();
             messageOperations.SendPipeline.OnInvoke = context =>
             {
-                Assert.False(context.Extensions.TryGet<int>("test", out _));
+                // read existing value
+                if (context.Extensions.TryGet<int>("test", out var i))
+                {
+                    readValues.Add(i);
+                }
+                // set value on root
                 context.Extensions.SetOnRoot("test", 42);
             };
 
@@ -24,6 +31,8 @@
             await session.Send(new object());
             await session.Send(new object());
             await session.Send(new object());
+
+            Assert.IsEmpty(readValues, "writes should not leak to other pipeline invocations");
         }
 
         [Test]
@@ -35,12 +44,9 @@
                 context.CancellationToken.ThrowIfCancellationRequested();
             };
 
-            using var endpointCancellationTokenSource = new CancellationTokenSource();
-            using var requestCancellationTokenSource = new CancellationTokenSource();
-            var session = new MessageSession(null, messageOperations, null, endpointCancellationTokenSource.Token);
+            var session = new MessageSession(null, messageOperations, null, new CancellationToken(true));
 
-            endpointCancellationTokenSource.Cancel();
-            Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), requestCancellationTokenSource.Token));
+            Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken()));
         }
 
         [Test]
@@ -52,12 +58,9 @@
                 context.CancellationToken.ThrowIfCancellationRequested();
             };
 
-            using var endpointCancellationTokenSource = new CancellationTokenSource();
-            using var requestCancellationTokenSource = new CancellationTokenSource();
-            var session = new MessageSession(null, messageOperations, null, endpointCancellationTokenSource.Token);
+            var session = new MessageSession(null, messageOperations, null, new CancellationToken());
 
-            requestCancellationTokenSource.Cancel();
-            Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), requestCancellationTokenSource.Token));
+            Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
         }
     }
 }
