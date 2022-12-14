@@ -25,7 +25,7 @@
             messageContext.Extensions.Set("existing value", existingValue);
             await executor.Invoke(messageContext);
 
-            Assert.AreEqual(existingValue, receivePipeline.Context.Extensions.Get<Guid>("existing value"));
+            Assert.AreEqual(existingValue, receivePipeline.LastContext.Extensions.Get<Guid>("existing value"));
         }
 
         [Test]

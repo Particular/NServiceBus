@@ -21,11 +21,11 @@
         {
             public Action<TContext> OnInvoke { get; set; }
 
-            public TContext Context { get; private set; }
+            public TContext LastContext { get; private set; }
 
             public Task Invoke(TContext context)
             {
-                Context = context;
+                LastContext = context;
                 OnInvoke?.Invoke(context);
 
                 return Task.CompletedTask;

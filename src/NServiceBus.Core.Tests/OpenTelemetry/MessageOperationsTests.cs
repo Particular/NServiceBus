@@ -45,7 +45,7 @@
             Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
             Assert.AreEqual("send message", activity.DisplayName);
 
-            Assert.AreEqual(activity, operations.SendPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.AreEqual(activity, operations.SendPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
         }
 
         [Test]
@@ -68,7 +68,7 @@
             Assert.AreEqual(ActivityNames.OutgoingEventActivityName, activity.OperationName);
             Assert.AreEqual("publish event", activity.DisplayName);
 
-            Assert.AreEqual(activity, operations.PublishPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.AreEqual(activity, operations.PublishPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
         }
 
         [Test]
@@ -91,7 +91,7 @@
             Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
             Assert.AreEqual("reply", activity.DisplayName);
 
-            Assert.AreEqual(activity, operations.ReplyPipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.AreEqual(activity, operations.ReplyPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
         }
 
         [Test]
@@ -114,7 +114,7 @@
             Assert.AreEqual(ActivityNames.SubscribeActivityName, activity.OperationName);
             Assert.AreEqual("subscribe event", activity.DisplayName);
 
-            Assert.AreEqual(activity, operations.SubscribePipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.AreEqual(activity, operations.SubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
         }
 
         [Test]
@@ -137,7 +137,7 @@
             Assert.AreEqual(ActivityNames.UnsubscribeActivityName, activity.OperationName);
             Assert.AreEqual("unsubscribe event", activity.DisplayName);
 
-            Assert.AreEqual(activity, operations.UnsubscribePipeline.Context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.AreEqual(activity, operations.UnsubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
         }
 
         [Test]
