@@ -11,7 +11,7 @@
         /// <summary>
         /// Creates a new transport receive context.
         /// </summary>
-        public TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, RootContext rootContext)
+        public TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, PipelineRootContext rootContext)
             : base(rootContext)
         {
             Message = receivedMessage;

@@ -98,9 +98,9 @@
             }
         }
 
-        class BehaviorUsingContextImplementationOnTTo : IBehavior<IAuditContext, RootContext>
+        class BehaviorUsingContextImplementationOnTTo : IBehavior<IAuditContext, PipelineRootContext>
         {
-            public Task Invoke(IAuditContext context, Func<RootContext, Task> stage)
+            public Task Invoke(IAuditContext context, Func<PipelineRootContext, Task> stage)
             {
                 return Task.CompletedTask;
             }
@@ -114,9 +114,9 @@
             }
         }
 
-        class BehaviorUsingContextImplementationOnTFrom : IBehavior<RootContext, RootContext>
+        class BehaviorUsingContextImplementationOnTFrom : IBehavior<PipelineRootContext, PipelineRootContext>
         {
-            public Task Invoke(RootContext context, Func<RootContext, Task> next)
+            public Task Invoke(PipelineRootContext context, Func<PipelineRootContext, Task> next)
             {
                 return Task.CompletedTask;
             }

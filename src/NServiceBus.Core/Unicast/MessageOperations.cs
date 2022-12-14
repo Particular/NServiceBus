@@ -11,12 +11,12 @@ namespace NServiceBus
     class MessageOperations
     {
         IMessageMapper messageMapper;
-        readonly IPipeline<IOutgoingPublishContext> publishPipeline;
-        readonly IPipeline<IOutgoingSendContext> sendPipeline;
-        readonly IPipeline<IOutgoingReplyContext> replyPipeline;
-        readonly IPipeline<ISubscribeContext> subscribePipeline;
-        readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-        readonly IActivityFactory activityFactory;
+        protected readonly IPipeline<IOutgoingPublishContext> publishPipeline;
+        protected readonly IPipeline<IOutgoingSendContext> sendPipeline;
+        protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;
+        protected readonly IPipeline<ISubscribeContext> subscribePipeline;
+        protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
+        protected readonly IActivityFactory activityFactory;
 
         public MessageOperations(
             IMessageMapper messageMapper,

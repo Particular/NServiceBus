@@ -29,8 +29,7 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
-                var rootContext = new RootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken);
-                rootContext.Extensions.Merge(messageContext.Extensions);
+                var rootContext = new PipelineRootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken, messageContext.Extensions);
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, rootContext);
 

@@ -14,75 +14,109 @@
     [TestFixture]
     public class MainPipelineExecutorTests
     {
-        TestingActivityListener nsbActivityListener;
-
-        [OneTimeSetUp]
-        public void Setup()
+        [Test]
+        public async Task Should_share_message_context_extension_values()
         {
-            nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-        }
+            var existingValue = Guid.NewGuid();
 
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            nsbActivityListener.Dispose();
+            var receivePipeline = new TestableMessageOperations.Pipeline<ITransportReceiveContext>();
+            var executor = CreateMainPipelineExecutor(receivePipeline);
+            var messageContext = CreateMessageContext();
+            messageContext.Extensions.Set("existing value", existingValue);
+            await executor.Invoke(messageContext);
+
+            Assert.AreEqual(existingValue, receivePipeline.LastContext.Extensions.Get<Guid>("existing value"));
         }
 
         [Test]
-        public async Task When_invoking_pipeline()
+        public async Task Should_use_message_context_extensions_as_context_root()
         {
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+            var newValue = Guid.NewGuid();
+
+            var receivePipeline = new TestableMessageOperations.Pipeline<ITransportReceiveContext>
+            {
+                OnInvoke = ctx => ctx.Extensions.SetOnRoot("new value", newValue)
+            };
+            var executor = CreateMainPipelineExecutor(receivePipeline);
             var messageContext = CreateMessageContext();
 
             await executor.Invoke(messageContext);
 
-            Assert.NotNull(receivePipeline.PipelineAcitivty);
-            Assert.AreEqual(ActivityNames.IncomingMessageActivityName, receivePipeline.PipelineAcitivty.OperationName);
-            Assert.AreEqual("process message", receivePipeline.PipelineAcitivty.DisplayName);
-            Assert.AreEqual(receivePipeline.PipelineAcitivty, receivePipeline.TransportReceiveContext.Extensions.Get<Activity>(ActivityExtensions.IncomingActivityKey));
+            Assert.AreEqual(newValue, messageContext.Extensions.Get<Guid>("new value"));
         }
 
-        [Test]
-        public async Task When_pipeline_successful()
+        class When_activity_listener_registered
         {
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
+            TestingActivityListener nsbActivityListener;
 
-            await executor.Invoke(CreateMessageContext());
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+            }
 
-            Assert.AreEqual(ActivityStatusCode.Ok, receivePipeline.PipelineAcitivty.Status);
+            [OneTimeTearDown]
+            public void TearDown()
+            {
+                nsbActivityListener.Dispose();
+            }
+
+            [Test]
+            public async Task Should_start_Activity_when_invoking_pipeline()
+            {
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var executor = CreateMainPipelineExecutor(receivePipeline);
+                var messageContext = CreateMessageContext();
+
+                await executor.Invoke(messageContext);
+
+                Assert.NotNull(receivePipeline.PipelineAcitivty);
+                Assert.AreEqual(ActivityNames.IncomingMessageActivityName, receivePipeline.PipelineAcitivty.OperationName);
+                Assert.AreEqual("process message", receivePipeline.PipelineAcitivty.DisplayName);
+                Assert.AreEqual(receivePipeline.PipelineAcitivty, receivePipeline.TransportReceiveContext.Extensions.Get<Activity>(ActivityExtensions.IncomingActivityKey));
+            }
+
+            [Test]
+            public async Task Should_set_ok_status_on_activity_when_pipeline_successful()
+            {
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var executor = CreateMainPipelineExecutor(receivePipeline);
+
+                await executor.Invoke(CreateMessageContext());
+
+                Assert.AreEqual(ActivityStatusCode.Ok, receivePipeline.PipelineAcitivty.Status);
+            }
+
+            [Test]
+            public void Should_set_error_status_on_activity_when_pipeline_throws_exception()
+            {
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var executor = CreateMainPipelineExecutor(receivePipeline);
+                receivePipeline.ThrowsException = true;
+
+                Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
+
+                Assert.AreEqual(ActivityStatusCode.Error, receivePipeline.PipelineAcitivty.Status);
+            }
         }
 
-        [Test]
-        public void When_pipeline_throws_exception()
-        {
-            var executor = CreateMainPipelineExecutor(out var receivePipeline);
-            receivePipeline.ThrowsException = true;
-
-            Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
-
-            Assert.AreEqual(ActivityStatusCode.Error, receivePipeline.PipelineAcitivty.Status);
-        }
-
-        static MessageContext CreateMessageContext(Dictionary<string, string> messageHeaders = null, ContextBag contextBag = null)
-        {
-            return new MessageContext(
+        static MessageContext CreateMessageContext() =>
+            new(
                 Guid.NewGuid().ToString(),
-                messageHeaders ?? new Dictionary<string, string>(),
+                new Dictionary<string, string>(),
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",
-                contextBag ?? new ContextBag());
-        }
+                new ContextBag());
 
-        static MainPipelineExecutor CreateMainPipelineExecutor(out ReceivePipeline receivePipeline)
+        static MainPipelineExecutor CreateMainPipelineExecutor(IPipeline<ITransportReceiveContext> receivePipeline)
         {
             var serviceCollection = new ServiceCollection();
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            receivePipeline = new ReceivePipeline();
             var executor = new MainPipelineExecutor(
                 serviceProvider,
                 new PipelineCache(serviceProvider, new PipelineModifications()),
-                new MessageOperations(null, null, null, null, null, null, null),
+                new TestableMessageOperations(),
                 new Notification<ReceivePipelineCompleted>(),
                 receivePipeline,
                 new ActivityFactory());
@@ -90,7 +124,7 @@
             return executor;
         }
 
-        class ReceivePipeline : IPipeline<ITransportReceiveContext>
+        class ActivityTrackingReceivePipeline : IPipeline<ITransportReceiveContext>
         {
             public Activity PipelineAcitivty { get; set; }
 

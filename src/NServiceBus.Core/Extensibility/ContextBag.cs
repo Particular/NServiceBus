@@ -14,6 +14,7 @@ namespace NServiceBus.Extensibility
         public ContextBag(ContextBag parentBag = null)
         {
             this.parentBag = parentBag;
+            root = parentBag?.root ?? this;
             Behaviors = parentBag?.Behaviors;
         }
 
@@ -134,6 +135,18 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
+        /// Sets a value on the context bag at the root of the context chain.
+        /// This can enable sharing context across the main and the recoverability pipeline or across forks without an existing value holder present in the shared context hierarchy
+        ///
+        /// Be careful, values set on the root are available to all pipeline forks that are created off the root context! Therefore there there's a risk of conflicting keys or overriding existing keys from other forks. The same pipeline behaviors can be executed multiple times on nested chains (e.g. nested sends).
+        /// 
+        /// </summary>
+        internal void SetOnRoot<T>(string key, T t)
+        {
+            root.Set(key, t);
+        }
+
+        /// <summary>
         /// Merges the passed context into this one.
         /// </summary>
         /// <param name="context">The source context.</param>
@@ -165,7 +178,10 @@ namespace NServiceBus.Extensibility
         /// </summary>
         internal IBehavior[] Behaviors { get; set; }
 
-        ContextBag parentBag;
+        internal ContextBag parentBag;
+
+        private protected ContextBag root;
+
         Dictionary<string, object> stash; // might be null!
     }
 }
