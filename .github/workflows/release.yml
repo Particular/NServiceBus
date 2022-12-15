@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.2.0
         with:
           fetch-depth: 0
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v2.1.0
+        uses: actions/setup-dotnet@v3.0.3
         with:
           dotnet-version: 7.0.x            
       - name: Build
@@ -28,7 +28,7 @@ jobs:
           client-secret: ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }}
           certificate-name: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
       - name: Publish artifacts
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: nugets
           path: nugets/*
