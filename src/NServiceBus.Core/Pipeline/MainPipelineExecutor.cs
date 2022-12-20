@@ -25,7 +25,8 @@ namespace NServiceBus
 
             using var activity = activityFactory.StartIncomingActivity(messageContext);
 
-            using (var childScope = rootBuilder.CreateScope())
+            var childScope = rootBuilder.CreateAsyncScope();
+            await using (childScope.ConfigureAwait(false))
             {
                 var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 

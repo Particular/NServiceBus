@@ -31,7 +31,8 @@
 
         public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
         {
-            using (var childScope = serviceProvider.CreateScope())
+            var childScope = serviceProvider.CreateAsyncScope();
+            await using (childScope.ConfigureAwait(false))
             {
                 var rootContext = new PipelineRootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken, errorContext.Extensions);
 
