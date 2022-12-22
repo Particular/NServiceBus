@@ -30,13 +30,12 @@ namespace NServiceBus
 
             var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, serviceCollection);
 
-
             var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
             endpointCreator.Configure();
 
             return endpointCreator;
 
-            void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
+            static void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
             {
                 if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
                 {
