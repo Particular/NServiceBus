@@ -63,7 +63,10 @@ namespace NServiceBus
                 finally
                 {
                     settings.Clear();
-                    (builder as IDisposable)?.Dispose();
+                    if (builder is IAsyncDisposable asyncDisposableBuilder)
+                    {
+                        await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
+                    }
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
