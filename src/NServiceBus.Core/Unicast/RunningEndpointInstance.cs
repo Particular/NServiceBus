@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus
 {
     using System;
@@ -9,7 +11,7 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider builder)
+        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider? builder)
         {
             this.settings = settings;
             this.receiveComponent = receiveComponent;
@@ -150,7 +152,7 @@ namespace NServiceBus
         IMessageSession messageSession;
         readonly TransportInfrastructure transportInfrastructure;
         readonly CancellationTokenSource stoppingTokenSource;
-        readonly IServiceProvider builder;
+        readonly IServiceProvider? builder;
         SettingsHolder settings;
 
         volatile Status status = Status.Running;
