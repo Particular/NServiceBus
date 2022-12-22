@@ -79,6 +79,7 @@ namespace NServiceBus
 #else
                 tokenRegistration.Dispose();
 #endif
+                stoppingTokenSource.Dispose();
             }
         }
 
