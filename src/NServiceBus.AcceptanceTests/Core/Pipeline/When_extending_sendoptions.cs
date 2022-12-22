@@ -56,7 +56,7 @@
                 {
                     testContext.Secret = message.Secret;
                     testContext.WasCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

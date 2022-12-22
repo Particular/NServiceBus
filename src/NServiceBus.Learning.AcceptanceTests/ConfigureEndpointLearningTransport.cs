@@ -18,7 +18,7 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
         }
         catch { }
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
@@ -36,7 +36,7 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
         };
         configuration.UseTransport(learningTransport);
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     string storageDir;

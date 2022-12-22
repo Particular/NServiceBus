@@ -66,7 +66,7 @@
                 public Task Handle(LocalMessage message, IMessageHandlerContext context)
                 {
                     testContext.LocalMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -84,7 +84,7 @@
                 public Task Handle(BehaviorMessage message, IMessageHandlerContext context)
                 {
                     testContext.BehaviorMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

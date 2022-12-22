@@ -53,7 +53,7 @@
                     scenarioContext.MessageReceived = true;
                     scenarioContext.Input = message.Value;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context scenarioContext;
@@ -68,7 +68,7 @@
 
                     context.Body = Encoding.UTF8.GetBytes(body.Replace("Hello World!", $"{invalidChar}Hello {invalidChar}World!{invalidChar}"));
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

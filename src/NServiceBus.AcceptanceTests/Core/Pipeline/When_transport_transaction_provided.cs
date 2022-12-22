@@ -60,7 +60,7 @@
                 public Task Handle(AnotherMessage message, IMessageHandlerContext context)
                 {
                     testContext.AnotherMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

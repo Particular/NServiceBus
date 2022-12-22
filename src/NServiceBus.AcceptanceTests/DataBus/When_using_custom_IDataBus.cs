@@ -66,7 +66,7 @@
                 {
                     testContext.ReceivedPayload = messageWithLargePayload.Payload.Value;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -98,7 +98,7 @@
 
             public Task Start(CancellationToken cancellationToken = default)
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
 

@@ -75,7 +75,7 @@
                 {
                     testContext.MessageHandled = true;
                     testContext.HasFailed |= message.HasFailed;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

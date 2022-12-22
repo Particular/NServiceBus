@@ -55,7 +55,7 @@
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
                     testContext.OrderAckReceived++;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

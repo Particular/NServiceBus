@@ -52,7 +52,7 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
                 {
                     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)

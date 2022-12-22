@@ -53,7 +53,7 @@
                 {
                     Data.DataId = Guid.NewGuid();
                     testContext.ModifiedCorrelationProperty = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrIdChangedSagaData> mapper)

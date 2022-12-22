@@ -79,7 +79,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
                     {
                         Interlocked.Increment(ref testContext.MessageDelivered);
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 

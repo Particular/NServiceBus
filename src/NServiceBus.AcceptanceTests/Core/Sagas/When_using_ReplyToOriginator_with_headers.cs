@@ -70,7 +70,7 @@
                 public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
                     testContext.CustomHeaderOnReply = context.MessageHeaders["CustomHeader"];
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

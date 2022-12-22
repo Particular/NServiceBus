@@ -44,7 +44,7 @@
                 {
                     var original = (OriginalMessage)context.Message;
                     context.Message = new NewMessage { SomeId = original.SomeId };
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -58,7 +58,7 @@
                 public Task Handle(OriginalMessage message, IMessageHandlerContext context)
                 {
                     TestContext.OriginalMessageHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context TestContext;
@@ -74,7 +74,7 @@
                 public Task Handle(NewMessage message, IMessageHandlerContext context)
                 {
                     TestContext.NewMessageHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context TestContext;
@@ -90,13 +90,13 @@
                 public Task Handle(NewMessage message, IMessageHandlerContext context)
                 {
                     TestContext.NewMessageSagaHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(OriginalMessage message, IMessageHandlerContext context)
                 {
                     TestContext.OriginalMessageSagaHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)

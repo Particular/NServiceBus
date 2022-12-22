@@ -75,13 +75,13 @@
                 public Task Handle(MappedEchoMessage message, IMessageHandlerContext context)
                 {
                     testContext.MappedEchoReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(EchoMessage message, IMessageHandlerContext context)
                 {
                     testContext.EchoReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

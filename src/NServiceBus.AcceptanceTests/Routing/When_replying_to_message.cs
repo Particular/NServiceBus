@@ -84,7 +84,7 @@
                 public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.SendingEndpointGotResponse = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -108,7 +108,7 @@
                 public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.OtherEndpointGotResponse = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

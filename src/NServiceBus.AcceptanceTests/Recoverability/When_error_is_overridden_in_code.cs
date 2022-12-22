@@ -55,7 +55,7 @@
                 public Task Handle(Message message, IMessageHandlerContext context)
                 {
                     testContext.MessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

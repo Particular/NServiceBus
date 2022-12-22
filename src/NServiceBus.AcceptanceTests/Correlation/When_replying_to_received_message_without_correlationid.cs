@@ -60,7 +60,7 @@
                     context.CorrelationIdReceived = c.MessageHeaders[Headers.CorrelationId];
                     context.GotResponse = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 readonly Context context;
@@ -75,7 +75,7 @@
                         context.Headers.Remove(Headers.CorrelationId);
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

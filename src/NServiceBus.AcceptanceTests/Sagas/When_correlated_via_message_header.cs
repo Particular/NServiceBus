@@ -108,7 +108,7 @@
                 {
                     scenario.CorrelationId = Data.CorrelationId;
                     scenario.Done = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithHeaderMapping> mapper)

@@ -55,7 +55,7 @@
             }
 
             sentMessages.Enqueue(new SentMessage<object>(message, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@
         public virtual Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default)
         {
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -122,7 +122,7 @@
         public virtual Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default)
         {
             subscriptions.Enqueue(new Subscription(eventType, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -133,7 +133,7 @@
         public virtual Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default)
         {
             unsubscriptions.Enqueue(new Unsubscription(eventType, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>

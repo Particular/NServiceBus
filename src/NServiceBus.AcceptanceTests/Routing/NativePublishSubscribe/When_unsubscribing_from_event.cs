@@ -89,7 +89,7 @@
                 {
                     Interlocked.Increment(ref testContext.Subscriber1ReceivedMessages);
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -114,7 +114,7 @@
                 {
                     Interlocked.Increment(ref testContext.Subscriber2ReceivedMessages);
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

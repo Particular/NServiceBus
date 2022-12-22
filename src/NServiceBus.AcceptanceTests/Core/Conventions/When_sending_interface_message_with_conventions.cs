@@ -64,12 +64,12 @@
                 {
                     if (testContext.Id != interfaceMessage.Id)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     testContext.MessageInterfaceReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

@@ -76,7 +76,7 @@
                 {
                     testContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
                     testContext.MatchingMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -93,7 +93,7 @@
                 {
                     testContext.NonMatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
                     testContext.NonMatchingMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

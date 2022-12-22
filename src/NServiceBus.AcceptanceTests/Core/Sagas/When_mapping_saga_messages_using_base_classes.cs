@@ -52,7 +52,7 @@
                 public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
                     testContext.SecondMessageFoundExistingSaga = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)

@@ -71,7 +71,7 @@
                 {
                     testContext.ReceivedAt = DateTimeOffset.UtcNow;
                     testContext.WasCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

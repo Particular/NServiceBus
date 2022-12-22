@@ -65,7 +65,7 @@
 
                 public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(object message, IMessageProcessingContext context)
@@ -79,12 +79,12 @@
                     {
                         testContext.NotFoundHandlerCalledForTimeout = true;
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Timeout(MyTimeout state, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)

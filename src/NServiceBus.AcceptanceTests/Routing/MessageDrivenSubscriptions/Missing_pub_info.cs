@@ -39,7 +39,7 @@
             {
                 public Task Handle(MyEvent @event, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

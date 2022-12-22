@@ -134,7 +134,7 @@
                         throw new Exception("Unknown type");
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

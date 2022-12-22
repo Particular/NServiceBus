@@ -63,7 +63,7 @@
                 public Task Handle(LoopMessage message, IMessageHandlerContext context)
                 {
                     testContext.WasCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -79,14 +79,14 @@
                 {
                     Assert.IsNotEmpty(context.Headers);
                     Assert.IsNotNull(context.Message);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
                     Assert.IsNotEmpty(context.Headers);
                     Assert.IsNotNull(context.Body);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task MutateOutgoing(MutateOutgoingMessageContext context)
@@ -97,7 +97,7 @@
                     context.TryGetIncomingMessage(out var incomingMessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingMessage);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
@@ -108,7 +108,7 @@
                     context.TryGetIncomingMessage(out var incomingMessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingMessage);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

@@ -49,7 +49,7 @@
                 public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
                 {
                     testContext.WasCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

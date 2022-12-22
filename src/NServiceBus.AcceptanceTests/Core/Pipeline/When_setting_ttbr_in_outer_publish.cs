@@ -106,13 +106,13 @@
                 public Task Handle(OuterEvent message, IMessageHandlerContext context)
                 {
                     testContext.OuterEventReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(InnerEvent message, IMessageHandlerContext context)
                 {
                     testContext.InnerEventReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

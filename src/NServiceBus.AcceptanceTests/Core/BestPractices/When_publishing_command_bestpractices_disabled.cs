@@ -42,7 +42,7 @@
             {
                 public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

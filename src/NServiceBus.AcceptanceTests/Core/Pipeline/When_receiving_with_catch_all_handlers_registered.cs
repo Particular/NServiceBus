@@ -57,11 +57,11 @@
                 var myMessage = (MyMessage)message;
                 if (testContext.Id != myMessage.Id)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 testContext.ObjectHandlerWasCalled = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;
@@ -79,12 +79,12 @@
                 var myMessage = (MyMessage)message;
                 if (testContext.Id != myMessage.Id)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 testContext.DynamicHandlerWasCalled = true;
 
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;
@@ -102,11 +102,11 @@
                 var myMessage = (MyMessage)message;
                 if (testContext.Id != myMessage.Id)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 testContext.IMessageHandlerWasCalled = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;

@@ -51,7 +51,7 @@
                 public Task Handle(SomeCommand message, IMessageHandlerContext context)
                 {
                     testContext.ReceivedMessageIds.Enqueue(context.MessageId);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

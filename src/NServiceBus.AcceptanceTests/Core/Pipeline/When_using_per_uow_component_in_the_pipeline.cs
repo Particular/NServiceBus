@@ -104,7 +104,7 @@
                 {
                     testContext.ValueEmpty |= component.ValueFromHeader == null;
                     testContext.OnMessageProcessed();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

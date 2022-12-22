@@ -72,7 +72,7 @@
                     modifiedBody[modifiedBody.Length - 1] = 13;
 
                     context.Body = modifiedBody;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -82,7 +82,7 @@
             {
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -104,7 +104,7 @@
                 public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     context.AuditChecksum = Checksum(transportMessage.Body.ToArray());
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context context;
@@ -121,12 +121,12 @@
                 {
                     if (message.RunId != testContext.RunId)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     testContext.Done = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

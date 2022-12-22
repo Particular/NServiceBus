@@ -13,7 +13,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             Assert.That(async () =>
             {
                 await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(e => e.When(b => Task.FromResult(0)))
+                    .WithEndpoint<Endpoint>(e => e.When(b => Task.CompletedTask))
                     .Run();
             }, Throws.Exception.With.Message.Contains("DisableFeature<Outbox>()"));
         }

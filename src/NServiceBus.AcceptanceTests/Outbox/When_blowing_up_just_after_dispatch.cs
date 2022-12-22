@@ -70,7 +70,7 @@
                 public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context)
                 {
                     testContext.OrderAckReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

@@ -57,14 +57,14 @@
                 {
                     testContext.SagaIdWhenOtherMessageReceived = Data.Id;
                     testContext.SecondMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     testContext.FirstMessageReceived = true;
                     testContext.SagaIdWhenStartSagaMessageReceived = Data.Id;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData02> mapper)

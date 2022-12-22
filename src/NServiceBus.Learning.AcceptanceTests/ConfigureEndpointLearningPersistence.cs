@@ -28,7 +28,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
         configuration.UsePersistence<LearningPersistence, StorageType.Sagas>()
             .SagaStorageDirectory(storageDir);
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     public Task Cleanup()
@@ -42,7 +42,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
         }
         catch { }
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     string storageDir;

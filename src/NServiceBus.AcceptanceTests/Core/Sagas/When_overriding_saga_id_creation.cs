@@ -76,7 +76,7 @@
                     Data.CustomerId = message.CustomerId;
                     testContext.SagaId = Data.Id;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CustomSagaIdSagaData> mapper)

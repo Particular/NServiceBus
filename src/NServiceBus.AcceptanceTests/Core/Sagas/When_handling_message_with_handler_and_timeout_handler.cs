@@ -47,13 +47,13 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     testContext.HandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     testContext.TimeoutHandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HandlerAndTimeoutSagaData> mapper)

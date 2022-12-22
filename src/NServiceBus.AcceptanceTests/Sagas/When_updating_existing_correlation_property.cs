@@ -54,7 +54,7 @@
                     {
                         Data.SomeId = Guid.NewGuid(); //this is not allowed
                         testContext.ModifiedCorrelationProperty = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     return context.SendLocal(new StartSagaMessage

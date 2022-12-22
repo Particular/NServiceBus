@@ -73,7 +73,7 @@
                 public Task Handle(EventMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.Subscriber1GotTheEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

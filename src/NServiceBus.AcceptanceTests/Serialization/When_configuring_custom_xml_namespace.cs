@@ -51,7 +51,7 @@
                 public Task Handle(SimpleMessage message, IMessageHandlerContext context)
                 {
                     scenarioContext.MessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context scenarioContext;
@@ -69,7 +69,7 @@
                     var document = XDocument.Parse(Encoding.UTF8.GetString(context.Body.ToArray()));
                     var defaultNamespace = document.Root?.GetDefaultNamespace();
                     scenarioContext.MessageNamespace = defaultNamespace?.NamespaceName;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context scenarioContext;

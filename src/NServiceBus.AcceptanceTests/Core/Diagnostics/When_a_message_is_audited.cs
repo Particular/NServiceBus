@@ -44,7 +44,7 @@
             {
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -70,7 +70,7 @@
                     testContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
                     testContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
                     testContext.Done = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

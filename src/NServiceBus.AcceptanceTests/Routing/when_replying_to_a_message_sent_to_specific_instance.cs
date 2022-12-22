@@ -55,7 +55,7 @@
                 public Task Handle(MyResponse message, IMessageHandlerContext context)
                 {
                     testContext.ReplyToAddress = context.MessageHeaders[Headers.ReplyToAddress];
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

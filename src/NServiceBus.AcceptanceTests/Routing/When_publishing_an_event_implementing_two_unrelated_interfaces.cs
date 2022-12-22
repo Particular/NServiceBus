@@ -100,11 +100,11 @@
                 {
                     if (@event.ContextId != testContext.Id)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
                     testContext.GotEventA = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -121,12 +121,12 @@
                 {
                     if (@event.ContextId != testContext.Id)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     testContext.GotEventB = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

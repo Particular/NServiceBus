@@ -68,7 +68,7 @@
                 public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context)
                 {
                     testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

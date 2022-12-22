@@ -21,7 +21,7 @@
             Func<ICriticalErrorContext, CancellationToken, Task> addCritical = (criticalContext, _) =>
             {
                 exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             };
 
             await Scenario.Define<TestContext>()
@@ -73,7 +73,7 @@
                         testContext.CriticalErrorsRaised++;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 CriticalError criticalError;
@@ -96,12 +96,12 @@
                 criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
                 testContext.CriticalErrorsRaised++;
 
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             readonly TestContext testContext;

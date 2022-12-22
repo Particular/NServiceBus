@@ -154,7 +154,7 @@
                 public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.Subscriber3GotTheEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -180,7 +180,7 @@
                 {
                     testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     testContext.Subscriber1GotTheEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -205,7 +205,7 @@
                 public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.Subscriber2GotTheEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

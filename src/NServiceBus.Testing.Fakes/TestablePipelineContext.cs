@@ -56,7 +56,7 @@
             }
 
             sentMessages.Enqueue(new SentMessage<object>(message, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -78,7 +78,7 @@
         public virtual Task Publish(object message, PublishOptions options)
         {
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>

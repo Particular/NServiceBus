@@ -42,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Core.BestPractices
             {
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

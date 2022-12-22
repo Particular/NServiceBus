@@ -46,7 +46,7 @@
                     context.OutgoingHeaders["HeaderSetByMutator"] = "some value";
                     context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
                     context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo><SomeProperty>SomeValue</SomeProperty></MessageThatMutatorChangesTo>");
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -62,7 +62,7 @@
                     testContext.CanAddHeaders = context.MessageHeaders.ContainsKey("HeaderSetByMutator");
                     testContext.MutatedPropertyValue = message.SomeProperty;
                     testContext.MessageProcessed = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

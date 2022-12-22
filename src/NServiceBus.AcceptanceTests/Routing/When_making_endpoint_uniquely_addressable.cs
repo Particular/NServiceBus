@@ -77,7 +77,7 @@
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     Interlocked.Increment(ref testContext.MessagesReceived);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

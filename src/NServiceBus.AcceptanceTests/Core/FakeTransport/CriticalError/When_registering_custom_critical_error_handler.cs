@@ -47,7 +47,7 @@
                         context.Exception = aggregateException.InnerExceptions.First();
                         context.Message = errorContext.Error;
                         context.ExceptionReceived = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     });
                 });
             }
@@ -56,7 +56,7 @@
             {
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

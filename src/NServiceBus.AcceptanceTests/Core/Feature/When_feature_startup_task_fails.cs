@@ -42,7 +42,7 @@
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

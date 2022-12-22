@@ -41,7 +41,7 @@
                     {
                         context.OutgoingMessage = new V2Message();
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -56,7 +56,7 @@
                 {
                     testContext.V2MessageReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -73,7 +73,7 @@
                 {
                     testContext.V1MessageReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

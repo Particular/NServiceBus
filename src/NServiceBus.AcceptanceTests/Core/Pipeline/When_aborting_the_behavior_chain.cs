@@ -49,7 +49,7 @@
 
                     context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -67,7 +67,7 @@
                 {
                     testContext.SecondHandlerInvoked = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

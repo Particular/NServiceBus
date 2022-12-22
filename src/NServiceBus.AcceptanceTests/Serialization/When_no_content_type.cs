@@ -43,7 +43,7 @@
                 public Task Handle(Message request, IMessageHandlerContext context)
                 {
                     testContext.ReceivedMessage = request.Property == "value";
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -54,7 +54,7 @@
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
                     context.Headers.Remove(Headers.ContentType);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

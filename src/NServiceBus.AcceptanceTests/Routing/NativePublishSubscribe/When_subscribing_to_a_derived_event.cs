@@ -70,7 +70,7 @@
                 public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.SubscriberGotEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -86,7 +86,7 @@
                 public Task Handle(Done message, IMessageHandlerContext context)
                 {
                     testContext.Done = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

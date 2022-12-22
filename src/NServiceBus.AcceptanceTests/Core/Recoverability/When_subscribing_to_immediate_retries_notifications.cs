@@ -48,7 +48,7 @@
                     recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                     {
                         testContext.MessageSentToError = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }));
 
                     recoverability.Immediate(immediateRetriesSettings =>
@@ -58,7 +58,7 @@
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                             testContext.LastImmediateRetryInfo = retryInfo;
-                            return Task.FromResult(0);
+                            return Task.CompletedTask;
                         });
                     });
                 });

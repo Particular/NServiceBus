@@ -60,12 +60,12 @@
                     //corrupt
                     newBody[1]++;
                     transportMessage.Body = newBody;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -75,7 +75,7 @@
             {
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

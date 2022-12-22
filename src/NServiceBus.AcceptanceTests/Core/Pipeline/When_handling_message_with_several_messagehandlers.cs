@@ -55,12 +55,12 @@
             {
                 if (testContext.Id != message.Id)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 testContext.FirstHandlerWasCalled = true;
 
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;
@@ -77,12 +77,12 @@
             {
                 if (testContext.Id != message.Id)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 testContext.SecondHandlerWasCalled = true;
 
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;
