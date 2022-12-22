@@ -13,18 +13,20 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
         [Test]
         public async Task Should_dispose()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAsyncDisposable>(b =>
                 {
                     b.When(e => e.SendLocal(new SomeMessage()));
                 })
-                .Done(c => c.WasDisposed)
+                .Done(c => c.AsyncDisposableDisposed)
                 .Run();
+
+            Assert.That(context.AsyncDisposableDisposed, Is.True, "AsyncDisposable wasn't disposed as it should have been.");
         }
 
         class Context : ScenarioContext
         {
-            public bool WasDisposed { get; set; }
+            public bool AsyncDisposableDisposed { get; set; }
         }
 
         public class EndpointWithAsyncDisposable : EndpointConfigurationBuilder
@@ -61,7 +63,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
 
             public ValueTask DisposeAsync()
             {
-                context.WasDisposed = true;
+                context.AsyncDisposableDisposed = true;
                 return new ValueTask();
             }
 
