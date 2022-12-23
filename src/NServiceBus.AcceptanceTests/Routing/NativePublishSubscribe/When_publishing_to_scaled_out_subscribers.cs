@@ -72,7 +72,7 @@
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     testContext.IncrementSubscriberACounter();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -96,7 +96,7 @@
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     testContext.IncrementSubscriberBCounter();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

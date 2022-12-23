@@ -42,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
             {
                 testContext.InputQueue = context.MessageHeaders[Headers.ReplyToAddress];
                 testContext.Done = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;

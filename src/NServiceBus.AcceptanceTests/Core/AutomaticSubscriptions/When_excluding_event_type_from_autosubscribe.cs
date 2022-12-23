@@ -76,7 +76,7 @@
             {
                 public Task Handle(EventToSubscribeTo message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -84,7 +84,7 @@
             {
                 public Task Handle(EventToExclude message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -92,7 +92,7 @@
             {
                 public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

@@ -75,7 +75,7 @@
                     Data.DataId = message.DataId;
                     MarkAsComplete();
                     testContext.DidSagaComplete = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)

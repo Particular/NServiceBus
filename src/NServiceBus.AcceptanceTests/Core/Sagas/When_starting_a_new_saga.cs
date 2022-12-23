@@ -46,7 +46,7 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     testContext.SomeId = Data.SomeId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)

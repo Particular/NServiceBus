@@ -116,7 +116,7 @@
                         Interlocked.Increment(ref testContext.MessageDeliveredReceiver2);
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

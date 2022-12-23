@@ -44,7 +44,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 {
                     testContext.SynchronizedStorageSessionInstanceInHandlingContext = context.SynchronizedStorageSession;
                     testContext.MessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 readonly Context testContext;

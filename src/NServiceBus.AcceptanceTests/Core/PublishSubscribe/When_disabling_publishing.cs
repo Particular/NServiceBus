@@ -77,7 +77,7 @@
                 public Task Handle(TestEvent message, IMessageHandlerContext context)
                 {
                     testContext.ReceivedEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

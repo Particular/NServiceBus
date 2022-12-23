@@ -44,7 +44,7 @@
                 {
                     testContext.TTBROnIncomingMessage = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
                     testContext.WasCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

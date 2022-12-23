@@ -76,13 +76,13 @@
                 public Task Handle(SomeCommand message, IMessageHandlerContext context)
                 {
                     testContext.RegularCommandHandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(SomeEvent message, IMessageHandlerContext context)
                 {
                     testContext.RegularEventHandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -99,13 +99,13 @@
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.ManuallyRegisteredCommandHandlerInvoked = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.ManuallyRegisteredEventHandlerInvoked = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
 

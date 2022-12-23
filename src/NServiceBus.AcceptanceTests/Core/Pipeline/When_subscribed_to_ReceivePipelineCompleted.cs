@@ -41,7 +41,7 @@
                         var testContext = (Context)c.GetSettings().Get<ScenarioContext>();
                         testContext.ReceivePipelineCompletedMessage = e;
                         testContext.NotificationEventFired = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     });
                 });
             }
@@ -56,7 +56,7 @@
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     testContext.MessageId = context.MessageId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

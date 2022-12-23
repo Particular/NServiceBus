@@ -97,7 +97,7 @@
                 {
                     testContext.Headers = context.MessageHeaders;
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -124,7 +124,7 @@
                     testContext.FaultHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.IsMessageHandledByTheFaultEndpoint = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

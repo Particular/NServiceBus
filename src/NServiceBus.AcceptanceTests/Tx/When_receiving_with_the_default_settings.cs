@@ -45,7 +45,7 @@
                 {
                     testContext.AmbientTransactionExists = Transaction.Current != null;
                     testContext.HandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

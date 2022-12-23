@@ -41,7 +41,7 @@
             {
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -84,7 +84,7 @@
                     testContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
                     testContext.Done = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -94,7 +94,7 @@
             {
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

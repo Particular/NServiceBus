@@ -78,7 +78,7 @@
                 {
                     testContext.ReceivedPayload = messageWithLargePayload.Payload.Value;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -92,7 +92,7 @@
                     {
                         throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

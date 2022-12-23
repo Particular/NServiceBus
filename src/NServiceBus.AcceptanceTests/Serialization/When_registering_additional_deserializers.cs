@@ -77,7 +77,7 @@
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     testContext.HandlerGotTheRequest = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

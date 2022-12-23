@@ -19,7 +19,7 @@
                     {
                         context.EventSubscribed = true;
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 })
                 .When(c => c.EventSubscribed || c.HasNativePubSubSupport, (session, context) => session.Publish(new Event { ContextId = context.Id })))
                 .Done(c => c.GotEvent)
@@ -64,11 +64,11 @@
                 {
                     if (@event.ContextId != testContext.Id)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
                     testContext.GotEvent = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

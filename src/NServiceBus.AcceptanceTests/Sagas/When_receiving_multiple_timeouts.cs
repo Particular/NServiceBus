@@ -87,7 +87,7 @@
                     {
                         MarkAsComplete();
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
@@ -101,7 +101,7 @@
                     {
                         MarkAsComplete();
                     }
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper)
@@ -126,12 +126,12 @@
                 {
                     if (((dynamic)message).ContextId != TestContext.Id)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     TestContext.SagaNotFound = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -139,7 +139,7 @@
             {
                 public Task Handle(object message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

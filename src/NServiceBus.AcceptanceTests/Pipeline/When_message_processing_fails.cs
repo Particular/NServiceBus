@@ -43,7 +43,7 @@
                         var testContext = (Context)r.ScenarioContext;
                         testContext.MessageFailed = true;
                         testContext.Exception = failure.Exception;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }));
                 });
             }

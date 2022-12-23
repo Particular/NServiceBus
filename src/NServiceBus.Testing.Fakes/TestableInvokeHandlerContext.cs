@@ -41,7 +41,7 @@
         /// <summary>
         /// The current <see cref="T:NServiceBus.IHandleMessages`1" /> being executed.
         /// </summary>
-        public MessageHandler MessageHandler { get; set; } = new MessageHandler((instance, message, context) => Task.FromResult(0), typeof(object));
+        public MessageHandler MessageHandler { get; set; } = new MessageHandler((instance, message, context) => Task.CompletedTask, typeof(object));
 
         /// <summary>
         /// Message headers.

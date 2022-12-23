@@ -94,7 +94,7 @@
                 public Task Handle(V1Event message, IMessageHandlerContext context)
                 {
                     testContext.V1SubscriberGotTheMessage = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -119,7 +119,7 @@
                 public Task Handle(V2Event message, IMessageHandlerContext context)
                 {
                     testContext.V2SubscriberGotTheMessage = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

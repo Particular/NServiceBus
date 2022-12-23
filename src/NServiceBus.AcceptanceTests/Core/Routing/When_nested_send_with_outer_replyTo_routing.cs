@@ -76,14 +76,14 @@
                 {
                     testContext.OuterMessageReceived = true;
                     testContext.OuterMessageReplyAddress = context.ReplyToAddress;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(InnerMessage message, IMessageHandlerContext context)
                 {
                     testContext.InnerMessageReceived = true;
                     testContext.InnerMessageReplyAddress = context.ReplyToAddress;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

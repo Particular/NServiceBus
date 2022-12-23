@@ -41,7 +41,7 @@ namespace NServiceBus.Testing
         public virtual Task Reply(object message, ReplyOptions options)
         {
             repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NServiceBus.Testing
         public virtual Task ForwardCurrentMessageTo(string destination)
         {
             forwardedMessages.Enqueue(destination);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>

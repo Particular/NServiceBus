@@ -68,20 +68,20 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     testContext.StartSagaMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(AnotherMessage message, IMessageHandlerContext context)
                 {
                     testContext.SagaReceivedAnotherMessage = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
                     testContext.SagaCompleted = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData12> mapper)
@@ -113,7 +113,7 @@
             public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {
                 testContext.AnotherMessageReceived = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;

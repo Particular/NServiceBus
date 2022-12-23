@@ -30,7 +30,7 @@
             {
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -53,7 +53,7 @@
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     testContext.MessageAudited = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

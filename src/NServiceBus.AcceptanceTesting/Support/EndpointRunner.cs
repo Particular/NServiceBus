@@ -91,7 +91,7 @@
                 //We need to set the error flag to false as we want to reset all processing exceptions caused by immediate retries
                 scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.MessageId, id => false, (id, value) => false);
 
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }));
             endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
         }

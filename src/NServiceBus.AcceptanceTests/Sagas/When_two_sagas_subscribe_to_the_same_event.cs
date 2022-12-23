@@ -93,7 +93,7 @@
 
                     MarkAsComplete();
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper)
@@ -131,7 +131,7 @@
                 {
                     testContext.DidSaga2EventHandlerGetInvoked = true;
                     MarkAsComplete();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)

@@ -108,7 +108,7 @@
                         testContext.MessageMovedToErrorQueue = true;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -128,7 +128,7 @@
                         testContext.OutgoingMessageSent = true;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

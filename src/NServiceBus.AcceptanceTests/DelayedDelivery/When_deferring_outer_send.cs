@@ -79,7 +79,7 @@
                     testContext.ReceivedDelayedMessage = true;
                     testContext.DelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _); // header value not set when routing to timeout manager
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(NonDelayedMessage message, IMessageHandlerContext context)
@@ -87,7 +87,7 @@
                     testContext.ReceivedNonDelayedMessage = true;
                     testContext.NonDelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _); // header value not set when routing to timeout manager
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

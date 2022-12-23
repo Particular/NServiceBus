@@ -86,7 +86,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         {
                             scenarioContext.ThrottleModeEntered = true;
 
-                            return Task.FromResult(0);
+                            return Task.CompletedTask;
                         });
 
                     recoverability.OnConsecutiveFailures(NumberOfConsecutiveFailuresBeforeThrottling, rateLimitingSettings);

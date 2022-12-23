@@ -35,7 +35,7 @@
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
 
@@ -67,7 +67,7 @@
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     testContext.WasCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

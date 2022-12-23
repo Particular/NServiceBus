@@ -88,14 +88,14 @@
                 public Task Handle(MessageWithoutSerialization message, IMessageHandlerContext context)
                 {
                     testContext.MessageWithSkippedSerializationReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(NestedMessage message, IMessageHandlerContext context)
                 {
                     testContext.NestedMessageReceived = true;
                     testContext.NestedMessagePropertyValue = message.SomeProperty;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

@@ -90,14 +90,14 @@
                         return context.SendLocal(new FinishMsg { OrderId = message.OrderId });
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(FinishMsg message, IMessageHandlerContext context)
                 {
                     this.MarkAsComplete();
                     testContext.SagaData = Data;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

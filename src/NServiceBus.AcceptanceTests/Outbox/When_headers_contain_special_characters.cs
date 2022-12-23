@@ -105,7 +105,7 @@
                 {
                     testContext.MessageReceived = true;
                     testContext.UnicodeHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

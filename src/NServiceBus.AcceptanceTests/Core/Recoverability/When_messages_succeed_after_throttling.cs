@@ -53,13 +53,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     {
                         scenarioContext.ThrottleModeEntered = true;
 
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     },
                     cancellation =>
                     {
                         scenarioContext.ThrottleModeEnded = true;
 
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     });
 
                     recoverability.OnConsecutiveFailures(2, rateLimitingSettings);
@@ -81,7 +81,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
                     testContext.MessageProcessedNormally = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

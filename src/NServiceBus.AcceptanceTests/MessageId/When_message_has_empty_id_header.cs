@@ -60,7 +60,7 @@
                     testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.MessageReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

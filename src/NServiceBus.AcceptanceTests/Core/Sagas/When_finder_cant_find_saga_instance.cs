@@ -73,7 +73,7 @@
                     Data.CorrelationProperty = "some value";
 
                     testContext.SagaStarted = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData06> mapper)
@@ -85,7 +85,7 @@
                 // This additional, unused, message is required to reprododuce https://github.com/Particular/NServiceBus/issues/4888
                 public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public class SagaData06 : ContainSagaData

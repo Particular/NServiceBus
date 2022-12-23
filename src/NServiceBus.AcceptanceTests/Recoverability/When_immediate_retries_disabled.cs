@@ -45,7 +45,7 @@
                     configure.Recoverability().Failed(f => f.OnMessageSentToErrorQueue((message, _) =>
                     {
                         scenarioContext.GaveUp = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }));
                 });
             }
@@ -61,7 +61,7 @@
                 {
                     if (testContext.Id != message.ContextId)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
                     testContext.NumberOfTimesInvoked++;
                     throw new SimulatedException();

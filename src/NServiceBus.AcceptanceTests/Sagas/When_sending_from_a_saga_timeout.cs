@@ -77,7 +77,7 @@
                 {
                     Data.DataId = message.DataId;
                     testContext.DidSaga2ReceiveMessage = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga2Data> mapper)

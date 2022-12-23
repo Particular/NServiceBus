@@ -82,7 +82,7 @@
                 {
                     testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     testContext.MessageProcessed = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -105,7 +105,7 @@
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
                     testContext.MessageAudited = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -115,7 +115,7 @@
             {
                 public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

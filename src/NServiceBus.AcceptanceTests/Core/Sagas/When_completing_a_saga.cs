@@ -60,14 +60,14 @@
                 {
                     testContext.StartSagaMessageReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
                     testContext.SagaCompleted = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)

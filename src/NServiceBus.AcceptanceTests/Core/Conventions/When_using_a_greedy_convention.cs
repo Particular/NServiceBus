@@ -59,11 +59,11 @@
             {
                 if (testContext.Id != message.Id)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 testContext.WasCalled = true;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             Context testContext;

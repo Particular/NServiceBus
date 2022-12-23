@@ -54,13 +54,13 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
                 {
                     testContext.Saga1ReceivedTimeout = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public class TimeoutSharingSagaData1 : ContainSagaData
@@ -91,7 +91,7 @@
                 public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
                 {
                     testContext.Saga2ReceivedTimeout = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
                 public class TimeoutSharingSagaData2 : ContainSagaData
                 {

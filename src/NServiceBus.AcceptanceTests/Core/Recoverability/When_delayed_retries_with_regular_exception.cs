@@ -65,7 +65,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     decryptedBody[0]++;
 
                     transportMessage.Body = decryptedBody;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
@@ -74,7 +74,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     updatedBody[0]--;
 
                     context.OutgoingBody = new ReadOnlyMemory<byte>(updatedBody);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

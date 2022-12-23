@@ -52,7 +52,7 @@
                     b.Recoverability().Failed(f => f.OnMessageSentToErrorQueue((message, _) =>
                     {
                         scenarioContext.GaveUpOnRetries = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }));
                     var recoverability = b.Recoverability();
                     recoverability.Immediate(settings => settings.NumberOfRetries(maxretries));
@@ -70,7 +70,7 @@
                 {
                     if (message.Id != testContext.Id)
                     {
-                        return Task.FromResult(0); // messages from previous test runs must be ignored
+                        return Task.CompletedTask; // messages from previous test runs must be ignored
                     }
 
                     testContext.PhysicalMessageId = context.MessageId;

@@ -42,7 +42,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
             Directory.Delete(storageDir, true);
         }
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     string storageDir;

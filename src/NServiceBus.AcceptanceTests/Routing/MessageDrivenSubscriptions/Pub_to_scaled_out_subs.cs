@@ -80,7 +80,7 @@
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     testContext.IncrementA();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -104,7 +104,7 @@
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     testContext.IncrementB();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

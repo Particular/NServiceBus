@@ -84,7 +84,7 @@
                     testContext.Done = true;
                     testContext.ResponseRunId = message.RunId;
                     MarkAsComplete();
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)

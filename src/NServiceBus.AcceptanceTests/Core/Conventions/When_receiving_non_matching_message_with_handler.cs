@@ -53,7 +53,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
                 public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context)
                 {
                     testContext.GotTheMessage = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 readonly Context testContext;

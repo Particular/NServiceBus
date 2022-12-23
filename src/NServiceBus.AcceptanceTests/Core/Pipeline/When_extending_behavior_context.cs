@@ -53,7 +53,7 @@
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
                     testContext.HandlerAExtensionValue = extensionValue;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -70,7 +70,7 @@
                 {
                     context.Extensions.TryGet("CustomExtension", out string extensionValue);
                     testContext.HandlerBExtensionValue = extensionValue;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

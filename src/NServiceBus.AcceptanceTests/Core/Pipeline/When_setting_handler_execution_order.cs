@@ -50,7 +50,7 @@
                         testContext.InterceptingHandlerCalledFirst = true;
                     }
                     testContext.SagaStarted = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData13> mapper)
@@ -78,7 +78,7 @@
                 {
                     testContext.InterceptingHandlerCalled = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 SagaEndpointContext testContext;

@@ -93,7 +93,7 @@
                 public Task Handle(MyCommand evnt, IMessageHandlerContext context)
                 {
                     Interlocked.Increment(ref testContext.MessageDelivered);
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

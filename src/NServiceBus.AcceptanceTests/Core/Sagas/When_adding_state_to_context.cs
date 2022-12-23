@@ -67,7 +67,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
             {
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData07> mapper)

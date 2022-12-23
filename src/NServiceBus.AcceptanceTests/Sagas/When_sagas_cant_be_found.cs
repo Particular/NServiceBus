@@ -60,12 +60,12 @@
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga1Data> mapper)
@@ -85,12 +85,12 @@
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga2Data> mapper)
@@ -118,7 +118,7 @@
                 {
                     testContext.TimesFired++;
                     testContext.Done = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -138,12 +138,12 @@
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga1Data> mapper)
@@ -171,13 +171,13 @@
                 {
                     Data.MessageId = message.Id;
                     this.context.Done = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga2Data> mapper)
@@ -204,7 +204,7 @@
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
                     testContext.TimesFired++;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

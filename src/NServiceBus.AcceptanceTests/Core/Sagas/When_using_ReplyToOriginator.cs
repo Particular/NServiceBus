@@ -63,7 +63,7 @@
                 {
                     testContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context)
@@ -98,7 +98,7 @@
                 {
                     testContext.Intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.MessageHeaders[Headers.MessageIntent]);
                     testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

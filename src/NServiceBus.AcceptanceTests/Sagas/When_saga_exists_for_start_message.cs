@@ -58,7 +58,7 @@
                 {
                     testContext.SagaIds.Add(Data.Id);
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper)

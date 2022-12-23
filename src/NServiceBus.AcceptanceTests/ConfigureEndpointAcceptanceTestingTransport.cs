@@ -25,7 +25,7 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
         }
         catch { }
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
@@ -72,7 +72,7 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
             }
         }
 
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 
     readonly bool useNativePubSub;

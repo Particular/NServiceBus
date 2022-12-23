@@ -63,19 +63,19 @@
                 public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
                 {
                     testContext.MessageHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
                     testContext.NotFoundHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context)
                 {
                     testContext.TimeoutHandlerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
@@ -103,7 +103,7 @@
                 {
                     testContext.Done = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

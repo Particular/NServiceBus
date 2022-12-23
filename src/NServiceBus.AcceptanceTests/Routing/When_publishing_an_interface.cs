@@ -94,7 +94,7 @@
                 public Task Handle(IMyEvent @event, IMessageHandlerContext context)
                 {
                     testContext.GotTheEvent = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

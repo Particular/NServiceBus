@@ -60,7 +60,7 @@
                     testContext.MessageReceived = true;
                     testContext.XmlPropertyValue = messageWithRawXml.Document;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -77,7 +77,7 @@
                 {
                     testContext.XmlMessage = XDocument.Parse(Encoding.UTF8.GetString(context.Body.ToArray()));
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

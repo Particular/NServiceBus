@@ -42,7 +42,7 @@
             {
                 public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithCorrelatedProperty> mapper)

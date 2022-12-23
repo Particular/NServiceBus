@@ -52,7 +52,7 @@
                 public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)
                 {
                     testContext.ReceivedConversationId = context.MessageHeaders[Headers.ConversationId];
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

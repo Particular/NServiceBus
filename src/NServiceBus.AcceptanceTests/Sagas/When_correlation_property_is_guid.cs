@@ -80,7 +80,7 @@
                 {
                     scenarioContext.MessageCorrelated = true;
                     scenarioContext.CorrelatedId = Data.CorrelatedProperty;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

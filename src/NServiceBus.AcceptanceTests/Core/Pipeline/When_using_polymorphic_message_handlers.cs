@@ -45,7 +45,7 @@
                 public Task Handle(ICommand message, IMessageHandlerContext context)
                 {
                     testContext.CatchAllHandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -61,7 +61,7 @@
                 public Task Handle(SomeCommand message, IMessageHandlerContext context)
                 {
                     testContext.SpecificHandlerInvoked = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

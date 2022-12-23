@@ -48,7 +48,7 @@
                 {
                     testContext.SagaStarted = true;
                     Data.SomeId = message.SomeId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData03> mapper)
@@ -77,7 +77,7 @@
                     testContext.InterceptingHandlerCalled = true;
                     context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 SagaEndpointContext testContext;

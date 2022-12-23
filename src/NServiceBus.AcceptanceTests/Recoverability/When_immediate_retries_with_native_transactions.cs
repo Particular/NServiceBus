@@ -46,7 +46,7 @@
                     config.Recoverability().Failed(f => f.OnMessageSentToErrorQueue((message, _) =>
                     {
                         scenarioContext.ForwardedToErrorQueue = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }));
 
                     var recoverability = config.Recoverability();

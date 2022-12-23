@@ -59,7 +59,7 @@
                     {
                         testContext.MessageSentToErrorException = failedMessage.Exception;
                         testContext.MessageSentToError = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }));
                     recoverability.Delayed(settings =>
                     {
@@ -68,7 +68,7 @@
                         settings.OnMessageBeingRetried((retry, _) =>
                         {
                             testContext.NumberOfDelayedRetriesPerformed++;
-                            return Task.FromResult(0);
+                            return Task.CompletedTask;
                         });
                     });
                     recoverability.Immediate(settings =>
@@ -77,7 +77,7 @@
                         settings.OnMessageBeingRetried((retry, _) =>
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
-                            return Task.FromResult(0);
+                            return Task.CompletedTask;
                         });
                     });
                 });
@@ -94,7 +94,7 @@
                 {
                     if (message.Id != testContext.Id)
                     {
-                        return Task.FromResult(0); // messages from previous test runs must be ignored
+                        return Task.CompletedTask; // messages from previous test runs must be ignored
                     }
 
                     testContext.TotalNumberOfHandlerInvocations++;

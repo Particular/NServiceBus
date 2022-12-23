@@ -50,7 +50,7 @@
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     testContext.IsMessageHandlingComplete = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

@@ -63,7 +63,7 @@
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     testContext.IsMessageHandlingComplete = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -87,7 +87,7 @@
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     testContext.IsMessageHandlingComplete = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -111,7 +111,7 @@
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

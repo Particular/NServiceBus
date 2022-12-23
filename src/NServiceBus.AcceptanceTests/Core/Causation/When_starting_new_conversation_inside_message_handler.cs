@@ -82,7 +82,7 @@
                         scenario.PreviousConversationId = previousConversationId;
                     }
                     scenario.MessageHandled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

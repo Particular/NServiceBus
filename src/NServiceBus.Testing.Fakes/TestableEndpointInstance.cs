@@ -19,7 +19,7 @@
         public virtual Task Stop(CancellationToken cancellationToken = default)
         {
             EndpointStopped = true;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

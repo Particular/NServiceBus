@@ -53,7 +53,7 @@
                 {
                     Data.Id = Guid.NewGuid();
                     testContext.MessageId = context.MessageId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)

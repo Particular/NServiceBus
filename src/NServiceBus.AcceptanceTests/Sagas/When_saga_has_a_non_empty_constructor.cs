@@ -55,7 +55,7 @@
                 public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
                     testContext.SecondMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)

@@ -53,7 +53,7 @@
                 {
                     testContext.ReplyReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -72,12 +72,12 @@
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.ContextId = message.ContextId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga1Data> mapper)
@@ -99,12 +99,12 @@
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Data.ContextId = message.ContextId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga2Data> mapper)

@@ -83,7 +83,7 @@
                 public Task Handle(MessageToEndpointB message, IMessageHandlerContext context)
                 {
                     testContext.MessageBReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -101,7 +101,7 @@
                 public Task Handle(MessageToEndpointC message, IMessageHandlerContext context)
                 {
                     testContext.MessageCReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

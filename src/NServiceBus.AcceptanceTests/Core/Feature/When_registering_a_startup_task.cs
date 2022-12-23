@@ -63,12 +63,12 @@
                     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                     {
                         scenarioContext.SendOnlyEndpointWasStarted = true;
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                     {
-                        return Task.FromResult(0);
+                        return Task.CompletedTask;
                     }
 
                     readonly Context scenarioContext;

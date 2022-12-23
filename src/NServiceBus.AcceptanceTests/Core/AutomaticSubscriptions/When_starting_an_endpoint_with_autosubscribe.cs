@@ -62,7 +62,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -70,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
             {
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -78,7 +78,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
             {
                 public Task Handle(MyEventWithNoRouting message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -86,7 +86,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
             {
                 public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

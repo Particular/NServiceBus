@@ -58,7 +58,7 @@
                 public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
                 {
                     testContext.MessageDispatched = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

@@ -107,7 +107,7 @@
                         testContext.SequenceNumberOfFirstMessage = messageThatIsEnlisted.SequenceNumber;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -124,7 +124,7 @@
                 {
                     testContext.MessageThatIsNotEnlistedHandlerWasCalled = true;
                     testContext.NonTransactionalHandlerCalledFirst = !testContext.MessageThatIsEnlistedHandlerWasCalled;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

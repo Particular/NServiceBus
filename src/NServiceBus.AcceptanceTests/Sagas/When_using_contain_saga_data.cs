@@ -57,7 +57,7 @@
                 {
                     MarkAsComplete();
                     testContext.TimeoutReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)

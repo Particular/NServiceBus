@@ -65,7 +65,7 @@
                 {
                     if (message.Id != testContext.Id)
                     {
-                        return Task.FromResult(0); // messages from previous test runs must be ignored
+                        return Task.CompletedTask; // messages from previous test runs must be ignored
                     }
 
                     testContext.NumberOfTimesInvoked++;

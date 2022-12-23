@@ -69,7 +69,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 {
                     testContext.ReplyToOriginatorReceivedCorrId = context.MessageHeaders[Headers.CorrelationId];
                     testContext.ReplyToOriginatorReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
 
@@ -86,7 +86,7 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                     testContext.StartingSagaCorrId = context.MessageHeaders[Headers.CorrelationId];
                     testContext.StartSagaMessageReceived = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(ContinueSagaMessage message, IMessageHandlerContext context)
@@ -137,14 +137,14 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
                 {
                     testContext.HandlingBehaviorMessageCorrId = context.MessageHeaders[Headers.CorrelationId];
                     testContext.BehaviorMessageReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 public Task Handle(BehaviorEvent message, IMessageHandlerContext context)
                 {
                     testContext.HandlingBehaviorEventCorrId = context.MessageHeaders[Headers.CorrelationId];
                     testContext.BehaviorEventReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

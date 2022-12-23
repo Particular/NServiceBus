@@ -54,7 +54,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                     MarkAsComplete();
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData2> mapper)

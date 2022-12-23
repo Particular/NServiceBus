@@ -51,7 +51,7 @@
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -67,7 +67,7 @@
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.OtherTransportMutatorCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -83,7 +83,7 @@
                 public Task MutateOutgoing(MutateOutgoingMessageContext context)
                 {
                     testContext.MessageMutatorCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;
@@ -100,7 +100,7 @@
                 {
                     testContext.MessageProcessed = true;
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

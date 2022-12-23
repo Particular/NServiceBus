@@ -46,7 +46,7 @@
                 public Task Install(string identity, CancellationToken cancellationToken = default)
                 {
                     testContext.InstallerCalled = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }

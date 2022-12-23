@@ -87,7 +87,7 @@
                 public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
                 {
                     testContext.CorrelatedResponseReceived = message.ReceivedDataId == Data.DataId;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper)

@@ -75,7 +75,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                         testContext.MessageMovedToErrorQueue = true;
                     }
 
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
 
                 Context testContext;

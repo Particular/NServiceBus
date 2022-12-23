@@ -60,7 +60,7 @@
                 public Task Handle(SomeEvent message, IMessageHandlerContext context)
                 {
                     testContext.EventReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
@@ -84,7 +84,7 @@
                 public Task Handle(SomeEvent message, IMessageHandlerContext context)
                 {
                     testContext.EventReceived = true;
-                    return Task.FromResult(0);
+                    return Task.CompletedTask;
                 }
             }
         }
