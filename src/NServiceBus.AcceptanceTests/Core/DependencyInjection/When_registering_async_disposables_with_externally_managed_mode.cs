@@ -8,18 +8,39 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_registering_async_disposables : NServiceBusAcceptanceTest
+    public class When_registering_async_disposables_with_externally_managed_mode : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_dispose()
         {
+            ServiceProvider serviceProvider = null;
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<SingletonAsyncDisposable>();
+            serviceCollection.AddScoped<ScopedAsyncDisposable>();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAsyncDisposable>(b =>
                 {
+                    IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
+
+                    b.ToCreateInstance(
+                        config =>
+                        {
+                            configuredEndpoint =
+                                EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
+                            return Task.FromResult(configuredEndpoint);
+                        },
+                        configured =>
+                        {
+                            serviceProvider = serviceCollection.BuildServiceProvider();
+                            return configured.Start(serviceProvider);
+                        });
                     b.When(e => e.SendLocal(new SomeMessage()));
                 })
                 .Done(c => c.ScopedAsyncDisposableDisposed)
-                .Run();
+                .Run(TimeSpan.FromSeconds(10));
+
+            await serviceProvider.DisposeAsync();
 
             Assert.That(context.ScopedAsyncDisposableDisposed, Is.True, "Scoped AsyncDisposable wasn't disposed as it should have been.");
             Assert.That(context.SingletonAsyncDisposableDisposed, Is.True, "Singleton AsyncDisposable wasn't disposed as it should have been.");
@@ -34,14 +55,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
         public class EndpointWithAsyncDisposable : EndpointConfigurationBuilder
         {
             public EndpointWithAsyncDisposable() =>
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.RegisterComponents(s =>
-                    {
-                        s.AddScoped<ScopedAsyncDisposable>();
-                        s.AddSingleton<SingletonAsyncDisposable>();
-                    });
-                });
+                EndpointSetup<DefaultServer>();
 
             class HandlerWithAsyncDisposable : IHandleMessages<SomeMessage>
             {
