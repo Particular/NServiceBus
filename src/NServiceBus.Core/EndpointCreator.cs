@@ -144,11 +144,11 @@ namespace NServiceBus
             });
         }
 
-        public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool shouldDisposeBuilder)
+        public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool serviceProviderIsExternallyManaged)
         {
             hostingConfiguration.AddStartupDiagnosticsSection("Container", new
             {
-                Type = shouldDisposeBuilder ? "internal" : "external"
+                Type = serviceProviderIsExternallyManaged ? "external" : "internal"
             });
 
             return new StartableEndpoint(settings,
@@ -160,7 +160,7 @@ namespace NServiceBus
                 hostingComponent,
                 sendComponent,
                 builder,
-                shouldDisposeBuilder);
+                serviceProviderIsExternallyManaged);
         }
 
         PipelineComponent pipelineComponent;

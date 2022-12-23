@@ -18,8 +18,8 @@ namespace NServiceBus
             RecoverabilityComponent recoverabilityComponent,
             HostingComponent hostingComponent,
             SendComponent sendComponent,
-            IServiceProvider builder,
-            bool shouldDisposeBuilder)
+            IServiceProvider serviceProvider,
+            bool serviceProviderIsExternallyManaged)
         {
             this.settings = settings;
             this.featureComponent = featureComponent;
@@ -29,25 +29,25 @@ namespace NServiceBus
             this.recoverabilityComponent = recoverabilityComponent;
             this.hostingComponent = hostingComponent;
             this.sendComponent = sendComponent;
-            this.builder = builder;
-            this.shouldDisposeBuilder = shouldDisposeBuilder;
+            this.serviceProvider = serviceProvider;
+            this.serviceProviderIsExternallyManaged = serviceProviderIsExternallyManaged;
         }
 
-        public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(builder, cancellationToken);
+        public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(serviceProvider, cancellationToken);
 
         public async Task Setup(CancellationToken cancellationToken = default)
         {
             transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
 
-            var pipelineCache = pipelineComponent.BuildPipelineCache(builder);
-            var messageOperations = sendComponent.CreateMessageOperations(builder, pipelineComponent);
+            var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
+            var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);
             stoppingTokenSource = new CancellationTokenSource();
 
-            messageSession = new MessageSession(builder, messageOperations, pipelineCache, stoppingTokenSource.Token);
+            messageSession = new MessageSession(serviceProvider, messageOperations, pipelineCache, stoppingTokenSource.Token);
 
             var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
-            await receiveComponent.Initialize(builder, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
+            await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
@@ -59,9 +59,11 @@ namespace NServiceBus
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
 
-            await featureComponent.Start(builder, messageSession, cancellationToken).ConfigureAwait(false);
+            await featureComponent.Start(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, shouldDisposeBuilder ? builder : null);
+            // when the service provider is externally managed it is null in the running endpoint instance
+            IServiceProvider provider = serviceProviderIsExternallyManaged ? null : serviceProvider;
+            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, provider);
 
             hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
@@ -74,8 +76,8 @@ namespace NServiceBus
         readonly RecoverabilityComponent recoverabilityComponent;
         readonly HostingComponent hostingComponent;
         readonly SendComponent sendComponent;
-        readonly IServiceProvider builder;
-        readonly bool shouldDisposeBuilder;
+        readonly IServiceProvider serviceProvider;
+        readonly bool serviceProviderIsExternallyManaged;
         readonly FeatureComponent featureComponent;
         readonly SettingsHolder settings;
         readonly ReceiveComponent receiveComponent;

@@ -36,7 +36,7 @@ namespace NServiceBus
         public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
         {
             objectBuilder = externalBuilder;
-            var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, false);
+            var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, serviceProviderIsExternallyManaged: true);
             await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
             await startableEndpoint.Setup(cancellationToken).ConfigureAwait(false);
             IEndpointInstance endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);

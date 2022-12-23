@@ -27,7 +27,7 @@ public static class Installer
         var serviceProvider = serviceCollection.BuildServiceProvider();
         await using (serviceProvider.ConfigureAwait(false))
         {
-            var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, true);
+            var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, serviceProviderIsExternallyManaged: false);
             await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
             await endpoint.Setup(cancellationToken).ConfigureAwait(false);
         }
