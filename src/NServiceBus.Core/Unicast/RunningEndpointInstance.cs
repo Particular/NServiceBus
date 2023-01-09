@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus
 {
     using System;
@@ -9,7 +11,7 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider builder)
+        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider? serviceProvider)
         {
             this.settings = settings;
             this.receiveComponent = receiveComponent;
@@ -17,7 +19,7 @@ namespace NServiceBus
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
             this.stoppingTokenSource = stoppingTokenSource;
-            this.builder = builder;
+            this.serviceProvider = serviceProvider;
         }
 
         public async Task Stop(CancellationToken cancellationToken = default)
@@ -63,7 +65,11 @@ namespace NServiceBus
                 finally
                 {
                     settings.Clear();
-                    (builder as IDisposable)?.Dispose();
+                    // When the service provider is externally managed the service provider is null
+                    if (serviceProvider is IAsyncDisposable asyncDisposableBuilder)
+                    {
+                        await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
+                    }
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
@@ -71,7 +77,12 @@ namespace NServiceBus
             finally
             {
                 stopSemaphore.Release();
+#if NET
+                await tokenRegistration.DisposeAsync().ConfigureAwait(false);
+#else
                 tokenRegistration.Dispose();
+#endif
+                stoppingTokenSource.Dispose();
             }
         }
 
@@ -142,7 +153,7 @@ namespace NServiceBus
         IMessageSession messageSession;
         readonly TransportInfrastructure transportInfrastructure;
         readonly CancellationTokenSource stoppingTokenSource;
-        readonly IServiceProvider builder;
+        readonly IServiceProvider? serviceProvider;
         SettingsHolder settings;
 
         volatile Status status = Status.Running;
