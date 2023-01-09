@@ -1093,25 +1093,19 @@ namespace NServiceBus
         public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
     }
-    [System.Obsolete("Use methods on IServiceCollection instead. Note that the `Add...` extension metho" +
-        "ds do not register interfaces implicitly. Will be treated as an error from versi" +
-        "on 9.0.0. Will be removed in version 10.0.0.", false)]
+    [System.Obsolete("Use methods on IServiceCollection instead. Note that interfaces are not registere" +
+        "d implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. Wil" +
+        "l be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
     public static class ServiceCollectionExtensions
     {
         [System.Obsolete("Use `IServiceCollection.Add` instead. Will be treated as an error from version 9." +
             "0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete("Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollect" +
-            "ion.AddTransient` or `IServiceCollection.AddScoped` instead. Will be treated as " +
-            "an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        [System.Obsolete(@"Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete("Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollect" +
-            "ion.AddTransient` or `IServiceCollection.AddScoped` instead. Will be treated as " +
-            "an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        [System.Obsolete(@"Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete("Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollect" +
-            "ion.AddTransient` or `IServiceCollection.AddScoped` instead. Will be treated as " +
-            "an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
+        [System.Obsolete(@"Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. Will be treated as an error from version 9.0.0. Will be removed in version 10.0.0.", false)]
         public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<System.IServiceProvider, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
         [System.Obsolete("Use `IServiceCollection.GetEnumerator` instead. Will be treated as an error from " +
             "version 9.0.0. Will be removed in version 10.0.0.", false)]
@@ -1885,9 +1879,8 @@ namespace NServiceBus.ObjectBuilder
         [System.Obsolete("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
             ".0.0.", true)]
         void ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        [System.Obsolete("Ensure to explicitly register all interfaces of a specific type as this will no l" +
-            "onger be done automatically. Use `IServiceCollection.ConfigureComponent` instead" +
-            ". Will be removed in version 9.0.0.", true)]
+        [System.Obsolete("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
+            ".0.0.", true)]
         void ConfigureComponent<T>(NServiceBus.DependencyLifecycle dependencyLifecycle);
         [System.Obsolete("Use `IServiceCollection.ConfigureComponent` instead. Will be removed in version 9" +
             ".0.0.", true)]
