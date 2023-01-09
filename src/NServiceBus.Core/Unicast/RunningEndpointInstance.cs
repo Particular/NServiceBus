@@ -63,7 +63,7 @@ namespace NServiceBus
                 finally
                 {
                     settings.Clear();
-                    hostingComponent.Stop();
+                    await hostingComponent.Stop(cancellationToken).ConfigureAwait(false);
                     status = Status.Stopped;
                     Log.Info("Shutdown complete.");
                 }
@@ -71,7 +71,12 @@ namespace NServiceBus
             finally
             {
                 stopSemaphore.Release();
+#if NET
+                await tokenRegistration.DisposeAsync().ConfigureAwait(false);
+#else
                 tokenRegistration.Dispose();
+#endif
+                stoppingTokenSource.Dispose();
             }
         }
 
