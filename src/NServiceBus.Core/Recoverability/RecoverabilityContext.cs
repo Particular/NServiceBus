@@ -4,17 +4,23 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using Extensibility;
     using NServiceBus.Transport;
     using Pipeline;
 
-    class RecoverabilityContext : BehaviorContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
+    class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
     {
         public RecoverabilityContext(
+            IServiceProvider serviceProvider,
+            MessageOperations messageOperations,
+            IPipelineCache pipelineCache,
             ErrorContext errorContext,
             RecoverabilityConfig recoverabilityConfig,
             Dictionary<string, string> metadata,
             RecoverabilityAction recoverabilityAction,
-            IBehaviorContext parent) : base(parent)
+            ContextBag parent,
+            CancellationToken cancellationToken) : base(serviceProvider, messageOperations, pipelineCache, cancellationToken, parent)
         {
             FailedMessage = errorContext.Message;
             Exception = errorContext.Exception;
