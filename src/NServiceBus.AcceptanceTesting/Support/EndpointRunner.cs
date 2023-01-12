@@ -6,7 +6,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
-    using Faults;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
     using Transport;
@@ -73,27 +72,8 @@
 
         void TrackFailingMessages(string endpointName, EndpointConfiguration endpointConfiguration)
         {
-            endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue((m, _) =>
-            {
-                scenarioContext.FailedMessages.AddOrUpdate(
-                    endpointName,
-                    new[]
-                    {
-                        new FailedMessage(m.MessageId, new Dictionary<string, string>(m.Headers), m.Body, m.Exception, m.ErrorQueue)
-                    },
-                    (i, failed) =>
-                    {
-                        var result = failed.ToList();
-                        result.Add(new FailedMessage(m.MessageId, new Dictionary<string, string>(m.Headers), m.Body, m.Exception, m.ErrorQueue));
-                        return result;
-                    });
-
-                //We need to set the error flag to false as we want to reset all processing exceptions caused by immediate retries
-                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.MessageId, id => false, (id, value) => false);
-
-                return Task.CompletedTask;
-            }));
             endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
+            endpointConfiguration.Pipeline.Register(new CaptureRecoverabilityActionBehavior(endpointName, scenarioContext), "Marks failed and discarded messages for the AcceptanceTesting Framework");
         }
 
         void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)

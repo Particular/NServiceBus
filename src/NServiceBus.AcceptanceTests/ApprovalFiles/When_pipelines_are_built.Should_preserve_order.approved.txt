@@ -66,8 +66,9 @@
                                         (IIncomingLogicalMessageContext context10) => LoadHandlersConnector.Invoke(context10, 
                                             (IInvokeHandlerContext context11) => InvokeHandlerTerminator.Invoke(context11))
 
-(IRecoverabilityContext context0) => RecoverabilityRoutingConnector.Invoke(context0, 
-    (IRoutingContext context1) => ThrowIfCannotDeferMessageBehavior.Invoke(context1, 
-        (IRoutingContext context2) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context2, 
-            (IRoutingContext context3) => RoutingToDispatchConnector.Invoke(context3, 
-                (IDispatchContext context4) => ImmediateDispatchTerminator.Invoke(context4))
+(IRecoverabilityContext context0) => CaptureRecoverabilityActionBehavior.Invoke(context0, 
+    (IRecoverabilityContext context1) => RecoverabilityRoutingConnector.Invoke(context1, 
+        (IRoutingContext context2) => ThrowIfCannotDeferMessageBehavior.Invoke(context2, 
+            (IRoutingContext context3) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context3, 
+                (IRoutingContext context4) => RoutingToDispatchConnector.Invoke(context4, 
+                    (IDispatchContext context5) => ImmediateDispatchTerminator.Invoke(context5))
