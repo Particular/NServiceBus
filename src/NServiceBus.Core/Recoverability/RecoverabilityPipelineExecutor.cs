@@ -34,18 +34,20 @@
             var childScope = serviceProvider.CreateAsyncScope();
             await using (childScope.ConfigureAwait(false))
             {
-                var rootContext = new PipelineRootContext(childScope.ServiceProvider, messageOperations, pipelineCache, cancellationToken, errorContext.Extensions);
-
                 var recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
                 var metadata = faultMetadataExtractor.Extract(errorContext);
 
                 var recoverabilityContext = new RecoverabilityContext(
+                    childScope.ServiceProvider,
+                    messageOperations,
+                    pipelineCache,
                     errorContext,
                     recoverabilityConfig,
                     metadata,
                     recoverabilityAction,
-                    rootContext);
+                    errorContext.Extensions,
+                    cancellationToken);
 
                 await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
 
