@@ -12,13 +12,13 @@
 
     partial class HostingComponent
     {
-        public HostingComponent(Configuration configuration, bool shouldDisposeBuilder)
+        public HostingComponent(Configuration configuration, bool shouldDisposeServiceProvider)
         {
             this.configuration = configuration;
-            this.shouldDisposeBuilder = shouldDisposeBuilder;
+            this.shouldDisposeServiceProvider = shouldDisposeServiceProvider;
         }
 
-        public static HostingComponent Initialize(Configuration configuration, IServiceCollection serviceCollection, bool shouldDisposeBuilder)
+        public static HostingComponent Initialize(Configuration configuration, IServiceCollection serviceCollection, bool shouldDisposeServiceProvider)
         {
             serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
             serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
@@ -53,13 +53,10 @@
                 PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
             });
 
-            return new HostingComponent(configuration, shouldDisposeBuilder);
+            return new HostingComponent(configuration, shouldDisposeServiceProvider);
         }
 
-        public void RegisterBuilder(IServiceProvider objectBuilder)
-        {
-            builder = objectBuilder;
-        }
+        public void RegisterServiceProvider(IServiceProvider serviceProvider) => this.serviceProvider = serviceProvider;
 
         // This can't happen at start due to an old "feature" that allowed users to
         // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
@@ -72,7 +69,7 @@
 
             var installationUserName = GetInstallationUserName();
 
-            foreach (var installer in builder.GetServices<INeedToInstallSomething>())
+            foreach (var installer in serviceProvider.GetServices<INeedToInstallSomething>())
             {
                 await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
             }
@@ -91,11 +88,11 @@
             return endpointInstance;
         }
 
-        public void Stop()
+        public async Task Stop(CancellationToken cancellationToken = default)
         {
-            if (shouldDisposeBuilder)
+            if (shouldDisposeServiceProvider && serviceProvider is IAsyncDisposable asyncDisposableBuilder)
             {
-                (builder as IDisposable)?.Dispose();
+                await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -115,7 +112,7 @@
         }
 
         readonly Configuration configuration;
-        bool shouldDisposeBuilder;
-        IServiceProvider builder;
+        bool shouldDisposeServiceProvider;
+        IServiceProvider serviceProvider;
     }
 }

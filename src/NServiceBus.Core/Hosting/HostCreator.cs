@@ -59,7 +59,7 @@
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var startableEndpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, hostingComponent);
-            hostingComponent.RegisterBuilder(serviceProvider);
+            hostingComponent.RegisterServiceProvider(serviceProvider);
 
             await hostingComponent.RunInstallers(cancellationToken).ConfigureAwait(false);
 
