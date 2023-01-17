@@ -333,6 +333,8 @@
 
             var processingContext = new ContextBag();
 
+            processingContext.Set("MessageFilePath", transaction.FileToProcess);
+
             var messageContext = new MessageContext(messageId, headers, body, transportTransaction, ReceiveAddress, processingContext);
 
             try
