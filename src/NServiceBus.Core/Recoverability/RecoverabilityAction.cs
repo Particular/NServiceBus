@@ -18,7 +18,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates an immediate retry recoverability action.
+        /// Specifies that messages matching this recoverability policy will be retried immediately.
         /// </summary>
         /// <returns>Immediate retry action.</returns>
         public static ImmediateRetry ImmediateRetry() => CachedImmediateRetry;
@@ -29,7 +29,7 @@ namespace NServiceBus
         public abstract IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context);
 
         /// <summary>
-        /// Creates a new delayed retry recoverability action.
+        /// Specifies that messages matching this recoverability policy will be retried with a specified delay.
         /// </summary>
         /// <param name="timeSpan">Delivery delay.</param>
         /// <returns>Delayed retry action.</returns>
@@ -41,7 +41,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a move to error recoverability action.
+        /// Specifies that messages matching this recoverability policy will not be retried and will be routed to the error queue.
         /// </summary>
         /// <param name="errorQueue">The address of the error queue.</param>
         /// <returns>Move to error action.</returns>
@@ -52,9 +52,14 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a discard recoverability action.
+        /// Specifies that messages matching this recoverability policy will be discarded as if they had never happened.
+        /// The message will not be forwarded to the audit queue, which may be confusing when viewing audit data as
+        /// the conversation will abruptly end without any information about the reason.
         /// </summary>
-        /// <param name="reason">The reason why the message was discarded.</param>
+        /// <param name="reason">
+        /// The reason why the message was discarded. This reason is communicated only in logs and is not transmitted
+        /// through audit messages to the audit queue.
+        /// </param>
         /// <returns>Discard action.</returns>
         public static Discard Discard(string reason)
         {
