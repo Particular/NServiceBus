@@ -4,6 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
+    using Features;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 
     class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
@@ -17,6 +19,8 @@ namespace NServiceBus
 
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
+            var licenseDetailsProvider = context.Builder.GetRequiredService<ILicenseDetailsProvider>();
+
             context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
 
             var tags = new TagList(new KeyValuePair<string, object>[]
@@ -24,6 +28,8 @@ namespace NServiceBus
                 new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
                 new(MeterTags.QueueName, queueNameBase ?? ""),
                 new(MeterTags.MessageType, messageTypes ?? ""),
+                new(MeterTags.LicenseId, licenseDetailsProvider.LicenseId.ToString()),
+                new(MeterTags.CustomerName, licenseDetailsProvider.CustomerName)
             }.AsSpan());
 
             Meters.TotalFetched.Add(1, tags);

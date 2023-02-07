@@ -3,6 +3,7 @@ namespace NServiceBus.Features
     using System;
     using System.Diagnostics;
     using Logging;
+    using Microsoft.Extensions.DependencyInjection;
 
     class LicenseReminder : Feature
     {
@@ -28,7 +29,10 @@ namespace NServiceBus.Features
                     return;
                 }
 
+                // TODO: fix the licenseid
                 context.Pipeline.Register("LicenseReminder", new AuditInvalidLicenseBehavior(), "Audits that the message was processed by an endpoint with an expired license");
+                context.Services.AddSingleton(new LicenseDetailsProvider(Guid.NewGuid() // licenseManager.result.License.LicenseId
+                    , licenseManager.result.License.RegisteredTo));
 
                 if (Debugger.IsAttached)
                 {
@@ -56,7 +60,7 @@ namespace NServiceBus.Features
                 CommercialLicense = licenseManager.result.License.IsCommercialLicense,
                 IsExpired = licenseManager.HasLicenseExpired,
                 licenseManager.result.License.ExpirationDate,
-                UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration
+                UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration,
             };
         }
 
