@@ -23,6 +23,7 @@ namespace NServiceBus.Features
                 licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
 
                 context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
+                context.Services.AddSingleton<ILicenseDetailsProvider>(new LicenseDetailsProvider(licenseManager.result.License.LicenseId, licenseManager.result.License.RegisteredTo));
 
                 if (!licenseManager.HasLicenseExpired)
                 {
@@ -30,7 +31,6 @@ namespace NServiceBus.Features
                 }
 
                 context.Pipeline.Register("LicenseReminder", new AuditInvalidLicenseBehavior(), "Audits that the message was processed by an endpoint with an expired license");
-                context.Services.AddSingleton(new LicenseDetailsProvider(licenseManager.result.License.LicenseId, licenseManager.result.License.RegisteredTo));
 
                 if (Debugger.IsAttached)
                 {
