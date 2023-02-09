@@ -5,7 +5,9 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Helpers;
-using NServiceBus.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Features;
+using Testing;
 using NUnit.Framework;
 
 [TestFixture]
@@ -17,6 +19,7 @@ class ReceiveDiagnosticsBehaviorTests
         var behavior = new ReceiveDiagnosticsBehavior("queueBaseName", "discriminator");
         var context = new TestableIncomingPhysicalMessageContext();
         context.MessageHeaders.Add(Headers.EnclosedMessageTypes, "enclosedMessageTypesString");
+        context.Services.AddSingleton<ILicenseDetailsProvider>(new LicenseDetailsProvider(Guid.NewGuid().ToString(), "someCustomer"));
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         await behavior.Invoke(context, _ => Task.CompletedTask);
@@ -35,7 +38,10 @@ class ReceiveDiagnosticsBehaviorTests
         var behavior = new ReceiveDiagnosticsBehavior("queueBaseName", "discriminator");
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-        await behavior.Invoke(new TestableIncomingPhysicalMessageContext(), _ => Task.CompletedTask);
+        var context = new TestableIncomingPhysicalMessageContext();
+        context.Services.AddSingleton<ILicenseDetailsProvider>(new LicenseDetailsProvider(Guid.NewGuid().ToString(), "someCustomer"));
+
+        await behavior.Invoke(context, _ => Task.CompletedTask);
 
         metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
         metricsListener.AssertMetric(Meters.TotalProcessedSuccessfully.Name, 1);
@@ -52,6 +58,7 @@ class ReceiveDiagnosticsBehaviorTests
     {
         var behavior = new ReceiveDiagnosticsBehavior("queueBaseName", "discriminator");
         var context = new TestableIncomingPhysicalMessageContext();
+        context.Services.AddSingleton<ILicenseDetailsProvider>(new LicenseDetailsProvider(Guid.NewGuid().ToString(), "someCustomer"));
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, _ => throw new Exception("test")));
@@ -76,6 +83,7 @@ class ReceiveDiagnosticsBehaviorTests
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
         var context = new TestableIncomingPhysicalMessageContext { CancellationToken = cts.Token };
+        context.Services.AddSingleton<ILicenseDetailsProvider>(new LicenseDetailsProvider(Guid.NewGuid().ToString(), "someCustomer"));
 
         cts.Cancel();
         Assert.ThrowsAsync<OperationCanceledException>(() => behavior.Invoke(context, ctx =>

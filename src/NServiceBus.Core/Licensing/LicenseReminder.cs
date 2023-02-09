@@ -29,10 +29,8 @@ namespace NServiceBus.Features
                     return;
                 }
 
-                // TODO: fix the licenseid
                 context.Pipeline.Register("LicenseReminder", new AuditInvalidLicenseBehavior(), "Audits that the message was processed by an endpoint with an expired license");
-                context.Services.AddSingleton(new LicenseDetailsProvider(Guid.NewGuid() // licenseManager.result.License.LicenseId
-                    , licenseManager.result.License.RegisteredTo));
+                context.Services.AddSingleton(new LicenseDetailsProvider(licenseManager.result.License.LicenseId, licenseManager.result.License.RegisteredTo));
 
                 if (Debugger.IsAttached)
                 {
@@ -50,6 +48,7 @@ namespace NServiceBus.Features
         {
             return new
             {
+                licenseManager.result.License.LicenseId,
                 licenseManager.result.License.RegisteredTo,
                 licenseManager.result.License.LicenseType,
                 licenseManager.result.License.Edition,
