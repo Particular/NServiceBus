@@ -28,7 +28,7 @@ namespace NServiceBus
                 new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
                 new(MeterTags.QueueName, queueNameBase ?? ""),
                 new(MeterTags.MessageType, messageTypes ?? ""),
-                new(MeterTags.LicenseId, licenseDetailsProvider.LicenseId.ToString()),
+                new(MeterTags.LicenseId, licenseDetailsProvider.LicenseId?.ToString() ?? ""),
                 new(MeterTags.CustomerName, licenseDetailsProvider.CustomerName)
             }.AsSpan());
 
