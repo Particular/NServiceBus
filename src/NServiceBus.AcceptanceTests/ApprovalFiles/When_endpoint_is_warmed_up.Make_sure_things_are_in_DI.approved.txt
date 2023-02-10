@@ -26,3 +26,4 @@ NServiceBus.SubscriptionReceiverBehavior - Transient
 NServiceBus.SubscriptionRouter - Singleton
 NServiceBus.UnicastSendRouter - Singleton
 ----------- Private registrations not used by Core -----------
+NServiceBus.Features.ILicenseDetailsProvider - Singleton

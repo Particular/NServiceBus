@@ -22,3 +22,4 @@ NServiceBus.Transport.ITransportAddressResolver - Singleton
 NServiceBus.InferredMessageTypeEnricherBehavior - Transient
 NServiceBus.UnicastSendRouter - Singleton
 ----------- Private registrations not used by Core -----------
+NServiceBus.Features.ILicenseDetailsProvider - Singleton
