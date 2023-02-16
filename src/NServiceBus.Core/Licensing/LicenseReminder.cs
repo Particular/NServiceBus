@@ -60,7 +60,7 @@ namespace NServiceBus.Features
                 CommercialLicense = licenseManager.result.License.IsCommercialLicense,
                 IsExpired = licenseManager.HasLicenseExpired,
                 licenseManager.result.License.ExpirationDate,
-                UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration,
+                UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration
             };
         }
 
