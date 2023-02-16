@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Helpers;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Features;
+using NServiceBus.Licensing;
 using Testing;
 using NUnit.Framework;
 
