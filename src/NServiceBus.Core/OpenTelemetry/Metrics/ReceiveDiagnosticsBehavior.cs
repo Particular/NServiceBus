@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using Features;
+    using Licensing;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
 

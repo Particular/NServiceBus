@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Diagnostics;
+    using Licensing;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
 

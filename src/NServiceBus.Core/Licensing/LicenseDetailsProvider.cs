@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus.Licensing
 {
     class LicenseDetailsProvider
     {
