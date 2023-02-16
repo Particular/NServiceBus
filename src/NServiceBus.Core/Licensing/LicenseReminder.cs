@@ -23,7 +23,7 @@ namespace NServiceBus.Features
                 licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
 
                 context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
-                context.Services.AddSingleton<ILicenseDetailsProvider>(new LicenseDetailsProvider(licenseManager.result.License.LicenseId, licenseManager.result.License.RegisteredTo));
+                context.Services.AddSingleton(new LicenseDetailsProvider(licenseManager.result.License.LicenseId, licenseManager.result.License.RegisteredTo));
 
                 if (!licenseManager.HasLicenseExpired)
                 {

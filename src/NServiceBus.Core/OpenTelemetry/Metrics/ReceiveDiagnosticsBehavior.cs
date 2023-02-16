@@ -19,7 +19,7 @@ namespace NServiceBus
 
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            var licenseDetailsProvider = context.Builder.GetRequiredService<ILicenseDetailsProvider>();
+            var licenseDetailsProvider = context.Builder.GetRequiredService<LicenseDetailsProvider>();
 
             context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
 
