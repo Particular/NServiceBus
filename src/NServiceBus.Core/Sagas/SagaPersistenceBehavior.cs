@@ -87,11 +87,7 @@
                 {
                     if (!context.Headers.ContainsKey(Headers.SagaId))
                     {
-                        var finderDefinition = GetSagaFinder(currentSagaMetadata, context);
-                        if (finderDefinition == null)
-                        {
-                            throw new Exception($"Message type {context.MessageBeingHandled.GetType().Name} is handled by saga {currentSagaMetadata.SagaType.Name}, but the saga does not contain a property mapping or custom saga finder to map the message to saga data. Consider adding a mapping in the saga's {nameof(Saga.ConfigureHowToFindSaga)} method.");
-                        }
+                        _ = GetSagaFinder(currentSagaMetadata, context) ?? throw new Exception($"Message type {context.MessageBeingHandled.GetType().Name} is handled by saga {currentSagaMetadata.SagaType.Name}, but the saga does not contain a property mapping or custom saga finder to map the message to saga data. Consider adding a mapping in the saga's {nameof(Saga.ConfigureHowToFindSaga)} method.");
                     }
 
                     sagaInstanceState.MarkAsNotFound();

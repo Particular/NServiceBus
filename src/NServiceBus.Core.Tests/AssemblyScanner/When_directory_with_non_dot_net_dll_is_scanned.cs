@@ -30,12 +30,7 @@
 
             foreach (var notProperDll in notProperDotNetDlls)
             {
-                var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains(notProperDll));
-
-                if (skippedFile == null)
-                {
-                    throw new AssertionException($"Could not find skipped file matching {notProperDll}");
-                }
+                var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains(notProperDll)) ?? throw new AssertionException($"Could not find skipped file matching {notProperDll}");
 
                 Assert.That(skippedFile.SkipReason, Contains.Substring("not a .NET assembly"));
             }

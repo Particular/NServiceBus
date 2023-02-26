@@ -53,11 +53,7 @@
                 }
                 else
                 {
-                    var m = Process(doc.DocumentElement, null);
-                    if (m == null)
-                    {
-                        throw new SerializationException("Could not deserialize message.");
-                    }
+                    var m = Process(doc.DocumentElement, null) ?? throw new SerializationException("Could not deserialize message.");
                     result.Add(m);
                 }
             }
@@ -95,19 +91,13 @@
         {
             foreach (var rootType in rootTypes)
             {
-                var m = Process(doc.DocumentElement, null, rootType);
-                if (m == null)
-                {
-                    throw new SerializationException("Could not deserialize message.");
-                }
+                var m = Process(doc.DocumentElement, null, rootType) ?? throw new SerializationException("Could not deserialize message.");
                 result.Add(m);
             }
         }
 
         static bool ContainsAnyMessageTypesToDeserialize(IList<Type> messageTypesToDeserialize)
-        {
-            return messageTypesToDeserialize != null && messageTypesToDeserialize.Any();
-        }
+            => messageTypesToDeserialize != null && messageTypesToDeserialize.Any();
 
         void ProcessChildNodes(IList<Type> messageTypesToDeserialize, XmlDocument doc, ICollection<object> result)
         {

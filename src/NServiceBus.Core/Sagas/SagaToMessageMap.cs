@@ -12,13 +12,7 @@ namespace NServiceBus
         public abstract SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType);
 
         public void AssertSagaHandlesMappedMessage(Type sagaType, IEnumerable<SagaMessage> associatedMessages)
-        {
-            var associatedMessage = associatedMessages.FirstOrDefault(m => MessageType.IsAssignableFrom(m.MessageType));
-            if (associatedMessage == null)
-            {
-                throw new Exception(SagaDoesNotHandleMappedMessage(sagaType));
-            }
-        }
+            => _ = associatedMessages.FirstOrDefault(m => MessageType.IsAssignableFrom(m.MessageType)) ?? throw new Exception(SagaDoesNotHandleMappedMessage(sagaType));
 
         protected virtual string SagaDoesNotHandleMappedMessage(Type sagaType)
         {

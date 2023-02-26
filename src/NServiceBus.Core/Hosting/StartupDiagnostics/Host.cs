@@ -33,12 +33,7 @@
 
         static string DeriveAppDataPath(Assembly systemWebAssembly)
         {
-            var appDataPath = TryMapPath(systemWebAssembly);
-
-            if (appDataPath == null)
-            {
-                throw new Exception(GetMapPathError("Failed since MapPath returned null."));
-            }
+            var appDataPath = TryMapPath(systemWebAssembly) ?? throw new Exception(GetMapPathError("Failed since MapPath returned null."));
 
             if (IODirectory.Exists(appDataPath))
             {
