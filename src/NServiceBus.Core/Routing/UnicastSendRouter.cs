@@ -97,11 +97,7 @@ namespace NServiceBus
 
         UnicastRoute RouteUsingTable(IOutgoingSendContext context)
         {
-            var route = unicastRoutingTable.GetRouteFor(context.Message.MessageType);
-            if (route == null)
-            {
-                throw new Exception($"No destination specified for message: {context.Message.MessageType}");
-            }
+            var route = unicastRoutingTable.GetRouteFor(context.Message.MessageType) ?? throw new Exception($"No destination specified for message: {context.Message.MessageType}");
             return route;
         }
 

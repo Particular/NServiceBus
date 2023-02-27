@@ -42,13 +42,7 @@
                     return learningTransportDirectory;
                 }
 
-                var parent = Directory.GetParent(directory);
-
-                if (parent == null)
-                {
-                    // throw for now. if we discover there is an edge then we can fix it in a patch.
-                    throw new Exception($"Unable to determine the storage directory path for the learning transport due to the absence of a solution file. Either create a '{DefaultLearningTransportDirectory}' directory in one of this project’s parent directories, or specify the path explicitly using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
-                }
+                var parent = Directory.GetParent(directory) ?? throw new Exception($"Unable to determine the storage directory path for the learning transport due to the absence of a solution file. Either create a '{DefaultLearningTransportDirectory}' directory in one of this project’s parent directories, or specify the path explicitly using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
 
                 directory = parent.FullName;
             }

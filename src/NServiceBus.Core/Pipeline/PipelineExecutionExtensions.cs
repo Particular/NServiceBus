@@ -35,17 +35,9 @@
             for (var i = behaviorCount; i >= 0; i--)
             {
                 var currentBehavior = behaviors[i];
-                var behaviorInterfaceType = currentBehavior.GetType().GetBehaviorInterface();
-                if (behaviorInterfaceType == null)
-                {
-                    throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext>");
-                }
+                var behaviorInterfaceType = currentBehavior.GetType().GetBehaviorInterface() ?? throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext>");
                 // Select the method on the type which was implemented from the behavior interface.
-                var methodInfo = currentBehavior.GetType().GetInterfaceMap(behaviorInterfaceType).TargetMethods.FirstOrDefault();
-                if (methodInfo == null)
-                {
-                    throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext> and provide an invocation method.");
-                }
+                var methodInfo = currentBehavior.GetType().GetInterfaceMap(behaviorInterfaceType).TargetMethods.FirstOrDefault() ?? throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext> and provide an invocation method.");
 
                 var genericArguments = behaviorInterfaceType.GetGenericArguments();
                 var inContextType = genericArguments[0];

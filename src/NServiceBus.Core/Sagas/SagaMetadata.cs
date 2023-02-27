@@ -346,11 +346,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
             {
                 var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
-                var sagaProp = sagaMember as PropertyInfo;
-                if (sagaProp == null)
-                {
-                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
-                }
+                var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
 
                 ValidateMapping(messageExpression, sagaProp);
 
@@ -425,11 +421,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
             {
                 var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
-                var sagaProp = sagaMember as PropertyInfo;
-                if (sagaProp == null)
-                {
-                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
-                }
+                var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
 
                 ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 

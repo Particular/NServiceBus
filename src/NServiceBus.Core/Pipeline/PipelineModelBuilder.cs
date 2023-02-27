@@ -84,12 +84,7 @@ namespace NServiceBus
                 return finalOrder;
             }
 
-            var currentStage = stages.SingleOrDefault(stage => stage.Key == rootContextType);
-
-            if (currentStage == null)
-            {
-                throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
-            }
+            var currentStage = stages.SingleOrDefault(stage => stage.Key == rootContextType) ?? throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
 
             var stageNumber = 1;
 

@@ -20,12 +20,7 @@
 
             var containsHandlers = "NServiceBus.Core.Tests"; //< assembly name, not file name
             var assembly = results.Assemblies
-                .FirstOrDefault(a => a.GetName().Name.Contains(containsHandlers));
-
-            if (assembly == null)
-            {
-                throw new AssertionException($"Could not find loaded assembly matching {containsHandlers}");
-            }
+                .FirstOrDefault(a => a.GetName().Name.Contains(containsHandlers)) ?? throw new AssertionException($"Could not find loaded assembly matching {containsHandlers}");
         }
     }
 }

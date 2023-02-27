@@ -11,27 +11,15 @@ namespace NServiceBus
     static class Reflect<TTarget>
     {
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
-        {
-            var info = GetMemberInfo(property, false) as PropertyInfo;
-            if (info == null)
-            {
-                throw new ArgumentException("Member is not a property");
-            }
+            => GetMemberInfo(property, false) as PropertyInfo ?? throw new ArgumentException("Member is not a property");
 
-            return info;
-        }
-
-        internal static List<TTarget> GetEnumValues()
-        {
-            return Enum.GetValues(typeof(TTarget))
+        internal static List<TTarget> GetEnumValues() =>
+            Enum.GetValues(typeof(TTarget))
                 .Cast<TTarget>()
                 .ToList();
-        }
 
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
-        {
-            return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
-        }
+            => GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
 
         public static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {

@@ -48,12 +48,7 @@
 
             var typeName = $"Configure{transportToUse}Infrastructure";
 
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType == null)
-            {
-                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {nameof(IConfigureTransportInfrastructure)}.");
-            }
+            var configurerType = Type.GetType(typeName, false) ?? throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {nameof(IConfigureTransportInfrastructure)}.");
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0078 // Use pattern matching (may change code meaning)
