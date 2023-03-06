@@ -1,0 +1,39 @@
+name: Feature request
+
+description: Request a new feature.
+labels: ["Feature" ]
+body:
+  - type: markdown
+    attributes:
+      value: | 
+        Please check all open and closed issues to see if the feature has already been requested.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the feature.
+
+      description: A clear and concise description of the feature.
+
+      value: | 
+        **Is your feature related to a problem? Please describe.**
+        
+        **Describe the requested feature**
+
+                
+        **Describe alternatives you've considered**
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the request.
+
+      placeholder: "Add screenshots or additional information."
+    validations:
+      required: false  
+  - type: markdown
+    attributes:
+      value: |        
+        For additional support options visit [particular.net/support](https://particular.net/support)
