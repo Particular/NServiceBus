@@ -1,0 +1,51 @@
+name: Bug report
+description: File a bug report
+labels: ["Bug" ]
+body:
+  - type: markdown
+    attributes:
+      value: |     
+        For additional support options visit [particular.net/support](https://particular.net/support)
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Describe the bug 
+      description: A clear and concise description of the bug.
+      value: | 
+        ## Description
+        
+        ## Expected behavior
+        
+        ## Actual behavior
+        
+        ## Versions
+        
+        Please list the version of the relevant packages or applications in which the bug exists.        
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Detailed instructions to reproduce the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional Information
+      description: If there are any possible solutions, workarounds, or additional information please describe them here
+      value: | 
+       ## Workarounds
+       
+       ## Possible solutions
+       
+       ## Additional information
+    validations:
+      required: false
