@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://discuss.particular.net/
+    about: Reach out to the ParticularDiscussion community.
+  - name: Get support
+    url: https://particular.net/support
+    about: Contact us to discuss your support requirements.
