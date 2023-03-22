@@ -12,13 +12,13 @@ body:
       label: Describe the bug 
       description: A clear and concise description of the bug.
       value: | 
-        ## Description
+        #### Description
         
-        ## Expected behavior
+        #### Expected behavior
         
-        ## Actual behavior
+        #### Actual behavior
         
-        ## Versions
+        #### Versions
         
         Please list the version of the relevant packages or applications in which the bug exists.        
     validations:
@@ -42,10 +42,10 @@ body:
       label: Additional Information
       description: If there are any possible solutions, workarounds, or additional information please describe them here
       value: | 
-       ## Workarounds
+       #### Workarounds
        
-       ## Possible solutions
+       #### Possible solutions
        
-       ## Additional information
+       #### Additional information
     validations:
       required: false

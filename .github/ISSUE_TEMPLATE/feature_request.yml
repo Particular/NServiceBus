@@ -16,12 +16,11 @@ body:
       description: A clear and concise description of the feature.
 
       value: | 
-        **Is your feature related to a problem? Please describe.**
+        #### Is your feature related to a problem? Please describe.
         
-        **Describe the requested feature**
-
+        #### Describe the requested feature
                 
-        **Describe alternatives you've considered**
+        #### Describe alternatives you've considered
     validations:
       required: true
   - type: textarea
