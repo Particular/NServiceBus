@@ -12,11 +12,11 @@ body:
       label: Describe the suggested improvement
       description: A clear and concise description of what the improvement is.    
       value: | 
-        **Is your improvement related to a problem? Please describe.**
+        #### Is your improvement related to a problem? Please describe.
         
-        **Describe the suggested solution**
+        #### Describe the suggested solution
                 
-        **Describe alternatives you've considered**
+        #### Describe alternatives you've considered
     validations:
       required: true
   - type: textarea
