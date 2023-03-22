@@ -12,6 +12,6 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           tag: ${{ github.event.release.name }}
-          github-access-token: ${{ secrets.RELEASE_ANTIVIRUS_GITHUB_ACCESS_TOKEN_PBOT4 }}
+          github-access-token: ${{ secrets.GITHUB_TOKEN }}
           slack-token: ${{ secrets.SLACK_TOKEN }}
-          slack-channel: ${{ secrets.VIRUS_REPORTING_SLACK_CHANNEL }}
+          slack-channel: ${{ vars.VIRUS_REPORTING_SLACK_CHANNEL }}
