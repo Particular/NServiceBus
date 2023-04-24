@@ -43,11 +43,11 @@
                 await transaction.Commit();
             }
 
-            var getResult = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+            var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
-            Assert.IsNotNull(getResult);
-            Assert.AreEqual(messageId, getResult.MessageId);
-            Assert.AreEqual(1, getResult.TransportOperations.Length);
+            Assert.IsNotNull(message);
+            Assert.AreEqual(messageId, message.MessageId);
+            Assert.AreEqual(1, message.TransportOperations.Length);
         }
 
         [Test]
