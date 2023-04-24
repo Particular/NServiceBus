@@ -27,6 +27,30 @@
         }
 
         [Test]
+        public async Task Should_find_existing_outbox_data()
+        {
+            configuration.RequiresOutboxSupport();
+
+            var storage = configuration.OutboxStorage;
+            var ctx = configuration.GetContextBagForOutbox();
+
+            string messageId = Guid.NewGuid().ToString();
+            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+            using (var transaction = await storage.BeginTransaction(ctx))
+            {
+                await storage.Store(messageToStore, transaction, ctx);
+
+                await transaction.Commit();
+            }
+
+            var getResult = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+
+            Assert.IsNotNull(getResult);
+            Assert.AreEqual(messageId, getResult.MessageId);
+            Assert.AreEqual(1, getResult.TransportOperations.Length);
+        }
+
+        [Test]
         public async Task Should_clear_operations_on_dispatched_messages()
         {
             configuration.RequiresOutboxSupport();
