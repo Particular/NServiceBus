@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    public class Persist_saga_same_unique_prop_as_saga : SagaPersisterTests
+    public class When_concurrently_persisting_sagas_with_same_correlation_prop : SagaPersisterTests
     {
         [Test]
         public async Task It_should_enforce_uniqueness()
@@ -68,7 +68,7 @@
             public string CorrelatedProperty { get; set; }
         }
 
-        public Persist_saga_same_unique_prop_as_saga(TestVariant param) : base(param)
+        public When_concurrently_persisting_sagas_with_same_correlation_prop(TestVariant param) : base(param)
         {
         }
     }
