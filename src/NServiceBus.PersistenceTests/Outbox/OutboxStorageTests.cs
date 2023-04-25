@@ -94,7 +94,7 @@
 
             using (var transactionA = await storage.BeginTransaction(winningContextBag))
             {
-                await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionA, winningContextBag);
+                await storage.Store(new OutboxMessage("MySpecialId", Array.Empty<TransportOperation>()), transactionA, winningContextBag);
                 await transactionA.Commit();
             }
 
@@ -102,7 +102,7 @@
             {
                 using (var transactionB = await storage.BeginTransaction(losingContextBag))
                 {
-                    await storage.Store(new OutboxMessage("MySpecialId", new TransportOperation[0]), transactionB, losingContextBag);
+                    await storage.Store(new OutboxMessage("MySpecialId", Array.Empty<TransportOperation>()), transactionB, losingContextBag);
                     await transactionB.Commit();
                 }
             }
@@ -137,7 +137,7 @@
         }
 
         [Test]
-        public async Task Should_store_when_transaction_commited()
+        public async Task Should_store_when_transaction_committed()
         {
             configuration.RequiresOutboxSupport();
 
