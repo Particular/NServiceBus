@@ -37,7 +37,8 @@
             string messageId = Guid.NewGuid().ToString();
             _ = await storage.Get(messageId, ctx);
 
-            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+            string transportOperationMessageId = Guid.NewGuid().ToString();
+            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation(transportOperationMessageId, null, null, null) });
             using (var transaction = await storage.BeginTransaction(ctx))
             {
                 await storage.Store(messageToStore, transaction, ctx);
@@ -49,7 +50,8 @@
 
             Assert.IsNotNull(message);
             Assert.AreEqual(messageId, message.MessageId);
-            Assert.AreEqual(1, message.TransportOperations.Length);
+            Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
+            Assert.That(message.TransportOperations[0].MessageId, Is.EqualTo(transportOperationMessageId));
         }
 
         [Test]
