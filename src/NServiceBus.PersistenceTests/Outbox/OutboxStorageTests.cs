@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.OutboxVariants))]
-    class OutboxStorageTests
+    public class OutboxStorageTests
     {
         public OutboxStorageTests(TestVariant param)
         {
@@ -35,7 +35,7 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             string messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            _ = await storage.Get(messageId, ctx);
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
             using (var transaction = await storage.BeginTransaction(ctx))
@@ -61,7 +61,7 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            _ = await storage.Get(messageId, ctx);
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
             using (var transaction = await storage.BeginTransaction(ctx))
@@ -89,8 +89,8 @@
             var storage = configuration.OutboxStorage;
             var winningContextBag = configuration.GetContextBagForOutbox();
             var losingContextBag = configuration.GetContextBagForOutbox();
-            await storage.Get("MySpecialId", winningContextBag);
-            await storage.Get("MySpecialId", losingContextBag);
+            _ = await storage.Get("MySpecialId", winningContextBag);
+            _ = await storage.Get("MySpecialId", losingContextBag);
 
             using (var transactionA = await storage.BeginTransaction(winningContextBag))
             {
@@ -122,7 +122,7 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            _ = await storage.Get(messageId, ctx);
 
             using (var transaction = await storage.BeginTransaction(ctx))
             {
@@ -145,7 +145,7 @@
             var ctx = configuration.GetContextBagForOutbox();
 
             var messageId = Guid.NewGuid().ToString();
-            await storage.Get(messageId, ctx);
+            _ = await storage.Get(messageId, ctx);
 
             using (var transaction = await storage.BeginTransaction(ctx))
             {
