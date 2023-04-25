@@ -84,8 +84,6 @@
         {
             configuration.RequiresOutboxSupport();
 
-            var failed = false;
-
             var storage = configuration.OutboxStorage;
             var winningContextBag = configuration.GetContextBagForOutbox();
             var losingContextBag = configuration.GetContextBagForOutbox();
@@ -98,19 +96,15 @@
                 await transactionA.Commit();
             }
 
-            try
+            Assert.That(async () =>
             {
                 using (var transactionB = await storage.BeginTransaction(losingContextBag))
                 {
-                    await storage.Store(new OutboxMessage("MySpecialId", Array.Empty<TransportOperation>()), transactionB, losingContextBag);
+                    await storage.Store(new OutboxMessage("MySpecialId", Array.Empty<TransportOperation>()),
+                        transactionB, losingContextBag);
                     await transactionB.Commit();
                 }
-            }
-            catch (Exception)
-            {
-                failed = true;
-            }
-            Assert.IsTrue(failed);
+            }, Throws.Exception);
         }
 
         [Test]
