@@ -114,7 +114,7 @@
         }
 
         [Test]
-        public async Task Should_not_store_when_transaction_not_commited()
+        public async Task Should_not_store_when_transaction_not_committed()
         {
             configuration.RequiresOutboxSupport();
 
