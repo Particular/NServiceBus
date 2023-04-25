@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net472;net6.0;net7.0</TargetFrameworks>
+        <LangVersion>10.0</LangVersion>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\NServiceBusTests.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj" />
+        <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+        <Reference Include="System.Transactions" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="GitHubActionsTestLogger" Version="2.0.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+        <PackageReference Include="Particular.Approvals" Version="0.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="../NServiceBus.PersistenceTests/**/*.cs" Exclude="../NServiceBus.PersistenceTests/obj/**/*.*" />
+        <Compile Remove="../NServiceBus.PersistenceTests/PersistenceTestsConfiguration.cs" />
+    </ItemGroup>
+
+</Project>

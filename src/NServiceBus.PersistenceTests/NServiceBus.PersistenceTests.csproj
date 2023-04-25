@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;net6.0;net7.0</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\NServiceBusTests.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,10 +29,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\IdGeneration\CombGuid.cs" />
+    <Compile Include="..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs" />
+    <Compile Include="..\NServiceBus.Core\DeepCopy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AddSourceFileToPackage Include="..\NServiceBus.Core\IdGeneration\CombGuid.cs" />
     <AddSourceFileToPackage Include="..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs" />
     <AddSourceFileToPackage Include="..\NServiceBus.Core\DeepCopy.cs" />
-    <RemoveSourceFileFromPackage Include="PersistenceTestsConfiguration.cs" />
   </ItemGroup>
 
 </Project>

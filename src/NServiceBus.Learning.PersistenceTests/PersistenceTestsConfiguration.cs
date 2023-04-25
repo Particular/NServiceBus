@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus.PersistenceTesting
 {
     using System;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
     using Persistence;
 
-    // Shim file to make things compile
     public partial class PersistenceTestsConfiguration
     {
         public bool SupportsDtc => false;
@@ -26,7 +27,20 @@
 
         public Func<ICompletableSynchronizedStorageSession> CreateStorageSession { get; private set; }
 
-        public Task Configure(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task Configure(CancellationToken cancellationToken = default)
+        {
+            SagaIdGenerator = new LearningSagaIdGenerator();
+
+            var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"),
+                name => DeterministicGuid.Create(name).ToString());
+
+            SagaStorage = new LearningSagaPersister(sagaManifests);
+
+            CreateStorageSession = () => new LearningSynchronizedStorageSession();
+
+            return Task.CompletedTask;
+        }
 
         public Task Cleanup(CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
