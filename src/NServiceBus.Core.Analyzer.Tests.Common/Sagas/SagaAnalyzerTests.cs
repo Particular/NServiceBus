@@ -882,6 +882,48 @@ public class MyData : ContainSagaData
 
             return Assert(source);
         }
+
+        // https://github.com/Particular/NServiceBus/issues/6714
+        [Test]
+        public Task WhenUsingBaseMessageInterface()
+        {
+            var source =
+@"
+using System.Threading.Tasks;
+using NServiceBus;
+
+public class ReproSaga : Saga<SagaData>,
+    IAmStartedByMessages<IFirstMessage>,
+    IHandleMessages<ISecondMessage>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+    {
+        mapper.MapSaga(saga => saga.Correlation)
+            .ToMessage<IMessageBase>(msg => msg.Correlation);
+    }
+
+    public Task Handle(IFirstMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+
+    public Task Handle(ISecondMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+}
+
+public class SagaData : ContainSagaData
+{
+    public string Correlation { get; set; }
+}
+
+public interface IMessageBase
+{
+    string Correlation { get; set; }
+}
+
+public interface IFirstMessage : IMessageBase { }
+
+public interface ISecondMessage : IMessageBase { }
+";
+
+            return Assert(source);
+        }
     }
 
     public class SagaAnalyzerTestsCSharp8 : SagaAnalyzerTests
@@ -955,7 +997,7 @@ public class Timeout { }
         {
             if (messagePropNullable && !messagesUnderNullability)
             {
-                NUnit.Framework.Assert.Ignore("Invalid to have a nullable string? not under a #nullabel region.");
+                NUnit.Framework.Assert.Ignore("Invalid to have a nullable string? not under a #nullable region.");
             }
 
             var toMessageExpression = raiseDiagnostic ? "[|msg => msg.Corr|]" : "msg => msg.Corr";
