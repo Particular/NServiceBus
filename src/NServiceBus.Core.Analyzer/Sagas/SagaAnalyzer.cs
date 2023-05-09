@@ -248,7 +248,7 @@
             // ...then find the IAmStartedBy message types that don't already have a mapping defined
             foreach (var declaration in saga.StartedBy.Where(declaration => context.ContainsSyntax(declaration.Syntax)))
             {
-                if (!mappedMessageTypes.Contains(declaration.MessageType))
+                if (declaration.MessageType.BaseTypesAndSelf(includeInterfaces: true).All(t => !mappedMessageTypes.Contains(t)))
                 {
                     // Worst case, we use this descriptive property name which won't compile but will hint at the developer what to do
                     var newMapping = "MessagePropertyWithCorrelationValue";

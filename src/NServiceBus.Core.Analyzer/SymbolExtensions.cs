@@ -88,7 +88,7 @@
             }
         }
 
-        public static IEnumerable<ITypeSymbol> BaseTypesAndSelf(this ITypeSymbol type)
+        public static IEnumerable<ITypeSymbol> BaseTypesAndSelf(this ITypeSymbol type, bool includeInterfaces = false)
         {
             yield return type;
 
@@ -98,6 +98,14 @@
                 baseType = baseType.BaseType)
             {
                 yield return baseType;
+            }
+
+            if (includeInterfaces)
+            {
+                foreach (var iface in type.AllInterfaces)
+                {
+                    yield return iface;
+                }
             }
         }
 
