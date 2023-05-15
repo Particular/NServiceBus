@@ -33,7 +33,7 @@
             }
         }
 
-        class LocalCopyOfCombGuid
+        static class LocalCopyOfCombGuid
         {
             // Only slightly modified copy of the original algorithm
             public static Guid GenerateOld(Guid input, DateTime nowInput)
