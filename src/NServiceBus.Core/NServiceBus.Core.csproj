@@ -35,7 +35,7 @@
 
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
-    <Description>The most popular open-source service bus for .NET</Description>
+    <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsFileToPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
