@@ -43,6 +43,32 @@
         }
 
         [Test]
+        public async Task Should_not_create_when_sendonly()
+        {
+            var suffix = Guid.NewGuid().ToString().Substring(0, 8);
+            var errorQueueName = "error-" + suffix;
+            var auditQueueName = "audit-" + suffix;
+
+            var context = await Scenario.Define<Context>(c =>
+                {
+                    c.EnableInstallers = true;
+                })
+                .WithEndpoint<Endpoint>(e => e.CustomConfig(endpointConfig =>
+                {
+                    endpointConfig.SendOnly();
+                    endpointConfig.SendFailedMessagesTo(errorQueueName);
+                    endpointConfig.AuditProcessedMessagesTo(auditQueueName);
+                }))
+                .Done(c => c.EndpointsStarted)
+                .Run();
+
+            Assert.IsTrue(context.SetupInfrastructure);
+
+            CollectionAssert.DoesNotContain(context.SendingAddresses, errorQueueName);
+            CollectionAssert.DoesNotContain(context.SendingAddresses, auditQueueName);
+        }
+
+        [Test]
         public async Task Should_pass_receive_and_send_queue_addresses()
         {
             var instanceDiscriminator = "myInstance";

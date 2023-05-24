@@ -16,6 +16,8 @@
                 settings.Set(AuditConfigReader.GetConfiguredAuditQueue(settings));
             });
             Prerequisite(config => config.Settings.GetOrDefault<AuditConfigReader.Result>() != null, "No configured audit queue was found");
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
+                "Auditing is only relevant for endpoints receiving messages.");
         }
 
 
