@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using ConsistencyGuarantees;
+    using NServiceBus.Settings;
     using System;
     using Transport;
 
@@ -17,15 +18,18 @@
 
                 s.EnableFeatureByDefault<SynchronizedStorage>();
             });
-            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
+
+            Prerequisite(context => IsEnabled(context.Settings),
                 "Outbox is only relevant for endpoints receiving messages.");
 
-            Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly")
-                && c.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None,
+            Prerequisite(context => IsEnabled(context.Settings)
+                && context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None,
                 "Outbox isn't needed since the receive transactions have been turned off");
 
             DependsOn<SynchronizedStorage>();
         }
+
+        bool IsEnabled(IReadOnlySettings settings) => !settings.GetOrDefault<bool>("Endpoint.SendOnly") || settings.GetOrDefault<bool>("Outbox.Enabled");
 
         /// <summary>
         /// See <see cref="Feature.Setup" />.
@@ -35,6 +39,11 @@
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
                 throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
+            }
+
+            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return;
             }
 
             // ForceBatchDispatchToBeIsolatedBehavior set the dispatch consistency to isolated which instructs
