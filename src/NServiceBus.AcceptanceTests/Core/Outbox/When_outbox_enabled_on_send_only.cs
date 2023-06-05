@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.GetSettings().Set("Outbox.Enabled", true);
+                    c.GetSettings().Set("Outbox.SkipPrerequisitesCheck", true);
                     c.EnableOutbox();
                     c.EnableFeature<FeatureAccessingOutbox>();
                     c.SendOnly();

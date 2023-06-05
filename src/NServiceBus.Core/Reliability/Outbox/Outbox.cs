@@ -19,17 +19,20 @@
                 s.EnableFeatureByDefault<SynchronizedStorage>();
             });
 
-            Prerequisite(context => IsEnabled(context.Settings),
+            Prerequisite(context => SkipPrerequisitesCheck(context.Settings) || ReceivingEnabled(context.Settings),
                 "Outbox is only relevant for endpoints receiving messages.");
 
-            Prerequisite(context => IsEnabled(context.Settings)
-                && context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None,
+            Prerequisite(context => SkipPrerequisitesCheck(context.Settings) || TransactionsEnabled(context.Settings),
                 "Outbox isn't needed since the receive transactions have been turned off");
 
             DependsOn<SynchronizedStorage>();
         }
 
-        bool IsEnabled(IReadOnlySettings settings) => !settings.GetOrDefault<bool>("Endpoint.SendOnly") || settings.GetOrDefault<bool>("Outbox.Enabled");
+        bool ReceivingEnabled(IReadOnlySettings settings) => !settings.GetOrDefault<bool>("Endpoint.SendOnly");
+
+        bool TransactionsEnabled(IReadOnlySettings settings) => settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
+
+        bool SkipPrerequisitesCheck(IReadOnlySettings settings) => settings.GetOrDefault<bool>("Outbox.SkipPrerequisitesCheck");
 
         /// <summary>
         /// See <see cref="Feature.Setup" />.
