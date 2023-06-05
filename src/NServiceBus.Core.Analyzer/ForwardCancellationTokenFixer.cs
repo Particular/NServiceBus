@@ -34,8 +34,8 @@
             var requiredArgName = diagnostic.Properties["RequiredArgName"];
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var startToken = root.FindToken(diagnostic.Location.SourceSpan.Start);
-            var invocationSyntax = startToken.Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
+            var startToken = root.FindNode(diagnostic.Location.SourceSpan);
+            var invocationSyntax = (InvocationExpressionSyntax)startToken;
 
             // TODO: consider whether analyzer should pass in name of property, i.e. "CancellationToken",
             // so that that information doesn't have to spread across both the analyzer and the fixer

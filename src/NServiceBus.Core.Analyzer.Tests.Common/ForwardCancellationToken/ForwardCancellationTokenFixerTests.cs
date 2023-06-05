@@ -43,6 +43,96 @@ public class Foo
         }
 
         [Test]
+        public Task Fluent()
+        {
+            var original =
+                @"using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public Task Bar(IMessageHandlerContext context)
+    {
+        var someReturnValue = ""someValue"";
+        return 
+             Include(() => someReturnValue)
+            .Include(() => someReturnValue)
+            .FindSingle();
+    }
+
+    Foo Include(Func<string> action) => this;
+
+    Task FindSingle(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}";
+
+            var expected =
+                @"using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public Task Bar(IMessageHandlerContext context)
+    {
+        var someReturnValue = ""someValue"";
+        return 
+             Include(() => someReturnValue)
+            .Include(() => someReturnValue)
+            .FindSingle(context.CancellationToken);
+    }
+
+    Foo Include(Func<string> action) => this;
+
+    Task FindSingle(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}";
+
+            return Assert(original, expected);
+        }
+
+        [Test]
+        public Task FluentAsync()
+        {
+            var original =
+                @"using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public async Task Bar(IMessageHandlerContext context)
+    {
+        var someReturnValue = ""someValue"";
+        await (await (await Include(() => someReturnValue)).Include(() => someReturnValue)).FindSingle();
+    }
+
+    Task<Foo> Include(Func<string> action, CancellationToken token = default(CancellationToken)) => Task.FromResult(this);
+
+    Task<Foo> FindSingle(CancellationToken token = default(CancellationToken)) => Task.FromResult(this);
+}";
+
+            var expected =
+                @"using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public async Task Bar(IMessageHandlerContext context)
+    {
+        var someReturnValue = ""someValue"";
+        await (await (await Include(() => someReturnValue, context.CancellationToken)).Include(() => someReturnValue, context.CancellationToken)).FindSingle(context.CancellationToken);
+    }
+
+    Task<Foo> Include(Func<string> action, CancellationToken token = default(CancellationToken)) => Task.FromResult(this);
+
+    Task<Foo> FindSingle(CancellationToken token = default(CancellationToken)) => Task.FromResult(this);
+}";
+
+            return Assert(original, expected);
+        }
+
+        [Test]
         public Task NonStandardContextVariableName()
         {
             var original =
