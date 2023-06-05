@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |     
-        For additional support options visit [particular.net/support](https://particular.net/support)
+        For additional support options visit [particular.net/support](https://particular.net/support). If this is related to a security vulnerability or sensitive information must be included in the bug report, please use the support options on the [support page](https://particular.net/support).
   - type: textarea
     id: what-happened
     attributes:
