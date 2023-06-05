@@ -7,15 +7,13 @@
     using NServiceBus.Settings;
 
     /// <summary>
-    /// 
+    /// Enables message serialization using System.Text.Json.
     /// </summary>
     public class SystemJsonSerializer : SerializationDefinition
     {
         /// <summary>
-        /// 
+        /// Provides a factory method for building a message serializer.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
         public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
         {
             var options = settings.GetOrDefault<JsonSerializerOptions>();

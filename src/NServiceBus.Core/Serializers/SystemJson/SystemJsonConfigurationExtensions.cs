@@ -6,7 +6,7 @@
     using NServiceBus.Serializers.SystemJson;
 
     /// <summary>
-    /// 
+    /// Extensions for <see cref="SerializationExtensions{T}"/> to manipulate how messages are serialized via System.Text.Json.
     /// </summary>
     public static class SystemJsonConfigurationExtensions
     {
