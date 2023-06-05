@@ -43,6 +43,54 @@ public class Foo
         }
 
         [Test]
+        public Task Fluent()
+        {
+            var original =
+                @"using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public Task Bar(IMessageHandlerContext context)
+    {
+        var someReturnValue = ""someValue"";
+        return 
+             Include(() => someReturnValue)
+            .Include(() => someReturnValue)
+            .FindSingle();
+    }
+
+    Foo Include(Func<string> action) => this;
+
+    Task FindSingle(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}";
+
+            var expected =
+                @"using NServiceBus;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+public class Foo
+{
+    public Task Bar(IMessageHandlerContext context)
+    {
+        var someReturnValue = ""someValue"";
+        return 
+             Include(() => someReturnValue)
+            .Include(() => someReturnValue)
+            .FindSingle(context.CancellationToken);
+    }
+
+    Foo Include(Func<string> action) => this;
+
+    Task FindSingle(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+}";
+
+            return Assert(original, expected);
+        }
+
+        [Test]
         public Task NonStandardContextVariableName()
         {
             var original =
