@@ -8,6 +8,7 @@
     using Features;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Configuration.AdvancedExtensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NUnit.Framework;
@@ -22,14 +23,16 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(context.HasOutboxStorage);
-            Assert.True(context.HasSynchronizedStorageSession);
+            Assert.True(context.SessionNotNullAfterOpening);
+            Assert.True(context.SynchronizedAndCompletableStorageSessionIsTheSameInstance);
+            Assert.True(context.OutboxNotNullAfterOpening);
         }
 
         class Context : ScenarioContext
         {
-            public bool HasOutboxStorage { get; set; }
-            public bool HasSynchronizedStorageSession { get; set; }
+            public bool SynchronizedAndCompletableStorageSessionIsTheSameInstance { get; set; }
+            public bool SessionNotNullAfterOpening { get; set; }
+            public bool OutboxNotNullAfterOpening { get; internal set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -65,12 +68,27 @@
                     this.testContext = testContext;
                     this.serviceProvider = serviceProvider;
                 }
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+                protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    testContext.HasOutboxStorage = serviceProvider.GetService<IOutboxStorage>() != null;
-                    testContext.HasSynchronizedStorageSession = serviceProvider.GetService<ICompletableSynchronizedStorageSession>() != null;
+                    using (var scope = serviceProvider.CreateScope())
+                    using (var completableSynchronizedStorageSession =
+                           scope.ServiceProvider.GetRequiredService<ICompletableSynchronizedStorageSession>())
+                    {
+                        await completableSynchronizedStorageSession.Open(new ContextBag(), cancellationToken);
 
-                    return Task.CompletedTask;
+                        testContext.SessionNotNullAfterOpening =
+                            scope.ServiceProvider.GetService<ISynchronizedStorageSession>() != null;
+
+                        testContext.OutboxNotNullAfterOpening =
+                            scope.ServiceProvider.GetService<IOutboxStorage>() != null;
+
+                        var synchronizedStorage = scope.ServiceProvider.GetService<ISynchronizedStorageSession>();
+
+                        testContext.SynchronizedAndCompletableStorageSessionIsTheSameInstance =
+                            completableSynchronizedStorageSession == synchronizedStorage;
+
+                        await completableSynchronizedStorageSession.CompleteAsync(cancellationToken);
+                    }
                 }
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
