@@ -52,6 +52,12 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
         {
+            if (endpointStarted)
+            {
+                throw new ArgumentException("This Endpoint has already been started. Each endpoint can only be started once and cannot be reused. Create a new endpoint using a new EndpointConfiguration");
+            }
+            endpointStarted = true;
+
             await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -83,6 +89,7 @@ namespace NServiceBus
         readonly ReceiveComponent receiveComponent;
         readonly TransportSeam transportSeam;
 
+        bool endpointStarted;
         MessageSession messageSession;
         TransportInfrastructure transportInfrastructure;
         CancellationTokenSource stoppingTokenSource;

@@ -22,7 +22,7 @@ namespace NServiceBus
         public static EndpointCreator Create(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
         {
             var settings = endpointConfiguration.Settings;
-            CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
+            CheckIfSettingsWereUsedToCreateAnotherEndpoint(settings);
 
             var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
@@ -35,11 +35,11 @@ namespace NServiceBus
 
             return endpointCreator;
 
-            static void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
+            static void CheckIfSettingsWereUsedToCreateAnotherEndpoint(SettingsHolder settings)
             {
                 if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
                 {
-                    throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
+                    throw new ArgumentException("This EndpointConfiguration was already used to create an endpoint. Each endpoint requires a new EndpointConfiguration.");
                 }
 
                 settings.Set("UsedToCreateEndpoint", true);
