@@ -14,7 +14,7 @@ namespace NServiceBus
     public class AssemblyScannerConfiguration
     {
         public AssemblyScannerConfiguration() { }
-        public string AdditionalAssemblyScanningPath { get; set; }
+        public string? AdditionalAssemblyScanningPath { get; set; }
         public bool ScanAppDomainAssemblies { get; set; }
         public bool ScanAssembliesInNestedDirectories { get; set; }
         public bool ScanFileSystemAssemblies { get; set; }
@@ -29,7 +29,7 @@ namespace NServiceBus
     public static class AuditConfigReader
     {
         public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.IReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
-        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string address) { }
+        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out string address) { }
     }
     public static class AuditContextExtensions
     {

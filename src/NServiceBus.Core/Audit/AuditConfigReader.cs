@@ -1,6 +1,9 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Settings;
 
     /// <summary>
@@ -15,7 +18,7 @@
         /// <param name="settings">The configuration settings for the endpoint.</param>
         /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
         /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
-        public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, out string address)
+        public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, [MaybeNullWhen(false)] out string address)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
@@ -54,13 +57,17 @@
             return true;
         }
 
-        internal static Result GetConfiguredAuditQueue(IReadOnlySettings settings)
-        {
-            return settings.TryGet(out Result configResult) ? configResult : null;
-        }
+        internal static Result? GetConfiguredAuditQueue(IReadOnlySettings settings)
+            => settings.TryGet(out Result configResult) ? configResult : null;
 
         internal class Result
         {
+            public Result(string address, TimeSpan? timeToBeReceived)
+            {
+                Address = address;
+                TimeToBeReceived = timeToBeReceived;
+            }
+
             public string Address;
             public TimeSpan? TimeToBeReceived;
         }

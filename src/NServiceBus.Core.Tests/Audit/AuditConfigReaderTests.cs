@@ -12,12 +12,9 @@
             var settingsHolder = new SettingsHolder();
             var configuredAddress = "myAuditQueue";
 
-            settingsHolder.Set(new AuditConfigReader.Result
-            {
-                Address = configuredAddress
-            });
+            settingsHolder.Set(new AuditConfigReader.Result(configuredAddress, null));
 
-            Assert.True(AuditConfigReader.TryGetAuditQueueAddress(settingsHolder, out var address));
+            Assert.True(settingsHolder.TryGetAuditQueueAddress(out var address));
             Assert.AreEqual(configuredAddress, address);
         }
 
@@ -27,19 +24,16 @@
             var settingsHolder = new SettingsHolder();
             var configuredExpiration = TimeSpan.FromSeconds(10);
 
-            settingsHolder.Set(new AuditConfigReader.Result
-            {
-                TimeToBeReceived = configuredExpiration
-            });
+            settingsHolder.Set(new AuditConfigReader.Result("someAddress", configuredExpiration));
 
-            Assert.True(AuditConfigReader.TryGetAuditMessageExpiration(settingsHolder, out var expiration));
+            Assert.True(settingsHolder.TryGetAuditMessageExpiration(out var expiration));
             Assert.AreEqual(configuredExpiration, expiration);
         }
 
         [Test]
         public void ShouldReturnFalseIfNoExpirationIsConfigured()
         {
-            Assert.False(AuditConfigReader.TryGetAuditMessageExpiration(new SettingsHolder(), out _));
+            Assert.False(new SettingsHolder().TryGetAuditMessageExpiration(out _));
         }
     }
 }

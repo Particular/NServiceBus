@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -34,7 +36,7 @@
         /// <summary>
         /// Defines an additional path for assembly scanning.
         /// </summary>
-        public string AdditionalAssemblyScanningPath { get; set; }
+        public string? AdditionalAssemblyScanningPath { get; set; }
 
         /// <summary>
         /// A list of <see cref="Assembly" />s to ignore in the assembly scanning.

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using Persistence;
@@ -17,7 +19,8 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtensions<>).MakeGenericType(typeof(T));
-            return (PersistenceExtensions<T>)Activator.CreateInstance(type, config.Settings);
+            var extensions = Activator.CreateInstance(type, config.Settings)!;
+            return (PersistenceExtensions<T>)extensions;
         }
 
         /// <summary>
@@ -31,7 +34,8 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtensions<,>).MakeGenericType(typeof(T), typeof(S));
-            return (PersistenceExtensions<T, S>)Activator.CreateInstance(type, config.Settings);
+            var extensions = Activator.CreateInstance(type, config.Settings)!;
+            return (PersistenceExtensions<T, S>)extensions;
         }
 
         /// <summary>

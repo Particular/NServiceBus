@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     /// <summary>
     /// Contains extension methods to configure the <see cref="AssemblyScanner"/> behavior.
