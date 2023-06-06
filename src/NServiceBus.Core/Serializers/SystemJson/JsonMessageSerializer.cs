@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Serializers.SystemJson
+﻿#nullable enable
+namespace NServiceBus.Serializers.SystemJson
 {
     using System;
     using System.Collections.Generic;
@@ -9,20 +10,18 @@
 
     class JsonMessageSerializer : IMessageSerializer
     {
-        public JsonMessageSerializer(JsonSerializerOptions serializerOptions, JsonWriterOptions writerOptions, JsonReaderOptions readerOptions, string contentType)
+        internal JsonMessageSerializer(SystemJsonSerializerSettings s)
+            : this(s.SerializerOptions, s.WriterOptions, s.ReaderOptions, s.ContentType)
+        {
+        }
+
+        public JsonMessageSerializer(JsonSerializerOptions? serializerOptions, JsonWriterOptions writerOptions, JsonReaderOptions readerOptions, string contentType)
         {
             this.serializerOptions = serializerOptions;
             this.writerOptions = writerOptions;
             this.readerOptions = readerOptions;
 
-            if (contentType == null)
-            {
-                ContentType = ContentTypes.Json;
-            }
-            else
-            {
-                ContentType = contentType;
-            }
+            ContentType = contentType;
         }
 
         public void Serialize(object message, Stream stream)
@@ -31,9 +30,9 @@
             JsonSerializer.Serialize(writer, message, serializerOptions);
         }
 
-        public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
+        public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type>? messageTypes = null)
         {
-            if (messageTypes == null || !messageTypes.Any())
+            if (messageTypes == null || messageTypes.Count == 0)
             {
                 throw new("The System.Text.Json message serializer requires message types to be defined.");
             }
@@ -56,7 +55,7 @@
 
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
         {
-            Type currentRoot = null;
+            Type? currentRoot = null;
             foreach (var type in messageTypesToDeserialize)
             {
                 if (currentRoot == null)
@@ -76,7 +75,7 @@
 
         public string ContentType { get; }
 
-        JsonSerializerOptions serializerOptions;
+        JsonSerializerOptions? serializerOptions;
         JsonWriterOptions writerOptions;
         JsonReaderOptions readerOptions;
     }

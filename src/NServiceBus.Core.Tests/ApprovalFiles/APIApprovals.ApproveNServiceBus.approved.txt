@@ -1177,7 +1177,7 @@ namespace NServiceBus
     }
     public static class SystemJsonConfigurationExtensions
     {
-        public static void ContentTypeKey(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.Serializers.SystemJson.SystemJsonSerializer> config, string contentTypeKey) { }
+        public static void ContentTypeKey(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.Serializers.SystemJson.SystemJsonSerializer> config, string contentType) { }
         public static void Options(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.Serializers.SystemJson.SystemJsonSerializer> config, System.Text.Json.JsonSerializerOptions options) { }
         public static void ReaderOptions(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.Serializers.SystemJson.SystemJsonSerializer> config, System.Text.Json.JsonReaderOptions options) { }
         public static void WriterOptions(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.Serializers.SystemJson.SystemJsonSerializer> config, System.Text.Json.JsonWriterOptions options) { }
