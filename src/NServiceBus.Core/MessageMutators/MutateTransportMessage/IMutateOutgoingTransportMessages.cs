@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.MessageMutator
 {
     using System.Threading.Tasks;

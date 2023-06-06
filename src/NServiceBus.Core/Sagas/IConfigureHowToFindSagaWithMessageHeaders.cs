@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using System.Linq.Expressions;

@@ -9,7 +9,7 @@ namespace NServiceBus
 
     static class Guard
     {
-        public static void ThrowIfNull([NotNull] object? argument, [CallerArgumentExpression("argument")] string? paramName = null)
+        public static void ThrowIfNull<T>([NotNull] T? argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
             if (argument is null)
             {

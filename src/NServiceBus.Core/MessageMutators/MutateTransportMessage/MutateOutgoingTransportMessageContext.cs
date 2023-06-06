@@ -1,7 +1,10 @@
+#nullable enable
+
 namespace NServiceBus.MessageMutator
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
 
     /// <summary>
@@ -12,7 +15,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders, CancellationToken cancellationToken = default)
+        public MutateOutgoingTransportMessageContext(ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object? incomingMessage, IReadOnlyDictionary<string, string>? incomingHeaders, CancellationToken cancellationToken = default)
         {
             Guard.ThrowIfNull(outgoingHeaders);
             Guard.ThrowIfNull(outgoingBody);
@@ -60,7 +63,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Gets the incoming message that initiated the current send if it exists.
         /// </summary>
-        public bool TryGetIncomingMessage(out object incomingMessage)
+        public bool TryGetIncomingMessage([NotNullWhen(true)] out object? incomingMessage)
         {
             incomingMessage = this.incomingMessage;
             return incomingMessage != null;
@@ -69,14 +72,14 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Gets the incoming headers that initiated the current send if it exists.
         /// </summary>
-        public bool TryGetIncomingHeaders(out IReadOnlyDictionary<string, string> incomingHeaders)
+        public bool TryGetIncomingHeaders([NotNullWhen(true)] out IReadOnlyDictionary<string, string>? incomingHeaders)
         {
             incomingHeaders = this.incomingHeaders;
             return incomingHeaders != null;
         }
 
-        IReadOnlyDictionary<string, string> incomingHeaders;
-        object incomingMessage;
+        IReadOnlyDictionary<string, string>? incomingHeaders;
+        object? incomingMessage;
 
         internal bool MessageBodyChanged;
         ReadOnlyMemory<byte> outgoingBody;

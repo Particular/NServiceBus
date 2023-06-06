@@ -1839,22 +1839,22 @@ namespace NServiceBus.MessageMutator
     }
     public class MutateOutgoingMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
+        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object? incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; set; }
-        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
-        public bool TryGetIncomingMessage(out object incomingMessage) { }
+        public bool TryGetIncomingHeaders([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders) { }
+        public bool TryGetIncomingMessage([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out object? incomingMessage) { }
     }
     public class MutateOutgoingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingTransportMessageContext(System.ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
+        public MutateOutgoingTransportMessageContext(System.ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object? incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.ReadOnlyMemory<byte> OutgoingBody { get; set; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }
-        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
-        public bool TryGetIncomingMessage(out object incomingMessage) { }
+        public bool TryGetIncomingHeaders([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders) { }
+        public bool TryGetIncomingMessage([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out object? incomingMessage) { }
     }
     public static class MutatorRegistrationExtensions
     {
@@ -2427,7 +2427,7 @@ namespace NServiceBus.Sagas
     public interface ISagaFinder<TSagaData, TMessage> : NServiceBus.Sagas.IFinder
         where TSagaData : NServiceBus.IContainSagaData
     {
-        System.Threading.Tasks.Task<TSagaData> FindBy(TMessage message, NServiceBus.Persistence.ISynchronizedStorageSession storageSession, NServiceBus.Extensibility.IReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<TSagaData?> FindBy(TMessage message, NServiceBus.Persistence.ISynchronizedStorageSession storageSession, NServiceBus.Extensibility.IReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface ISagaIdGenerator
     {
