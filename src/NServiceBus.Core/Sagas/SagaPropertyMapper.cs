@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus
 {
     using System;
@@ -10,9 +12,7 @@ namespace NServiceBus
     public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSagaData
     {
         internal SagaPropertyMapper(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
-        {
-            this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
-        }
+            => this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
 
         /// <summary>
         /// Specify how to map between <typeparamref name="TSagaData" /> and <typeparamref name="TMessage" />.
@@ -67,6 +67,6 @@ namespace NServiceBus
             return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
         }
 
-        IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
+        readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
     }
 }

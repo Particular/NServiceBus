@@ -1,12 +1,14 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using System.Linq.Expressions;
 
     class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
     {
-        IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
-        string headerName;
+        readonly IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
+        readonly string headerName;
 
         public MessageHeaderToSagaExpression(IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration, string headerName)
         {

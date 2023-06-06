@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus
 {
     using System;
@@ -9,11 +11,13 @@ namespace NServiceBus
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData"/>.</typeparam>
     public class CorrelatedSagaPropertyMapper<TSagaData> where TSagaData : class, IContainSagaData
     {
-        SagaPropertyMapper<TSagaData> sagaPropertyMapper;
-        Expression<Func<TSagaData, object>> sagaProperty;
+        readonly SagaPropertyMapper<TSagaData> sagaPropertyMapper;
+        readonly Expression<Func<TSagaData, object>> sagaProperty;
 
         internal CorrelatedSagaPropertyMapper(SagaPropertyMapper<TSagaData> sagaPropertyMapper, Expression<Func<TSagaData, object>> sagaProperty)
         {
+            Guard.ThrowIfNull(sagaPropertyMapper);
+            Guard.ThrowIfNull(sagaProperty);
             this.sagaPropertyMapper = sagaPropertyMapper;
             this.sagaProperty = sagaProperty;
         }

@@ -29,7 +29,7 @@ namespace NServiceBus
     public static class AuditConfigReader
     {
         public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.IReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
-        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out string address) { }
+        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? address) { }
     }
     public static class AuditContextExtensions
     {
@@ -1029,7 +1029,7 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
-        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string> outgoingHeaders = null) { }
+        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string>? outgoingHeaders = null) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTimeOffset at)
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within)

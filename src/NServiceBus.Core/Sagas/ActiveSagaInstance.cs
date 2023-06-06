@@ -59,11 +59,9 @@ namespace NServiceBus.Sagas
         /// </summary>
         public DateTimeOffset Modified { get; private set; }
 
-
         internal bool TryGetCorrelationProperty(out CorrelationPropertyInfo sagaCorrelationProperty)
         {
             sagaCorrelationProperty = correlationProperty;
-
 
             return sagaCorrelationProperty != null;
         }

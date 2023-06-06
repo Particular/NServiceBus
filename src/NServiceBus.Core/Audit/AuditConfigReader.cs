@@ -18,7 +18,7 @@ namespace NServiceBus
         /// <param name="settings">The configuration settings for the endpoint.</param>
         /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
         /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
-        public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, [MaybeNullWhen(false)] out string address)
+        public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, [NotNullWhen(true)] out string? address)
         {
             Guard.ThrowIfNull(settings);
 
