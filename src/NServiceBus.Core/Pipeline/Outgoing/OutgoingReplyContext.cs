@@ -9,9 +9,9 @@
         public OutgoingReplyContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
             : base(messageId, headers, parentContext)
         {
-            Guard.AgainstNull(nameof(parentContext), parentContext);
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(extensions), extensions);
+            Guard.ThrowIfNull(parentContext);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(extensions);
 
             Message = message;
 

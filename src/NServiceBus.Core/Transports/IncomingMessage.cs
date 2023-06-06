@@ -16,9 +16,9 @@ namespace NServiceBus.Transport
         /// <param name="body">The message body.</param>
         public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
         {
-            Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
-            Guard.AgainstNull(nameof(body), body);
-            Guard.AgainstNull(nameof(headers), headers);
+            Guard.ThrowIfNullOrEmpty(nativeMessageId);
+            Guard.ThrowIfNull(body);
+            Guard.ThrowIfNull(headers);
 
             if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
             {

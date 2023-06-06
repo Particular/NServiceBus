@@ -38,8 +38,8 @@ namespace NServiceBus
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNullAndEmpty(nameof(errorMessage), errorMessage);
-            Guard.AgainstNull(nameof(exception), exception);
+            Guard.ThrowIfNullOrEmpty(errorMessage);
+            Guard.ThrowIfNull(exception);
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
             lock (endpointCriticalLock)

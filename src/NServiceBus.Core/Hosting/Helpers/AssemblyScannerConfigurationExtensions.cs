@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static AssemblyScannerConfiguration AssemblyScanner(this EndpointConfiguration configuration)
         {
-            Guard.AgainstNull(nameof(configuration), configuration);
+            Guard.ThrowIfNull(configuration);
             return configuration.Settings.GetOrCreate<AssemblyScannerConfiguration>();
         }
     }

@@ -17,7 +17,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             var definition = (T)Activator.CreateInstance(typeof(T));
 
             return UseSerialization(config, definition);
@@ -31,8 +31,8 @@
         /// <param name="serializationDefinition">An instance of serialization definition.</param>
         public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(serializationDefinition), serializationDefinition);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNull(serializationDefinition);
 
             var settings = new SettingsHolder();
             config.Settings.SetMainSerializer(serializationDefinition, settings);
@@ -46,7 +46,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             var definition = (T)Activator.CreateInstance(typeof(T));
 
             return AddDeserializer(config, definition);
@@ -60,8 +60,8 @@
         /// <param name="serializationDefinition">An instance of serialization definition.</param>
         public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(serializationDefinition), serializationDefinition);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNull(serializationDefinition);
 
             var additionalSerializers = config.GetSettings().GetAdditionalSerializers();
 

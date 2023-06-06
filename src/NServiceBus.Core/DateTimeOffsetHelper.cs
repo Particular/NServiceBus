@@ -22,7 +22,7 @@
         /// </summary>
         public static DateTimeOffset ToDateTimeOffset(string wireFormattedString)
         {
-            Guard.AgainstNullAndEmpty(nameof(wireFormattedString), wireFormattedString);
+            Guard.ThrowIfNullOrEmpty(wireFormattedString);
 
             if (wireFormattedString.Length != format.Length)
             {

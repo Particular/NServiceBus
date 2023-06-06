@@ -88,8 +88,8 @@ namespace NServiceBus
 
         public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(sendOptions), sendOptions);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(sendOptions);
 
             GuardAgainstUseWhenNotStarted();
             return messageSession.Send(message, sendOptions, cancellationToken);
@@ -97,8 +97,8 @@ namespace NServiceBus
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
-            Guard.AgainstNull(nameof(sendOptions), sendOptions);
+            Guard.ThrowIfNull(messageConstructor);
+            Guard.ThrowIfNull(sendOptions);
 
             GuardAgainstUseWhenNotStarted();
             return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
@@ -106,8 +106,8 @@ namespace NServiceBus
 
         public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(publishOptions), publishOptions);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(publishOptions);
 
             GuardAgainstUseWhenNotStarted();
             return messageSession.Publish(message, publishOptions, cancellationToken);
@@ -115,8 +115,8 @@ namespace NServiceBus
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
-            Guard.AgainstNull(nameof(publishOptions), publishOptions);
+            Guard.ThrowIfNull(messageConstructor);
+            Guard.ThrowIfNull(publishOptions);
 
             GuardAgainstUseWhenNotStarted();
             return messageSession.Publish(messageConstructor, publishOptions, cancellationToken);
@@ -124,8 +124,8 @@ namespace NServiceBus
 
         public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(eventType), eventType);
-            Guard.AgainstNull(nameof(subscribeOptions), subscribeOptions);
+            Guard.ThrowIfNull(eventType);
+            Guard.ThrowIfNull(subscribeOptions);
 
             GuardAgainstUseWhenNotStarted();
             return messageSession.Subscribe(eventType, subscribeOptions, cancellationToken);
@@ -133,8 +133,8 @@ namespace NServiceBus
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(eventType), eventType);
-            Guard.AgainstNull(nameof(unsubscribeOptions), unsubscribeOptions);
+            Guard.ThrowIfNull(eventType);
+            Guard.ThrowIfNull(unsubscribeOptions);
 
             GuardAgainstUseWhenNotStarted();
             return messageSession.Unsubscribe(eventType, unsubscribeOptions, cancellationToken);

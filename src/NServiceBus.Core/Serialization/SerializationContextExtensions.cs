@@ -17,7 +17,7 @@ namespace NServiceBus
         /// </remarks>
         public static void SkipSerialization(this IOutgoingLogicalMessageContext context)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
 
             // Prefix the setting key with the current message id to prevent the setting from leaking to nested send operations for different messages
             context.Extensions.Set($"{context.MessageId}:MessageSerialization.Skip", true);
@@ -28,7 +28,7 @@ namespace NServiceBus
         /// </summary>
         public static bool ShouldSkipSerialization(this IOutgoingLogicalMessageContext context)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
             if (context.Extensions.TryGet($"{context.MessageId}:MessageSerialization.Skip", out bool shouldSkipSerialization))
             {
                 return shouldSkipSerialization;

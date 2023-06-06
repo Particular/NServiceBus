@@ -15,8 +15,8 @@
         /// <param name="delay">The requested delay.</param>
         public static void DelayDeliveryWith(this SendOptions options, TimeSpan delay)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNegative(nameof(delay), delay);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNegative(delay);
 
             if (options.DispatchProperties.DoNotDeliverBefore != null)
             {
@@ -33,7 +33,7 @@
         /// <returns>The configured <see cref="TimeSpan" /> or <c>null</c>.</returns>
         public static TimeSpan? GetDeliveryDelay(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             return options.DispatchProperties?.DelayDeliveryWith?.Delay;
         }
@@ -45,7 +45,7 @@
         /// <param name="at">The time when this message should be made available.</param>
         public static void DoNotDeliverBefore(this SendOptions options, DateTimeOffset at)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.DispatchProperties.DelayDeliveryWith != null)
             {
@@ -62,7 +62,7 @@
         /// <returns>The configured <see cref="DateTimeOffset" /> or <c>null</c>.</returns>
         public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             return options.DispatchProperties?.DoNotDeliverBefore?.At;
         }

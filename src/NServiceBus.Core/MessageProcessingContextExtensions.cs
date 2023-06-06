@@ -15,8 +15,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task Reply(this IMessageProcessingContext context, object message)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(message);
 
             return context.Reply(message, new ReplyOptions());
         }
@@ -29,8 +29,8 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task Reply<T>(this IMessageProcessingContext context, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(messageConstructor);
 
             return context.Reply(messageConstructor, new ReplyOptions());
         }

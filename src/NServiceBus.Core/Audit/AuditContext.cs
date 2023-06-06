@@ -11,8 +11,8 @@ namespace NServiceBus
         public AuditContext(OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IBehaviorContext parent)
             : base(parent)
         {
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(auditAddress), auditAddress);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNullOrEmpty(auditAddress);
             Message = message;
             AuditAddress = auditAddress;
             TimeToBeReceived = timeToBeReceived;
@@ -44,8 +44,8 @@ namespace NServiceBus
         }
         public void AddAuditData(string key, string value)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
-            Guard.AgainstNullAndEmpty(nameof(value), value);
+            Guard.ThrowIfNullOrEmpty(key);
+            Guard.ThrowIfNullOrEmpty(value);
 
             AuditMetadata[key] = value;
         }

@@ -17,9 +17,9 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this ForkConnector<ITransportReceiveContext, IRoutingContext> forkConnector, OutgoingMessage outgoingMessage, string localAddress, ITransportReceiveContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNullAndEmpty(nameof(localAddress), localAddress);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNullOrEmpty(localAddress);
+            Guard.ThrowIfNull(sourceContext);
 
             return new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(localAddress), sourceContext);
         }
@@ -29,9 +29,9 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IForwardingContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IForwardingContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNull(nameof(routingStrategy), routingStrategy);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNull(routingStrategy);
+            Guard.ThrowIfNull(sourceContext);
 
             return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
         }
@@ -41,9 +41,9 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IAuditContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IAuditContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNull(nameof(routingStrategy), routingStrategy);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNull(routingStrategy);
+            Guard.ThrowIfNull(sourceContext);
 
             return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
         }
@@ -53,9 +53,9 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IOutgoingPhysicalMessageContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingPhysicalMessageContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNull(routingStrategies);
+            Guard.ThrowIfNull(sourceContext);
 
             return new RoutingContext(outgoingMessage, routingStrategies, sourceContext);
         }
@@ -65,8 +65,8 @@ namespace NServiceBus
         /// </summary>
         public static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
         {
-            Guard.AgainstNull(nameof(incomingMessage), incomingMessage);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(incomingMessage);
+            Guard.ThrowIfNull(sourceContext);
 
             return new IncomingPhysicalMessageContext(incomingMessage, sourceContext);
         }
@@ -83,8 +83,8 @@ namespace NServiceBus
         /// </summary>
         public static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this StageConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext> stageConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
         {
-            Guard.AgainstNull(nameof(incomingMessage), incomingMessage);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(incomingMessage);
+            Guard.ThrowIfNull(sourceContext);
 
             return new IncomingPhysicalMessageContext(incomingMessage, sourceContext);
         }
@@ -94,8 +94,8 @@ namespace NServiceBus
         /// </summary>
         public static IIncomingLogicalMessageContext CreateIncomingLogicalMessageContext(this StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext> stageConnector, LogicalMessage logicalMessage, IIncomingPhysicalMessageContext sourceContext)
         {
-            Guard.AgainstNull(nameof(logicalMessage), logicalMessage);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(logicalMessage);
+            Guard.ThrowIfNull(sourceContext);
 
             return new IncomingLogicalMessageContext(logicalMessage, sourceContext);
         }
@@ -105,9 +105,9 @@ namespace NServiceBus
         /// </summary>
         public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, ICompletableSynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)
         {
-            Guard.AgainstNull(nameof(messageHandler), messageHandler);
-            Guard.AgainstNull(nameof(storageSession), storageSession);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(messageHandler);
+            Guard.ThrowIfNull(storageSession);
+            Guard.ThrowIfNull(sourceContext);
 
             return new InvokeHandlerContext(messageHandler, storageSession, sourceContext);
         }
@@ -117,8 +117,8 @@ namespace NServiceBus
         /// </summary>
         public static IBatchDispatchContext CreateBatchDispatchContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IReadOnlyCollection<TransportOperation> transportOperations, IIncomingPhysicalMessageContext sourceContext)
         {
-            Guard.AgainstNull(nameof(transportOperations), transportOperations);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(transportOperations);
+            Guard.ThrowIfNull(sourceContext);
 
             return new BatchDispatchContext(transportOperations, sourceContext);
         }
@@ -135,8 +135,8 @@ namespace NServiceBus
         /// </summary>
         public static IDispatchContext CreateDispatchContext(this StageConnector<IBatchDispatchContext, IDispatchContext> stageConnector, IReadOnlyCollection<TransportOperation> transportOperations, IBatchDispatchContext sourceContext)
         {
-            Guard.AgainstNull(nameof(transportOperations), transportOperations);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(transportOperations);
+            Guard.ThrowIfNull(sourceContext);
 
             return new DispatchContext(transportOperations, sourceContext);
         }
@@ -146,8 +146,8 @@ namespace NServiceBus
         /// </summary>
         public static IDispatchContext CreateDispatchContext(this StageConnector<IRoutingContext, IDispatchContext> stageConnector, IReadOnlyCollection<TransportOperation> transportOperations, IRoutingContext sourceContext)
         {
-            Guard.AgainstNull(nameof(transportOperations), transportOperations);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(transportOperations);
+            Guard.ThrowIfNull(sourceContext);
 
             return new DispatchContext(transportOperations, sourceContext);
         }
@@ -157,9 +157,9 @@ namespace NServiceBus
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingPublishContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNull(routingStrategies);
+            Guard.ThrowIfNull(sourceContext);
 
             return new OutgoingLogicalMessageContext(
                 sourceContext.MessageId,
@@ -174,9 +174,9 @@ namespace NServiceBus
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingReplyContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNull(routingStrategies);
+            Guard.ThrowIfNull(sourceContext);
 
             return new OutgoingLogicalMessageContext(
                 sourceContext.MessageId,
@@ -191,9 +191,9 @@ namespace NServiceBus
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingSendContext sourceContext)
         {
-            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(outgoingMessage);
+            Guard.ThrowIfNull(routingStrategies);
+            Guard.ThrowIfNull(sourceContext);
 
             return new OutgoingLogicalMessageContext(
                 sourceContext.MessageId,
@@ -208,9 +208,9 @@ namespace NServiceBus
         /// </summary>
         public static IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext> stageConnector, ReadOnlyMemory<byte> messageBody, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingLogicalMessageContext sourceContext)
         {
-            Guard.AgainstNull(nameof(messageBody), messageBody);
-            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(messageBody);
+            Guard.ThrowIfNull(routingStrategies);
+            Guard.ThrowIfNull(sourceContext);
 
             return new OutgoingPhysicalMessageContext(messageBody, routingStrategies, sourceContext);
         }
@@ -232,10 +232,10 @@ namespace NServiceBus
         /// </summary>
         public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)
         {
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(auditAddress), auditAddress);
-            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+            Guard.ThrowIfNull(sourceContext);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNullOrEmpty(auditAddress);
+            Guard.ThrowIfNull(sourceContext);
 
             var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;
 

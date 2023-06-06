@@ -11,7 +11,7 @@ namespace NServiceBus.Routing
         /// <param name="destination">The destination.</param>
         public UnicastAddressTag(string destination)
         {
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+            Guard.ThrowIfNullOrEmpty(destination);
             Destination = destination;
         }
 

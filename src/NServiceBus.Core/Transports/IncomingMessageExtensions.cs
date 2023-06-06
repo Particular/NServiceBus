@@ -14,7 +14,7 @@ namespace NServiceBus.Transport
         /// <returns>The message intent.</returns>
         public static MessageIntent GetMessageIntent(this IncomingMessage message)
         {
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(message);
             var messageIntent = default(MessageIntent);
 
             if (message.Headers.TryGetValue(Headers.MessageIntent, out var messageIntentString))
@@ -32,7 +32,7 @@ namespace NServiceBus.Transport
         /// <returns>The reply to address.</returns>
         public static string GetReplyToAddress(this IncomingMessage message)
         {
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(message);
             return message.Headers.TryGetValue(Headers.ReplyToAddress, out var replyToAddress) ? replyToAddress : null;
         }
     }

@@ -13,7 +13,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static OutboxSettings EnableOutbox(this EndpointConfiguration config)
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
 
             var outboxSettings = new OutboxSettings(config.Settings);
 

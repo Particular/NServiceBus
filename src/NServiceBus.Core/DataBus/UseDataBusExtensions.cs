@@ -17,7 +17,7 @@
             where TDataBusDefinition : DataBusDefinition, new()
             where TDataBusSerializer : IDataBusSerializer, new()
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
 
             return config.UseDataBus<TDataBusDefinition>(new TDataBusSerializer());
         }
@@ -30,8 +30,8 @@
         public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
             where TDataBusDefinition : DataBusDefinition, new()
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(dataBusSerializer), dataBusSerializer);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNull(dataBusSerializer);
 
             var dataBusExtensionType = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBusDefinition));
             var dataBusExtension = (DataBusExtensions<TDataBusDefinition>)Activator.CreateInstance(dataBusExtensionType, config.Settings);
@@ -50,9 +50,9 @@
         /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
         public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer)
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(dataBusFactory), dataBusFactory);
-            Guard.AgainstNull(nameof(dataBusSerializer), dataBusSerializer);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNull(dataBusFactory);
+            Guard.ThrowIfNull(dataBusSerializer);
 
             EnableDataBus(config, new CustomDataBus(dataBusFactory), dataBusSerializer);
 

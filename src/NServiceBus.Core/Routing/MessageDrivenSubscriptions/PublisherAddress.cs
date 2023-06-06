@@ -14,7 +14,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// </summary>
         public static PublisherAddress CreateFromEndpointName(string endpoint)
         {
-            Guard.AgainstNull(nameof(endpoint), endpoint);
+            Guard.ThrowIfNull(endpoint);
             return new PublisherAddress { endpoint = endpoint };
         }
 
@@ -23,7 +23,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// </summary>
         public static PublisherAddress CreateFromEndpointInstances(params EndpointInstance[] instances)
         {
-            Guard.AgainstNull(nameof(instances), instances);
+            Guard.ThrowIfNull(instances);
             if (instances.Length == 0)
             {
                 throw new ArgumentException("You have to provide at least one instance.");
@@ -36,7 +36,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// </summary>
         public static PublisherAddress CreateFromPhysicalAddresses(params string[] addresses)
         {
-            Guard.AgainstNull(nameof(addresses), addresses);
+            Guard.ThrowIfNull(addresses);
             if (addresses.Length == 0)
             {
                 throw new ArgumentException("You need to provide at least one address.");

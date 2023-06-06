@@ -17,7 +17,7 @@
         /// </summary>
         public static ConversationId Custom(string customValue)
         {
-            Guard.AgainstNullAndEmpty(nameof(customValue), customValue);
+            Guard.ThrowIfNullOrEmpty(customValue);
 
             return new ConversationId(customValue);
         }

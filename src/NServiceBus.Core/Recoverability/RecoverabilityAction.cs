@@ -35,7 +35,7 @@ namespace NServiceBus
         /// <returns>Delayed retry action.</returns>
         public static DelayedRetry DelayedRetry(TimeSpan timeSpan)
         {
-            Guard.AgainstNegative(nameof(timeSpan), timeSpan);
+            Guard.ThrowIfNegative(timeSpan);
 
             return new DelayedRetry(timeSpan);
         }
@@ -47,7 +47,7 @@ namespace NServiceBus
         /// <returns>Move to error action.</returns>
         public static MoveToError MoveToError(string errorQueue)
         {
-            Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
+            Guard.ThrowIfNullOrEmpty(errorQueue);
             return new MoveToError(errorQueue);
         }
 
@@ -63,7 +63,7 @@ namespace NServiceBus
         /// <returns>Discard action.</returns>
         public static Discard Discard(string reason)
         {
-            Guard.AgainstNullAndEmpty(nameof(reason), reason);
+            Guard.ThrowIfNullOrEmpty(reason);
             return new Discard(reason);
         }
 

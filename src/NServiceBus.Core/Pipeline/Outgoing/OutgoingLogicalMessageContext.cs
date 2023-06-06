@@ -20,7 +20,7 @@
 
         public void UpdateMessage(object newInstance)
         {
-            Guard.AgainstNull(nameof(newInstance), newInstance);
+            Guard.ThrowIfNull(newInstance);
 
             if (Message.Instance != newInstance)
             {

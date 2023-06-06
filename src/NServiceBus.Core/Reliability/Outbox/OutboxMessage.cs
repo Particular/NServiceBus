@@ -12,8 +12,8 @@
         /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
         public OutboxMessage(string messageId, TransportOperation[] operations)
         {
-            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
-            Guard.AgainstNull(nameof(operations), operations);
+            Guard.ThrowIfNullOrEmpty(messageId);
+            Guard.ThrowIfNull(operations);
 
             MessageId = messageId;
             TransportOperations = operations;

@@ -15,11 +15,11 @@ namespace NServiceBus
         /// <param name="timeToBeReceived">The message expiration time span to use for messages sent to the audit queue.</param>
         public static void AuditProcessedMessagesTo(this EndpointConfiguration config, string auditQueue, TimeSpan? timeToBeReceived = null)
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNullAndEmpty(nameof(auditQueue), auditQueue);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNullOrEmpty(auditQueue);
             if (timeToBeReceived != null)
             {
-                Guard.AgainstNegative(nameof(timeToBeReceived), timeToBeReceived.Value);
+                Guard.ThrowIfNegative(timeToBeReceived.Value);
             }
             config.Settings.Set(new AuditConfigReader.Result(auditQueue, timeToBeReceived));
         }

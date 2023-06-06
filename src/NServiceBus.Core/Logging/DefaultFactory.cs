@@ -53,7 +53,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public void Directory(string directory)
         {
-            Guard.AgainstNullAndEmpty(nameof(directory), directory);
+            Guard.ThrowIfNullOrEmpty(directory);
 
             if (!IODirectory.Exists(directory))
             {

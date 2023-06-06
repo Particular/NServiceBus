@@ -17,8 +17,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task Send(this IPipelineContext context, object message)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(message);
 
             return context.Send(message, new SendOptions());
         }
@@ -34,8 +34,8 @@ namespace NServiceBus
         /// </remarks>
         public static Task Send<T>(this IPipelineContext context, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(messageConstructor);
 
             return context.Send(messageConstructor, new SendOptions());
         }
@@ -48,9 +48,9 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task Send(this IPipelineContext context, string destination, object message)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNullOrEmpty(destination);
+            Guard.ThrowIfNull(message);
 
             var options = new SendOptions();
 
@@ -68,9 +68,9 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task Send<T>(this IPipelineContext context, string destination, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNullOrEmpty(destination);
+            Guard.ThrowIfNull(messageConstructor);
 
             var options = new SendOptions();
 
@@ -86,8 +86,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task SendLocal(this IPipelineContext context, object message)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(message);
 
             var options = new SendOptions();
 
@@ -104,8 +104,8 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task SendLocal<T>(this IPipelineContext context, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(messageConstructor);
 
             var options = new SendOptions();
 
@@ -121,8 +121,8 @@ namespace NServiceBus
         /// <param name="message">The message to publish.</param>
         public static Task Publish(this IPipelineContext context, object message)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(message);
 
             return context.Publish(message, new PublishOptions());
         }
@@ -134,7 +134,7 @@ namespace NServiceBus
         /// <typeparam name="T">The message type.</typeparam>
         public static Task Publish<T>(this IPipelineContext context)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
 
             return context.Publish<T>(_ => { }, new PublishOptions());
         }
@@ -147,8 +147,8 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task Publish<T>(this IPipelineContext context, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(messageConstructor);
 
             return context.Publish(messageConstructor, new PublishOptions());
         }

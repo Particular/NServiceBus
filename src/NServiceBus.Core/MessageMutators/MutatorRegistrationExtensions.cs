@@ -15,8 +15,8 @@
         /// <param name="messageMutator">A mutator instance implementing <see cref="IMutateIncomingMessages"/>, <see cref="IMutateIncomingTransportMessages"/>, <see cref="IMutateOutgoingMessages"/> or <see cref="IMutateOutgoingTransportMessages"/>. The class can also implement multiple mutator interfaces at once.</param>
         public static void RegisterMessageMutator(this EndpointConfiguration endpointConfiguration, object messageMutator)
         {
-            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
-            Guard.AgainstNull(nameof(messageMutator), messageMutator);
+            Guard.ThrowIfNull(endpointConfiguration);
+            Guard.ThrowIfNull(messageMutator);
 
             var registeredMutator = false;
 

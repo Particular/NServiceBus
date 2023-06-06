@@ -101,9 +101,9 @@ namespace NServiceBus
         // extracting by disassembling it in Reflector
         public override int Read(char[] buffer, int index, int count)
         {
-            Guard.AgainstNull(nameof(buffer), buffer);
-            Guard.AgainstNegative(nameof(index), index);
-            Guard.AgainstNegative(nameof(count), count);
+            Guard.ThrowIfNull(buffer);
+            Guard.ThrowIfNegative(index);
+            Guard.ThrowIfNegative(count);
 
             if (buffer.Length - index < count)
             {

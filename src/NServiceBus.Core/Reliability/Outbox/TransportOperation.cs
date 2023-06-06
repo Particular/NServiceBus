@@ -14,7 +14,7 @@
         /// </summary>
         public TransportOperation(string messageId, DispatchProperties properties, ReadOnlyMemory<byte> body, Dictionary<string, string> headers)
         {
-            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
+            Guard.ThrowIfNullOrEmpty(messageId);
 
             MessageId = messageId;
             Options = properties;

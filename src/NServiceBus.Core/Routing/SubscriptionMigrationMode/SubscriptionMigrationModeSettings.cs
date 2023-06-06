@@ -26,7 +26,7 @@
         /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
         public void SubscriptionAuthorizer(Func<IIncomingPhysicalMessageContext, bool> authorizer)
         {
-            Guard.AgainstNull(nameof(authorizer), authorizer);
+            Guard.ThrowIfNull(authorizer);
 
             Settings.Set("SubscriptionAuthorizer", authorizer);
         }
@@ -38,7 +38,7 @@
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public void RegisterPublisher(Type eventType, string publisherEndpoint)
         {
-            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+            Guard.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
             Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
@@ -51,8 +51,8 @@
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public void RegisterPublisher(Assembly assembly, string publisherEndpoint)
         {
-            Guard.AgainstNull(nameof(assembly), assembly);
-            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+            Guard.ThrowIfNull(assembly);
+            Guard.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 
@@ -67,8 +67,8 @@
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public void RegisterPublisher(Assembly assembly, string @namespace, string publisherEndpoint)
         {
-            Guard.AgainstNull(nameof(assembly), assembly);
-            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+            Guard.ThrowIfNull(assembly);
+            Guard.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 

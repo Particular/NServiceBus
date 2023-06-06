@@ -10,8 +10,8 @@ namespace NServiceBus.Sagas
         /// </summary>
         public SagaCorrelationProperty(string name, object value)
         {
-            Guard.AgainstNullAndEmpty(nameof(name), name);
-            Guard.AgainstNull(nameof(value), value);
+            Guard.ThrowIfNullOrEmpty(name);
+            Guard.ThrowIfNull(value);
 
             Name = name;
             Value = value;

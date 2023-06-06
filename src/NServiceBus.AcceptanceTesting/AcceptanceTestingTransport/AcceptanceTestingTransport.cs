@@ -18,7 +18,7 @@
 
         public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(hostSettings), hostSettings);
+            Guard.ThrowIfNull(hostSettings);
 
             var infrastructure = new AcceptanceTestingTransportInfrastructure(hostSettings, this, receivers);
             infrastructure.ConfigureDispatcher();
@@ -72,7 +72,7 @@
             get => storageLocation;
             set
             {
-                Guard.AgainstNull(nameof(StorageLocation), value);
+                Guard.ThrowIfNull(value);
                 PathChecker.ThrowForBadPath(value, nameof(StorageLocation));
                 storageLocation = value;
             }

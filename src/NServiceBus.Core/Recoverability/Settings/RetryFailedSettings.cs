@@ -23,7 +23,7 @@ namespace NServiceBus
         /// <param name="customization">The customization action.</param>
         public RetryFailedSettings HeaderCustomization(Action<Dictionary<string, string>> customization)
         {
-            Guard.AgainstNull(nameof(customization), customization);
+            Guard.ThrowIfNull(customization);
 
             Settings.Set(RecoverabilityComponent.FaultHeaderCustomization, customization);
 
@@ -35,7 +35,7 @@ namespace NServiceBus
         /// </summary>
         public RetryFailedSettings OnMessageSentToErrorQueue(Func<FailedMessage, CancellationToken, Task> notificationCallback)
         {
-            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
+            Guard.ThrowIfNull(notificationCallback);
 
             var subscriptions = Settings.Get<RecoverabilityComponent.Configuration>();
             subscriptions.MessageFaultedNotification.Subscribe((faulted, cancellationToken) =>

@@ -31,7 +31,7 @@ namespace NServiceBus.Routing
         /// <returns>The new destination route.</returns>
         public static UnicastRoute CreateFromEndpointName(string endpoint)
         {
-            Guard.AgainstNull(nameof(endpoint), endpoint);
+            Guard.ThrowIfNull(endpoint);
             return new UnicastRoute
             {
                 Endpoint = endpoint
@@ -45,7 +45,7 @@ namespace NServiceBus.Routing
         /// <returns>The new destination route.</returns>
         public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
         {
-            Guard.AgainstNull(nameof(instance), instance);
+            Guard.ThrowIfNull(instance);
             return new UnicastRoute
             {
                 Instance = instance
@@ -59,7 +59,7 @@ namespace NServiceBus.Routing
         /// <returns>The new destination route.</returns>
         public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress)
         {
-            Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
+            Guard.ThrowIfNullOrEmpty(physicalAddress);
             return new UnicastRoute
             {
                 PhysicalAddress = physicalAddress

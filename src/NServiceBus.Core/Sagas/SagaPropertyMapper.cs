@@ -26,7 +26,7 @@ namespace NServiceBus
         /// </returns>
         public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty)
         {
-            Guard.AgainstNull(nameof(messageProperty), messageProperty);
+            Guard.ThrowIfNull(messageProperty);
             return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
         }
 
@@ -42,7 +42,7 @@ namespace NServiceBus
         /// </returns>
         public IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName)
         {
-            Guard.AgainstNull(nameof(headerName), headerName);
+            Guard.ThrowIfNull(headerName);
 
             if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration)
             {
@@ -63,7 +63,7 @@ namespace NServiceBus
         /// </returns>
         public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object>> sagaProperty)
         {
-            Guard.AgainstNull(nameof(sagaProperty), sagaProperty);
+            Guard.ThrowIfNull(sagaProperty);
             return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
         }
 

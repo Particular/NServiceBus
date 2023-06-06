@@ -12,8 +12,8 @@
         /// <param name="destination">The destination address.</param>
         public static void SetDestination(this SendOptions options, string destination)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNullOrEmpty(destination);
 
             var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
             state.Option = UnicastSendRouter.RouteOption.ExplicitDestination;
@@ -28,8 +28,8 @@
         /// <param name="destination">The new target address.</param>
         public static void SetDestination(this ReplyOptions options, string destination)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNullOrEmpty(destination);
 
             options.Context.GetOrCreate<ReplyConnector.State>()
                 .ExplicitDestination = destination;
@@ -42,7 +42,7 @@
         /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
         public static string GetDestination(this ReplyOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.TryGet(out ReplyConnector.State state);
             return state?.ExplicitDestination;
@@ -55,7 +55,7 @@
         /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
         public static string GetDestination(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.TryGet(out UnicastSendRouter.State state);
             return state?.ExplicitDestination;
@@ -67,7 +67,7 @@
         /// <param name="options">Option being extended.</param>
         public static void RouteToThisEndpoint(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.GetOrCreate<UnicastSendRouter.State>()
                 .Option = UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
@@ -80,7 +80,7 @@
         /// <returns><c>true</c> when <see cref="RouteToThisEndpoint" /> has been called, <c>false</c> otherwise.</returns>
         public static bool IsRoutingToThisEndpoint(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out UnicastSendRouter.State state))
             {
@@ -96,7 +96,7 @@
         /// <param name="options">Option being extended.</param>
         public static void RouteToThisInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.GetOrCreate<UnicastSendRouter.State>()
                 .Option = UnicastSendRouter.RouteOption.RouteToThisInstance;
@@ -109,7 +109,7 @@
         /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance" /> has been called, <c>false</c> otherwise.</returns>
         public static bool IsRoutingToThisInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out UnicastSendRouter.State state))
             {
@@ -126,8 +126,8 @@
         /// <param name="instanceId">ID of destination instance.</param>
         public static void RouteToSpecificInstance(this SendOptions options, string instanceId)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNull(nameof(instanceId), instanceId);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNull(instanceId);
 
             var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
             state.Option = UnicastSendRouter.RouteOption.RouteToSpecificInstance;
@@ -141,7 +141,7 @@
         /// <returns>The configured instance ID or <c>null</c> when no instance was configured.</returns>
         public static string GetRouteToSpecificInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
             {
@@ -157,7 +157,7 @@
         /// <param name="options">Option being extended.</param>
         public static void RouteReplyToThisInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
@@ -169,7 +169,7 @@
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToThisInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
@@ -185,7 +185,7 @@
         /// <param name="options">Option being extended.</param>
         public static void RouteReplyToAnyInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
@@ -197,7 +197,7 @@
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToAnyInstance(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
@@ -213,7 +213,7 @@
         /// <param name="options">Option being extended.</param>
         public static void RouteReplyToThisInstance(this ReplyOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
@@ -225,7 +225,7 @@
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToThisInstance(this ReplyOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
@@ -241,7 +241,7 @@
         /// <param name="options">Option being extended.</param>
         public static void RouteReplyToAnyInstance(this ReplyOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
                 .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
@@ -253,7 +253,7 @@
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToAnyInstance(this ReplyOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
@@ -270,8 +270,8 @@
         /// <param name="address">Reply destination.</param>
         public static void RouteReplyTo(this ReplyOptions options, string address)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNull(nameof(address), address);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNull(address);
 
             var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
@@ -285,7 +285,7 @@
         /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
         public static string GetReplyToRoute(this ReplyOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
             {
@@ -302,8 +302,8 @@
         /// <param name="address">Reply destination.</param>
         public static void RouteReplyTo(this SendOptions options, string address)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNull(nameof(address), address);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNull(address);
 
             var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
@@ -317,7 +317,7 @@
         /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
         public static string GetReplyToRoute(this SendOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
             {

@@ -12,7 +12,7 @@
         /// </summary>
         public static SettingsHolder GetSettings(this ExposeSettings config)
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             return config.Settings;
         }
     }

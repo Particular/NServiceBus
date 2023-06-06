@@ -8,7 +8,7 @@ namespace NServiceBus
     {
         public static void ThrowIfInvalid(Type behavior, string paramName)
         {
-            Guard.AgainstNull(nameof(behavior), behavior);
+            Guard.ThrowIfNull(behavior);
             if (behavior.IsAbstract)
             {
                 throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is abstract.", paramName);
