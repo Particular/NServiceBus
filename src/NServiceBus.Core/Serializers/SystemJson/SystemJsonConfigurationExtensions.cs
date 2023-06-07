@@ -52,8 +52,8 @@ namespace NServiceBus
         /// This setting is required when this serializer needs to co-exist with other json serializers.
         /// </remarks>
         /// <param name="config">The <see cref="SerializationExtensions{T}"/> instance.</param>
-        /// <param name="contentType">The content type key to use.</param>
-        public static void ContentTypeKey(this SerializationExtensions<SystemJsonSerializer> config, string contentType)
+        /// <param name="contentType">The content type added to the message that identifies how the message is serialized.</param>
+        public static void ContentType(this SerializationExtensions<SystemJsonSerializer> config, string contentType)
         {
             Guard.AgainstNullAndEmpty(contentType, nameof(contentType));
             var settings = config.GetSettings().GetOrCreate<SystemJsonSerializerSettings>();

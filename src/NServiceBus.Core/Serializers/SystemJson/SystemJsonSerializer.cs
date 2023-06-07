@@ -1,9 +1,10 @@
 ﻿#nullable enable
-namespace NServiceBus.Serializers.SystemJson
+namespace NServiceBus
 {
     using System;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
+    using NServiceBus.Serializers.SystemJson;
     using NServiceBus.Settings;
 
     /// <summary>
