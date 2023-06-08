@@ -1175,12 +1175,24 @@ namespace NServiceBus
         public void RegisterPublisher(System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint) { }
         public void SubscriptionAuthorizer(System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
     }
+    public static class SystemJsonConfigurationExtensions
+    {
+        public static void ContentType(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, string contentType) { }
+        public static void Options(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, System.Text.Json.JsonSerializerOptions options) { }
+        public static void ReaderOptions(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, System.Text.Json.JsonReaderOptions options) { }
+        public static void WriterOptions(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, System.Text.Json.JsonWriterOptions options) { }
+    }
     public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public SystemJsonDataBusSerializer() { }
         public string ContentType { get; }
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         public void Serialize(object dataBusProperty, System.IO.Stream stream) { }
+    }
+    public class SystemJsonSerializer : NServiceBus.Serialization.SerializationDefinition
+    {
+        public SystemJsonSerializer() { }
+        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings) { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute

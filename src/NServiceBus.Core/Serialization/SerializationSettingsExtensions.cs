@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Logging;
     using Serialization;
     using Settings;
 
@@ -9,6 +10,7 @@ namespace NServiceBus
     {
         const string AdditionalSerializersSettingsKey = "AdditionalDeserializers";
         const string MainSerializerSettingsKey = "MainSerializer";
+        static readonly ILog log = LogManager.GetLogger(nameof(SerializationSettingsExtensions));
 
         public static List<Tuple<SerializationDefinition, SettingsHolder>> GetAdditionalSerializers(this SettingsHolder settings)
         {
@@ -38,6 +40,8 @@ namespace NServiceBus
         {
             if (!settings.TryGet(MainSerializerSettingsKey, out Tuple<SerializationDefinition, SettingsHolder> defaultSerializerAndSettings))
             {
+                var noDefaultSerializerMsg = $"Because no message serializer was selected, the default {nameof(XmlSerializer)} will be used instead. In a future version of NServiceBus the {nameof(XmlSerializer)} will no longer be the default. For better forward compatibility, either choose a different message serializer, or make the choice of XML serialization explicit using endpointConfiguration.{nameof(SerializationConfigExtensions.UseSerialization)}<{nameof(XmlSerializer)}>()";
+                log.Warn(noDefaultSerializerMsg);
                 defaultSerializerAndSettings = Tuple.Create<SerializationDefinition, SettingsHolder>(new XmlSerializer(), new SettingsHolder());
             }
             return defaultSerializerAndSettings;
