@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using ConsistencyGuarantees;
     using NServiceBus.Settings;
-    using System;
     using Transport;
 
     /// <summary>
@@ -15,14 +15,13 @@
             Defaults(s =>
             {
                 s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5));
-
                 s.EnableFeatureByDefault<SynchronizedStorage>();
             });
 
-            Prerequisite(context => SkipPrerequisitesCheck(context.Settings) || ReceivingEnabled(context.Settings),
+            Prerequisite(context => ReceivingEnabled(context.Settings) || AllowUseWithoutReceiving(context.Settings),
                 "Outbox is only relevant for endpoints receiving messages.");
 
-            Prerequisite(context => SkipPrerequisitesCheck(context.Settings) || TransactionsEnabled(context.Settings),
+            Prerequisite(context => !ReceivingEnabled(context.Settings) || TransactionsEnabled(context.Settings),
                 "Outbox isn't needed since the receive transactions have been turned off");
 
             DependsOn<SynchronizedStorage>();
@@ -32,7 +31,7 @@
 
         bool TransactionsEnabled(IReadOnlySettings settings) => settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
 
-        bool SkipPrerequisitesCheck(IReadOnlySettings settings) => settings.GetOrDefault<bool>("Outbox.SkipPrerequisitesCheck");
+        bool AllowUseWithoutReceiving(IReadOnlySettings settings) => settings.GetOrDefault<bool>("Outbox.AllowUseWithoutReceiving");
 
         /// <summary>
         /// See <see cref="Feature.Setup" />.
@@ -44,7 +43,7 @@
                 throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
             }
 
-            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            if (!ReceivingEnabled(context.Settings))
             {
                 return;
             }
@@ -66,6 +65,7 @@
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched once the dispatch pipeline returns.");
         }
+
         internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
     }
 }

@@ -24,7 +24,7 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
                     if (sendOnly)
                     {
                         c.SendOnly();
-                        c.GetSettings().Set("Outbox.SkipPrerequisitesCheck", true);
+                        c.GetSettings().Set("Outbox.AllowUseWithoutReceiving", true);
                     }
                     if (useOutbox)
                     {
