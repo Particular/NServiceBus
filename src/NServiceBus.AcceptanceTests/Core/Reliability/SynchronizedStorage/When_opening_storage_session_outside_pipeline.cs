@@ -8,27 +8,47 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
     using Extensibility;
     using Features;
     using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.Configuration.AdvancedExtensibility;
+    using NServiceBus.Outbox;
     using NUnit.Framework;
     using Persistence;
 
     public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptanceTest
     {
-        [Test]
-        public async Task Should_provide_adapted_session_with_same_scope()
+        [Test, Combinatorial]
+        public async Task Should_provide_adapted_session_with_same_scope([Values(true, false)] bool useOutbox, [Values(true, false)] bool sendOnly)
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>()
+                .WithEndpoint<Endpoint>(e => e.CustomConfig(c =>
+                {
+                    if (sendOnly)
+                    {
+                        c.SendOnly();
+                        c.GetSettings().Set("Outbox.AllowUseWithoutReceiving", true);
+                    }
+                    if (useOutbox)
+                    {
+                        c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
+                        c.EnableOutbox();
+                    }
+                }))
                 .Done(c => c.Done)
                 .Run();
 
             Assert.True(context.SessionNotNullAfterOpening, "The adapted session was null after opening the session.");
             Assert.True(context.StorageSessionEqual, "The scoped storage session should be equal.");
+
+            if (useOutbox)
+            {
+                Assert.True(context.OutboxNotNullAfterOpening, "The scoped storage session should be equal.");
+            }
         }
 
         public class Context : ScenarioContext
         {
             public bool StorageSessionEqual { get; set; }
             public bool SessionNotNullAfterOpening { get; set; }
+            public bool OutboxNotNullAfterOpening { get; set; }
             public bool Done { get; set; }
         }
 
@@ -74,6 +94,8 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
 
                             scenarioContext.StorageSessionEqual =
                                 completableSynchronizedStorageSession == synchronizedStorage;
+
+                            scenarioContext.OutboxNotNullAfterOpening = scope.ServiceProvider.GetService<IOutboxStorage>() != null;
 
                             await completableSynchronizedStorageSession.CompleteAsync(cancellationToken);
                         }
