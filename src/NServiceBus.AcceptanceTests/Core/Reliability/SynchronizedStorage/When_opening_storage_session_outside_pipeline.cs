@@ -97,7 +97,6 @@ namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage
 
                             scenarioContext.OutboxNotNullAfterOpening = scope.ServiceProvider.GetService<IOutboxStorage>() != null;
 
-
                             await completableSynchronizedStorageSession.CompleteAsync(cancellationToken);
                         }
 
