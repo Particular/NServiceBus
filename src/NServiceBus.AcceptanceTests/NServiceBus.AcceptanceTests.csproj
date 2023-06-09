@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\JsonSerializer\When_using_system_json_serializer.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 
