@@ -19,6 +19,8 @@
                 .Immediate(immediate => immediate.NumberOfRetries(0));
             builder.SendFailedMessagesTo("error");
 
+            builder.UseSerialization<SystemJsonSerializer>();
+
             await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             await configurationBuilderCustomization(builder).ConfigureAwait(false);
