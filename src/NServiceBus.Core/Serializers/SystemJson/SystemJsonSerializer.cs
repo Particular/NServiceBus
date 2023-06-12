@@ -17,7 +17,7 @@ namespace NServiceBus
         /// </summary>
         public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
         {
-            var options = settings.GetOrDefault<SystemJsonSerializerSettings>();
+            var options = settings.GetOrDefault<SystemJsonSerializerSettings>() ?? new SystemJsonSerializerSettings();
 
             return mapper => new JsonMessageSerializer(options);
         }
