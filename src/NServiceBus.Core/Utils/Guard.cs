@@ -1,80 +1,80 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using System.Collections;
-    using System.Linq;
-    using System.Reflection;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.CompilerServices;
 
     static class Guard
     {
-        public static void TypeHasDefaultConstructor(Type type, string argumentName)
+        public static void ThrowIfNull<T>([NotNull] T? argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .All(ctor => ctor.GetParameters().Length != 0))
+            if (argument is null)
             {
-                var error = $"Type '{type.FullName}' must have a default constructor.";
-                throw new ArgumentException(error, argumentName);
+                ThrowArgumentNullException(paramName);
             }
         }
 
-        public static void AgainstNull(string argumentName, object value)
+        public static void ThrowIfNullOrEmpty(string argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (value == null)
+            if (string.IsNullOrWhiteSpace(argument))
             {
-                throw new ArgumentNullException(argumentName);
+                ThrowArgumentNullException(paramName);
             }
         }
 
-        public static void AgainstNullAndEmpty(string argumentName, string value)
+        public static void ThrowIfNullOrEmpty([NotNull] ICollection? argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (argument is null)
             {
-                throw new ArgumentNullException(argumentName);
+                ThrowArgumentNullException(paramName);
+            }
+            if (argument.Count == 0)
+            {
+                ThrowArgumentOutOfRangeException(paramName);
             }
         }
 
-        public static void AgainstNullAndEmpty(string argumentName, ICollection value)
+        [DoesNotReturn]
+        static void ThrowArgumentNullException(string? paramName)
+            => throw new ArgumentNullException(paramName);
+
+        public static void ThrowIfNegativeOrZero(TimeSpan argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (value == null)
+            if (argument <= TimeSpan.Zero)
             {
-                throw new ArgumentNullException(argumentName);
-            }
-            if (value.Count == 0)
-            {
-                throw new ArgumentOutOfRangeException(argumentName);
+                ThrowArgumentOutOfRangeException(paramName);
             }
         }
 
-        public static void AgainstNegativeAndZero(string argumentName, int value)
+        public static void ThrowIfNegativeOrZero(int argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (value <= 0)
+            if (argument <= 0)
             {
-                throw new ArgumentOutOfRangeException(argumentName);
+                ThrowArgumentOutOfRangeException(paramName);
             }
         }
 
-        public static void AgainstNegative(string argumentName, int value)
+        public static void ThrowIfNegative(int argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (value < 0)
+            if (argument < 0)
             {
-                throw new ArgumentOutOfRangeException(argumentName);
+                ThrowArgumentOutOfRangeException(paramName);
             }
         }
 
-        public static void AgainstNegativeAndZero(string argumentName, TimeSpan value)
+        public static void ThrowIfNegative(TimeSpan argument, [CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (value <= TimeSpan.Zero)
+            if (argument < TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException(argumentName);
+                ThrowArgumentOutOfRangeException(paramName);
             }
         }
 
-        public static void AgainstNegative(string argumentName, TimeSpan value)
-        {
-            if (value < TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException(argumentName);
-            }
-        }
+        [DoesNotReturn]
+        static void ThrowArgumentOutOfRangeException(string? paramName)
+            => throw new ArgumentOutOfRangeException(paramName);
     }
 }

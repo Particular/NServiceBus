@@ -14,7 +14,7 @@ namespace NServiceBus
     public class AssemblyScannerConfiguration
     {
         public AssemblyScannerConfiguration() { }
-        public string AdditionalAssemblyScanningPath { get; set; }
+        public string? AdditionalAssemblyScanningPath { get; set; }
         public bool ScanAppDomainAssemblies { get; set; }
         public bool ScanAssembliesInNestedDirectories { get; set; }
         public bool ScanFileSystemAssemblies { get; set; }
@@ -29,7 +29,7 @@ namespace NServiceBus
     public static class AuditConfigReader
     {
         public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.IReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
-        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string address) { }
+        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? address) { }
     }
     public static class AuditContextExtensions
     {
@@ -1029,7 +1029,7 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
-        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string> outgoingHeaders = null) { }
+        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string>? outgoingHeaders = null) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTimeOffset at)
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within)
@@ -1839,22 +1839,22 @@ namespace NServiceBus.MessageMutator
     }
     public class MutateOutgoingMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
+        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object? incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; set; }
-        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
-        public bool TryGetIncomingMessage(out object incomingMessage) { }
+        public bool TryGetIncomingHeaders([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders) { }
+        public bool TryGetIncomingMessage([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out object? incomingMessage) { }
     }
     public class MutateOutgoingTransportMessageContext : NServiceBus.ICancellableContext
     {
-        public MutateOutgoingTransportMessageContext(System.ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
+        public MutateOutgoingTransportMessageContext(System.ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object? incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.ReadOnlyMemory<byte> OutgoingBody { get; set; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }
-        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
-        public bool TryGetIncomingMessage(out object incomingMessage) { }
+        public bool TryGetIncomingHeaders([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders) { }
+        public bool TryGetIncomingMessage([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out object? incomingMessage) { }
     }
     public static class MutatorRegistrationExtensions
     {
@@ -2427,7 +2427,7 @@ namespace NServiceBus.Sagas
     public interface ISagaFinder<TSagaData, TMessage> : NServiceBus.Sagas.IFinder
         where TSagaData : NServiceBus.IContainSagaData
     {
-        System.Threading.Tasks.Task<TSagaData> FindBy(TMessage message, NServiceBus.Persistence.ISynchronizedStorageSession storageSession, NServiceBus.Extensibility.IReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<TSagaData?> FindBy(TMessage message, NServiceBus.Persistence.ISynchronizedStorageSession storageSession, NServiceBus.Extensibility.IReadOnlyContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface ISagaIdGenerator
     {

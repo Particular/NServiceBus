@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
@@ -13,8 +15,8 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public MutateIncomingMessageContext(object message, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(headers), headers);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.ThrowIfNull(headers);
+            Guard.ThrowIfNull(message);
             Headers = headers;
             this.message = message;
             CancellationToken = cancellationToken;
@@ -28,7 +30,7 @@ namespace NServiceBus.MessageMutator
             get => message;
             set
             {
-                Guard.AgainstNull(nameof(value), value);
+                Guard.ThrowIfNull(value);
                 MessageInstanceChanged = true;
                 message = value;
             }

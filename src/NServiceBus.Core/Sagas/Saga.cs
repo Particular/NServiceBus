@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus
 {
     using System;
@@ -18,7 +20,7 @@ namespace NServiceBus
         /// <summary>
         /// The saga's typed data.
         /// </summary>
-        public IContainSagaData Entity { get; set; }
+        public IContainSagaData Entity { get; set; } = null!;
 
         /// <summary>
         /// Indicates that the saga is complete.
@@ -94,7 +96,7 @@ namespace NServiceBus
         /// <summary>
         /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
         /// </summary>
-        protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string> outgoingHeaders = null)
+        protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
         {
             if (string.IsNullOrEmpty(Entity.Originator))
             {

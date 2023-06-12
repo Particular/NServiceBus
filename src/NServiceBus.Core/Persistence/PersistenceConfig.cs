@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using Persistence;
@@ -15,9 +17,10 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static PersistenceExtensions<T> UsePersistence<T>(this EndpointConfiguration config) where T : PersistenceDefinition
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             var type = typeof(PersistenceExtensions<>).MakeGenericType(typeof(T));
-            return (PersistenceExtensions<T>)Activator.CreateInstance(type, config.Settings);
+            var extensions = Activator.CreateInstance(type, config.Settings)!;
+            return (PersistenceExtensions<T>)extensions;
         }
 
         /// <summary>
@@ -29,9 +32,10 @@
         public static PersistenceExtensions<T, S> UsePersistence<T, S>(this EndpointConfiguration config) where T : PersistenceDefinition
             where S : StorageType
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             var type = typeof(PersistenceExtensions<,>).MakeGenericType(typeof(T), typeof(S));
-            return (PersistenceExtensions<T, S>)Activator.CreateInstance(type, config.Settings);
+            var extensions = Activator.CreateInstance(type, config.Settings)!;
+            return (PersistenceExtensions<T, S>)extensions;
         }
 
         /// <summary>
@@ -41,8 +45,8 @@
         /// <param name="definitionType">The persistence definition eg <see cref="LearningPersistence" />, NHibernate etc.</param>
         public static PersistenceExtensions UsePersistence(this EndpointConfiguration config, Type definitionType)
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(definitionType), definitionType);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNull(definitionType);
             return new PersistenceExtensions(definitionType, config.Settings, null);
         }
     }

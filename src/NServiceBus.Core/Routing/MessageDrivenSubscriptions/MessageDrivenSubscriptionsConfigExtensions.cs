@@ -22,7 +22,7 @@ namespace NServiceBus
         /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
         public static void SubscriptionAuthorizer<T>(this RoutingSettings<T> routingSettings, Func<IIncomingPhysicalMessageContext, bool> authorizer) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            Guard.AgainstNull(nameof(authorizer), authorizer);
+            Guard.ThrowIfNull(authorizer);
             var settings = routingSettings.Settings;
 
             settings.Set("SubscriptionAuthorizer", authorizer);
@@ -50,7 +50,7 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Type eventType, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+            Guard.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
             routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
@@ -64,8 +64,8 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            Guard.AgainstNull(nameof(assembly), assembly);
-            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+            Guard.ThrowIfNull(assembly);
+            Guard.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 
@@ -81,8 +81,8 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string @namespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            Guard.AgainstNull(nameof(assembly), assembly);
-            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+            Guard.ThrowIfNull(assembly);
+            Guard.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 

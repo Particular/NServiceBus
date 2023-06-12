@@ -15,7 +15,7 @@ namespace NServiceBus
         /// </summary>
         public static IList<Type> GetAvailableTypes(this IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
             return settings.Get<AssemblyScanningComponent.Configuration>().AvailableTypes;
         }
 
@@ -24,7 +24,7 @@ namespace NServiceBus
         /// </summary>
         public static string EndpointName(this IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
             return settings.Get<string>("NServiceBus.Routing.EndpointName");
         }
 
@@ -37,7 +37,7 @@ namespace NServiceBus
             RemoveInVersion = "10")]
         public static string LocalAddress(this IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
@@ -57,7 +57,7 @@ namespace NServiceBus
         /// </summary>
         public static string EndpointQueueName(this IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
@@ -81,7 +81,7 @@ namespace NServiceBus
             RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {

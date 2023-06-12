@@ -22,7 +22,7 @@ namespace NServiceBus
         /// </summary>
         public DelayedRetriesSettings NumberOfRetries(int numberOfRetries)
         {
-            Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
+            Guard.ThrowIfNegative(numberOfRetries);
 
             Settings.Set(RecoverabilityComponent.NumberOfDelayedRetries, numberOfRetries);
 
@@ -34,7 +34,7 @@ namespace NServiceBus
         /// </summary>
         public DelayedRetriesSettings TimeIncrease(TimeSpan timeIncrease)
         {
-            Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
+            Guard.ThrowIfNegative(timeIncrease);
 
             Settings.Set(RecoverabilityComponent.DelayedRetriesTimeIncrease, timeIncrease);
 
@@ -46,7 +46,7 @@ namespace NServiceBus
         /// </summary>
         public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, CancellationToken, Task> notificationCallback)
         {
-            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
+            Guard.ThrowIfNull(notificationCallback);
 
             var subscriptions = Settings.Get<RecoverabilityComponent.Configuration>();
             subscriptions.MessageRetryNotification.Subscribe((retry, cancellationToken) =>

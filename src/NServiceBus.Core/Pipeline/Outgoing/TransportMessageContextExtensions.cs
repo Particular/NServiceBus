@@ -12,7 +12,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this IOutgoingReplyContext context, out IncomingMessage message)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
 
             return context.Extensions.TryGet(out message);
         }
@@ -22,7 +22,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this IOutgoingLogicalMessageContext context, out IncomingMessage message)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
 
             return context.Extensions.TryGet(out message);
         }
@@ -32,7 +32,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public static bool TryGetIncomingPhysicalMessage(this IOutgoingPhysicalMessageContext context, out IncomingMessage message)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
 
             return context.Extensions.TryGet(out message);
         }

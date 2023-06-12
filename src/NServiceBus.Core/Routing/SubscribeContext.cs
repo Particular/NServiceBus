@@ -10,9 +10,9 @@
         public SubscribeContext(IBehaviorContext parentContext, Type[] eventTypes, ContextBag extensions)
             : base(parentContext)
         {
-            Guard.AgainstNull(nameof(parentContext), parentContext);
-            Guard.AgainstNull(nameof(eventTypes), eventTypes);
-            Guard.AgainstNull(nameof(extensions), extensions);
+            Guard.ThrowIfNull(parentContext);
+            Guard.ThrowIfNull(eventTypes);
+            Guard.ThrowIfNull(extensions);
 
             Merge(extensions);
             Set(ExtendableOptions.OperationPropertiesKey, extensions);

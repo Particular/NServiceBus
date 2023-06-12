@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Pipeline
+﻿#nullable enable
+
+namespace NServiceBus.Pipeline
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -17,8 +19,8 @@
         /// <param name="next">The next <see cref="IBehavior{TContext, TContext}" /> in the chain to execute.</param>
         public Task Invoke(TContext context, Func<TContext, Task> next)
         {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(next), next);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(next);
             return Invoke(context, () => next(context));
         }
 

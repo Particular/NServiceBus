@@ -16,9 +16,9 @@
         /// </summary>
         public static void AddStartupDiagnosticsSection(this IReadOnlySettings settings, string sectionName, object section)
         {
-            Guard.AgainstNull(nameof(settings), settings);
-            Guard.AgainstNullAndEmpty(nameof(sectionName), sectionName);
-            Guard.AgainstNull(nameof(section), section);
+            Guard.ThrowIfNull(settings);
+            Guard.ThrowIfNullOrEmpty(sectionName);
+            Guard.ThrowIfNull(section);
 
             settings.Get<HostingComponent.Settings>().StartupDiagnostics.Add(sectionName, section);
         }
@@ -30,8 +30,8 @@
         /// <param name="path">The custom path to use.</param>
         public static void SetDiagnosticsPath(this EndpointConfiguration config, string path)
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNullAndEmpty(nameof(path), path);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNullOrEmpty(path);
 
             PathChecker.ThrowForBadPath(path, "Diagnostics root path");
 
@@ -45,8 +45,8 @@
         /// <param name="customDiagnosticsWriter">Func responsible for writing diagnostics data.</param>
         public static void CustomDiagnosticsWriter(this EndpointConfiguration config, Func<string, CancellationToken, Task> customDiagnosticsWriter)
         {
-            Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(customDiagnosticsWriter), customDiagnosticsWriter);
+            Guard.ThrowIfNull(config);
+            Guard.ThrowIfNull(customDiagnosticsWriter);
 
             config.Settings.Get<HostingComponent.Settings>().HostDiagnosticsWriter = customDiagnosticsWriter;
         }

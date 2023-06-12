@@ -68,11 +68,11 @@
         /// <param name="onMessage">The message func.</param>
         public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
-            Guard.AgainstNullAndEmpty(nameof(name), name);
-            Guard.AgainstNull(nameof(transportAddress), transportAddress);
-            Guard.AgainstNull(nameof(runtimeSettings), runtimeSettings);
-            Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
-            Guard.AgainstNull(nameof(onMessage), onMessage);
+            Guard.ThrowIfNullOrEmpty(name);
+            Guard.ThrowIfNull(transportAddress);
+            Guard.ThrowIfNull(runtimeSettings);
+            Guard.ThrowIfNull(recoverabilityPolicy);
+            Guard.ThrowIfNull(onMessage);
 
             Receiving.AddSatelliteReceiver(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
         }
@@ -83,7 +83,7 @@
         /// <param name="startupTask">A startup task.</param>
         public void RegisterStartupTask<TTask>(TTask startupTask) where TTask : FeatureStartupTask
         {
-            Guard.AgainstNull(nameof(startupTask), startupTask);
+            Guard.ThrowIfNull(startupTask);
             RegisterStartupTask(() => startupTask);
         }
 
@@ -93,7 +93,7 @@
         /// <param name="startupTaskFactory">A startup task factory.</param>
         public void RegisterStartupTask<TTask>(Func<TTask> startupTaskFactory) where TTask : FeatureStartupTask
         {
-            Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
+            Guard.ThrowIfNull(startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, _ => startupTaskFactory()));
         }
 
@@ -104,7 +104,7 @@
         /// <remarks>Should only be used when really necessary. Usually a design smell.</remarks>
         public void RegisterStartupTask<TTask>(Func<IServiceProvider, TTask> startupTaskFactory) where TTask : FeatureStartupTask
         {
-            Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
+            Guard.ThrowIfNull(startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
 

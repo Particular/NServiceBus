@@ -26,7 +26,7 @@
         /// </summary>
         public bool IsMessageType(Type t)
         {
-            Guard.AgainstNull(nameof(t), t);
+            Guard.ThrowIfNull(t);
             try
             {
                 return MessagesConventionCache.ApplyConvention(t,
@@ -86,7 +86,7 @@
         /// </summary>
         public bool IsInSystemConventionList(Type t)
         {
-            Guard.AgainstNull(nameof(t), t);
+            Guard.ThrowIfNull(t);
             return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
         }
 
@@ -96,7 +96,7 @@
         /// <param name="definesMessageType">Function to define system message convention.</param>
         public void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
         {
-            Guard.AgainstNull(nameof(definesMessageType), definesMessageType);
+            Guard.ThrowIfNull(definesMessageType);
             if (!IsSystemMessageActions.Contains(definesMessageType))
             {
                 IsSystemMessageActions.Add(definesMessageType);
@@ -109,7 +109,7 @@
         /// </summary>
         public bool IsCommandType(Type t)
         {
-            Guard.AgainstNull(nameof(t), t);
+            Guard.ThrowIfNull(t);
             try
             {
                 return CommandsConventionCache.ApplyConvention(t, typeHandle =>
@@ -146,7 +146,7 @@
         /// </summary>
         public bool IsDataBusProperty(PropertyInfo property)
         {
-            Guard.AgainstNull(nameof(property), property);
+            Guard.ThrowIfNull(property);
             try
             {
                 return IsDataBusPropertyAction(property);
@@ -162,7 +162,7 @@
         /// </summary>
         public bool IsEventType(Type t)
         {
-            Guard.AgainstNull(nameof(t), t);
+            Guard.ThrowIfNull(t);
             try
             {
                 return EventsConventionCache.ApplyConvention(t, typeHandle =>

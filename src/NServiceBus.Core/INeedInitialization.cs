@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     /// <summary>
     /// Indicate that the implementing class will specify configuration.

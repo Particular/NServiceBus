@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <param name="value">The static header value.</param>
         public static void AddHeaderToAllOutgoingMessages(this EndpointConfiguration config, string key, string value)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
 
             if (!config.Settings.TryGet(out CurrentStaticHeaders headers))
             {

@@ -14,9 +14,9 @@
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this IAuditActionContext context, OutgoingMessage auditMessage, RoutingStrategy routingStrategy)
         {
-            Guard.AgainstNull(nameof(auditMessage), auditMessage);
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(routingStrategy), routingStrategy);
+            Guard.ThrowIfNull(auditMessage);
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(routingStrategy);
 
             return new RoutingContext(auditMessage, routingStrategy, context);
         }

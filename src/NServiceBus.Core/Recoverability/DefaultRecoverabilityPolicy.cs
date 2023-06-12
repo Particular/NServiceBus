@@ -16,8 +16,8 @@ namespace NServiceBus
         /// <returns>The recoverability action.</returns>
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
-            Guard.AgainstNull(nameof(errorContext), errorContext);
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(errorContext);
+            Guard.ThrowIfNull(config);
             foreach (var unrecoverableExceptionType in config.Failed.UnrecoverableExceptionTypes)
             {
                 if (unrecoverableExceptionType.IsInstanceOfType(errorContext.Exception))

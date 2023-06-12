@@ -14,7 +14,7 @@
         /// <param name="messageId">The message id to use.</param>
         public static void SetMessageId(this ExtendableOptions options, string messageId)
         {
-            Guard.AgainstNullAndEmpty(messageId, messageId);
+            Guard.ThrowIfNullOrEmpty(messageId);
 
             options.UserDefinedMessageId = messageId;
         }
@@ -26,7 +26,7 @@
         /// <returns>The message id if configured or <c>null</c>.</returns>
         public static string GetMessageId(this ExtendableOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
             return options.UserDefinedMessageId;
         }
     }

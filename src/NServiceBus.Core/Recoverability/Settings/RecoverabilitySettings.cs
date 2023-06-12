@@ -19,7 +19,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings Failed(Action<RetryFailedSettings> customizations)
         {
-            Guard.AgainstNull(nameof(customizations), customizations);
+            Guard.ThrowIfNull(customizations);
             customizations(new RetryFailedSettings(Settings));
             return this;
         }
@@ -29,7 +29,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings Immediate(Action<ImmediateRetriesSettings> customizations)
         {
-            Guard.AgainstNull(nameof(customizations), customizations);
+            Guard.ThrowIfNull(customizations);
             customizations(new ImmediateRetriesSettings(Settings));
             return this;
         }
@@ -39,7 +39,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings Delayed(Action<DelayedRetriesSettings> customizations)
         {
-            Guard.AgainstNull(nameof(customizations), customizations);
+            Guard.ThrowIfNull(customizations);
             customizations(new DelayedRetriesSettings(Settings));
             return this;
         }
@@ -50,7 +50,7 @@ namespace NServiceBus
         /// <param name="custom">The custom recoverability.</param>
         public RecoverabilitySettings CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> custom)
         {
-            Guard.AgainstNull(nameof(custom), custom);
+            Guard.ThrowIfNull(custom);
 
             Settings.Set(RecoverabilityComponent.PolicyOverride, custom);
 
@@ -73,7 +73,7 @@ namespace NServiceBus
         /// <param name="exceptionType">The exception type.</param>
         public RecoverabilitySettings AddUnrecoverableException(Type exceptionType)
         {
-            Guard.AgainstNull(nameof(exceptionType), exceptionType);
+            Guard.ThrowIfNull(exceptionType);
             Settings.AddUnrecoverableException(exceptionType);
             return this;
         }
@@ -83,7 +83,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings OnConsecutiveFailures(int numberOfConsecutiveFailures, RateLimitSettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
 
             var consecutiveFailuresConfig = Settings.Get<ConsecutiveFailuresConfiguration>();
 

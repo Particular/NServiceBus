@@ -10,7 +10,7 @@ namespace NServiceBus
 
         public void Add(IPublisherSource publisherSource)
         {
-            Guard.AgainstNull(nameof(publisherSource), publisherSource);
+            Guard.ThrowIfNull(publisherSource);
             publisherSources.Add(publisherSource);
         }
 

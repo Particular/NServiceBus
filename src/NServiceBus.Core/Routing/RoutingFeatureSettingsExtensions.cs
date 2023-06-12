@@ -12,7 +12,7 @@
         /// <param name="address">The public return address for messages sent by this endpoint.</param>
         public static void OverridePublicReturnAddress(this EndpointConfiguration configuration, string address)
         {
-            Guard.AgainstNullAndEmpty(nameof(address), address);
+            Guard.ThrowIfNullOrEmpty(address);
             configuration.Settings.Get<RoutingComponent.Settings>().PublicReturnAddress = address;
         }
     }

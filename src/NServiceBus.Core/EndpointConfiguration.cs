@@ -60,7 +60,7 @@ namespace NServiceBus
         /// </summary>
         public void RegisterComponents(Action<IServiceCollection> registration)
         {
-            Guard.AgainstNull(nameof(registration), registration);
+            Guard.ThrowIfNull(registration);
 
             Settings.Get<HostingComponent.Settings>().UserRegistrations.Add(registration);
         }

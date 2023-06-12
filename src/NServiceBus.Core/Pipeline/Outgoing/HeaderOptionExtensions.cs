@@ -17,8 +17,8 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this ExtendableOptions options, string key, string value)
         {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNull(options);
+            Guard.ThrowIfNullOrEmpty(key);
 
             options.OutgoingHeaders[key] = value;
         }
@@ -28,7 +28,7 @@
         /// </summary>
         public static IReadOnlyDictionary<string, string> GetHeaders(this ExtendableOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             return new ReadOnlyDictionary<string, string>(options.OutgoingHeaders);
         }

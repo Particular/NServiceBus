@@ -14,8 +14,8 @@ namespace NServiceBus
         /// <param name="timeIncrease">The time of increase for individual delayed retries.</param>
         public DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
         {
-            Guard.AgainstNegative(nameof(maxNumberOfRetries), maxNumberOfRetries);
-            Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
+            Guard.ThrowIfNegative(maxNumberOfRetries);
+            Guard.ThrowIfNegative(timeIncrease);
 
             MaxNumberOfRetries = maxNumberOfRetries;
             TimeIncrease = timeIncrease;

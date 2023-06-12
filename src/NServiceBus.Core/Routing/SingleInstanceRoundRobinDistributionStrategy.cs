@@ -22,7 +22,7 @@ namespace NServiceBus.Routing
         /// </summary>
         public override string SelectDestination(DistributionContext context)
         {
-            Guard.AgainstNull(nameof(context), context);
+            Guard.ThrowIfNull(context);
             if (context.ReceiverAddresses.Length == 0)
             {
                 return default;

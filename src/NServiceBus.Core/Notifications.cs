@@ -1,4 +1,5 @@
-// we need writable fields for disposing
+#nullable enable
+
 namespace NServiceBus
 {
     using Faults;

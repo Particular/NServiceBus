@@ -34,7 +34,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// </summary>
         public AutoSubscribeSettings DisableFor(Type eventType)
         {
-            Guard.AgainstNull(nameof(eventType), eventType);
+            Guard.ThrowIfNull(eventType);
 
             GetSettings().ExcludedTypes.Add(eventType);
             return this;

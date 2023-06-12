@@ -59,11 +59,9 @@ namespace NServiceBus.Sagas
         /// </summary>
         public DateTimeOffset Modified { get; private set; }
 
-
         internal bool TryGetCorrelationProperty(out CorrelationPropertyInfo sagaCorrelationProperty)
         {
             sagaCorrelationProperty = correlationProperty;
-
 
             return sagaCorrelationProperty != null;
         }
@@ -74,7 +72,7 @@ namespace NServiceBus.Sagas
         /// <param name="sagaEntity">The new entity.</param>
         public void AttachNewEntity(IContainSagaData sagaEntity)
         {
-            Guard.AgainstNull(nameof(sagaEntity), sagaEntity);
+            Guard.ThrowIfNull(sagaEntity);
             IsNew = true;
             AttachEntity(sagaEntity);
         }

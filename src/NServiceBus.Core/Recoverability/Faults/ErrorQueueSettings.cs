@@ -18,7 +18,7 @@ namespace NServiceBus
         /// <exception cref="Exception">When the configuration for the endpoint is invalid.</exception>
         public static string ErrorQueueAddress(this IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
 
             if (TryGetExplicitlyConfiguredErrorQueueAddress(settings, out var errorQueue))
             {
@@ -38,7 +38,7 @@ namespace NServiceBus
         /// <exception cref="Exception">When the configuration for the endpoint is invalid.</exception>
         public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this IReadOnlySettings settings, out string errorQueue)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
             if (settings.HasExplicitValue(SettingsKey))
             {
                 Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo()'.");

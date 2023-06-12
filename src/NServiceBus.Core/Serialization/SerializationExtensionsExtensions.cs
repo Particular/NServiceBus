@@ -13,7 +13,7 @@
         /// </summary>
         public static void DisableMessageTypeInference<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
 
             config.EndpointConfigurationSettings.Set(DisableMessageTypeInferenceKey, true);
         }
@@ -23,7 +23,7 @@
         /// </summary>
         public static void DisableDynamicTypeLoading<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             config.EndpointConfigurationSettings.Set(DisableDynamicTypeLoadingKey, true);
         }
 

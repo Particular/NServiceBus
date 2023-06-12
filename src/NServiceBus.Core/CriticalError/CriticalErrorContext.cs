@@ -17,9 +17,9 @@
         /// <param name="exception">See <see cref="ICriticalErrorContext.Exception" />.</param>
         public CriticalErrorContext(Func<CancellationToken, Task> stop, string error, Exception exception)
         {
-            Guard.AgainstNull(nameof(stop), stop);
-            Guard.AgainstNullAndEmpty(nameof(error), error);
-            Guard.AgainstNull(nameof(exception), exception);
+            Guard.ThrowIfNull(stop);
+            Guard.ThrowIfNullOrEmpty(error);
+            Guard.ThrowIfNull(exception);
             Stop = stop;
             Error = error;
             Exception = exception;

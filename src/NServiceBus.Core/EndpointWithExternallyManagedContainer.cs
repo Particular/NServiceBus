@@ -12,8 +12,8 @@
         /// </summary>
         public static IStartableEndpointWithExternallyManagedContainer Create(EndpointConfiguration configuration, IServiceCollection serviceCollection)
         {
-            Guard.AgainstNull(nameof(configuration), configuration);
-            Guard.AgainstNull(nameof(serviceCollection), serviceCollection);
+            Guard.ThrowIfNull(configuration);
+            Guard.ThrowIfNull(serviceCollection);
 
             var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
             return new ExternallyManagedContainerHost(endpointCreator);

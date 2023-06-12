@@ -9,9 +9,9 @@
         public UnsubscribeContext(IBehaviorContext parentContext, Type eventType, ContextBag extensions)
             : base(parentContext)
         {
-            Guard.AgainstNull(nameof(parentContext), parentContext);
-            Guard.AgainstNull(nameof(eventType), eventType);
-            Guard.AgainstNull(nameof(extensions), extensions);
+            Guard.ThrowIfNull(parentContext);
+            Guard.ThrowIfNull(eventType);
+            Guard.ThrowIfNull(extensions);
 
             Merge(extensions);
             Set(ExtendableOptions.OperationPropertiesKey, extensions);

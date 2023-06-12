@@ -26,7 +26,7 @@
         /// </summary>
         public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(nameof(hostSettings), hostSettings);
+            Guard.ThrowIfNull(hostSettings);
             var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);
             learningTransportInfrastructure.ConfigureSendInfrastructure();
 

@@ -18,10 +18,10 @@ namespace NServiceBus.Faults
         /// <param name="retryAttempt">Number of retry attempt.</param>
         public ImmediateRetryMessage(string messageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, Exception exception, int retryAttempt)
         {
-            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
-            Guard.AgainstNull(nameof(headers), headers);
-            Guard.AgainstNull(nameof(body), body);
-            Guard.AgainstNull(nameof(exception), exception);
+            Guard.ThrowIfNullOrEmpty(messageId);
+            Guard.ThrowIfNull(headers);
+            Guard.ThrowIfNull(body);
+            Guard.ThrowIfNull(exception);
 
             MessageId = messageId;
             Headers = headers;

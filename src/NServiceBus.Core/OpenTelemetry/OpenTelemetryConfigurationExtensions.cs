@@ -10,7 +10,7 @@ public static class OpenTelemetryConfigurationExtensions
     /// </summary>
     public static void EnableOpenTelemetry(this EndpointConfiguration endpointConfiguration)
     {
-        Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
+        Guard.ThrowIfNull(endpointConfiguration);
 
         endpointConfiguration.Settings.Get<HostingComponent.Settings>().EnableOpenTelemetry = true;
         endpointConfiguration.EnableFeature<MessagingMetricsFeature>();

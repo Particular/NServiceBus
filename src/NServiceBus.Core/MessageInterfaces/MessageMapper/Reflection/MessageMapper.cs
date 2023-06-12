@@ -43,7 +43,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public Type GetMappedTypeFor(Type t)
         {
-            Guard.AgainstNull(nameof(t), t);
+            Guard.ThrowIfNull(t);
 
             RuntimeTypeHandle typeHandle;
 
@@ -75,7 +75,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public Type GetMappedTypeFor(string typeName)
         {
-            Guard.AgainstNullAndEmpty(nameof(typeName), typeName);
+            Guard.ThrowIfNullOrEmpty(typeName);
             var name = typeName;
             if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
             {
@@ -116,7 +116,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public object CreateInstance(Type t)
         {
-            Guard.AgainstNull(nameof(t), t);
+            Guard.ThrowIfNull(t);
 
             InitType(t);
 

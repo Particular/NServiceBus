@@ -49,7 +49,7 @@
         /// </summary>
         public DataBusExtensions AddDeserializer<TSerializer>(TSerializer serializer) where TSerializer : IDataBusSerializer
         {
-            Guard.AgainstNull(nameof(serializer), serializer);
+            Guard.ThrowIfNull(serializer);
 
             var deserializers = Settings.Get<List<IDataBusSerializer>>(Features.DataBus.AdditionalDataBusDeserializersKey);
 

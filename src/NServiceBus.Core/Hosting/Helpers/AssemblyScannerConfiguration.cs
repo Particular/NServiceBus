@@ -1,4 +1,6 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -34,7 +36,7 @@
         /// <summary>
         /// Defines an additional path for assembly scanning.
         /// </summary>
-        public string AdditionalAssemblyScanningPath { get; set; }
+        public string? AdditionalAssemblyScanningPath { get; set; }
 
         /// <summary>
         /// A list of <see cref="Assembly" />s to ignore in the assembly scanning.
@@ -42,7 +44,7 @@
         /// <param name="assemblies">The file name of the assembly.</param>
         public void ExcludeAssemblies(params string[] assemblies)
         {
-            Guard.AgainstNull(nameof(assemblies), assemblies);
+            Guard.ThrowIfNull(assemblies);
 
             if (assemblies.Any(string.IsNullOrWhiteSpace))
             {
@@ -57,7 +59,7 @@
         /// </summary>
         public void ExcludeTypes(params Type[] types)
         {
-            Guard.AgainstNull(nameof(types), types);
+            Guard.ThrowIfNull(types);
             if (types.Any(x => x == null))
             {
                 throw new ArgumentException("Passed in a null or empty type.", nameof(types));

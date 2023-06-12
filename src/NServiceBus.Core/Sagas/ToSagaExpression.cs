@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus
 {
     using System;
@@ -13,8 +15,8 @@ namespace NServiceBus
         /// </summary>
         public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
         {
-            Guard.AgainstNull(nameof(sagaMessageFindingConfiguration), sagaMessageFindingConfiguration);
-            Guard.AgainstNull(nameof(messageProperty), messageProperty);
+            Guard.ThrowIfNull(sagaMessageFindingConfiguration);
+            Guard.ThrowIfNull(messageProperty);
             this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
             this.messageProperty = messageProperty;
         }
@@ -26,7 +28,7 @@ namespace NServiceBus
         /// <param name="sagaEntityProperty">The property to map.</param>
         public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
         {
-            Guard.AgainstNull(nameof(sagaEntityProperty), sagaEntityProperty);
+            Guard.ThrowIfNull(sagaEntityProperty);
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 

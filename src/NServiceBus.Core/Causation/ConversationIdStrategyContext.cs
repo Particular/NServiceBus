@@ -13,8 +13,8 @@
         /// </summary>
         public ConversationIdStrategyContext(OutgoingLogicalMessage message, IReadOnlyDictionary<string, string> headers)
         {
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(headers), headers);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(headers);
 
             Message = message;
             Headers = headers;

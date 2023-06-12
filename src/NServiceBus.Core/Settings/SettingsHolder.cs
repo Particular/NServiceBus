@@ -16,7 +16,7 @@ namespace NServiceBus.Settings
         /// <param name="key">The key.</param>
         public T Get<T>(string key)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             return (T)Get(key);
         }
 
@@ -40,7 +40,7 @@ namespace NServiceBus.Settings
         /// <returns>True if key is found.</returns>
         public bool TryGet<T>(string key, out T val)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             val = default;
 
             if (!Overrides.TryGetValue(key, out var tmp))
@@ -77,7 +77,7 @@ namespace NServiceBus.Settings
         /// <returns>The value.</returns>
         public object Get(string key)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             if (Overrides.TryGetValue(key, out var result))
             {
                 return result;
@@ -109,7 +109,7 @@ namespace NServiceBus.Settings
         /// <returns>The value.</returns>
         public T GetOrDefault<T>(string key)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             if (Overrides.TryGetValue(key, out var result))
             {
                 return (T)result;
@@ -130,7 +130,7 @@ namespace NServiceBus.Settings
         /// <returns>True if found.</returns>
         public bool HasSetting(string key)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             return Overrides.ContainsKey(key) || Defaults.ContainsKey(key);
         }
 
@@ -153,7 +153,7 @@ namespace NServiceBus.Settings
         /// <returns>True if found.</returns>
         public bool HasExplicitValue(string key)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             return Overrides.ContainsKey(key);
         }
 
@@ -190,7 +190,7 @@ namespace NServiceBus.Settings
         /// <param name="value">The setting value.</param>
         public void Set(string key, object value)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             EnsureWriteEnabled(key);
 
             Overrides[key] = value;
@@ -243,7 +243,7 @@ namespace NServiceBus.Settings
         /// <param name="value">The value.</param>
         public void SetDefault(string key, object value)
         {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.ThrowIfNullOrEmpty(key);
             EnsureWriteEnabled(key);
 
             Defaults[key] = value;
@@ -259,7 +259,7 @@ namespace NServiceBus.Settings
 
         internal void Merge(IReadOnlySettings settings)
         {
-            Guard.AgainstNull(nameof(settings), settings);
+            Guard.ThrowIfNull(settings);
 
             EnsureMergingIsPossible();
 

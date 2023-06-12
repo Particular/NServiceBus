@@ -11,7 +11,7 @@ namespace NServiceBus
     {
         internal HostInfoSettings(EndpointConfiguration config)
         {
-            Guard.AgainstNull(nameof(config), config);
+            Guard.ThrowIfNull(config);
             this.config = config;
         }
 
@@ -38,7 +38,7 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingCustomIdentifier(Guid id)
         {
-            Guard.AgainstNull(nameof(id), id);
+            Guard.ThrowIfNull(id);
             config.Settings.Get<HostingComponent.Settings>().HostId = id;
             return this;
         }
@@ -51,8 +51,8 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingNames(string instanceName, string hostName)
         {
-            Guard.AgainstNullAndEmpty(nameof(instanceName), instanceName);
-            Guard.AgainstNullAndEmpty(nameof(hostName), hostName);
+            Guard.ThrowIfNullOrEmpty(instanceName);
+            Guard.ThrowIfNullOrEmpty(hostName);
 
             config.Settings.Get<HostingComponent.Settings>().HostId = DeterministicGuid.Create(instanceName, hostName);
             return this;
@@ -63,7 +63,7 @@ namespace NServiceBus
         /// </summary>
         public HostInfoSettings UsingCustomDisplayName(string displayName)
         {
-            Guard.AgainstNullAndEmpty(nameof(displayName), displayName);
+            Guard.ThrowIfNullOrEmpty(displayName);
             config.Settings.Get<HostingComponent.Settings>().DisplayName = displayName;
             return this;
         }
@@ -73,7 +73,7 @@ namespace NServiceBus
         /// </summary>
         public HostInfoSettings UsingHostName(string hostName)
         {
-            Guard.AgainstNullAndEmpty(nameof(hostName), hostName);
+            Guard.ThrowIfNullOrEmpty(hostName);
             RuntimeEnvironment.SetMachineName(hostName);
             return this;
         }

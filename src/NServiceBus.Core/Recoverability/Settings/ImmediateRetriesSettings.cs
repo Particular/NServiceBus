@@ -24,7 +24,7 @@ namespace NServiceBus
         /// <param name="numberOfRetries">The number of times to immediately retry a failed message.</param>
         public void NumberOfRetries(int numberOfRetries)
         {
-            Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
+            Guard.ThrowIfNegative(numberOfRetries);
 
             Settings.Set(RecoverabilityComponent.NumberOfImmediateRetries, numberOfRetries);
         }
@@ -34,7 +34,7 @@ namespace NServiceBus
         /// </summary>
         public ImmediateRetriesSettings OnMessageBeingRetried(Func<ImmediateRetryMessage, CancellationToken, Task> notificationCallback)
         {
-            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
+            Guard.ThrowIfNull(notificationCallback);
 
             var subscriptions = Settings.Get<RecoverabilityComponent.Configuration>();
             subscriptions.MessageRetryNotification.Subscribe((retry, cancellationToken) =>

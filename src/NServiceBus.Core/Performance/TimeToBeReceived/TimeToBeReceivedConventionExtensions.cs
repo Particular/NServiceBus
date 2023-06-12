@@ -12,8 +12,8 @@
         /// </summary>
         public static ConventionsBuilder DefiningTimeToBeReceivedAs(this ConventionsBuilder builder, Func<Type, TimeSpan> retrieveTimeToBeReceived)
         {
-            Guard.AgainstNull(nameof(builder), builder);
-            Guard.AgainstNull(nameof(retrieveTimeToBeReceived), retrieveTimeToBeReceived);
+            Guard.ThrowIfNull(builder);
+            Guard.ThrowIfNull(retrieveTimeToBeReceived);
 
             builder.Settings.Set(new UserDefinedTimeToBeReceivedConvention(retrieveTimeToBeReceived));
 

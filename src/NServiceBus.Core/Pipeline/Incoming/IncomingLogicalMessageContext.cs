@@ -27,7 +27,7 @@
 
         public void UpdateMessageInstance(object newInstance)
         {
-            Guard.AgainstNull(nameof(newInstance), newInstance);
+            Guard.ThrowIfNull(newInstance);
             var sameInstance = ReferenceEquals(Message.Instance, newInstance);
 
             Message.Instance = newInstance;

@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <param name="options">The options being extended.</param>
         public static void RequireImmediateDispatch(this ExtendableOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.GetExtensions().Set(new RoutingToDispatchConnector.State
             {
@@ -44,7 +44,7 @@ namespace NServiceBus
         /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>
         public static bool IsImmediateDispatchSet(this ExtendableOptions options)
         {
-            Guard.AgainstNull(nameof(options), options);
+            Guard.ThrowIfNull(options);
 
             options.GetExtensions().TryGet(out RoutingToDispatchConnector.State state);
 

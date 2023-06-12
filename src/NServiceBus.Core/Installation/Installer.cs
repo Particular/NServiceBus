@@ -16,7 +16,7 @@ public static class Installer
     /// </summary>
     public static async Task Setup(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
     {
-        Guard.AgainstNull(nameof(configuration), configuration);
+        Guard.ThrowIfNull(configuration);
 
         // does not overwrite installer usernames configured by the user.
         configuration.EnableInstallers();
@@ -38,8 +38,8 @@ public static class Installer
     /// </summary>
     public static InstallerWithExternallyManagedContainer CreateInstallerWithExternallyManagedContainer(EndpointConfiguration configuration, IServiceCollection serviceCollection)
     {
-        Guard.AgainstNull(nameof(configuration), configuration);
-        Guard.AgainstNull(nameof(serviceCollection), serviceCollection);
+        Guard.ThrowIfNull(configuration);
+        Guard.ThrowIfNull(serviceCollection);
 
         // does not overwrite installer usernames configured by the user.
         configuration.EnableInstallers();

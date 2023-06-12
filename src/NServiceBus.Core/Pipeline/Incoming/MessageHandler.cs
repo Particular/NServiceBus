@@ -38,8 +38,8 @@
         /// <param name="handlerContext">the context to pass to the handler.</param>
         public Task Invoke(object message, IMessageHandlerContext handlerContext)
         {
-            Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(handlerContext), handlerContext);
+            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(handlerContext);
             return invocation(Instance, message, handlerContext);
         }
 
