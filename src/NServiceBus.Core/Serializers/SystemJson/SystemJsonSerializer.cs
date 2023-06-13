@@ -19,7 +19,7 @@ namespace NServiceBus
         {
             var options = settings.GetOrDefault<SystemJsonSerializerSettings>() ?? new SystemJsonSerializerSettings();
 
-            return mapper => new JsonMessageSerializer(options);
+            return mapper => new JsonMessageSerializer(options, mapper);
         }
     }
 }
