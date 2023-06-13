@@ -6,23 +6,27 @@ namespace NServiceBus.Serializers.SystemJson
     using System.IO;
     using System.Linq;
     using System.Text.Json;
+    using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
 
     class JsonMessageSerializer : IMessageSerializer
     {
-        internal JsonMessageSerializer(SystemJsonSerializerSettings s)
-            : this(s.SerializerOptions, s.WriterOptions, s.ReaderOptions, s.ContentType)
+        internal JsonMessageSerializer(SystemJsonSerializerSettings settings, IMessageMapper messageMapper)
+            : this(settings.SerializerOptions, settings.WriterOptions, settings.ReaderOptions, settings.ContentType, messageMapper)
         {
         }
 
-        public JsonMessageSerializer(JsonSerializerOptions? serializerOptions, JsonWriterOptions writerOptions, JsonReaderOptions readerOptions, string contentType)
+        public JsonMessageSerializer(JsonSerializerOptions? serializerOptions, JsonWriterOptions writerOptions, JsonReaderOptions readerOptions, string contentType, IMessageMapper messageMapper)
         {
             this.serializerOptions = serializerOptions;
             this.writerOptions = writerOptions;
             this.readerOptions = readerOptions;
+            this.messageMapper = messageMapper;
 
             ContentType = contentType;
         }
+
+        public string ContentType { get; }
 
         public void Serialize(object message, Stream stream)
         {
@@ -49,8 +53,9 @@ namespace NServiceBus.Serializers.SystemJson
 
         object Deserialize(ReadOnlyMemory<byte> body, Type type)
         {
+            var actualType = GetMappedType(type);
             var reader = new Utf8JsonReader(body.Span, readerOptions);
-            return JsonSerializer.Deserialize(ref reader, type, serializerOptions)!;
+            return JsonSerializer.Deserialize(ref reader, actualType, serializerOptions)!;
         }
 
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
@@ -73,10 +78,22 @@ namespace NServiceBus.Serializers.SystemJson
             }
         }
 
-        public string ContentType { get; }
+        Type GetMappedType(Type messageType)
+        {
+            if (messageType.IsInterface)
+            {
+                var mappedTypeFor = messageMapper.GetMappedTypeFor(messageType);
+                if (mappedTypeFor != null)
+                {
+                    return mappedTypeFor;
+                }
+            }
+            return messageType;
+        }
 
-        JsonSerializerOptions? serializerOptions;
-        JsonWriterOptions writerOptions;
-        JsonReaderOptions readerOptions;
+        readonly JsonSerializerOptions? serializerOptions;
+        readonly JsonWriterOptions writerOptions;
+        readonly JsonReaderOptions readerOptions;
+        readonly IMessageMapper messageMapper;
     }
 }

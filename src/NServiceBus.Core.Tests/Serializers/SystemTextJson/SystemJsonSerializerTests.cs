@@ -30,7 +30,7 @@
             var readerOptions = new JsonReaderOptions();
             var writerOptions = new JsonWriterOptions();
 
-            serializer = new JsonMessageSerializer(options, writerOptions, readerOptions, ContentTypes.Json);
+            serializer = new JsonMessageSerializer(options, writerOptions, readerOptions, ContentTypes.Json, messageMapper);
         }
 
         [Test]
