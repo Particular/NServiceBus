@@ -226,7 +226,7 @@
         [Test]
         public void Should_be_able_to_serialize_payloads_with_BOM()
         {
-            var payload = JsonSerializer.Serialize(new SomeMessage { MyProperty = 23 });
+            var payload = JsonSerializer.Serialize(new SomeMessage());
 
             using (var stream = new MemoryStream())
             {
@@ -306,6 +306,5 @@
 
     class SomeMessage
     {
-        public int MyProperty { get; set; }
     }
 }
