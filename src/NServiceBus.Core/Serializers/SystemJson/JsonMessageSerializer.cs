@@ -5,6 +5,7 @@ namespace NServiceBus.Serializers.SystemJson
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Text.Json;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
@@ -54,6 +55,13 @@ namespace NServiceBus.Serializers.SystemJson
         object Deserialize(ReadOnlyMemory<byte> body, Type type)
         {
             var actualType = GetMappedType(type);
+
+            // Get rid of the BOM if present since system json can't handle it
+            if (body.Span.StartsWith(utf8Preamble))
+            {
+                body = body.Slice(utf8Preamble.Length);
+            }
+
             var reader = new Utf8JsonReader(body.Span, readerOptions);
             return JsonSerializer.Deserialize(ref reader, actualType, serializerOptions)!;
         }
@@ -95,5 +103,7 @@ namespace NServiceBus.Serializers.SystemJson
         readonly JsonWriterOptions writerOptions;
         readonly JsonReaderOptions readerOptions;
         readonly IMessageMapper messageMapper;
+
+        static readonly byte[] utf8Preamble = Encoding.UTF8.GetPreamble();
     }
 }
