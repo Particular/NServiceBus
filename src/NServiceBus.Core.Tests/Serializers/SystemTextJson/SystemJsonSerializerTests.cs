@@ -224,7 +224,7 @@
         }
 
         [Test]
-        public void Should_be_able_to_serialize_payloads_with_BOM()
+        public void Should_be_able_to_deserialize_payloads_with_BOM()
         {
             var payload = JsonSerializer.Serialize(new SomeMessage());
 
