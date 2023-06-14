@@ -75,7 +75,7 @@ namespace NServiceBus
             }
         }
 
-        public Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
+        public async Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
         {
             // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
             // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.
@@ -83,19 +83,21 @@ namespace NServiceBus
             cancellationToken.ThrowIfCancellationRequested();
 
             fileStream.Position = 0;
-            return JsonSerializer.SerializeAsync(fileStream, sagaData, Options, cancellationToken);
+            await JsonSerializer.SerializeAsync(fileStream, sagaData, sagaData.GetType(), Options, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         public void MarkAsCompleted() => isCompleted = true;
 
-        public ValueTask<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+        public async ValueTask<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
             // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
             // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.
             // This line makes the parameter "required".
             cancellationToken.ThrowIfCancellationRequested();
 
-            return JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken);
+            return await JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         FileStream fileStream;
