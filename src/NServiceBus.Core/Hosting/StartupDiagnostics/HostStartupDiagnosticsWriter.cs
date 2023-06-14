@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
-    using SimpleJson;
 
     class HostStartupDiagnosticsWriter
     {
@@ -27,7 +27,7 @@
 
             try
             {
-                data = SimpleJson.SerializeObject(dictionary);
+                data = JsonSerializer.Serialize(dictionary);
             }
             catch (Exception exception)
             {

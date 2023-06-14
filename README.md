@@ -13,12 +13,6 @@ If you see the build failing, check that you haven't put the source of NServiceB
 
 NServiceBus is licensed under the RPL 1.5 license. More details can be found [here](LICENSE.md).
 
-### [SimpleJson](https://github.com/facebook-csharp-sdk/simple-json/) 
-
-SimpleJson is licensed under the MIT license as described [here](https://github.com/facebook-csharp-sdk/simple-json/blob/master/LICENSE.txt).
-
-SimpleJson sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/facebook-csharp-sdk/simple-json/blob/master/LICENSE.txt).
-
 ### [net-object-deep-copy](https://github.com/Burtsev-Alexey/net-object-deep-copy)
 
 net-object-deep-copy is licensed under the MIT license as described [here](https://github.com/Burtsev-Alexey/net-object-deep-copy/blob/master/README).
