@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Text;
     using System.Text.Json;
     using NServiceBus;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
@@ -80,7 +81,7 @@
 
             serializer.Serialize(obj, output);
 
-            var json = System.Text.Encoding.UTF8.GetString(output.ToArray());
+            var json = Encoding.UTF8.GetString(output.ToArray());
             Console.WriteLine(json);
 
             output.Position = 0;
@@ -221,6 +222,25 @@
                 Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, result.DateTimeOffsetUtc.Offset);
             }
         }
+
+        [Test]
+        public void Should_be_able_to_serialize_payloads_with_BOM()
+        {
+            var payload = JsonSerializer.Serialize(new SomeMessage { MyProperty = 23 });
+
+            using (var stream = new MemoryStream())
+            {
+                using (var sw = new StreamWriter(stream, new UTF8Encoding(true)))
+                {
+                    sw.WriteLine(payload);
+                    sw.Flush();
+
+                    stream.Position = 0;
+
+                    Assert.DoesNotThrow(() => serializer.Deserialize(stream.ToArray(), new List<Type> { typeof(SomeMessage) }));
+                }
+            }
+        }
     }
 
 
@@ -282,5 +302,10 @@
         public DateTimeOffset DateTimeOffset { get; set; }
         public DateTimeOffset DateTimeOffsetLocal { get; set; }
         public DateTimeOffset DateTimeOffsetUtc { get; set; }
+    }
+
+    class SomeMessage
+    {
+        public int MyProperty { get; set; }
     }
 }
