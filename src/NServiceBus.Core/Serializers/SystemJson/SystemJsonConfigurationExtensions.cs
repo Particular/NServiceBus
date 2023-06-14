@@ -12,28 +12,6 @@ namespace NServiceBus
     public static class SystemJsonConfigurationExtensions
     {
         /// <summary>
-        /// Configures the <see cref="JsonReaderOptions"/> to use.
-        /// </summary>
-        /// <param name="config">The <see cref="SerializationExtensions{T}"/> instance.</param>
-        /// <param name="options">The <see cref="JsonReaderOptions"/> to use.</param>
-        public static void ReaderOptions(this SerializationExtensions<SystemJsonSerializer> config, JsonReaderOptions options)
-        {
-            var settings = config.GetSettings().GetOrCreate<SystemJsonSerializerSettings>();
-            settings.ReaderOptions = options;
-        }
-
-        /// <summary>
-        /// Configures the <see cref="JsonWriterOptions"/> to use.
-        /// </summary>
-        /// <param name="config">The <see cref="SerializationExtensions{T}"/> instance.</param>
-        /// <param name="options">The <see cref="JsonWriterOptions"/> to use.</param>
-        public static void WriterOptions(this SerializationExtensions<SystemJsonSerializer> config, JsonWriterOptions options)
-        {
-            var settings = config.GetSettings().GetOrCreate<SystemJsonSerializerSettings>();
-            settings.WriterOptions = options;
-        }
-
-        /// <summary>
         /// Configures the <see cref="JsonSerializerOptions"/> to use.
         /// </summary>
         /// <param name="config">The <see cref="SerializationExtensions{T}"/> instance.</param>

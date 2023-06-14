@@ -60,10 +60,8 @@ namespace NServiceBus
 
             var deserializer = new XmlDeserialization(mapper, cache, SkipWrappingRawXml, SanitizeInput);
 
-            using (var stream = new ReadOnlyStream(body))
-            {
-                return deserializer.Deserialize(stream, messageTypesToDeserialize);
-            }
+            using var stream = new ReadOnlyMemoryStream(body);
+            return deserializer.Deserialize(stream, messageTypesToDeserialize);
         }
 
         /// <summary>
@@ -77,10 +75,8 @@ namespace NServiceBus
         public void Serialize(object message, Stream stream)
         {
             var messageType = mapper.GetMappedTypeFor(message.GetType());
-            using (var serializer = new XmlSerialization(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
-            {
-                serializer.Serialize();
-            }
+            using var serializer = new XmlSerialization(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace);
+            serializer.Serialize();
         }
 
         /// <summary>
