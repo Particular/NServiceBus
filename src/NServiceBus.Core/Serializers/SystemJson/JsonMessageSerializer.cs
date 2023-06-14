@@ -104,6 +104,6 @@ namespace NServiceBus.Serializers.SystemJson
         readonly JsonReaderOptions readerOptions;
         readonly IMessageMapper messageMapper;
 
-        static byte[] utf8Preamble = Encoding.UTF8.GetPreamble();
+        static readonly byte[] utf8Preamble = Encoding.UTF8.GetPreamble();
     }
 }

@@ -230,7 +230,7 @@
 
             using (var stream = new MemoryStream())
             {
-                using (var sw = new StreamWriter(stream, new UTF8Encoding(true)))
+                using (var sw = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true)))
                 {
                     sw.WriteLine(payload);
                     sw.Flush();
