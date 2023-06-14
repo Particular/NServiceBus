@@ -3,12 +3,12 @@
     using System;
     using System.IO;
 
-    sealed class ReadOnlyMemoryStream : MemoryStream
+    sealed class ReadOnlyStream : Stream
     {
         readonly ReadOnlyMemory<byte> memory;
         int position;
 
-        public ReadOnlyMemoryStream(ReadOnlyMemory<byte> memory)
+        public ReadOnlyStream(ReadOnlyMemory<byte> memory)
         {
             this.memory = memory;
             position = 0;
@@ -50,8 +50,6 @@
             return bytesToCopy;
         }
 #endif
-
-        public override byte[] ToArray() => memory.ToArray();
 
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 

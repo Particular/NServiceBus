@@ -49,7 +49,7 @@ namespace NServiceBus.Serializers.SystemJson
         object Deserialize(ReadOnlyMemory<byte> body, Type type)
         {
             var actualType = GetMappedType(type);
-            using var stream = new ReadOnlyMemoryStream(body);
+            using var stream = new ReadOnlyStream(body);
             return JsonSerializer.Deserialize(stream, actualType, serializerOptions)!;
         }
 
