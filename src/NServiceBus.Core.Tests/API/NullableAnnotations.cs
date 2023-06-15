@@ -61,7 +61,10 @@ namespace NServiceBus.Core.Tests.API
                 }
                 else if (member is FieldInfo field)
                 {
-                    yield return (field, nullContext.Create(field));
+                    if (!field.FieldType.IsValueType)
+                    {
+                        yield return (field, nullContext.Create(field));
+                    }
                 }
                 else if (member is EventInfo evt)
                 {
