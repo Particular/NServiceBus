@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus
 {
     using System;
@@ -18,12 +19,12 @@ namespace NServiceBus
         /// The address io the endpoint that started the saga.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual string Originator { get; set; }
+        public virtual string? Originator { get; set; }
 
         /// <summary>
         /// The id of the message that started the saga.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual string OriginalMessageId { get; set; }
+        public virtual string? OriginalMessageId { get; set; }
     }
 }

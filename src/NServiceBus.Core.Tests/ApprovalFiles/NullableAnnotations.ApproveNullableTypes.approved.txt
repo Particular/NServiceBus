@@ -16,7 +16,6 @@ NServiceBus.ConfigureLicenseExtensions
 NServiceBus.ConfigurePurging
 NServiceBus.ConnectorContextExtensions
 NServiceBus.ConsistencyGuarantees.TransactionModeSettingsExtensions
-NServiceBus.ContainSagaData
 NServiceBus.ContentTypes
 NServiceBus.Conventions
 NServiceBus.ConventionsBuilder
