@@ -2,11 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.IO;
-    using System.Text;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
     using Janitor;
-    using SimpleJson;
 
     [SkipWeaving]
     class SagaStorageFile : IDisposable
@@ -14,14 +14,11 @@ namespace NServiceBus
         SagaStorageFile(FileStream fileStream)
         {
             this.fileStream = fileStream;
-            streamWriter = new StreamWriter(fileStream, Encoding.Unicode);
-            streamReader = new StreamReader(fileStream, Encoding.Unicode);
         }
 
         public void Dispose()
         {
-            streamWriter.Close();
-            streamReader.Close();
+            fileStream.Close();
 
             if (isCompleted)
             {
@@ -78,40 +75,33 @@ namespace NServiceBus
             }
         }
 
-        public Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
+        public async Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
         {
-            // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
-            // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.
-            // This line makes the parameter "required".
-            cancellationToken.ThrowIfCancellationRequested();
-
             fileStream.Position = 0;
-            var json = SimpleJson.SerializeObject(sagaData, EnumAwareStrategy.Instance);
-            return streamWriter.WriteAsync(json);
+            await JsonSerializer.SerializeAsync(fileStream, sagaData, sagaData.GetType(), Options, cancellationToken)
+                .ConfigureAwait(false);
+
+            // Because the file is opened in ReadWrite mode, leftover content from last write
+            // could be left behind if the new content is shorter.
+            fileStream.SetLength(fileStream.Position);
         }
 
-        public void MarkAsCompleted()
-        {
-            isCompleted = true;
-        }
+        public void MarkAsCompleted() => isCompleted = true;
 
-        public async Task<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+        public ValueTask<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
-            // The token isn't currently required but later, a method in a descendant call stack may get a token overload.
-            // When that happens, we want CA2016 to tell us to forward the token, so we want to keep the parameter.
-            // This line makes the parameter "required".
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            return SimpleJson.DeserializeObject<TSagaData>(json, EnumAwareStrategy.Instance);
+            return JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken);
         }
 
         FileStream fileStream;
         bool isCompleted;
-        StreamWriter streamWriter;
-        StreamReader streamReader;
 
         const int DefaultBufferSize = 4096;
         static Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
+
+        static readonly JsonSerializerOptions Options = new()
+        {
+            Converters = { new JsonStringEnumConverter() }
+        };
     }
 }

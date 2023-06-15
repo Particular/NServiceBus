@@ -1,5 +1,8 @@
 namespace NServiceBus.AcceptanceTests.Outbox
 {
+    using System.Linq;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -16,7 +19,16 @@ namespace NServiceBus.AcceptanceTests.Outbox
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            StringAssert.Contains("Outbox isn't needed since the receive transactions have been turned off", startupDiagnostics);
+            // This could all be simplified if it suported JsonPath https://github.com/dotnet/runtime/issues/31068
+            var diagnosticsDoc = JsonSerializer.Deserialize<JsonObject>(startupDiagnostics);
+            var features = diagnosticsDoc["Features"] as JsonArray;
+            var outboxFeature = features.FirstOrDefault(node => node["Name"].GetValue<string>() == "NServiceBus.Features.Outbox");
+
+            var satisfied = outboxFeature["PrerequisiteStatus"]["IsSatisfied"].GetValue<bool>();
+            var reason = (outboxFeature["PrerequisiteStatus"]["Reasons"] as JsonArray).Single().GetValue<string>();
+
+            Assert.IsFalse(satisfied);
+            Assert.AreEqual("Outbox isn't needed since the receive transactions have been turned off", reason);
         }
 
         public class Context : ScenarioContext
