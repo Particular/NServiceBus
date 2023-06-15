@@ -35,7 +35,6 @@ NServiceBus.DefaultRecoverabilityPolicy
 NServiceBus.DelayedDeliveryOptionExtensions
 NServiceBus.DelayedRetriesSettings
 NServiceBus.DelayedRetry
-NServiceBus.DeliveryConstraints.DeliveryConstraintContextExtensions
 NServiceBus.DiagnosticSettingsExtensions
 NServiceBus.Discard
 NServiceBus.DistributionPolicy
@@ -115,7 +114,6 @@ NServiceBus.MessageSessionExtensions
 NServiceBus.MoveToError
 NServiceBus.Notifications
 NServiceBus.NServiceBusMarkerInterfaceConvention
-NServiceBus.ObjectBuilder.ServiceProviderExtensions
 NServiceBus.OnSatelliteMessage
 NServiceBus.OpenTelemetryConfigurationExtensions
 NServiceBus.Outbox.IOutboxStorage
@@ -193,7 +191,6 @@ NServiceBus.RoutingFeatureSettingsExtensions
 NServiceBus.RoutingOptionExtensions
 NServiceBus.RoutingSettings
 NServiceBus.RoutingSettings`1
-NServiceBus.RoutingSettingsExtensions
 NServiceBus.Sagas.ActiveSagaInstance
 NServiceBus.Sagas.ISagaPersister
 NServiceBus.Sagas.SagaCorrelationProperty
@@ -229,7 +226,6 @@ NServiceBus.Transport.IncomingMessageExtensions
 NServiceBus.Transport.IOutgoingTransportOperation
 NServiceBus.Transport.ISubscriptionManager
 NServiceBus.Transport.ITransportAddressResolver
-NServiceBus.Transport.LogicalAddressExtensions
 NServiceBus.Transport.MessageContext
 NServiceBus.Transport.MulticastTransportOperation
 NServiceBus.Transport.OnError

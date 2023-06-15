@@ -52,6 +52,16 @@ namespace NServiceBus.Core.Tests.API
         {
             foreach (var member in type.GetMembers())
             {
+                if (member.DeclaringType.Assembly != typeof(IMessage).Assembly)
+                {
+                    continue;
+                }
+
+                if (member.GetCustomAttribute<ObsoleteAttribute>() != null)
+                {
+                    continue;
+                }
+
                 if (member is PropertyInfo prop)
                 {
                     if (!prop.PropertyType.IsValueType)
