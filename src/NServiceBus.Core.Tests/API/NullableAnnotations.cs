@@ -43,33 +43,36 @@ namespace NServiceBus.Core.Tests.API
 
         bool HasNonAnnotatedMember(Type type)
         {
-            var allInfo = AllMemberNullabilityInfoFor(type);
-            var noNullInfoFor = allInfo.Where(info => info.WriteState is NullabilityState.Unknown || info.ReadState == NullabilityState.Unknown);
+            var allInfo = AllMemberNullabilityInfoFor(type).ToArray();
+            var noNullInfoFor = allInfo.Where(info => info.Info.WriteState is NullabilityState.Unknown || info.Info.ReadState == NullabilityState.Unknown).ToArray();
             return noNullInfoFor.Any();
         }
 
-        IEnumerable<NullabilityInfo> AllMemberNullabilityInfoFor(Type type)
+        IEnumerable<(object Item, NullabilityInfo Info)> AllMemberNullabilityInfoFor(Type type)
         {
             foreach (var member in type.GetMembers())
             {
                 if (member is PropertyInfo prop)
                 {
-                    yield return nullContext.Create(prop);
+                    if (!prop.PropertyType.IsValueType)
+                    {
+                        yield return (prop, nullContext.Create(prop));
+                    }
                 }
                 else if (member is FieldInfo field)
                 {
-                    yield return nullContext.Create(field);
+                    yield return (field, nullContext.Create(field));
                 }
                 else if (member is EventInfo evt)
                 {
-                    yield return nullContext.Create(evt);
+                    yield return (evt, nullContext.Create(evt));
                 }
                 else if (member is MethodBase method)
                 {
                     var parameters = method.GetParameters();
                     foreach (var parameter in parameters)
                     {
-                        yield return nullContext.Create(parameter);
+                        yield return (parameter, nullContext.Create(parameter));
                     }
                 }
                 else if (member.MemberType == MemberTypes.NestedType)

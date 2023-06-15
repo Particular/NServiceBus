@@ -32,9 +32,6 @@ NServiceBus.DataBus.IDataBusSerializer
 NServiceBus.DataBusProperty`1
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DefaultRecoverabilityPolicy
-NServiceBus.DelayedConfig
-NServiceBus.DelayedDelivery.DelayDeliveryWith
-NServiceBus.DelayedDelivery.DoNotDeliverBefore
 NServiceBus.DelayedDeliveryOptionExtensions
 NServiceBus.DelayedRetriesSettings
 NServiceBus.DelayedRetry
@@ -75,7 +72,6 @@ NServiceBus.Hosting.Helpers.AssemblyScanner
 NServiceBus.Hosting.Helpers.AssemblyScannerResults
 NServiceBus.Hosting.Helpers.SkippedFile
 NServiceBus.Hosting.HostInformation
-NServiceBus.ICancellableContext
 NServiceBus.ICriticalErrorContext
 NServiceBus.IDataBusProperty
 NServiceBus.IDistributionPolicy
@@ -83,7 +79,6 @@ NServiceBus.IMessageConvention
 NServiceBus.IMessageCreator
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
-NServiceBus.ImmediateConfig
 NServiceBus.ImmediateDispatchOptionExtensions
 NServiceBus.ImmediateRetriesSettings
 NServiceBus.ImmediateRetry
@@ -128,7 +123,6 @@ NServiceBus.Outbox.OutboxMessage
 NServiceBus.Outbox.TransportOperation
 NServiceBus.OutboxConfigExtensions
 NServiceBus.PendingTransportOperations
-NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore
 NServiceBus.Persistence.CompletableSynchronizedStorageSessionExtensions
 NServiceBus.Persistence.ICompletableSynchronizedStorageSession
 NServiceBus.Persistence.PersistenceDefinition
@@ -200,7 +194,6 @@ NServiceBus.RoutingOptionExtensions
 NServiceBus.RoutingSettings
 NServiceBus.RoutingSettings`1
 NServiceBus.RoutingSettingsExtensions
-NServiceBus.Saga`1
 NServiceBus.Sagas.ActiveSagaInstance
 NServiceBus.Sagas.ISagaPersister
 NServiceBus.Sagas.SagaCorrelationProperty
