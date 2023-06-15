@@ -5,7 +5,6 @@ namespace NServiceBus.Serializers.SystemJson
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Text.Json;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
@@ -13,15 +12,13 @@ namespace NServiceBus.Serializers.SystemJson
     class JsonMessageSerializer : IMessageSerializer
     {
         internal JsonMessageSerializer(SystemJsonSerializerSettings settings, IMessageMapper messageMapper)
-            : this(settings.SerializerOptions, settings.WriterOptions, settings.ReaderOptions, settings.ContentType, messageMapper)
+            : this(settings.SerializerOptions, settings.ContentType, messageMapper)
         {
         }
 
-        public JsonMessageSerializer(JsonSerializerOptions? serializerOptions, JsonWriterOptions writerOptions, JsonReaderOptions readerOptions, string contentType, IMessageMapper messageMapper)
+        public JsonMessageSerializer(JsonSerializerOptions? serializerOptions, string contentType, IMessageMapper messageMapper)
         {
             this.serializerOptions = serializerOptions;
-            this.writerOptions = writerOptions;
-            this.readerOptions = readerOptions;
             this.messageMapper = messageMapper;
 
             ContentType = contentType;
@@ -30,10 +27,7 @@ namespace NServiceBus.Serializers.SystemJson
         public string ContentType { get; }
 
         public void Serialize(object message, Stream stream)
-        {
-            using var writer = new Utf8JsonWriter(stream, writerOptions);
-            JsonSerializer.Serialize(writer, message, serializerOptions);
-        }
+            => JsonSerializer.Serialize(stream, message, serializerOptions);
 
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type>? messageTypes = null)
         {
@@ -55,15 +49,8 @@ namespace NServiceBus.Serializers.SystemJson
         object Deserialize(ReadOnlyMemory<byte> body, Type type)
         {
             var actualType = GetMappedType(type);
-
-            // Get rid of the BOM if present since system json can't handle it
-            if (body.Span.StartsWith(utf8Preamble))
-            {
-                body = body.Slice(utf8Preamble.Length);
-            }
-
-            var reader = new Utf8JsonReader(body.Span, readerOptions);
-            return JsonSerializer.Deserialize(ref reader, actualType, serializerOptions)!;
+            using var stream = new ReadOnlyStream(body);
+            return JsonSerializer.Deserialize(stream, actualType, serializerOptions)!;
         }
 
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
@@ -100,10 +87,6 @@ namespace NServiceBus.Serializers.SystemJson
         }
 
         readonly JsonSerializerOptions? serializerOptions;
-        readonly JsonWriterOptions writerOptions;
-        readonly JsonReaderOptions readerOptions;
         readonly IMessageMapper messageMapper;
-
-        static readonly byte[] utf8Preamble = Encoding.UTF8.GetPreamble();
     }
 }

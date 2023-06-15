@@ -28,10 +28,8 @@
         public void Setup()
         {
             var options = new JsonSerializerOptions();
-            var readerOptions = new JsonReaderOptions();
-            var writerOptions = new JsonWriterOptions();
 
-            serializer = new JsonMessageSerializer(options, writerOptions, readerOptions, ContentTypes.Json, messageMapper);
+            serializer = new JsonMessageSerializer(options, ContentTypes.Json, messageMapper);
         }
 
         [Test]
@@ -189,38 +187,36 @@
 #pragma warning restore PS0023 // DateTime.UtcNow or DateTimeOffset.UtcNow should be used instead of DateTime.Now and DateTimeOffset.Now, unless the value is being used for displaying the current date-time in a user's local time zone
             var expectedDateTimeOffsetUtc = DateTimeOffset.UtcNow;
 
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            serializer.Serialize(new DateTimeMessage
             {
-                serializer.Serialize(new DateTimeMessage
-                {
-                    DateTime = expectedDateTime,
-                    DateTimeLocal = expectedDateTimeLocal,
-                    DateTimeUtc = expectedDateTimeUtc,
-                    DateTimeOffset = expectedDateTimeOffset,
-                    DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
-                    DateTimeOffsetUtc = expectedDateTimeOffsetUtc
-                }, stream);
-                stream.Position = 0;
+                DateTime = expectedDateTime,
+                DateTimeLocal = expectedDateTimeLocal,
+                DateTimeUtc = expectedDateTimeUtc,
+                DateTimeOffset = expectedDateTimeOffset,
+                DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
+                DateTimeOffsetUtc = expectedDateTimeOffsetUtc
+            }, stream);
+            stream.Position = 0;
 
-                var result = serializer.Deserialize(stream.ToArray(), new List<Type>
-                {
-                    typeof(DateTimeMessage)
-                }).Cast<DateTimeMessage>().Single();
+            var result = serializer.Deserialize(stream.ToArray(), new List<Type>
+            {
+                typeof(DateTimeMessage)
+            }).Cast<DateTimeMessage>().Single();
 
-                Assert.AreEqual(expectedDateTime.Kind, result.DateTime.Kind);
-                Assert.AreEqual(expectedDateTime, result.DateTime);
-                Assert.AreEqual(expectedDateTimeLocal.Kind, result.DateTimeLocal.Kind);
-                Assert.AreEqual(expectedDateTimeLocal, result.DateTimeLocal);
-                Assert.AreEqual(expectedDateTimeUtc.Kind, result.DateTimeUtc.Kind);
-                Assert.AreEqual(expectedDateTimeUtc, result.DateTimeUtc);
+            Assert.AreEqual(expectedDateTime.Kind, result.DateTime.Kind);
+            Assert.AreEqual(expectedDateTime, result.DateTime);
+            Assert.AreEqual(expectedDateTimeLocal.Kind, result.DateTimeLocal.Kind);
+            Assert.AreEqual(expectedDateTimeLocal, result.DateTimeLocal);
+            Assert.AreEqual(expectedDateTimeUtc.Kind, result.DateTimeUtc.Kind);
+            Assert.AreEqual(expectedDateTimeUtc, result.DateTimeUtc);
 
-                Assert.AreEqual(expectedDateTimeOffset, result.DateTimeOffset);
-                Assert.AreEqual(expectedDateTimeOffset.Offset, result.DateTimeOffset.Offset);
-                Assert.AreEqual(expectedDateTimeOffsetLocal, result.DateTimeOffsetLocal);
-                Assert.AreEqual(expectedDateTimeOffsetLocal.Offset, result.DateTimeOffsetLocal.Offset);
-                Assert.AreEqual(expectedDateTimeOffsetUtc, result.DateTimeOffsetUtc);
-                Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, result.DateTimeOffsetUtc.Offset);
-            }
+            Assert.AreEqual(expectedDateTimeOffset, result.DateTimeOffset);
+            Assert.AreEqual(expectedDateTimeOffset.Offset, result.DateTimeOffset.Offset);
+            Assert.AreEqual(expectedDateTimeOffsetLocal, result.DateTimeOffsetLocal);
+            Assert.AreEqual(expectedDateTimeOffsetLocal.Offset, result.DateTimeOffsetLocal.Offset);
+            Assert.AreEqual(expectedDateTimeOffsetUtc, result.DateTimeOffsetUtc);
+            Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, result.DateTimeOffsetUtc.Offset);
         }
 
         [Test]
@@ -228,21 +224,16 @@
         {
             var payload = JsonSerializer.Serialize(new SomeMessage());
 
-            using (var stream = new MemoryStream())
-            {
-                using (var sw = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true)))
-                {
-                    sw.WriteLine(payload);
-                    sw.Flush();
+            using var stream = new MemoryStream();
+            using var sw = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+            sw.WriteLine(payload);
+            sw.Flush();
 
-                    stream.Position = 0;
+            stream.Position = 0;
 
-                    Assert.DoesNotThrow(() => serializer.Deserialize(stream.ToArray(), new List<Type> { typeof(SomeMessage) }));
-                }
-            }
+            Assert.DoesNotThrow(() => serializer.Deserialize(stream.ToArray(), new List<Type> { typeof(SomeMessage) }));
         }
     }
-
 
     public interface IMyEvent
     {

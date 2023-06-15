@@ -1,14 +1,12 @@
-﻿// unset
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.IO;
 
-    class ReadOnlyStream : Stream
+    sealed class ReadOnlyStream : Stream
     {
-        ReadOnlyMemory<byte> memory;
-        long position;
+        readonly ReadOnlyMemory<byte> memory;
+        int position;
 
         public ReadOnlyStream(ReadOnlyMemory<byte> memory)
         {
@@ -24,10 +22,10 @@ namespace NServiceBus
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var bytesToCopy = (int)Math.Min(count, memory.Length - position);
+            var bytesToCopy = Math.Min(count, memory.Length - position);
 
             var destination = buffer.AsSpan().Slice(offset, bytesToCopy);
-            var source = memory.Span.Slice((int)position, bytesToCopy);
+            var source = memory.Span.Slice(position, bytesToCopy);
 
             source.CopyTo(destination);
 
@@ -36,12 +34,29 @@ namespace NServiceBus
             return bytesToCopy;
         }
 
+#if NET
+        public override int Read(Span<byte> buffer)
+        {
+            var bytesToCopy = Math.Min(memory.Length - position, buffer.Length);
+            if (bytesToCopy <= 0)
+            {
+                return 0;
+            }
+
+            var source = memory.Span.Slice(position, bytesToCopy);
+            source.CopyTo(buffer);
+
+            position += bytesToCopy;
+            return bytesToCopy;
+        }
+#endif
+
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
         public override bool CanRead => true;
-        public override bool CanSeek => true;
+        public override bool CanSeek => false;
         public override bool CanWrite => false;
         public override long Length => memory.Length;
-        public override long Position { get => position; set => position = value; }
+        public override long Position { get => position; set => position = (int)value; }
     }
 }
