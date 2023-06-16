@@ -49,9 +49,9 @@
             return pipeline(context);
         }
 
-        IBehavior[] behaviors;
-        Func<TContext, Task> pipeline;
+        readonly IBehavior[] behaviors;
+        readonly Func<TContext, Task> pipeline;
 
-        static ILog Logger = LogManager.GetLogger<Pipeline<TContext>>();
+        static readonly ILog Logger = LogManager.GetLogger<Pipeline<TContext>>();
     }
 }

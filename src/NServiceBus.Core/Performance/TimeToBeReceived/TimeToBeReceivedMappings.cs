@@ -42,11 +42,11 @@
             return timeToBeReceived;
         }
 
-        ConcurrentDictionary<Type, TimeSpan> mappings;
+        readonly ConcurrentDictionary<Type, TimeSpan> mappings;
 
-        Func<Type, TimeSpan> convention;
+        readonly Func<Type, TimeSpan> convention;
 
-        bool doesTransportSupportDiscardIfNotReceivedBefore;
+        readonly bool doesTransportSupportDiscardIfNotReceivedBefore;
 
         public static Func<Type, TimeSpan> DefaultConvention = t =>
         {

@@ -649,15 +649,15 @@
             return n;
         }
 
-        XmlSerializerCache cache;
+        readonly XmlSerializerCache cache;
         string defaultNamespace;
-        IMessageMapper mapper;
-        List<Type> messageBaseTypes = new List<Type>();
-        IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
-        bool sanitizeInput;
-        bool skipWrappingRawXml;
+        readonly IMessageMapper mapper;
+        readonly List<Type> messageBaseTypes = new List<Type>();
+        readonly IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
+        readonly bool sanitizeInput;
+        readonly bool skipWrappingRawXml;
 
         const string BASETYPE = "baseType";
-        static ILog logger = LogManager.GetLogger<XmlDeserialization>();
+        static readonly ILog logger = LogManager.GetLogger<XmlDeserialization>();
     }
 }

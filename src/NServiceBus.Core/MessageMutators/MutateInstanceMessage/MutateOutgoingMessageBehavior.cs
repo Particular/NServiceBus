@@ -68,6 +68,6 @@
         }
 
         volatile bool hasOutgoingMessageMutators = true;
-        HashSet<IMutateOutgoingMessages> mutators;
+        readonly HashSet<IMutateOutgoingMessages> mutators;
     }
 }

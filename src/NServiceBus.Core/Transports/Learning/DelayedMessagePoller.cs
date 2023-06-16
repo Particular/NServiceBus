@@ -80,10 +80,10 @@
             polling.Dispose();
         }
 
-        string delayedRootDirectory;
+        readonly string delayedRootDirectory;
         CancellationTokenSource polling;
-        string basePath;
+        readonly string basePath;
 
-        static ILog Logger = LogManager.GetLogger<DelayedMessagePoller>();
+        static readonly ILog Logger = LogManager.GetLogger<DelayedMessagePoller>();
     }
 }

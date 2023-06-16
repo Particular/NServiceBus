@@ -61,6 +61,6 @@
         }
 
         volatile bool hasIncomingTransportMessageMutators = true;
-        HashSet<IMutateIncomingTransportMessages> mutators;
+        readonly HashSet<IMutateIncomingTransportMessages> mutators;
     }
 }

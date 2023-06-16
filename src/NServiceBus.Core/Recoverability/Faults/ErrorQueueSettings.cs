@@ -57,6 +57,6 @@ namespace NServiceBus
 
         const string DefaultErrorQueueName = "error";
 
-        static ILog Logger = LogManager.GetLogger(typeof(ErrorQueueSettings));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(ErrorQueueSettings));
     }
 }

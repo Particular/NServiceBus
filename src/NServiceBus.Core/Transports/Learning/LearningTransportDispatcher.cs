@@ -189,7 +189,7 @@ namespace NServiceBus
 
         static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
-        int maxMessageSizeKB;
-        string basePath;
+        readonly int maxMessageSizeKB;
+        readonly string basePath;
     }
 }

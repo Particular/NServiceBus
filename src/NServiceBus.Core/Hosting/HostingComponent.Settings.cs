@@ -103,8 +103,8 @@
                 settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
             }
 
-            SettingsHolder settings;
-            string fullPathToStartingExe;
+            readonly SettingsHolder settings;
+            readonly string fullPathToStartingExe;
 
             const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
             const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";

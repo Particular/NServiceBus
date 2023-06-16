@@ -113,7 +113,7 @@ namespace NServiceBus
             internal readonly MessageHandlerRegistry messageHandlerRegistry;
             internal readonly TransportSeam transportSeam;
 
-            List<SatelliteDefinition> satelliteDefinitions;
+            readonly List<SatelliteDefinition> satelliteDefinitions;
         }
     }
 }

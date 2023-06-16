@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class NamespaceRouteSource : IRouteSource
     {
-        Assembly messageAssembly;
-        string messageNamespace;
-        UnicastRoute route;
+        readonly Assembly messageAssembly;
+        readonly string messageNamespace;
+        readonly UnicastRoute route;
 
         public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, UnicastRoute route)
         {

@@ -323,13 +323,13 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             throw new InvalidOperationException();
         }
 
-        Dictionary<string, SagaMessage> associatedMessages;
-        CorrelationPropertyMetadata correlationProperty;
-        Dictionary<string, SagaFinderDefinition> sagaFinders;
+        readonly Dictionary<string, SagaMessage> associatedMessages;
+        readonly CorrelationPropertyMetadata correlationProperty;
+        readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
         // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
         // but also needs to be enforced at runtime in case the user silences the diagnostic
-        static Type[] AllowedCorrelationPropertyTypes =
+        static readonly Type[] AllowedCorrelationPropertyTypes =
         {
             typeof(Guid),
             typeof(string),
@@ -434,7 +434,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 });
             }
 
-            public List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
+            public readonly List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
         }
 
         /// <summary>

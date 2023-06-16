@@ -24,6 +24,6 @@
             return new UnicastAddressTag(destination);
         }
 
-        string destination;
+        readonly string destination;
     }
 }

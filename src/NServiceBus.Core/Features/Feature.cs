@@ -222,7 +222,7 @@
         readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();
         readonly List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
 
-        static Type baseFeatureType = typeof(Feature);
+        static readonly Type baseFeatureType = typeof(Feature);
 
         class SetupPrerequisite
         {

@@ -48,9 +48,9 @@
             disposableTask?.Dispose();
         }
 
-        Func<IServiceProvider, FeatureStartupTask> factory;
+        readonly Func<IServiceProvider, FeatureStartupTask> factory;
         FeatureStartupTask instance;
 
-        static ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
+        static readonly ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
     }
 }

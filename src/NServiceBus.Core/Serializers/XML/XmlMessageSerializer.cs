@@ -105,10 +105,10 @@ namespace NServiceBus
             return value?.TrimEnd('/');
         }
 
-        XmlSerializerCache cache = new XmlSerializerCache();
+        readonly XmlSerializerCache cache = new XmlSerializerCache();
 
-        Conventions conventions;
-        IMessageMapper mapper;
+        readonly Conventions conventions;
+        readonly IMessageMapper mapper;
 
         string nameSpace = "http://tempuri.net";
     }

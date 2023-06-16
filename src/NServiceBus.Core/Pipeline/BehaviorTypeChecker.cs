@@ -35,7 +35,7 @@ namespace NServiceBus
             }
         }
 
-        static HashSet<Type> NotAllowedInterfaces = new HashSet<Type>
+        static readonly HashSet<Type> NotAllowedInterfaces = new HashSet<Type>
         {
             typeof(IBehaviorContext),
             typeof(IIncomingContext),

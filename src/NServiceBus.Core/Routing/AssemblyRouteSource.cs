@@ -8,8 +8,8 @@ namespace NServiceBus
 
     class AssemblyRouteSource : IRouteSource
     {
-        Assembly messageAssembly;
-        UnicastRoute route;
+        readonly Assembly messageAssembly;
+        readonly UnicastRoute route;
 
         public AssemblyRouteSource(Assembly messageAssembly, UnicastRoute route)
         {

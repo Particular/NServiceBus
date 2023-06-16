@@ -20,7 +20,7 @@
             return satelliteDefinition.OnMessage(builder, messageContext, cancellationToken);
         }
 
-        SatelliteDefinition satelliteDefinition;
-        IServiceProvider builder;
+        readonly SatelliteDefinition satelliteDefinition;
+        readonly IServiceProvider builder;
     }
 }

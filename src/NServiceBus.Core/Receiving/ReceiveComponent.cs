@@ -296,7 +296,7 @@ namespace NServiceBus
         public const string MainReceiverId = "Main";
         public const string InstanceSpecificReceiverId = "InstanceSpecific";
 
-        static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+        static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
     }
 }

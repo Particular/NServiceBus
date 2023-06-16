@@ -42,6 +42,6 @@ namespace NServiceBus
             return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, storageSession, context, cancellationToken).ConfigureAwait(false);
         }
 
-        ISagaPersister sagaPersister;
+        readonly ISagaPersister sagaPersister;
     }
 }

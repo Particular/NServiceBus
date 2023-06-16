@@ -78,6 +78,6 @@ namespace NServiceBus
             return this;
         }
 
-        EndpointConfiguration config;
+        readonly EndpointConfiguration config;
     }
 }

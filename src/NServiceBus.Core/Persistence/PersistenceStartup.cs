@@ -71,6 +71,6 @@
             return supportedStorages?.Contains(typeof(T)) ?? false;
         }
 
-        static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
     }
 }

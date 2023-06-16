@@ -44,7 +44,7 @@ namespace NServiceBus
             return endpointInstance;
         }
 
-        EndpointCreator endpointCreator;
+        readonly EndpointCreator endpointCreator;
         IMessageSession messageSession;
         IServiceProvider objectBuilder;
     }

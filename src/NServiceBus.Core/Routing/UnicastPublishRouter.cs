@@ -97,9 +97,9 @@ namespace NServiceBus
             return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions, cancellationToken);
         }
 
-        MessageMetadataRegistry messageMetadataRegistry;
-        ITransportAddressResolver transportAddressTranslation;
-        ISubscriptionStorage subscriptionStorage;
-        static ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
+        readonly MessageMetadataRegistry messageMetadataRegistry;
+        readonly ITransportAddressResolver transportAddressTranslation;
+        readonly ISubscriptionStorage subscriptionStorage;
+        static readonly ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
     }
 }

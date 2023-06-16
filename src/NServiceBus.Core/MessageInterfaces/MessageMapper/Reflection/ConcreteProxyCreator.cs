@@ -167,7 +167,7 @@ namespace NServiceBus
             return props;
         }
 
-        ModuleBuilder moduleBuilder;
+        readonly ModuleBuilder moduleBuilder;
         internal const string SUFFIX = "__impl";
     }
 }

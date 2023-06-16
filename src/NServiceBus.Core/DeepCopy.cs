@@ -146,7 +146,7 @@ namespace System
         class ArrayTraverse
         {
             public int[] Position;
-            int[] maxLengths;
+            readonly int[] maxLengths;
 
             public ArrayTraverse(Array array)
             {

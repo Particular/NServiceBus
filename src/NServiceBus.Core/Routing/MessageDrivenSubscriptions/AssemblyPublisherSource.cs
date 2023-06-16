@@ -8,8 +8,8 @@ namespace NServiceBus
 
     class AssemblyPublisherSource : IPublisherSource
     {
-        Assembly messageAssembly;
-        PublisherAddress address;
+        readonly Assembly messageAssembly;
+        readonly PublisherAddress address;
 
         public AssemblyPublisherSource(Assembly messageAssembly, PublisherAddress address)
         {

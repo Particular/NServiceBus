@@ -148,18 +148,18 @@ namespace NServiceBus
             }
         }
 
-        ReceiveComponent receiveComponent;
-        FeatureComponent featureComponent;
-        IMessageSession messageSession;
+        readonly ReceiveComponent receiveComponent;
+        readonly FeatureComponent featureComponent;
+        readonly IMessageSession messageSession;
         readonly TransportInfrastructure transportInfrastructure;
         readonly CancellationTokenSource stoppingTokenSource;
         readonly IServiceProvider? serviceProvider;
-        SettingsHolder settings;
+        readonly SettingsHolder settings;
 
         volatile Status status = Status.Running;
-        SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
+        readonly SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
 
-        static ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
+        static readonly ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
 
         enum Status
         {

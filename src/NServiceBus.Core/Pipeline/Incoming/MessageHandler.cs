@@ -43,6 +43,6 @@
             return invocation(Instance, message, handlerContext);
         }
 
-        Func<object, object, IMessageHandlerContext, Task> invocation;
+        readonly Func<object, object, IMessageHandlerContext, Task> invocation;
     }
 }

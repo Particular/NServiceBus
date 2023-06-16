@@ -55,12 +55,12 @@ namespace NServiceBus
         }
 
         int failureCount;
-        string name;
-        int consecutiveFailuresBeforeTriggering;
-        Func<long, CancellationToken, Task> triggerAction;
-        Func<long, CancellationToken, Task> disarmAction;
-        TimeSpan armedFailureDelayDuration;
+        readonly string name;
+        readonly int consecutiveFailuresBeforeTriggering;
+        readonly Func<long, CancellationToken, Task> triggerAction;
+        readonly Func<long, CancellationToken, Task> disarmAction;
+        readonly TimeSpan armedFailureDelayDuration;
 
-        static ILog Logger = LogManager.GetLogger<ConsecutiveFailuresCircuitBreaker>();
+        static readonly ILog Logger = LogManager.GetLogger<ConsecutiveFailuresCircuitBreaker>();
     }
 }

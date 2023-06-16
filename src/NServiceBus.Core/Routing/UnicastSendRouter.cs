@@ -120,13 +120,13 @@ namespace NServiceBus
         string TranslateTransportAddress(EndpointInstance instance) =>
             transportAddressResolver.ToTransportAddress(new QueueAddress(instance.Endpoint, instance.Discriminator, instance.Properties));
 
-        EndpointInstance instanceSpecificQueue;
-        EndpointInstances endpointInstances;
+        readonly EndpointInstance instanceSpecificQueue;
+        readonly EndpointInstances endpointInstances;
         readonly ITransportAddressResolver transportAddressResolver;
-        UnicastRoutingTable unicastRoutingTable;
-        IDistributionPolicy defaultDistributionPolicy;
+        readonly UnicastRoutingTable unicastRoutingTable;
+        readonly IDistributionPolicy defaultDistributionPolicy;
         readonly bool isSendOnly;
-        string receiveQueueName;
+        readonly string receiveQueueName;
 
         public class State
         {

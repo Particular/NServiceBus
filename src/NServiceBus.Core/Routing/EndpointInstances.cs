@@ -54,7 +54,7 @@ namespace NServiceBus.Routing
         }
 
         Dictionary<string, HashSet<EndpointInstance>> allInstances = new Dictionary<string, HashSet<EndpointInstance>>();
-        Dictionary<object, IList<EndpointInstance>> registrations = new Dictionary<object, IList<EndpointInstance>>();
-        object updateLock = new object();
+        readonly Dictionary<object, IList<EndpointInstance>> registrations = new Dictionary<object, IList<EndpointInstance>>();
+        readonly object updateLock = new object();
     }
 }

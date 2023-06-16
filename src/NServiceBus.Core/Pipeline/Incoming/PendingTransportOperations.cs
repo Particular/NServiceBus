@@ -42,6 +42,6 @@ namespace NServiceBus
             operations.PushRange(transportOperations);
         }
 
-        ConcurrentStack<TransportOperation> operations = new ConcurrentStack<TransportOperation>();
+        readonly ConcurrentStack<TransportOperation> operations = new ConcurrentStack<TransportOperation>();
     }
 }

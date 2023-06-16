@@ -45,7 +45,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         Dictionary<Type, HashSet<PublisherAddress>> publishers = new Dictionary<Type, HashSet<PublisherAddress>>();
-        Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
-        object updateLock = new object();
+        readonly Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
+        readonly object updateLock = new object();
     }
 }

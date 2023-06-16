@@ -81,11 +81,11 @@ namespace NServiceBus
             }
         }
 
-        Func<CriticalErrorContext, CancellationToken, Task> criticalErrorAction;
+        readonly Func<CriticalErrorContext, CancellationToken, Task> criticalErrorAction;
 
-        List<LatentCritical> criticalErrors = new List<LatentCritical>();
+        readonly List<LatentCritical> criticalErrors = new List<LatentCritical>();
         IEndpointInstance endpoint;
-        object endpointCriticalLock = new object();
+        readonly object endpointCriticalLock = new object();
 
         class LatentCritical
         {

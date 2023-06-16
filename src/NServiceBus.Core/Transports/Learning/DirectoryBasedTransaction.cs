@@ -158,17 +158,17 @@ namespace NServiceBus
             }
         }
 
-        string basePath;
-        string commitDir;
+        readonly string basePath;
+        readonly string commitDir;
 
         bool committed;
 
-        ConcurrentQueue<OutgoingFile> outgoingFiles = new ConcurrentQueue<OutgoingFile>();
-        string transactionDir;
+        readonly ConcurrentQueue<OutgoingFile> outgoingFiles = new ConcurrentQueue<OutgoingFile>();
+        readonly string transactionDir;
 
         const string TxtFileExtension = "*.txt";
 
-        static ILog log = LogManager.GetLogger<DirectoryBasedTransaction>();
+        static readonly ILog log = LogManager.GetLogger<DirectoryBasedTransaction>();
 
         class OutgoingFile
         {

@@ -71,6 +71,6 @@
         }
 
         volatile bool hasOutgoingTransportMessageMutators = true;
-        HashSet<IMutateOutgoingTransportMessages> mutators;
+        readonly HashSet<IMutateOutgoingTransportMessages> mutators;
     }
 }

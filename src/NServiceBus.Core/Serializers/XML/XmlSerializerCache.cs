@@ -209,13 +209,13 @@ namespace NServiceBus
 
         readonly object lockObject = new object();
 
-        ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
+        readonly ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
 
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
         public ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>> typeMembers = new ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>>();
 
-        static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
+        static readonly ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }
 }

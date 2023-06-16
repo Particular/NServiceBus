@@ -166,7 +166,7 @@
         }
 
         readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
-        static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
+        static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder
         {

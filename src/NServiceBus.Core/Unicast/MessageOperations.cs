@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class MessageOperations
     {
-        IMessageMapper messageMapper;
+        readonly IMessageMapper messageMapper;
         protected readonly IPipeline<IOutgoingPublishContext> publishPipeline;
         protected readonly IPipeline<IOutgoingSendContext> sendPipeline;
         protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;

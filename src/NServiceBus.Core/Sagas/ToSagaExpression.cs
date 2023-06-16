@@ -32,7 +32,7 @@ namespace NServiceBus
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 
-        Expression<Func<TMessage, object>> messageProperty;
-        IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
+        readonly Expression<Func<TMessage, object>> messageProperty;
+        readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
     }
 }

@@ -6,8 +6,8 @@ namespace NServiceBus
 
     class TypeRouteSource : IRouteSource
     {
-        Type messageType;
-        UnicastRoute route;
+        readonly Type messageType;
+        readonly UnicastRoute route;
 
         public TypeRouteSource(Type messageType, UnicastRoute route)
         {
