@@ -12,9 +12,9 @@ namespace NServiceBus
     public class CorrelatedSagaPropertyMapper<TSagaData> where TSagaData : class, IContainSagaData
     {
         readonly SagaPropertyMapper<TSagaData> sagaPropertyMapper;
-        readonly Expression<Func<TSagaData, object>> sagaProperty;
+        readonly Expression<Func<TSagaData, object?>> sagaProperty;
 
-        internal CorrelatedSagaPropertyMapper(SagaPropertyMapper<TSagaData> sagaPropertyMapper, Expression<Func<TSagaData, object>> sagaProperty)
+        internal CorrelatedSagaPropertyMapper(SagaPropertyMapper<TSagaData> sagaPropertyMapper, Expression<Func<TSagaData, object?>> sagaProperty)
         {
             Guard.ThrowIfNull(sagaPropertyMapper);
             Guard.ThrowIfNull(sagaProperty);
@@ -30,7 +30,7 @@ namespace NServiceBus
         /// <returns>
         /// The same mapper instance.
         /// </returns>
-        public CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        public CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
         {
             sagaPropertyMapper.ConfigureMapping(messageProperty).ToSaga(sagaProperty);
             return this;
