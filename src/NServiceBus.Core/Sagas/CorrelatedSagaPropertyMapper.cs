@@ -30,7 +30,7 @@ namespace NServiceBus
         /// <returns>
         /// The same mapper instance.
         /// </returns>
-        public CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        public CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
         {
             sagaPropertyMapper.ConfigureMapping(messageProperty).ToSaga(sagaProperty);
             return this;

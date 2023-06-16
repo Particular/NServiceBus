@@ -13,7 +13,7 @@ namespace NServiceBus
         /// <summary>
         /// Initializes a new instance of <see cref="ToSagaExpression{TSagaData,TMessage}" />.
         /// </summary>
-        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
+        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object?>> messageProperty)
         {
             Guard.ThrowIfNull(sagaMessageFindingConfiguration);
             Guard.ThrowIfNull(messageProperty);
@@ -32,7 +32,7 @@ namespace NServiceBus
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 
-        readonly Expression<Func<TMessage, object>> messageProperty;
+        readonly Expression<Func<TMessage, object?>> messageProperty;
         readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
     }
 }
