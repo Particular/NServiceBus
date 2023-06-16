@@ -24,7 +24,7 @@ namespace NServiceBus
         /// <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga" /> to link <paramref name="messageProperty" /> with
         /// <typeparamref name="TSagaData" />.
         /// </returns>
-        public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
         {
             Guard.ThrowIfNull(messageProperty);
             return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
@@ -61,7 +61,7 @@ namespace NServiceBus
         /// <see cref="CorrelatedSagaPropertyMapper{TSagaData}.ToMessage{TMessage}"/> to map a message type to
         /// the correlation property.
         /// </returns>
-        public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object>> sagaProperty)
+        public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object?>> sagaProperty)
         {
             Guard.ThrowIfNull(sagaProperty);
             return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
