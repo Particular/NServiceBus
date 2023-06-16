@@ -234,12 +234,12 @@ namespace NServiceBus
             return $"'{string.Join("', '", nameToNodeDict.Keys)}'";
         }
 
-        List<RegisterStep> additions;
-        List<ReplaceStep> replacements;
-        List<RegisterOrReplaceStep> addOrReplaceSteps;
+        readonly List<RegisterStep> additions;
+        readonly List<ReplaceStep> replacements;
+        readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
 
-        Type rootContextType;
-        static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
+        readonly Type rootContextType;
+        static readonly ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
         class Node
         {
@@ -272,12 +272,12 @@ namespace NServiceBus
                 }
             }
 
-            public List<Dependency> Afters;
-            public List<Dependency> Befores;
+            public readonly List<Dependency> Afters;
+            public readonly List<Dependency> Befores;
 
-            public string StepId;
-            internal List<Node> previous = new List<Node>();
-            RegisterStep rego;
+            public readonly string StepId;
+            internal readonly List<Node> previous = new List<Node>();
+            readonly RegisterStep rego;
             bool visited;
         }
     }

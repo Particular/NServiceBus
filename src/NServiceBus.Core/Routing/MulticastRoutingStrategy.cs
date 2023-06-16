@@ -26,6 +26,6 @@
             return new MulticastAddressTag(messageType);
         }
 
-        Type messageType;
+        readonly Type messageType;
     }
 }

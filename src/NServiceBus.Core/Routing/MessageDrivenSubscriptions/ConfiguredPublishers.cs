@@ -6,7 +6,7 @@ namespace NServiceBus
 
     class ConfiguredPublishers
     {
-        List<IPublisherSource> publisherSources = new List<IPublisherSource>();
+        readonly List<IPublisherSource> publisherSources = new List<IPublisherSource>();
 
         public void Add(IPublisherSource publisherSource)
         {

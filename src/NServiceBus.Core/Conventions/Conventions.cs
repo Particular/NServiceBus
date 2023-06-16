@@ -242,18 +242,18 @@
 
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
 
-        ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();
+        readonly ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();
 
-        ConventionCache CommandsConventionCache = new ConventionCache();
-        ConventionCache EventsConventionCache = new ConventionCache();
+        readonly ConventionCache CommandsConventionCache = new ConventionCache();
+        readonly ConventionCache EventsConventionCache = new ConventionCache();
 
-        List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
-        ConventionCache MessagesConventionCache = new ConventionCache();
+        readonly List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
+        readonly ConventionCache MessagesConventionCache = new ConventionCache();
 
-        IList<IMessageConvention> conventions = new List<IMessageConvention>();
-        OverridableMessageConvention defaultMessageConvention;
+        readonly IList<IMessageConvention> conventions = new List<IMessageConvention>();
+        readonly OverridableMessageConvention defaultMessageConvention;
 
-        static ILog logger = LogManager.GetLogger<Conventions>();
+        static readonly ILog logger = LogManager.GetLogger<Conventions>();
 
         class ConventionCache
         {
@@ -267,7 +267,7 @@
                 cache.Clear();
             }
 
-            ConcurrentDictionary<RuntimeTypeHandle, bool> cache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
+            readonly ConcurrentDictionary<RuntimeTypeHandle, bool> cache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
         }
     }
 }

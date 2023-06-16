@@ -50,6 +50,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
             return settings;
         }
 
-        EndpointConfiguration config;
+        readonly EndpointConfiguration config;
     }
 }

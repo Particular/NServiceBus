@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class NamespacePublisherSource : IPublisherSource
     {
-        Assembly messageAssembly;
-        string messageNamespace;
-        PublisherAddress address;
+        readonly Assembly messageAssembly;
+        readonly string messageNamespace;
+        readonly PublisherAddress address;
 
         public NamespacePublisherSource(Assembly messageAssembly, string messageNamespace, PublisherAddress address)
         {

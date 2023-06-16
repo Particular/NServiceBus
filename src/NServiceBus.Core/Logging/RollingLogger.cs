@@ -179,9 +179,9 @@ namespace NServiceBus
         internal Func<DateTimeOffset> GetDate = () => DateTimeOffset.Now.Date;
 #pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
         DateTimeOffset lastWriteDate;
-        long maxFileSize;
-        int numberOfArchiveFilesToKeep;
-        string targetDirectory;
+        readonly long maxFileSize;
+        readonly int numberOfArchiveFilesToKeep;
+        readonly string targetDirectory;
         const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
 
         internal class LogFile

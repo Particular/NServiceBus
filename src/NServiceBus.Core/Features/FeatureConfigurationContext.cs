@@ -108,6 +108,6 @@
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
 
-        ReceiveComponent.Configuration receiveConfiguration;
+        readonly ReceiveComponent.Configuration receiveConfiguration;
     }
 }

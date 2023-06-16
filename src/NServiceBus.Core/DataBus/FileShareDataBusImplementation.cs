@@ -69,7 +69,7 @@ namespace NServiceBus
             return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_HH"), Guid.NewGuid().ToString());
         }
 
-        string basePath;
-        static ILog logger = LogManager.GetLogger<FileShareDataBusImplementation>();
+        readonly string basePath;
+        static readonly ILog logger = LogManager.GetLogger<FileShareDataBusImplementation>();
     }
 }

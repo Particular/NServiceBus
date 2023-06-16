@@ -97,7 +97,7 @@ namespace NServiceBus
         bool isCompleted;
 
         const int DefaultBufferSize = 4096;
-        static Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
+        static readonly Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
 
         static readonly JsonSerializerOptions Options = new()
         {

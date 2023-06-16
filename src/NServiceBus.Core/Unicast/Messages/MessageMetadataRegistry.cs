@@ -228,12 +228,12 @@
             }
         }
 
-        Func<Type, bool> isMessageType;
+        readonly Func<Type, bool> isMessageType;
         readonly bool allowDynamicTypeLoading;
-        ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
-        ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
+        readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
+        readonly ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 
-        static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
+        static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
+        static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
     }
 }

@@ -27,10 +27,10 @@
             return publisherTransportAddresses ?? noAddresses;
         }
 
-        EndpointInstances endpointInstances;
-        Func<EndpointInstance, string> transportAddressTranslation;
-        static List<string> noAddresses = new List<string>(0);
+        readonly EndpointInstances endpointInstances;
+        readonly Func<EndpointInstance, string> transportAddressTranslation;
+        static readonly List<string> noAddresses = new List<string>(0);
 
-        Publishers publishers;
+        readonly Publishers publishers;
     }
 }

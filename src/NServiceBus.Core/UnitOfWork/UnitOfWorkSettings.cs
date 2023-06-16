@@ -25,6 +25,6 @@
             return this;
         }
 
-        EndpointConfiguration config;
+        readonly EndpointConfiguration config;
     }
 }

@@ -55,7 +55,7 @@ namespace NServiceBus.Features
 
         class DataBusInitializer : FeatureStartupTask
         {
-            IDataBus dataBus;
+            readonly IDataBus dataBus;
 
             public DataBusInitializer(IDataBus dataBus)
             {

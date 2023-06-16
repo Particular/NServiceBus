@@ -107,6 +107,6 @@
             Logger.Debug($"Message definitions: {Environment.NewLine}{string.Join(Environment.NewLine, messageDefinitions.Select(md => md.MessageType.FullName))}");
         }
 
-        static ILog Logger = LogManager.GetLogger<SerializationFeature>();
+        static readonly ILog Logger = LogManager.GetLogger<SerializationFeature>();
     }
 }

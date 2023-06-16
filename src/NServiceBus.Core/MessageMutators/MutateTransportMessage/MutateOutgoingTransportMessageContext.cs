@@ -78,8 +78,8 @@ namespace NServiceBus.MessageMutator
             return incomingHeaders != null;
         }
 
-        IReadOnlyDictionary<string, string>? incomingHeaders;
-        object? incomingMessage;
+        readonly IReadOnlyDictionary<string, string>? incomingHeaders;
+        readonly object? incomingMessage;
 
         internal bool MessageBodyChanged;
         ReadOnlyMemory<byte> outgoingBody;

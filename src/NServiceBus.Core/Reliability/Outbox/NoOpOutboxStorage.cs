@@ -15,7 +15,7 @@
 
         public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => NoOutboxTransactionTask;
 
-        static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null);
-        static Task<IOutboxTransaction> NoOutboxTransactionTask = Task.FromResult<IOutboxTransaction>(new NoOpOutboxTransaction());
+        static readonly Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null);
+        static readonly Task<IOutboxTransaction> NoOutboxTransactionTask = Task.FromResult<IOutboxTransaction>(new NoOpOutboxTransaction());
     }
 }

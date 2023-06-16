@@ -46,7 +46,7 @@ namespace NServiceBus.Pipeline
             return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message);
         }
 
-        IMessageMapper messageMapper;
-        MessageMetadataRegistry messageMetadataRegistry;
+        readonly IMessageMapper messageMapper;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
     }
 }

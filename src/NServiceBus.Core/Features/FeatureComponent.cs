@@ -46,7 +46,7 @@
             return typeof(Feature).IsAssignableFrom(type);
         }
 
-        SettingsHolder settings;
+        readonly SettingsHolder settings;
         FeatureActivator featureActivator;
     }
 }

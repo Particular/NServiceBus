@@ -437,22 +437,22 @@ namespace NServiceBus.Hosting.Helpers
             return true;
         }
 
-        AssemblyValidator assemblyValidator = new AssemblyValidator();
+        readonly AssemblyValidator assemblyValidator = new AssemblyValidator();
         internal List<string> AssembliesToSkip = new List<string>();
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();
-        Assembly assemblyToScan;
-        string baseDirectoryToScan;
+        readonly Assembly assemblyToScan;
+        readonly string baseDirectoryToScan;
         const string NServicebusCoreAssemblyName = "NServiceBus.Core";
 
-        static string[] FileSearchPatternsToUse =
+        static readonly string[] FileSearchPatternsToUse =
         {
             "*.dll",
             "*.exe"
         };
 
         //TODO: delete when we make message scanning lazy #1617
-        static string[] DefaultAssemblyExclusions =
+        static readonly string[] DefaultAssemblyExclusions =
         {
             // NSB Build-Dependencies
             "nunit",

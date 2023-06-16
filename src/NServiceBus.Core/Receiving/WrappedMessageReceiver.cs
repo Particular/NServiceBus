@@ -179,8 +179,8 @@
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<WrappedMessageReceiver>();
-        static PushRuntimeSettings RateLimitedRuntimeSettings = new PushRuntimeSettings(1);
+        static readonly ILog Logger = LogManager.GetLogger<WrappedMessageReceiver>();
+        static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new PushRuntimeSettings(1);
 
         readonly IMessageReceiver baseReceiver;
         readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;

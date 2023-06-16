@@ -79,14 +79,14 @@ namespace NServiceBus
             }
         }
 
-        LogLevel filterLevel;
-        bool isDebugEnabled;
-        bool isErrorEnabled;
-        bool isFatalEnabled;
-        bool isInfoEnabled;
-        bool isWarnEnabled;
+        readonly LogLevel filterLevel;
+        readonly bool isDebugEnabled;
+        readonly bool isErrorEnabled;
+        readonly bool isFatalEnabled;
+        readonly bool isInfoEnabled;
+        readonly bool isWarnEnabled;
 
-        object locker = new object();
-        RollingLogger rollingLogger;
+        readonly object locker = new object();
+        readonly RollingLogger rollingLogger;
     }
 }

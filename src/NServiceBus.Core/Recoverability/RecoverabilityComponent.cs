@@ -186,12 +186,12 @@
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }
 
-        Notification<MessageToBeRetried> messageRetryNotification;
-        Notification<MessageFaulted> messageFaultedNotification;
+        readonly Notification<MessageToBeRetried> messageRetryNotification;
+        readonly Notification<MessageFaulted> messageFaultedNotification;
         RecoverabilityConfig recoverabilityConfig;
         FaultMetadataExtractor faultMetadataExtractor;
         HostInformation hostInformation;
-        IReadOnlySettings settings;
+        readonly IReadOnlySettings settings;
         bool transactionsOn;
         bool delayedRetriesAvailable;
         bool immediateRetriesAvailable;
@@ -203,9 +203,9 @@
         public const string PolicyOverride = "Recoverability.CustomPolicy";
         public const string UnrecoverableExceptions = "Recoverability.UnrecoverableExceptions";
 
-        static int DefaultNumberOfRetries = 3;
-        static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
-        static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
+        static readonly int DefaultNumberOfRetries = 3;
+        static readonly TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
+        static readonly ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
         TransportSeam transportSeam;
 
         public class Configuration

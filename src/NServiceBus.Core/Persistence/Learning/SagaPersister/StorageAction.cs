@@ -30,6 +30,6 @@ namespace NServiceBus
         protected Dictionary<string, SagaStorageFile> sagaFiles;
         protected SagaManifestCollection sagaManifests;
 
-        string sagaFileKey;
+        readonly string sagaFileKey;
     }
 }

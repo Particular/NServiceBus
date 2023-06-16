@@ -92,9 +92,9 @@
                 settings.SetDefault(TypesToScanSettingsKey, scannedTypes);
             }
 
-            SettingsHolder settings;
+            readonly SettingsHolder settings;
 
-            static string TypesToScanSettingsKey = "TypesToScan";
+            static readonly string TypesToScanSettingsKey = "TypesToScan";
         }
     }
 }

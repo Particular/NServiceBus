@@ -219,9 +219,9 @@ namespace NServiceBus.Features
             return diagnosticData.PrerequisiteStatus.IsSatisfied;
         }
 
-        List<FeatureInfo> features = new List<FeatureInfo>();
-        List<FeatureInfo> enabledFeatures = new List<FeatureInfo>();
-        SettingsHolder settings;
+        readonly List<FeatureInfo> features = new List<FeatureInfo>();
+        readonly List<FeatureInfo> enabledFeatures = new List<FeatureInfo>();
+        readonly SettingsHolder settings;
 
         class FeatureInfo
         {
@@ -253,7 +253,7 @@ namespace NServiceBus.Features
                 return $"{Feature.Name} [{Feature.Version}]";
             }
 
-            List<FeatureStartupTaskController> taskControllers = new List<FeatureStartupTaskController>();
+            readonly List<FeatureStartupTaskController> taskControllers = new List<FeatureStartupTaskController>();
         }
 
         class Node
@@ -273,7 +273,7 @@ namespace NServiceBus.Features
             }
 
             internal FeatureInfo FeatureState;
-            internal List<Node> previous = new List<Node>();
+            internal readonly List<Node> previous = new List<Node>();
             bool visited;
         }
     }

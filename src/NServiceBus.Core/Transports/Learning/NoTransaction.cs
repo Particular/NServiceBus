@@ -38,6 +38,6 @@ namespace NServiceBus
             return true;
         }
 
-        string processingDirectory;
+        readonly string processingDirectory;
     }
 }

@@ -77,7 +77,7 @@
             return storageToActionMap.Keys.ToList();
         }
 
-        List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
-        Dictionary<Type, Action<SettingsHolder>> storageToActionMap = new Dictionary<Type, Action<SettingsHolder>>();
+        readonly List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
+        readonly Dictionary<Type, Action<SettingsHolder>> storageToActionMap = new Dictionary<Type, Action<SettingsHolder>>();
     }
 }

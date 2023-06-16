@@ -77,9 +77,9 @@
             }
         }
 
-        Func<string, CancellationToken, Task> diagnosticsWriter;
-        bool isCustomWriter;
+        readonly Func<string, CancellationToken, Task> diagnosticsWriter;
+        readonly bool isCustomWriter;
 
-        static ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
+        static readonly ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
     }
 }

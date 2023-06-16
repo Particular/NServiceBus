@@ -140,6 +140,6 @@
 
         readonly ISubscriptionManager subscriptionManager;
         readonly MessageMetadataRegistry messageMetadataRegistry;
-        static ILog Logger = LogManager.GetLogger<MigrationSubscribeTerminator>();
+        static readonly ILog Logger = LogManager.GetLogger<MigrationSubscribeTerminator>();
     }
 }

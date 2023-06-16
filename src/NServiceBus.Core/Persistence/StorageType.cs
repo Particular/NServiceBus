@@ -25,7 +25,7 @@
             return typeof(StorageType).GetNestedTypes().Where(t => t.BaseType == typeof(StorageType)).ToList();
         }
 
-        string storage;
+        readonly string storage;
 
         /// <summary>
         /// Storage for subscriptions.

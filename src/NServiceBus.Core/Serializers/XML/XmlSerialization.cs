@@ -296,19 +296,19 @@
             }
         }
 
-        XmlSerializerCache cache;
-        Conventions conventions;
-        object message;
+        readonly XmlSerializerCache cache;
+        readonly Conventions conventions;
+        readonly object message;
 
-        Type messageType;
-        string @namespace;
-        bool skipWrappingRawXml;
-        XmlWriter writer;
+        readonly Type messageType;
+        readonly string @namespace;
+        readonly bool skipWrappingRawXml;
+        readonly XmlWriter writer;
         const string BaseType = "baseType";
 
         const string DefaultNamespace = "http://tempuri.net";
-        static XNamespace xsiNamespace = "http://www.w3.org/2001/XMLSchema-instance";
-        static XNamespace xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        static readonly XNamespace xsiNamespace = "http://www.w3.org/2001/XMLSchema-instance";
+        static readonly XNamespace xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 
         class RawXmlTextWriter : XmlTextWriter
         {

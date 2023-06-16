@@ -92,7 +92,7 @@ namespace NServiceBus
             defaultLoggerFactory.Write(name, LogLevel.Fatal, string.Format(format, args));
         }
 
-        DefaultLoggerFactory defaultLoggerFactory;
-        string name;
+        readonly DefaultLoggerFactory defaultLoggerFactory;
+        readonly string name;
     }
 }

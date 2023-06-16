@@ -86,10 +86,10 @@
             Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
         }
 
-        string storagePath;
-        HostSettings settings;
-        ReceiveSettings[] receiverSettings;
-        LearningTransport transport;
+        readonly string storagePath;
+        readonly HostSettings settings;
+        readonly ReceiveSettings[] receiverSettings;
+        readonly LearningTransport transport;
 
         const string DefaultLearningTransportDirectory = ".learningtransport";
         public const string StorageLocationKey = "LearningTransport.StoragePath";

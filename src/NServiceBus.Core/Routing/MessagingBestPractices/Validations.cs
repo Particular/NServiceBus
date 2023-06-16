@@ -49,9 +49,9 @@ namespace NServiceBus
             }
         }
 
-        Conventions conventions;
+        readonly Conventions conventions;
 
 
-        static ILog Log = LogManager.GetLogger<Validations>();
+        static readonly ILog Log = LogManager.GetLogger<Validations>();
     }
 }

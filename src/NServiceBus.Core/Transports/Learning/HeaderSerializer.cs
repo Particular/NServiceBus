@@ -29,7 +29,7 @@ namespace NServiceBus
             }
         }
 
-        static DataContractJsonSerializer serializer = new DataContractJsonSerializer(
+        static readonly DataContractJsonSerializer serializer = new DataContractJsonSerializer(
             type: typeof(Dictionary<string, string>),
             settings: new DataContractJsonSerializerSettings
             {

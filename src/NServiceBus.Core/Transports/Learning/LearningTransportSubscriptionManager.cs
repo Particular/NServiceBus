@@ -107,8 +107,8 @@
 
         string GetEventDirectory(Type eventType) => Path.Combine(basePath, eventType.FullName);
 
-        string basePath;
-        string endpointName;
-        string localAddress;
+        readonly string basePath;
+        readonly string endpointName;
+        readonly string localAddress;
     }
 }

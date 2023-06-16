@@ -51,6 +51,6 @@ namespace NServiceBus
             return behaviorInterface.GetGenericArguments()[0];
         }
 
-        static Type BehaviorInterfaceType = typeof(IBehavior<,>);
+        static readonly Type BehaviorInterfaceType = typeof(IBehavior<,>);
     }
 }

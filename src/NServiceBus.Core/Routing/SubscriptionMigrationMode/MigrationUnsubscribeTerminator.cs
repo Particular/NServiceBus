@@ -96,6 +96,6 @@
         readonly IMessageDispatcher dispatcher;
         readonly string replyToAddress;
         readonly SubscriptionRouter subscriptionRouter;
-        static ILog Logger = LogManager.GetLogger<MigrationUnsubscribeTerminator>();
+        static readonly ILog Logger = LogManager.GetLogger<MigrationUnsubscribeTerminator>();
     }
 }

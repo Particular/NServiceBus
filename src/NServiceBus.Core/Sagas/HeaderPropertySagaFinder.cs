@@ -11,7 +11,7 @@
 
     class HeaderPropertySagaFinder<TSagaData> : SagaFinder where TSagaData : class, IContainSagaData
     {
-        ISagaPersister persister;
+        readonly ISagaPersister persister;
 
         public HeaderPropertySagaFinder(ISagaPersister persister)
         {

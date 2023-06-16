@@ -6,8 +6,8 @@ namespace NServiceBus
 
     class TypePublisherSource : IPublisherSource
     {
-        Type messageType;
-        PublisherAddress address;
+        readonly Type messageType;
+        readonly PublisherAddress address;
 
         public TypePublisherSource(Type messageType, PublisherAddress address)
         {

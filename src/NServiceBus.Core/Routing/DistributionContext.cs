@@ -59,6 +59,6 @@ namespace NServiceBus.Routing
             return addressResolver.ToTransportAddress(new QueueAddress(endpointInstance.Endpoint, endpointInstance.Discriminator, endpointInstance.Properties));
         }
 
-        ITransportAddressResolver addressResolver;
+        readonly ITransportAddressResolver addressResolver;
     }
 }

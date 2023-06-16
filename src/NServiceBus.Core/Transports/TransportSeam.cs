@@ -10,7 +10,7 @@
 
     class TransportSeam
     {
-        HostSettings hostSettings;
+        readonly HostSettings hostSettings;
         ReceiveSettings[] receivers;
 
         protected TransportSeam(TransportDefinition transportDefinition, HostSettings hostSettings,

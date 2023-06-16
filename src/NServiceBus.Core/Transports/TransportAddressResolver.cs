@@ -4,7 +4,7 @@
 
     class TransportAddressResolver : ITransportAddressResolver
     {
-        TransportInfrastructure transportInfrastructure;
+        readonly TransportInfrastructure transportInfrastructure;
 
         public TransportAddressResolver(TransportInfrastructure transportInfrastructure)
         {

@@ -63,6 +63,6 @@ namespace NServiceBus.Features
         public const string LicenseTextSettingsKey = "LicenseText";
         public const string LicenseFilePathSettingsKey = "LicenseFilePath";
 
-        static ILog Logger = LogManager.GetLogger<LicenseReminder>();
+        static readonly ILog Logger = LogManager.GetLogger<LicenseReminder>();
     }
 }

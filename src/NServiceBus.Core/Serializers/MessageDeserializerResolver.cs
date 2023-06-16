@@ -33,7 +33,7 @@
             return defaultSerializer;
         }
 
-        IMessageSerializer defaultSerializer;
-        Dictionary<string, IMessageSerializer> serializersMap = new Dictionary<string, IMessageSerializer>();
+        readonly IMessageSerializer defaultSerializer;
+        readonly Dictionary<string, IMessageSerializer> serializersMap = new Dictionary<string, IMessageSerializer>();
     }
 }

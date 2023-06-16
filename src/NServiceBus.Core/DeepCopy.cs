@@ -45,9 +45,9 @@ namespace System
                 return originalObject;
             }
 
-            if (visited.ContainsKey(originalObject))
+            if (visited.TryGetValue(originalObject, out object copy))
             {
-                return visited[originalObject];
+                return copy;
             }
 
             if (typeof(Delegate).IsAssignableFrom(typeToReflect))
@@ -146,7 +146,7 @@ namespace System
         class ArrayTraverse
         {
             public int[] Position;
-            int[] maxLengths;
+            readonly int[] maxLengths;
 
             public ArrayTraverse(Array array)
             {

@@ -85,8 +85,8 @@ namespace NServiceBus
             return sagaStorageFile;
         }
 
-        Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
+        readonly Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
 
-        List<StorageAction> deferredActions = new List<StorageAction>();
+        readonly List<StorageAction> deferredActions = new List<StorageAction>();
     }
 }
