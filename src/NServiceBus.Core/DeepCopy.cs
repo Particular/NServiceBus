@@ -45,9 +45,9 @@ namespace System
                 return originalObject;
             }
 
-            if (visited.ContainsKey(originalObject))
+            if (visited.TryGetValue(originalObject, out object copy))
             {
-                return visited[originalObject];
+                return copy;
             }
 
             if (typeof(Delegate).IsAssignableFrom(typeToReflect))
