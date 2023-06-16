@@ -13,9 +13,12 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.MessageMutator;
+    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
+    using NServiceBus.Sagas;
 
     public class TopLevelApis
     {
@@ -30,12 +33,24 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages
 
             cfg.SendFailedMessagesTo("error");
 
+            var routing = cfg.UseTransport(new LearningTransport());
+            routing.RouteToEndpoint(typeof(Cmd), "Destination");
+
+            var persistence = cfg.UsePersistence<LearningPersistence>();
+
+            cfg.UseSerialization<SystemJsonSerializer>()
+                .Options(new System.Text.Json.JsonSerializerOptions());
+
             // Start directly
             await Endpoint.Start(cfg, cancellationToken);
 
             // Or create, then start
             var startable = await Endpoint.Create(cfg, cancellationToken);
-            await startable.Start(cancellationToken);
+            var ep = await startable.Start(cancellationToken);
+
+            await ep.Send(new Cmd(), cancellationToken);
+            await ep.Publish(new Evt(), cancellationToken);
+            await ep.Publish<Evt>(cancellationToken);
         }
     }
 
@@ -53,6 +68,10 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages
             logger.Info(message.OrderId);
             await context.Send(new Cmd());
             await context.Publish(new Evt());
+
+            var opts = new SendOptions();
+            opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+            opts.SetHeader("a", "1");
         }
     }
 
@@ -74,12 +93,15 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages
             await context.Send(new Cmd());
             await context.Publish(new Evt());
             Console.WriteLine(Data.OrderId);
+            await RequestTimeout<TestTimeout>(context, TimeSpan.FromMinutes(1));
+            MarkAsComplete();
         }
 
         public async Task Handle(Evt message, IMessageHandlerContext context)
         {
             await context.Send(new Cmd());
             await context.Publish(new Evt());
+            await context.Publish<Evt>();
         }
 
         public Task Timeout(TestTimeout state, IMessageHandlerContext context)
@@ -119,6 +141,22 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages
     public class TestTimeout
     {
         public string? TimeoutData { get; set; }
+    }
+
+    public class NotUsedSagaFinder : ISagaFinder<TestSagaData, Cmd>
+    {
+        public async Task<TestSagaData?> FindBy(Cmd message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
+        {
+            // Super-gross, never do this
+            await Task.Yield();
+
+            if (context.TryGet<TestSagaData>(out var result))
+            {
+                return result;
+            }
+
+            return null;
+        }
     }
 
     public class TestBehavior : Behavior<IIncomingLogicalMessageContext>

@@ -1219,8 +1219,8 @@ namespace NServiceBus
     public class ToSagaExpression<TSagaData, TMessage>
         where TSagaData :  class, NServiceBus.IContainSagaData
     {
-        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
-        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
+        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
+        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
     }
     [System.Obsolete("Configure the transport via the TransportDefinition instance\'s properties. Will b" +
         "e removed in version 9.0.0.", true)]
