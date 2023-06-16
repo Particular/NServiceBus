@@ -26,7 +26,7 @@ namespace NServiceBus
         /// Contains the return address of the endpoint that caused the process to run.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        string Originator { get; set; }
+        string? Originator { get; set; }
 
         /// <summary>
         /// Contains the Id of the message which caused the saga to start.
@@ -34,6 +34,6 @@ namespace NServiceBus
         /// registered callbacks will be fired correctly.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        string OriginalMessageId { get; set; }
+        string? OriginalMessageId { get; set; }
     }
 }

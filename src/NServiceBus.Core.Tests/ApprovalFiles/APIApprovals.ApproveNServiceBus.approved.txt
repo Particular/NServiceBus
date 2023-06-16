@@ -135,8 +135,8 @@ namespace NServiceBus
     {
         protected ContainSagaData() { }
         public virtual System.Guid Id { get; set; }
-        public virtual string OriginalMessageId { get; set; }
-        public virtual string Originator { get; set; }
+        public virtual string? OriginalMessageId { get; set; }
+        public virtual string? Originator { get; set; }
     }
     public static class ContentTypes
     {
@@ -492,8 +492,8 @@ namespace NServiceBus
     public interface IContainSagaData
     {
         System.Guid Id { get; set; }
-        string OriginalMessageId { get; set; }
-        string Originator { get; set; }
+        string? OriginalMessageId { get; set; }
+        string? Originator { get; set; }
     }
     public interface ICriticalErrorContext
     {
