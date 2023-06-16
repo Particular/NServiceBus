@@ -26,7 +26,7 @@ namespace NServiceBus
         /// Defines the property on the saga data to which the message property should be mapped.
         /// </summary>
         /// <param name="sagaEntityProperty">The property to map.</param>
-        public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
+        public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty)
         {
             Guard.ThrowIfNull(sagaEntityProperty);
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);

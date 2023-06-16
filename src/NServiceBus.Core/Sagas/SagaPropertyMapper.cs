@@ -61,7 +61,7 @@ namespace NServiceBus
         /// <see cref="CorrelatedSagaPropertyMapper{TSagaData}.ToMessage{TMessage}"/> to map a message type to
         /// the correlation property.
         /// </returns>
-        public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object>> sagaProperty)
+        public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object?>> sagaProperty)
         {
             Guard.ThrowIfNull(sagaProperty);
             return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
