@@ -128,15 +128,6 @@ namespace NServiceBus.AcceptanceTesting
                 TestContext.WriteLine("     - {0}", endpoint);
             }
 
-            if (runResult.Failed)
-            {
-                TestContext.WriteLine("Scenario failed: {0}", runResult.Exception.SourceException);
-            }
-            else
-            {
-                TestContext.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
-            }
-
             //dump trace and context regardless since asserts outside the should could still fail the test
             TestContext.WriteLine();
             TestContext.WriteLine("Context:");
