@@ -16,18 +16,12 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
         public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
-            if (VerboseLogging)
-            {
-                TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
-                TestContext.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            }
-
+            runDescriptor.ScenarioContext.AddTrace("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
+            runDescriptor.ScenarioContext.AddTrace("Started test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            
             var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
 
-            if (VerboseLogging)
-            {
-                TestContext.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            }
+            runDescriptor.ScenarioContext.AddTrace("Finished test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             return new RunSummary
             {

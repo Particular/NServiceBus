@@ -2,8 +2,12 @@ namespace NServiceBus.AcceptanceTests
 {
     using System.Linq;
     using System.Threading;
+    using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.Support;
     using NUnit.Framework;
+    using NUnit.Framework.Interfaces;
+    using NUnit.Framework.Internal;
 
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
@@ -35,6 +39,24 @@ namespace NServiceBus.AcceptanceTests
 
                 return testName + "." + endpointBuilder;
             };
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if ((TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Failure || TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Error) && TestExecutionContext.CurrentContext.CurrentTest.Properties.ContainsKey("NServiceBus.ScenarioContext"))
+            {
+                var scenarioContext = TestExecutionContext.CurrentContext.CurrentTest.Properties
+                    .Get("NServiceBus.ScenarioContext") as ScenarioContext;
+
+                TestContext.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
+                TestContext.WriteLine("--- Start log entries ---------------------------------------------------");
+                foreach (var logEntry in scenarioContext.Logs)
+                {
+                    TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? TestContext.CurrentContext.Test.Name}: {logEntry.Message}");
+                }
+                TestContext.WriteLine("--- End log entries ---------------------------------------------------");
+            }
         }
     }
 }

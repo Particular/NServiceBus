@@ -3,9 +3,11 @@ namespace NServiceBus.AcceptanceTesting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using NUnit.Framework;
+    using NUnit.Framework.Internal;
     using Support;
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
@@ -34,6 +36,7 @@ namespace NServiceBus.AcceptanceTesting
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
 
+            TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NServiceBus.ScenarioContext", scenarioContext);
             ScenarioContext.Current = scenarioContext;
 
             LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
@@ -55,7 +58,6 @@ namespace NServiceBus.AcceptanceTesting
 
             if (runSummary.Result.Failed)
             {
-                PrintLog(scenarioContext);
                 runSummary.Result.Exception.Throw();
             }
 
@@ -99,53 +101,21 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        void PrintLog(TContext scenarioContext)
-        {
-            TestContext.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
-            TestContext.WriteLine("--- Start log entries ---------------------------------------------------");
-            foreach (var logEntry in scenarioContext.Logs)
-            {
-                TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? "<unknown>"}: {logEntry.Message}");
-            }
-            TestContext.WriteLine("--- End log entries ---------------------------------------------------");
-        }
-
         static void DisplayRunResult(RunSummary summary)
         {
             var runDescriptor = summary.RunDescriptor;
             var runResult = summary.Result;
 
-            TestContext.WriteLine("------------------------------------------------------");
-            TestContext.WriteLine("Test summary:");
-            TestContext.WriteLine();
+            var scenarioContext = summary.RunDescriptor.ScenarioContext;
 
-            PrintSettings(runDescriptor.Settings);
+            scenarioContext.AddTrace($@"Test settings:
+{string.Join(Environment.NewLine, runDescriptor.Settings.Select(setting => $"   {setting.Key}: {setting.Value}"))}");
 
-            TestContext.WriteLine("Endpoints:");
+            scenarioContext.AddTrace($@"Endpoints:
+{string.Join(Environment.NewLine, runResult.ActiveEndpoints.Select(e => $"     - {e}"))}");
 
-            foreach (var endpoint in runResult.ActiveEndpoints)
-            {
-                TestContext.WriteLine("     - {0}", endpoint);
-            }
-
-            //dump trace and context regardless since asserts outside the should could still fail the test
-            TestContext.WriteLine();
-            TestContext.WriteLine("Context:");
-
-            foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
-            {
-                TestContext.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
-            }
-        }
-
-        static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
-        {
-            TestContext.WriteLine("Using settings:");
-            foreach (var pair in settings)
-            {
-                TestContext.WriteLine("   {0}: {1}", pair.Key, pair.Value);
-            }
-            TestContext.WriteLine();
+            scenarioContext.AddTrace($@"Context:
+{string.Join(Environment.NewLine, runResult.ScenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {p.GetValue(runResult.ScenarioContext, null)}"))}");
         }
 
         List<IComponentBehavior> behaviors = new List<IComponentBehavior>();
