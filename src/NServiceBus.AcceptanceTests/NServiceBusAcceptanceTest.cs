@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests
     using System.Threading;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using AcceptanceTesting.Support;
     using NUnit.Framework;
     using NUnit.Framework.Interfaces;
     using NUnit.Framework.Internal;
