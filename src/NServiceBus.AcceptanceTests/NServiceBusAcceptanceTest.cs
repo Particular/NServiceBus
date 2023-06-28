@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests
 {
+    using System;
     using System.Linq;
     using System.Threading;
     using AcceptanceTesting;
@@ -43,11 +44,25 @@ namespace NServiceBus.AcceptanceTests
         [TearDown]
         public void TearDown()
         {
-            if ((TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Failure || TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Error) && TestExecutionContext.CurrentContext.CurrentTest.Properties.ContainsKey("NServiceBus.ScenarioContext"))
+            if (!TestExecutionContext.CurrentContext.TryGetRunDescriptor(out var runDescriptor))
             {
-                var scenarioContext = TestExecutionContext.CurrentContext.CurrentTest.Properties
-                    .Get("NServiceBus.ScenarioContext") as ScenarioContext;
+                return;
+            }
 
+            var scenarioContext = runDescriptor.ScenarioContext;
+
+            if (Environment.GetEnvironmentVariable("CI") != "true" || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true")
+            {
+                TestContext.WriteLine($@"Test settings:
+{string.Join(Environment.NewLine, runDescriptor.Settings.Select(setting => $"   {setting.Key}: {setting.Value}"))}");
+
+                TestContext.WriteLine($@"Context:
+{string.Join(Environment.NewLine, scenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {p.GetValue(scenarioContext, null)}"))}");
+            }
+
+            if (TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Failure || TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Error)
+            {
+                TestContext.WriteLine(string.Empty);
                 TestContext.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
                 TestContext.WriteLine("--- Start log entries ---------------------------------------------------");
                 foreach (var logEntry in scenarioContext.Logs)

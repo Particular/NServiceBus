@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTesting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using NUnit.Framework;
@@ -36,7 +35,7 @@ namespace NServiceBus.AcceptanceTesting
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
 
-            TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NServiceBus.ScenarioContext", scenarioContext);
+            TestExecutionContext.CurrentContext.AddRunDescriptor(runDescriptor);
             ScenarioContext.Current = scenarioContext;
 
             LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
@@ -50,11 +49,6 @@ namespace NServiceBus.AcceptanceTesting
             await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
 
             TestContext.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
-
-            if (runSummary.Result.Failed || ScenarioRunner.VerboseLogging)
-            {
-                DisplayRunResult(runSummary);
-            }
 
             if (runSummary.Result.Failed)
             {
@@ -99,23 +93,6 @@ namespace NServiceBus.AcceptanceTesting
             done = c => func((TContext)c);
 
             return this;
-        }
-
-        static void DisplayRunResult(RunSummary summary)
-        {
-            var runDescriptor = summary.RunDescriptor;
-            var runResult = summary.Result;
-
-            var scenarioContext = summary.RunDescriptor.ScenarioContext;
-
-            scenarioContext.AddTrace($@"Test settings:
-{string.Join(Environment.NewLine, runDescriptor.Settings.Select(setting => $"   {setting.Key}: {setting.Value}"))}");
-
-            scenarioContext.AddTrace($@"Endpoints:
-{string.Join(Environment.NewLine, runResult.ActiveEndpoints.Select(e => $"     - {e}"))}");
-
-            scenarioContext.AddTrace($@"Context:
-{string.Join(Environment.NewLine, runResult.ScenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {p.GetValue(runResult.ScenarioContext, null)}"))}");
         }
 
         List<IComponentBehavior> behaviors = new List<IComponentBehavior>();
