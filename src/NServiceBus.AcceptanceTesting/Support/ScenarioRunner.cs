@@ -178,20 +178,13 @@
             return endpoints.Select(async endpoint =>
             {
                 await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
-                //TODO can we remove VerboseLogging?
-                if (VerboseLogging)
-                {
-                    runDescriptor.ScenarioContext.AddTrace($"Stopping endpoint: {endpoint.Name}");
-                }
+                runDescriptor.ScenarioContext.AddTrace($"Stopping endpoint: {endpoint.Name}");
                 var stopwatch = Stopwatch.StartNew();
                 try
                 {
                     await endpoint.Stop().ConfigureAwait(false);
                     stopwatch.Stop();
-                    if (VerboseLogging)
-                    {
-                        runDescriptor.ScenarioContext.AddTrace($"Endpoint: {endpoint.Name} stopped ({stopwatch.Elapsed}s)");
-                    }
+                    runDescriptor.ScenarioContext.AddTrace($"Endpoint: {endpoint.Name} stopped ({stopwatch.Elapsed}s)");
                 }
                 catch (Exception)
                 {
@@ -206,9 +199,6 @@
             var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
             return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
         }
-
-        internal static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
-                                                       || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
     }
 
     public class RunResult
