@@ -16,7 +16,7 @@
         readonly List<IComponentBehavior> behaviorDescriptors;
         readonly Func<ScenarioContext, Task<bool>> done;
 
-        ScenarioRunner(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
+        public ScenarioRunner(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
             this.runDescriptor = runDescriptor;
             this.behaviorDescriptors = behaviorDescriptors;
@@ -24,13 +24,12 @@
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
-        public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
+        public async Task<RunSummary> Run()
         {
             runDescriptor.ScenarioContext.AddTrace("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
             runDescriptor.ScenarioContext.AddTrace("Started test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            var scenarioRunner = new ScenarioRunner(runDescriptor, behaviorDescriptors, done);
-            var runResult = await scenarioRunner.PerformTestRun().ConfigureAwait(false);
+            var runResult = await PerformTestRun().ConfigureAwait(false);
 
             runDescriptor.ScenarioContext.AddTrace("Finished test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 

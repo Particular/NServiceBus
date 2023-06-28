@@ -41,9 +41,10 @@ namespace NServiceBus.AcceptanceTesting
             LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
             var sw = new Stopwatch();
+            var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors, done);
 
             sw.Start();
-            var runSummary = await ScenarioRunner.Run(runDescriptor, behaviors, done).ConfigureAwait(false);
+            var runSummary = await scenarioRunner.Run().ConfigureAwait(false);
             sw.Stop();
 
             await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
