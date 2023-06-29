@@ -9,25 +9,29 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using NUnit.Framework;
 
     public class ScenarioRunner
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
-        public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
+        readonly RunDescriptor runDescriptor;
+        readonly List<IComponentBehavior> behaviorDescriptors;
+        readonly Func<ScenarioContext, Task<bool>> done;
+
+        public ScenarioRunner(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
-            if (VerboseLogging)
-            {
-                TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
-                TestContext.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            }
+            this.runDescriptor = runDescriptor;
+            this.behaviorDescriptors = behaviorDescriptors;
+            this.done = done;
+        }
 
-            var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
+        public async Task<RunSummary> Run()
+        {
+            runDescriptor.ScenarioContext.AddTrace("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
+            runDescriptor.ScenarioContext.AddTrace("Started test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            if (VerboseLogging)
-            {
-                TestContext.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            }
+            var runResult = await PerformTestRun().ConfigureAwait(false);
+
+            runDescriptor.ScenarioContext.AddTrace("Finished test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             return new RunSummary
             {
@@ -37,7 +41,7 @@
             };
         }
 
-        static async Task<RunResult> PerformTestRun(List<IComponentBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, Task<bool>> done)
+        async Task<RunResult> PerformTestRun()
         {
             var runResult = new RunResult
             {
@@ -49,11 +53,11 @@
 
             try
             {
-                var endpoints = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
+                var endpoints = await InitializeRunners().ConfigureAwait(false);
 
                 runResult.ActiveEndpoints = endpoints.Select(r => r.Name);
 
-                await PerformScenarios(runDescriptor, endpoints, () => done(runDescriptor.ScenarioContext)).ConfigureAwait(false);
+                await PerformScenarios(endpoints).ConfigureAwait(false);
 
                 runTimer.Stop();
             }
@@ -69,7 +73,7 @@
         }
 
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, ComponentRunner[] runners, Func<Task<bool>> done)
+        async Task PerformScenarios(ComponentRunner[] runners)
         {
             using (var cts = new CancellationTokenSource())
             {
@@ -81,7 +85,7 @@
 
                     var startTime = DateTime.UtcNow;
                     var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-                    while (!await done().ConfigureAwait(false) && !cts.Token.IsCancellationRequested)
+                    while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false) && !cts.Token.IsCancellationRequested)
                     {
                         if (!Debugger.IsAttached)
                         {
@@ -123,14 +127,14 @@
             return sb.ToString();
         }
 
-        static Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
+        Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
         {
             var startTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(endpoint => StartEndpoint(endpoint, cts))
                 .Timebox(startTimeout, $"Starting endpoints took longer than {startTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task StartEndpoint(ComponentRunner component, CancellationTokenSource cts)
+        async Task StartEndpoint(ComponentRunner component, CancellationTokenSource cts)
         {
             var token = cts.Token;
             try
@@ -140,19 +144,19 @@
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
                 cts.Cancel();
-                TestContext.WriteLine($"Endpoint {component.Name} failed to start.");
+                runDescriptor.ScenarioContext.AddTrace($"Endpoint {component.Name} failed to start.");
                 throw;
             }
         }
 
-        static Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
+        Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
         {
             var whenTimeout = TimeSpan.FromSeconds(60);
             return endpoints.Select(endpoint => ExecuteWhens(endpoint, cts))
                 .Timebox(whenTimeout, $"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
         }
 
-        static async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
+        async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
         {
             var token = cts.Token;
             try
@@ -162,56 +166,38 @@
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
                 cts.Cancel();
-                TestContext.WriteLine($"Whens for endpoint {component.Name} failed to execute.");
+                runDescriptor.ScenarioContext.AddTrace($"Whens for endpoint {component.Name} failed to execute.");
                 throw;
             }
         }
 
-        static Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
+        Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
             var stopTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(async endpoint =>
             {
                 await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
-                if (VerboseLogging)
-                {
-                    TestContext.WriteLine("Stopping endpoint: {0}", endpoint.Name);
-                }
+                runDescriptor.ScenarioContext.AddTrace($"Stopping endpoint: {endpoint.Name}");
                 var stopwatch = Stopwatch.StartNew();
                 try
                 {
                     await endpoint.Stop().ConfigureAwait(false);
                     stopwatch.Stop();
-                    if (VerboseLogging)
-                    {
-                        TestContext.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name, stopwatch.Elapsed);
-                    }
+                    runDescriptor.ScenarioContext.AddTrace($"Endpoint: {endpoint.Name} stopped ({stopwatch.Elapsed}s)");
                 }
                 catch (Exception)
                 {
-                    TestContext.WriteLine($"Endpoint {endpoint.Name} failed to stop.");
+                    runDescriptor.ScenarioContext.AddTrace($"Endpoint {endpoint.Name} failed to stop.");
                     throw;
                 }
             }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task<ComponentRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<IComponentBehavior> endpointBehaviors)
+        async Task<ComponentRunner[]> InitializeRunners()
         {
-            var runnerInitializations = endpointBehaviors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
-            try
-            {
-                var x = await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
-                return x;
-            }
-            catch (Exception e)
-            {
-                TestContext.WriteLine(e);
-                throw;
-            }
+            var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
+            return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
         }
-
-        internal static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
-            || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
     }
 
     public class RunResult
