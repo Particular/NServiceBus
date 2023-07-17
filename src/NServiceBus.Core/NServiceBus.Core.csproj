@@ -21,6 +21,8 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
     <PackageReference Include="System.Text.Json" Version="7.0.3" />
+    <!-- Would be a package dependency to 1.0.0 in real life -->
+    <Projectreference Include="..\NServiceBus.MessageAbstractions\NServiceBus.MessageAbstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">

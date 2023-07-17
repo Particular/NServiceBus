@@ -1,9 +1,4 @@
-﻿namespace NServiceBus
-{
-    /// <summary>
-    /// Marker interface to indicate that a class is a command message.
-    /// </summary>
-    public interface ICommand : IMessage
-    {
-    }
-}
+﻿using System.Runtime.CompilerServices;
+using NServiceBus;
+
+[assembly: TypeForwardedTo(typeof(ICommand))]
