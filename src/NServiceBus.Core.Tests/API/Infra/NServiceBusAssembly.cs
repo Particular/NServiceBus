@@ -6,7 +6,7 @@
 
     static class NServiceBusAssembly
     {
-        public static readonly List<Type> Types = typeof(IMessage).Assembly.GetTypes()
+        public static readonly List<Type> Types = typeof(EndpointConfiguration).Assembly.GetTypes()
             .Where(type => !type.IsObsolete())
             .ToList();
     }
