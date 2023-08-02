@@ -95,7 +95,7 @@
                             }
                         }
 
-                        await Task.Yield();
+                        await Task.Delay(100, cts.Token).ConfigureAwait(false);
                     }
 
                     startTime = DateTime.UtcNow;
@@ -107,7 +107,7 @@
                             throw new Exception("Some failed messages were not handled by the recoverability feature.");
                         }
 
-                        await Task.Yield();
+                        await Task.Delay(100, cts.Token).ConfigureAwait(false);
                     }
                 }
                 finally
