@@ -8,13 +8,12 @@
     /// Default implementation for <see cref="IDataBusProperty" />.
     /// </summary>
     /// <typeparam name="T">Type of data to store in <see cref="IDataBusProperty" />.</typeparam>
-    [Serializable]
-    public class DataBusProperty<T> : IDataBusProperty, ISerializable where T : class
+    public class DataBusProperty<T> : IDataBusProperty where T : class
     {
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}" /> with no value set.
         /// </summary>
-        public DataBusProperty() : this(null)
+        public DataBusProperty()
         {
             Type = typeof(T);
         }
@@ -49,7 +48,7 @@
         /// <summary>
         /// The value.
         /// </summary>
-        public T Value => value;
+        public T Value { get; private set; }
 
         /// <summary>
         /// The property <see cref="Type" />.
@@ -72,8 +71,8 @@
         /// <param name="valueToSet">The value to set.</param>
         public void SetValue(object valueToSet)
         {
-            value = valueToSet as T;
-            HasValue = value != null;
+            Value = valueToSet as T;
+            HasValue = Value != null;
         }
 
         /// <summary>
@@ -98,7 +97,5 @@
             info.AddValue("Key", Key);
             info.AddValue("HasValue", HasValue);
         }
-
-        T value;
     }
 }

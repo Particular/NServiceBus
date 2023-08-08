@@ -6,7 +6,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Serialization;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Uses reflection to map between interfaces and their generated concrete implementations.
@@ -123,7 +123,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             if (t.IsInterface || t.IsAbstract)
             {
                 var mapped = GetMappedTypeFor(t);
-                return FormatterServices.GetUninitializedObject(mapped);
+                return RuntimeHelpers.GetUninitializedObject(mapped);
             }
 
             if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
@@ -131,7 +131,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
             }
 
-            return FormatterServices.GetUninitializedObject(t);
+            return RuntimeHelpers.GetUninitializedObject(t);
         }
 
         void InitType(Type t)

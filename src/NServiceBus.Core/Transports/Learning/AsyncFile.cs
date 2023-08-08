@@ -79,7 +79,7 @@ namespace NServiceBus
                 // This line makes the parameter "required".
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var result = await stream.ReadToEndAsync().ConfigureAwait(false);
+                var result = await stream.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
                 return result;
             }
