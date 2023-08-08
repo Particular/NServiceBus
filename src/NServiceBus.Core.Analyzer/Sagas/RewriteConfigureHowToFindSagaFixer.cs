@@ -26,7 +26,7 @@
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-        static readonly string NewLine = System.Environment.NewLine;
+        static readonly string NewLine = "\r\n"; //System.Environment.NewLine;
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
