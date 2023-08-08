@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-namespace NServiceBus.Core.Tests.API
+﻿namespace NServiceBus.Core.Tests.API
 {
     using System;
     using System.Collections.Generic;
@@ -100,4 +99,3 @@ namespace NServiceBus.Core.Tests.API
         }
     }
 }
-#endif

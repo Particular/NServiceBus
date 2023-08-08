@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.PersistenceTesting.Sagas
 {
-#if NET
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -102,5 +101,4 @@
 
         }
     }
-#endif
 }

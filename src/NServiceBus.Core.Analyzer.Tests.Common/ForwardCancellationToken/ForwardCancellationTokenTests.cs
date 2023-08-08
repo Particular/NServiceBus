@@ -512,8 +512,6 @@ public class Foo : IHandleMessages<TestMessage>
 public class TestMessage : ICommand {}
 ");
 
-#if NET // IAsyncEnumerable requires package Microsoft.Bcl.AsyncInterfaces on .NET Framework
-
         [TestCase("AsyncEnumerator(context.CancellationToken)")]
         [TestCase("AsyncEnumerator(CancellationToken.None)")]
         [TestCase("AsyncEnumerator(default(CancellationToken))")]
@@ -551,7 +549,6 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}
 ");
-#endif
     }
 
     public class ForwardCancellationTokenTestsCSharp9 : ForwardCancellationTokenTestsCSharp8

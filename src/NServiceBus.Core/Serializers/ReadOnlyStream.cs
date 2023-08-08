@@ -34,7 +34,6 @@
             return bytesToCopy;
         }
 
-#if NET
         public override int Read(Span<byte> buffer)
         {
             var bytesToCopy = Math.Min(memory.Length - position, buffer.Length);
@@ -49,7 +48,6 @@
             position += bytesToCopy;
             return bytesToCopy;
         }
-#endif
 
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
