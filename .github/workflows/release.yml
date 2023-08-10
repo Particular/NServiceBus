@@ -8,7 +8,7 @@ env:
   DOTNET_NOLOGO: true
 jobs:
   release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.3
@@ -17,7 +17,8 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3.2.0
         with:
-          dotnet-version: 7.0.x            
+          dotnet-version: 8.0.x
+          dotnet-quality: 'preview'
       - name: Build
         run: dotnet build src --configuration Release
       - name: Sign NuGet packages
