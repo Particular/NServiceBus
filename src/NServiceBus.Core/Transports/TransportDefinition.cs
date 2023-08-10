@@ -9,7 +9,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Defines a transport.
     /// </summary>
-    public abstract class TransportDefinition
+    public abstract partial class TransportDefinition
     {
         TransportTransactionMode transportTransactionMode;
 
@@ -31,16 +31,6 @@ namespace NServiceBus.Transport
         /// provide information anymore at this stage).
         /// </summary>
         public abstract Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default);
-
-
-        /// <summary>
-        /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Inject the ITransportAddressResolver type to access the address translation mechanism at runtime. See the NServiceBus version 8 upgrade guide for further details.",
-            TreatAsErrorFromVersion = "9",
-            RemoveInVersion = "10")]
-        public abstract string ToTransportAddress(QueueAddress address);
 
         /// <summary>
         /// Returns a list of all supported transaction modes of this transport.

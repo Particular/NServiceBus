@@ -8,7 +8,7 @@
     /// <summary>
     /// Provide context to behaviors on the audit pipeline.
     /// </summary>
-    public interface IAuditContext : IBehaviorContext
+    public partial interface IAuditContext : IBehaviorContext
     {
         /// <summary>
         /// The message to be audited.
@@ -24,17 +24,6 @@
         /// The configured time to be received for audit messages.
         /// </summary>
         TimeSpan? TimeToBeReceived { get; }
-
-        /// <summary>
-        /// Adds information about the current message that should be audited.
-        /// </summary>
-        /// <param name="key">The audit key.</param>
-        /// <param name="value">The value.</param>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(AuditMetadata),
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        void AddAuditData(string key, string value);
 
         /// <summary>
         /// Metadata for the audited message.

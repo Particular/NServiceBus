@@ -10,7 +10,7 @@
     /// <summary>
     /// The context available to features when they are activated.
     /// </summary>
-    public class FeatureConfigurationContext
+    public partial class FeatureConfigurationContext
     {
         internal FeatureConfigurationContext(
             IReadOnlySettings settings,
@@ -32,15 +32,6 @@
         /// A read only copy of the settings.
         /// </summary>
         public IReadOnlySettings Settings { get; }
-
-        /// <summary>
-        /// Access to the container to allow for registrations.
-        /// </summary>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(Services),
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        public IServiceCollection Container => Services;
 
         /// <summary>
         /// Access to the <see cref="IServiceCollection"/> to allow additional service registrations.
