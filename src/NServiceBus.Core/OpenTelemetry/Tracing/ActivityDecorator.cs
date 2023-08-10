@@ -54,7 +54,6 @@ namespace NServiceBus
             { Headers.MessageIntent, ActivityTags.MessageIntent },
             { Headers.TimeToBeReceived, ActivityTags.TimeToBeReceived },
             { Headers.DataBusConfigContentType, ActivityTags.DataBusContentType },
-            { Headers.NonDurableMessage, ActivityTags.NonDurableMessage }
         };
     }
 }

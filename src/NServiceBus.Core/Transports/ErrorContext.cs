@@ -19,7 +19,7 @@
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
         /// <param name="receiveAddress">The receive address.</param>
-        /// <param name="context">A <see cref="ReadOnlyContextBag" /> which can be used to extend the current object.</param>
+        /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
         public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
         {
             Guard.ThrowIfNull(exception);

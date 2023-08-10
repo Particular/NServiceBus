@@ -3,10 +3,9 @@
     using System;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
 
     /// <summary>
-    /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by <see cref="IConfigureComponents"/>.
+    /// Contains extension methods for <see cref="IServiceCollection"/> that were formerly provided by IConfigureComponents />.
     /// </summary>
     [ObsoleteEx(
         Message = "Use methods on IServiceCollection instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",

@@ -1,13 +1,11 @@
-﻿#pragma warning disable 1591
-
-namespace NServiceBus.ObjectBuilder
+﻿namespace NServiceBus.ObjectBuilder
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
-    /// Contains extension methods for <see cref="IServiceProvider"/> that were formerly provided by <see cref="IBuilder"/>.
+    /// Contains extension methods for <see cref="IServiceProvider"/> that were formerly provided by IBuilder />.
     /// </summary>
     public static class ServiceProviderExtensions
     {
@@ -65,18 +63,5 @@ namespace NServiceBus.ObjectBuilder
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
         public static IEnumerable<object> BuildAll(this IServiceProvider serviceProvider, Type typeToBuild) => serviceProvider.GetServices(typeToBuild);
-
-        [ObsoleteEx(
-            Message = "The Release method is not supported.",
-            TreatAsErrorFromVersion = "8",
-            RemoveInVersion = "9")]
-        public static void Release(this IServiceProvider serviceProvider, object instance) => throw new NotImplementedException();
-
-        [ObsoleteEx(
-            Message = "The BuildAndDispatch method is not supported anymore. Use `IServiceProvider.GetService(typeToBuild)` and call the action on the returned service.",
-            TreatAsErrorFromVersion = "8",
-            RemoveInVersion = "9")]
-        public static void BuildAndDispatch(this IServiceProvider serviceProvider, Type typeToBuild, Action<object> action) => throw new NotImplementedException();
     }
 }
-#pragma warning restore 1591

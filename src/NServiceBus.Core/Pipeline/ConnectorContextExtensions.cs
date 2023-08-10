@@ -27,18 +27,6 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
-        public static IRoutingContext CreateRoutingContext(this StageConnector<IForwardingContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IForwardingContext sourceContext)
-        {
-            Guard.ThrowIfNull(outgoingMessage);
-            Guard.ThrowIfNull(routingStrategy);
-            Guard.ThrowIfNull(sourceContext);
-
-            return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IRoutingContext" /> based on the current context.
-        /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IAuditContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IAuditContext sourceContext)
         {
             Guard.ThrowIfNull(outgoingMessage);
