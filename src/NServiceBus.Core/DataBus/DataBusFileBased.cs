@@ -22,7 +22,7 @@ namespace NServiceBus.Features
             }
             var dataBus = new FileShareDataBusImplementation(basePath);
 
-            context.Container.AddSingleton(typeof(IDataBus), dataBus);
+            context.Services.AddSingleton(typeof(IDataBus), dataBus);
         }
     }
 }

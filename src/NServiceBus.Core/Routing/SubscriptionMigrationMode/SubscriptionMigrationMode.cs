@@ -46,7 +46,7 @@
             {
                 var endpointInstances = context.Routing.EndpointInstances;
 
-                context.Container.AddSingleton(b =>
+                context.Services.AddSingleton(b =>
                 {
                     var transportAddressResolver = b.GetRequiredService<ITransportAddressResolver>();
                     return new SubscriptionRouter(
@@ -76,7 +76,7 @@
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 authorizer ??= _ => true;
-                context.Container.AddSingleton(authorizer);
+                context.Services.AddSingleton(authorizer);
                 context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             }
             else

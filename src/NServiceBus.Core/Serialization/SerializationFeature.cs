@@ -55,9 +55,9 @@
             context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
             context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
-            context.Container.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
+            context.Services.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
+            context.Services.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
+            context.Services.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
 
             LogFoundMessages(messageMetadataRegistry.GetAllMessages());
 

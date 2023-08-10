@@ -58,13 +58,13 @@
                 sagaMetaModel.VerifyIfEntitiesAreShared();
             }
 
-            RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
+            RegisterCustomFindersInContainer(context.Services, sagaMetaModel);
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {
                 if (IsSagaNotFoundHandler(t))
                 {
-                    context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                    context.Services.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 }
             }
 
