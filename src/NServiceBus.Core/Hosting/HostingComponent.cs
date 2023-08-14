@@ -23,6 +23,7 @@
             foreach (var installerType in configuration.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 serviceCollection.AddTransient(installerType);
+                serviceCollection.AddTransient(sp => (INeedToInstallSomething)sp.GetRequiredService(installerType));
             }
 
             // Apply user registrations last, so that user overrides win.
