@@ -9,7 +9,6 @@
     using NUnit.Framework;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
-    //TODO: Not sure this test is relevant anymore since IMessageCreator is no longer available in DI
     public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
     {
         [Test]

@@ -57,6 +57,7 @@
             context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
             context.Services.AddSingleton(_ => mapper);
+            context.Services.AddSingleton<IMessageCreator>(sp => sp.GetRequiredService<IMessageMapper>());
             context.Services.AddSingleton(_ => messageMetadataRegistry);
             context.Services.AddSingleton(_ => logicalMessageFactory);
 
