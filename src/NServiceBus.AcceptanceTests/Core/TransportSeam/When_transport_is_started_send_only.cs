@@ -44,13 +44,6 @@
                 {
                     var testContext = (Context)context.Settings.Get<ScenarioContext>();
 
-#pragma warning disable IDE0079
-#pragma warning disable CS0618
-                    Assert.Throws<InvalidOperationException>(() => context.Settings.LocalAddress(), "Should throw since the endpoint is send only");
-                    Assert.Throws<InvalidOperationException>(() => context.Settings.InstanceSpecificQueue(), "Should throw since the endpoint is send only");
-#pragma warning restore CS0618
-#pragma warning restore IDE0079
-
                     Assert.Throws<InvalidOperationException>(() => context.LocalQueueAddress(), "Should throw since the endpoint is send only");
                     Assert.Throws<InvalidOperationException>(() => context.InstanceSpecificQueueAddress(), "Should throw since the endpoint is send only");
 

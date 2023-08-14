@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.TransportSeam
 {
-    using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Configuration.AdvancedExtensibility;
     using NServiceBus.Transport;
     using NUnit.Framework;
 
@@ -25,9 +23,7 @@
 
             Assert.AreEqual("SomeAddress", context.ResolvedAddress);
             Assert.AreEqual(endpointName, context.ReceiveAddresses.MainReceiveAddress);
-            Assert.AreEqual(context.LocalAddress, context.ReceiveAddresses.MainReceiveAddress);
             Assert.AreEqual(endpointName + "-MyInstance", context.ReceiveAddresses.InstanceReceiveAddress);
-            Assert.AreEqual(context.InstanceSpecificQueue, context.ReceiveAddresses.InstanceReceiveAddress);
             Assert.AreEqual("MySatellite", context.ReceiveAddresses.SatelliteReceiveAddresses.Single());
             Assert.AreEqual(endpointName, context.LocalQueueAddress.ToString());
             Assert.AreEqual(endpointName + "-MyInstance", context.InstanceSpecificQueueAddress.ToString());
@@ -37,8 +33,6 @@
         {
             public string ResolvedAddress { get; set; }
             public ReceiveAddresses ReceiveAddresses { get; set; }
-            public string LocalAddress { get; set; }
-            public string InstanceSpecificQueue { get; set; }
             public QueueAddress LocalQueueAddress { get; set; }
             public QueueAddress InstanceSpecificQueueAddress { get; set; }
         }
@@ -49,13 +43,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-#pragma warning disable IDE0079
-#pragma warning disable CS0618
-                    Assert.Throws<InvalidOperationException>(() => c.GetSettings().LocalAddress(), "Should throw since the endpoint isn't configured yet");
-                    Assert.Throws<InvalidOperationException>(() => c.GetSettings().InstanceSpecificQueue(), "Should throw since the endpoint isn't configured yet");
-#pragma warning restore CS0618
-#pragma warning restore IDE0079
-
                     c.EnableFeature<FeatureAccessingAddressing>();
                     c.MakeInstanceUniquelyAddressable("MyInstance");
                 });
@@ -66,13 +53,6 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var testContext = (Context)context.Settings.Get<ScenarioContext>();
-
-#pragma warning disable IDE0079
-#pragma warning disable CS0618
-                    testContext.LocalAddress = context.Settings.LocalAddress();
-                    testContext.InstanceSpecificQueue = context.Settings.InstanceSpecificQueue();
-#pragma warning restore CS0618
-#pragma warning restore IDE0079
 
                     testContext.LocalQueueAddress = context.LocalQueueAddress();
                     testContext.InstanceSpecificQueueAddress = context.InstanceSpecificQueueAddress();
