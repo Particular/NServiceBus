@@ -48,7 +48,9 @@
         /// <summary>
         /// The value.
         /// </summary>
-        public T Value { get; private set; }
+#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property        
+        public T Value => value;
+#pragma warning restore IDE0032 // Use auto property
 
         /// <summary>
         /// The property <see cref="Type" />.
@@ -71,8 +73,8 @@
         /// <param name="valueToSet">The value to set.</param>
         public void SetValue(object valueToSet)
         {
-            Value = valueToSet as T;
-            HasValue = Value != null;
+            value = valueToSet as T;
+            HasValue = value != null;
         }
 
         /// <summary>
@@ -97,5 +99,10 @@
             info.AddValue("Key", Key);
             info.AddValue("HasValue", HasValue);
         }
+
+#pragma warning disable IDE0032 // Use auto property - value will be serialized into the message body if it is an auto property
+        T value;
+#pragma warning restore IDE0032 // Use auto property
     }
+
 }
