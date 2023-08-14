@@ -1,4 +1,3 @@
-#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
     using System;
@@ -16,8 +15,8 @@ namespace NServiceBus.ContainerTests
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
-            serviceCollection.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+            serviceCollection.AddTransient(typeof(DuplicateClass));
+            serviceCollection.AddTransient(typeof(DuplicateClass));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.AreEqual(2, serviceProvider.GetServices(typeof(DuplicateClass)).Count());
@@ -27,8 +26,8 @@ namespace NServiceBus.ContainerTests
         public void Should_support_lambdas_that_uses_other_components_registered_later()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(s => ((StaticFactory)s.GetService(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
-            serviceCollection.ConfigureComponent(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
+            serviceCollection.AddTransient(s => ((StaticFactory)s.GetService(typeof(StaticFactory))).Create());
+            serviceCollection.AddSingleton(_ => new StaticFactory());
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.NotNull(serviceProvider.GetService(typeof(ComponentCreatedByFactory)));
@@ -65,7 +64,7 @@ namespace NServiceBus.ContainerTests
             var singleton = new SingletonThatImplementsToInterfaces();
             serviceCollection.AddSingleton(typeof(ISingleton1), singleton);
             serviceCollection.AddSingleton(typeof(ISingleton2), singleton);
-            serviceCollection.ConfigureComponent(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
+            serviceCollection.AddTransient(typeof(ComponentThatDependsOnMultiSingletons));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var dependency = (ComponentThatDependsOnMultiSingletons)serviceProvider.GetService(typeof(ComponentThatDependsOnMultiSingletons));
@@ -81,7 +80,7 @@ namespace NServiceBus.ContainerTests
         public void Concrete_classes_should_get_the_same_lifecycle_as_their_interfaces()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
+            serviceCollection.AddSingleton(typeof(SingletonComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.AreSame(serviceProvider.GetService(typeof(SingletonComponent)), serviceProvider.GetService(typeof(ISingletonComponent)));
@@ -91,11 +90,10 @@ namespace NServiceBus.ContainerTests
         public void All_implemented_interfaces_should_be_registered()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(ComponentWithMultipleInterfaces),
-                DependencyLifecycle.InstancePerCall);
-            Assert.True(serviceCollection.HasComponent(typeof(ISomeInterface)));
-            Assert.True(serviceCollection.HasComponent(typeof(ISomeOtherInterface)));
-            Assert.True(serviceCollection.HasComponent(typeof(IYetAnotherInterface)));
+            serviceCollection.AddTransient(typeof(ComponentWithMultipleInterfaces));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeInterface)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeOtherInterface)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(IYetAnotherInterface)));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.AreEqual(1, serviceProvider.GetServices(typeof(IYetAnotherInterface)).Count());
@@ -105,10 +103,10 @@ namespace NServiceBus.ContainerTests
         public void All_implemented_interfaces_should_be_registered_for_func()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
-            Assert.True(serviceCollection.HasComponent(typeof(ISomeInterface)));
-            Assert.True(serviceCollection.HasComponent(typeof(ISomeOtherInterface)));
-            Assert.True(serviceCollection.HasComponent(typeof(IYetAnotherInterface)));
+            serviceCollection.AddTransient(_ => new ComponentWithMultipleInterfaces());
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeInterface)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeOtherInterface)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(IYetAnotherInterface)));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -119,8 +117,8 @@ namespace NServiceBus.ContainerTests
         public void Multiple_implementations_should_be_supported()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
-            serviceCollection.ConfigureComponent(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(SomeClass));
+            serviceCollection.AddScoped(typeof(SomeOtherClass));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.NotNull(serviceProvider.GetService(typeof(SomeClass)));
@@ -153,10 +151,9 @@ namespace NServiceBus.ContainerTests
         public void Generic_interfaces_should_be_registered()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(ComponentWithGenericInterface),
-                DependencyLifecycle.InstancePerCall);
+            serviceCollection.AddTransient(typeof(ComponentWithGenericInterface));
 
-            Assert.True(serviceCollection.HasComponent(typeof(ISomeGenericInterface<string>)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeGenericInterface<string>)));
         }
 
         [Test]
@@ -164,11 +161,10 @@ namespace NServiceBus.ContainerTests
         public void System_interfaces_should_not_be_auto_registered()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(ComponentWithSystemInterface),
-                DependencyLifecycle.InstancePerCall);
+            serviceCollection.AddTransient(typeof(ComponentWithSystemInterface));
 
-            Assert.False(serviceCollection.HasComponent(typeof(IGrouping<string, string>)));
-            Assert.False(serviceCollection.HasComponent(typeof(IDisposable)));
+            Assert.False(serviceCollection.Any(sd => sd.ServiceType == typeof(IGrouping<string, string>)));
+            Assert.False(serviceCollection.Any(sd => sd.ServiceType == typeof(IDisposable)));
         }
     }
 
@@ -270,4 +266,3 @@ namespace NServiceBus.ContainerTests
         X
     }
 }
-#pragma warning restore CS0618

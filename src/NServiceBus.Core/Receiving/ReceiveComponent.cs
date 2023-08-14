@@ -259,7 +259,7 @@ namespace NServiceBus
 
             foreach (var t in types.Where(IsMessageHandler))
             {
-                container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
+                container.AddScoped(t);
                 handlerRegistry.RegisterHandler(t);
             }
 
