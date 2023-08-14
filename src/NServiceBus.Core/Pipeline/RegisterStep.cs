@@ -55,7 +55,7 @@ namespace NServiceBus.Pipeline
                 return;
             }
 
-            container.ConfigureComponent(BehaviorType, DependencyLifecycle.InstancePerCall);
+            container.AddTransient(BehaviorType);
         }
 
         /// <summary>

@@ -6,6 +6,7 @@
     using Features;
     using Logging;
     using MessageInterfaces;
+    using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Serialization;
     using Settings;
@@ -55,9 +56,9 @@
             context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
             context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
-            context.Services.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
-            context.Services.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
-            context.Services.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
+            context.Services.AddSingleton(_ => mapper);
+            context.Services.AddSingleton(_ => messageMetadataRegistry);
+            context.Services.AddSingleton(_ => logicalMessageFactory);
 
             LogFoundMessages(messageMetadataRegistry.GetAllMessages());
 

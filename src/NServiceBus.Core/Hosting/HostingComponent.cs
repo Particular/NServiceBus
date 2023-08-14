@@ -17,12 +17,12 @@
         public static HostingComponent Initialize(Configuration configuration)
         {
             var serviceCollection = configuration.Services;
-            serviceCollection.ConfigureComponent(() => configuration.HostInformation, DependencyLifecycle.SingleInstance);
-            serviceCollection.ConfigureComponent(() => configuration.CriticalError, DependencyLifecycle.SingleInstance);
+            serviceCollection.AddSingleton(_ => configuration.HostInformation);
+            serviceCollection.AddSingleton(_ => configuration.CriticalError);
 
             foreach (var installerType in configuration.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                serviceCollection.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                serviceCollection.AddTransient(installerType);
             }
 
             // Apply user registrations last, so that user overrides win.
