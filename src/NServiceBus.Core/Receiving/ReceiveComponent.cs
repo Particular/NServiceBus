@@ -260,6 +260,13 @@ namespace NServiceBus
             foreach (var t in types.Where(IsMessageHandler))
             {
                 container.AddScoped(t);
+                var interfaces = t.GetInterfaces();
+
+                foreach (var serviceType in interfaces)
+                {
+                    container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(t), ServiceLifetime.Scoped));
+                }
+
                 handlerRegistry.RegisterHandler(t);
             }
 

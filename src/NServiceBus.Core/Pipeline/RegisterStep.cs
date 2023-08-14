@@ -56,6 +56,13 @@ namespace NServiceBus.Pipeline
             }
 
             container.AddTransient(BehaviorType);
+
+            var interfaces = BehaviorType.GetInterfaces();
+
+            foreach (var serviceType in interfaces)
+            {
+                container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(BehaviorType), ServiceLifetime.Transient));
+            }
         }
 
         /// <summary>

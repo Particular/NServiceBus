@@ -65,6 +65,12 @@
                 if (IsSagaNotFoundHandler(t))
                 {
                     context.Services.AddTransient(t);
+                    var interfaces = t.GetInterfaces();
+
+                    foreach (var serviceType in interfaces)
+                    {
+                        context.Services.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(t), ServiceLifetime.Transient));
+                    }
                 }
             }
 
@@ -80,9 +86,20 @@
             {
                 container.AddTransient(finder.Type);
 
-                if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinderType))
+                foreach (var serviceType in finder.Type.GetInterfaces())
                 {
-                    container.AddTransient((Type)customFinderType);
+                    container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(finder.Type), ServiceLifetime.Transient));
+                }
+
+                if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinder))
+                {
+                    var customFinderType = (Type)customFinder;
+                    container.AddTransient(customFinderType);
+
+                    foreach (var serviceType in customFinderType.GetInterfaces())
+                    {
+                        container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(customFinderType), ServiceLifetime.Transient));
+                    }
                 }
             }
         }
