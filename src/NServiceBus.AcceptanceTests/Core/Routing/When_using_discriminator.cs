@@ -46,7 +46,7 @@ namespace NServiceBus.AcceptanceTests.Routing
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.Settings.Get<Context>().InstanceDescriminatorFromSettingsExtensions = context.Settings.InstanceSpecificQueue();
+                    context.Settings.Get<Context>().InstanceDescriminatorFromSettingsExtensions = context.InstanceSpecificQueueAddress().Discriminator;
                 }
             }
         }
