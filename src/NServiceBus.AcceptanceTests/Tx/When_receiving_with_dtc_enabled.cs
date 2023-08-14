@@ -24,6 +24,8 @@
         [Test]
         public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
         {
+            //TODO: Is this what we want to do? (only works on windows)
+            //TransactionManager.ImplicitDistributedTransactions = true;
             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
