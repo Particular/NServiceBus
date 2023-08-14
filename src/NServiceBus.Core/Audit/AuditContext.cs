@@ -6,7 +6,7 @@ namespace NServiceBus
     using Pipeline;
     using Transport;
 
-    class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
+    partial class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
     {
         public AuditContext(OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IBehaviorContext parent)
             : base(parent)
@@ -41,13 +41,6 @@ namespace NServiceBus
                 }
                 auditAction = value;
             }
-        }
-        public void AddAuditData(string key, string value)
-        {
-            Guard.ThrowIfNullOrEmpty(key);
-            Guard.ThrowIfNullOrEmpty(value);
-
-            AuditMetadata[key] = value;
         }
 
         public IAuditActionContext PreventChanges()
