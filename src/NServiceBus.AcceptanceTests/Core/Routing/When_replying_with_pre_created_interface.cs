@@ -36,18 +36,10 @@
 
             public class StartMessageHandler : IHandleMessages<MyRequest>
             {
-                public StartMessageHandler(IMessageCreator messageCreator)
-                {
-                    this.messageCreator = messageCreator;
-                }
-
                 public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
-                    var interfaceMessage = messageCreator.CreateInstance<IMyReply>();
-                    return context.Reply(interfaceMessage);
+                    return context.Reply<IMyReply>(_ => { });
                 }
-
-                IMessageCreator messageCreator;
             }
 
             public class MyMessageHandler : IHandleMessages<IMyReply>
