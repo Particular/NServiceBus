@@ -71,8 +71,6 @@ namespace NServiceBus
                 return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-            pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
-
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
 
             var handlerDiagnostics = new Dictionary<string, List<string>>();
