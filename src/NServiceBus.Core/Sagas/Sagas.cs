@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.ObjectBuilder;
     using NServiceBus.Sagas;
 
     /// <summary>
@@ -64,13 +65,7 @@
             {
                 if (IsSagaNotFoundHandler(t))
                 {
-                    context.Services.AddTransient(t);
-                    var interfaces = t.GetInterfaces();
-
-                    foreach (var serviceType in interfaces)
-                    {
-                        context.Services.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(t), ServiceLifetime.Transient));
-                    }
+                    context.Services.AddWithInterfaces(t, ServiceLifetime.Transient);
                 }
             }
 
@@ -84,22 +79,11 @@
         {
             foreach (var finder in sagaMetaModel.SelectMany(m => m.Finders))
             {
-                container.AddTransient(finder.Type);
+                container.AddWithInterfaces(finder.Type, ServiceLifetime.Transient);
 
-                foreach (var serviceType in finder.Type.GetInterfaces())
+                if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinderType))
                 {
-                    container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(finder.Type), ServiceLifetime.Transient));
-                }
-
-                if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinder))
-                {
-                    var customFinderType = (Type)customFinder;
-                    container.AddTransient(customFinderType);
-
-                    foreach (var serviceType in customFinderType.GetInterfaces())
-                    {
-                        container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(customFinderType), ServiceLifetime.Transient));
-                    }
+                    container.AddWithInterfaces((Type)customFinderType, ServiceLifetime.Transient);
                 }
             }
         }

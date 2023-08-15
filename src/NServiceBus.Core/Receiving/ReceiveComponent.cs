@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.ObjectBuilder;
     using Outbox;
     using Pipeline;
     using Transport;
@@ -244,7 +245,7 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)
+        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -257,18 +258,12 @@ namespace NServiceBus
 
             foreach (var t in types.Where(IsMessageHandler))
             {
-                container.AddScoped(t);
-                var interfaces = t.GetInterfaces();
-
-                foreach (var serviceType in interfaces)
-                {
-                    container.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(t), ServiceLifetime.Scoped));
-                }
+                serviceCollection.AddWithInterfaces(t, ServiceLifetime.Scoped);
 
                 handlerRegistry.RegisterHandler(t);
             }
 
-            container.AddSingleton(handlerRegistry);
+            serviceCollection.AddSingleton(handlerRegistry);
         }
 
         public static bool IsMessageHandler(Type type)

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
+    using ObjectBuilder;
     using Pipeline;
 
     class PipelineComponent
@@ -17,14 +18,7 @@ namespace NServiceBus
 
             foreach (var registeredBehavior in modifications.Replacements)
             {
-                hostingConfiguration.Services.AddTransient(registeredBehavior.BehaviorType);
-
-                var interfaces = registeredBehavior.BehaviorType.GetInterfaces();
-
-                foreach (var serviceType in interfaces)
-                {
-                    hostingConfiguration.Services.Add(new ServiceDescriptor(serviceType, sp => sp.GetService(registeredBehavior.BehaviorType), ServiceLifetime.Transient));
-                }
+                hostingConfiguration.Services.AddWithInterfaces(registeredBehavior.BehaviorType, ServiceLifetime.Transient);
             }
 
             foreach (var step in modifications.Additions)
