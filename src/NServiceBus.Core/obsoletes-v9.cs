@@ -105,6 +105,24 @@ namespace NServiceBus
             RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings) => throw new NotImplementedException();
     }
+
+    [ObsoleteEx(
+          Message = "Error notification events have been replaced with a Task based API available on the recoverability settings.",
+          TreatAsErrorFromVersion = "9",
+          RemoveInVersion = "10")]
+    public class Notifications
+    {
+    }
+
+    public partial class EndpointConfiguration
+    {
+
+        [ObsoleteEx(
+            Message = "Error notification events have been replaced with a Task based API available on the recoverability settings.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
+        public Notifications Notifications { get; }
+    }
 }
 
 namespace NServiceBus.Features
