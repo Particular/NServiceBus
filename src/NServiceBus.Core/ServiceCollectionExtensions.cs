@@ -7,7 +7,7 @@
     {
         public static void AddWithInterfaces(this IServiceCollection serviceCollection, Type serviceType, ServiceLifetime serviceLifetime)
         {
-            serviceCollection.Add(new ServiceDescriptor(serviceType, serviceLifetime));
+            serviceCollection.Add(new ServiceDescriptor(serviceType, serviceType, serviceLifetime));
 
             foreach (var interfaceType in serviceType.GetInterfaces())
             {
