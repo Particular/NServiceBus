@@ -8,7 +8,7 @@
     /// <summary>
     /// A transport optimized for development and learning use. DO NOT use in production.
     /// </summary>
-    public class LearningTransport : TransportDefinition
+    public partial class LearningTransport : TransportDefinition
     {
         /// <summary>
         /// Creates a new instance of a learning transport.
@@ -33,33 +33,6 @@
             learningTransportInfrastructure.ConfigureReceiveInfrastructure();
 
             return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
-        }
-
-        /// <inheritdoc />
-        public override string ToTransportAddress(QueueAddress queueAddress)
-        {
-            var address = queueAddress.BaseAddress;
-            PathChecker.ThrowForBadPath(address, "endpoint name");
-
-            var discriminator = queueAddress.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                address += "-" + discriminator;
-            }
-
-            var qualifier = queueAddress.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
-
-                address += "-" + qualifier;
-            }
-
-            return address;
         }
 
         /// <inheritdoc />

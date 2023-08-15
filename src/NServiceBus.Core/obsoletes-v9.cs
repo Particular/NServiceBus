@@ -35,6 +35,14 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "9.0")]
         public static bool RequiredImmediateDispatch(this ExtendableOptions options) => throw new NotImplementedException();
     }
+    public partial class LearningTransport
+    {
+        [ObsoleteEx(
+            Message = "Inject the ITransportAddressResolver type to access the address translation mechanism at runtime. See the NServiceBus version 8 upgrade guide for further details.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
+        public override string ToTransportAddress(QueueAddress queueAddress) => throw new NotImplementedException();
+    }
 
     [ObsoleteEx(
         Message = "Use methods on IServiceCollection instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",
