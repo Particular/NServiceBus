@@ -6,10 +6,9 @@
     /// This class provides implementers of transports with an extension mechanism for custom settings via extension methods.
     /// </summary>
     /// <typeparam name="T">The transport definition e.g. <see cref="LearningTransport" />, etc.</typeparam>
-    [PreObsolete(
+    [PreObsolete("https://github.com/Particular/GeneralPlatformExperience/issues/1403",
         Message = "Configure the transport via the TransportDefinition instance's properties",
-        TreatAsErrorFromVersion = "9",
-        RemoveInVersion = "10")]
+        Note = "Should not be converted to an ObsoleteEx until API mismatch described in issue is resolved.")]
     public class TransportExtensions<T> where T : TransportDefinition
     {
         /// <summary>
@@ -31,19 +30,17 @@
         /// <summary>
         /// Routing configuration.
         /// </summary>
-        [PreObsolete(
+        [PreObsolete("https://github.com/Particular/GeneralPlatformExperience/issues/1403",
             ReplacementTypeOrMember = "Use EndpointConfiguration.UseTransport() to access routing settings",
-            TreatAsErrorFromVersion = "9",
-            RemoveInVersion = "10")]
+            Note = "Should not be converted to an ObsoleteEx until API mismatch described in issue is resolved.")]
         public RoutingSettings<T> Routing() => routing;
 
         /// <summary>
         /// Configures the transport to use a specific transaction mode.
         /// </summary>
-        [PreObsolete(
-            TreatAsErrorFromVersion = "8.0",
-            RemoveInVersion = "9.0",
-            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode")]
+        [PreObsolete("https://github.com/Particular/GeneralPlatformExperience/issues/1403",
+            ReplacementTypeOrMember = "TransportDefinition.TransportTransactionMode",
+            Note = "Should not be converted to an ObsoleteEx until API mismatch described in issue is resolved.")]
         public TransportExtensions<T> Transactions(TransportTransactionMode transportTransactionMode)
         {
             Transport.TransportTransactionMode = transportTransactionMode;

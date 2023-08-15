@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Config;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -90,10 +89,7 @@ public class When_configuring_transport_twice
             public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
         }
 
-        [Obsolete("Obsolete marker to make the code compile", false)]
-#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
         public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
-#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() => new[]
         {
