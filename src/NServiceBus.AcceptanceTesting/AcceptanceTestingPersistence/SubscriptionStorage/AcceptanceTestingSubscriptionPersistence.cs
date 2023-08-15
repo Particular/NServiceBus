@@ -8,7 +8,7 @@
     {
         public AcceptanceTestingSubscriptionPersistence()
         {
-            DependsOn("MessageDrivenSubscriptions");
+            DependsOn("NServiceBus.Features.MessageDrivenSubscriptions");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
