@@ -6,6 +6,7 @@ namespace NServiceBus.ContainerTests
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus;
+    using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
 
 
@@ -80,7 +81,7 @@ namespace NServiceBus.ContainerTests
         public void Concrete_classes_should_get_the_same_lifecycle_as_their_interfaces()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton(typeof(SingletonComponent));
+            serviceCollection.AddWithInterfaces(typeof(SingletonComponent), ServiceLifetime.Singleton);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.AreSame(serviceProvider.GetService(typeof(SingletonComponent)), serviceProvider.GetService(typeof(ISingletonComponent)));
@@ -90,26 +91,12 @@ namespace NServiceBus.ContainerTests
         public void All_implemented_interfaces_should_be_registered()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient(typeof(ComponentWithMultipleInterfaces));
+            serviceCollection.AddWithInterfaces(typeof(ComponentWithMultipleInterfaces), ServiceLifetime.Transient);
             Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeInterface)));
             Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeOtherInterface)));
             Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(IYetAnotherInterface)));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            Assert.AreEqual(1, serviceProvider.GetServices(typeof(IYetAnotherInterface)).Count());
-        }
-
-        [Test]
-        public void All_implemented_interfaces_should_be_registered_for_func()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient(_ => new ComponentWithMultipleInterfaces());
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeInterface)));
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeOtherInterface)));
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(IYetAnotherInterface)));
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
             Assert.AreEqual(1, serviceProvider.GetServices(typeof(IYetAnotherInterface)).Count());
         }
 
@@ -117,8 +104,8 @@ namespace NServiceBus.ContainerTests
         public void Multiple_implementations_should_be_supported()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddScoped(typeof(SomeClass));
-            serviceCollection.AddScoped(typeof(SomeOtherClass));
+            serviceCollection.AddWithInterfaces(typeof(SomeClass), ServiceLifetime.Scoped);
+            serviceCollection.AddWithInterfaces(typeof(SomeOtherClass), ServiceLifetime.Scoped);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             Assert.NotNull(serviceProvider.GetService(typeof(SomeClass)));
@@ -151,20 +138,9 @@ namespace NServiceBus.ContainerTests
         public void Generic_interfaces_should_be_registered()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient(typeof(ComponentWithGenericInterface));
+            serviceCollection.AddWithInterfaces(typeof(ComponentWithGenericInterface), ServiceLifetime.Transient);
 
             Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeGenericInterface<string>)));
-        }
-
-        [Test]
-        [Ignore("Not sure that we should enforce this")]
-        public void System_interfaces_should_not_be_auto_registered()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient(typeof(ComponentWithSystemInterface));
-
-            Assert.False(serviceCollection.Any(sd => sd.ServiceType == typeof(IGrouping<string, string>)));
-            Assert.False(serviceCollection.Any(sd => sd.ServiceType == typeof(IDisposable)));
         }
     }
 
