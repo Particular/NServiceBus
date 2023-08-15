@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.ObjectBuilder
+﻿namespace NServiceBus
 {
-    using Microsoft.Extensions.DependencyInjection;
     using System;
+    using Microsoft.Extensions.DependencyInjection;
 
-    static class ServiceCollectionExtensions
+    // Rename this class to ServiceCollectionExtensions when public version is removed from obsoletes.
+    static class ServiceCollectionExtensionsInternal
     {
         public static void AddWithInterfaces(this IServiceCollection serviceCollection, Type serviceType, ServiceLifetime serviceLifetime)
         {

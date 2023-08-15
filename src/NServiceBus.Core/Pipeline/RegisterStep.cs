@@ -4,7 +4,6 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus.ObjectBuilder;
 
     /// <summary>
     /// Base class to do an advance registration of a step.

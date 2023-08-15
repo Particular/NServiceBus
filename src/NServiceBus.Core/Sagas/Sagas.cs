@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus.ObjectBuilder;
     using NServiceBus.Sagas;
 
     /// <summary>
