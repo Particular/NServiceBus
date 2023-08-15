@@ -27,6 +27,16 @@ namespace NServiceBus
         public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext) => throw new NotImplementedException();
     }
 
+    public partial class EndpointConfiguration
+    {
+
+        [ObsoleteEx(
+            Message = "Error notification events have been replaced with a Task-based API available on the recoverability settings.",
+            TreatAsErrorFromVersion = "9",
+            RemoveInVersion = "10")]
+        public Notifications Notifications { get; }
+    }
+
     public static partial class ImmediateDispatchOptionExtensions
     {
         [ObsoleteEx(
@@ -43,6 +53,12 @@ namespace NServiceBus
             RemoveInVersion = "10")]
         public override string ToTransportAddress(QueueAddress queueAddress) => throw new NotImplementedException();
     }
+
+    [ObsoleteEx(
+      Message = "Error notification events have been replaced with a Task-based API available on the recoverability settings.",
+      TreatAsErrorFromVersion = "9",
+      RemoveInVersion = "10")]
+    public class Notifications { }
 
     [ObsoleteEx(
         Message = "Use methods on IServiceCollection instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information.",
@@ -112,24 +128,6 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
         public static string InstanceSpecificQueue(this IReadOnlySettings settings) => throw new NotImplementedException();
-    }
-
-    [ObsoleteEx(
-          Message = "Error notification events have been replaced with a Task based API available on the recoverability settings.",
-          TreatAsErrorFromVersion = "9",
-          RemoveInVersion = "10")]
-    public class Notifications
-    {
-    }
-
-    public partial class EndpointConfiguration
-    {
-
-        [ObsoleteEx(
-            Message = "Error notification events have been replaced with a Task based API available on the recoverability settings.",
-            TreatAsErrorFromVersion = "9",
-            RemoveInVersion = "10")]
-        public Notifications Notifications { get; }
     }
 }
 
