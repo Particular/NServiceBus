@@ -218,6 +218,11 @@
         public const string MessageIntent = "NServiceBus.MessageIntent";
 
         /// <summary>
+        /// Indicates that the message was sent as a non-durable message.
+        /// </summary>
+        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
+
+        /// <summary>
         /// The time to be received for this message when it was sent the first time.
         /// When moved to error and audit this header will be preserved to the original TTBR
         /// of the message can be known.
