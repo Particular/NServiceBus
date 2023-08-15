@@ -36,7 +36,6 @@
                 "Makes sure that the handlers gets wrapped in a transaction scope",
                 b => new TransactionScopeUnitOfWorkBehavior(transactionOptions))
             {
-                InsertAfter("ExecuteUnitOfWork");
             }
         }
     }
