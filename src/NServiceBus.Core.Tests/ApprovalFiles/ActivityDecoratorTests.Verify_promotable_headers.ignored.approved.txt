@@ -14,4 +14,3 @@ Headers.SubscriberEndpoint
 Headers.DiagnosticsTraceParent
 Headers.DiagnosticsTraceState
 Headers.DiagnosticsBaggage
-Headers.HeaderName

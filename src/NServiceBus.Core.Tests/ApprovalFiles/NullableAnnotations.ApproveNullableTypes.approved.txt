@@ -48,7 +48,6 @@ NServiceBus.Extensibility.IExtendable
 NServiceBus.Extensibility.IReadOnlyContextBag
 NServiceBus.FailedConfig
 NServiceBus.Faults.DelayedRetryMessage
-NServiceBus.Faults.ErrorsNotifications
 NServiceBus.Faults.FailedMessage
 NServiceBus.Faults.FaultsHeaderKeys
 NServiceBus.Faults.ImmediateRetryMessage
@@ -111,7 +110,6 @@ NServiceBus.MessageProcessingContextExtensions
 NServiceBus.MessageProcessingOptimizationExtensions
 NServiceBus.MessageSessionExtensions
 NServiceBus.MoveToError
-NServiceBus.Notifications
 NServiceBus.NServiceBusMarkerInterfaceConvention
 NServiceBus.OnSatelliteMessage
 NServiceBus.OpenTelemetryConfigurationExtensions

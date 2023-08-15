@@ -9,13 +9,10 @@
     using NUnit.Framework;
     using Particular.Approvals;
 
-
-
     [TestFixture]
     public class NullableAnnotations
     {
-        // Only available with net6.0+, implementation for net472 not worth it
-        NullabilityInfoContext nullContext = new NullabilityInfoContext();
+        readonly NullabilityInfoContext nullContext = new();
 
         [Test]
         public void ApproveNullableTypes()
