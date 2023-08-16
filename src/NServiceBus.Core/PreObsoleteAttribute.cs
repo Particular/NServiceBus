@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Meant for staging future obsoletes. Mimics the structure of <see cref="ObsoleteExAttribute"/>.
+    /// Meant for staging future obsoletes.
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
     sealed class PreObsoleteAttribute : Attribute
