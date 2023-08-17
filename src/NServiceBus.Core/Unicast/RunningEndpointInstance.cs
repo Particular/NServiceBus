@@ -77,11 +77,9 @@ namespace NServiceBus
             finally
             {
                 stopSemaphore.Release();
-#if NET
+
                 await tokenRegistration.DisposeAsync().ConfigureAwait(false);
-#else
-                tokenRegistration.Dispose();
-#endif
+
                 stoppingTokenSource.Dispose();
             }
         }

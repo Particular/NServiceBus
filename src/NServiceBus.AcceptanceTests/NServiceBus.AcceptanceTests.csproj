@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0;net7.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,13 +9,9 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <Reference Include="System.Transactions" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="2.3.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0-preview-23371-04" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="0.5.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
@@ -33,5 +28,11 @@
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
+
+  <Target Name="WorkaroundForTesthostBeingAddedAsContent" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <Content Update="**\testhost.*" Pack="false" />
+    </ItemGroup>
+  </Target>
 
 </Project>

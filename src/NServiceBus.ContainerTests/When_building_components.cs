@@ -1,9 +1,7 @@
-#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus;
     using NUnit.Framework;
 
     public class When_building_components
@@ -19,49 +17,49 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Singlecall_components_should_yield_unique_instances()
+        public void Transient_components_should_yield_unique_instances()
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            Assert.AreNotEqual(serviceProvider.GetService<SinglecallComponent>(), serviceProvider.GetService<SinglecallComponent>());
+            Assert.AreNotEqual(serviceProvider.GetService<TransientComponent>(), serviceProvider.GetService<TransientComponent>());
         }
 
         [Test]
-        public void UoW_components_should_yield_the_same_instance()
+        public void Scoped_components_should_yield_the_same_instance()
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var instance1 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
-            var instance2 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
+            var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
+            var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
 
             Assert.AreSame(instance1, instance2);
         }
 
         [Test]
-        public void Lambda_uow_components_should_yield_the_same_instance()
+        public void Lambda_scoped_components_should_yield_the_same_instance()
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var instance1 = serviceProvider.GetService(typeof(LambdaComponentUoW));
-            var instance2 = serviceProvider.GetService(typeof(LambdaComponentUoW));
+            var instance1 = serviceProvider.GetService(typeof(ScopedLambdaComponent));
+            var instance2 = serviceProvider.GetService(typeof(ScopedLambdaComponent));
 
             Assert.AreSame(instance1, instance2);
         }
 
         [Test]
-        public void Lambda_singlecall_components_should_yield_unique_instances()
+        public void Lambda_transient_components_should_yield_unique_instances()
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            Assert.AreNotEqual(serviceProvider.GetService(typeof(SingleCallLambdaComponent)), serviceProvider.GetService(typeof(SingleCallLambdaComponent)));
+            Assert.AreNotEqual(serviceProvider.GetService(typeof(TransientLambdaComponent)), serviceProvider.GetService(typeof(TransientLambdaComponent)));
         }
 
         [Test]
@@ -102,13 +100,13 @@ namespace NServiceBus.ContainerTests
 
         void InitializeServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
-            serviceCollection.ConfigureComponent(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
-            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-            serviceCollection.ConfigureComponent(() => new SingletonLambdaComponent(), DependencyLifecycle.SingleInstance);
-            serviceCollection.ConfigureComponent(() => new SingleCallLambdaComponent(), DependencyLifecycle.InstancePerCall);
-            serviceCollection.ConfigureComponent(() => new LambdaComponentUoW(), DependencyLifecycle.InstancePerUnitOfWork);
-            serviceCollection.ConfigureComponent(() => new RecursiveComponent(), DependencyLifecycle.SingleInstance);
+            serviceCollection.AddSingleton(typeof(SingletonComponent));
+            serviceCollection.AddTransient(typeof(TransientComponent));
+            serviceCollection.AddScoped(typeof(ScopedComponent));
+            serviceCollection.AddSingleton(_ => new SingletonLambdaComponent());
+            serviceCollection.AddTransient(_ => new TransientLambdaComponent());
+            serviceCollection.AddScoped(_ => new ScopedLambdaComponent());
+            serviceCollection.AddSingleton(_ => new RecursiveComponent());
         }
 
         public class RecursiveComponent
@@ -129,7 +127,7 @@ namespace NServiceBus.ContainerTests
             public SingletonComponent Dependency { get; set; }
         }
 
-        public class SinglecallComponent
+        public class TransientComponent
         {
         }
 
@@ -142,11 +140,11 @@ namespace NServiceBus.ContainerTests
         {
         }
 
-        public class LambdaComponentUoW
+        public class ScopedLambdaComponent
         {
         }
 
-        public class SingleCallLambdaComponent
+        public class TransientLambdaComponent
         {
         }
     }
@@ -183,4 +181,3 @@ namespace NServiceBus.ContainerTests
     {
     }
 }
-#pragma warning restore CS0618

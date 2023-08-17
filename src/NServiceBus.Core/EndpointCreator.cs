@@ -94,8 +94,6 @@ namespace NServiceBus
 
             sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
-            hostingConfiguration.Services.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-
             receiveComponent = ReceiveComponent.Configure(
                 receiveConfiguration,
                 settings.ErrorQueueAddress(),

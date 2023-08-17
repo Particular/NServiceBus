@@ -8,13 +8,12 @@
     /// Default implementation for <see cref="IDataBusProperty" />.
     /// </summary>
     /// <typeparam name="T">Type of data to store in <see cref="IDataBusProperty" />.</typeparam>
-    [Serializable]
-    public class DataBusProperty<T> : IDataBusProperty, ISerializable where T : class
+    public class DataBusProperty<T> : IDataBusProperty where T : class
     {
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}" /> with no value set.
         /// </summary>
-        public DataBusProperty() : this(null)
+        public DataBusProperty()
         {
             Type = typeof(T);
         }
@@ -49,7 +48,9 @@
         /// <summary>
         /// The value.
         /// </summary>
+#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property        
         public T Value => value;
+#pragma warning restore IDE0032 // Use auto property
 
         /// <summary>
         /// The property <see cref="Type" />.
@@ -99,6 +100,9 @@
             info.AddValue("HasValue", HasValue);
         }
 
+#pragma warning disable IDE0032 // Use auto property - value will be serialized into the message body if it is an auto property
         T value;
+#pragma warning restore IDE0032 // Use auto property
     }
+
 }

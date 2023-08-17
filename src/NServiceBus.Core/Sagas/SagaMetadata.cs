@@ -5,7 +5,7 @@ namespace NServiceBus.Sagas
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using System.Runtime.Serialization;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Contains metadata for known sagas.
@@ -167,7 +167,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 throw new Exception($"'{sagaType.Name}' saga type does not implement Saga<T>");
             }
 
-            var saga = (Saga)FormatterServices.GetUninitializedObject(sagaType);
+            var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
             var mapper = new SagaMapper();
             saga.ConfigureHowToFindSaga(mapper);
 

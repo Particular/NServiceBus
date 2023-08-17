@@ -6,9 +6,7 @@ namespace NServiceBus.Hosting.Helpers
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-#if NET
     using System.Runtime.Loader;
-#endif
     using System.Text;
     using Logging;
 
@@ -170,12 +168,9 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-#if NET
                 var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
                 assembly = context.LoadFromAssemblyPath(assemblyPath);
-#else
-                assembly = Assembly.LoadFrom(assemblyPath);
-#endif
+
                 return true;
             }
             catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
@@ -259,38 +254,24 @@ namespace NServiceBus.Hosting.Helpers
                 return sb.ToString();
             }
 
-            var nsbAssemblyName = typeof(AssemblyScanner).Assembly.GetName();
-            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", string.Empty).ToLowerInvariant();
-            var displayBindingRedirects = false;
             var files = new List<string>();
             var sbFileLoadException = new StringBuilder();
             var sbGenericException = new StringBuilder();
 
             foreach (var ex in e.LoaderExceptions)
             {
-                var loadException = ex as FileLoadException;
-
-                if (loadException?.FileName != null)
+                if (ex is FileLoadException loadException && loadException.FileName != null)
                 {
-                    var assemblyName = new AssemblyName(loadException.FileName);
-                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", string.Empty).ToLowerInvariant();
-                    if (nsbAssemblyName.Name == assemblyName.Name &&
-                        nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() &&
-                        nsbPublicKeyToken == assemblyPublicKeyToken)
-                    {
-                        displayBindingRedirects = true;
-                        continue;
-                    }
-
                     if (!files.Contains(loadException.FileName))
                     {
                         files.Add(loadException.FileName);
                         sbFileLoadException.NewLine(loadException.FileName);
                     }
-                    continue;
                 }
-
-                sbGenericException.NewLine(ex.ToString());
+                else
+                {
+                    sbGenericException.NewLine(ex.ToString());
+                }
             }
 
             if (sbGenericException.Length > 0)
@@ -302,26 +283,8 @@ namespace NServiceBus.Hosting.Helpers
             if (sbFileLoadException.Length > 0)
             {
                 sb.AppendLine();
-                sb.NewLine("It looks like you may be missing binding redirects in the config file for the following assemblies:");
+                sb.NewLine("FileLoadExceptions:");
                 sb.Append(sbFileLoadException);
-                sb.NewLine("For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx");
-            }
-
-            if (displayBindingRedirects)
-            {
-                sb.AppendLine();
-                sb.NewLine("Try to add the following binding redirects to the config file:");
-
-                const string bindingRedirects = @"<runtime>
-    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
-        <dependentAssembly>
-            <assemblyIdentity name=""NServiceBus.Core"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
-            <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
-        </dependentAssembly>
-    </assemblyBinding>
-</runtime>";
-
-                sb.NewLine(string.Format(bindingRedirects, nsbAssemblyName.Version.ToString(4)));
             }
 
             return sb.ToString();
@@ -437,10 +400,10 @@ namespace NServiceBus.Hosting.Helpers
             return true;
         }
 
-        readonly AssemblyValidator assemblyValidator = new AssemblyValidator();
-        internal List<string> AssembliesToSkip = new List<string>();
+        readonly AssemblyValidator assemblyValidator = new();
+        internal List<string> AssembliesToSkip = new();
         internal bool ScanNestedDirectories;
-        internal List<Type> TypesToSkip = new List<Type>();
+        internal List<Type> TypesToSkip = new();
         readonly Assembly assemblyToScan;
         readonly string baseDirectoryToScan;
         const string NServicebusCoreAssemblyName = "NServiceBus.Core";

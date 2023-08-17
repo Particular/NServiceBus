@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides ways to request immediate dispatch of messages.
     /// </summary>
-    public static class ImmediateDispatchOptionExtensions
+    public static partial class ImmediateDispatchOptionExtensions
     {
         /// <summary>
         /// Requests that the message be dispatched to the transport immediately.
@@ -21,20 +21,6 @@ namespace NServiceBus
             {
                 ImmediateDispatch = true
             });
-        }
-
-        /// <summary>
-        /// Returns whether immediate dispatch has been requested by <see cref="RequireImmediateDispatch" /> or not.
-        /// </summary>
-        /// <param name="options">The options being extended.</param>
-        /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = nameof(IsImmediateDispatchSet),
-            RemoveInVersion = "10.0",
-            TreatAsErrorFromVersion = "9.0")]
-        public static bool RequiredImmediateDispatch(this ExtendableOptions options)
-        {
-            return IsImmediateDispatchSet(options);
         }
 
         /// <summary>

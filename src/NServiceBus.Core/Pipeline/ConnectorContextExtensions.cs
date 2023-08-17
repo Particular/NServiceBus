@@ -27,18 +27,6 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
-        public static IRoutingContext CreateRoutingContext(this StageConnector<IForwardingContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IForwardingContext sourceContext)
-        {
-            Guard.ThrowIfNull(outgoingMessage);
-            Guard.ThrowIfNull(routingStrategy);
-            Guard.ThrowIfNull(sourceContext);
-
-            return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IRoutingContext" /> based on the current context.
-        /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IAuditContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IAuditContext sourceContext)
         {
             Guard.ThrowIfNull(outgoingMessage);
@@ -213,18 +201,6 @@ namespace NServiceBus
             Guard.ThrowIfNull(sourceContext);
 
             return new OutgoingPhysicalMessageContext(messageBody, routingStrategies, sourceContext);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IAuditContext" /> based on the current context.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0",
-            ReplacementTypeOrMember = "CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)")]
-        public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
-        {
-            return forkConnector.CreateAuditContext(message, auditAddress, null, sourceContext);
         }
 
         /// <summary>

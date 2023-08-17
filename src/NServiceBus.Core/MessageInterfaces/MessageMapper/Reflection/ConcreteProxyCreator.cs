@@ -22,7 +22,7 @@ namespace NServiceBus
         public Type CreateTypeFrom(Type type)
         {
             var typeBuilder = moduleBuilder.DefineType(type.FullName + SUFFIX,
-                TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
+                TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
                 typeof(object)
                 );
 

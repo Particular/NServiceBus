@@ -58,13 +58,13 @@
                 sagaMetaModel.VerifyIfEntitiesAreShared();
             }
 
-            RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
+            RegisterCustomFindersInContainer(context.Services, sagaMetaModel);
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {
                 if (IsSagaNotFoundHandler(t))
                 {
-                    context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                    context.Services.AddTransient(typeof(IHandleSagaNotFound), t);
                 }
             }
 
@@ -78,11 +78,11 @@
         {
             foreach (var finder in sagaMetaModel.SelectMany(m => m.Finders))
             {
-                container.ConfigureComponent(finder.Type, DependencyLifecycle.InstancePerCall);
+                container.AddTransient(finder.Type);
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinderType))
                 {
-                    container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
+                    container.AddTransient((Type)customFinderType);
                 }
             }
         }

@@ -5,10 +5,8 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-#if NET
-    using System.Runtime.InteropServices;
-#endif
     using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using FastExpressionCompiler;
     using Pipeline;
@@ -71,20 +69,12 @@
             return lambdaExpression.CompileFast();
         }
 
-#if NET
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TBehavior GetBehavior<TContext, TBehavior>(TContext context, int index)
             where TContext : class, IBehaviorContext
             where TBehavior : class, IBehavior
             => Unsafe.As<TBehavior>(
                 Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(context.Extensions.Behaviors), index));
-#else
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TBehavior GetBehavior<TContext, TBehavior>(TContext context, int index)
-            where TContext : class, IBehaviorContext
-            where TBehavior : class, IBehavior
-            => (TBehavior)context.Extensions.Behaviors[index];
-#endif
 
         /// <code>
         /// context{i} => return TaskEx.CompletedTask;

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -27,34 +26,10 @@
             return infrastructure;
         }
 
-        [Obsolete("Obsolete marker to make the code compile", false)]
+        [Obsolete("This should be removed when TransportDefinition.ToTransportAddress is removed in v10.", true)]
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
-        public override string ToTransportAddress(QueueAddress address)
+        public override string ToTransportAddress(QueueAddress address) => throw new NotImplementedException();
 #pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
-        {
-            var baseAddress = address.BaseAddress;
-            ThrowForBadPath(baseAddress, "endpoint name");
-
-            var discriminator = address.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                ThrowForBadPath(discriminator, "endpoint discriminator");
-
-                baseAddress += "-" + discriminator;
-            }
-
-            var qualifier = address.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                ThrowForBadPath(qualifier, "address qualifier");
-
-                baseAddress += "-" + qualifier;
-            }
-
-            return baseAddress;
-        }
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
         {
@@ -67,6 +42,7 @@
         }
 
         string storageLocation;
+
         public string StorageLocation
         {
             get => storageLocation;
@@ -76,23 +52,6 @@
                 PathChecker.ThrowForBadPath(value, nameof(StorageLocation));
                 storageLocation = value;
             }
-        }
-
-        static void ThrowForBadPath(string value, string valueName)
-        {
-            var invalidPathChars = Path.GetInvalidPathChars();
-
-            if (string.IsNullOrEmpty(value))
-            {
-                return;
-            }
-
-            if (value.IndexOfAny(invalidPathChars) < 0)
-            {
-                return;
-            }
-
-            throw new Exception($"The value for '{valueName}' has illegal path characters. Provided value: {value}. Must not contain any of {string.Join(", ", invalidPathChars)}.");
         }
     }
 }

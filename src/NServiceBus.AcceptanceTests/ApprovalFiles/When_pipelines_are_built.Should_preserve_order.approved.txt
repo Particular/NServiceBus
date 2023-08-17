@@ -59,12 +59,11 @@
             (IIncomingPhysicalMessageContext context3) => ProcessingStatisticsBehavior.Invoke(context3, 
                 (IIncomingPhysicalMessageContext context4) => MutateIncomingTransportMessageBehavior.Invoke(context4, 
                     (IIncomingPhysicalMessageContext context5) => SubscriptionReceiverBehavior.Invoke(context5, 
-                        (IIncomingPhysicalMessageContext context6) => UnitOfWorkBehavior.Invoke(context6, 
-                            (IIncomingPhysicalMessageContext context7) => DeserializeMessageConnector.Invoke(context7, 
-                                (IIncomingLogicalMessageContext context8) => MutateIncomingMessageBehavior.Invoke(context8, 
-                                    (IIncomingLogicalMessageContext context9) => InferredMessageTypeEnricherBehavior.Invoke(context9, 
-                                        (IIncomingLogicalMessageContext context10) => LoadHandlersConnector.Invoke(context10, 
-                                            (IInvokeHandlerContext context11) => InvokeHandlerTerminator.Invoke(context11))
+                        (IIncomingPhysicalMessageContext context6) => DeserializeMessageConnector.Invoke(context6, 
+                            (IIncomingLogicalMessageContext context7) => MutateIncomingMessageBehavior.Invoke(context7, 
+                                (IIncomingLogicalMessageContext context8) => InferredMessageTypeEnricherBehavior.Invoke(context8, 
+                                    (IIncomingLogicalMessageContext context9) => LoadHandlersConnector.Invoke(context9, 
+                                        (IInvokeHandlerContext context10) => InvokeHandlerTerminator.Invoke(context10))
 
 (IRecoverabilityContext context0) => CaptureRecoverabilityActionBehavior.Invoke(context0, 
     (IRecoverabilityContext context1) => RecoverabilityRoutingConnector.Invoke(context1, 

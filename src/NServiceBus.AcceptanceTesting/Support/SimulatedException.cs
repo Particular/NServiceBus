@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using System.Runtime.Serialization;
 
     /// <summary>
     /// A dummy exception to be used in acceptance tests for easier differentiation from real exceptions.
@@ -17,10 +16,6 @@
         }
 
         public SimulatedException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected SimulatedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

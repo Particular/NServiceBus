@@ -51,8 +51,7 @@
 
             var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 
-            hostingConfiguration.Services.ConfigureComponent(() =>
-                transportSeam.TransportInfrastructure.Dispatcher, DependencyLifecycle.SingleInstance);
+            hostingConfiguration.Services.AddSingleton(_ => transportSeam.TransportInfrastructure.Dispatcher);
 
             hostingConfiguration.Services.AddSingleton<ITransportAddressResolver>(_ =>
                 new TransportAddressResolver(transportSeam.TransportInfrastructure));

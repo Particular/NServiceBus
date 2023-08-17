@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-namespace NServiceBus.Core.Tests.API
+﻿namespace NServiceBus.Core.Tests.API
 {
     using System;
     using System.Collections.Generic;
@@ -10,13 +9,10 @@ namespace NServiceBus.Core.Tests.API
     using NUnit.Framework;
     using Particular.Approvals;
 
-
-
     [TestFixture]
     public class NullableAnnotations
     {
-        // Only available with net6.0+, implementation for net472 not worth it
-        NullabilityInfoContext nullContext = new NullabilityInfoContext();
+        readonly NullabilityInfoContext nullContext = new();
 
         [Test]
         public void ApproveNullableTypes()
@@ -100,4 +96,3 @@ namespace NServiceBus.Core.Tests.API
         }
     }
 }
-#endif

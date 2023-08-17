@@ -8,9 +8,7 @@
     {
         public AcceptanceTestingSubscriptionPersistence()
         {
-#pragma warning disable CS0618
-            DependsOn<MessageDrivenSubscriptions>();
-#pragma warning restore CS0618
+            DependsOn("NServiceBus.Features.MessageDrivenSubscriptions");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

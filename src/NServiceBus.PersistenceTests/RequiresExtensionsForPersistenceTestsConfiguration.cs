@@ -10,10 +10,6 @@
             {
                 Assert.Ignore("Ignoring this test because it requires DTC transaction support from persister.");
             }
-
-#if NET
-            Assert.Ignore(".NET does not support distributed transactions.");
-#endif
         }
 
         public static void RequiresOutboxSupport(this IPersistenceTestsConfiguration configuration)

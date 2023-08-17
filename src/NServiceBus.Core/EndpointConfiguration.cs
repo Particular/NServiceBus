@@ -39,16 +39,8 @@ namespace NServiceBus
             Settings.Set(new ConsecutiveFailuresConfiguration());
             Settings.Set(Pipeline = new PipelineSettings(Settings));
 
-            Notifications = new Notifications();
-            Settings.Set(Notifications);
-
             ConventionsBuilder = new ConventionsBuilder(Settings);
         }
-
-        /// <summary>
-        /// Access to the current endpoint <see cref="Notifications" />.
-        /// </summary>
-        public Notifications Notifications { get; }
 
         /// <summary>
         /// Access to the pipeline configuration.

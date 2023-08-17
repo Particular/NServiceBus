@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +30,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Services.HasComponent<IDataBusSerializer>())
+            if (context.Services.Any(sd => sd.ServiceType == typeof(IDataBusSerializer)))
             {
                 throw new Exception("Providing data bus serializer via dependency injection is no longer supported.");
             }

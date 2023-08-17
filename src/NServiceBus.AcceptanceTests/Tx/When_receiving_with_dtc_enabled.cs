@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
+    using System;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
@@ -21,19 +23,28 @@
             Assert.False(context.CanEnlistPromotable, "There should exists a DTC tx");
         }
 
-#if NETFRAMEWORK
+
         [Test]
         public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
         {
-            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
-                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
 
-                tx.Complete();
+            if (OperatingSystem.IsWindows())
+            {
+                // This test only work on Windows
+                TransactionManager.ImplicitDistributedTransactions = true;
+                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
+                    Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
+
+                    tx.Complete();
+                }
+            }
+            else
+            {
+                Assert.Ignore("Ignoring this test because it requires Windows");
             }
         }
-#endif
 
         [Test]
         public void Basic_assumptions_second_promotable_should_fail()

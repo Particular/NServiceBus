@@ -51,7 +51,7 @@ namespace NServiceBus.Core.Analyzer
         }
 
         static bool CouldBeMethodRequiringAwait(SyntaxToken syntaxToken) =>
-            syntaxToken.Kind() == SyntaxKind.IdentifierToken && methodNames.Contains(syntaxToken.Text);
+            syntaxToken.IsKind(SyntaxKind.IdentifierToken) && methodNames.Contains(syntaxToken.Text);
 
         static bool IsMethodRequiringAwait(ExpressionSyntax call, SyntaxNodeAnalysisContext context) =>
             context.SemanticModel.GetSymbolInfo(call, context.CancellationToken).Symbol is IMethodSymbol methodSymbol &&

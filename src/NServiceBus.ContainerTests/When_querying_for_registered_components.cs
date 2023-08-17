@@ -1,8 +1,7 @@
-#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
+    using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,7 +13,7 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             InitializeBuilder(serviceCollection);
 
-            Assert.True(serviceCollection.HasComponent(typeof(ExistingComponent)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ExistingComponent)));
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             InitializeBuilder(serviceCollection);
 
-            Assert.False(serviceCollection.HasComponent(typeof(NonExistingComponent)));
+            Assert.False(serviceCollection.Any(sd => sd.ServiceType == typeof(NonExistingComponent)));
         }
 
         [Test]
@@ -32,13 +31,13 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             InitializeBuilder(serviceCollection);
 
-            Assert.True(serviceCollection.HasComponent(typeof(ExistingComponentWithUnsatisfiedDependency)));
+            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ExistingComponentWithUnsatisfiedDependency)));
         }
 
         void InitializeBuilder(IServiceCollection c)
         {
-            c.ConfigureComponent(typeof(ExistingComponent), DependencyLifecycle.InstancePerCall);
-            c.ConfigureComponent(typeof(ExistingComponentWithUnsatisfiedDependency), DependencyLifecycle.InstancePerCall);
+            c.AddTransient(typeof(ExistingComponent));
+            c.AddTransient(typeof(ExistingComponentWithUnsatisfiedDependency));
         }
 
         public class NonExistingComponent
@@ -58,4 +57,3 @@ namespace NServiceBus.ContainerTests
         }
     }
 }
-#pragma warning restore CS0618

@@ -8,11 +8,11 @@ namespace NServiceBus.Features
 
     /// <summary>
     /// Allows subscribers to register by sending a subscription message to this endpoint.
-    /// ---
-    /// The goal is to remove feature classes that implemented functionality far beyond what features are "supposed" to be.
-    /// Many of those features have been moved into components instead. Now that this class is internal in V8 that
-    /// refactoring can occur.
     /// </summary>
+
+    // The goal is to remove feature classes that implement functionality far beyond what features are "supposed" to be.
+    // Many of those features have been moved into components instead.
+    // The ObsoleteEx attribute is here so that when it's time to 'RemoveInVersion', the class should not be deleted, but made internal. Once it's internal, refactoring can occur.
     [ObsoleteEx(
         Message = "It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
         RemoveInVersion = "10",
@@ -79,7 +79,7 @@ namespace NServiceBus.Features
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 authorizer ??= _ => true;
-                context.Container.AddSingleton(authorizer);
+                context.Services.AddSingleton(authorizer);
                 context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
             }
             else
@@ -90,7 +90,7 @@ namespace NServiceBus.Features
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             if (canReceive)
             {
-                context.Container.AddSingleton(b =>
+                context.Services.AddSingleton(b =>
                 {
                     var transportAddressResolver = b.GetRequiredService<ITransportAddressResolver>();
                     return new SubscriptionRouter(

@@ -1,4 +1,3 @@
-#pragma warning disable CS0618
 namespace NServiceBus.ContainerTests
 {
     using System;
@@ -8,108 +7,108 @@ namespace NServiceBus.ContainerTests
     public class When_using_nested_containers
     {
         [Test]
-        public void Instance_per_uow__components_should_be_disposed_when_the_child_container_is_disposed()
+        public void Scoped__components_should_be_disposed_when_the_child_container_is_disposed()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(ScopedComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             using (var scope = serviceProvider.CreateScope())
             {
-                scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
+                scope.ServiceProvider.GetService(typeof(ScopedComponent));
             }
-            Assert.True(InstancePerUoWComponent.DisposeCalled);
+            Assert.True(ScopedComponent.DisposeCalled);
         }
 
         [Test]
-        public void Instance_per_uow_components_should_yield_different_instances_between_parent_and_child_containers()
+        public void Scoped_components_should_yield_different_instances_between_parent_and_child_containers()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(ScopedComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var parentInstance = serviceProvider.GetService(typeof(InstancePerUoWComponent));
+            var parentInstance = serviceProvider.GetService(typeof(ScopedComponent));
             using (var scope = serviceProvider.CreateScope())
             {
-                var childInstance = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
+                var childInstance = scope.ServiceProvider.GetService(typeof(ScopedComponent));
 
                 Assert.AreNotSame(parentInstance, childInstance);
             }
         }
 
         [Test]
-        public void Instance_per_uow_components_should_yield_different_instances_between_different_instances_of_child_containers()
+        public void Scoped_components_should_yield_different_instances_between_different_instances_of_child_containers()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(ScopedComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             object instance1;
             using (var scope = serviceProvider.CreateScope())
             {
-                instance1 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
+                instance1 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
             }
 
             object instance2;
             using (var scope = serviceProvider.CreateScope())
             {
-                instance2 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
+                instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
             }
 
             Assert.AreNotSame(instance1, instance2);
         }
 
         [Test]
-        public void Instance_per_call_components_should_not_be_shared_across_child_containers()
+        public void Transient_components_should_not_be_shared_across_child_containers()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
+            serviceCollection.AddTransient(typeof(TransientComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             object instance1;
             using (var scope = serviceProvider.CreateScope())
             {
-                instance1 = scope.ServiceProvider.GetService(typeof(InstancePerCallComponent));
+                instance1 = scope.ServiceProvider.GetService(typeof(TransientComponent));
             }
 
             object instance2;
             using (var scope = serviceProvider.CreateScope())
             {
-                instance2 = scope.ServiceProvider.GetService(typeof(InstancePerCallComponent));
+                instance2 = scope.ServiceProvider.GetService(typeof(TransientComponent));
             }
 
             Assert.AreNotSame(instance1, instance2);
         }
 
         [Test]
-        public void UoW_components_in_the_parent_container_should_be_singletons_in_the_same_child_container()
+        public void Scoped_components_in_the_parent_container_should_be_singletons_in_the_same_child_container()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(ScopedComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             using (var scope = serviceProvider.CreateScope())
             {
-                var instance1 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
-                var instance2 = scope.ServiceProvider.GetService(typeof(InstancePerUoWComponent));
+                var instance1 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
+                var instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
 
                 Assert.AreSame(instance1, instance2, "UoW's should be singleton in child container");
             }
         }
 
         [Test]
-        public void UoW_components_built_on_root_container_should_be_singletons_even_with_child_builder_present()
+        public void Scoped_components_built_on_root_container_should_be_singletons_even_with_child_builder_present()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(ScopedComponent));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             using (serviceProvider.CreateScope())
             {
             }
-            var instance1 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
-            var instance2 = serviceProvider.GetService(typeof(InstancePerUoWComponent));
+            var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
+            var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
             Assert.AreSame(instance1, instance2, "UoW's should be singletons in the root container");
         }
 
@@ -119,7 +118,7 @@ namespace NServiceBus.ContainerTests
             var serviceCollection = new ServiceCollection();
             var singletonInMainContainer = new SingletonComponent();
             serviceCollection.AddSingleton(typeof(ISingletonComponent), singletonInMainContainer);
-            serviceCollection.ConfigureComponent(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(ComponentThatDependsOfSingleton));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             using (var scope = serviceProvider.CreateScope())
@@ -130,13 +129,13 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Should_dispose_all_non_percall_IDisposable_components_in_child_container()
+        public void Should_dispose_all_non_singleton_IDisposable_components_in_child_container()
         {
             var serviceCollection = new ServiceCollection();
             DisposableComponent.DisposeCalled = false;
             AnotherDisposableComponent.DisposeCalled = false;
             serviceCollection.AddSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
-            serviceCollection.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            serviceCollection.AddScoped(typeof(DisposableComponent));
 
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -175,14 +174,14 @@ namespace NServiceBus.ContainerTests
         }
     }
 
-    public class InstancePerCallComponent : IDisposable
+    public class TransientComponent : IDisposable
     {
         public void Dispose()
         {
         }
     }
 
-    public class InstancePerUoWComponent : IDisposable
+    public class ScopedComponent : IDisposable
     {
         public void Dispose()
         {
@@ -224,4 +223,3 @@ namespace NServiceBus.ContainerTests
         }
     }
 }
-#pragma warning restore CS0618

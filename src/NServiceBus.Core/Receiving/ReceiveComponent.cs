@@ -71,8 +71,6 @@ namespace NServiceBus
                 return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
             }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-            pipelineSettings.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
-
             pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
 
             var handlerDiagnostics = new Dictionary<string, List<string>>();
@@ -246,7 +244,7 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection container, ICollection<Type> availableTypes)
+        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
         {
             var types = new List<Type>(availableTypes);
 
@@ -259,11 +257,12 @@ namespace NServiceBus
 
             foreach (var t in types.Where(IsMessageHandler))
             {
-                container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
+                serviceCollection.AddScoped(t);
+
                 handlerRegistry.RegisterHandler(t);
             }
 
-            container.AddSingleton(handlerRegistry);
+            serviceCollection.AddSingleton(handlerRegistry);
         }
 
         public static bool IsMessageHandler(Type type)

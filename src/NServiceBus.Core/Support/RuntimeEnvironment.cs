@@ -5,33 +5,22 @@
     /// <summary>
     /// Abstracts the runtime environment.
     /// </summary>
-    public static class RuntimeEnvironment
+    public static partial class RuntimeEnvironment
     {
         static RuntimeEnvironment()
         {
-            var machineName = Environment.MachineName;
-
-            MachineNameAction = () => machineName;
+            MachineName = Environment.MachineName;
         }
 
         /// <summary>
         /// Returns the machine name where this endpoint is currently running.
         /// </summary>
-        public static string MachineName => MachineNameAction();
+        public static string MachineName { get; private set; }
 
-
-        /// <summary>
-        /// Get the machine name, allows for overrides.
-        /// </summary>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "HostInfoSettings.UsingHostName",
-            TreatAsErrorFromVersion = "9.0",
-            RemoveInVersion = "10.0")]
-        public static Func<string> MachineNameAction { get; set; }
 
         internal static void SetMachineName(string machineName)
         {
-            MachineNameAction = () => machineName;
+            MachineName = machineName;
         }
     }
 }

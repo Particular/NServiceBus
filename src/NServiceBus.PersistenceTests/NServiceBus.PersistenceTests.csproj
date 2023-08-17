@@ -1,23 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0;net7.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBusTests.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <Reference Include="System.Transactions" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="2.3.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0-preview-23371-04" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[3.13.3, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
@@ -36,5 +31,11 @@
     <AddSourceFileToPackage Include="..\NServiceBus.Core\DeepCopy.cs" />
     <RemoveSourceFileFromPackage Include="PersistenceTestsConfiguration.cs" />
   </ItemGroup>
+
+  <Target Name="WorkaroundForTesthostBeingAddedAsContent" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <Content Update="**\testhost.*" Pack="false" />
+    </ItemGroup>
+  </Target>
 
 </Project>

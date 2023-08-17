@@ -48,14 +48,14 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public Type BehaviorType { get; private set; }
 
-        internal void ApplyContainerRegistration(IServiceCollection container)
+        internal void ApplyContainerRegistration(IServiceCollection serviceCollection)
         {
             if (factoryMethod != null)
             {
                 return;
             }
 
-            container.ConfigureComponent(BehaviorType, DependencyLifecycle.InstancePerCall);
+            serviceCollection.AddTransient(BehaviorType);
         }
 
         /// <summary>
