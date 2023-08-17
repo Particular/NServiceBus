@@ -257,7 +257,7 @@ namespace NServiceBus
 
             foreach (var t in types.Where(IsMessageHandler))
             {
-                serviceCollection.AddWithInterfaces(t, ServiceLifetime.Scoped);
+                serviceCollection.AddScoped(t);
 
                 handlerRegistry.RegisterHandler(t);
             }

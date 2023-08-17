@@ -17,7 +17,7 @@ namespace NServiceBus
 
             foreach (var registeredBehavior in modifications.Replacements)
             {
-                hostingConfiguration.Services.AddWithInterfaces(registeredBehavior.BehaviorType, ServiceLifetime.Transient);
+                hostingConfiguration.Services.AddTransient(registeredBehavior.BehaviorType);
             }
 
             foreach (var step in modifications.Additions)

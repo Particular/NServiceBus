@@ -64,7 +64,7 @@
             {
                 if (IsSagaNotFoundHandler(t))
                 {
-                    context.Services.AddWithInterfaces(t, ServiceLifetime.Transient);
+                    context.Services.AddTransient(typeof(IHandleSagaNotFound), t);
                 }
             }
 
@@ -78,11 +78,11 @@
         {
             foreach (var finder in sagaMetaModel.SelectMany(m => m.Finders))
             {
-                container.AddWithInterfaces(finder.Type, ServiceLifetime.Transient);
+                container.AddTransient(finder.Type);
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinderType))
                 {
-                    container.AddWithInterfaces((Type)customFinderType, ServiceLifetime.Transient);
+                    container.AddTransient((Type)customFinderType);
                 }
             }
         }

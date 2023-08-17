@@ -55,7 +55,7 @@ namespace NServiceBus.Pipeline
                 return;
             }
 
-            serviceCollection.AddWithInterfaces(BehaviorType, ServiceLifetime.Transient);
+            serviceCollection.AddTransient(BehaviorType);
         }
 
         /// <summary>

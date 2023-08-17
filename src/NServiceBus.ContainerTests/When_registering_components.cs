@@ -5,8 +5,6 @@ namespace NServiceBus.ContainerTests
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus;
-    using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
 
 
@@ -78,47 +76,6 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Concrete_classes_should_get_the_same_lifecycle_as_their_interfaces()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddWithInterfaces(typeof(SingletonComponent), ServiceLifetime.Singleton);
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            Assert.AreSame(serviceProvider.GetService(typeof(SingletonComponent)), serviceProvider.GetService(typeof(ISingletonComponent)));
-        }
-
-        [Test]
-        public void All_implemented_interfaces_should_be_registered()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddWithInterfaces(typeof(ComponentWithMultipleInterfaces), ServiceLifetime.Transient);
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeInterface)));
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeOtherInterface)));
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(IYetAnotherInterface)));
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            Assert.AreEqual(1, serviceProvider.GetServices(typeof(IYetAnotherInterface)).Count());
-        }
-
-        [Test]
-        public void Multiple_implementations_should_be_supported()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddWithInterfaces(typeof(SomeClass), ServiceLifetime.Scoped);
-            serviceCollection.AddWithInterfaces(typeof(SomeOtherClass), ServiceLifetime.Scoped);
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            Assert.NotNull(serviceProvider.GetService(typeof(SomeClass)));
-            Assert.AreEqual(2, serviceProvider.GetServices(typeof(ISomeInterface)).Count());
-
-            using (var scope = serviceProvider.CreateScope())
-            {
-                Assert.NotNull(scope.ServiceProvider.GetService(typeof(SomeClass)));
-                Assert.AreEqual(2, scope.ServiceProvider.GetServices(typeof(ISomeInterface)).Count());
-            }
-        }
-
-        [Test]
         public void Given_lookupType_should_be_used_as_service_in_the_registration_when_RegisterSingleton()
         {
             var serviceCollection = new ServiceCollection();
@@ -132,15 +89,6 @@ namespace NServiceBus.ContainerTests
             {
                 Assert.AreEqual(expected, scope.ServiceProvider.GetService(typeof(SomeClass)));
             }
-        }
-
-        [Test]
-        public void Generic_interfaces_should_be_registered()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddWithInterfaces(typeof(ComponentWithGenericInterface), ServiceLifetime.Transient);
-
-            Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ISomeGenericInterface<string>)));
         }
     }
 
