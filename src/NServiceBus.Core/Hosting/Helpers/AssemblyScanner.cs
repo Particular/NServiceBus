@@ -304,16 +304,20 @@ namespace NServiceBus.Hosting.Helpers
 
         bool IsExcluded(string assemblyNameOrFileName)
         {
-            var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
-            if (isExplicitlyExcluded)
+            foreach (var explicitlyExcludedAssembly in AssembliesToSkip)
             {
-                return true;
+                if (IsMatch(explicitlyExcludedAssembly, assemblyNameOrFileName))
+                {
+                    return true;
+                }
             }
-
-            var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
-            if (isExcludedByDefault)
+            
+            foreach (var excludedByDefaultAssembly in DefaultAssemblyExclusions)
             {
-                return true;
+                if (IsMatch(excludedByDefaultAssembly, assemblyNameOrFileName))
+                {
+                    return true;
+                }
             }
 
             return false;
