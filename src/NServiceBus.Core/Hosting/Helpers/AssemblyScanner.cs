@@ -392,7 +392,8 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            if (AssemblyValidator.IsRuntimeAssembly(assemblyName.GetPublicKeyToken()))
+            var tokenString = Convert.ToHexString(assemblyName.GetPublicKeyToken() ?? Array.Empty<byte>());
+            if (AssemblyValidator.IsRuntimeAssembly(tokenString))
             {
                 return false;
             }
