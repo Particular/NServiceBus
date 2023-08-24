@@ -248,7 +248,7 @@ namespace NServiceBus.Hosting.Helpers
         {
             var sb = new StringBuilder($"Could not enumerate all types for '{fileName}'.");
 
-            if (!e.LoaderExceptions.Any())
+            if (e.LoaderExceptions.Length == 0)
             {
                 sb.NewLine($"Exception message: {e}");
                 return sb.ToString();
