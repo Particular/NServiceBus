@@ -389,7 +389,7 @@ namespace NServiceBus.Hosting.Helpers
 
         internal List<string> AssembliesToSkip = new();
         internal bool ScanNestedDirectories;
-        internal List<Type> TypesToSkip = new();
+        internal HashSet<Type> TypesToSkip = new();
         readonly Assembly assemblyToScan;
         readonly string baseDirectoryToScan;
         const string NServicebusCoreAssemblyName = "NServiceBus.Core";

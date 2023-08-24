@@ -32,7 +32,7 @@
             var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
 
             assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
-            assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
+            assemblyScanner.TypesToSkip = new HashSet<Type>(assemblyScannerSettings.ExcludedTypes);
             assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
             assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
             assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
