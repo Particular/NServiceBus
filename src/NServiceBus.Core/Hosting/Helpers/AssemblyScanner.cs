@@ -320,9 +320,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         static bool IsMatch(string expression1, string expression2)
-        {
-            return DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
-        }
+            => DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
 
         bool IsAllowedType(Type type)
         {
