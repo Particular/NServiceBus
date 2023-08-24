@@ -320,21 +320,20 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         static bool IsMatch(string expression1, string expression2)
-            => DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
+            => string.Equals(RemoveFileExtensionIfNecessary(expression1), RemoveFileExtensionIfNecessary(expression2), StringComparison.OrdinalIgnoreCase);
 
         bool IsAllowedType(Type type) =>
             type is { IsValueType: false } &&
             Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) == null &&
             !TypesToSkip.Contains(type);
 
-        static string DistillLowerAssemblyName(string assemblyOrFileName)
+        static string RemoveFileExtensionIfNecessary(string assemblyOrFileName)
         {
-            var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
-            if (lowerAssemblyName.EndsWith(".dll") || lowerAssemblyName.EndsWith(".exe"))
+            if (assemblyOrFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyOrFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
             {
-                lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
+                return assemblyOrFileName[..^4];
             }
-            return lowerAssemblyName;
+            return assemblyOrFileName;
         }
 
         void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
