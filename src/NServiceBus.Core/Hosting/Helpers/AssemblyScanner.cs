@@ -322,18 +322,10 @@ namespace NServiceBus.Hosting.Helpers
         static bool IsMatch(string expression1, string expression2)
             => DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
 
-        bool IsAllowedType(Type type)
-        {
-            return type != null &&
-                   !type.IsValueType &&
-                   !IsCompilerGenerated(type) &&
-                   !TypesToSkip.Contains(type);
-        }
-
-        static bool IsCompilerGenerated(Type type)
-        {
-            return type.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null;
-        }
+        bool IsAllowedType(Type type) =>
+            type is { IsValueType: false } &&
+            Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) == null &&
+            !TypesToSkip.Contains(type);
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)
         {
