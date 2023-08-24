@@ -260,7 +260,7 @@ namespace NServiceBus.Hosting.Helpers
 
             foreach (var ex in e.LoaderExceptions)
             {
-                if (ex is FileLoadException loadException && loadException.FileName != null)
+                if (ex is FileLoadException { FileName: not null } loadException)
                 {
                     if (!files.Contains(loadException.FileName))
                     {
