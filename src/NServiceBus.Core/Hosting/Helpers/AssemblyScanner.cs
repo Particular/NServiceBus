@@ -311,7 +311,7 @@ namespace NServiceBus.Hosting.Helpers
                     return true;
                 }
             }
-            
+
             foreach (var excludedByDefaultAssembly in DefaultAssemblyExclusions)
             {
                 if (IsMatch(excludedByDefaultAssembly, assemblyNameOrFileName))
@@ -325,6 +325,20 @@ namespace NServiceBus.Hosting.Helpers
 
         static bool IsMatch(string expression1, string expression2)
             => string.Equals(RemoveFileExtensionIfNecessary(expression1), RemoveFileExtensionIfNecessary(expression2), StringComparison.OrdinalIgnoreCase);
+
+        List<Type> AllowedTypes(Type[] types)
+        {
+            // assume the majority of types will be allowed to preallocate the list
+            var allowedTypes = new List<Type>(types.Length);
+            foreach (var typeToAdd in types)
+            {
+                if (IsAllowedType(typeToAdd))
+                {
+                    allowedTypes.Add(typeToAdd);
+                }
+            }
+            return allowedTypes;
+        }
 
         bool IsAllowedType(Type type) =>
             type is { IsValueType: false } &&
@@ -345,7 +359,8 @@ namespace NServiceBus.Hosting.Helpers
             try
             {
                 //will throw if assembly cannot be loaded
-                results.Types.AddRange(assembly.GetTypes().Where(IsAllowedType));
+                var types = assembly.GetTypes();
+                results.Types.AddRange(AllowedTypes(types));
             }
             catch (ReflectionTypeLoadException e)
             {
@@ -358,7 +373,7 @@ namespace NServiceBus.Hosting.Helpers
                 }
 
                 LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-                results.Types.AddRange(e.Types.Where(IsAllowedType));
+                results.Types.AddRange(AllowedTypes(e.Types));
             }
             results.Assemblies.Add(assembly);
         }
