@@ -297,10 +297,7 @@ namespace NServiceBus.Hosting.Helpers
             var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             foreach (var searchPattern in FileSearchPatternsToUse)
             {
-                foreach (var info in baseDir.GetFiles(searchPattern, searchOption))
-                {
-                    fileInfo.Add(info);
-                }
+                fileInfo.AddRange(baseDir.GetFiles(searchPattern, searchOption));
             }
             return fileInfo;
         }
