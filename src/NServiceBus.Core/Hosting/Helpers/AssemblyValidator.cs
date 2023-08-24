@@ -6,63 +6,59 @@
     using System.Reflection.PortableExecutable;
     using System.Security.Cryptography;
 
-    class AssemblyValidator
+    static class AssemblyValidator
     {
-        public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
+        public static void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
-            using (var stream = File.OpenRead(assemblyPath))
-            using (var file = new PEReader(stream))
+            using var stream = File.OpenRead(assemblyPath);
+            using var file = new PEReader(stream);
+            var hasMetadata = false;
+
+            try
             {
-                var hasMetadata = false;
+                hasMetadata = file.HasMetadata;
+            }
+            catch (BadImageFormatException) { }
 
-                try
-                {
-                    hasMetadata = file.HasMetadata;
-                }
-                catch (BadImageFormatException) { }
+            if (!hasMetadata)
+            {
+                shouldLoad = false;
+                reason = "File is not a .NET assembly.";
+                return;
+            }
 
-                if (!hasMetadata)
+            var reader = file.GetMetadataReader();
+            var assemblyDefinition = reader.GetAssemblyDefinition();
+
+            if (!assemblyDefinition.PublicKey.IsNil)
+            {
+                var publicKey = reader.GetBlobBytes(assemblyDefinition.PublicKey);
+                var publicKeyToken = GetPublicKeyToken(publicKey);
+
+                if (IsRuntimeAssembly(publicKeyToken))
                 {
                     shouldLoad = false;
-                    reason = "File is not a .NET assembly.";
+                    reason = "File is a .NET runtime assembly.";
                     return;
                 }
-
-                var reader = file.GetMetadataReader();
-                var assemblyDefinition = reader.GetAssemblyDefinition();
-
-                if (!assemblyDefinition.PublicKey.IsNil)
-                {
-                    var publicKey = reader.GetBlobBytes(assemblyDefinition.PublicKey);
-                    var publicKeyToken = GetPublicKeyToken(publicKey);
-
-                    if (IsRuntimeAssembly(publicKeyToken))
-                    {
-                        shouldLoad = false;
-                        reason = "File is a .NET runtime assembly.";
-                        return;
-                    }
-                }
-
-                shouldLoad = true;
-                reason = "File is a .NET assembly.";
             }
+
+            shouldLoad = true;
+            reason = "File is a .NET assembly.";
         }
 
         static byte[] GetPublicKeyToken(byte[] publicKey)
         {
-            using (var sha1 = SHA1.Create())
+            using var sha1 = SHA1.Create();
+            var hash = sha1.ComputeHash(publicKey);
+            var publicKeyToken = new byte[8];
+
+            for (var i = 0; i < 8; i++)
             {
-                var hash = sha1.ComputeHash(publicKey);
-                var publicKeyToken = new byte[8];
-
-                for (var i = 0; i < 8; i++)
-                {
-                    publicKeyToken[i] = hash[hash.Length - (i + 1)];
-                }
-
-                return publicKeyToken;
+                publicKeyToken[i] = hash[^(i + 1)];
             }
+
+            return publicKeyToken;
         }
 
         public static bool IsRuntimeAssembly(byte[] publicKeyToken)

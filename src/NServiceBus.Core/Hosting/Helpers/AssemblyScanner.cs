@@ -156,7 +156,7 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            assemblyValidator.ValidateAssemblyFile(assemblyPath, out var shouldLoad, out var reason);
+            AssemblyValidator.ValidateAssemblyFile(assemblyPath, out var shouldLoad, out var reason);
 
             if (!shouldLoad)
             {
@@ -400,7 +400,6 @@ namespace NServiceBus.Hosting.Helpers
             return true;
         }
 
-        readonly AssemblyValidator assemblyValidator = new();
         internal List<string> AssembliesToSkip = new();
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new();
