@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.Config
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -49,7 +50,7 @@ namespace NServiceBus.Core.Tests.Config
 
             if (assembliesToSkip != null)
             {
-                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+                assemblyScanner.AssembliesToSkip = new HashSet<string>(assembliesToSkip.ToList(), StringComparer.OrdinalIgnoreCase);
             }
             return assemblyScanner
                 .GetScannableAssemblies()

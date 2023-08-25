@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -15,13 +16,13 @@
         {
             var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
             {
-                AssembliesToSkip = new List<string>
+                AssembliesToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        "dotNet.dll"
+                        "dotNet"
                     },
                 ScanAppDomainAssemblies = false
             }
-                .GetScannableAssemblies();
+            .GetScannableAssemblies();
 
             var skippedFiles = results.SkippedFiles;
             var explicitlySkippedDll = skippedFiles.FirstOrDefault(s => s.FilePath.Contains("dotNet.dll"));

@@ -302,30 +302,9 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        bool IsExcluded(string assemblyNameOrFileName)
-        {
-            foreach (var explicitlyExcludedAssembly in AssembliesToSkip)
-            {
-                if (IsMatch(explicitlyExcludedAssembly, assemblyNameOrFileName))
-                {
-                    return true;
-                }
-            }
+        bool IsExcluded(string assemblyNameOrFileName) => AssembliesToSkip.Contains(assemblyNameOrFileName) || DefaultAssemblyExclusions.Contains(assemblyNameOrFileName);
 
-            foreach (var excludedByDefaultAssembly in DefaultAssemblyExclusions)
-            {
-                if (IsMatch(excludedByDefaultAssembly, assemblyNameOrFileName))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        static bool IsMatch(string expression1, string expression2)
-            => string.Equals(RemoveFileExtensionIfNecessary(expression1), RemoveFileExtensionIfNecessary(expression2), StringComparison.OrdinalIgnoreCase);
-
+        // The input and output signature of this method is deliberate
         List<Type> AllowedTypes(Type[] types)
         {
             // assume the majority of types will be allowed to preallocate the list
@@ -344,15 +323,6 @@ namespace NServiceBus.Hosting.Helpers
             type is { IsValueType: false } &&
             Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) == null &&
             !TypesToSkip.Contains(type);
-
-        static string RemoveFileExtensionIfNecessary(string assemblyOrFileName)
-        {
-            if (assemblyOrFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyOrFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-            {
-                return assemblyOrFileName[..^4];
-            }
-            return assemblyOrFileName;
-        }
 
         void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
         {
@@ -398,15 +368,11 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            if (IsExcluded(assemblyName.Name))
-            {
-                return false;
-            }
-
-            return true;
+            // AssemblyName.Name is without the file extension
+            return !IsExcluded(assemblyName.Name);
         }
 
-        internal List<string> AssembliesToSkip = new();
+        internal HashSet<string> AssembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
         internal bool ScanNestedDirectories;
         internal HashSet<Type> TypesToSkip = new();
         readonly Assembly assemblyToScan;
@@ -420,7 +386,7 @@ namespace NServiceBus.Hosting.Helpers
         };
 
         //TODO: delete when we make message scanning lazy #1617
-        static readonly string[] DefaultAssemblyExclusions =
+        static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
         {
             // NSB Build-Dependencies
             "nunit",
