@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Settings;
-    using Hosting.Helpers;
     using System.Reflection;
+    using Hosting.Helpers;
+    using Settings;
 
     class AssemblyScanningComponent
     {

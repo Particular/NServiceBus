@@ -51,11 +51,11 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public bool ScanFileSystemAssemblies { get; set; } = true;
 
-        internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
+        internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
 
         internal IReadOnlyCollection<string> AssembliesToSkip
         {
-            set => asssembliesToSkip = new HashSet<string>(value.Select(Path.GetFileNameWithoutExtension), StringComparer.OrdinalIgnoreCase);
+            set => assembliesToSkip = new HashSet<string>(value.Select(Path.GetFileNameWithoutExtension), StringComparer.OrdinalIgnoreCase);
         }
 
         internal IReadOnlyCollection<Type> TypesToSkip
@@ -313,7 +313,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         bool IsExcluded(string assemblyNameOrFileNameWithoutExtension) =>
-            asssembliesToSkip.Contains(assemblyNameOrFileNameWithoutExtension) ||
+            assembliesToSkip.Contains(assemblyNameOrFileNameWithoutExtension) ||
             DefaultAssemblyExclusions.Contains(assemblyNameOrFileNameWithoutExtension);
 
         // The input and output signature of this method is deliberate
@@ -387,8 +387,8 @@ namespace NServiceBus.Hosting.Helpers
         readonly Assembly assemblyToScan;
         readonly string baseDirectoryToScan;
         HashSet<Type> typesToSkip = new();
-        HashSet<string> asssembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
-        const string NServicebusCoreAssemblyName = "NServiceBus.Core";
+        HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
+        const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
 
         static readonly string[] FileSearchPatternsToUse =
         {
