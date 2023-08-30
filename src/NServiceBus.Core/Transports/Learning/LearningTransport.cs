@@ -8,7 +8,7 @@
     /// <summary>
     /// A transport optimized for development and learning use. DO NOT use in production.
     /// </summary>
-    public partial class LearningTransport : TransportDefinition
+    public class LearningTransport : TransportDefinition
     {
         /// <summary>
         /// Creates a new instance of a learning transport.
