@@ -518,11 +518,6 @@ namespace NServiceBus
         public string StorageDirectory { get; set; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
         public override System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default) { }
-        [System.Obsolete("Inject the ITransportAddressResolver type to access the address translation mecha" +
-            "nism at runtime. See the NServiceBus version 8 upgrade guide for further details" +
-            ". The member currently throws a NotImplementedException. Will be removed in vers" +
-            "ion 10.0.0.", true)]
-        public override string ToTransportAddress(NServiceBus.Transport.QueueAddress queueAddress) { }
     }
     public static class LearningTransportConfigurationExtensions
     {
@@ -1573,7 +1568,8 @@ namespace NServiceBus.Pipeline
         System.Collections.Generic.Dictionary<string, string> AuditMetadata { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
         System.TimeSpan? TimeToBeReceived { get; }
-        [System.Obsolete("Use `AuditMetadata` instead. Will be removed in version 10.0.0.", true)]
+        [System.Obsolete("Use `AuditMetadata` instead. The member currently throws a NotImplementedExceptio" +
+            "n. Will be removed in version 10.0.0.", true)]
         void AddAuditData(string key, string value);
         NServiceBus.Pipeline.IAuditActionContext PreventChanges();
     }
@@ -2225,8 +2221,9 @@ namespace NServiceBus.Transport
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
         [System.Obsolete("Inject the ITransportAddressResolver type to access the address translation mecha" +
             "nism at runtime. See the NServiceBus version 8 upgrade guide for further details" +
-            ". Will be removed in version 10.0.0.", true)]
-        public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
+            ". The member currently throws a NotImplementedException. Will be removed in vers" +
+            "ion 10.0.0.", true)]
+        public virtual string ToTransportAddress(NServiceBus.Transport.QueueAddress address) { }
     }
     public abstract class TransportInfrastructure
     {

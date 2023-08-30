@@ -38,9 +38,6 @@
 
         IReadOnlyDictionary<string, string> IAuditActionContext.AuditMetadata => AuditMetadata;
 
-        // This method is being removed from IAuditContext, so this stub method remains until the removal is done in v10
-        public void AddAuditData(string key, string value) => throw new NotImplementedException();
-
         /// <summary>
         /// Locks the audit action for further changes.
         /// </summary>

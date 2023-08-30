@@ -9,15 +9,6 @@ namespace NServiceBus
     using NServiceBus.Settings;
     using NServiceBus.Transport;
 
-    partial class AuditContext
-    {
-        [ObsoleteEx(
-          ReplacementTypeOrMember = nameof(AuditMetadata),
-          TreatAsErrorFromVersion = "9.0",
-          RemoveInVersion = "10.0")]
-        public void AddAuditData(string key, string value) => throw new NotImplementedException();
-    }
-
     public static partial class ConnectorContextExtensions
     {
         [ObsoleteEx(
@@ -44,14 +35,6 @@ namespace NServiceBus
             RemoveInVersion = "10.0",
             TreatAsErrorFromVersion = "9.0")]
         public static bool RequiredImmediateDispatch(this ExtendableOptions options) => throw new NotImplementedException();
-    }
-    public partial class LearningTransport
-    {
-        [ObsoleteEx(
-            Message = "Inject the ITransportAddressResolver type to access the address translation mechanism at runtime. See the NServiceBus version 8 upgrade guide for further details.",
-            TreatAsErrorFromVersion = "9",
-            RemoveInVersion = "10")]
-        public override string ToTransportAddress(QueueAddress queueAddress) => throw new NotImplementedException();
     }
 
     [ObsoleteEx(
@@ -191,13 +174,15 @@ namespace NServiceBus.ObjectBuilder
 
 namespace NServiceBus.Pipeline
 {
+    using System;
+
     public partial interface IAuditContext : IBehaviorContext
     {
         [ObsoleteEx(
             ReplacementTypeOrMember = nameof(AuditMetadata),
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
-        void AddAuditData(string key, string value);
+        void AddAuditData(string key, string value) => throw new NotImplementedException();
     }
 }
 
@@ -217,13 +202,15 @@ namespace NServiceBus.Support
 
 namespace NServiceBus.Transport
 {
+    using System;
+
     public abstract partial class TransportDefinition
     {
         [ObsoleteEx(
             Message = "Inject the ITransportAddressResolver type to access the address translation mechanism at runtime. See the NServiceBus version 8 upgrade guide for further details.",
             TreatAsErrorFromVersion = "9",
             RemoveInVersion = "10")]
-        public abstract string ToTransportAddress(QueueAddress address);
+        public virtual string ToTransportAddress(QueueAddress address) => throw new NotImplementedException();
     }
 }
 

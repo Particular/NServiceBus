@@ -30,11 +30,6 @@
             return Task.FromResult<TransportInfrastructure>(infrastructure);
         }
 
-        [Obsolete("This should be removed when TransportDefinition.ToTransportAddress is removed in v10.", true)]
-#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
-        public override string ToTransportAddress(QueueAddress address) => throw new NotImplementedException();
-#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
-
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
         {
             return new[]
