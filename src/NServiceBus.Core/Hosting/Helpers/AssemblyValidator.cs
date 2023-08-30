@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
     using System.Reflection.Metadata;
     using System.Reflection.PortableExecutable;
     using System.Security.Cryptography;
@@ -47,6 +48,12 @@
             reason = "File is a .NET assembly.";
         }
 
+        public static bool IsRuntimeAssembly(AssemblyName assemblyName)
+        {
+            var tokenString = Convert.ToHexString(assemblyName.GetPublicKeyToken() ?? Array.Empty<byte>());
+            return IsRuntimeAssembly(tokenString);
+        }
+
         static string GetPublicKeyToken(byte[] publicKey)
         {
             using var sha1 = SHA1.Create();
@@ -58,7 +65,7 @@
             return Convert.ToHexString(lastEightBytes);
         }
 
-        public static bool IsRuntimeAssembly(string tokenString) =>
+        static bool IsRuntimeAssembly(string tokenString) =>
             tokenString switch
             {
                 // Microsoft tokens
