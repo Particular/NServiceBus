@@ -397,7 +397,6 @@ namespace NServiceBus.Hosting.Helpers
             "*.exe"
         };
 
-        //TODO: delete when we make message scanning lazy #1617
         static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
         {
             // NSB Build-Dependencies
