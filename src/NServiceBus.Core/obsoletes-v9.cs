@@ -9,15 +9,6 @@ namespace NServiceBus
     using NServiceBus.Settings;
     using NServiceBus.Transport;
 
-    partial class AuditContext
-    {
-        [ObsoleteEx(
-          ReplacementTypeOrMember = nameof(AuditMetadata),
-          TreatAsErrorFromVersion = "9.0",
-          RemoveInVersion = "10.0")]
-        public void AddAuditData(string key, string value) => throw new NotImplementedException();
-    }
-
     public static partial class ConnectorContextExtensions
     {
         [ObsoleteEx(
@@ -183,13 +174,15 @@ namespace NServiceBus.ObjectBuilder
 
 namespace NServiceBus.Pipeline
 {
+    using System;
+
     public partial interface IAuditContext : IBehaviorContext
     {
         [ObsoleteEx(
             ReplacementTypeOrMember = nameof(AuditMetadata),
             TreatAsErrorFromVersion = "9.0",
             RemoveInVersion = "10.0")]
-        void AddAuditData(string key, string value);
+        void AddAuditData(string key, string value) => throw new NotImplementedException();
     }
 }
 

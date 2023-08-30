@@ -6,7 +6,7 @@ namespace NServiceBus
     using Pipeline;
     using Transport;
 
-    partial class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
+    class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
     {
         public AuditContext(OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IBehaviorContext parent)
             : base(parent)
