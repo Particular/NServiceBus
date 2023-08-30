@@ -53,6 +53,16 @@ namespace NServiceBus.Hosting.Helpers
 
         internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
 
+        internal IReadOnlyCollection<string> AssembliesToSkip
+        {
+            set => asssembliesToSkip = new HashSet<string>(value.Select(Path.GetFileNameWithoutExtension), StringComparer.OrdinalIgnoreCase);
+        }
+
+        internal IReadOnlyCollection<Type> TypesToSkip
+        {
+            set => typesToSkip = new HashSet<Type>(value);
+        }
+
         internal string AdditionalAssemblyScanningPath { get; set; }
 
         /// <summary>
@@ -322,7 +332,7 @@ namespace NServiceBus.Hosting.Helpers
         bool IsAllowedType(Type type) =>
             type is { IsValueType: false } &&
             Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) == null &&
-            !TypesToSkip.Contains(type);
+            !typesToSkip.Contains(type);
 
         void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
         {
@@ -372,11 +382,11 @@ namespace NServiceBus.Hosting.Helpers
             return !IsExcluded(assemblyName.Name);
         }
 
-        internal HashSet<string> AssembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
         internal bool ScanNestedDirectories;
-        internal HashSet<Type> TypesToSkip = new();
         readonly Assembly assemblyToScan;
         readonly string baseDirectoryToScan;
+        HashSet<Type> typesToSkip = new();
+        HashSet<string> asssembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
         const string NServicebusCoreAssemblyName = "NServiceBus.Core";
 
         static readonly string[] FileSearchPatternsToUse =

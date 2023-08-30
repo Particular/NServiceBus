@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using Settings;
     using Hosting.Helpers;
@@ -32,8 +31,8 @@
 
             var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
 
-            assemblyScanner.AssembliesToSkip = new HashSet<string>(assemblyScannerSettings.ExcludedAssemblies.Select(Path.GetFileNameWithoutExtension).ToArray(), StringComparer.OrdinalIgnoreCase);
-            assemblyScanner.TypesToSkip = new HashSet<Type>(assemblyScannerSettings.ExcludedTypes);
+            assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
+            assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
             assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
             assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
             assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;

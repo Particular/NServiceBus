@@ -16,9 +16,9 @@
         {
             var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
             {
-                AssembliesToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                AssembliesToSkip = new List<string>
                     {
-                        "dotNet"
+                        "dotNet.dll"
                     },
                 ScanAppDomainAssemblies = false
             }
