@@ -312,10 +312,12 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        bool IsExcluded(string assemblyNameOrFileName) => AssembliesToSkip.Contains(assemblyNameOrFileName) || DefaultAssemblyExclusions.Contains(assemblyNameOrFileName);
+        bool IsExcluded(string assemblyNameOrFileNameWithoutExtension) =>
+            asssembliesToSkip.Contains(assemblyNameOrFileNameWithoutExtension) ||
+            DefaultAssemblyExclusions.Contains(assemblyNameOrFileNameWithoutExtension);
 
         // The input and output signature of this method is deliberate
-        List<Type> AllowedTypes(Type[] types)
+        List<Type> FilterAllowedTypes(Type[] types)
         {
             // assume the majority of types will be allowed to preallocate the list
             var allowedTypes = new List<Type>(types.Length);
@@ -340,7 +342,7 @@ namespace NServiceBus.Hosting.Helpers
             {
                 //will throw if assembly cannot be loaded
                 var types = assembly.GetTypes();
-                results.Types.AddRange(AllowedTypes(types));
+                results.Types.AddRange(FilterAllowedTypes(types));
             }
             catch (ReflectionTypeLoadException e)
             {
@@ -353,7 +355,7 @@ namespace NServiceBus.Hosting.Helpers
                 }
 
                 LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-                results.Types.AddRange(AllowedTypes(e.Types));
+                results.Types.AddRange(FilterAllowedTypes(e.Types));
             }
             results.Assemblies.Add(assembly);
         }

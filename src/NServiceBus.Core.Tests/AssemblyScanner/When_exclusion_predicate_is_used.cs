@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -10,7 +9,6 @@
     [TestFixture]
     public class When_exclusion_predicate_is_used
     {
-
         [Test]
         public void No_files_explicitly_excluded_are_returned()
         {
