@@ -5,7 +5,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>5.0</AnalysisLevel>
+    <AnalysisLevel Condition="'$(AnalysisLevel)' == ''">5.0</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- To lock the version of Particular.Analyzers, for example, in a release branch, set this property in Custom.Build.props -->
     <ParticularAnalyzersVersion Condition="'$(ParticularAnalyzersVersion)' == ''">1.8.0</ParticularAnalyzersVersion>
