@@ -9,7 +9,6 @@
     [TestFixture]
     public class When_exclusion_predicate_is_used
     {
-
         [Test]
         public void No_files_explicitly_excluded_are_returned()
         {
@@ -21,7 +20,7 @@
                     },
                 ScanAppDomainAssemblies = false
             }
-                .GetScannableAssemblies();
+            .GetScannableAssemblies();
 
             var skippedFiles = results.SkippedFiles;
             var explicitlySkippedDll = skippedFiles.FirstOrDefault(s => s.FilePath.Contains("dotNet.dll"));

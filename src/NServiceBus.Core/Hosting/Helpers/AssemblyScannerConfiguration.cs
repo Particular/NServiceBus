@@ -68,7 +68,7 @@ namespace NServiceBus
             ExcludedTypes.AddRange(types);
         }
 
-        internal List<string> ExcludedAssemblies { get; } = new List<string>(0);
-        internal List<Type> ExcludedTypes { get; } = new List<Type>(0);
+        internal List<string> ExcludedAssemblies { get; } = new(0);
+        internal List<Type> ExcludedTypes { get; } = new(0);
     }
 }

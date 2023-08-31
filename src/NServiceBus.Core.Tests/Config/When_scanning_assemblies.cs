@@ -49,7 +49,7 @@ namespace NServiceBus.Core.Tests.Config
 
             if (assembliesToSkip != null)
             {
-                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+                assemblyScanner.AssembliesToSkip = assembliesToSkip;
             }
             return assemblyScanner
                 .GetScannableAssemblies()

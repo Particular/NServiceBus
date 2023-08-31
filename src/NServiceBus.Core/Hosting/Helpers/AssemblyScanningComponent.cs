@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Settings;
-    using Hosting.Helpers;
     using System.Reflection;
+    using Hosting.Helpers;
+    using Settings;
 
     class AssemblyScanningComponent
     {
@@ -67,19 +67,13 @@
             return new AssemblyScanningComponent(availableTypes);
         }
 
-        AssemblyScanningComponent(List<Type> availableTypes)
-        {
-            AvailableTypes = availableTypes;
-        }
+        AssemblyScanningComponent(List<Type> availableTypes) => AvailableTypes = availableTypes;
 
         public List<Type> AvailableTypes { get; }
 
         public class Configuration
         {
-            public Configuration(SettingsHolder settings)
-            {
-                this.settings = settings;
-            }
+            public Configuration(SettingsHolder settings) => this.settings = settings;
 
             public List<Type> UserProvidedTypes { get; set; }
 
@@ -87,10 +81,7 @@
 
             public IList<Type> AvailableTypes => settings.Get<IList<Type>>(TypesToScanSettingsKey);
 
-            public void SetDefaultAvailableTypes(IList<Type> scannedTypes)
-            {
-                settings.SetDefault(TypesToScanSettingsKey, scannedTypes);
-            }
+            public void SetDefaultAvailableTypes(IList<Type> scannedTypes) => settings.SetDefault(TypesToScanSettingsKey, scannedTypes);
 
             readonly SettingsHolder settings;
 
