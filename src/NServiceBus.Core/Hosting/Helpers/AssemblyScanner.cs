@@ -53,7 +53,17 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public bool ScanFileSystemAssemblies { get; set; } = true;
 
-        internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
+        internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
+
+        internal IReadOnlyCollection<string> AssembliesToSkip
+        {
+            set => assembliesToSkip = new HashSet<string>(value.Select(Path.GetFileNameWithoutExtension), StringComparer.OrdinalIgnoreCase);
+        }
+
+        internal IReadOnlyCollection<Type> TypesToSkip
+        {
+            set => typesToSkip = new HashSet<Type>(value);
+        }
 
         internal string AdditionalAssemblyScanningPath { get; set; }
 
@@ -253,7 +263,7 @@ namespace NServiceBus.Hosting.Helpers
         {
             var sb = new StringBuilder($"Could not enumerate all types for '{fileName}'.");
 
-            if (!e.LoaderExceptions.Any())
+            if (e.LoaderExceptions.Length == 0)
             {
                 sb.NewLine($"Exception message: {e}");
                 return sb.ToString();
@@ -334,65 +344,42 @@ namespace NServiceBus.Hosting.Helpers
             var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             foreach (var searchPattern in FileSearchPatternsToUse)
             {
-                foreach (var info in baseDir.GetFiles(searchPattern, searchOption))
-                {
-                    fileInfo.Add(info);
-                }
+                fileInfo.AddRange(baseDir.GetFiles(searchPattern, searchOption));
             }
             return fileInfo;
         }
 
-        bool IsExcluded(string assemblyNameOrFileName)
+        bool IsExcluded(string assemblyNameOrFileNameWithoutExtension) =>
+            assembliesToSkip.Contains(assemblyNameOrFileNameWithoutExtension) ||
+            DefaultAssemblyExclusions.Contains(assemblyNameOrFileNameWithoutExtension);
+
+        // The parameter and return types of this method are deliberately using the most concrete types
+        // to avoid unnecessary allocations
+        List<Type> FilterAllowedTypes(Type[] types)
         {
-            var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
-            if (isExplicitlyExcluded)
+            // assume the majority of types will be allowed to preallocate the list
+            var allowedTypes = new List<Type>(types.Length);
+            foreach (var typeToAdd in types)
             {
-                return true;
+                if (IsAllowedType(typeToAdd))
+                {
+                    allowedTypes.Add(typeToAdd);
+                }
             }
-
-            var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
-            if (isExcludedByDefault)
-            {
-                return true;
-            }
-
-            return false;
+            return allowedTypes;
         }
 
-        static bool IsMatch(string expression1, string expression2)
-        {
-            return DistillLowerAssemblyName(expression1) == DistillLowerAssemblyName(expression2);
-        }
-
-        bool IsAllowedType(Type type)
-        {
-            return type != null &&
-                   !type.IsValueType &&
-                   !IsCompilerGenerated(type) &&
-                   !TypesToSkip.Contains(type);
-        }
-
-        static bool IsCompilerGenerated(Type type)
-        {
-            return type.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null;
-        }
-
-        static string DistillLowerAssemblyName(string assemblyOrFileName)
-        {
-            var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
-            if (lowerAssemblyName.EndsWith(".dll") || lowerAssemblyName.EndsWith(".exe"))
-            {
-                lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
-            }
-            return lowerAssemblyName;
-        }
+        bool IsAllowedType(Type type) =>
+            type is { IsValueType: false } &&
+            Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) == null &&
+            !typesToSkip.Contains(type);
 
         void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
         {
             try
             {
-                //will throw if assembly cannot be loaded
-                results.Types.AddRange(assembly.GetTypes().Where(IsAllowedType));
+                var types = assembly.GetTypes();
+                results.Types.AddRange(FilterAllowedTypes(types));
             }
             catch (ReflectionTypeLoadException e)
             {
@@ -405,7 +392,7 @@ namespace NServiceBus.Hosting.Helpers
                 }
 
                 LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-                results.Types.AddRange(e.Types.Where(IsAllowedType));
+                results.Types.AddRange(FilterAllowedTypes(e.Types));
             }
             results.Assemblies.Add(assembly);
         }
@@ -438,12 +425,12 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         AssemblyValidator assemblyValidator = new AssemblyValidator();
-        internal List<string> AssembliesToSkip = new List<string>();
         internal bool ScanNestedDirectories;
-        internal List<Type> TypesToSkip = new List<Type>();
         Assembly assemblyToScan;
         string baseDirectoryToScan;
-        const string NServicebusCoreAssemblyName = "NServiceBus.Core";
+        HashSet<Type> typesToSkip = new();
+        HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
+        const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
 
         static string[] FileSearchPatternsToUse =
         {
@@ -451,8 +438,7 @@ namespace NServiceBus.Hosting.Helpers
             "*.exe"
         };
 
-        //TODO: delete when we make message scanning lazy #1617
-        static string[] DefaultAssemblyExclusions =
+        static HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
         {
             // NSB Build-Dependencies
             "nunit",
