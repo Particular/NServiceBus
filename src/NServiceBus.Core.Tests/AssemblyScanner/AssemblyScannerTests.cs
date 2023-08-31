@@ -273,8 +273,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             });
 
             var scanner = CreateDefaultAssemblyScanner(busAssembly);
-            scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
-            scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
+            scanner.AssembliesToSkip = new[]
+            {
+                excludedAssembly1.DynamicName, // without file extension
+                excludedAssembly2.FileName // with file extension
+            };
 
             var result = scanner.GetScannableAssemblies();
             Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly1.FilePath));
@@ -301,8 +304,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             }, executable: true);
 
             var scanner = CreateDefaultAssemblyScanner(busAssembly);
-            scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
-            scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
+            scanner.AssembliesToSkip = new[]
+            {
+                excludedAssembly1.DynamicName, // without file extension
+                excludedAssembly2.FileName // with file extension
+            };
 
             var result = scanner.GetScannableAssemblies();
             Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly1.FilePath));
