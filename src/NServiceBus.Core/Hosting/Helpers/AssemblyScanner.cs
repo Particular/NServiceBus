@@ -316,7 +316,8 @@ namespace NServiceBus.Hosting.Helpers
             assembliesToSkip.Contains(assemblyNameOrFileNameWithoutExtension) ||
             DefaultAssemblyExclusions.Contains(assemblyNameOrFileNameWithoutExtension);
 
-        // The input and output signature of this method is deliberate
+        // The parameter and return types of this method are deliberately using the most concrete types
+        // to avoid unnecessary allocations
         List<Type> FilterAllowedTypes(Type[] types)
         {
             // assume the majority of types will be allowed to preallocate the list
