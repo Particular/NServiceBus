@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json;
+    using System.Text.Json.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
@@ -27,7 +28,7 @@
 
             try
             {
-                data = JsonSerializer.Serialize(dictionary);
+                data = JsonSerializer.Serialize(dictionary, diagnosticsOptions);
             }
             catch (Exception exception)
             {
@@ -79,6 +80,26 @@
 
         readonly Func<string, CancellationToken, Task> diagnosticsWriter;
         readonly bool isCustomWriter;
+
+        static readonly JsonSerializerOptions diagnosticsOptions = new()
+        {
+            Converters = { new TypeConverter() }
+        };
+
+        /// <summary>
+        /// By default System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
+        /// would make sense because it can be considered unsafe to serialize and deserialize types. We add a custom converter here to make
+        /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intent to read these things
+        /// back so this is a safe approach. 
+        /// </summary>
+        sealed class TypeConverter : JsonConverter<Type>
+        {
+            // we never need to deserialize
+            public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+
+            public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options) => writer.WriteStringValue(value.FullName);
+        }
+
 
         static readonly ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
     }
