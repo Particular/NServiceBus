@@ -29,5 +29,24 @@ namespace NServiceBus.Core.Tests.OpenTelemetry
 
             Approver.Verify(output);
         }
+
+        [Test]
+        public async Task ShouldWriteEntriesWithTypesUsingTheFullName()
+        {
+            var output = string.Empty;
+            var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
+            {
+                output = diagnosticOutput;
+                return Task.CompletedTask;
+            });
+            var diagnostics = new StartupDiagnosticEntries();
+            diagnostics.Add("TypeIndicator", new { SomeType = typeof(DiagnosticsWriterTests) });
+
+            var writer = new HostStartupDiagnosticsWriter(testWriter, true);
+
+            await writer.Write(diagnostics.entries);
+
+            Approver.Verify(output);
+        }
     }
 }
