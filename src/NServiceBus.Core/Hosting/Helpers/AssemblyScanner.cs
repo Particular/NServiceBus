@@ -55,7 +55,14 @@ namespace NServiceBus.Hosting.Helpers
 
         internal IReadOnlyCollection<string> AssembliesToSkip
         {
-            set => assembliesToSkip = new HashSet<string>(value.Select(Path.GetFileNameWithoutExtension), StringComparer.OrdinalIgnoreCase);
+            set
+            {
+                string RemoveExtension(string v)
+                {
+                    return v.EndsWith(".dll") || v.EndsWith(".exe") ? Path.GetFileNameWithoutExtension(v) : v;
+                }
+                assembliesToSkip = new HashSet<string>(value.Select(RemoveExtension), StringComparer.OrdinalIgnoreCase);
+            }
         }
 
         internal IReadOnlyCollection<Type> TypesToSkip
