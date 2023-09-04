@@ -57,8 +57,13 @@ namespace NServiceBus.Hosting.Helpers
 
         internal IReadOnlyCollection<string> AssembliesToSkip
         {
-            set => assembliesToSkip = new HashSet<string>(value.Select(Path.GetFileNameWithoutExtension), StringComparer.OrdinalIgnoreCase);
+            set => assembliesToSkip = new HashSet<string>(value.Select(RemoveExtension), StringComparer.OrdinalIgnoreCase);
         }
+
+        static string RemoveExtension(string assemblyName) =>
+            assemblyName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+                ? Path.GetFileNameWithoutExtension(assemblyName)
+                : assemblyName;
 
         internal IReadOnlyCollection<Type> TypesToSkip
         {
@@ -349,9 +354,7 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        bool IsExcluded(string assemblyNameOrFileNameWithoutExtension) =>
-            assembliesToSkip.Contains(assemblyNameOrFileNameWithoutExtension) ||
-            DefaultAssemblyExclusions.Contains(assemblyNameOrFileNameWithoutExtension);
+        bool IsExcluded(string assemblyName) => assembliesToSkip.Contains(assemblyName) || DefaultAssemblyExclusions.Contains(assemblyName);
 
         // The parameter and return types of this method are deliberately using the most concrete types
         // to avoid unnecessary allocations
