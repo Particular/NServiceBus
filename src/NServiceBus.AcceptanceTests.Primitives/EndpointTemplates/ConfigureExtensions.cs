@@ -21,7 +21,7 @@
 
         public static async Task DefineTransport(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            var transportConfiguration = TestSuiteConstraints.Current.CreateTransportConfiguration();
+            var transportConfiguration = ITestSuiteConstraints.Current.CreateTransportConfiguration();
             await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
         }
@@ -34,7 +34,7 @@
 
         public static async Task DefinePersistence(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            var persistenceConfiguration = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
+            var persistenceConfiguration = ITestSuiteConstraints.Current.CreatePersistenceConfiguration();
             await persistenceConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
         }

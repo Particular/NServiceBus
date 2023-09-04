@@ -7,7 +7,7 @@
 
     public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {
-        public IConfigureEndpointTestExecution TransportConfiguration { get; set; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
+        public IConfigureEndpointTestExecution TransportConfiguration { get; set; } = ITestSuiteConstraints.Current.CreateTransportConfiguration();
 
         public virtual async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
         {
