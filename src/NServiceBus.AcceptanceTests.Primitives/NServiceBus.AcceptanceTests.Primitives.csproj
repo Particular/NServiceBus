@@ -22,5 +22,11 @@
   <PropertyGroup>
     <Description>Acceptance tests primitives for NServiceBus core functionality</Description>
   </PropertyGroup>
+
+  <Target Name="WorkaroundForTesthostBeingAddedAsContent" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <Content Update="**\testhost.*" Pack="false" />
+    </ItemGroup>
+  </Target>
   
 </Project>
