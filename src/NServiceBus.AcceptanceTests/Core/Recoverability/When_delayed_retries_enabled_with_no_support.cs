@@ -10,7 +10,7 @@
         [Test]
         public void Should_throw_on_startup()
         {
-            if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
+            if (ITestSuiteConstraints.Current.SupportsDelayedDelivery)
             {
                 Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
             }
