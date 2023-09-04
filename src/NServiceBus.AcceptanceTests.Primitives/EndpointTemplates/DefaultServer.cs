@@ -6,7 +6,7 @@
 
     public class DefaultServer : ServerWithNoDefaultPersistenceDefinitions
     {
-        public IConfigureEndpointTestExecution PersistenceConfiguration { get; set; } = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
+        public IConfigureEndpointTestExecution PersistenceConfiguration { get; set; } = ITestSuiteConstraints.Current.CreatePersistenceConfiguration();
 
         public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
             base.GetConfiguration(runDescriptor, endpointConfiguration, async configuration =>
