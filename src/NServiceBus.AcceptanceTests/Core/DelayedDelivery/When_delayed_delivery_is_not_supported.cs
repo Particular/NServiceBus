@@ -11,7 +11,7 @@
         [Test]
         public async Task Trying_to_delay_should_throw()
         {
-            if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
+            if (ITestSuiteConstraints.Current.SupportsDelayedDelivery)
             {
                 Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
             }
