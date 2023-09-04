@@ -1,0 +1,11 @@
+[*.cs]
+
+# Justification: Test project
+dotnet_diagnostic.CA2007.severity = none
+
+# may be enabled in future
+dotnet_diagnostic.PS0018.severity = suggestion  # A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext
+
+# Justification: Tests don't support cancellation and don't need to forward IMessageHandlerContext.CancellationToken
+dotnet_diagnostic.NSB0002.severity = suggestion
+dotnet_diagnostic.PS0013.severity = suggestion
