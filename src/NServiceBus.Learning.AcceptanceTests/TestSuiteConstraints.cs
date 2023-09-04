@@ -2,7 +2,7 @@
 {
     using AcceptanceTesting.Support;
 
-    public partial class TestSuiteConstraints
+    public class TestSuiteConstraints : ITestSuiteConstraints
     {
         public bool SupportsDtc => false;
 
