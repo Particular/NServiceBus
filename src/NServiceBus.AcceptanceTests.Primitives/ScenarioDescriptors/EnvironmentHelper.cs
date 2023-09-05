@@ -2,7 +2,7 @@
 {
     using System;
 
-    class EnvironmentHelper
+    public class EnvironmentHelper
     {
         public static string GetEnvironmentVariable(string variable)
         {
