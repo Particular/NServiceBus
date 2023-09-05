@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
