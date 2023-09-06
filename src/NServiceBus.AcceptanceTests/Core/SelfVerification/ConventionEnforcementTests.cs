@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
     [TestFixture]

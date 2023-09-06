@@ -1,9 +1,8 @@
-namespace NServiceBus.AcceptanceTests
+namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Linq;
     using System.Threading;
-    using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
     using NUnit.Framework.Interfaces;
@@ -13,7 +12,7 @@ namespace NServiceBus.AcceptanceTests
     /// Base class for all the NSB test that sets up our conventions
     /// </summary>
     [TestFixture]
-    public abstract partial class NServiceBusAcceptanceTest
+    public abstract class NServiceBusAcceptanceTest
     {
         [SetUp]
         public void SetUp()

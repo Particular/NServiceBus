@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
+using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
 [NonParallelizable] // Ensure only activities for the current test are captured
