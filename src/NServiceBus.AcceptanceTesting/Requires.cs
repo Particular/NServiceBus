@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTesting
 {
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
 
-    static partial class Requires
+    public static partial class Requires
     {
         public static void DtcSupport()
         {

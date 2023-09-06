@@ -3,6 +3,7 @@
     using System;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
 
     public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanceTest

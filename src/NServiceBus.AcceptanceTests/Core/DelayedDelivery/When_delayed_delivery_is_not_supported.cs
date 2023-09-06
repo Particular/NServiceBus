@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
 
     public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
