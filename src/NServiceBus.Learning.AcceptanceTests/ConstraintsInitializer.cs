@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.AcceptanceTests;
 
 public class ConstraintsInitializer
