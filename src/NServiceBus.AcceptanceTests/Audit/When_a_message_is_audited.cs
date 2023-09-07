@@ -1,81 +1,71 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
+    using NServiceBus.Audit;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
+    using NServiceBus.Transport;
     using NUnit.Framework;
 
-    public class When_a_message_is_audited : NServiceBusAcceptanceTest
+    public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_preserve_the_original_body()
+        public async Task Should_allow_audit_action_to_be_replaced()
         {
-            var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited
-                {
-                    RunId = c.RunId
-                })))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithSeparateBodyStorage>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
                 .WithEndpoint<AuditSpyEndpoint>()
-                .Done(c => c.Done)
+                .Done(c => c.AuditMessageReceived)
                 .Run();
 
-            Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
-        }
-
-        public static byte Checksum(byte[] data)
-        {
-            var longSum = data.Sum(x => (long)x);
-            return unchecked((byte)longSum);
+            Assert.True(context.BodyWasEmpty);
         }
 
         public class Context : ScenarioContext
         {
-            public Guid RunId { get; set; }
-            public bool Done { get; set; }
-            public byte OriginalBodyChecksum { get; set; }
-            public byte AuditChecksum { get; set; }
+            public bool AuditMessageReceived { get; set; }
+            public bool BodyWasEmpty { get; set; }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        public class EndpointWithSeparateBodyStorage : EndpointConfigurationBuilder
         {
-            public EndpointWithAuditOn()
+            public EndpointWithSeparateBodyStorage()
             {
                 EndpointSetup<DefaultServer, Context>((config, context) =>
                  {
-                     config.RegisterMessageMutator(new BodyMutator(context));
                      config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+                     config.Pipeline.Register(typeof(AuditBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
                  });
             }
 
-            class BodyMutator : IMutateIncomingTransportMessages
+            public class AuditBodyStorageBehavior : Behavior<IAuditContext>
             {
-                public BodyMutator(Context testContext)
+                public override Task Invoke(IAuditContext context, Func<Task> next)
                 {
-                    this.testContext = testContext;
+                    //body, headers and metadata can be stored separately here
+
+                    context.AuditAction = new ExcludeBodyFromAuditedMessage();
+                    return next();
                 }
 
-                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+                class ExcludeBodyFromAuditedMessage : AuditAction
                 {
-                    var originalBody = context.Body;
+                    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IAuditActionContext context)
+                    {
+                        var processedMessage = context.Message;
 
-                    testContext.OriginalBodyChecksum = Checksum(originalBody.ToArray());
+                        //simulate the body being stored in eg. blobstorage already
+                        var auditMessage = new OutgoingMessage(processedMessage.MessageId, processedMessage.Headers, ReadOnlyMemory<byte>.Empty);
 
-                    // modifying the body by adding a line break
-                    var modifiedBody = new byte[originalBody.Length + 1];
-
-                    Buffer.BlockCopy(originalBody.ToArray(), 0, modifiedBody, 0, originalBody.Length);
-
-                    modifiedBody[modifiedBody.Length - 1] = 13;
-
-                    context.Body = modifiedBody;
-                    return Task.CompletedTask;
+                        return new[] { context.CreateRoutingContext(auditMessage, new UnicastRoutingStrategy(context.AuditAddress)) };
+                    }
                 }
-
-                Context testContext;
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -103,40 +93,17 @@
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
-                    context.AuditChecksum = Checksum(transportMessage.Body.ToArray());
+                    context.BodyWasEmpty = transportMessage.Body.Length == 0;
+                    context.AuditMessageReceived = true;
                     return Task.CompletedTask;
                 }
 
                 Context context;
             }
-
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
-            {
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    if (message.RunId != testContext.RunId)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    testContext.Done = true;
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
         }
-
 
         public class MessageToBeAudited : IMessage
         {
-            public Guid RunId { get; set; }
         }
     }
 }
